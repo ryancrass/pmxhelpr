@@ -13,8 +13,7 @@
 #' @return data.frame of simulated output
 #' @export
 #'
-#' @examples
-#' need to add examples
+#' @examples x <- 1
 #'
 
 

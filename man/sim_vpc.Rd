@@ -2,7 +2,7 @@
 % Please edit documentation in R/mrgsim_vpc.R
 \name{sim_vpc}
 \alias{sim_vpc}
-\title{sim_vpc}
+\title{mrgsim_vpc}
 \usage{
 sim_vpc(
   data,
@@ -32,10 +32,16 @@ sim_vpc(
 \item{char_vars}{character vector of variable names to return}
 
 \item{irep_name}{character string name of the iteration variable (default: "SIM")}
+
+\item{...}{additional arguments passed to mrgsolve::mrgsim_df}
 }
 \value{
 data.frame of simulated output
 }
 \description{
-sim_vpc
+mrgsim_vpc
+}
+\examples{
+need to add examples
+
 }

@@ -1,4 +1,4 @@
-#' sim_vpc
+#' mrgsim_vpc
 #'
 #' @param data simulation input dataset
 #' @param model mrgsolve model object
@@ -14,7 +14,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' need to add examples
 #'
 
 

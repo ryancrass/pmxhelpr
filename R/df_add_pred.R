@@ -4,7 +4,7 @@
 #' @param model mrgsolve model object
 #'
 #' @return data.frame with additional variable PRED
-#' @export
+#' @export df_add_pred
 #'
 #' @examples #need example
 df_add_pred <- function(data, model){

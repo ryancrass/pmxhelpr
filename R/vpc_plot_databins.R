@@ -1,5 +1,5 @@
 
-#' plot_vpc_obs_actual
+#' vpc_plot_databins
 #'
 #' @param sim simulation output data.frame (currently requires variable TIME))
 #' @param pcvpc logical for prediction correction (default = FALSE)
@@ -10,10 +10,10 @@
 #' @param ... other arguments passed to vpc::vpc
 #'
 #' @return ggplot2 object
-#' @export
+#' @export vpc_plot_databins
 #'
 #' @examples #need examples
-plot_vpc_obs_actual <- function(sim, pcvpc = FALSE, strat_vars=NULL,
+vpc_plot_databins <- function(sim, pcvpc = FALSE, strat_vars=NULL,
                                 irep_name = "SIM", min_bin_count=1,
                                 ...)
   {

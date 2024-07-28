@@ -2,26 +2,31 @@
 #'
 #' @param data simulation input dataset
 #' @param model mrgsolve model object
-#' @param seed random seed
 #' @param replicates number of iterations in the simulation
 #' @param time_vars named character vector of time variables (default: c(TIME = "TIME", NTIME = "NTIME"))
 #' @param output_vars named character vector of numeric output variables to return (default: c(PRED = "PRED", IPRED = "IPRED", DV = "DV"))
 #' @param num_vars character vector of numeric variable names from the simulation output to return
 #' @param char_vars character vector of variable names to return
 #' @param irep_name character string name of the iteration variable (default: "SIM")
+#' @param seed random seed
 #' @param ... additional arguments passed to mrgsolve::mrgsim_df
 #'
 #' @return data.frame of simulated output
 #' @importFrom rlang :=
-#' @export
+#' @export mrgsim_vpc
 #'
-#' @examples #need examples
+#' @examples
+#' #simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+#' #output_vars = c(DV = "ODV"),
+#' #num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
+#' #char_vars = c("USUBJID", "PART"),
+#' #irep_name = "SIM")
+#' #dplyr::glimpse(simout)
 #'
 
-sim_vpc <- function(data,
+mrgsim_vpc <- function(data,
                     model,
-                    seed = 123456789,
-                    replicates=1000,
+                    replicates,
                     time_vars = c(TIME = "TIME",
                                   NTIME = "NTIME"),
                     output_vars = c(PRED = "PRED",
@@ -30,6 +35,7 @@ sim_vpc <- function(data,
                     num_vars,
                     char_vars,
                     irep_name = "SIM",
+                    seed = 123456789,
                     ...) {
   ##Data Rename
   data <- data |>

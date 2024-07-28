@@ -58,7 +58,7 @@ colnames(sim_input_data) <- toupper(colnames(sim_input_data))
 
 
 ##Load Model File
-mod <- mrgsolve::mread(here::here("data-raw/model.cpp"))
+mod <- mrgsolve::mread(here::here("src/model.cpp"))
 
 
 ##Run Simulation
@@ -107,4 +107,4 @@ withr::with_seed(
            USUBJID, PART)
 )
 
-usethis::use_data(data_sad)
+usethis::use_data(data_sad, overwrite = TRUE)

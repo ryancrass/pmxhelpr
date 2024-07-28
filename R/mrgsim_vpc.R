@@ -16,8 +16,6 @@
 #' @examples #need examples
 #'
 
-
-
 sim_vpc <- function(data,
                     model,
                     seed = 123456789,
@@ -48,7 +46,7 @@ sim_vpc <- function(data,
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
-                         dplyr::mutate(!!irep_name := rep) |>
+                         dplyr::mutate({{irep_name}} == rep) |>
                          dplyr::select(ID, TIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
                      data = data,
                      model = model) |>

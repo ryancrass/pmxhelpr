@@ -17,7 +17,7 @@ plot_vpc_obs_actual <- function(sim, pcvpc = FALSE, strat_vars=NULL,
     dplyr::filter(MDV==0) |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
     dplyr::group_by(NTIME, dplyr::all_of(strat_vars)) |>
-    dplyr::mutate(PREDBIN = median(PRED),
+    dplyr::mutate(PREDBIN = stats::median(PRED),
                   PCOBSDV = OBSDV*(PREDBIN/PRED)) |>
     dplyr::left_join(bin_count) |>
     dplyr::ungroup()

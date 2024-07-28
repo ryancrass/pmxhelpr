@@ -9,6 +9,7 @@ sim_vpc(
   model,
   seed = 123456789,
   replicates = 1000,
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   num_vars,
   char_vars,
@@ -25,7 +26,9 @@ sim_vpc(
 
 \item{replicates}{number of iterations in the simulation}
 
-\item{output_vars}{character vector of numeric output variables to return (default: c("IPRED", "DV))}
+\item{time_vars}{named character vector of time variables (default: c(TIME = "TIME", NTIME = "NTIME"))}
+
+\item{output_vars}{named character vector of numeric output variables to return (default: c(PRED = "PRED", IPRED = "IPRED", DV = "DV"))}
 
 \item{num_vars}{character vector of numeric variable names from the simulation output to return}
 

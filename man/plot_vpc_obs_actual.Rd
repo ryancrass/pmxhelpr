@@ -14,7 +14,7 @@ plot_vpc_obs_actual(
 )
 }
 \arguments{
-\item{sim}{simulation output data.frame from mrgsim_vpc}
+\item{sim}{simulation output data.frame (currently requires variable TIME))}
 
 \item{pcvpc}{logical for prediction correction (default = FALSE)}
 
@@ -32,4 +32,7 @@ ggplot2 object
 }
 \description{
 plot_vpc_obs_actual
+}
+\examples{
+#need examples
 }

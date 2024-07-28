@@ -4,7 +4,8 @@
 #' @param model mrgsolve model object
 #' @param seed random seed
 #' @param replicates number of iterations in the simulation
-#' @param output_vars character vector of numeric output variables to return (default: c("IPRED", "DV))
+#' @param time_vars named character vector of time variables (default: c(TIME = "TIME", NTIME = "NTIME"))
+#' @param output_vars named character vector of numeric output variables to return (default: c(PRED = "PRED", IPRED = "IPRED", DV = "DV"))
 #' @param num_vars character vector of numeric variable names from the simulation output to return
 #' @param char_vars character vector of variable names to return
 #' @param irep_name character string name of the iteration variable (default: "SIM")
@@ -21,6 +22,8 @@ sim_vpc <- function(data,
                     model,
                     seed = 123456789,
                     replicates=1000,
+                    time_vars = c(TIME = "TIME",
+                                  NTIME = "NTIME"),
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
                                     DV = "DV"),
@@ -31,6 +34,7 @@ sim_vpc <- function(data,
   ##Data Rename
   data <- data |>
     dplyr::rename(dplyr::any_of(output_vars)) |>
+    dplyr::rename(dplyr::any_of(time_vars)) |>
     dplyr::rename("OBSDV" = DV)
 
   data <- df_add_pred(data, model)

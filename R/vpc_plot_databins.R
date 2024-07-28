@@ -1,7 +1,7 @@
 
 #' plot_vpc_obs_actual
 #'
-#' @param sim simulation output data.frame from mrgsim_vpc
+#' @param sim simulation output data.frame (currently requires variable TIME))
 #' @param pcvpc logical for prediction correction (default = FALSE)
 #' @param strat_vars character vector (max length = 2) of stratifying variables
 #' @param irep_name name of the iteration variable (default = SIM)
@@ -12,7 +12,7 @@
 #' @return ggplot2 object
 #' @export
 #'
-#' @examples
+#' @examples #need examples
 plot_vpc_obs_actual <- function(sim, pcvpc = FALSE, strat_vars=NULL,
                                 irep_name = "SIM", min_bin_count=1,
                                 ...)

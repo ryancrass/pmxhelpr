@@ -13,7 +13,7 @@
 #' @return data.frame of simulated output
 #' @export
 #'
-#' @examples x <- 1
+#' @examples #need examples
 #'
 
 
@@ -30,12 +30,13 @@ sim_vpc <- function(data,
                     irep_name = "SIM",
                     ...) {
   ##Data Rename
-  data <- data %>%
-    dplyr::rename(any_of(output_vars)) %>%
+  data <- data |>
+    dplyr::rename(dplyr::any_of(output_vars)) |>
     dplyr::rename("OBSDV" = DV)
 
   ##Define PRED
-  data$PRED <- mrgsim_df(zero_re(model), data = data, carry_out = "IPRED")$IPRED
+  data$PRED <- mrgsolve::mrgsim_df(mrgsolve::zero_re(model),
+                                   data = data, carry_out = "IPRED")$IPRED
 
   ##Run Simulation
   withr::with_seed(seed = seed,
@@ -48,11 +49,11 @@ sim_vpc <- function(data,
                                                                num_vars),
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
-                                           ...) %>%
-                         dplyr::mutate(!!irep_name := rep) %>%
-                         dplyr::select(ID, TIME, PRED, IPRED, SIMDV=DV,OBSDV, everything())} ,
+                                           ...) |>
+                         dplyr::mutate(!!irep_name := rep) |>
+                         dplyr::select(ID, TIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
                      data = data,
-                     model = model) %>%
+                     model = model) |>
                      dplyr::bind_rows()
 
   )

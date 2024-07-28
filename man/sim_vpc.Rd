@@ -42,6 +42,6 @@ data.frame of simulated output
 mrgsim_vpc
 }
 \examples{
-x <- 1
+#need examples
 
 }

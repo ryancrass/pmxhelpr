@@ -1,0 +1,48 @@
+$PARAM 
+TVCL = 20
+TVVC = 35.7
+TVKA = 0.3
+TVQ = 25
+TVVP = 150
+DOSE_F1 = 0.33
+
+WT_CL = 0.75
+WT_VC = 1.00
+WT_Q = 0.75
+WT_VP = 1.00
+FOOD_KA = -0.5
+FOOD_F1 = 1.33
+
+WT = 70
+DOSE = 100
+FOOD = 0
+
+$CMT GUT CENT PERIPH TRANS1 TRANS2
+
+$MAIN
+double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);
+double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);
+double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);
+double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);
+double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);
+double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);
+
+F_GUT = F1;
+
+$ODE
+dxdt_GUT = -KA*GUT;
+dxdt_CENT = KA*TRANS1 - (CL/VC)*CENT + (Q/VP)*PERIPH - (Q/VC)*CENT;
+dxdt_PERIPH = (Q/VC)*CENT - (Q/VP)*PERIPH;
+dxdt_TRANS1 = KA*GUT - KA*TRANS1;
+dxdt_TRANS2 = KA*TRANS1 - KA*TRANS2;
+
+$OMEGA @labels ETA_CL ETA_VC ETA_KA ETA_Q ETA_VP
+0.075 0.1 0.2 0 0 
+
+$SIGMA @labels PROP
+0.09
+
+$TABLE
+capture IPRED = CENT/(VC/1000);
+capture DV = IPRED*(1+PROP);
+

@@ -17,3 +17,6 @@ data.frame with additional variable PRED
 \description{
 df_add_pred
 }
+\examples{
+#need example
+}

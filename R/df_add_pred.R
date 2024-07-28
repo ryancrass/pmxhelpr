@@ -6,7 +6,7 @@
 #' @return data.frame with additional variable PRED
 #' @export
 #'
-#' @examples
+#' @examples #need example
 df_add_pred <- function(data, model){
 
   data$PRED <- mrgsolve::mrgsim_df(mrgsolve::zero_re(model),

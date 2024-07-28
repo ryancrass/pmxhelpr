@@ -16,6 +16,7 @@ Imports:
     dplyr,
     ggplot2,
     mrgsolve,
+    rlang,
     stats,
     vpc,
     withr

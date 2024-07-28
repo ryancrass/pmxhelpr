@@ -2,3 +2,4 @@
 
 export(df_add_pred)
 export(sim_vpc)
+importFrom(rlang,":=")

@@ -11,6 +11,7 @@
 #' @param ... additional arguments passed to mrgsolve::mrgsim_df
 #'
 #' @return data.frame of simulated output
+#' @importFrom rlang :=
 #' @export
 #'
 #' @examples #need examples

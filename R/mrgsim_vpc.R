@@ -34,9 +34,7 @@ sim_vpc <- function(data,
     dplyr::rename(dplyr::any_of(output_vars)) |>
     dplyr::rename("OBSDV" = DV)
 
-  ##Define PRED
-  data$PRED <- mrgsolve::mrgsim_df(mrgsolve::zero_re(model),
-                                   data = data, carry_out = "IPRED")$IPRED
+  data <- df_add_pred(data, model)
 
   ##Run Simulation
   withr::with_seed(seed = seed,

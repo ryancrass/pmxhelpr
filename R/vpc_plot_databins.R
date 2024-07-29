@@ -10,7 +10,6 @@
 #' @param ... other arguments passed to vpc::vpc
 #'
 #' @return ggplot2 object
-#' @importFrom stats median
 #' @export vpc_plot_databins
 #'
 #' @examples

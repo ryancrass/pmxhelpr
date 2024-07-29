@@ -1,10 +1,11 @@
 Package: pmxhelpr
-Title: Helper functions for pharmacometrics applications
+Title: Helper Functions for Pharmacometrics
 Version: 0.0.0.9000
 Authors@R: 
-    person("Ryan", "Crass", , "ryancrass@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Wrapper and helper functions designed to make pharmacometics workflows more seamless.
+    person("Ryan", "Crass", "ryancrass@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-5403-4730"))
+Description: Wrapper functions for 'mrgsolve' and 'vpc' package functions
+    and other general helpers to make pharmacometics workflows more seamless.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -23,3 +24,5 @@ Imports:
 Depends: 
     R (>= 2.10)
 LazyData: true
+URL: https://github.com/ryancrass/pmxhelpr
+BugReports: https://github.com/ryancrass/pmxhelpr/issues

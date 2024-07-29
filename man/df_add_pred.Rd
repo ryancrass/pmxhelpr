@@ -18,5 +18,7 @@ data.frame with additional variable PRED
 df_add_pred
 }
 \examples{
-#need example
+model <- model_load(model = "model")
+data <- df_add_pred(data = data_sad, model = model)
+
 }

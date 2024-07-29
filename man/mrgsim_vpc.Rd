@@ -45,11 +45,10 @@ data.frame of simulated output
 mrgsim_vpc
 }
 \examples{
-#simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
-#output_vars = c(DV = "ODV"),
-#num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-#char_vars = c("USUBJID", "PART"),
-#irep_name = "SIM")
-#dplyr::glimpse(simout)
-
+model <- model_load(model = "model")
+simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+output_vars = c(DV = "ODV"),
+num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
+char_vars = c("USUBJID", "PART"),
+irep_name = "SIM")
 }

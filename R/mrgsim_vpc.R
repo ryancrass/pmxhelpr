@@ -16,13 +16,12 @@
 #' @export mrgsim_vpc
 #'
 #' @examples
-#' #simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
-#' #output_vars = c(DV = "ODV"),
-#' #num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-#' #char_vars = c("USUBJID", "PART"),
-#' #irep_name = "SIM")
-#' #dplyr::glimpse(simout)
-#'
+#' model <- model_load(model = "model")
+#' simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+#' output_vars = c(DV = "ODV"),
+#' num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
+#' char_vars = c("USUBJID", "PART"),
+#' irep_name = "SIM")
 
 mrgsim_vpc <- function(data,
                     model,
@@ -39,8 +38,7 @@ mrgsim_vpc <- function(data,
                     ...) {
   ##Data Rename
   data <- data |>
-    dplyr::rename(dplyr::any_of(output_vars)) |>
-    dplyr::rename(dplyr::any_of(time_vars)) |>
+    dplyr::rename(dplyr::any_of(c(output_vars, time_vars))) |>
     dplyr::rename("OBSDV" = DV)
 
   data <- df_add_pred(data, model)
@@ -51,7 +49,7 @@ mrgsim_vpc <- function(data,
                    simout <- lapply(
                      seq(replicates),
                      function(rep, data, model) {
-                       mrgsolve::mrgsim_df(model, data = data,
+                       mrgsolve::mrgsim_df(x = model, data = data,
                                            carry_out = paste(c("PRED", "IPRED", "DV", "OBSDV",
                                                                num_vars),
                                                              collapse = ","),

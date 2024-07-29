@@ -10,9 +10,24 @@
 #' @param ... other arguments passed to vpc::vpc
 #'
 #' @return ggplot2 object
+#' @importFrom stats median
 #' @export vpc_plot_databins
 #'
-#' @examples #need examples
+#' @examples
+#' model <- model_load(model = "model")
+#' simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+#' output_vars = c(DV = "ODV"),
+#' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
+#' char_vars = c("USUBJID", "PART"),
+#' irep_name = "SIM")
+#'
+#'vpc_plot <- vpc_plot_databins(
+#'sim = simout,
+#'pcvpc = TRUE,
+#'pi = c(0.05, 0.95),
+#'ci = c(0.05, 0.95),
+#'log_y = TRUE)
+
 vpc_plot_databins <- function(sim, pcvpc = FALSE, strat_vars=NULL,
                                 irep_name = "SIM", min_bin_count=1,
                                 ...)

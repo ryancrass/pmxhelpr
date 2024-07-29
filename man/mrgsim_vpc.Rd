@@ -10,8 +10,8 @@ mrgsim_vpc(
   replicates,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
-  num_vars,
-  char_vars,
+  num_vars = c("CMT", "EVID", "MDV", "NTIME"),
+  char_vars = NULL,
   irep_name = "SIM",
   seed = 123456789,
   ...

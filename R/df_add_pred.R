@@ -12,7 +12,7 @@
 #'
 df_add_pred <- function(data, model){
 
-  data$PRED <- mrgsolve::mrgsim_df(mrgsolve::zero_re(model),
+  data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model),
                                    data = data, carry_out = "IPRED")$IPRED
   return(data)
 }

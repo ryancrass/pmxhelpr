@@ -34,5 +34,17 @@ ggplot2 object
 vpc_plot_databins
 }
 \examples{
-#need examples
+model <- model_load(model = "model")
+simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+output_vars = c(DV = "ODV"),
+num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
+char_vars = c("USUBJID", "PART"),
+irep_name = "SIM")
+
+vpc_plot <- vpc_plot_databins(
+sim = simout,
+pcvpc = TRUE,
+pi = c(0.05, 0.95),
+ci = c(0.05, 0.95),
+log_y = TRUE)
 }

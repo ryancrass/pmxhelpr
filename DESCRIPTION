@@ -7,7 +7,7 @@ Authors@R:
 Description: Wrapper functions for 'mrgsolve' and 'vpc' package functions
     and other general helpers to make pharmacometics workflows more
     seamless.
-License: MIT + file LICENSE
+License: GPL (>= 3)
 URL: https://github.com/ryancrass/pmxhelpr
 BugReports: https://github.com/ryancrass/pmxhelpr/issues
 Depends: 

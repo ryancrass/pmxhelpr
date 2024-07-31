@@ -2,7 +2,7 @@
 % Please edit documentation in R/vpc_plot_databins.R
 \name{vpc_plot_databins}
 \alias{vpc_plot_databins}
-\title{vpc_plot_databins}
+\title{Plot a visual predictive check (VPC) with exact time bins}
 \usage{
 vpc_plot_databins(
   sim,
@@ -14,24 +14,27 @@ vpc_plot_databins(
 )
 }
 \arguments{
-\item{sim}{simulation output data.frame (currently requires variable TIME))}
+\item{sim}{Input simulation dataset. Must contain the following variables: \code{"ID"}, \code{TIME}}
 
-\item{pcvpc}{logical for prediction correction (default = FALSE)}
+\item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
-\item{strat_vars}{character vector (max length = 2) of stratifying variables}
+\item{strat_vars}{Character vector of stratification variables passed to \code{stratify} argument
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, maximum length = 2.}
 
-\item{irep_name}{name of the iteration variable (default = SIM)}
+\item{irep_name}{Name of replicate variable in \code{sim}. Must be a string. Default is \code{"SIM"}}
 
-\item{min_bin_count}{minimum number of quantifiable observations per bin for plotting.
-Drops small bins from summary statistic calculation but retains in observed data points.}
+\item{min_bin_count}{Minimum number of quantifiable observations in exact bin for inclusion
+in binned plot layers. This argument drops small bins from summary statistic calculation
+but retains these observations in the observed data points.}
 
-\item{...}{other arguments passed to vpc::vpc}
+\item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }
 \value{
-ggplot2 object
+A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggplot2 object (default)
 }
 \description{
-vpc_plot_databins
+\code{vpc_plot_databins()} is a wrapper function for \code{\link[vpc:vpc]{vpc::vpc()}}
+that returns a \code{ggplot2} object.
 }
 \examples{
 model <- model_load(model = "model")

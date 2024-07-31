@@ -1,17 +1,28 @@
-#' mrgsim_vpc
+#' Execute a visual predictive check (VPC) simulation using `mrgsolve`
 #'
-#' @param data simulation input dataset
-#' @param model mrgsolve model object
-#' @param replicates number of iterations in the simulation
-#' @param time_vars named character vector of time variables (default: c(TIME = "TIME", NTIME = "NTIME"))
-#' @param output_vars named character vector of numeric output variables to return (default: c(PRED = "PRED", IPRED = "IPRED", DV = "DV"))
-#' @param num_vars character vector of numeric variable names from the simulation output to return
-#' @param char_vars character vector of variable names to return
-#' @param irep_name character string name of the iteration variable (default: "SIM")
-#' @param seed random seed
-#' @param ... additional arguments passed to mrgsolve::mrgsim_df
+#' @description  `mrgsim_vpc()` is a wrapper function for [mrgsolve::mrgsim_df()]
+#' that returns a data.frame containing `replicates` iterations of `data`
 #'
-#' @return data.frame of simulated output
+#' @param data Input dataset.
+#' @param model `mrgsolve` model object.
+#' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
+#' @param time_vars Names of actual and nominal time variables. Must be named character vector.
+#'    Defaults are `"TIME"` and `"NTIME"`.
+#' @param output_vars Names of model outputs from `model`. Must be named character vector.
+#'    Defaults are `"PRED"`, `"IPRED"`, and `"DV"`.
+#' @param num_vars Numeric variables in `data` or simulation output to recover.
+#'    Must be a character vector of variable names from the simulation output to `carry_out`
+#'    and return in output. Defaults are `"CMT"`, `"EVID"`, `"MDV"`, `"NTIME"`.
+#' @param char_vars Character variables in `data` or simulation output to recover.
+#'    Must be a character vector of variable names from the simulation output to `recover`
+#'    and return in output.
+#' @param irep_name Name of replicate variable in `data`. Must be a string. Default is `"SIM"`.
+#' @param seed Random seed. Default is `123456789`.
+#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
+#'
+#' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE`)
+#'    and the output variables in `output_vars`, `num_vars`, and `char_vars`.
+#'
 #' @importFrom rlang :=
 #' @export mrgsim_vpc
 #'
@@ -31,7 +42,7 @@ mrgsim_vpc <- function(data,
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
                                     DV = "DV"),
-                    num_vars = c("CMT", "EVID", "MDV", "NTIME"),
+                    num_vars = NULL,
                     char_vars = NULL,
                     irep_name = "SIM",
                     seed = 123456789,
@@ -51,12 +62,13 @@ mrgsim_vpc <- function(data,
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
                                            carry_out = paste(c("PRED", "IPRED", "DV", "OBSDV",
+                                                               time_vars,
                                                                num_vars),
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
                          dplyr::mutate(!!irep_name := rep) |>
-                         dplyr::select(ID, TIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
+                         dplyr::select(ID, TIME, NTIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
                      data = data,
                      model = model) |>
                      dplyr::bind_rows()

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mrgsim_vpc.R
 \name{mrgsim_vpc}
 \alias{mrgsim_vpc}
-\title{mrgsim_vpc}
+\title{Execute a visual predictive check (VPC) simulation using \code{mrgsolve}}
 \usage{
 mrgsim_vpc(
   data,
@@ -10,7 +10,7 @@ mrgsim_vpc(
   replicates,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
-  num_vars = c("CMT", "EVID", "MDV", "NTIME"),
+  num_vars = NULL,
   char_vars = NULL,
   irep_name = "SIM",
   seed = 123456789,
@@ -18,31 +18,39 @@ mrgsim_vpc(
 )
 }
 \arguments{
-\item{data}{simulation input dataset}
+\item{data}{Input dataset.}
 
-\item{model}{mrgsolve model object}
+\item{model}{\code{mrgsolve} model object.}
 
-\item{replicates}{number of iterations in the simulation}
+\item{replicates}{Number of replicates. Either an integer, or something coercible to an integer.}
 
-\item{time_vars}{named character vector of time variables (default: c(TIME = "TIME", NTIME = "NTIME"))}
+\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
+Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
-\item{output_vars}{named character vector of numeric output variables to return (default: c(PRED = "PRED", IPRED = "IPRED", DV = "DV"))}
+\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
-\item{num_vars}{character vector of numeric variable names from the simulation output to return}
+\item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
+Must be a character vector of variable names from the simulation output to \code{carry_out}
+and return in output. Defaults are \code{"CMT"}, \code{"EVID"}, \code{"MDV"}, \code{"NTIME"}.}
 
-\item{char_vars}{character vector of variable names to return}
+\item{char_vars}{Character variables in \code{data} or simulation output to recover.
+Must be a character vector of variable names from the simulation output to \code{recover}
+and return in output.}
 
-\item{irep_name}{character string name of the iteration variable (default: "SIM")}
+\item{irep_name}{Name of replicate variable in \code{data}. Must be a string. Default is \code{"SIM"}.}
 
-\item{seed}{random seed}
+\item{seed}{Random seed. Default is \code{123456789}.}
 
-\item{...}{additional arguments passed to mrgsolve::mrgsim_df}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
 }
 \value{
-data.frame of simulated output
+A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE})
+and the output variables in \code{output_vars}, \code{num_vars}, and \code{char_vars}.
 }
 \description{
-mrgsim_vpc
+\code{mrgsim_vpc()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}
+that returns a data.frame containing \code{replicates} iterations of \code{data}
 }
 \examples{
 model <- model_load(model = "model")

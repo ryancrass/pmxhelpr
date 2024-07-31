@@ -1,9 +1,12 @@
-#' model_load
+#' Load an mrgsolve model file from the internal model library
 #'
-#' @param model model file name
-#' @param ... additional arguments passed to mrgsolve::mread_cache
+#' @description  `model_load()` returns a mrgsolve model object from the internal
+#' model library in `pmxhelpr`
 #'
-#' @return mrgsolve model object
+#' @param model Model file name. Must be a string.
+#' @param ... Additional arguments passed to [mrgsolve::mread_cache()].
+#'
+#' @return An [mrgsolve] model object.
 #' @export model_load
 #'
 #' @examples

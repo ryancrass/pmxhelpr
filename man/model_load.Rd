@@ -2,20 +2,21 @@
 % Please edit documentation in R/model_load.R
 \name{model_load}
 \alias{model_load}
-\title{model_load}
+\title{Load an mrgsolve model file from the internal model library}
 \usage{
 model_load(model, ...)
 }
 \arguments{
-\item{model}{model file name}
+\item{model}{Model file name. Must be a string.}
 
-\item{...}{additional arguments passed to mrgsolve::mread_cache}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mread]{mrgsolve::mread_cache()}}.}
 }
 \value{
-mrgsolve model object
+An \link{mrgsolve} model object.
 }
 \description{
-model_load
+\code{model_load()} returns a mrgsolve model object from the internal
+model library in \code{pmxhelpr}
 }
 \examples{
 model <- model_load("model")

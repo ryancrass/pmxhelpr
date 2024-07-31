@@ -2,20 +2,25 @@
 % Please edit documentation in R/df_add_pred.R
 \name{df_add_pred}
 \alias{df_add_pred}
-\title{df_add_pred}
+\title{Add population predictions (\code{PRED}) to a data.frame}
 \usage{
-df_add_pred(data, model)
+df_add_pred(data, model, ...)
 }
 \arguments{
-\item{data}{simulation input dataset}
+\item{data}{Input dataset.}
 
-\item{model}{mrgsolve model object}
+\item{model}{\code{mrgsolve} model object.}
+
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
 }
 \value{
-data.frame with additional variable PRED
+A data.frame with the same number of rows as \code{data} and on additional
+numeric variable \code{PRED}.
 }
 \description{
-df_add_pred
+\code{df_add_pred()} is a wrapper function for
+\code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}} and \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}} that returns
+a data.frame with the addition of a new variable (\code{PRED}).
 }
 \examples{
 model <- model_load(model = "model")

@@ -1,18 +1,24 @@
-#' df_add_pred
+#' Add population predictions (`PRED`) to a data.frame
 #'
-#' @param data simulation input dataset
-#' @param model mrgsolve model object
+#' @description  `df_add_pred()` is a wrapper function for
+#' [mrgsolve::mrgsim_df()] and [mrgsolve::zero_re()] that returns
+#' a data.frame with the addition of a new variable (`PRED`).
 #'
-#' @return data.frame with additional variable PRED
+#' @param data Input dataset.
+#' @param model `mrgsolve` model object.
+#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
+#'
+#' @return A data.frame with the same number of rows as `data` and on additional
+#'  numeric variable `PRED`.
 #' @export df_add_pred
 #'
 #' @examples
 #' model <- model_load(model = "model")
 #' data <- df_add_pred(data = data_sad, model = model)
 #'
-df_add_pred <- function(data, model){
+df_add_pred <- function(data, model, ...){
 
-  data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model),
+  data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
                                    data = data, carry_out = "IPRED")$IPRED
   return(data)
 }

@@ -1,15 +1,19 @@
-
-#' vpc_plot_databins
+#' Plot a visual predictive check (VPC) with exact time bins
 #'
-#' @param sim simulation output data.frame (currently requires variable TIME))
-#' @param pcvpc logical for prediction correction (default = FALSE)
-#' @param strat_vars character vector (max length = 2) of stratifying variables
-#' @param irep_name name of the iteration variable (default = SIM)
-#' @param min_bin_count minimum number of quantifiable observations per bin for plotting.
-#' Drops small bins from summary statistic calculation but retains in observed data points.
-#' @param ... other arguments passed to vpc::vpc
+#' @description  `vpc_plot_databins()` is a wrapper function for [vpc::vpc()]
+#' that returns a `ggplot2` object.
 #'
-#' @return ggplot2 object
+#' @param sim Input simulation dataset. Must contain the following variables: `"ID"`, `TIME`
+#' @param pcvpc logical for prediction correction. Default is `FALSE`.
+#' @param strat_vars Character vector of stratification variables passed to `stratify` argument
+#'    of [vpc::vpc()]. Currently, maximum length = 2.
+#' @param irep_name Name of replicate variable in `sim`. Must be a string. Default is `"SIM"`
+#' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
+#'    in binned plot layers. This argument drops small bins from summary statistic calculation
+#'    but retains these observations in the observed data points.
+#' @param ... Other arguments passed to [vpc::vpc()].
+#'
+#' @return A list containing calculated VPC information (when `vpcdb=TRUE`), or a ggplot2 object (default)
 #' @export vpc_plot_databins
 #'
 #' @examples
@@ -20,12 +24,12 @@
 #' char_vars = c("USUBJID", "PART"),
 #' irep_name = "SIM")
 #'
-#'vpc_plot <- vpc_plot_databins(
-#'sim = simout,
-#'pcvpc = TRUE,
-#'pi = c(0.05, 0.95),
-#'ci = c(0.05, 0.95),
-#'log_y = TRUE)
+#' vpc_plot <- vpc_plot_databins(
+#' sim = simout,
+#' pcvpc = TRUE,
+#' pi = c(0.05, 0.95),
+#' ci = c(0.05, 0.95),
+#' log_y = TRUE)
 
 vpc_plot_databins <- function(sim, pcvpc = FALSE, strat_vars=NULL,
                                 irep_name = "SIM", min_bin_count=1,

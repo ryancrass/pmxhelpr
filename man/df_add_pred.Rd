@@ -4,12 +4,15 @@
 \alias{df_add_pred}
 \title{Add population predictions (\code{PRED}) to a data.frame}
 \usage{
-df_add_pred(data, model, ...)
+df_add_pred(data, model, output_var = "IPRED", ...)
 }
 \arguments{
 \item{data}{Input dataset.}
 
 \item{model}{\code{mrgsolve} model object.}
+
+\item{output_var}{Name of output from \code{model} to be captured as \code{PRED}
+after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}.Default is \code{"IPRED"}.}
 
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
 }

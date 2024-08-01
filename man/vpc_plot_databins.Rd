@@ -7,6 +7,8 @@
 vpc_plot_databins(
   sim,
   pcvpc = FALSE,
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   strat_vars = NULL,
   irep_name = "SIM",
   min_bin_count = 1,
@@ -14,14 +16,20 @@ vpc_plot_databins(
 )
 }
 \arguments{
-\item{sim}{Input simulation dataset. Must contain the following variables: \code{"ID"}, \code{TIME}}
+\item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{TIME}}
 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
+
+\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
+Defaults are \code{"TIME"} and \code{"NTIME"}.}
+
+\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
 \item{strat_vars}{Character vector of stratification variables passed to \code{stratify} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, maximum length = 2.}
 
-\item{irep_name}{Name of replicate variable in \code{sim}. Must be a string. Default is \code{"SIM"}}
+\item{irep_name}{Name of replicate variable in \code{data}. Must be a string. Default is \code{"SIM"}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations in exact bin for inclusion
 in binned plot layers. This argument drops small bins from summary statistic calculation

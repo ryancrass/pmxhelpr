@@ -18,7 +18,8 @@ mrgsim_vpc(
 )
 }
 \arguments{
-\item{data}{Input dataset.}
+\item{data}{Input dataset. Must contain required variables for \code{mrgsim_df()} other than those handled by
+other arguments.}
 
 \item{model}{\code{mrgsolve} model object.}
 

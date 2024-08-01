@@ -6,6 +6,8 @@
 #'
 #' @param data Input dataset.
 #' @param model `mrgsolve` model object.
+#' @param output_var Name of output from `model` to be captured as `PRED`
+#'    after removing random effects with [mrgsolve::zero_re()].Default is `"IPRED"`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
 #' @return A data.frame with the same number of rows as `data` and on additional
@@ -16,9 +18,9 @@
 #' model <- model_load(model = "model")
 #' data <- df_add_pred(data = data_sad, model = model)
 #'
-df_add_pred <- function(data, model, ...){
+df_add_pred <- function(data, model, output_var="IPRED", ...){
 
   data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
-                                   data = data, carry_out = "IPRED")$IPRED
+                                   data = data, carry_out = output_var)[,output_var]
   return(data)
 }

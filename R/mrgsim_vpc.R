@@ -3,7 +3,8 @@
 #' @description  `mrgsim_vpc()` is a wrapper function for [mrgsolve::mrgsim_df()]
 #' that returns a data.frame containing `replicates` iterations of `data`
 #'
-#' @param data Input dataset.
+#' @param data Input dataset. Must contain required variables for `mrgsim_df()` other than those handled by
+#'    other arguments.
 #' @param model `mrgsolve` model object.
 #' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
 #' @param time_vars Names of actual and nominal time variables. Must be named character vector.
@@ -68,7 +69,7 @@ mrgsim_vpc <- function(data,
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
                          dplyr::mutate(!!irep_name := rep) |>
-                         dplyr::select(ID, TIME, NTIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
+                         dplyr::select(ID, TIME, PRED, IPRED, SIMDV=DV,OBSDV, dplyr::everything())} ,
                      data = data,
                      model = model) |>
                      dplyr::bind_rows()

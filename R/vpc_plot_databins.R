@@ -42,6 +42,8 @@ vpc_plot_databins <- function(sim,
                               strat_vars=NULL,
                               irep_name = "SIM",
                               min_bin_count=1,
+                              conc_label = "Concentration",
+                              time_label = "Time",
                               ...)
   {
 
@@ -90,6 +92,11 @@ vpc_plot_databins <- function(sim,
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                  shape = 1, alpha = 0.5, size = 1)
   }
+
+  ##Update Plot Aesthetics
+  conc_label <- ifelse(pcvpc == TRUE, paste0("PRED-corrected ", conc_label), conc_label)
+  plot <- plot +
+    ggplot2::labs(y = conc_label, x = time_label)
 
   return(plot)
 }

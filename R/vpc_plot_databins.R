@@ -1,6 +1,6 @@
 #' Plot a visual predictive check (VPC) with exact time bins
 #'
-#' @description  `vpc_plot_databins()` is a wrapper function for [vpc::vpc()]
+#' @description  `vpc_plot_exactbins()` is a wrapper function for [vpc::vpc()]
 #' that returns a `ggplot2` object.
 #'
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `TIME`
@@ -10,11 +10,14 @@
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
+#' @param conc_label Label for the concentration axis.
+#' @param time_label Label for the time axis.
 #' @param ... Other arguments passed to [vpc::vpc()].
+#'
 #' @inheritParams mrgsim_vpc
 #'
 #' @return A list containing calculated VPC information (when `vpcdb=TRUE`), or a ggplot2 object (default)
-#' @export vpc_plot_databins
+#' @export vpc_plot_exactbins
 #'
 #' @examples
 #' model <- model_load(model = "model")
@@ -24,14 +27,14 @@
 #' char_vars = c("USUBJID", "PART"),
 #' irep_name = "SIM")
 #'
-#' vpc_plot <- vpc_plot_databins(
+#' vpc_plot <- vpc_plot_exactbins(
 #' sim = simout,
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
 #' ci = c(0.05, 0.95),
 #' log_y = TRUE)
 
-vpc_plot_databins <- function(sim,
+vpc_plot_exactbins <- function(sim,
                               pcvpc = FALSE,
                               time_vars = c(TIME = "TIME",
                                             NTIME = "NTIME"),

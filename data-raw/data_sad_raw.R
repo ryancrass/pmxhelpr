@@ -92,7 +92,7 @@ withr::with_seed(
       conc_data) |>
     dplyr::mutate(DOSE = AMT,
            TIME = dplyr::case_when(NTIME == 0 ~ 0,
-                            .default = round(jitter(NTIME), digits=2)),
+                            .default = round(jitter(NTIME, factor = 2), digits=2)),
            NDAY = floor(NTIME/24) + 1) |>
     dplyr::group_by(ID) |>
     tidyr::fill(DOSE, FOOD, SEXF:CRCLBL) |>

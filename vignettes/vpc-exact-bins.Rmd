@@ -1,0 +1,114 @@
+---
+title: "vpc-exact-bins"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{vpc-exact-bins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will review the limitations of the `vpc()` function for datasets containing exact bins as the motivating example for development `vpc_plot_exactbins()`. First we will load the required packages.
+
+```{r setup}
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(vpc)
+library(mrgsolve)
+```
+
+Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the dplyr package.
+
+```{r data-glimpse}
+glimpse(data_sad)
+```
+
+We can see that this dataset is already formatted for modeling. It contains NONMEM and mrgsolve reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, the dependent variable of drug concentration in original, untransformed units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables there are two character variables: USUBJID and PART. There are two unique values of PART indicating two distinct study cohorts: Single Ascending Dose (SAD) and Food Effect (FE).
+
+```{r data-part}
+unique(data_sad$PART)
+```
+
+This dataset also contains an exact binning variable: Nominal Time (NTIME). This variable represents the nominal time of sample collection relative to first dose per study protocol whereas Actual Time (TIME) represents the actual time the sample was collected. 
+ 
+```{r data-ntime}
+##Unique values of NTIME
+unique(data_sad$NTIME)
+
+#Comparison of number of unique values of NTIME and TIME
+length(unique(data_sad$NTIME))
+length(unique(data_sad$TIME))
+```
+
+Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ. 
+
+```{r data-plotdata}
+plot_data <- data_sad %>% 
+  filter(EVID == 0) %>% 
+  mutate(`Dose (mg)` = factor(DOSE), 
+         DV = case_when(BLQ == 0 ~ ODV, 
+                        BLQ %in% c(-1, 1) ~ LLOQ/2, 
+                        .default = NA_real_), 
+         DNDV = ODV/DOSE)
+```
+
+Now let's plot the data using ODV colored by DOSE and faceted by PART. The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase.
+
+```{r plot-conc-time}
+ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
+  geom_point(shape = 1, alpha = 0.5)+
+  stat_summary(fun = "mean", geom = "point", 
+               aes(x = NTIME, y = ODV, col = `Dose (mg)`), inherit.aes = FALSE) +
+  stat_summary(fun = "mean", geom = "line", 
+               aes(x = NTIME, y = ODV, col = `Dose (mg)`), inherit.aes = FALSE) +
+  geom_hline(yintercept = unique(plot_data$LLOQ), linetype = "dashed")+
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
+  theme_bw()
+```
+Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
+
+```{r plot-conc-time-blq}
+ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
+  geom_point(shape = 1, alpha = 0.5)+
+  stat_summary(fun = "mean", geom = "point", 
+               aes(x = NTIME, y = DV, col = `Dose (mg)`), inherit.aes = FALSE) +
+  stat_summary(fun = "mean", geom = "line", 
+               aes(x = NTIME, y = DV, col = `Dose (mg)`), inherit.aes = FALSE) +
+  geom_hline(yintercept = unique(plot_data$LLOQ), linetype = "dashed")+
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
+  theme_bw()
+```
+
+Luckily for us, someone has already fit a PK model to these data! Let's load the mrgsolve model file internal to the pmxhelpr package by calling `model_load()`
+
+```{r model}
+model <- model_load("model")
+```
+
+Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs) to validate the model. We will use `mrgsim_vpc()` to run the simulation for the VPC. This is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to replicates. 
+
+We can pass `data_sad` and `model` from the previous steps to the data and model arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the output_vars argument. We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
+
+```{r sim}
+simout <- mrgsim_vpc(data = data_sad, 
+                     model = model, 
+                     replicates = 100, 
+                     time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "ODV"),
+                     num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
+                     char_vars = c("PART"),
+                     obsonly = TRUE)
+```

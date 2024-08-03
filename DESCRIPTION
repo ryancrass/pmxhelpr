@@ -2,7 +2,7 @@ Package: pmxhelpr
 Title: Helper Functions for Pharmacometrics
 Version: 0.0.0.9000
 Authors@R: 
-    person(given="Ryan", family="Crass", middle = "L",
+    person(given="Ryan", family="Crass",
     email = "ryancrass@gmail.com", 
     role = c("aut", "cre", "cph"),
     comment = c(ORCID = "0000-0001-5403-4730"))

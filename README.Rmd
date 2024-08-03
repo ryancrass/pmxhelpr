@@ -45,7 +45,6 @@ model <- model_load("model")
 
 #Add population predictions to the dataset (note: this step is not required when using mrgsim_vpc)
 data_pred <- df_add_pred(data_sad, model)
-
 #Simulated replicates of the dataset using mrgsim (note: df_add_pred will be called within this step so data_sad can be passed in directly)
 simout <- mrgsim_vpc(data = data_sad, model = model,replicates = 100,
                      output_vars = c(DV = "ODV"),

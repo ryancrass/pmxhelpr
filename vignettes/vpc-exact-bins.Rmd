@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -16,12 +16,13 @@ knitr::opts_chunk$set(
 
 This vignette will review the limitations of the `vpc()` function for datasets containing exact bins as the motivating example for development `vpc_plot_exactbins()`. First we will load the required packages.
 
-```{r setup}
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999)
 library(pmxhelpr)
-library(dplyr)
-library(ggplot2)
-library(vpc)
-library(mrgsolve)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+library(vpc, warn.conflicts =  FALSE)
+library(mrgsolve, warn.conflicts =  FALSE)
 ```
 
 Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the dplyr package.
@@ -36,18 +37,18 @@ We can see that this dataset is already formatted for modeling. It contains NONM
 unique(data_sad$PART)
 ```
 
-This dataset also contains an exact binning variable: Nominal Time (NTIME). This variable represents the nominal time of sample collection relative to first dose per study protocol whereas Actual Time (TIME) represents the actual time the sample was collected. 
- 
+This dataset also contains an exact binning variable: Nominal Time (NTIME). This variable represents the nominal time of sample collection relative to first dose per study protocol whereas Actual Time (TIME) represents the actual time the sample was collected.
+
 ```{r data-ntime}
 ##Unique values of NTIME
 unique(data_sad$NTIME)
 
-#Comparison of number of unique values of NTIME and TIME
+##Comparison of number of unique values of NTIME and TIME
 length(unique(data_sad$NTIME))
 length(unique(data_sad$TIME))
 ```
 
-Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ. 
+Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ.
 
 ```{r data-plotdata}
 plot_data <- data_sad %>% 
@@ -61,7 +62,7 @@ plot_data <- data_sad %>%
 
 Now let's plot the data using ODV colored by DOSE and faceted by PART. The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase.
 
-```{r plot-conc-time}
+```{r plot-conc-time, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
   geom_point(shape = 1, alpha = 0.5)+
   stat_summary(fun = "mean", geom = "point", 
@@ -75,9 +76,10 @@ ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
   labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
   theme_bw()
 ```
+
 Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
 
-```{r plot-conc-time-blq}
+```{r plot-conc-time-blq, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
   geom_point(shape = 1, alpha = 0.5)+
   stat_summary(fun = "mean", geom = "point", 
@@ -94,15 +96,15 @@ ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
 
 Luckily for us, someone has already fit a PK model to these data! Let's load the mrgsolve model file internal to the pmxhelpr package by calling `model_load()`
 
-```{r model}
+```{r model_load}
 model <- model_load("model")
 ```
 
-Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs) to validate the model. We will use `mrgsim_vpc()` to run the simulation for the VPC. This is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to replicates. 
+Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs) to validate the model. We will use `mrgsim_vpc()` to run the simulation for the VPC. This is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to replicates.
 
 We can pass `data_sad` and `model` from the previous steps to the data and model arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the output_vars argument. We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
 
-```{r sim}
+```{r mrgsim_vpc}
 simout <- mrgsim_vpc(data = data_sad, 
                      model = model, 
                      replicates = 100, 
@@ -111,4 +113,232 @@ simout <- mrgsim_vpc(data = data_sad,
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)
+
+glimpse(simout)
+
+max(simout$SIM)
+```
+
+The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times, as requested with the `replicates` argument. 
+
+Glimpsing the output from `mrgsim_vpc()` reveals the following model outputs: 
+
+  - `PRED` (population prediction)
+  - `IPRED` (individual prediction)
+  - `SIMDV` (simulated dependent variable)
+  - `OBSDV` (observed dependent variable). 
+
+This simulated dataset is ready for either VPC or pcVPC plotting. Under the hood, the function `df_add_pred()` is called to add `PRED` to the simulation input dataset before running the simulation for multiple iterations. This function can also be called to add `PRED` to a dataset without running multiple iterations.
+
+```{r df_add_pred}
+data_sad_pred <- df_add_pred(data = data_sad, model = model)
+glimpse(data_sad_pred)
+```
+
+Okay, so now we have run the vpc simulation and generated an output dataset (`simout`) ready to be processed for plotting. The `vpc::vpc()`function offers a lot of great functionality to generate VPC plots, including both the data processing and plotting steps in one function call. However, although `vpc()` contains many great options to automatically identify bins in the data, it is NOT optimized for input data containing exact bins. 
+
+The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
+
+  - `time`: Divide bins equally over time (or whatever independent variable is used). Recommended only when there is no observable clustering in the independent variable.
+  - `data`: Divide bins equally over the amount of data ordered by independent variable. Recommended only when data are for nominal timepoints and all datapoints are available.
+  - `density`: Divide bins based on data-density, i.e. place the bin-separators at nadirs in the density function. An approximate number of bins can be specified, but it is not certain that the algorithm will strictly use the specified number. More info in `?auto_bin()`.
+  - `jenks`: Default and recommended method. Jenk's natural breaks optimization, similar to K-means clustering.
+  - `kmeans`: K-means clustering.
+  - `pretty`, `quantile`, `hclust`, `sd`, `bclust`, `fisher`. Methods provided by the classInt package, see the package help for more information.
+
+We can visualize the bins assigned by the various binning approaches in `vpc()` using by assigning the plot as an R object and calling `plot_object$data`.
+
+Because we have multiple dose levels in the SAD portion of the study, as well as, a food effect cohort, prediction correction will be used to plot all the data on a single plot using the argument `pred_corr = TRUE`.
+
+```{r plot-jenks, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_jenks <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "jenks", #default
+  n_bins = "auto", 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+vpc_jenks
+```
+
+This plot looks pretty good! The default binning in `vpc::vpc()` produce a very nice looking plot. However, all of the binning methods internal to `vpc()` are designed to determine binning intervals from the actual data. Currently, there is no method to use *exact bins contained in the data* in place of *bin intervals determined from the data*. The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols usually specify specific Study Visits corresponding ot each sample, which are associated with a nominal (protocolized) time of collection.
+
+We can use the `nobs_bin()` function to calculate and return a summary data.frame containing the unique exact bin times, count of non-missing observations (EVID=0 & MDV=0), and count of missing (EVID=0 & MDV=1) observations.
+
+```{r bins-jenks}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc() using bins = "jenks"
+distinct(select(vpc_jenks$data, bin_mid, bin_min, bin_max))
+```
+
+The `bin_mid` variable is where`vpc()` will plot the summary statistics calculated for the observed and simulated data. 
+
+We can clearly see that the default `bins = "jenks"` method does not reproduce the exact bins in the observed dataset, *even when passing nominal, rather than actual, time as the independent variable (`idv`)*. How about the other binning methods native to `vpc()`? Let's take a look at `bins = "pretty"` next.
+
+```{r plot-pretty, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_pretty <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "pretty", #default
+  n_bins = "auto", 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+vpc_pretty
+```
+
+The vpc plot produced with `bins = "pretty` *is* fairly pretty; however, again we can see that the binning is not true to the exact bins in our dataset, especially at the earlier absorption phase time-points, which are being largely binned together.
+
+```{r bins-pretty}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc() using bins = "pretty"
+distinct(select(vpc_pretty$data, bin_mid, bin_min, bin_max))
+```
+
+The `bins = "kmeans"` option produces yet another reasonably visually appealing plot; however, like `bins = "pretty"` it groups many of the absorption phase timepoints together and does not include the last three sampling times with quantifiable observations in simulated intervals. 
+
+```{r plot-kmeans, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_kmeans <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "kmeans", #default
+  n_bins = "auto", 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+vpc_kmeans
+```
+
+```{r bins-kmeans}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc() using bins = "kmeans"
+distinct(select(vpc_kmeans$data, bin_mid, bin_min, bin_max))
+```
+
+The native binning methods `density` attempts to bin the data by finding the nadir in the density function. In this case, we can try and inform the binning algorithm on how many bins we *expect* in the data. Let's pass the length of the vector of unique `NTIME` values in our dataset to the `n_bins` argument and see if the `density` approach can find the correct bins.
+
+```{r plot-density, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_density <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "density", #default
+  n_bins = length(unique(simout$NTIME)), 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+vpc_density
+```
+
+Whomp Whomp. `bins = "density"`, like the previous methods evaluated, grouped most of the absorption phase into a single bin.
+
+```{r bins-density}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc() using bins = "density"
+distinct(select(vpc_density$data, bin_mid, bin_min, bin_max))
+```
+
+This leaves us with two methods that divide the data equally into bins over the range of values in the data: `bins = "data"` (equal data density in each bin) and `bins = "time"` (equal bin width in time).
+
+```{r plot-data-time, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_data <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "data", 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+
+vpc_time <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = "time", 
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+
+vpc_data
+vpc_time
+```
+
+These methods are designed to equalize data density in each bin, which unsurprisingly does not produce binning consistent with the exact bins in our dataset.
+
+```{r bins-data-time}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc() using bins = "data"
+distinct(select(vpc_data$data, bin_mid, bin_min, bin_max))
+
+##Bin midpoints and boundaries determined by vpc() using bins = "time"
+distinct(select(vpc_time$data, bin_mid, bin_min, bin_max))
+```
+
+The pmxhelpr function `vpc_plot_exactbins()` is a wrapper function for `vpc()` which is optimized for input datasets containing exact bins. This wrapper passes the the unique exact bins (e.g., Nominal Times) in the input dataset as bin boundaries with the addition of `Inf` to the end of the vector to ensure that the final exact bin is included, rather than set only as a bin boundary. This functionality can be reproduced using `vpc()` by passing the following argument to `bins`:
+
+- `bins = c(sort(unique(simout$NTIME)), Inf)`
+
+However, this workaround will only work if the idv is set to the nominal time variable (`idv = "NTIME`) in the `sim_cols` and `obs_cols` arguments, which precludes us from plotting the actual observed data points by actual time (`"TIME"`) while binned summary statistics are calculated based on the exact bins defined by nominal time (`NTIME`).
+
+```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_exact <- vpc_plot_exactbins(
+  sim = simout, 
+  pcvpc = TRUE,
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  log_y = TRUE
+)
+
+vpc_exact
+```
+
+Now when we explore the bins in the input simulated data and output processed data underlying the VPC plot itself, we see they are consistent.
+
+```{r bins-exact}
+##Exact bins in the input data
+nobs_bin(data_sad, bin_var = "NTIME")
+
+##Bin midpoints and boundaries determined by vpc_plot_exactbins()
+distinct(select(vpc_exact$data, bin_mid, bin_min, bin_max))
+
 ```

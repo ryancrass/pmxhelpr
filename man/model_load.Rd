@@ -12,10 +12,10 @@ model_load(model, ...)
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mread]{mrgsolve::mread_cache()}}.}
 }
 \value{
-An \link{mrgsolve} model object.
+An \code{mrgsolve} model object.
 }
 \description{
-\code{model_load()} returns a mrgsolve model object from the internal
+\code{model_load()} returns an mrgsolve model object from the internal
 model library in \code{pmxhelpr}
 }
 \examples{

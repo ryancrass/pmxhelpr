@@ -187,7 +187,7 @@ We can clearly see that the default `bins = "jenks"` method does not reproduce t
 vpc_pretty <- vpc(
   sim = simout, 
   obs = filter(simout, SIM == 1), 
-  bins = "pretty", #default
+  bins = "pretty", 
   n_bins = "auto", 
   sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
   obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
@@ -216,7 +216,7 @@ The `bins = "kmeans"` option produces yet another reasonably visually appealing 
 vpc_kmeans <- vpc(
   sim = simout, 
   obs = filter(simout, SIM == 1), 
-  bins = "kmeans", #default
+  bins = "kmeans", 
   n_bins = "auto", 
   sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
   obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
@@ -243,7 +243,7 @@ The native binning methods `density` attempts to bin the data by finding the nad
 vpc_density <- vpc(
   sim = simout, 
   obs = filter(simout, SIM == 1), 
-  bins = "density", #default
+  bins = "density", 
   n_bins = length(unique(simout$NTIME)), 
   sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
   obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
@@ -312,11 +312,29 @@ distinct(select(vpc_data$data, bin_mid, bin_min, bin_max))
 distinct(select(vpc_time$data, bin_mid, bin_min, bin_max))
 ```
 
-The pmxhelpr function `vpc_plot_exactbins()` is a wrapper function for `vpc()` which is optimized for input datasets containing exact bins. This wrapper passes the the unique exact bins (e.g., Nominal Times) in the input dataset as bin boundaries with the addition of `Inf` to the end of the vector to ensure that the final exact bin is included, rather than set only as a bin boundary. This functionality can be reproduced using `vpc()` by passing the following argument to `bins`:
+The pmxhelpr function `vpc_plot_exactbins()` is a wrapper function for `vpc()` which is optimized for input datasets containing exact bins. This wrapper passes the the unique exact bins (e.g., Nominal Times) in the input dataset as bin boundaries with the addition of `Inf` to the end of the vector to ensure that the final exact bin is included, rather than set only as a bin boundary. This functionality can be reproduced using `vpc()` by passing a vector of unique exact bins to `bins` with the addition of `Inf` as follows:
 
 - `bins = c(sort(unique(simout$NTIME)), Inf)`
 
-However, this workaround will only work if the idv is set to the nominal time variable (`idv = "NTIME`) in the `sim_cols` and `obs_cols` arguments, which precludes us from plotting the actual observed data points by actual time (`"TIME"`) while binned summary statistics are calculated based on the exact bins defined by nominal time (`NTIME`). `vpc_plot_exactbins()` gets around this limitation by plotting the observed data in a separate layer on top of the plot object returned by `vpc()`, including prediction-correction of those observed points if `pcvpc = TRUE` (also passed along to the `pred_corr` argument of `vpc()`)
+```{r plot-vpc-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+exact_bins <- c(sort(unique(simout$NTIME)), Inf)
+
+vpc_exact_ntime <- vpc(
+  sim = simout, 
+  obs = filter(simout, SIM == 1), 
+  bins = exact_bins,
+  sim_cols = list(dv = "SIMDV", idv = "NTIME", pred = "PRED"),
+  obs_cols = list(dv = "OBSDV", idv = "NTIME", pred = "PRED"),
+  pred_corr = TRUE,
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  show = list(obs_dv = TRUE),
+  log_y = TRUE
+)
+vpc_exact_ntime
+```
+
+However, this workaround will only work if the idv is set to the nominal time variable (`idv = "NTIME`) in both the `sim_cols` and `obs_cols` arguments, which precludes us from plotting the actual observed data points by actual time (`"TIME"`) while binned summary statistics are calculated based on the exact bins defined by nominal time (`NTIME`). `vpc_plot_exactbins()` gets around this limitation by plotting the observed data in a separate layer on top of the plot object returned by `vpc()`, including prediction-correction of those observed points if `pcvpc = TRUE` (also passed along to the `pred_corr` argument of `vpc()`)
 
 ```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact <- vpc_plot_exactbins(
@@ -332,7 +350,9 @@ vpc_exact <- vpc_plot_exactbins(
 vpc_exact
 ```
 
-Now when we explore the bins in the input simulated data and output processed data underlying the VPC plot itself, we see they are consistent.
+The difference in plotting the observed prediction-corrected data points by `"TIME"` versus `"NTIME"` is negligible for this example dataset, due to the high concordance between `"TIME"` and `"NTIME"` in this well controlled example Phase 1 study. However, this difference is often much larger for pooled analyses including later phase clinical studies where plotting the observed points versus actual time will result in a plot that is much more representative of the distribution of times in the model training dataset.
+
+When exploring the bins in the input and output datasets using `plot_vpc_exactbins()`, we now can see that they are consistent! Huzzah!
 
 ```{r bins-exact}
 ##Exact bins in the input data
@@ -361,3 +381,21 @@ vpc_exact_bin_gt10
 ```
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
+
+We can also pass stratifying variables to the argument `strat_vars` in order to facet our plots by relevant extrinsic study design covariates or intrinsic subject covariates. The stratify variables specified in `strat_vars` are also passed to the `stratify` argument of `vpc()` in order to facet the resulting plots. Currently, only up to two variables can be passed to this argument.
+
+```{r r plot-exact-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_exact_food <- vpc_plot_exactbins(
+  sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
+  strat_vars = "FOOD_f",
+  pcvpc = TRUE,
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  log_y = TRUE
+)
+
+vpc_exact_food
+```
+

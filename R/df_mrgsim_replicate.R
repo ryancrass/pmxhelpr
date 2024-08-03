@@ -1,6 +1,6 @@
 #' Execute a visual predictive check (VPC) simulation using `mrgsolve`
 #'
-#' @description  `mrgsim_vpc()` is a wrapper function for [mrgsolve::mrgsim_df()]
+#' @description  `df_mrgsim_replicate()` is a wrapper function for [mrgsolve::mrgsim_df()]
 #' that returns a data.frame containing `replicates` iterations of `data`
 #'
 #' @param data Input dataset. Must contain required variables for `mrgsim_df()` other than those handled by
@@ -25,17 +25,17 @@
 #'    and the output variables in `output_vars`, `num_vars`, and `char_vars`.
 #'
 #' @importFrom rlang :=
-#' @export mrgsim_vpc
+#' @export df_mrgsim_replicate
 #'
 #' @examples
-#' model <- model_load(model = "model")
-#' simout <- mrgsim_vpc(data = data_sad, model = model, replicates = 100,
+#' model <- model_mread_load(model = "model")
+#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
 #' output_vars = c(DV = "ODV"),
 #' num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
 #' irep_name = "SIM")
 
-mrgsim_vpc <- function(data,
+df_mrgsim_replicate <- function(data,
                     model,
                     replicates,
                     time_vars = c(TIME = "TIME",
@@ -53,7 +53,7 @@ mrgsim_vpc <- function(data,
     dplyr::rename(dplyr::any_of(c(output_vars, time_vars))) |>
     dplyr::rename("OBSDV" = DV)
 
-  data <- df_add_pred(data, model)
+  data <- df_addpred(data, model)
 
   ##Run Simulation
   withr::with_seed(seed = seed,

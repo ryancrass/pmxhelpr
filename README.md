@@ -4,6 +4,8 @@
 # pmxhelpr
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of pmxhelpr is to make pharmacometrics workflows more

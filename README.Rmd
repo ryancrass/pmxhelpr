@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # pmxhelpr
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of pmxhelpr is to make pharmacometrics workflows more standardized, efficient, and reproducible. This package provides helper and wrapper functions for common steps in the pharmacometrics analysis workflow, such as exploratory data analysis, model development, model evaluation, and model application.

@@ -316,7 +316,7 @@ The pmxhelpr function `vpc_plot_exactbins()` is a wrapper function for `vpc()` w
 
 - `bins = c(sort(unique(simout$NTIME)), Inf)`
 
-However, this workaround will only work if the idv is set to the nominal time variable (`idv = "NTIME`) in the `sim_cols` and `obs_cols` arguments, which precludes us from plotting the actual observed data points by actual time (`"TIME"`) while binned summary statistics are calculated based on the exact bins defined by nominal time (`NTIME`).
+However, this workaround will only work if the idv is set to the nominal time variable (`idv = "NTIME`) in the `sim_cols` and `obs_cols` arguments, which precludes us from plotting the actual observed data points by actual time (`"TIME"`) while binned summary statistics are calculated based on the exact bins defined by nominal time (`NTIME`). `vpc_plot_exactbins()` gets around this limitation by plotting the observed data in a separate layer on top of the plot object returned by `vpc()`, including prediction-correction of those observed points if `pcvpc = TRUE` (also passed along to the `pred_corr` argument of `vpc()`)
 
 ```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact <- vpc_plot_exactbins(
@@ -342,3 +342,22 @@ nobs_bin(data_sad, bin_var = "NTIME")
 distinct(select(vpc_exact$data, bin_mid, bin_min, bin_max))
 
 ```
+
+`vpc_plot_exactbins()` also contains an argument built around a function we introduced earlier (`nobs_bin()`). The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data being analyzed without introducing visual artifacts due to small sample timepoints.
+
+```{r plot-exact-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_exact_bin_gt10 <- vpc_plot_exactbins(
+  sim = simout, 
+  pcvpc = TRUE,
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  min_bin_count = 10,
+  log_y = TRUE
+)
+
+vpc_exact_bin_gt10
+```
+
+When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.

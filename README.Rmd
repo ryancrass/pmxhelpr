@@ -30,32 +30,50 @@ You can install the development version of pmxhelpr from [GitHub](https://github
 devtools::install_github("ryancrass/pmxhelpr")
 ```
 
-## Example
+## Function Naming Conventions
 
-This is a basic example which illusstrates a simple VPC workflow using pmxhelpr:
+Functions in this package use the following naming conventions:
+
+* Wrapper functions: <return object>_<wrapped function>_<purpose>
+  + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object
+  + `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` including `mrgsolve::zero_re()` to add population predictions (PRED) to the input data returning a `data.frame`
+  + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`
+  + `plot_vpc_exactbins()` wraps `vpc::vpc()` to generate a VPC plot using exact time bins returning a `ggplot` object
+  
+* Helper functions: <return object>_<purpose>
+  + `df_nobsbin` returns a summary `data.frame` with counts of the number of missing and non-missing observations per bin returning a `data.frame`
+  + `df_predcorr` returns a `data.frame` containing a new variable of prediction-corrected values of the dependent variable
+
+## Example Visual Predictive Check Workflow
+
+This is a basic example which illustrates a simple VPC workflow using pmxhelpr:
 
 ``` r
 library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(withr)
 
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
 
 #Read internal mrgsolve model file
-model <- model_load("model")
+model <- model_mread_load("model")
 
-#Add population predictions to the dataset (note: this step is not required when using mrgsim_vpc)
-data_pred <- df_add_pred(data_sad, model)
-#Simulated replicates of the dataset using mrgsim (note: df_add_pred will be called within this step so data_sad can be passed in directly)
-simout <- mrgsim_vpc(data = data_sad, model = model,replicates = 100,
-                     output_vars = c(DV = "ODV"),
-                     num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                     char_vars = c("USUBJID", "PART"))
+#Simulated replicates of the dataset using mrgsim 
+simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100,
+                              output_vars = c(DV = "ODV"),
+                              num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
+                              char_vars = c("USUBJID", "PART"))
 glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
   #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcVPC=TRUE
-vpc_exact_food <- vpc_plot_exactbins(
+  
+vpc_exact_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
   strat_vars = "FOOD_f",
   pcvpc = TRUE,

@@ -94,10 +94,11 @@ ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
   theme_bw()
 ```
 
-Luckily for us, someone has already fit a PK model to these data! Let's load the mrgsolve model file internal to the pmxhelpr package by calling `model_load()`
+Luckily for us, someone has already fit a PK model to these data! Let's load the mrgsolve model file internal to the pmxhelpr package by calling `model_load()` and take a look at it with `mrgsolve::see()`.
 
 ```{r model_load}
 model <- model_load("model")
+see(model)
 ```
 
 Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs) to validate the model. We will use `mrgsim_vpc()` to run the simulation for the VPC. This is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to replicates.

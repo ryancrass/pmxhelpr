@@ -71,26 +71,25 @@
 </h2>
 <p>Functions in this package use the following naming conventions:</p>
 <ul>
-<li>Wrapper functions: <return object><em><wrapped function></wrapped></em><purpose><ul>
+<li>Wrapper functions: <em>return object</em>_<em>wrapped function</em>_<em>purpose</em>
+<ul>
 <li>
-<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object</li>
+<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object.</li>
 <li>
-<code>df_mrgsim_addpred()</code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> including <code><a href="https://rdrr.io/pkg/mrgsolve/man/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code> to add population predictions (PRED) to the input data returning a <code>data.frame</code>
+<code>df_mrgsim_addpred()</code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> including <code><a href="https://rdrr.io/pkg/mrgsolve/man/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code> to add population predictions (PRED) to the input data returning a <code>data.frame</code>.</li>
+<li>
+<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>.</li>
+<li>
+<code><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> wraps <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> to generate a VPC plot using exact time bins returning a <code>ggplot</code> object.</li>
+</ul>
 </li>
+<li>Helper functions: <em>return object</em>_<em>purpose</em>
+<ul>
 <li>
-<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>
-</li>
+<code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin returning a <code>data.frame</code>.</li>
 <li>
-<code><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> wraps <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> to generate a VPC plot using exact time bins returning a <code>ggplot</code> object</li>
-</ul></purpose></return>
-</li>
-<li>Helper functions: <return object>_<purpose><ul>
-<li>
-<code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin returning a <code>data.frame</code>
-</li>
-<li>
-<code>df_predcorr</code> returns a <code>data.frame</code> containing a new variable of prediction-corrected values of the dependent variable</li>
-</ul></purpose></return>
+<code>df_pcdv</code> returns a <code>data.frame</code> containing a new variable of prediction-corrected values of the dependent variable.</li>
+</ul>
 </li>
 </ul>
 </div>

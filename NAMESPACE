@@ -3,7 +3,7 @@
 export(df_addpred)
 export(df_mrgsim_replicate)
 export(df_nobsbin)
-export(df_predcorr)
+export(df_pcdv)
 export(model_mread_load)
 export(plot_vpc_exactbins)
 importFrom(rlang,":=")

@@ -57,7 +57,7 @@ plot_vpc_exactbins <- function(sim,
   ##Observed Data
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
-    df_predcorr(strat_vars = strat_vars, output_vars = c(DV = "OBSDV")) |>
+    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV")) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin
@@ -142,10 +142,10 @@ df_nobsbin <- function(data,
 
 
 
-#' Perform prediction-correction
+#' Perform prediction-correction of the dependent variable
 #'
 #' @description
-#' `df_predcorr` is a helper function to perform prediction-correction
+#' `df_pcdv` is a helper function to perform prediction-correction
 #'    of observed or simulated depedent variables.
 #'
 #' @param data Input dataset
@@ -156,19 +156,19 @@ df_nobsbin <- function(data,
 #' @return A data.frame containing one row per unique combination of
 #'    `bin_var` and `strat_vars` and new variable `PCDV` containing
 #'    prediction-corrected observations.
-#' @export df_predcorr
+#' @export df_pcdv
 #'
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' data <- df_addpred(data_sad, model)
-#' simout <- df_predcorr(data, output_vars = c(DV = "ODV"))
+#' simout <- df_pcdv(data, output_vars = c(DV = "ODV"))
 #'
-df_predcorr <- function(data,
-                             bin_var = "NTIME",
-                             strat_vars = "CMT",
-                             output_vars = c(PRED = "PRED",
-                                             IPRED = "IPRED",
-                                             DV = "DV")) {
+df_pcdv <- function(data,
+                    bin_var = "NTIME",
+                    strat_vars = "CMT",
+                    output_vars = c(PRED = "PRED",
+                                    IPRED = "IPRED",
+                                    DV = "DV")) {
   data <- data |>
     dplyr::rename(dplyr::all_of(output_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
@@ -176,4 +176,3 @@ df_predcorr <- function(data,
                   PCDV = DV*(PREDBIN/PRED))
   return(data)
 }
-

@@ -28,7 +28,7 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 Functions in this package use the following naming conventions:
 
-- Wrapper functions: *return object*\_*wrapped function*\_*purpose*
+- Wrapper functions: *ReturnObject*\_*WrappedFunction*\_*Purpose*
   - `model_mread_load()` wraps `mrgsolve::mread_cache()` to read
     internal package model files returning an `mrgmod` object.
   - `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` including
@@ -38,7 +38,7 @@ Functions in this package use the following naming conventions:
     input data returning a `data.frame`.
   - `plot_vpc_exactbins()` wraps `vpc::vpc()` to generate a VPC plot
     using exact time bins returning a `ggplot` object.
-- Helper functions: *return object*\_*purpose*
+- Helper functions: *ReturnObject*\_*Purpose*
   - `df_nobsbin` returns a summary `data.frame` with counts of the
     number of missing and non-missing observations per bin returning a
     `data.frame`.

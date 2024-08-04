@@ -1,5 +1,5 @@
 ---
-title: "vpc-exact-bins"
+title: "VPC Plots with Exact Bins"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vpc-exact-bins}

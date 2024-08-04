@@ -20,6 +20,10 @@
 #'
 df_addpred <- function(data, model, output_var="IPRED", ...){
 
+  check_df(data)
+  check_mrgmod(model)
+  check_capture(model, output_var)
+
   data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
                                    data = data, carry_out = output_var)[,output_var]
   return(data)

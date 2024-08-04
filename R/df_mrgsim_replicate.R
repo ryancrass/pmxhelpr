@@ -48,6 +48,16 @@ df_mrgsim_replicate <- function(data,
                     irep_name = "SIM",
                     seed = 123456789,
                     ...) {
+  #Checks
+  check_df(data)
+  check_mrgmod(model)
+  check_integer(replicates)
+  check_varsindf(data, output_vars[["DV"]])
+  check_varsindf(data, time_vars)
+  check_varsindf(data, char_vars)
+  check_integer(seed)
+
+
   ##Data Rename
   data <- data |>
     dplyr::rename(dplyr::any_of(c(output_vars, time_vars))) |>
@@ -59,7 +69,7 @@ df_mrgsim_replicate <- function(data,
   withr::with_seed(seed = seed,
 
                    simout <- lapply(
-                     seq(replicates),
+                     seq(as.integer(replicates)),
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
                                            carry_out = paste(c("PRED", "IPRED", "DV", "OBSDV",

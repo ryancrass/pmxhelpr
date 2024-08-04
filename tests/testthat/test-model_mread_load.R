@@ -1,3 +1,3 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("Error if incorrect model does not existin in library", {
+  expect_error(model_mread_load("test"))
 })

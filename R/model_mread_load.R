@@ -14,6 +14,7 @@
 
 model_mread_load <- function(model, ...){
   model_path <- system.file("models", paste0(model, ".cpp") , package = "pmxhelpr")
+  check_modlib(model, model_path)
   model_object <- mrgsolve::mread_cache(model_path, ...)
   return(model_object)
 }

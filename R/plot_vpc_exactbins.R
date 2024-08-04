@@ -50,6 +50,16 @@ plot_vpc_exactbins <- function(sim,
                               ...)
   {
 
+  #Checks
+  check_df(sim)
+  check_varsindf(sim, time_vars[["TIME"]])
+  check_varsindf(sim, time_vars[["NTIME"]])
+  check_varsindf(sim, output_vars[["SIMDV"]])
+  check_varsindf(sim, output_vars[["OBSDV"]])
+  check_varsindf(sim, strat_vars)
+  check_varsindf(sim, irep_name)
+  if(!is.null(strat_vars)) {check_factor(sim, strat_vars)}
+
   ##Data Rename
   sim <- sim |>
     dplyr::rename((dplyr::any_of(c(output_vars, time_vars))))
@@ -57,7 +67,7 @@ plot_vpc_exactbins <- function(sim,
   ##Observed Data
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
-    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV")) |>
+    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV", PRED = "PRED")) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin
@@ -130,6 +140,10 @@ plot_vpc_exactbins <- function(sim,
 df_nobsbin <- function(data,
                      bin_var = "NTIME",
                      strat_vars = "CMT"){
+  check_df(data)
+  check_varsindf(data, bin_var)
+  check_varsindf(data, strat_vars)
+
   bin_count <- data |>
     dplyr::filter(EVID == 0) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
@@ -161,7 +175,7 @@ df_nobsbin <- function(data,
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' data <- df_addpred(data_sad, model)
-#' simout <- df_pcdv(data, output_vars = c(DV = "ODV"))
+#' simout <- df_pcdv(data, output_vars = c(DV = "ODV", PRED = "PRED"))
 #'
 df_pcdv <- function(data,
                     bin_var = "NTIME",
@@ -169,6 +183,12 @@ df_pcdv <- function(data,
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
                                     DV = "DV")) {
+  check_df(data)
+  check_varsindf(data, bin_var)
+  check_varsindf(data, strat_vars)
+  check_varsindf(data, output_vars[["PRED"]])
+  check_varsindf(data, output_vars[["DV"]])
+
   data <- data |>
     dplyr::rename(dplyr::all_of(output_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>

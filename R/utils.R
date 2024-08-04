@@ -1,17 +1,16 @@
+check_modlib <- function(mod, mod_path){
+  input_name <-mod
+  output_warning <- paste0("`", input_name, "` does not exist in the pmxhelpr model library")
+  if(!file.exists(mod_path)){
+    rlang::abort(message = output_warning)
+  }
+}
+
 
 check_df <- function(df){
   input_name <-deparse(substitute(df))
   output_warning <- paste0("argument `", input_name, "` must be a `data.frame`")
   if(!is.data.frame(df)){
-    rlang::abort(message = output_warning)
-  }
-}
-
-check_factor <- function(data, var){
-  input_name <-deparse(substitute(var))
-  output_warning <- paste0("argument `", input_name, "` must be coercible to class `factor`")
-  var_vect <- data[,var]
-  if(!is.factor(var_vect)){
     rlang::abort(message = output_warning)
   }
 }
@@ -30,6 +29,33 @@ check_capture <- function(mod, var){
   output_warning <- paste0("argument `", input_name2, "` must be captured as output in `",input_name1,"`")
   captures <- mod$capture
   if(!var %in% captures){
+    rlang::abort(message = output_warning)
+  }
+}
+
+check_factor <- function(data, var){
+  input_name <-deparse(substitute(var))
+  output_warning <- paste0("argument `", input_name, "` must be coercible to class `factor`")
+  var_vect <- as.factor(data[,var])
+  if(!is.factor(var_vect)){
+    rlang::abort(message = output_warning)
+  }
+}
+
+check_integer <- function(var){
+  input_name <-deparse(substitute(var))
+  output_warning <- paste0("argument `", input_name, "` must be coercible to class `integer`")
+  int <- suppressWarnings(as.integer(var))
+  if(is.na(int) | !is.integer(int)){
+    rlang::abort(message = output_warning)
+  }
+}
+
+check_varsindf <- function(data, vars){
+  input_name1 <-deparse(substitute(data))
+  input_name2 <-deparse(substitute(vars))
+  output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
+  if(length(setdiff(vars, colnames(data)))>=1){
     rlang::abort(message = output_warning)
   }
 }

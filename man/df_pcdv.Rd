@@ -33,6 +33,6 @@ of observed or simulated depedent variables.
 \examples{
 model <- model_mread_load(model = "model")
 data <- df_addpred(data_sad, model)
-simout <- df_pcdv(data, output_vars = c(DV = "ODV"))
+simout <- df_pcdv(data, output_vars = c(DV = "ODV", PRED = "PRED"))
 
 }

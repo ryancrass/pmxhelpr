@@ -8,12 +8,12 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/index.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/news/index.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_add_pred.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_calc_predcorr.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_addpred.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_nobsbin.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_predcorr.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/index.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/model_load.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/mrgsim_vpc.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/nobs_bin.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/vpc_plot_exactbins.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.html</loc></url>
 </urlset>
 

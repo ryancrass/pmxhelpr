@@ -8,7 +8,9 @@ df_pcdv(
   data,
   bin_var = "NTIME",
   strat_vars = "CMT",
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV")
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
+  lower_bound = 0,
+  logdv = FALSE
 )
 }
 \arguments{
@@ -20,6 +22,11 @@ df_pcdv(
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
 Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
+
+\item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
+
+\item{logdv}{Logical specifying if the dependent variable is log-transformed. Default is \code{FALSE}.
+Currently log-transformed calculation of prediction-corrected values is not supported by \code{vpc::vpc()} and should not be used.}
 }
 \value{
 A data.frame containing one row per unique combination of

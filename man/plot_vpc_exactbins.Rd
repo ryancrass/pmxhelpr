@@ -14,6 +14,8 @@ plot_vpc_exactbins(
   min_bin_count = 1,
   conc_label = "Concentration",
   time_label = "Time",
+  lower_bound = 0,
+  logdv = FALSE,
   ...
 )
 }
@@ -40,6 +42,11 @@ but retains these observations in the observed data points.}
 \item{conc_label}{Label for the concentration axis.}
 
 \item{time_label}{Label for the time axis.}
+
+\item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
+
+\item{logdv}{Logical specifying if the dependent variable is log-transformed. Default is \code{FALSE}.
+Currently log-transformed calculation of prediction-corrected values is not supported by \code{vpc::vpc()} and should not be used.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

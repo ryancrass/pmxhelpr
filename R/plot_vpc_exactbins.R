@@ -12,6 +12,7 @@
 #'    but retains these observations in the observed data points.
 #' @param conc_label Label for the concentration axis.
 #' @param time_label Label for the time axis.
+#' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
 #'
 #' @inheritParams df_mrgsim_replicate
@@ -47,6 +48,8 @@ plot_vpc_exactbins <- function(sim,
                               min_bin_count=1,
                               conc_label = "Concentration",
                               time_label = "Time",
+                              lower_bound = 0,
+                              logdv = FALSE,
                               ...)
   {
 
@@ -67,7 +70,8 @@ plot_vpc_exactbins <- function(sim,
   ##Observed Data
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
-    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV", PRED = "PRED")) |>
+    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV", PRED = "PRED"),
+            lower_bound = lower_bound, logdv = logdv) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin
@@ -165,6 +169,9 @@ df_nobsbin <- function(data,
 #' @param data Input dataset
 #' @param bin_var Exact binning variable. Default is `"NTIME"`.
 #' @param strat_vars Stratifying variables. Default is `"CMT"`.
+#' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.
+#' @param logdv Logical specifying if the dependent variable is log-transformed. Default is `FALSE`.
+#'  Currently log-transformed calculation of prediction-corrected values is not supported by `vpc::vpc()` and should not be used.
 #' @inheritParams df_mrgsim_replicate
 #'
 #' @return A data.frame containing one row per unique combination of
@@ -182,7 +189,9 @@ df_pcdv <- function(data,
                     strat_vars = "CMT",
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
-                                    DV = "DV")) {
+                                    DV = "DV"),
+                    lower_bound = 0,
+                    logdv = FALSE) {
   check_df(data)
   check_varsindf(data, bin_var)
   check_varsindf(data, strat_vars)
@@ -193,6 +202,8 @@ df_pcdv <- function(data,
     dplyr::rename(dplyr::all_of(output_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
-                  PCDV = DV*(PREDBIN/PRED))
+                  PCDV = ifelse(logdv == FALSE,
+                                lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound)),
+                                exp(log(DV) + (log(PREDBIN) - log(PRED)))))
   return(data)
 }

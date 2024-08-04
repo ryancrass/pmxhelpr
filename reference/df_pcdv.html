@@ -50,7 +50,9 @@ of observed or simulated depedent variables.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  bin_var <span class="op">=</span> <span class="st">"NTIME"</span>,</span>
 <span>  strat_vars <span class="op">=</span> <span class="st">"CMT"</span>,</span>
-<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span></span>
+<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
+<span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  logdv <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,6 +75,15 @@ of observed or simulated depedent variables.</p>
 <dt id="arg-output-vars">output_vars<a class="anchor" aria-label="anchor" href="#arg-output-vars"></a></dt>
 <dd><p>Names of model outputs from <code>model</code>. Must be named character vector.
 Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>.</p></dd>
+
+
+<dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
+<dd><p>Lower bound of the dependent variable for prediction correction. Default is <code>0</code>.</p></dd>
+
+
+<dt id="arg-logdv">logdv<a class="anchor" aria-label="anchor" href="#arg-logdv"></a></dt>
+<dd><p>Logical specifying if the dependent variable is log-transformed. Default is <code>FALSE</code>.
+Currently log-transformed calculation of prediction-corrected values is not supported by <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> and should not be used.</p></dd>
 
 </dl></div>
     <div class="section level2">

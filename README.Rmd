@@ -71,7 +71,7 @@ glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
-  #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcVPC=TRUE
+  #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
   
 vpc_exact_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 

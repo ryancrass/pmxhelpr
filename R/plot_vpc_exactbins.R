@@ -49,7 +49,6 @@ plot_vpc_exactbins <- function(sim,
                               conc_label = "Concentration",
                               time_label = "Time",
                               lower_bound = 0,
-                              logdv = FALSE,
                               ...)
   {
 
@@ -71,7 +70,7 @@ plot_vpc_exactbins <- function(sim,
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
     df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV", PRED = "PRED"),
-            lower_bound = lower_bound, logdv = logdv) |>
+            lower_bound = lower_bound) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin

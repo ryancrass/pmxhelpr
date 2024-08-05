@@ -120,7 +120,7 @@
 <span></span>
 <span><span class="co">#Plot output in a Prediction-corrected Visual Predictive Check (VPC)</span></span>
 <span>  <span class="co">#Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics</span></span>
-<span>  <span class="co">#Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcVPC=TRUE</span></span>
+<span>  <span class="co">#Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE</span></span>
 <span>  </span>
 <span><span class="va">vpc_exact_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, FOOD_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>

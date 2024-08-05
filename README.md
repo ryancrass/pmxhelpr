@@ -40,10 +40,9 @@ Functions in this package use the following naming conventions:
     using exact time bins returning a `ggplot` object.
 - Helper functions: *ReturnObject*\_*Purpose*
   - `df_nobsbin` returns a summary `data.frame` with counts of the
-    number of missing and non-missing observations per bin returning a
-    `data.frame`.
-  - `df_pcdv` returns a `data.frame` containing a new variable of
-    prediction-corrected values of the dependent variable.
+    number of missing and non-missing observations per bin.
+  - `df_pcdv` returns a `data.frame` containing the prediction-corrected
+    dependent variable.
 
 ## Example Visual Predictive Check Workflow
 

@@ -96,6 +96,7 @@ plot_vpc_exactbins <- function(sim,
     sim_cols = list("dv" = "SIMDV", "idv" = "NTIME", "pred" = "PRED"),
     bins = bins,
     pred_corr = pcvpc,
+    pred_corr_lower_bnd = lower_bound,
     ...)
 
   ##Overlay Observations
@@ -169,8 +170,6 @@ df_nobsbin <- function(data,
 #' @param bin_var Exact binning variable. Default is `"NTIME"`.
 #' @param strat_vars Stratifying variables. Default is `"CMT"`.
 #' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.
-#' @param logdv Logical specifying if the dependent variable is log-transformed. Default is `FALSE`.
-#'  Currently log-transformed calculation of prediction-corrected values is not supported by `vpc::vpc()` and should not be used.
 #' @inheritParams df_mrgsim_replicate
 #'
 #' @return A data.frame containing one row per unique combination of
@@ -189,8 +188,7 @@ df_pcdv <- function(data,
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
                                     DV = "DV"),
-                    lower_bound = 0,
-                    logdv = FALSE) {
+                    lower_bound = 0) {
   check_df(data)
   check_varsindf(data, bin_var)
   check_varsindf(data, strat_vars)
@@ -201,8 +199,6 @@ df_pcdv <- function(data,
     dplyr::rename(dplyr::all_of(output_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
-                  PCDV = ifelse(logdv == FALSE,
-                                lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound)),
-                                exp(log(DV) + (log(PREDBIN) - log(PRED)))))
+                  PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound)))
   return(data)
 }

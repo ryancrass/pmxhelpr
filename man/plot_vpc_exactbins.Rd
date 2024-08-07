@@ -12,8 +12,6 @@ plot_vpc_exactbins(
   strat_vars = NULL,
   irep_name = "SIM",
   min_bin_count = 1,
-  conc_label = "Concentration",
-  time_label = "Time",
   lower_bound = 0,
   ...
 )
@@ -37,10 +35,6 @@ of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, maximum length = 2.}
 \item{min_bin_count}{Minimum number of quantifiable observations in exact bin for inclusion
 in binned plot layers. This argument drops small bins from summary statistic calculation
 but retains these observations in the observed data points.}
-
-\item{conc_label}{Label for the concentration axis.}
-
-\item{time_label}{Label for the time axis.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 

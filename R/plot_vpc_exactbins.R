@@ -10,8 +10,6 @@
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
-#' @param conc_label Label for the concentration axis.
-#' @param time_label Label for the time axis.
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
 #'
@@ -46,8 +44,6 @@ plot_vpc_exactbins <- function(sim,
                               strat_vars=NULL,
                               irep_name = "SIM",
                               min_bin_count=1,
-                              conc_label = "Concentration",
-                              time_label = "Time",
                               lower_bound = 0,
                               ...)
   {
@@ -109,12 +105,6 @@ plot_vpc_exactbins <- function(sim,
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                  shape = 1, alpha = 0.5, size = 1)
   }
-
-  ##Update Plot Aesthetics
-  conc_label <- ifelse(pcvpc == TRUE, paste0("PRED-corrected ", conc_label), conc_label)
-  plot <- plot +
-    ggplot2::labs(y = conc_label, x = time_label)
-
   return(plot)
 }
 

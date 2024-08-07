@@ -366,7 +366,9 @@ plot all the data on a single plot using the argument
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_jenks</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-jenks-1.png" width="576"></p>
@@ -449,7 +451,9 @@ binning methods native to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" c
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_pretty</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-pretty-1.png" width="576"></p>
@@ -516,7 +520,9 @@ with quantifiable observations in simulated intervals.</p>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_kmeans</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-kmeans-1.png" width="576"></p>
@@ -583,7 +589,9 @@ correct bins.</p>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_density</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-density-1.png" width="576"></p>
@@ -647,7 +655,9 @@ bin width in time).</p>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc</a></span><span class="op">(</span></span>
@@ -660,7 +670,9 @@ bin width in time).</p>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_data</span></span></code></pre></div>
@@ -753,7 +765,9 @@ a vector of unique exact bins to <code>bins</code> with the addition of
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_exact_ntime</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-1.png" width="576"></p>
@@ -777,7 +791,9 @@ prediction-correction of those observed points if
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact</span></span></code></pre></div>
@@ -862,7 +878,9 @@ without introducing visual artifacts due to small sample timepoints.</p>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_bin_gt10</span></span></code></pre></div>
@@ -887,7 +905,9 @@ passed to this argument.</p>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>

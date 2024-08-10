@@ -1,0 +1,57 @@
+---
+title: "Helper Functions for Exploratory Data Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{vpc-exact-bins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will demonstrate the use of `pmxhelpr` helper functions for exploratory data analysis. First we will load the required packages.
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(PKNCA)
+library(ggplot2, warn.conflicts =  FALSE)
+library(Hmisc, warn.conflicts = FALSE)
+```
+
+The dataset we are going to explore is `data_sad`. We can take a quick look at the dataset using `glimpse()` from the dplyr package.
+
+```{r data-glimpse}
+glimpse(data_sad)
+```
+
+We can see that this is an analysis-ready dataset formatted for population pharmacokinetic modeling in NONMEM. The dataset contains NONMEM and mrgsolve reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, the dependent variable of drug concentration in original, untransformed units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables there are two character variables: USUBJID and PART. There are two unique values of PART indicating two distinct study cohorts: Single Ascending Dose (SAD) and Food Effect (FE).
+
+```{r data-part}
+unique(data_sad$PART)
+```
+
+
+Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ.
+
+```{r data-plotdata}
+plot_data <- data_sad %>% 
+  filter(EVID == 0) %>% 
+  mutate(`Dose (mg)` = factor(DOSE), 
+         DV = case_when(BLQ == 0 ~ ODV, 
+                        BLQ %in% c(-1, 1) ~ LLOQ/2, 
+                        .default = NA_real_), 
+         DNDV = ODV/DOSE)
+
+plot_ctsum(plot_data, 
+           col_var = "DOSE",
+           sumfun = "mean_sdl", 
+           log_y = TRUE) + 
+  theme_bw()
+```

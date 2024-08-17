@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 This vignette will review the limitations of the `vpc()` function for datasets containing exact bins as the motivating example for development `plot_vpc_exactbins()`. First we will load the required packages.
 
 ```{r setup, echo=TRUE, warning=FALSE}
-options(scipen = 999)
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
@@ -395,9 +395,9 @@ vpc_exact_bin_gt10
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
-We can also pass stratifying variables to the argument `strat_vars` in order to facet our plots by relevant extrinsic study design covariates or intrinsic subject covariates. The stratify variables specified in `strat_vars` are also passed to the `stratify` argument of `vpc()` in order to facet the resulting plots. Currently, only up to two variables can be passed to this argument.
+We can also pass stratifying variables to the argument `strat_var` in order to facet our plots by relevant extrinsic study design covariates or intrinsic subject covariates. The stratify variables specified in `strat_var` are also passed to the `stratify` argument of `vpc()` in order to facet the resulting plots. Currently, only one variable can be passed to this argument.
 
-```{r r plot-exact-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-exact-one-strata, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
   strat_vars = "FOOD_f",

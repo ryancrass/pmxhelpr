@@ -9,10 +9,11 @@ plot_vpc_exactbins(
   pcvpc = FALSE,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  strat_vars = NULL,
+  strat_var = NULL,
   irep_name = "SIM",
   min_bin_count = 1,
   lower_bound = 0,
+  show_rep = TRUE,
   ...
 )
 }
@@ -27,8 +28,8 @@ Defaults are \code{"TIME"} and \code{"NTIME"}.}
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
 Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
-\item{strat_vars}{Character vector of stratification variables passed to \code{stratify} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, maximum length = 2.}
+\item{strat_var}{Character string of stratification variable passed to \code{stratify} argument
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, only a single stratifying variable is supported.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Must be a string. Default is \code{"SIM"}.}
 
@@ -37,6 +38,8 @@ in binned plot layers. This argument drops small bins from summary statistic cal
 but retains these observations in the observed data points.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
+
+\item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

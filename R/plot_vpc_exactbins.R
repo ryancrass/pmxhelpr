@@ -5,11 +5,12 @@
 #'
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `TIME`
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
-#' @param strat_vars Character vector of stratification variables passed to `stratify` argument
-#'    of [vpc::vpc()]. Currently, maximum length = 2.
+#' @param strat_var Character string of stratification variable passed to `stratify` argument
+#'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
+#' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
 #'
@@ -41,10 +42,11 @@ plot_vpc_exactbins <- function(sim,
                                               IPRED = "IPRED",
                                               SIMDV = "SIMDV",
                                               OBSDV = "OBSDV"),
-                              strat_vars=NULL,
+                              strat_var=NULL,
                               irep_name = "SIM",
                               min_bin_count=1,
                               lower_bound = 0,
+                              show_rep = TRUE,
                               ...)
   {
 
@@ -54,9 +56,9 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, time_vars[["NTIME"]])
   check_varsindf(sim, output_vars[["SIMDV"]])
   check_varsindf(sim, output_vars[["OBSDV"]])
-  check_varsindf(sim, strat_vars)
+  check_varsindf(sim, strat_var)
   check_varsindf(sim, irep_name)
-  if(!is.null(strat_vars)) {check_factor(sim, strat_vars)}
+  if(!is.null(strat_var)) {check_factor(sim, strat_var)}
 
   ##Data Rename
   sim <- sim |>
@@ -65,12 +67,12 @@ plot_vpc_exactbins <- function(sim,
   ##Observed Data
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
-    df_pcdv(strat_vars = strat_vars, output_vars = c(DV = "OBSDV", PRED = "PRED"),
+    df_pcdv(strat_vars = strat_var, output_vars = c(DV = "OBSDV", PRED = "PRED"),
             lower_bound = lower_bound) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin
-  bin_count <- df_nobsbin(obs, bin_var = "NTIME", strat_vars = strat_vars)
+  bin_count <- df_nobsbin(obs, bin_var = "NTIME", strat_vars = strat_var)
 
   ##Identify observed summary data
   obs_sum <- dplyr::left_join(obs, bin_count) |>
@@ -85,9 +87,9 @@ plot_vpc_exactbins <- function(sim,
 
   ##VPC Function
   plot <- vpc::vpc(
-    sim = sim_sum,
-    obs = obs_sum,
-    stratify = strat_vars,
+    sim = as.data.frame(sim_sum),
+    obs = as.data.frame(obs_sum),
+    stratify = strat_var,
     obs_cols = list("dv" = "OBSDV", "idv" = "NTIME", "pred" = "PRED"),
     sim_cols = list("dv" = "SIMDV", "idv" = "NTIME", "pred" = "PRED"),
     bins = bins,
@@ -105,6 +107,13 @@ plot_vpc_exactbins <- function(sim,
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                  shape = 1, alpha = 0.5, size = 1)
   }
+
+  ##Add Subtitle with Replicates
+  if(show_rep == TRUE){
+    plot <- plot+
+      ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
+  }
+
   return(plot)
 }
 
@@ -189,6 +198,8 @@ df_pcdv <- function(data,
     dplyr::rename(dplyr::all_of(output_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
-                  PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound)))
+                  PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound))) |>
+    dplyr::ungroup()
+
   return(data)
 }

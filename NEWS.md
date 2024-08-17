@@ -1,6 +1,4 @@
-# pmxhelpr (development version)
-
-# pmxhelpr 0.0.0.9000
+# pmxhelpr 0.0.1
 
 * `data_sad` NONMEM and mrgsolve analysis-ready dataset for a hypothetical SAD study with assessment of food effect.
 * `model` mrgsolve model file (class `mrgmod`) in the internal pmxhelpr model library .

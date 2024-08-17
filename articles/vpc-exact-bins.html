@@ -69,7 +69,7 @@ function for datasets containing exact bins as the motivating example
 for development <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>. First we will load
 the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -890,12 +890,12 @@ not plotted for the final two timepoint containing only fewer than 10
 quantifiable observations; however, the observations themselves are
 still plotted.</p>
 <p>We can also pass stratifying variables to the argument
-<code>strat_vars</code> in order to facet our plots by relevant
-extrinsic study design covariates or intrinsic subject covariates. The
-stratify variables specified in <code>strat_vars</code> are also passed
-to the <code>stratify</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> in order to
-facet the resulting plots. Currently, only up to two variables can be
-passed to this argument.</p>
+<code>strat_var</code> in order to facet our plots by relevant extrinsic
+study design covariates or intrinsic subject covariates. The stratify
+variables specified in <code>strat_var</code> are also passed to the
+<code>stratify</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> in order to facet
+the resulting plots. Currently, only one variable can be passed to this
+argument.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_exact_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, FOOD_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -911,7 +911,7 @@ passed to this argument.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/r%20plot-exact-min-bin-count-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" width="576"></p>
   </main>
 </div>
 

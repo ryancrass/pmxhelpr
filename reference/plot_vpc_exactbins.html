@@ -50,10 +50,11 @@ that returns a <code>ggplot2</code> object.</p>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  strat_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -80,9 +81,9 @@ Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
 Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>.</p></dd>
 
 
-<dt id="arg-strat-vars">strat_vars<a class="anchor" aria-label="anchor" href="#arg-strat-vars"></a></dt>
-<dd><p>Character vector of stratification variables passed to <code>stratify</code> argument
-of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Currently, maximum length = 2.</p></dd>
+<dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
+<dd><p>Character string of stratification variable passed to <code>stratify</code> argument
+of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Currently, only a single stratifying variable is supported.</p></dd>
 
 
 <dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
@@ -97,6 +98,10 @@ but retains these observations in the observed data points.</p></dd>
 
 <dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
 <dd><p>Lower bound of the dependent variable for prediction correction. Default is <code>0</code>.</p></dd>
+
+
+<dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
+<dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

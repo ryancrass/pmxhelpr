@@ -97,6 +97,10 @@ plot_vpc_exactbins <- function(sim,
     pred_corr_lower_bnd = lower_bound,
     ...)
 
+  if(!ggplot2::is.ggplot(plot)) {
+    return(plot)
+  }
+
   ##Overlay Observations
   if(pcvpc == FALSE){
     plot <- plot+

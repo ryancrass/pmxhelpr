@@ -7,6 +7,8 @@
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param strat_var Character string of stratification variable passed to `stratify` argument
 #'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to `lloq` argument
+#'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV`is missing in `sim` where < LLOQ.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
@@ -35,20 +37,21 @@
 #' log_y = TRUE)
 
 plot_vpc_exactbins <- function(sim,
-                              pcvpc = FALSE,
-                              time_vars = c(TIME = "TIME",
-                                            NTIME = "NTIME"),
-                              output_vars = c(PRED = "PRED",
-                                              IPRED = "IPRED",
-                                              SIMDV = "SIMDV",
-                                              OBSDV = "OBSDV"),
-                              strat_var=NULL,
-                              irep_name = "SIM",
-                              min_bin_count=1,
-                              lower_bound = 0,
-                              show_rep = TRUE,
-                              ...)
-  {
+                               pcvpc = FALSE,
+                               time_vars = c(TIME = "TIME",
+                                             NTIME = "NTIME"),
+                               output_vars = c(PRED = "PRED",
+                                               IPRED = "IPRED",
+                                               SIMDV = "SIMDV",
+                                               OBSDV = "OBSDV"),
+                               strat_var=NULL,
+                               irep_name = "SIM",
+                               min_bin_count=1,
+                               lower_bound = 0,
+                               show_rep = TRUE,
+                               loq = NULL,
+                               ...)
+{
 
   #Checks
   check_df(sim)
@@ -56,13 +59,20 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, time_vars[["NTIME"]])
   check_varsindf(sim, output_vars[["SIMDV"]])
   check_varsindf(sim, output_vars[["OBSDV"]])
+  check_varsindf(sim, "MDV")
   check_varsindf(sim, strat_var)
   check_varsindf(sim, irep_name)
   if(!is.null(strat_var)) {check_factor(sim, strat_var)}
+  if(!is.null(loq)) {check_numeric(loq)}
 
   ##Data Rename
   sim <- sim |>
     dplyr::rename((dplyr::any_of(c(output_vars, time_vars))))
+
+  #Set MDV to zero for appropriate censoring if not pred=corrected
+  if(pcvpc==FALSE & !is.null(loq)){
+    sim$MDV <- 0
+  }
 
   ##Observed Data
   obs <- sim |>
@@ -95,6 +105,7 @@ plot_vpc_exactbins <- function(sim,
     bins = bins,
     pred_corr = pcvpc,
     pred_corr_lower_bnd = lower_bound,
+    lloq = loq,
     ...)
 
   if(!ggplot2::is.ggplot(plot)) {
@@ -105,11 +116,11 @@ plot_vpc_exactbins <- function(sim,
   if(pcvpc == FALSE){
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                 shape = 1, alpha = 0.5, size = 1)
+                          shape = 1, alpha = 0.5, size = 1)
   } else {
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                 shape = 1, alpha = 0.5, size = 1)
+                          shape = 1, alpha = 0.5, size = 1)
   }
 
   ##Add Subtitle with Replicates
@@ -145,8 +156,8 @@ plot_vpc_exactbins <- function(sim,
 #' df_nobsbin(data_sad)
 #'
 df_nobsbin <- function(data,
-                     bin_var = "NTIME",
-                     strat_vars = "CMT"){
+                       bin_var = "NTIME",
+                       strat_vars = "CMT"){
   check_df(data)
   check_varsindf(data, bin_var)
   check_varsindf(data, strat_vars)

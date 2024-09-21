@@ -42,6 +42,15 @@ check_factor <- function(data, var){
   }
 }
 
+check_numeric <- function(var){
+  input_name <-deparse(substitute(var))
+  output_warning <- paste0("argument `", input_name, "` must be coercible to class `numeric`")
+  num <- suppressWarnings(as.numeric(var))
+  if(is.na(num) | !is.numeric(num)){
+    rlang::abort(message = output_warning)
+  }
+}
+
 check_integer <- function(var){
   input_name <-deparse(substitute(var))
   output_warning <- paste0("argument `", input_name, "` must be coercible to class `integer`")

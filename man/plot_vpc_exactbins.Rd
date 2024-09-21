@@ -14,6 +14,7 @@ plot_vpc_exactbins(
   min_bin_count = 1,
   lower_bound = 0,
   show_rep = TRUE,
+  loq = NULL,
   ...
 )
 }
@@ -40,6 +41,9 @@ but retains these observations in the observed data points.}
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
+
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

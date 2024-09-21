@@ -55,6 +55,7 @@ that returns a <code>ggplot2</code> object.</p>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,6 +103,11 @@ but retains these observations in the observed data points.</p></dd>
 
 <dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
 <dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
+<dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to <code>lloq</code> argument
+of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Specifying this argument implies that <code>OBSDV</code>is missing in <code>sim</code> where &lt; LLOQ.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

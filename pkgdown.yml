@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   vpc-exact-bins: vpc-exact-bins.html
-last_built: 2024-09-22T04:38Z
+last_built: 2024-09-22T04:40Z
 urls:
   reference: https://ryancrass.github.io/pmxhelpr/reference
   article: https://ryancrass.github.io/pmxhelpr/articles

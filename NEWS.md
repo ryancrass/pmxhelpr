@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.0.2
 
 # pmxhelpr 0.0.1
 

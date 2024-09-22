@@ -93,6 +93,9 @@
 <code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin.</li>
 <li>
 <code>df_pcdv</code> returns a <code>data.frame</code> containing the prediction-corrected dependent variable.</li>
+<li>
+<code>plot_legend</code> returns a <code>ggplot</code> object containing a legend for a VPC plot generated using <code>plot_vpc_exactbins</code>
+</li>
 </ul>
 </li>
 </ul>
@@ -107,6 +110,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metrumresearchgroup/mrgsolve" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Read internal analysis-ready dataset for an example Phase 1 study</span></span>
@@ -125,8 +129,9 @@
 <span><span class="co">#Plot output in a Prediction-corrected Visual Predictive Check (VPC)</span></span>
 <span>  <span class="co">#Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics</span></span>
 <span>  <span class="co">#Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE</span></span>
+<span>  <span class="co">#LLOQ in the dataset is 1 ng/mL</span></span>
 <span>  </span>
-<span><span class="va">vpc_exact_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span><span class="va">plot_obj_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, FOOD_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>  strat_vars <span class="op">=</span> <span class="st">"FOOD_f"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -134,10 +139,18 @@
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  loq <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">vpc_exact_food</span></span></code></pre></div>
+<span><span class="va">plot_obj_food</span></span>
+<span></span>
+<span><span class="co">#Add Legend</span></span>
+<span><span class="va">plot_obj_leg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>, ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_leg</span></span>
+<span></span>
+<span><span class="va">plot_obj_food_wleg</span> <span class="op">&lt;-</span> <span class="va">plot_obj_food</span> <span class="op">+</span> <span class="va">plot_obj_leg</span> <span class="op">+</span> <span class="fu">plot_layout</span><span class="op">(</span>widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_food_wleg</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

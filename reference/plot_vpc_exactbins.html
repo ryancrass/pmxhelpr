@@ -50,12 +50,14 @@ that returns a <code>ggplot2</code> object.</p>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
+<span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, obs_ci <span class="op">=</span> <span class="cn">TRUE</span>, pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span></span>
+<span>    <span class="cn">TRUE</span>, obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,6 +84,11 @@ Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
 Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>.</p></dd>
 
 
+<dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
+<dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to <code>lloq</code> argument
+of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Specifying this argument implies that <code>OBSDV</code>is missing in <code>sim</code> where &lt; LLOQ.</p></dd>
+
+
 <dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
 <dd><p>Character string of stratification variable passed to <code>stratify</code> argument
 of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Currently, only a single stratifying variable is supported.</p></dd>
@@ -97,17 +104,26 @@ in binned plot layers. This argument drops small bins from summary statistic cal
 but retains these observations in the observed data points.</p></dd>
 
 
-<dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
-<dd><p>Lower bound of the dependent variable for prediction correction. Default is <code>0</code>.</p></dd>
-
-
 <dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
 <dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.</p></dd>
 
 
-<dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
-<dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to <code>lloq</code> argument
-of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Specifying this argument implies that <code>OBSDV</code>is missing in <code>sim</code> where &lt; LLOQ.</p></dd>
+<dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
+<dd><p>Lower bound of the dependent variable for prediction correction. Default is <code>0</code>.</p></dd>
+
+
+<dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
+<dd><p>Named list of logicals specifying which layers to include on the plot passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.
+Entire <code>list</code> must be specified if modifying from default.</p>
+<p>Default is:</p><ul><li><p>Observed points: <code>obs_dv</code> = FALSE.</p></li>
+<li><p>Observed quantiles: <code>obs_ci</code> = TRUE</p></li>
+<li><p>Simulated inter-quantile range:<code>pi</code> = FALSE</p></li>
+<li><p>Simulated inter-quantile area: <code>pi_as_area</code> = FALSE</p></li>
+<li><p>Simulated Quantile CI: <code>pi_ci</code> = TRUE</p></li>
+<li><p>Observed Median: <code>obs_median</code> = TRUE</p></li>
+<li><p>Simulated Median: <code>sim_median</code> = FALSE</p></li>
+<li><p>Simulated Median CI: <code>sim_median_ci</code> = TRUE</p></li>
+</ul></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -134,9 +150,11 @@ of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vp
 <span class="r-in"><span>pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>loq <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(NTIME)`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(NTIME)`</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Prediction-correction cannot be used together with censored data (&lt;LLOQ or &gt;ULOQ). VPC plot will be shown for non-censored data only!</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

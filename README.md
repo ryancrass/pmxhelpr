@@ -96,6 +96,6 @@ plot_obj_food
 plot_obj_leg <- plot_legend(pi = c(0.05, 0.95), ci = c(0.05, 0.95))
 plot_obj_leg
 
-plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(widths = c(2,1))
+plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))
 plot_obj_food_wleg
 ```

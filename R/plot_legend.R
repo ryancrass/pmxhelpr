@@ -2,7 +2,8 @@
 #' Plot a legend for a visual predictive check (VPC)
 #'
 #' @param ci simulated confidence interval plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
-#' @param pi prediction intervals for plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95),
+#' @param pi prediction intervals for plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
+#' @param ... Other arguments passed to [ggplot2::theme()].
 #'
 #' @inheritParams plot_vpc_exactbins
 #' @return a ggplot2 object
@@ -23,16 +24,17 @@ plot_legend <- function(ci = c(0.05, 0.95),
                             shown = list(obs_dv = TRUE, obs_ci = TRUE,
                                          pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
                                          obs_median = TRUE,
-                                         sim_median =FALSE, sim_median_ci = TRUE)){
+                                         sim_median =FALSE, sim_median_ci = TRUE),
+                        ...){
 
   obs <- "Obs"
   obs_cent <- "Obs Med"
   sim_cent <- "Sim Med"
   sim_cilab <- paste0("Sim ", (max(ci)-min(ci))*100, "% CI")
-  obs_pilab <- paste0("Obs ", pi[1]*100,"th", ",", pi[2]*100, "th")
-  sim_pilab <- paste0("Sim ", pi[1]*100,"th-", pi[2]*100, "th")
+  obs_pilab <- paste0("Obs ", pi[1]*100,"th", " and ", pi[2]*100, "th")
+  sim_pilab <- paste0("Sim ", pi[1]*100,"th - ", pi[2]*100, "th")
   sim_cilab_cent <- paste0(sim_cilab, " Med")
-  sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", ",", pi[2]*100, "th")
+  sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
 
   plot <- ggplot2::ggplot(data = data.frame(x=NA_real_, y= NA_real_), ggplot2::aes(x,y))
 
@@ -74,8 +76,11 @@ plot_legend <- function(ci = c(0.05, 0.95),
                         ))+
     ggplot2::theme_void()+
     ggplot2::theme(legend.position = "inside",
+                   legend.box = "horizontal",
+                   legend.title.position = "top",
                    legend.title = ggplot2::element_text(size = 10),
-                   legend.text = ggplot2::element_text(size = 8))+
+                   legend.text = ggplot2::element_text(size = 8),
+                   ...)+
     ggplot2::guides(shape = ggplot2::guide_legend(order=1),
                     linetype = ggplot2::guide_legend(order=2),
                     fill = ggplot2::guide_legend(order=3))

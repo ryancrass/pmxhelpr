@@ -9,12 +9,14 @@ plot_vpc_exactbins(
   pcvpc = FALSE,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  loq = NULL,
   strat_var = NULL,
   irep_name = "SIM",
   min_bin_count = 1,
-  lower_bound = 0,
   show_rep = TRUE,
-  loq = NULL,
+  lower_bound = 0,
+  shown = list(obs_dv = FALSE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
+    TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
   ...
 )
 }
@@ -29,6 +31,9 @@ Defaults are \code{"TIME"} and \code{"NTIME"}.}
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
 Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
+
 \item{strat_var}{Character string of stratification variable passed to \code{stratify} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, only a single stratifying variable is supported.}
 
@@ -38,12 +43,24 @@ of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, only a single stratifying varia
 in binned plot layers. This argument drops small bins from summary statistic calculation
 but retains these observations in the observed data points.}
 
-\item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
-
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
+\item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
+
+\item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+Entire \code{list} must be specified if modifying from default.
+
+Default is:
+\itemize{
+\item Observed points: \code{obs_dv} = FALSE.
+\item Observed quantiles: \code{obs_ci} = TRUE
+\item Simulated inter-quantile range:\code{pi} = FALSE
+\item Simulated inter-quantile area: \code{pi_as_area} = FALSE
+\item Simulated Quantile CI: \code{pi_ci} = TRUE
+\item Observed Median: \code{obs_median} = TRUE
+\item Simulated Median: \code{sim_median} = FALSE
+\item Simulated Median CI: \code{sim_median_ci} = TRUE
+}}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }
@@ -67,5 +84,6 @@ sim = simout,
 pcvpc = TRUE,
 pi = c(0.05, 0.95),
 ci = c(0.05, 0.95),
+loq = 1,
 log_y = TRUE)
 }

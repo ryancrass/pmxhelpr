@@ -5,14 +5,27 @@
 #'
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `TIME`
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
-#' @param strat_var Character string of stratification variable passed to `stratify` argument
-#'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to `lloq` argument
 #'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV`is missing in `sim` where < LLOQ.
+#' @param strat_var Character string of stratification variable passed to `stratify` argument
+#'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
+#' @param shown Named list of logicals specifying which layers to include on the plot passed to `show` argument of [vpc::vpc()].
+#'    Entire `list` must be specified if modifying from default.
+#'
+#'    Default is:
+#'    + Observed points: `obs_dv` = FALSE.
+#'    + Observed quantiles: `obs_ci` = TRUE
+#'    + Simulated inter-quantile range:`pi` = FALSE
+#'    + Simulated inter-quantile area: `pi_as_area` = FALSE
+#'    + Simulated Quantile CI: `pi_ci` = TRUE
+#'    + Observed Median: `obs_median` = TRUE
+#'    + Simulated Median: `sim_median` = FALSE
+#'    + Simulated Median CI: `sim_median_ci` = TRUE
+#'
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
 #'
@@ -34,6 +47,7 @@
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
 #' ci = c(0.05, 0.95),
+#' loq = 1,
 #' log_y = TRUE)
 
 plot_vpc_exactbins <- function(sim,
@@ -44,12 +58,16 @@ plot_vpc_exactbins <- function(sim,
                                                IPRED = "IPRED",
                                                SIMDV = "SIMDV",
                                                OBSDV = "OBSDV"),
+                               loq = NULL,
                                strat_var=NULL,
                                irep_name = "SIM",
                                min_bin_count=1,
-                               lower_bound = 0,
                                show_rep = TRUE,
-                               loq = NULL,
+                               lower_bound = 0,
+                               shown = list(obs_dv = FALSE, obs_ci = TRUE,
+                                            pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                                            obs_median = TRUE,
+                                            sim_median =FALSE, sim_median_ci = TRUE),
                                ...)
 {
 
@@ -64,6 +82,10 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, irep_name)
   if(!is.null(strat_var)) {check_factor(sim, strat_var)}
   if(!is.null(loq)) {check_numeric(loq)}
+
+  ##Set vpc show to ensure obs_dv option is FALSE
+  show_vpc <- shown
+  show_vpc$obs_dv <- FALSE
 
   ##Data Rename
   sim <- sim |>
@@ -106,18 +128,21 @@ plot_vpc_exactbins <- function(sim,
     pred_corr = pcvpc,
     pred_corr_lower_bnd = lower_bound,
     lloq = loq,
+    show = show_vpc,
     ...)
 
   if(!ggplot2::is.ggplot(plot)) {
     return(plot)
   }
 
-  ##Overlay Observations
-  if(pcvpc == FALSE){
+  ##Overlay Observations if Requested
+  if(shown$obs_dv == TRUE & pcvpc == FALSE){
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                           shape = 1, alpha = 0.5, size = 1)
-  } else {
+  }
+
+  if(shown$obs_dv == TRUE & pcvpc == TRUE) {
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                           shape = 1, alpha = 0.5, size = 1)

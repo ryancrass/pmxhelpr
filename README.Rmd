@@ -43,6 +43,7 @@ Functions in this package use the following naming conventions:
 * Helper functions: *ReturnObject*_*Purpose*
   + `df_nobsbin` returns a summary `data.frame` with counts of the number of missing and non-missing observations per bin.
   + `df_pcdv` returns a `data.frame` containing the prediction-corrected dependent variable.
+  + `plot_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
 
 ## Example Visual Predictive Check Workflow
 
@@ -54,6 +55,7 @@ library(dplyr)
 library(ggplot2)
 library(mrgsolve)
 library(vpc)
+library(patchwork)
 library(withr)
 
 #Read internal analysis-ready dataset for an example Phase 1 study
@@ -72,8 +74,9 @@ glimpse(simout)
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
   #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
+  #LLOQ in the dataset is 1 ng/mL
   
-vpc_exact_food <- plot_vpc_exactbins(
+plot_obj_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
   strat_vars = "FOOD_f",
   pcvpc = TRUE,
@@ -81,8 +84,16 @@ vpc_exact_food <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
+  loq = 1,
   log_y = TRUE
 )
 
-vpc_exact_food
+plot_obj_food
+
+#Add Legend
+plot_obj_leg <- plot_legend(pi = c(0.05, 0.95), ci = c(0.05, 0.95))
+plot_obj_leg
+
+plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(widths = c(2,1))
+plot_obj_food_wleg
 ```

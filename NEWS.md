@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.0.3
 * Additional functionality for `plot_vpc_exactbins`
   + `shown` argument added to facilitate customization of which layers are shown in the plot and standardize with new function `plot_legend`. Passed to `show` argument of `vpc::vpc()`
 * `plot_legend` helper function to generate a legend for a VPC plot generated using `plot_vpc_exactbins()`, which can be combined with the VPC plot using the `patchwork` package

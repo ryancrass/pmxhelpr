@@ -46,7 +46,8 @@
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span>, obs_ci <span class="op">=</span> <span class="cn">TRUE</span>, pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span></span>
-<span>    <span class="cn">TRUE</span>, obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="cn">TRUE</span>, obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -59,7 +60,7 @@
 
 
 <dt id="arg-pi">pi<a class="anchor" aria-label="anchor" href="#arg-pi"></a></dt>
-<dd><p>prediction intervals for plotted. Should match argument passed to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Default is c(0.05, 0.95),</p></dd>
+<dd><p>prediction intervals for plotted. Should match argument passed to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Default is c(0.05, 0.95).</p></dd>
 
 
 <dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
@@ -74,6 +75,10 @@ Entire <code>list</code> must be specified if modifying from default.</p>
 <li><p>Simulated Median: <code>sim_median</code> = FALSE</p></li>
 <li><p>Simulated Median CI: <code>sim_median_ci</code> = TRUE</p></li>
 </ul></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Other arguments passed to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

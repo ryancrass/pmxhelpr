@@ -1,5 +1,5 @@
 ---
-title: "VPC Plots with BLQ Censoring of Obseorved Quantiles"
+title: "VPC Plots with BLQ Censoring"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{vpc-obs-quant-blq-cens}
@@ -226,9 +226,11 @@ Specifying `loq` assumes that in the input dataset for the plot, `sim`, `MDV=1` 
   - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is missing below `loq`. Thus, the black lines depicting quantiles of the observed terminate at different timepoints in the plot, earlier in lower quantiles and later in higher quantiles. - 
   - In the calcluation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlyting PK profile in the absence of limits to assay sensitivity.
   
-The method specifying the value of `loq` is the preferred method for use in the `pmexhelpr` package; however, it is not the default method for the all-too-common case where the LLOQ may not be known to the pharmacometrician. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`), not Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`), as noted in the documentation for the `vpc` package.
+The method specifying the value of `loq` is the preferred method for use in the `pmexhelpr` package; however, it is not the default method for the all-too-common case where the LLOQ may not be known to the pharmacometrician. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`), not Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`). 
 
-```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+If`loq` is specified with a`pcvpc = TRUE`, an error message will print from `vpc::vpc()`.
+
+```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
@@ -238,7 +240,8 @@ vpc_pc <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
-  pcvpc = TRUE
+  pcvpc = TRUE,
+  loq = 1
 )
 
 vpc_pc

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vpc-exact-bins.html">VPC Plots with Exact Bins</a></li>
-    <li><a class="dropdown-item" href="../articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring of Obseorved Quantiles</a></li>
+    <li><a class="dropdown-item" href="../articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -38,13 +38,14 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="pmxhelpr-development-version">pmxhelpr (development version)<a class="anchor" aria-label="anchor" href="#pmxhelpr-development-version"></a></h2>
-<ul><li>Additional functionality for <code>plot_vpc_exactbins</code>
+<ul><li>
+<p>Additional functionality for <code>plot_vpc_exactbins</code></p>
 <ul><li>
 <code>shown</code> argument added to facilitate customization of which layers are shown in the plot and standardize with new function <code>plot_legend</code>. Passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>
 </li>
 </ul></li>
-<li>
-<code>plot_legend</code> helper function to generate a legend for a VPC plot generated using <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>, which can be combined with the VPC plot using the <code>patchwork</code> package</li>
+<li><p><code>plot_legend</code> helper function to generate a legend for a VPC plot generated using <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>, which can be combined with the VPC plot using the <code>patchwork</code> package</p></li>
+<li><p><code>VPC Plots with BLQ Censoring</code> vignette demonstrating appropriate handling of data missing due to assay sensitivity (below the lower limit of quantification) using <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> and workflow leveraging <code>df_mrgsim_replicate</code>.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="pmxhelpr-002">pmxhelpr 0.0.2<a class="anchor" aria-label="anchor" href="#pmxhelpr-002"></a></h2>
@@ -57,16 +58,12 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="pmxhelpr-001">pmxhelpr 0.0.1<a class="anchor" aria-label="anchor" href="#pmxhelpr-001"></a></h2>
-<ul><li>
-<code>data_sad</code> NONMEM and mrgsolve analysis-ready dataset for a hypothetical SAD study with assessment of food effect.</li>
-<li>
-<code>model</code> mrgsolve model file (class <code>mrgmod</code>) in the internal pmxhelpr model library .</li>
-<li>
-<code>model_load</code> function to load internal models from the pmxhelpr model library.</li>
-<li>
-<code>df_mrgsim_replicate</code> mrgsim wrapper function to run a simulation that replicates the input dataset multiple times, intended for application to generating Visual Predictive Check (VPC) simulation-based model diagnostics.</li>
-<li>
-<code>plot_vpc_exactbins</code> vpc wrapper function to using an exact time binning variable in the input dataset (e.g. nominal time) with plotting of observed data points using actual time.</li>
+<ul><li><p><code>data_sad</code> NONMEM and mrgsolve analysis-ready dataset for a hypothetical SAD study with assessment of food effect.</p></li>
+<li><p><code>model</code> mrgsolve model file (class <code>mrgmod</code>) in the internal pmxhelpr model library .</p></li>
+<li><p><code>model_load</code> function to load internal models from the pmxhelpr model library.</p></li>
+<li><p><code>df_mrgsim_replicate</code> mrgsim wrapper function to run a simulation that replicates the input dataset multiple times, intended for application to generating Visual Predictive Check (VPC) simulation-based model diagnostics.</p></li>
+<li><p><code>plot_vpc_exactbins</code> vpc wrapper function to using an exact time binning variable in the input dataset (e.g. nominal time) with plotting of observed data points using actual time.</p></li>
+<li><p><code>VPC Plots with Exact Bins</code> vignette demostrating use case for <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> and workflow leveraging <code>df_mrgsim_replicate</code>.</p></li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

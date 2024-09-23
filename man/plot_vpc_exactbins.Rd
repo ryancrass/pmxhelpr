@@ -15,7 +15,7 @@ plot_vpc_exactbins(
   min_bin_count = 1,
   show_rep = TRUE,
   lower_bound = 0,
-  shown = list(obs_dv = FALSE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
+  shown = list(obs_dv = TRUE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
     TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
   ...
 )

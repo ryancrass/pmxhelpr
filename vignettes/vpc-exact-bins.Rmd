@@ -7,14 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include=FALSE}
+```{r usethis, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-This vignette will review the limitations of the `vpc()` function for datasets containing exact bins as the motivating example for development `plot_vpc_exactbins()`. First we will load the required packages.
+This vignette will review the limitations of the `vpc()` function in the `vpc` package for datasets containing exact bins as the motivating reason for development `plot_vpc_exactbins()`. The `vpc::vpc()`function offers a lot of great functionality to generate VPC plots including combining the data processing and plotting steps into one function call, built in options for automatic binning, an easy option for prediction-correction, and functionality for processing data accounting for censoring at the lower limit of quantification (LLOQ). 
+
+However, although `vpc()` contains many great options to automatically identify bins in the data, it is not optimized for input data containing exact bins. 
+
+Let's get started. First, we will load the required packages.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -104,7 +108,11 @@ see(model)
 
 Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs) to validate the model. We will use `df_mrgsim_replicate()` to run the simulation for the VPC. This is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to replicates.
 
-We can pass `data_sad` and `model` from the previous steps to the data and model arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the output_vars argument. We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
+We can pass `data_sad` and `model` from the previous steps to the data and model arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the output_vars argument. 
+
+**Note: Currently output variables `IPRED` and `DV` are required in `model` capture statement**
+
+We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
 
 ```{r df_mrgsim_replicate}
 simout <- df_mrgsim_replicate(data = data_sad, 
@@ -130,9 +138,7 @@ Glimpsing the output from `df_mrgsim_replicate()` reveals the following model ou
   - `SIMDV` (simulated dependent variable)
   - `OBSDV` (observed dependent variable). 
 
-The `vpc::vpc()`function offers a lot of great functionality to generate VPC plots, including both the data processing and plotting steps in one function call. However, although `vpc()` contains many great options to automatically identify bins in the data, it is NOT optimized for input data containing exact bins. 
-
-The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
+Now that we have run the simulation, we generate our VPC plots using `vpc()`.The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
 
   - `time`: Divide bins equally over time (or whatever independent variable is used). Recommended only when there is no observable clustering in the independent variable.
   - `data`: Divide bins equally over the amount of data ordered by independent variable. Recommended only when data are for nominal timepoints and all datapoints are available.

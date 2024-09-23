@@ -180,10 +180,15 @@ measurements.</p>
 keep in mind assay limitations and their potential impact on visual
 trends. To examine this further, let’s visualize the two different
 concentrations variables in the <code>plot_data</code> object for a
-single dose: - <code>ODV</code>: Original dependent variable based on
-the source data. Data below the LLOQ are censored and set to missing. -
-<code>DV</code>: Derived dependent variable with data below the LLOQ set
-to <code>0.5 x LLOQ</code>.</p>
+single dose:</p>
+<ul>
+<li>
+<code>ODV</code>: Original dependent variable based on the source
+data. Data below the LLOQ are censored and set to missing.</li>
+<li>
+<code>DV</code>: Derived dependent variable with data below the LLOQ
+set to <code>0.5 x LLOQ</code>.</li>
+</ul>
 <p>We will focus in on the 100 mg dose, which was included in both
 Part1-SAD and Part2-FE, and appears to display some of the most visual
 artifact of censoring at the lloq.</p>
@@ -290,12 +295,17 @@ dose level we have been exploring.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim100</span> <span class="op">&lt;-</span> <span class="va">simout</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">DOSE</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span></span></code></pre></div>
-<p>There are two potential approaches proccessing and plotting the VPC:
-1. <code>Exclude BLQ</code> remove missing observations
-(<code>MDV=1</code>) in both the observed and simulated data 2.
+<p>There are two potential approaches proccessing and plotting the
+VPC:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>Exclude BLQ</code> remove missing observations
+(<code>MDV=1</code>) in both the observed and simulated data</li>
+<li>
 <code>Censor Observed Quantiles</code> set quantiles of the observed
 data per bin to <code>NA</code> if the sample representing that quantile
-of the observed is BLQ (<code>MDV=1</code>)</p>
+of the observed is BLQ (<code>MDV=1</code>)</li>
+</ol>
 <p>Let’s plot using the default arguments to
 <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> with some adjustments to plot axes and
 labels and stratified by Study Part.</p>
@@ -352,17 +362,20 @@ confidence intervals.</p>
 <p>Specifying <code>loq</code> assumes that in the input dataset for the
 plot, <code>sim</code>, <code>MDV=1</code> represents <em>only</em> BLQ
 samples (e.g., <code>EVID = 0</code>). The <code>MDV</code> variable in
-<code>sim</code> is set to zero (0). - In the calculation of the summary
-statistics of the observed data, the quantiles are calculated across all
-data per bin and taken as <code>NA</code> when that quantile of
-observations is missing below <code>loq</code>. Thus, the black lines
-depicting quantiles of the observed terminate at different timepoints in
-the plot, earlier in lower quantiles and later in higher quantiles. - -
-In the calcluation of summary statistics of the simulated data, the
+<code>sim</code> is set to zero (0).</p>
+<ul>
+<li>In the calculation of the summary statistics of the observed data,
+the quantiles are calculated across all data per bin and taken as
+<code>NA</code> when that quantile of observations is missing below
+<code>loq</code>. Thus, the black lines depicting quantiles of the
+observed terminate at different timepoints in the plot, earlier in lower
+quantiles and later in higher quantiles. -</li>
+<li>In the calcluation of summary statistics of the simulated data, the
 simulated confidence intervals are based on all data without any
 censoring, which is representative of the model-predicted “true”
 underlyting PK profile in the absence of limits to assay
-sensitivity.</p>
+sensitivity.</li>
+</ul>
 <p>The method specifying the value of <code>loq</code> is the preferred
 method for use in the <code>pmexhelpr</code> package; however, it is not
 the default method for the all-too-common case where the LLOQ may not be

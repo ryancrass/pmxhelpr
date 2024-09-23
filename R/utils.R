@@ -23,6 +23,14 @@ check_mrgmod <- function(mod){
   }
 }
 
+check_mrgmod_outputvars <- function(mod, output_vars = c("IPRED", "DV")){
+  mod_output_vars <-mrgsolve::outvars(mod)$capture
+  output_warning <- paste0("mrg model must contain output variables `IPRED`, and `DV`.")
+  if(!(output_vars[1] %in% mod_output_vars & output_vars[1] %in% mod_output_vars)){
+    rlang::abort(message = output_warning)
+  }
+}
+
 check_capture <- function(mod, var){
   input_name1 <-deparse(substitute(mod))
   input_name2 <-deparse(substitute(var))

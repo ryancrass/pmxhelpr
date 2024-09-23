@@ -29,7 +29,7 @@ other arguments.}
 Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}. Currently both \code{"IPRED"} and \code{"DV"} are required in \code{model@capture}.}
 
 \item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{carry_out}

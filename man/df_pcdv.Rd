@@ -20,7 +20,7 @@ df_pcdv(
 \item{strat_vars}{Stratifying variables. Default is \code{"CMT"}.}
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}. Currently both \code{"IPRED"} and \code{"DV"} are required in \code{model@capture}.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 }

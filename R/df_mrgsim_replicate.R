@@ -10,7 +10,7 @@
 #' @param time_vars Names of actual and nominal time variables. Must be named character vector.
 #'    Defaults are `"TIME"` and `"NTIME"`.
 #' @param output_vars Names of model outputs from `model`. Must be named character vector.
-#'    Defaults are `"PRED"`, `"IPRED"`, and `"DV"`.
+#'    Defaults are `"PRED"`, `"IPRED"`, and `"DV"`. Currently both `"IPRED"` and `"DV"` are required in `model@capture`.
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `carry_out`
 #'    and return in output. Defaults are `"CMT"`, `"EVID"`, `"MDV"`, `"NTIME"`.
@@ -51,6 +51,7 @@ df_mrgsim_replicate <- function(data,
   #Checks
   check_df(data)
   check_mrgmod(model)
+  check_mrgmod_outputvars(model)
   check_integer(replicates)
   check_varsindf(data, output_vars[["DV"]])
   check_varsindf(data, time_vars)

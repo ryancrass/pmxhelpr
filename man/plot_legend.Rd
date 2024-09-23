@@ -8,13 +8,14 @@ plot_legend(
   ci = c(0.05, 0.95),
   pi = c(0.05, 0.95),
   shown = list(obs_dv = TRUE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
-    TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE)
+    TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
+  ...
 )
 }
 \arguments{
 \item{ci}{simulated confidence interval plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
-\item{pi}{prediction intervals for plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95),}
+\item{pi}{prediction intervals for plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
 Entire \code{list} must be specified if modifying from default.
@@ -30,6 +31,8 @@ Default is:
 \item Simulated Median: \code{sim_median} = FALSE
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
+
+\item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
 a ggplot2 object

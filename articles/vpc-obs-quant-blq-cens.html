@@ -151,7 +151,7 @@ phase.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since Dose Administration (hours)"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-1.png" width="576"></p>
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-1.png" width="768"></p>
 <p>Imputing post-dose concentrations below the lower limit of
 quantification as 1/2 x LLOQ normalizes the late terminal phase of the
 concentration-time profile. This suggests that the artifact in the late
@@ -170,7 +170,7 @@ impacts lower doses more than higher doses.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since Dose Administration (hours)"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-blq-1.png" width="576"></p>
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-blq-1.png" width="768"></p>
 <p>Indeed, while pharmacokinetic data are generally treated as
 continuous log-normally distributed data, in reality the distribution of
 pharmacokinetic data is truncated by practical limitations - namely, the
@@ -210,7 +210,7 @@ artifact of censoring at the lloq.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since Dose Administration (hours)"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-blq-imp-100-1.png" width="576"></p>
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-blq-imp-100-1.png" width="768"></p>
 <p>We can see in these plots that the central tendency of the late
 terminal phase is influenced by censoring at the LLOQ. This leads to
 visual artifact, which may at times appear like another log-linear
@@ -231,7 +231,7 @@ histograms.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">NTIME</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Density"</span>, x <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-hist-conc-blq-1.png" width="576">
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-hist-conc-blq-1.png" width="864">
 If the study protocol had only included pharmacokinetic sampling through
 72 hours, then the impact of censoring at the assay LLOQ would have been
 negligible for a single 100 mg dose, regarless of food condition.
@@ -256,7 +256,7 @@ part.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Fraction of Samples BLQ"</span>, x <span class="op">=</span> <span class="st">"Nominal Time Since Dose Administration (hours)"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-line-freq-blq-dose-time-1.png" width="576"></p>
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-line-freq-blq-dose-time-1.png" width="768"></p>
 <p>In summary, the pattern of BLQ censoring with increasing frequency of
 BLQ data with increasing time and decreasing frequency of BLQ data with
 increasing dose, as well as their interaction depicted above is expected
@@ -315,7 +315,7 @@ labels and stratified by Study Part.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_blq_drop</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-drop-1.png" width="576">
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-drop-1.png" width="768">
 The observed median appears consistent with the exploratory
 concentration-time profiles generated earlier excluding data below the
 lower limit of quantification (<code>ODV</code>). Notice that the
@@ -344,7 +344,7 @@ already built into that package.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_blq_qobs_cens</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-qobs-cens-1.png" width="576">
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-qobs-cens-1.png" width="768">
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice
 also the increase in the y-axis range, the change in the shape of the
 observed quantiles, and the greater resolution in separation between the
@@ -386,7 +386,7 @@ documentation for the <code>vpc</code> package.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_pc</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-pcvpc-1.png" width="576"></p>
+<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-pcvpc-1.png" width="768"></p>
   </main>
 </div>
 

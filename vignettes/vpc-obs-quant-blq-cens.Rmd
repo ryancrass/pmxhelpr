@@ -89,6 +89,7 @@ ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
 Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution of pharmacokinetic data is truncated by practical limitations - namely, the lower limit of quantification of the assay used to perform the measurements. 
 
 Therefore, whenever evaluating concentration-time plots, one should keep in mind assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
+
  - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing.
  - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
  
@@ -178,6 +179,7 @@ sim100 <- simout %>%
 ```
 
 There are two potential approaches proccessing and plotting the VPC:
+
   1. `Exclude BLQ` remove missing observations (`MDV=1`) in both the observed and simulated data
   2. `Censor Observed Quantiles` set quantiles of the observed data per bin to `NA` if the sample representing that quantile of the observed is BLQ (`MDV=1`)
 
@@ -223,6 +225,7 @@ vpc_blq_qobs_cens
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals. 
 
 Specifying `loq` assumes that in the input dataset for the plot, `sim`, `MDV=1` represents *only* BLQ samples (e.g., `EVID = 0`). The `MDV` variable in `sim` is set to zero (0). 
+
   - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is missing below `loq`. Thus, the black lines depicting quantiles of the observed terminate at different timepoints in the plot, earlier in lower quantiles and later in higher quantiles. - 
   - In the calcluation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlyting PK profile in the absence of limits to assay sensitivity.
   

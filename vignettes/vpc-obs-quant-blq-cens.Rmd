@@ -54,7 +54,7 @@ plot_data <- data_sad %>%
 
 Now let's plot the data using ODV colored by DOSE and faceted by PART. The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase.
 
-```{r plot-conc-time, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
   geom_point(shape = 1, alpha = 0.5)+
   stat_summary(fun = "mean", geom = "point", 
@@ -71,7 +71,7 @@ ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
 
 Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
 
-```{r plot-conc-time-blq, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
   geom_point(shape = 1, alpha = 0.5)+
   stat_summary(fun = "mean", geom = "point", 
@@ -94,7 +94,7 @@ Therefore, whenever evaluating concentration-time plots, one should keep in mind
  
  We will focus in on the 100 mg dose, which was included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact of censoring at the lloq.
 
-```{r plot-conc-blq-imp-100, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-conc-blq-imp-100, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data100 <- plot_data %>% 
   filter(DOSE == 100)
 
@@ -123,7 +123,7 @@ We can see in these plots that the central tendency of the late terminal phase i
 
 The relative impact of the unobserved portion of the distribution of concentration below the lower limit of quantification over time since single dose administration can be further visualized by plotting histograms of the distribution of concentration facetted by nominal sampling time with a reference line at the LLOQ. These distributions are pooled across both Part 1-SAD and Part 2-FE for the 100 mg in these histograms.
 
-```{r plot-hist-conc-blq, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-hist-conc-blq, fig.height=4, fig.width=9, message=FALSE, warning=FALSE}
 ggplot(aes(x = DV), data = filter(plot_data100, NTIME %in% seq(24,144,24), DOSE == 100))+
   geom_histogram()+
   geom_vline(xintercept = unique(plot_data$LLOQ), linetype = "dashed", color = "red")+
@@ -136,7 +136,7 @@ If the study protocol had only included pharmacokinetic sampling through 72 hour
 
 Additionally, it is expect that the frequency of of censored data at the LLOQ will decrease with increasing dose intensity. We can visualize this by summarizing the fraction of samples that are missing due to assay sensitivity (`MDV=1`) by timepoint, dose, and study part.
 
-```{r plot-line-freq-blq-dose-time, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-line-freq-blq-dose-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data_sumblq <- plot_data %>% 
   group_by(DOSE, `Dose (mg)`,NTIME, PART) %>% 
   summarize(`Fraction BLQ`= mean(MDV)) %>% 
@@ -185,7 +185,7 @@ Let's plot using the default arguments to `plot_vpc_exactbins()` with some adjus
 
 The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
 
-```{r plot-vpc-blq-drop, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_drop <- plot_vpc_exactbins(
   sim = sim100, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
@@ -204,7 +204,7 @@ The observed median appears consistent with the exploratory concentration-time p
 
 Let's instead try specifying a new argument `loq` to `plot_vpc_exactbins()`. `loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. It primarily serves as an alias for `lloq` in `vpc::vpc()`, primarily leveraging BLQ handling functionality already built into that package.
 
-```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_qobs_cens <- plot_vpc_exactbins(
   sim = sim100, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
@@ -228,7 +228,7 @@ Specifying `loq` assumes that in the input dataset for the plot, `sim`, `MDV=1` 
   
 The method specifying the value of `loq` is the preferred method for use in the `pmexhelpr` package; however, it is not the default method for the all-too-common case where the LLOQ may not be known to the pharmacometrician. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`), not Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`), as noted in the documentation for the `vpc` package.
 
-```{r plot-vpc-pcvpc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_pc <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),

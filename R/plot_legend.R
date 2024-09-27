@@ -3,6 +3,7 @@
 #'
 #' @param ci simulated confidence interval plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
 #' @param pi prediction intervals for plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
+#' @param interval_colors color of simulated intervals in plot. Default is (sim_median_ci = "#3388cc",pi_ci = "#3388cc",pi_as_area = "#3388cc")
 #' @param ... Other arguments passed to [ggplot2::theme()].
 #'
 #' @inheritParams plot_vpc_exactbins
@@ -20,11 +21,11 @@
 #'  sim_median =FALSE, sim_median_ci = TRUE))
 
 plot_legend <- function(ci = c(0.05, 0.95),
-                            pi = c(0.05, 0.95),
-                            shown = list(obs_dv = TRUE, obs_ci = TRUE,
-                                         pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                                         obs_median = TRUE,
-                                         sim_median =FALSE, sim_median_ci = TRUE),
+                        pi = c(0.05, 0.95),
+                        shown = list(obs_dv = TRUE, obs_ci = TRUE,
+                                     pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                                     obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE),
+                        interval_colors = c(sim_median_ci = "#3388cc",pi_ci = "#3388cc",pi_as_area = "#3388cc"),
                         ...){
 
   obs <- "Obs"
@@ -70,9 +71,9 @@ plot_legend <- function(ci = c(0.05, 0.95),
                         {if(shown$pi_as_area == TRUE) sim_pilab}
                         ),
                       values = c(
-                        {if(shown$sim_median_ci == TRUE) assign(sim_cilab_cent, "#3388cc")},
-                        {if(shown$pi_ci == TRUE)assign(sim_cilab_pi, "#3388cc")},
-                        {if(shown$pi_as_area == TRUE)assign(sim_pilab, "#3388cc")}
+                        {if(shown$sim_median_ci == TRUE) assign(sim_cilab_cent, interval_colors[["sim_median_ci"]][1])},
+                        {if(shown$pi_ci == TRUE)assign(sim_cilab_pi, interval_colors[["pi_ci"]][1])},
+                        {if(shown$pi_as_area == TRUE)assign(sim_pilab,interval_colors[["pi_as_area"]][1])}
                         ))+
     ggplot2::theme_void()+
     ggplot2::theme(legend.position = "inside",

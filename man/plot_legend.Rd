@@ -9,6 +9,8 @@ plot_legend(
   pi = c(0.05, 0.95),
   shown = list(obs_dv = TRUE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
     TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
+  interval_colors = c(sim_median_ci = "#3388cc", pi_ci = "#3388cc", pi_as_area =
+    "#3388cc"),
   ...
 )
 }
@@ -31,6 +33,8 @@ Default is:
 \item Simulated Median: \code{sim_median} = FALSE
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
+
+\item{interval_colors}{color of simulated intervals in plot. Default is (sim_median_ci = "#3388cc",pi_ci = "#3388cc",pi_as_area = "#3388cc")}
 
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }

@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.1.0
 
 # pmxhelpr 0.0.3
 * Additional functionality for `plot_vpc_exactbins`

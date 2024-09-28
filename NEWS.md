@@ -1,6 +1,9 @@
 # pmxhelpr 0.1.0
+* Full VPC workflow now available in Version 0.1.0 with three vignettes to demonstrate this functionality! 
+* `VPC Plot Aeesthetics` vignette demonstrating options for modifying plot aesthetics, creating a plot legend using `plot_legend()`, and adding the VPC plot and legend objects together into a single object using the `patchwork` package
 
 # pmxhelpr 0.0.3
+
 * Additional functionality for `plot_vpc_exactbins`
   + `shown` argument added to facilitate customization of which layers are shown in the plot and standardize with new function `plot_legend`. Passed to `show` argument of `vpc::vpc()`
 * `plot_legend` helper function to generate a legend for a VPC plot generated using `plot_vpc_exactbins()`, which can be combined with the VPC plot using the `patchwork` package
@@ -8,6 +11,7 @@
 * `VPC Plots with BLQ Censoring` vignette demonstrating appropriate handling of data missing due to assay sensitivity (below the lower limit of quantification) using `plot_vpc_exactbins()` and workflow leveraging `df_mrgsim_replicate`.
 
 # pmxhelpr 0.0.2
+
 * Additional functionality for `plot_vpc_exactbins`
   + `loq` argument added to facilitate incorporating BLQ censoring of observed data in summary quantiles 
 * Bug fix to allow passing argument `vpcdb = TRUE` to `vpc::vpc()`

@@ -21,7 +21,7 @@ You can install the development version of pmxhelpr from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr@0.0.3")
+devtools::install_github("ryancrass/pmxhelpr@0.1.0")
 ```
 
 ## Function Naming Conventions

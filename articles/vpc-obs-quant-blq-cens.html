@@ -35,6 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/vpc-exact-bins.html">VPC Plots with Exact Bins</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring</a></li>
+    <li><a class="dropdown-item" href="../articles/vpc-plot-aesthetics.html">VPC Plot Aesthetics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -65,12 +66,12 @@
 
     
     
-<p>This vignette will review the excellent functionality within the
-<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> function in the <code>vpc</code> package for
-appropriate handling of data censored below an lower limit of
-quantification (LLOQ) via the <code>lloq</code> arugment.
-<code>vpc_plot_exactbins()</code> takes advange of this functionality
-through the alias <code>loq</code> argument.</p>
+<p>This vignette will review the excellent functionality in the
+<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> function (<code>vpc</code> package) for appropriate
+handling of data censored below the lower limit of quantification (LLOQ)
+using the <code>lloq</code> argument. <code>vpc_plot_exactbins()</code>
+takes advantage of this functionality through the alias <code>loq</code>
+argument.</p>
 <p>Let’s get started. First, we will load the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>

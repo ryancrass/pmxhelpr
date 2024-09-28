@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/vpc-exact-bins.html">VPC Plots with Exact Bins</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring</a></li>
+    <li><a class="dropdown-item" href="../articles/vpc-plot-aesthetics.html">VPC Plot Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -62,12 +63,12 @@
 
 
 <dt id="arg-pi">pi<a class="anchor" aria-label="anchor" href="#arg-pi"></a></dt>
-<dd><p>prediction intervals for plotted. Should match argument passed to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Default is c(0.05, 0.95).</p></dd>
+<dd><p>prediction intervals plotted. Should match argument passed to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Default is c(0.05, 0.95).</p></dd>
 
 
 <dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
-<dd><p>Named list of logicals specifying which layers to include on the plot passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.</p>
-<p>Default is:</p><ul><li><p>Observed points: <code>obs_dv</code> = FALSE.</p></li>
+<dd><p>Named list of logicals specifying which layers to include on the plot. Passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.</p>
+<p>Defaults are:</p><ul><li><p>Observed points: <code>obs_dv</code> = TRUE.</p></li>
 <li><p>Observed quantiles: <code>obs_ci</code> = TRUE</p></li>
 <li><p>Simulated inter-quantile range:<code>pi</code> = FALSE</p></li>
 <li><p>Simulated inter-quantile area: <code>pi_as_area</code> = FALSE</p></li>

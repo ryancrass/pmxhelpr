@@ -14,7 +14,6 @@
 #'    but retains these observations in the observed data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #' @param shown Named list of logicals specifying which layers to include on the plot passed to `show` argument of [vpc::vpc()].
-#'    Entire `list` must be specified if modifying from default.
 #'
 #'    Default is:
 #'    + Observed points: `obs_dv` = FALSE.
@@ -64,10 +63,7 @@ plot_vpc_exactbins <- function(sim,
                                min_bin_count=1,
                                show_rep = TRUE,
                                lower_bound = 0,
-                               shown = list(obs_dv = TRUE, obs_ci = TRUE,
-                                            pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                                            obs_median = TRUE,
-                                            sim_median =FALSE, sim_median_ci = TRUE),
+                               shown = NULL,
                                ...)
 {
 
@@ -83,8 +79,12 @@ plot_vpc_exactbins <- function(sim,
   if(!is.null(strat_var)) {check_factor(sim, strat_var)}
   if(!is.null(loq)) {check_numeric(loq)}
 
-  ##Set vpc show to ensure obs_dv option is FALSE
-  show_vpc <- shown
+  ##Set vpc aesthetics shown ensuring that obsserved points are not plotted by vpc::vpc()
+  show_vpc <- list_update(shown,
+                       list(obs_dv = FALSE, obs_ci = TRUE,
+                            pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                            obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
+  shown_obs <- show_vpc$obs_dv
   show_vpc$obs_dv <- FALSE
 
   ##Data Rename
@@ -136,13 +136,13 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Overlay Observations if Requested
-  if(shown$obs_dv == TRUE & pcvpc == FALSE){
+  if(shown_obs == TRUE & pcvpc == FALSE){
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                           shape = 1, alpha = 0.5, size = 1)
   }
 
-  if(shown$obs_dv == TRUE & pcvpc == TRUE) {
+  if(shown_obs == TRUE & pcvpc == TRUE) {
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
                           shape = 1, alpha = 0.5, size = 1)

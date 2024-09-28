@@ -7,10 +7,9 @@
 plot_legend(
   ci = c(0.05, 0.95),
   pi = c(0.05, 0.95),
-  shown = list(obs_dv = TRUE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
-    TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
-  interval_colors = c(sim_median_ci = "#3388cc", pi_ci = "#3388cc", pi_as_area =
-    "#3388cc"),
+  shown = NULL,
+  lloq = NULL,
+  update = NULL,
   ...
 )
 }
@@ -20,7 +19,6 @@ plot_legend(
 \item{pi}{prediction intervals for plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
-Entire \code{list} must be specified if modifying from default.
 
 Default is:
 \itemize{
@@ -34,7 +32,9 @@ Default is:
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
 
-\item{interval_colors}{color of simulated intervals in plot. Default is (sim_median_ci = "#3388cc",pi_ci = "#3388cc",pi_as_area = "#3388cc")}
+\item{lloq}{label for lower limit of quantification in the plot legend.}
+
+\item{update}{list containing the plot elements to be updated. Default is set by \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}}.}
 
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }

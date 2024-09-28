@@ -15,8 +15,7 @@ plot_vpc_exactbins(
   min_bin_count = 1,
   show_rep = TRUE,
   lower_bound = 0,
-  shown = list(obs_dv = TRUE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE, pi_ci =
-    TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE),
+  shown = NULL,
   ...
 )
 }
@@ -48,7 +47,6 @@ but retains these observations in the observed data points.}
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
-Entire \code{list} must be specified if modifying from default.
 
 Default is:
 \itemize{

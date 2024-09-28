@@ -1,3 +1,21 @@
+list_update <- function(update=NULL, src, mess){
+
+  update_list_name <-deparse(substitute(update))
+
+  out <- src
+  if(!is.null(update) & length(names(update))>0){
+    for(i in seq(names(update))) {
+      current_name <- names(update)[i]
+      if(current_name %in% names(out)) {
+        out[[current_name]] <- update[[current_name]]
+      } else {
+        warning(paste0("`", current_name,"` is not a valid element of ", update_list_name))
+      }
+    }
+  }
+  return(out)
+}
+
 check_modlib <- function(mod, mod_path){
   input_name <-mod
   output_warning <- paste0("`", input_name, "` does not exist in the pmxhelpr model library")

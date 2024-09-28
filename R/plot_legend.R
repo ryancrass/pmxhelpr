@@ -29,35 +29,13 @@ plot_legend <- function(ci = c(0.05, 0.95),
                         ...){
 
   #aesthetics for legend based on settings in vpc::new_vpc_theme
-  plist <- vpc::new_vpc_theme()
-
-  if(!is.null(update) & length(names(update))>0){
-    for(i in seq(names(update))) {
-      current_name <- names(update)[i]
-      if(current_name %in% names(plist)) {
-        plist[[current_name]] <- update[[current_name]]
-      } else {
-        warning(paste0("`", current_name,"` is not a valid plot element in argument `update` to vpc::new_vpc_theme()."))
-      }
-    }
-  }
+  plist <- list_update(update, vpc::new_vpc_theme())
 
   #shown elements for legend based on settings in vpc::vpc
-  nlist <- list(obs_dv = TRUE, obs_ci = TRUE,
-                pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE)
-
-  if(!is.null(shown) & length(names(nlist))>0){
-    for(i in seq(names(shown))) {
-      current_name <- names(shown)[i]
-      if(current_name %in% names(nlist)) {
-        nlist[[current_name]] <- shown[[current_name]]
-      } else {
-        warning(paste0("`", current_name,"` is not a valid plot element in argument `show` of vpc::vpc()."))
-      }
-    }
-  }
-
+  nlist <- list_update(shown,
+                       list(obs_dv = TRUE, obs_ci = TRUE,
+                            pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                            obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
   lloq_lab <- lloq
   obs <- "Obs"
   obs_cent <- "Obs Med"

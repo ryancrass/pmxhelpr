@@ -1,3 +1,5 @@
+# pmxhelpr (development version)
+
 # pmxhelpr 0.1.0
 * Full VPC workflow now available in Version 0.1.0 with three vignettes to demonstrate this functionality! 
 * `VPC Plot Aeesthetics` vignette demonstrating options for modifying plot aesthetics, creating a plot legend using `plot_legend()`, and adding the VPC plot and legend objects together into a single object using the `patchwork` package

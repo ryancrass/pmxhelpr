@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will review the excellent functionality within the `vpc()` function in the `vpc` package for appropriate handling of data censored below an lower limit of quantification (LLOQ) via the `lloq` arugment. `vpc_plot_exactbins()` takes advange of this functionality through the alias `loq` argument.
+This vignette will review the excellent functionality in the `vpc()` function (`vpc` package) for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `lloq` argument. `vpc_plot_exactbins()` takes advantage of this functionality through the alias `loq` argument.
 
 Let's get started. First, we will load the required packages.
 

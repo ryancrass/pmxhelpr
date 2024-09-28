@@ -13,10 +13,10 @@
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
-#' @param shown Named list of logicals specifying which layers to include on the plot passed to `show` argument of [vpc::vpc()].
+#' @param shown Named list of logicals specifying which layers to include on the plot. Passed to `show` argument of [vpc::vpc()].
 #'
-#'    Default is:
-#'    + Observed points: `obs_dv` = FALSE.
+#'    Defaults are:
+#'    + Observed points: `obs_dv` = TRUE.
 #'    + Observed quantiles: `obs_ci` = TRUE
 #'    + Simulated inter-quantile range:`pi` = FALSE
 #'    + Simulated inter-quantile area: `pi_as_area` = FALSE
@@ -24,6 +24,9 @@
 #'    + Observed Median: `obs_median` = TRUE
 #'    + Simulated Median: `sim_median` = FALSE
 #'    + Simulated Median CI: `sim_median_ci` = TRUE
+#'
+#' @param theme Named list of aesthetic parameters for the plot.Passed to `vpc_theme` arumgent of [vpc::vpc()].
+#'    Defaults can be obtained by running [vpc::new_vpc_theme()] with no arguments.
 #'
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
@@ -64,6 +67,7 @@ plot_vpc_exactbins <- function(sim,
                                show_rep = TRUE,
                                lower_bound = 0,
                                shown = NULL,
+                               theme = NULL,
                                ...)
 {
 
@@ -81,11 +85,14 @@ plot_vpc_exactbins <- function(sim,
 
   ##Set vpc aesthetics shown ensuring that obsserved points are not plotted by vpc::vpc()
   show_vpc <- list_update(shown,
-                       list(obs_dv = FALSE, obs_ci = TRUE,
+                       list(obs_dv = TRUE, obs_ci = TRUE,
                             pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
                             obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
-  shown_obs <- show_vpc$obs_dv
+  shown_obs <- show_vpc
   show_vpc$obs_dv <- FALSE
+
+  #aesthetics for legend based on settings in vpc::new_vpc_theme
+  vpctheme <- list_update(theme, vpc::new_vpc_theme())
 
   ##Data Rename
   sim <- sim |>
@@ -129,6 +136,7 @@ plot_vpc_exactbins <- function(sim,
     pred_corr_lower_bnd = lower_bound,
     lloq = loq,
     show = show_vpc,
+    vpc_theme = vpctheme,
     ...)
 
   if(!ggplot2::is.ggplot(plot)) {
@@ -136,16 +144,22 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Overlay Observations if Requested
-  if(shown_obs == TRUE & pcvpc == FALSE){
+  if(shown_obs$obs_dv == TRUE & pcvpc == FALSE){
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                          shape = 1, alpha = 0.5, size = 1)
+                          shape = vpctheme$obs_shape,
+                          alpha = vpctheme$obs_alpha,
+                          size = vpctheme$obs_size,
+                          color = vpctheme$obs_color)
   }
 
-  if(shown_obs == TRUE & pcvpc == TRUE) {
+  if(shown_obs$obs_dv == TRUE & pcvpc == TRUE) {
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                          shape = 1, alpha = 0.5, size = 1)
+                          shape = vpctheme$obs_shape,
+                          alpha = vpctheme$obs_alpha,
+                          size = vpctheme$obs_size,
+                          color = vpctheme$obs_color)
   }
 
   ##Add Subtitle with Replicates

@@ -2,7 +2,7 @@
 #' Plot a legend for a visual predictive check (VPC)
 #'
 #' @param ci simulated confidence interval plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
-#' @param pi prediction intervals for plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
+#' @param pi prediction intervals plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
 #' @param lloq label for lower limit of quantification in the plot legend.
 #' @param update list containing the plot elements to be updated. Default is set by [vpc::new_vpc_theme()].
 #' @param ... Other arguments passed to [ggplot2::theme()].

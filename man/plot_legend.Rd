@@ -18,11 +18,11 @@ plot_legend(
 
 \item{pi}{prediction intervals for plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+\item{shown}{Named list of logicals specifying which layers to include on the plot. Passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
 
-Default is:
+Defaults are:
 \itemize{
-\item Observed points: \code{obs_dv} = FALSE.
+\item Observed points: \code{obs_dv} = TRUE.
 \item Observed quantiles: \code{obs_ci} = TRUE
 \item Simulated inter-quantile range:\code{pi} = FALSE
 \item Simulated inter-quantile area: \code{pi_as_area} = FALSE

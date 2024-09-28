@@ -16,6 +16,7 @@ plot_vpc_exactbins(
   show_rep = TRUE,
   lower_bound = 0,
   shown = NULL,
+  theme = NULL,
   ...
 )
 }
@@ -46,11 +47,11 @@ but retains these observations in the observed data points.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+\item{shown}{Named list of logicals specifying which layers to include on the plot. Passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
 
-Default is:
+Defaults are:
 \itemize{
-\item Observed points: \code{obs_dv} = FALSE.
+\item Observed points: \code{obs_dv} = TRUE.
 \item Observed quantiles: \code{obs_ci} = TRUE
 \item Simulated inter-quantile range:\code{pi} = FALSE
 \item Simulated inter-quantile area: \code{pi_as_area} = FALSE
@@ -59,6 +60,9 @@ Default is:
 \item Simulated Median: \code{sim_median} = FALSE
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
+
+\item{theme}{Named list of aesthetic parameters for the plot.Passed to \code{vpc_theme} arumgent of \code{\link[vpc:vpc]{vpc::vpc()}}.
+Defaults can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

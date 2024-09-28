@@ -1,0 +1,175 @@
+---
+title: "VPC Plot Aesthetics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{vpc-plot-aesthetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will review the functionality for updating aesthetic elements of VPC plots generated using `vpc()` with the `new_vpc_theme()` function  (`vpc` package). `plot_legend()` leverages is a helper plot function that creates a legend for plots generated using `vpc()` that can be merged into a single plot with the VPC using the `patchwork` package.
+
+Let's get started. First, we will load the required packages.
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+library(vpc, warn.conflicts =  FALSE)
+library(mrgsolve, warn.conflicts =  FALSE)
+library(withr, warn.conflicts =  FALSE)
+library(patchwork, warn.conflicts = FALSE)
+```
+
+Next, let's load use the internal data and model objects from `pmxhelpr` and `df_mrgsim_replicate` to run a simulation for VPC plots.
+
+```{r sim}
+data <- data_sad
+model <- model_mread_load("model")
+
+simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100, 
+                     time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "ODV"),
+                     num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
+                     char_vars = c("PART"),
+                     obsonly = TRUE)
+```
+
+Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is only single dose administration in this dataset, facilitating pooling across doses and food conditions with prediction-correction. We will set `min_bin_count = 5` to avoid the simulated intervals extending to the final timepoint with only a single observation.
+
+```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5
+)
+
+vpc_pc
+```
+
+The default elements shown in the plot inherited from the named list options to the `show` argument of `vpc()`. This argument is provided to `plot_vpc_exactbins()` as `shown` and passed on to `vpc()` as `show`. The options are as follows:
+
+```{r vpc-plot-shown}
+shown_list <- list(obs_dv = TRUE, obs_ci = TRUE,
+                   pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                   obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE)
+print(shown_list)
+```
+
+
+The default aesthetics for this plot are inherited from the defaults in the `vpc` package, which can be viewed by running `new_vpc_theme()` with no arguments.
+
+```{r vpc-theme-update}
+vpc_theme_list <- new_vpc_theme()
+print(vpc_theme_list)
+```
+
+Now, suppose one wants to change the default aesthetics of the VPC plot. This can be accomplished by passing a named list of elements to update to the `new_vpc_theme()` function from the `vpc` package introduced above. 
+
+A list generated in this way can be set as the argument to `theme` to `vpc_plot_exactbins`. The argument `theme` in `vpc_plot_exactbins` is passed along to `vpc()`.
+
+Let's say we prefer a more classical VPC color schema, based basic red-blue-green colors only. We will make the following changes:
+- Observed Points blue
+- Observed median and simulated 90% CI of the median red 
+- Observed 5th and 95th and simulated 90% CI of the 5th and 95th blue
+
+```{r vpc-theme-set}
+vpc_theme <- new_vpc_theme(
+  list(
+  obs_color = rgb(0,0,1),
+  
+  obs_median_color = rgb(1,0,0),
+  obs_ci_color = rgb(0,0,1),
+  
+  sim_median_fill = rgb(1,0,0),
+  sim_pi_fill = rgb(0,0,1)
+  )
+)
+```
+
+Now, let's take a look at our plot prior plot with the new color schema.
+
+```{r plot-vpc-pcvpc-new-theme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5
+) 
+
+vpc_pc
+```
+
+This is nice; however, I do not like the grey background and I would prefer only major y-axis grid lines without any x-axis grid lines. Conveniently, one can just add `theme()` elements on top of the plot object using the standard `ggplot2` package approach.
+
+```{r plot-vpc-pcvpc-new, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_new <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5,
+  theme = vpc_theme
+) +
+  theme(panel.background = element_rect(fill = "white", linewidth = 0.5, color = "black"),
+        panel.grid.minor.y = element_blank(), 
+        panel.grid.minor.x = element_blank(), 
+        panel.grid.major.x = element_blank())
+
+vpc_pc_new
+```
+
+
+Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
+
+`pmxhelpr` provides a useful helper function for this purpose called `plot_legend()`. The arguments to plot legend are as follows:
+    - `ci` simulated confidence interval plotted. Default is c(0.05, 0.95).
+    - `pi` prediction intervals plotted.  Default is c(0.05, 0.95).
+    - `lloq` label for lower limit of quantification in the plot legend.
+    - `update` list containing the plot elements to be updated. Default is set by `vpc::new_vpc_theme()`.
+    - `shown` Named list of logicals specifying which layers to include on the plot. 
+    
+To obtain a legend for a plot using default aesthetics, simply run plot_legend() without any arguments specified.
+
+```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_legend <- plot_legend()
+vpc_pc_legend
+```
+
+Now we have a `ggplot` object legend for our first plot. To generate one for our second plot with updated aesthetics, let's pass the same named list object (`vpc_theme`) to the `update` argument.
+
+```{r vpc_pc_new_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_new_legend <- plot_legend(update = vpc_theme)
+vpc_pc_new_legend
+```
+
+Okay, now that we have our legend objects, let's combine them with the plots into a single plot object leveraging the functionality of the `patchwork` package.
+
+```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc + vpc_pc_legend + plot_layout(heights = c(2.5,1))
+```
+
+```{r plot-vpc-pcvpc-new-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_new + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
+```
+

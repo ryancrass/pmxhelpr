@@ -165,11 +165,11 @@ vpc_pc_new_legend
 
 Okay, now that we have our legend objects, let's combine them with the plots into a single plot object leveraging the functionality of the `patchwork` package.
 
-```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE, eval = requireNamespace("somedependency")}
 vpc_pc + vpc_pc_legend + plot_layout(heights = c(2.5,1))
 ```
 
-```{r plot-vpc-pcvpc-new-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+```{r plot-vpc-pcvpc-new-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE, eval = requireNamespace("somedependency")}
 vpc_pc_new + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
 ```
 

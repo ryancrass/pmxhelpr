@@ -16,7 +16,7 @@ plot_legend(
 \arguments{
 \item{ci}{simulated confidence interval plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
-\item{pi}{prediction intervals for plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
+\item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot. Passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
 

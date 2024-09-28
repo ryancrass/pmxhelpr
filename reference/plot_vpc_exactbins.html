@@ -57,8 +57,7 @@ that returns a <code>ggplot2</code> object.</p>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span>, obs_ci <span class="op">=</span> <span class="cn">TRUE</span>, pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span></span>
-<span>    <span class="cn">TRUE</span>, obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -114,8 +113,7 @@ but retains these observations in the observed data points.</p></dd>
 
 
 <dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
-<dd><p>Named list of logicals specifying which layers to include on the plot passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.
-Entire <code>list</code> must be specified if modifying from default.</p>
+<dd><p>Named list of logicals specifying which layers to include on the plot passed to <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.</p>
 <p>Default is:</p><ul><li><p>Observed points: <code>obs_dv</code> = FALSE.</p></li>
 <li><p>Observed quantiles: <code>obs_ci</code> = TRUE</p></li>
 <li><p>Simulated inter-quantile range:<code>pi</code> = FALSE</p></li>

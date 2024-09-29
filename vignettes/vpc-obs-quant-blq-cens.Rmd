@@ -14,7 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will review the excellent functionality in the `vpc()` function (`vpc` package) for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `lloq` argument. `vpc_plot_exactbins()` takes advantage of this functionality through the alias `loq` argument.
+This vignette will review the excellent functionality in the `vpc()` function from the `vpc` package for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `lloq` argument. 
+
+`vpc_plot_exactbins()` takes advantage of this functionality through the argument `loq`, which is also passed to `lloq` in `vpc()`.
 
 Let's get started. First, we will load the required packages.
 
@@ -28,16 +30,10 @@ library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
 ```
 
-Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the dplyr package.
+Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the `dplyr`.
 
 ```{r data-glimpse}
 glimpse(data_sad)
-```
-
-We can see that this dataset is already formatted for modeling. It contains NONMEM and mrgsolve reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, the dependent variable of drug concentration in original, untransformed units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables there are two character variables: USUBJID and PART. There are two unique values of PART indicating two distinct study cohorts: Single Ascending Dose (SAD) and Food Effect (FE).
-
-```{r data-part}
-unique(data_sad$PART)
 ```
 
 Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ.
@@ -86,14 +82,14 @@ ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
   theme_bw()
 ```
 
-Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution of pharmacokinetic data is truncated by practical limitations - namely, the lower limit of quantification of the assay used to perform the measurements. 
+Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution is truncated by the lower limit of quantification of the assays used in bioanalysis. 
 
-Therefore, whenever evaluating concentration-time plots, one should keep in mind assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
+Therefore, whenever evaluating concentration-time plots, we hould keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
 
- - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing.
+ - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing `NA`.
  - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
  
- We will focus in on the 100 mg dose, which was included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact of censoring at the lloq.
+We will focus in on the 100 mg dose, which is included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact potentiall due to censoring at the LLOQ.
 
 ```{r plot-conc-blq-imp-100, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data100 <- plot_data %>% 
@@ -120,9 +116,9 @@ ggplot(aes(x = TIME, y = ODV), data = plot_data100)+
   theme_bw()
 ```
 
-We can see in these plots that the central tendency of the late terminal phase is influenced by censoring at the LLOQ. This leads to visual artifact, which may at times appear like another log-linear slope. The exact patter of impact will depend on the dose intensity, the assay sensitivity, and the study sampling schema.
+We can see in these plots that the central tendency of the late terminal phase is influenced by censoring at the LLOQ. This leads to visual artifact, which may sometimes appear like another log-linear slope. The exact pattern of impact will depend on the dose intensity, the assay sensitivity, and the study sampling scheme.
 
-The relative impact of the unobserved portion of the distribution of concentration below the lower limit of quantification over time since single dose administration can be further visualized by plotting histograms of the distribution of concentration facetted by nominal sampling time with a reference line at the LLOQ. These distributions are pooled across both Part 1-SAD and Part 2-FE for the 100 mg in these histograms.
+The relative impact of the unobserved portion of the distribution of concentration can be further visualized as histograms facetted by nominal sampling time. These distributions are pooled across both Part 1-SAD and Part 2-FE for the 100 mg in these histograms.
 
 ```{r plot-hist-conc-blq, fig.height=4, fig.width=9, message=FALSE, warning=FALSE}
 ggplot(aes(x = DV), data = filter(plot_data100, NTIME %in% seq(24,144,24), DOSE == 100))+
@@ -133,9 +129,12 @@ ggplot(aes(x = DV), data = filter(plot_data100, NTIME %in% seq(24,144,24), DOSE 
   labs(y = "Density", x = "Concentration (ng/mL)")+
   theme_bw()
 ```
-If the study protocol had only included pharmacokinetic sampling through 72 hours, then the impact of censoring at the assay LLOQ would have been negligible for a single 100 mg dose, regarless of food condition. However, a large portion of the distribution of concentrations is BLQ at later timepoints with sampling for one week (168 hours). It is expected that the frequency of censored data at the LLOQ will increase with increasing time from dose administration.
 
-Additionally, it is expect that the frequency of of censored data at the LLOQ will decrease with increasing dose intensity. We can visualize this by summarizing the fraction of samples that are missing due to assay sensitivity (`MDV=1`) by timepoint, dose, and study part.
+If the study protocol had only included sampling through 72 hours, then the impact of censoring at the assay LLOQ would have been negligible for a single 100 mg dose, regardless of food condition. However, a large portion of the distribution of concentrations is BLQ at later timepoints the one week duration of sampling. 
+
+It is expected that the frequency of censored data at the LLOQ will increase with increasing time from dose administration. Additionally, it is expect that the frequency of of censored data below the LLOQ will decrease with increasing dose intensity. 
+
+We can visualize this by summarizing the fraction of samples that are missing due to assay sensitivity (`MDV=1`) by timepoint, dose, and study part.
 
 ```{r plot-line-freq-blq-dose-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data_sumblq <- plot_data %>% 
@@ -152,11 +151,13 @@ ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_s
 
 ```
 
-In summary, the pattern of BLQ censoring with increasing frequency of BLQ data with increasing time and decreasing frequency of BLQ data with increasing dose, as well as their interaction depicted above is expected for an early phase clinical study with limited prior human PK data, a wide dose range, and intensive PK sampling. 
+In summary, the observed patters of BLQ data were in the example dataset are anticipated for an early phase clinical study. 
+  - increasing frequency of BLQ data with increasing time
+  - decreasing frequency of BLQ data with increasing dose 
 
-BLQ data are often ignored (set as missing; M1 method) in population PK model development. This is unlikely to introduce appreciable bias in model parameter estimation provided the absolute frequency of BLQ data is low in the pooled analysis dataset (<10-20%) and the pattern of BLQ censoring is in line with the expectations above related to patterns with dose and time.  
+BLQ data are often ignored (i.e., set as missing; M1 method) in population PK model development. This is unlikely to introduce appreciable bias in model parameter estimation, provided the absolute frequency of BLQ data is low (e.g., <10-20%) and the pattern of BLQ censoring is in line with the expectations by dose and in time.  
 
-However, just as BLQ censoring introduced some artifact to the explortory plots of concentration over time, the handling of BLQ data in VPCs may also impact the interpretation of these graphical model diagnostics dependent on visual assessment.
+However, just as BLQ censoring introduced some artifact to the explortory plots of concentration over time, the handling of BLQ data in VPCs may impact the interpretation of these graphical model diagnostics.
 
 Lets run a simulation and generate some VPC plots to demonstrate the impact of different approaches to BLQ handling to the visual assessment of the adequacy of model fit and the true underlying PK profile. 
 
@@ -171,7 +172,7 @@ simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100,
                      obsonly = TRUE)
 ```
 
-Let's start by focusing on evaluating the model fit of the 100 mg dose level we have been exploring. 
+Let's start by focusing on evaluating the model fit of the 100 mg dose level we have been exploring across Part1-SAD and Part2-FE. 
 
 ```{r sim-input}
 sim100 <- simout %>% 
@@ -180,12 +181,10 @@ sim100 <- simout %>%
 
 There are two potential approaches proccessing and plotting the VPC:
 
-  1. `Exclude BLQ` remove missing observations (`MDV=1`) in both the observed and simulated data
-  2. `Censor Observed Quantiles` set quantiles of the observed data per bin to `NA` if the sample representing that quantile of the observed is BLQ (`MDV=1`)
+  1. `Exclude BLQ`: remove missing observations (`MDV=1`) in both the observed and simulated data
+  2. `Censor Observed Quantiles`: set quantiles of the observed data `NA`, if the sample representing that quantile of the observed is BLQ (`MDV=1`) in the bin.
 
-Let's plot using the default arguments to `plot_vpc_exactbins()` with some adjustments to plot axes and labels and stratified by Study Part. 
-
-The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
+Let's plot using the default arguments to `plot_vpc_exactbins()`. The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
 
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_drop <- plot_vpc_exactbins(
@@ -202,17 +201,17 @@ vpc_blq_drop <- plot_vpc_exactbins(
 
 vpc_blq_drop
 ```
-The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (`ODV`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is the decreasing sample size at each timepoint due to exclusion of timeplints where `MDV=1`.
+The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (`ODV`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is due to the decreasing sample size with time due to exclusion of timeplints where `MDV=1`.
 
-Let's instead try specifying a new argument `loq` to `plot_vpc_exactbins()`. `loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. It primarily serves as an alias for `lloq` in `vpc::vpc()`, primarily leveraging BLQ handling functionality already built into that package.
+Let's instead try specifying a new argument `loq` to `plot_vpc_exactbins()`. 
+
+`loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. It primarily serves as an alias for `lloq` in `vpc::vpc()`, leveraging BLQ handling functionality already built into that package.
 
 ```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_qobs_cens <- plot_vpc_exactbins(
   sim = sim100, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
@@ -224,14 +223,14 @@ vpc_blq_qobs_cens
 ```
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals. 
 
-Specifying `loq` assumes that in the input dataset for the plot, `sim`, `MDV=1` represents *only* BLQ samples (e.g., `EVID = 0`). The `MDV` variable in `sim` is set to zero (0). 
+Specifying `loq` assumes that in the input dataset for the plot, `sim`, `MDV=1` represents *only* BLQ samples (e.g., `EVID = 0`). The `MDV` variable in `sim` is set to zero (0) so that all timepoints are included. 
 
-  - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is missing below `loq`. Thus, the black lines depicting quantiles of the observed terminate at different timepoints in the plot, earlier in lower quantiles and later in higher quantiles. - 
-  - In the calcluation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlyting PK profile in the absence of limits to assay sensitivity.
+  - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`. 
+  - In the calcluation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
   
-The method specifying the value of `loq` is the preferred method for use in the `pmexhelpr` package; however, it is not the default method for the all-too-common case where the LLOQ may not be known to the pharmacometrician. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`), not Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`). 
+Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmexhelpr` package.This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`). 
 
-If`loq` is specified with a`pcvpc = TRUE`, an error message will print from `vpc::vpc()`.
+If`loq` is specified with`pcvpc = TRUE`, an error message will print from `vpc::vpc()`.
 
 ```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc <- plot_vpc_exactbins(

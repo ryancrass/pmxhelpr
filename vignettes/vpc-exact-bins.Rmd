@@ -20,7 +20,7 @@ The `vpc`package offers a lot of great functionality to generate VPC plots inclu
 
 1) data processing and visualization steps combined in one function
 2) built-in options for automatic binning for datasets without a binned variable
-3) build-in option for prediction-correction
+3) built-in option for prediction-correction
 4) built-in option for censoring at the lower limit of quantification (LLOQ) 
 
 However, although `vpc()` contains many great options to automatically identify bins in the data, it is not optimized to leverage input datasets with variable a variable representing exact bin times (e.g., nominal, or protocol-specified, times). 
@@ -45,7 +45,9 @@ We can take a quick look at the dataset using `glimpse()` from the dplyr package
 glimpse(data_sad)
 ```
 
-We can see that this dataset is already formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART. PART specifies the two study cohorts: 
+We can see that this dataset is already formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART. 
+
+PART specifies the two study cohorts: 
 
   - Single Ascending Dose (SAD)
   - Food Effect (FE).
@@ -426,7 +428,7 @@ We can also pass stratifying variables to the argument `strat_var` in order to f
 ```{r plot-exact-one-strata, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
-  strat_vars = "FOOD_f",
+  strat_var = "FOOD_f",
   pcvpc = TRUE,
   log_y = TRUE,
   xlab = "Time (hours)",

@@ -104,7 +104,7 @@ vpc_theme <- new_vpc_theme(
 Now, let's take a look at our plot prior plot with the new color schema.
 
 ```{r plot-vpc-pcvpc-new-theme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc <- plot_vpc_exactbins(
+vpc_pc_new <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -116,13 +116,13 @@ vpc_pc <- plot_vpc_exactbins(
   min_bin_count = 5
 ) 
 
-vpc_pc
+vpc_pc_new
 ```
 
 This is nice; however, I do not like the grey background and I would prefer only major y-axis grid lines without any x-axis grid lines. Conveniently, we can just add `theme()` elements on top of the plot object using the standard `ggplot2` approach.
 
 ```{r plot-vpc-pcvpc-new, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new <- plot_vpc_exactbins(
+vpc_pc_new2 <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -138,7 +138,7 @@ vpc_pc_new <- plot_vpc_exactbins(
         panel.grid.minor.x = element_blank(), 
         panel.grid.major.x = element_blank())
 
-vpc_pc_new
+vpc_pc_new2
 ```
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
@@ -174,7 +174,7 @@ vpc_pc_wleg
 ```
 
 ```{r plot-vpc-pcvpc-new-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_wleg <- vpc_pc_new + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
+vpc_pc_new_wleg <- vpc_pc_new2 + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
 vpc_pc_new_wleg
 ```
 

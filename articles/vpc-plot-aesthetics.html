@@ -68,10 +68,11 @@
     
 <p>This vignette will review the functionality for updating aesthetic
 elements of VPC plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> with the
-<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> function (<code>vpc</code> package).
-<code><a href="../reference/plot_legend.html">plot_legend()</a></code> leverages is a helper plot function that
-creates a legend for plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> that can
-be merged into a single plot with the VPC using the
+<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> function from the <code>vpc</code>
+package.</p>
+<p><code><a href="../reference/plot_legend.html">plot_legend()</a></code> is a helper plotting function that creates
+a legend for plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. These legends can
+then be merged with the VPC plot into a single plot object using the
 <code>patchwork</code> package.</p>
 <p>Let’s get started. First, we will load the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -84,8 +85,8 @@ be merged into a single plot with the VPC using the
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Next, let’s load use the internal data and model objects from
-<code>pmxhelpr</code> and <code>df_mrgsim_replicate</code> to run a
-simulation for VPC plots.</p>
+<code>pmxhelpr</code> and <code>df_mrgsim_replicate</code> to run the
+simulation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
@@ -98,8 +99,8 @@ simulation for VPC plots.</p>
 <span>                     char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span><span class="op">)</span>,</span>
 <span>                     obsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Now let’s plot all data together in a prediction-corrected VPC
-(pcVPC). There is only single dose administration in this dataset,
-facilitating pooling across doses and food conditions with
+(pcVPC). There is only single dose administration in this dataset, thus
+we are able to pool across doses and food conditions with
 prediction-correction. We will set <code>min_bin_count = 5</code> to
 avoid the simulated intervals extending to the final timepoint with only
 a single observation.</p>
@@ -119,11 +120,11 @@ a single observation.</p>
 <span></span>
 <span><span class="va">vpc_pc</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-1.png" width="768"></p>
-<p>The default elements shown in the plot inherited from the named list
-options to the <code>show</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. This
-argument is provided to <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> as
-<code>shown</code> and passed on to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> as
-<code>show</code>. The options are as follows:</p>
+<p>The default elements shown in the plot are inherited from
+<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. The <code>shown</code> argument can be provided to
+<code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> and passed on to the <code>show</code>
+argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
+<p>The options are as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shown_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span>, obs_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -152,9 +153,9 @@ argument is provided to <code><a href="../reference/plot_vpc_exactbins.html">plo
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $sim_median_ci</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>The default aesthetics for this plot are inherited from the defaults
-in the <code>vpc</code> package, which can be viewed by running
-<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> with no arguments.</p>
+<p>Similarly, the default aesthetics for this plot are inherited from
+the defaults in the <code>vpc</code> package, which can be viewed by
+running <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> with no arguments.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vpc_theme_list</span><span class="op">)</span></span>
@@ -229,17 +230,16 @@ in the <code>vpc</code> package, which can be viewed by running
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"class")</span></span>
 <span><span class="co">#&gt; [1] "vpc_theme"</span></span></code></pre></div>
-<p>Now, suppose one wants to change the default aesthetics of the VPC
+<p>Now, suppose we want to change the default aesthetics of the VPC
 plot. This can be accomplished by passing a named list of elements to
-update to the <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> function from the
-<code>vpc</code> package introduced above.</p>
-<p>A list generated in this way can be set as the argument to
-<code>theme</code> to <code>vpc_plot_exactbins</code>. The argument
-<code>theme</code> in <code>vpc_plot_exactbins</code> is passed along to
+update to the function <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code>. The named list
+object generated from this function can then be passed to the
+<code>theme</code> argument in <code>vpc_plot_exactbins</code>, which is
+also an alias for the <code>vpc_theme</code> argument in
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
-<p>Let’s say we prefer a more classical VPC color schema, based basic
-red-blue-green colors only. We will make the following changes: -
-Observed Points blue - Observed median and simulated 90% CI of the
+<p>Let’s say we prefer a more classical VPC color schema, based only on
+basic red-blue-green color brewer. We will make the following changes: -
+Observed points blue - Observed median and simulated 90% CI of the
 median red - Observed 5th and 95th and simulated 90% CI of the 5th and
 95th blue</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -274,9 +274,8 @@ schema.</p>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-theme-1.png" width="768"></p>
 <p>This is nice; however, I do not like the grey background and I would
 prefer only major y-axis grid lines without any x-axis grid lines.
-Conveniently, one can just add <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> elements on top of
-the plot object using the standard <code>ggplot2</code> package
-approach.</p>
+Conveniently, we can just add <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> elements on top of
+the plot object using the standard <code>ggplot2</code> approach.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -302,30 +301,32 @@ approach.</p>
 however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.</p>
 <p><code>pmxhelpr</code> provides a useful helper function for this
-purpose called <code><a href="../reference/plot_legend.html">plot_legend()</a></code>. The arguments to plot legend
-are as follows: - <code>ci</code> simulated confidence interval plotted.
-Default is c(0.05, 0.95). - <code>pi</code> prediction intervals
-plotted. Default is c(0.05, 0.95). - <code>lloq</code> label for lower
-limit of quantification in the plot legend. - <code>update</code> list
-containing the plot elements to be updated. Default is set by
-<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code>. - <code>shown</code> Named list of
-logicals specifying which layers to include on the plot.</p>
+purpose, <code><a href="../reference/plot_legend.html">plot_legend()</a></code>. The arguments to
+<code><a href="../reference/plot_legend.html">plot_legend()</a></code> are as follows: - <code>ci</code> simulated
+confidence interval plotted. Default is c(0.05, 0.95). - <code>pi</code>
+prediction intervals plotted. Default is c(0.05, 0.95). -
+<code>lloq</code> label for lower limit of quantification in the plot
+legend. - <code>update</code> list containing the plot elements to be
+updated. Default is set by <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code>. -
+<code>shown</code> Named list of logicals specifying which layers to
+include on the plot.</p>
 <p>To obtain a legend for a plot using default aesthetics, simply run
 plot_legend() without any arguments specified.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768"></p>
-<p>Now we have a <code>ggplot</code> object legend for our first plot.
-To generate one for our second plot with updated aesthetics, let’s pass
-the same named list object (<code>vpc_theme</code>) to the
+<p>Now we have a <code>ggplot</code> object legend for our first
+plot!</p>
+<p>To generate one for our second plot with updated aesthetics, let’s
+pass the same named list object (<code>vpc_theme</code>) to the
 <code>update</code> argument.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="va">vpc_theme</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
-<p>Okay, now that we have our legend objects, let’s combine them with
-the plots into a single plot object leveraging the functionality of the
+<p>Okay, now that we have our legend plot objects, let’s combine them
+with the VPC plot objects into a single plot object with the
 <code>patchwork</code> package.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc</span> <span class="op">+</span> <span class="va">vpc_pc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>

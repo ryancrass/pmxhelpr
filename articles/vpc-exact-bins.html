@@ -67,18 +67,25 @@
     
     
 <p>This vignette will review the limitations of the <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>
-function in the <code>vpc</code> package for datasets containing exact
-bins as the motivating reason for development
-<code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>. The <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>function
-offers a lot of great functionality to generate VPC plots including
-combining the data processing and plotting steps into one function call,
-built in options for automatic binning, an easy option for
-prediction-correction, and functionality for processing data accounting
-for censoring at the lower limit of quantification (LLOQ).</p>
+function in the <code>vpc</code> package for datasets containing an
+exact binning variable. This was the motivating reason for development
+of <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>.</p>
+<p>The <code>vpc</code>package offers a lot of great functionality to
+generate VPC plots including, but certainly not limited to:</p>
+<ol style="list-style-type: decimal">
+<li>data processing and visualization steps combined in one
+function</li>
+<li>built-in options for automatic binning for datasets without a binned
+variable</li>
+<li>build-in option for prediction-correction</li>
+<li>built-in option for censoring at the lower limit of quantification
+(LLOQ)</li>
+</ol>
 <p>However, although <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> contains many great options to
-automatically identify bins in the data, it is not optimized for input
-data containing exact bins.</p>
-<p>Let’s get started. First, we will load the required packages.</p>
+automatically identify bins in the data, it is not optimized to leverage
+input datasets with variable a variable representing exact bin times
+(e.g., nominal, or protocol-specified, times).</p>
+<p>First, we will load the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
@@ -87,11 +94,11 @@ data containing exact bins.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metrumresearchgroup/mrgsolve" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>Next let’s explore our input dataset <code>data_sad</code>. This
-dataset was generated via simulation from the mrgsolve
-<code>model</code> internal to the pmxhelpr package. We can take a quick
-look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code> from the dplyr
-package.</p>
+<p>Next let’s explore the input dataset, <code>data_sad</code>. This
+dataset was generated via simulation from <code>model</code>, an
+<code>mrgsolve</code> model internal to the pmxhelpr package.</p>
+<p>We can take a quick look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code>
+from the dplyr package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 720</span></span>
@@ -120,18 +127,23 @@ package.</p>
 <span><span class="co">#&gt; $ USUBJID <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-…</span></span>
 <span><span class="co">#&gt; $ PART    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part …</span></span></code></pre></div>
 <p>We can see that this dataset is already formatted for modeling. It
-contains NONMEM and mrgsolve reserved variables (e.g., ID, TIME, AMT,
-EVID, MDV), as well as, the dependent variable of drug concentration in
-original, untransformed units (ODV) and natural logarithm transformed
-units (LDV). In addition to the numeric variables there are two
-character variables: USUBJID and PART. There are two unique values of
-PART indicating two distinct study cohorts: Single Ascending Dose (SAD)
-and Food Effect (FE).</p>
+contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as
+well as, dependent variables of drug concentration in original units
+(ODV) and natural logarithm transformed units (LDV). In addition to the
+numeric variables, there are two character variables: USUBJID and PART.
+PART specifies the two study cohorts:</p>
+<ul>
+<li>Single Ascending Dose (SAD)</li>
+<li>Food Effect (FE).</li>
+</ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">PART</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Part 1-SAD" "Part 2-FE"</span></span></code></pre></div>
-<p>This dataset also contains an exact binning variable: Nominal Time
-(NTIME). This variable represents the nominal time of sample collection
+<p>This dataset also contains an exact binning variable:</p>
+<ul>
+<li>Nominal Time (NTIME).</li>
+</ul>
+<p>This variable represents the nominal time of sample collection
 relative to first dose per study protocol whereas Actual Time (TIME)
 represents the actual time the sample was collected.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -194,9 +206,9 @@ impacts lower doses more than higher doses.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-conc-time-blq-1.png" width="576"></p>
 <p>Luckily for us, someone has already fit a PK model to these data!
-Let’s load the mrgsolve model file internal to the pmxhelpr package by
-calling <code><a href="../reference/model_mread_load.html">model_mread_load()</a></code> and take a look at it with
-<code><a href="https://rdrr.io/pkg/mrgsolve/man/see.html" class="external-link">mrgsolve::see()</a></code>.</p>
+Let’s load <code>model</code> by calling <code><a href="../reference/model_mread_load.html">model_mread_load()</a></code>
+and take a look at it with the <code><a href="https://rdrr.io/pkg/mrgsolve/man/see.html" class="external-link">see()</a></code> function from the
+<code>mrgsolve</code> package.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Building model_cpp ... done.</span></span>
@@ -251,17 +263,19 @@ calling <code><a href="../reference/model_mread_load.html">model_mread_load()</a
 <span><span class="co">#&gt; capture IPRED = CENT/(VC/1000);</span></span>
 <span><span class="co">#&gt; capture DV = IPRED*(1+PROP);</span></span></code></pre></div>
 <p>Unluckily for us, no one has validated this PK model! Therefore, we
-need to generate some Visual Predictive Checks (VPCs) to validate the
-model. We will use <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> to run the
-simulation for the VPC. This is a wrapper function for
-<code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsim_df()</a></code>, which uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> to iterate
-the simulation over integers from 1 to replicates.</p>
+need to generate some Visual Predictive Checks (VPCs).</p>
+<p>We will use <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> to run the simulation
+for the VPC. <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> is a wrapper function
+for <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsim_df()</a></code>, which uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> to
+iterate the simulation over integers from 1 to the value passed to the
+argument <code>replicates</code>.</p>
 <p>We can pass <code>data_sad</code> and <code>model</code> from the
-previous steps to the data and model arguments, respectively, and run
-the simulation for 100 <code>replicates</code>. The names of actual and
-nominal time variables in <code>data_sad</code> match the default
-arguments; however, our dependent variable is named <code>"ODV"</code>,
-which must be specified in the output_vars argument.</p>
+previous steps to the <code>data</code> and <code>model</code>
+arguments, respectively, and run the simulation for 100
+<code>replicates</code>. The names of actual and nominal time variables
+in <code>data_sad</code> match the default arguments; however, our
+dependent variable is named <code>"ODV"</code>, which must be specified
+in the output_vars argument.</p>
 <p><strong>Note: Currently output variables <code>IPRED</code> and
 <code>DV</code> are required in <code>model</code> capture
 statement</strong></p>
@@ -314,9 +328,8 @@ and reduce file size.</p>
 <span><span class="co">#&gt; [1] 100</span></span></code></pre></div>
 <p>The maximum value of our replicate count variable (default =
 <code>"SIM"</code>) indicates that the dataset has been replicated 100
-times, as requested with the <code>replicates</code> argument.</p>
-<p>Glimpsing the output from <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> reveals
-the following model outputs:</p>
+times.</p>
+<p>Glimpsing the output reveals the following model outputs:</p>
 <ul>
 <li>
 <code>PRED</code> (population prediction)</li>
@@ -357,10 +370,11 @@ provided by the classInt package, see the package help for more
 information.</li>
 </ul>
 <p>We can visualize the bins assigned by the various binning approaches
-in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> using by assigning the plot as an R object and
-calling <code>plot_object$data</code>.</p>
+in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> using by assigning the plot as an object , let’s
+call it <code>plot_object</code>, and calling
+<code>plot_object$data</code>.</p>
 <p>Because we have multiple dose levels in the SAD portion of the study,
-as well as, a food effect cohort, prediction correction will be used to
+as well as, a food effect cohort, prediction-correction will be used to
 plot all the data on a single plot using the argument
 <code>pred_corr = TRUE</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -384,12 +398,12 @@ plot all the data on a single plot using the argument
 <p>This plot looks pretty good! The default binning in
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> produce a very nice looking plot. However, all
 of the binning methods internal to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> are designed to
-determine binning intervals from the actual data. Currently, there is no
-method to use <em>exact bins contained in the data</em> in place of
-<em>bin intervals determined from the data</em>. The presence of exact
-bins in the data is a common scenario in pharmacometrics, as Clinical
-Study Protocols usually specify specific Study Visits corresponding ot
-each sample, which are associated with a nominal (protocolized) time of
+determine binning intervals from the data. Currently, there is no method
+to use <em>exact bins contained in the data</em> in place of <em>bin
+intervals determined from the data</em>. The presence of exact bins in
+the data is a common scenario in pharmacometrics, as Clinical Study
+Protocols usually specify specific Study Visits corresponding ot each
+sample, which are associated with a nominal (protocol-specified) time of
 collection.</p>
 <p>We can use the <code><a href="../reference/df_nobsbin.html">df_nobsbin()</a></code> function to calculate and
 return a summary data.frame containing the unique exact bin times, count
@@ -513,10 +527,10 @@ phase time-points, which are being largely binned together.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 1      120        120     130</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> 1      144        140     150</span></span></code></pre></div>
 <p>The <code>bins = "kmeans"</code> option produces yet another
-reasonably visually appealing plot; however, like
-<code>bins = "pretty"</code> it groups many of the absorption phase
-timepoints together and does not include the last three sampling times
-with quantifiable observations in simulated intervals.</p>
+reasonable plot; however, like <code>bins = "pretty"</code>, it groups
+many of the absorption phase timepoints together and does not include
+the last three sampling times with quantifiable observations in
+simulated intervals.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_kmeans</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -579,7 +593,7 @@ with quantifiable observations in simulated intervals.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1       72      60      84   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 1       96      84     108   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 1      123.    108     144</span></span></code></pre></div>
-<p>The native binning methods <code>density</code> attempts to bin the
+<p>The native binning method <code>density</code> attempts to bin the
 data by finding the nadir in the density function. In this case, we can
 try and inform the binning algorithm on how many bins we <em>expect</em>
 in the data. Let’s pass the length of the vector of unique
@@ -690,8 +704,8 @@ bin width in time).</p>
 <code class="sourceCode R"><span><span class="va">vpc_time</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-data-time-2.png" width="576"></p>
 <p>These methods are designed to equalize data density in each bin,
-which unsurprisingly does not produce binning consistent with the exact
-bins in our dataset.</p>
+which does not produce binning consistent with the exact bins in our
+dataset.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Exact bins in the input data</span></span>
 <span><span class="fu"><a href="../reference/df_nobsbin.html">df_nobsbin</a></span><span class="op">(</span><span class="va">data_sad</span>, bin_var <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span></span>
@@ -750,14 +764,14 @@ bins in our dataset.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 1      120    112       128  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 1      144    128       144.</span></span></code></pre></div>
 <p>The pmxhelpr function <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> is a wrapper
-function for <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> which is optimized for input datasets
+function for <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, which is optimized for input datasets
 containing exact bins. This wrapper passes the the unique exact bins
-(e.g., Nominal Times) in the input dataset as bin boundaries with the
+(e.g., nominal times) in the input dataset as bin boundaries with the
 addition of <code>Inf</code> to the end of the vector to ensure that the
-final exact bin is included, rather than set only as a bin boundary.
-This functionality can be reproduced using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> by passing
-a vector of unique exact bins to <code>bins</code> with the addition of
-<code>Inf</code> as follows:</p>
+final exact bin is included, rather than set only as a boundary.</p>
+<p>This functionality can be reproduced using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> by
+passing a vector of unique exact bins to <code>bins</code> with the
+addition of <code>Inf</code> as follows:</p>
 <ul>
 <li><code>bins = c(sort(unique(simout$NTIME)), Inf)</code></li>
 </ul>
@@ -780,18 +794,15 @@ a vector of unique exact bins to <code>bins</code> with the addition of
 <span><span class="op">)</span></span>
 <span><span class="va">vpc_exact_ntime</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-1.png" width="576"></p>
-<p>However, this workaround will only work if the idv is set to the
-nominal time variable (<code>idv = "NTIME</code>) in both the
-<code>sim_cols</code> and <code>obs_cols</code> arguments, which
-precludes us from plotting the actual observed data points by actual
-time (<code>"TIME"</code>) while binned summary statistics are
-calculated based on the exact bins defined by nominal time
-(<code>NTIME</code>). <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> gets around this
-limitation by plotting the observed data in a separate layer on top of
-the plot object returned by <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, including
-prediction-correction of those observed points if
-<code>pcvpc = TRUE</code> (also passed along to the
-<code>pred_corr</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>)</p>
+<p>However, this workaround only works if <code>idv</code> is set to the
+nominal time variable (<code>idv = "NTIME</code>) in both
+<code>sim_cols</code> and <code>obs_cols</code>, which removes the
+option to plot the observationsby actual time (<code>"TIME"</code>).</p>
+<p><code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> gets around this limitation by
+plotting the observed data in a separate layer on top of the plot object
+returned by <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, including prediction-correction of those
+observed points if <code>pcvpc = TRUE</code> (also passed along to the
+<code>pred_corr</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>).</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -810,15 +821,15 @@ prediction-correction of those observed points if
 <p>The difference in plotting the observed prediction-corrected data
 points by <code>"TIME"</code> versus <code>"NTIME"</code> is negligible
 for this example dataset, due to the high concordance between
-<code>"TIME"</code> and <code>"NTIME"</code> in this well controlled
-example Phase 1 study. However, this difference is often much larger for
-pooled analyses including later phase clinical studies where plotting
-the observed points versus actual time will result in a plot that is
-much more representative of the distribution of times in the model
-training dataset.</p>
+<code>"TIME"</code> and <code>"NTIME"</code> in this example Phase 1
+study. However, this difference is often much larger for pooled analyses
+including later phase clinical studies where plotting the observed
+points versus actual time will result in a plot that is much more
+representative of the distribution of times in the model training
+dataset.</p>
 <p>When exploring the bins in the input and output datasets using
-<code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>, we now can see that they are
-consistent! Huzzah!</p>
+<code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>, we now see that they are consistent!
+Huzzah!</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Exact bins in the input data</span></span>
 <span><span class="fu"><a href="../reference/df_nobsbin.html">df_nobsbin</a></span><span class="op">(</span><span class="va">data_sad</span>, bin_var <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span></span>
@@ -876,16 +887,23 @@ with fewer quantifiable observations than the minimum set by this
 argument. Importantly, the observed data points in these small bins are
 <em>still plotted</em>; however, they do not influence the calculation
 of summary statistics or summary plot elements (shaded intervals,
-lines). This provides the greatest fidelity to the data being analyzed
+lines). This provides the greatest fidelity to the data visualized
 without introducing visual artifacts due to small sample timepoints.</p>
+<p>Additionally, because our plot input dataset <code>simout</code> was
+generated using <code>df_mrgsim_replicate</code>, the
+<code>time_vars</code> and <code>output_vars</code> match the default
+values, so we do not need to specify these arguments and they can be
+removed. Furthermore, the <code>pi</code> and <code>ci</code> arguments
+we are specifying match the default 90% PI and CI in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>
+and can be removed.</p>
+<p>When setting<code>min_bin_count = 10</code>, summary statistics are
+not plotted for the final two timepoint containing only fewer than 10
+quantifiable observations; however, the observations themselves are
+still plotted.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_exact_bin_gt10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
-<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
@@ -894,26 +912,17 @@ without introducing visual artifacts due to small sample timepoints.</p>
 <span></span>
 <span><span class="va">vpc_exact_bin_gt10</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-min-bin-count-1.png" width="576"></p>
-<p>When setting<code>min_bin_count = 10</code>, summary statistics are
-not plotted for the final two timepoint containing only fewer than 10
-quantifiable observations; however, the observations themselves are
-still plotted.</p>
 <p>We can also pass stratifying variables to the argument
-<code>strat_var</code> in order to facet our plots by relevant extrinsic
-study design covariates or intrinsic subject covariates. The stratify
-variables specified in <code>strat_var</code> are also passed to the
-<code>stratify</code> argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> in order to facet
-the resulting plots. Currently, only one variable can be passed to this
-argument.</p>
+<code>strat_var</code> in order to facet our plots by relevant covariate
+conditions. The stratification variables specified in
+<code>strat_var</code> are also passed to the <code>stratify</code>
+argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, in order to facet the resulting plots.
+Currently, only one variable can be passed to this argument.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_exact_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, FOOD_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>  strat_vars <span class="op">=</span> <span class="st">"FOOD_f"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
-<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>

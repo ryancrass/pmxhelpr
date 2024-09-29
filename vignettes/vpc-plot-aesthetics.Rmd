@@ -112,6 +112,7 @@ vpc_pc <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
+  theme = vpc_theme,
   min_bin_count = 5
 ) 
 

@@ -257,7 +257,7 @@ median red - Observed 5th and 95th and simulated 90% CI of the 5th and
 <p>Now, let’s take a look at our plot prior plot with the new color
 schema.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
@@ -271,14 +271,14 @@ schema.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
 <span></span>
-<span><span class="va">vpc_pc</span></span></code></pre></div>
+<span><span class="va">vpc_pc_new</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-theme-1.png" width="768"></p>
 <p>This is nice; however, I do not like the grey background and I would
 prefer only major y-axis grid lines without any x-axis grid lines.
 Conveniently, we can just add <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> elements on top of
 the plot object using the standard <code>ggplot2</code> approach.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_new2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
@@ -296,7 +296,7 @@ the plot object using the standard <code>ggplot2</code> approach.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
 <span></span>
-<span><span class="va">vpc_pc_new</span></span></code></pre></div>
+<span><span class="va">vpc_pc_new2</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-1.png" width="768"></p>
 <p>Okay, now we have gotten the plot aesthetics where we want them;
 however, there is one other element we may like to include in the figure
@@ -334,7 +334,7 @@ with the VPC plot objects into a single plot object with the
 <span><span class="va">vpc_pc_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" width="768"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_new</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_new2</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-w-legend-1.png" width="768"></p>
   </main>

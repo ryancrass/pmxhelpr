@@ -124,39 +124,72 @@ a single observation.</p>
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. The <code>shown</code> argument can be provided to
 <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> and passed on to the <code>show</code>
 argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
-<p>The options are as follows:</p>
+<p>The default is as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shown_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">TRUE</span>, obs_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                   obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span><span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">shown_list</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $obs_dv</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $obs_ci</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $pi</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $pi_as_area</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $pi_ci</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $obs_median</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_median</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_median_ci</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span>                   obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span><span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>The components of the list correspond to the following vpc plot
+elements: - Observed points: <code>obs_dv</code> = Observed quantiles:
+<code>obs_ci</code> - Simulated inter-quantile range: <code>pi</code> -
+Simulated inter-quantile area: <code>pi_as_area</code> - Simulated
+Quantile CI: <code>pi_ci</code> - Observed Median:
+<code>obs_median</code> - Simulated Median: <code>sim_median</code> -
+Simulated Median CI: <code>sim_median_ci</code></p>
+<p>One or more elements to be updated from the defaults above can be
+passed as a list to the argument <code>shown</code>. Any elements not
+specified in <code>shown</code> will inherit the defaults.</p>
+<p>For example, let’s say we want to remove the observed data points
+from the plot above to better visualize the observed quntile lines
+relative to their corresponding simulated confidence intervals. We can
+do this as follows.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">vpc_pc_noobs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
+<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
+<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
+<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
+<span></span>
+<span><span class="va">vpc_pc_noobs</span></span></code></pre></div>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-1.png" width="768"></p>
+<p>We could also take this one step further and only look at the median
+and the simulated confidence interval of the median, to closely
+interrogate central tendency. This is common for VPC strata which have
+few observations, leading to inadrquate sample size to discriminate
+between the confidence intervals of the median and the extremes. This is
+common scenario when evaluating VPC plots stratified by individual study
+arms in early phase trials.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">vpc_pc_noobs_medonly</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
+<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
+<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
+<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, obs_ci <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME)`</span></span>
+<span></span>
+<span><span class="va">vpc_pc_noobs_medonly</span></span></code></pre></div>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-medonly-1.png" width="768"></p>
 <p>Similarly, the default aesthetics for this plot are inherited from
 the defaults in the <code>vpc</code> package, which can be viewed by
 running <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> with no arguments.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vpc_theme_list</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $obs_color</span></span>
@@ -231,18 +264,18 @@ running <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="ex
 <span><span class="co">#&gt; attr(,"class")</span></span>
 <span><span class="co">#&gt; [1] "vpc_theme"</span></span></code></pre></div>
 <p>Now, suppose we want to change the default aesthetics of the VPC
-plot. This can be accomplished by passing a named list of elements to
-update to the function <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code>. The named list
-object generated from this function can then be passed to the
-<code>theme</code> argument in <code>vpc_plot_exactbins</code>, which is
-also an alias for the <code>vpc_theme</code> argument in
-<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
+plot, without changing what is being shown. This can be accomplished by
+passing a named list of elements to update to the function
+<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code>. The named list object generated from this
+function can then be passed to the <code>theme</code> argument in
+<code>vpc_plot_exactbins</code>, which is also an alias for the
+<code>vpc_theme</code> argument in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
 <p>Let’s say we prefer a more classical VPC color schema, based only on
 basic red-blue-green color brewer. We will make the following changes: -
 Observed points blue - Observed median and simulated 90% CI of the
 median red - Observed 5th and 95th and simulated 90% CI of the 5th and
 95th blue</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  obs_color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
@@ -256,7 +289,7 @@ median red - Observed 5th and 95th and simulated 90% CI of the 5th and
 <span><span class="op">)</span></span></code></pre></div>
 <p>Now, let’s take a look at our plot prior plot with the new color
 schema.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
@@ -277,7 +310,7 @@ schema.</p>
 prefer only major y-axis grid lines without any x-axis grid lines.
 Conveniently, we can just add <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> elements on top of
 the plot object using the standard <code>ggplot2</code> approach.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
@@ -313,7 +346,7 @@ updated. Default is set by <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_th
 include on the plot.</p>
 <p>To obtain a legend for a plot using default aesthetics, simply run
 plot_legend() without any arguments specified.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768"></p>
@@ -322,18 +355,18 @@ plot!</p>
 <p>To generate one for our second plot with updated aesthetics, let’s
 pass the same named list object (<code>vpc_theme</code>) to the
 <code>update</code> argument.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="va">vpc_theme</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
 <p>Okay, now that we have our legend plot objects, let’s combine them
 with the VPC plot objects into a single plot object with the
 <code>patchwork</code> package.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc</span> <span class="op">+</span> <span class="va">vpc_pc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" width="768"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_new2</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-w-legend-1.png" width="768"></p>

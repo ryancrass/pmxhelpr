@@ -64,14 +64,72 @@ vpc_pc
 
 The default elements shown in the plot are inherited from `vpc()`. The `shown` argument can be provided to `plot_vpc_exactbins()` and passed on to the `show` argument of `vpc()`. 
 
-The options are as follows:
+The default is as follows:
 
 ```{r vpc-plot-shown}
 shown_list <- list(obs_dv = TRUE, obs_ci = TRUE,
                    pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
                    obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE)
-print(shown_list)
 ```
+
+The components of the list correspond to the following vpc plot elements:
+  - Observed points: `obs_dv`
+  = Observed quantiles: `obs_ci`
+  - Simulated inter-quantile range: `pi`
+  - Simulated inter-quantile area: `pi_as_area`
+  - Simulated Quantile CI: `pi_ci` 
+  - Observed Median: `obs_median` 
+  - Simulated Median: `sim_median`
+  - Simulated Median CI: `sim_median_ci` 
+  
+  
+One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults. 
+
+For example, let's say we want to remove the observed data points from the plot above to better visualize the observed quntile lines relative to their corresponding simulated confidence intervals. We can do this as follows.
+
+```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+
+vpc_pc_noobs <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5,
+  shown = list(obs_dv = FALSE)
+)
+
+vpc_pc_noobs
+```
+
+
+We could also take this one step further and only look at the median and the simulated confidence interval of the median, to closely interrogate central tendency. This is common for VPC strata which have few observations, leading to inadrquate sample size to discriminate between the confidence intervals of the median and the extremes. This is common scenario when evaluating VPC plots stratified by individual study arms in early phase trials. 
+
+```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+
+vpc_pc_noobs_medonly <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5,
+  shown = list(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
+)
+
+vpc_pc_noobs_medonly
+```
+
+
+
+
+
+
+
 
 Similarly, the default aesthetics for this plot are inherited from the defaults in the `vpc` package, which can be viewed by running `new_vpc_theme()` with no arguments.
 
@@ -80,7 +138,7 @@ vpc_theme_list <- new_vpc_theme()
 print(vpc_theme_list)
 ```
 
-Now, suppose we want to change the default aesthetics of the VPC plot. This can be accomplished by passing a named list of elements to update to the function `new_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `new_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
 
 Let's say we prefer a more classical VPC color schema, based only on basic red-blue-green color brewer. We will make the following changes:
   - Observed points blue
@@ -177,4 +235,7 @@ vpc_pc_wleg
 vpc_pc_new_wleg <- vpc_pc_new2 + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
 vpc_pc_new_wleg
 ```
+
+
+
 

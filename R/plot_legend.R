@@ -38,7 +38,7 @@ plot_legend <- function(ci = c(0.05, 0.95),
                        list(obs_dv = TRUE, obs_ci = TRUE,
                             pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
                             obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
-  lloq_lab <- lloq
+  lloq_lab <- as.character(lloq)
   obs <- "Obs"
   obs_cent <- "Obs Med"
   sim_cent <- "Sim Med"
@@ -48,9 +48,10 @@ plot_legend <- function(ci = c(0.05, 0.95),
   sim_cilab_cent <- paste0(sim_cilab, " Med")
   sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
 
-  plot <- ggplot2::ggplot(data = data.frame(x=NA_real_, y= NA_real_), ggplot2::aes(x,y), na.rm= TRUE)
+  df <- data.frame(x=NA_real_, y=NA_real_)
+  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y), na.rm= TRUE)
 
-  plot <- plot +
+  plot <- plot_blank +
     {if(nlist$obs_dv == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
                                                   color = plist$obs_color,
                                                   size = plist$obs_size, na.rm= TRUE)} +

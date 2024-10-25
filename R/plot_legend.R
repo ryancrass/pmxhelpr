@@ -29,7 +29,9 @@ plot_legend <- function(ci = c(0.05, 0.95),
                         ...){
 
   #aesthetics for legend based on settings in vpc::new_vpc_theme
-  plist <- list_update(update, vpc::new_vpc_theme())
+  new_vpc_theme_list <- vpc::new_vpc_theme()
+  attr(new_vpc_theme_list, "class") <- NULL
+  plist <- list_update(update,new_vpc_theme_list)
 
   #shown elements for legend based on settings in vpc::vpc
   nlist <- list_update(shown,

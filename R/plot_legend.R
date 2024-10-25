@@ -108,7 +108,6 @@ plot_legend <- function(ci = c(0.05, 0.95),
     ggplot2::theme_void()+
     ggplot2::theme(legend.position = "inside",
                    legend.box = "horizontal",
-                   legend.title.position = "top",
                    legend.title = ggplot2::element_text(size = 10),
                    legend.text = ggplot2::element_text(size = 8),
                    ...)+

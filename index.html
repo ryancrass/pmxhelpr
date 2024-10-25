@@ -80,11 +80,11 @@
 <li>Wrapper functions: <em>ReturnObject</em>_<em>WrappedFunction</em>_<em>Purpose</em>
 <ul>
 <li>
-<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object.</li>
+<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object.</li>
 <li>
-<code>df_mrgsim_addpred()</code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> including <code><a href="https://rdrr.io/pkg/mrgsolve/man/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code> to add population predictions (PRED) to the input data returning a <code>data.frame</code>.</li>
+<code>df_mrgsim_addpred()</code> wraps <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> including <code><a href="https://mrgsolve.org/docs/reference/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code> to add population predictions (PRED) to the input data returning a <code>data.frame</code>.</li>
 <li>
-<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>.</li>
+<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>.</li>
 <li>
 <code><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> wraps <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> to generate a VPC plot using exact time bins returning a <code>ggplot</code> object.</li>
 </ul>
@@ -110,7 +110,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metrumresearchgroup/mrgsolve" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>

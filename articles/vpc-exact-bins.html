@@ -92,7 +92,7 @@ input datasets with variable a variable representing exact bin times
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/metrumresearchgroup/mrgsolve" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Next let’s explore the input dataset, <code>data_sad</code>. This
 dataset was generated via simulation from <code>model</code>, an
@@ -208,12 +208,12 @@ impacts lower doses more than higher doses.</p>
 <p><img src="vpc-exact-bins_files/figure-html/plot-conc-time-blq-1.png" width="576"></p>
 <p>Luckily for us, someone has already fit a PK model to these data!
 Let’s load <code>model</code> by calling <code><a href="../reference/model_mread_load.html">model_mread_load()</a></code>
-and take a look at it with the <code><a href="https://rdrr.io/pkg/mrgsolve/man/see.html" class="external-link">see()</a></code> function from the
+and take a look at it with the <code><a href="https://mrgsolve.org/docs/reference/see.html" class="external-link">see()</a></code> function from the
 <code>mrgsolve</code> package.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Building model_cpp ... done.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/mrgsolve/man/see.html" class="external-link">see</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mrgsolve.org/docs/reference/see.html" class="external-link">see</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model file:  model.cpp </span></span>
 <span><span class="co">#&gt; $PARAM </span></span>
@@ -267,7 +267,7 @@ and take a look at it with the <code><a href="https://rdrr.io/pkg/mrgsolve/man/s
 need to generate some Visual Predictive Checks (VPCs).</p>
 <p>We will use <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> to run the simulation
 for the VPC. <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> is a wrapper function
-for <code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsim_df()</a></code>, which uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> to
+for <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsim_df()</a></code>, which uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> to
 iterate the simulation over integers from 1 to the value passed to the
 argument <code>replicates</code>.</p>
 <p>We can pass <code>data_sad</code> and <code>model</code> from the
@@ -288,7 +288,7 @@ stratify our VPC plots. We will request <code>"BLQ"</code> and
 the VPCs, as well as, the NONMEM reserved variables <code>"CMT"</code>,
 <code>"EVID"</code>, and <code>"MDV"</code>. Finally, we will add the
 argument <code>obsonly = TRUE</code>, which is passed to
-<code><a href="https://rdrr.io/pkg/mrgsolve/man/mrgsim.html" class="external-link">mrgsim()</a></code>, to remove dose records from the simulation output
+<code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsim()</a></code>, to remove dose records from the simulation output
 and reduce file size.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, </span>

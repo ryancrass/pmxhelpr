@@ -1,11 +1,16 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.1.3
+
+* Vignette vpc plot axes updated to time unit breaks
+* Vignette bullet point lists updated to correct spacing
+* Coerce argument `lloq` argument of `plot_legend()` to character type
 
 # pmxhelpr 0.1.2
+
+* Vignettes copy edited
 
 # pmxhelpr 0.1.1
 
 * Added dependency: `patchwork`
-* Vignettes copy-edited
 
 # pmxhelpr 0.1.0
 

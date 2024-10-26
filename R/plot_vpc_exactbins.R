@@ -139,36 +139,37 @@ plot_vpc_exactbins <- function(sim,
     vpc_theme = vpctheme,
     ...)
 
+  #If to capture vpcdb = TRUE passed to vpc::vpc
   if(!ggplot2::is.ggplot(plot)) {
+    return(plot) #if not ggplot object, must be a list containing vpc information with vpcdb=TRUE
+  } else {
+    ##Overlay Observations if Requested
+    if(shown_obs$obs_dv == TRUE & pcvpc == FALSE){
+      plot <- plot+
+        ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
+                            shape = vpctheme$obs_shape,
+                            alpha = vpctheme$obs_alpha,
+                            size = vpctheme$obs_size,
+                            color = vpctheme$obs_color)
+    }
+
+    if(shown_obs$obs_dv == TRUE & pcvpc == TRUE) {
+      plot <- plot+
+        ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
+                            shape = vpctheme$obs_shape,
+                            alpha = vpctheme$obs_alpha,
+                            size = vpctheme$obs_size,
+                            color = vpctheme$obs_color)
+    }
+
+    ##Add Subtitle with Replicates
+    if(show_rep == TRUE){
+      plot <- plot+
+        ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
+    }
+
     return(plot)
   }
-
-  ##Overlay Observations if Requested
-  if(shown_obs$obs_dv == TRUE & pcvpc == FALSE){
-    plot <- plot+
-      ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs_shape,
-                          alpha = vpctheme$obs_alpha,
-                          size = vpctheme$obs_size,
-                          color = vpctheme$obs_color)
-  }
-
-  if(shown_obs$obs_dv == TRUE & pcvpc == TRUE) {
-    plot <- plot+
-      ggplot2::geom_point(ggplot2::aes(y = PCOBSDV, x = TIME), data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs_shape,
-                          alpha = vpctheme$obs_alpha,
-                          size = vpctheme$obs_size,
-                          color = vpctheme$obs_color)
-  }
-
-  ##Add Subtitle with Replicates
-  if(show_rep == TRUE){
-    plot <- plot+
-      ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
-  }
-
-  return(plot)
 }
 
 

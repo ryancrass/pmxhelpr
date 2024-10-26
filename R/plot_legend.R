@@ -118,7 +118,7 @@ plot_legend <- function(ci = c(0.05, 0.95),
                     linetype = ggplot2::guide_legend(order=2),
                     fill = ggplot2::guide_legend(order=3))
 
-  return(suppressWarnings(plot))
+  return(plot)
 }
 
 

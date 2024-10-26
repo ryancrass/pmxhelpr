@@ -57,7 +57,8 @@ vpc_pc <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_pc
 ```
@@ -99,7 +100,8 @@ vpc_pc_noobs <- plot_vpc_exactbins(
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = list(obs_dv = FALSE)
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_pc_noobs
 ```
@@ -119,7 +121,8 @@ vpc_pc_noobs_medonly <- plot_vpc_exactbins(
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = list(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_pc_noobs_medonly
 ```
@@ -172,7 +175,8 @@ vpc_pc_new <- plot_vpc_exactbins(
   pcvpc = TRUE,
   theme = vpc_theme,
   min_bin_count = 5
-) 
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_pc_new
 ```
@@ -191,6 +195,7 @@ vpc_pc_new2 <- plot_vpc_exactbins(
   min_bin_count = 5,
   theme = vpc_theme
 ) +
+  scale_x_continuous(breaks = seq(0,168,24)) +
   theme(panel.background = element_rect(fill = "white", linewidth = 0.5, color = "black"),
         panel.grid.minor.y = element_blank(), 
         panel.grid.minor.x = element_blank(), 

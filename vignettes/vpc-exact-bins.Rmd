@@ -186,7 +186,9 @@ vpc_jenks <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
+
 vpc_jenks
 ```
 
@@ -221,7 +223,9 @@ vpc_pretty <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
+
 vpc_pretty
 ```
 
@@ -252,7 +256,9 @@ vpc_kmeans <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
+
 vpc_kmeans
 ```
 
@@ -281,7 +287,9 @@ vpc_density <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
+
 vpc_density
 ```
 
@@ -311,7 +319,8 @@ vpc_data <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_time <- vpc(
   sim = simout, 
@@ -326,7 +335,8 @@ vpc_time <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_data
 vpc_time
@@ -367,7 +377,9 @@ vpc_exact_ntime <- vpc(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+)+
+  scale_x_continuous(breaks = seq(0,168,24))
+
 vpc_exact_ntime
 ```
 
@@ -386,7 +398,8 @@ vpc_exact <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+)+
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_exact
 ```
@@ -418,7 +431,8 @@ vpc_exact_bin_gt10 <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_exact_bin_gt10
 ```
@@ -433,7 +447,8 @@ vpc_exact_food <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
 
 vpc_exact_food
 ```

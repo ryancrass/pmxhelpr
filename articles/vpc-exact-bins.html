@@ -393,7 +393,9 @@ plot all the data on a single plot using the argument
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">vpc_jenks</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-jenks-1.png" width="576"></p>
 <p>This plot looks pretty good! The default binning in
@@ -478,7 +480,9 @@ binning methods native to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" c
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">vpc_pretty</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-pretty-1.png" width="576"></p>
 <p>The vpc plot produced with <code>bins = "pretty</code> <em>is</em>
@@ -547,7 +551,9 @@ simulated intervals.</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">vpc_kmeans</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-kmeans-1.png" width="576"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -616,7 +622,9 @@ correct bins.</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">vpc_density</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-density-1.png" width="576"></p>
 <p>Whomp Whomp. <code>bins = "density"</code>, like the previous methods
@@ -682,7 +690,8 @@ bin width in time).</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -697,7 +706,8 @@ bin width in time).</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_data</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-data-time-1.png" width="576"></p>
@@ -792,7 +802,9 @@ addition of <code>Inf</code> as follows:</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">vpc_exact_ntime</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-1.png" width="576"></p>
 <p>However, this workaround only works if <code>idv</code> is set to the
@@ -815,7 +827,8 @@ observed points if <code>pcvpc = TRUE</code> (also passed along to the
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-1.png" width="576"></p>
@@ -909,7 +922,8 @@ still plotted.</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_bin_gt10</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-min-bin-count-1.png" width="576"></p>
@@ -927,7 +941,8 @@ Currently, only one variable can be passed to this argument.</p>
 <span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" width="576"></p>

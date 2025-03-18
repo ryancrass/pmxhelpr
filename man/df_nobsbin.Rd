@@ -4,7 +4,7 @@
 \alias{df_nobsbin}
 \title{Count the non-missing observations in each exact bin}
 \usage{
-df_nobsbin(data, bin_var = "NTIME", strat_vars = "CMT")
+df_nobsbin(data, bin_var = "NTIME", strat_vars = NULL)
 }
 \arguments{
 \item{data}{Input dataset.}

@@ -98,7 +98,7 @@ plot_vpc_exactbins <- function(sim,
   sim <- sim |>
     dplyr::rename((dplyr::any_of(c(output_vars, time_vars))))
 
-  #Set MDV to zero for appropriate censoring if not pred=corrected
+  #Set MDV to zero for appropriate censoring if not pred-corrected
   if(pcvpc==FALSE & !is.null(loq)){
     sim$MDV <- 0
   }
@@ -197,14 +197,14 @@ plot_vpc_exactbins <- function(sim,
 #'
 df_nobsbin <- function(data,
                        bin_var = "NTIME",
-                       strat_vars = "CMT"){
+                       strat_vars = NULL){
   check_df(data)
   check_varsindf(data, bin_var)
   check_varsindf(data, strat_vars)
 
   bin_count <- data |>
     dplyr::filter(EVID == 0) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars, "CMT")))) |>
     dplyr::summarize(n_obs = sum(MDV==0),
                      n_miss = sum(MDV==1)) |>
     dplyr::ungroup()
@@ -238,7 +238,7 @@ df_nobsbin <- function(data,
 #'
 df_pcdv <- function(data,
                     bin_var = "NTIME",
-                    strat_vars = "CMT",
+                    strat_vars = NULL,
                     output_vars = c(PRED = "PRED",
                                     IPRED = "IPRED",
                                     DV = "DV"),
@@ -251,7 +251,7 @@ df_pcdv <- function(data,
 
   data <- data |>
     dplyr::rename(dplyr::all_of(output_vars)) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars)))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars, "CMT")))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
                   PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound))) |>
     dplyr::ungroup()

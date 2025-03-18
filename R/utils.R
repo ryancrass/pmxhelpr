@@ -62,7 +62,7 @@ check_capture <- function(mod, var){
 check_factor <- function(data, var){
   input_name <-deparse(substitute(var))
   output_warning <- paste0("argument `", input_name, "` must be coercible to class `factor`")
-  var_vect <- as.factor(data[,var])
+  var_vect <- suppressWarnings(as.factor(data$var))
   if(!is.factor(var_vect)){
     rlang::abort(message = output_warning)
   }

@@ -7,7 +7,7 @@
 df_pcdv(
   data,
   bin_var = "NTIME",
-  strat_vars = "CMT",
+  strat_vars = NULL,
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   lower_bound = 0
 )

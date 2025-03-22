@@ -3,7 +3,7 @@
 #' @description  `plot_vpc_exactbins()` is a wrapper function for [vpc::vpc()]
 #' that returns a `ggplot2` object.
 #'
-#' @param sim Input dataset. Must contain the following variables: `"ID"`, `TIME`
+#' @param sim Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to `lloq` argument
 #'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV`is missing in `sim` where < LLOQ.
@@ -185,7 +185,6 @@ plot_vpc_exactbins <- function(sim,
 #' @param data Input dataset.
 #' @param bin_var Binning variable. Default is `"NTIME"`.
 #' @param strat_vars Stratifying variables. Must be a character vector.
-#'    Default is `"CMT"`.
 #'
 #' @return A data.frame containing one row per unique combination of
 #'    `bin_var` and `strat_vars` and new variables `n_obs`, a count

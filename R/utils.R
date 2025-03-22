@@ -94,3 +94,29 @@ check_varsindf <- function(data, vars){
     rlang::abort(message = output_warning)
   }
 }
+
+check_loq_method <- function(loq, loq_method, data) {
+
+  if(is.null(loq_method)) {
+    rlang::abort(message = "argument `loq_method` must be 0, 1, or 2")
+  }
+
+  if(!loq_method %in% c(0,1,2)) {
+    rlang::abort(message = "argument `loq_method` must be 0, 1, or 2")
+  }
+
+  if(loq_method != 0) {
+    if(is.null(loq)) {
+      if(!"LLOQ" %in% colnames(data)) {
+        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data`
+                     or argument `loq` must specified and numeric or coercible to numeric")
+      }
+    } else {
+      num <- suppressWarnings(as.numeric(loq))
+      if(is.na(num) | !is.numeric(num)) {
+        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data`
+                     or argument `loq` must specified and numeric or coercible to numeric")
+      }
+    }
+  }
+}

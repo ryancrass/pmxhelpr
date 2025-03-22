@@ -1,6 +1,7 @@
 # pmxhelpr (development version)
 
 # pmxhelpr 0.1.4
+* Fixed bug leading to error when generating stratified vpcs using the `strat_var` argument
 
 # pmxhelpr 0.1.3
 

@@ -13,14 +13,7 @@
 #'
 #' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
 #' @param dv_var Character string of the dependent variable. Default is `"DV"`.
-#' @param cent Character string specifying the central tendency measure to plot.
-#'  Options are:
-#'    + Mean only: `"mean"` (default)
-#'    + Mean +/- Standard Deviation: `"mean_sdl"`
-#'    + Medain only: `"median"`
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
-#' @param strat_var Character string of stratification variable.
-#'    Currently, only a single stratifying variable is supported.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'   Options are:
 #'     + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
@@ -28,6 +21,12 @@
 #'        Useful for plotting concentration-time data with some data BLQ on the linear scale
 #'     + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+#' @param cent Character string specifying the central tendency measure to plot.
+#'  Options are:
+#'    + Mean only: `"mean"` (default)
+#'    + Mean +/- Standard Deviation: `"mean_sdl"`
+#'    + Median only: `"median"`
+#'    + None: `"none"`
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
 #' @param ind_dv Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
 #'  Defaut is `FALSE`.
@@ -36,7 +35,6 @@
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
 #' @param xlab  Character string specfing the x-axis label: Default is `"Time"`.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
-#' @param scales Passed to `ggplot2::facet_wrap()`
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_vpc_exactbins
 #'
@@ -57,17 +55,15 @@ plot_dvtime <- function(data,
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
                         col_var = NULL,
-                        strat_var = NULL,
-                        cent = "mean",
                         loq = NULL,
                         loq_method = 0,
+                        cent = "mean",
                         obs_dv = TRUE,
                         ind_dv = FALSE,
                         cfb = FALSE,
                         ylab = "Concentration",
                         xlab = "Time",
-                        show_caption = TRUE,
-                        scales="fixed"){
+                        show_caption = TRUE){
 
   #Checks
   check_df(data)
@@ -75,10 +71,8 @@ plot_dvtime <- function(data,
   check_varsindf(data, time_vars[["TIME"]])
   check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, "MDV")
-  check_varsindf(data, strat_var)
   check_varsindf(data, col_var)
-  if(!is.null(strat_var)) {check_factor(data, col_var)}
-  if(!is.null(strat_var)) {check_factor(data, strat_var)}
+  if(!is.null(col_var)) {check_factor(data, col_var)}
   check_loq_method(loq, loq_method, data)
 
   ##Data Rename
@@ -106,21 +100,27 @@ plot_dvtime <- function(data,
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
 
   #Determine Caption
-  capdf <- data.frame("cent" = c("mean", "mean_sdl", "median"),
-                      "cap" = c("mean","mean with standard deviation error bars","median"))
+  capdf <- data.frame("cent" = c("mean", "mean_sdl", "median", "none"),
+                      "cap" = c("mean","mean with standard deviation error bars","median", ""))
 
-  cap2_dv <- "Half weight points are observations"
-  cap2_ind <- "Half weight lines are longitudinal observations within an individual"
-  cap2_inddv <- "Half weight lines connect longitudinal individual observations within an individual"
+  cap2_dv <- "Open circles are observations"
+  cap2_ind <- "Thin lines connect observations within an individual"
+  cap2_inddv <- "Thin lines connect observations (open circles) within an individual"
 
-  caption <- if(ind_dv==FALSE & obs_dv==FALSE) {
-    paste0("Full weight points and lines are the ", capdf$cap)
+  caption <- if(cent == "none" & ind_dv == FALSE & obs_dv == TRUE) {
+    paste0(cap2_dv)
+  } else if (cent == "none" & ind_dv == TRUE & obs_dv == FALSE) {
+    paste0(cap2_ind)
+  } else if (cent == "none" & ind_dv == TRUE & obs_dv == TRUE) {
+    paste0(cap2_inddv)
+  } else if(ind_dv==FALSE & obs_dv==FALSE) {
+    paste0("Filled circles and thick lines are the ", capdf$cap)
   } else if(ind_dv==FALSE & obs_dv==TRUE){
-    paste0("Full weight points and lines are the ", capdf$cap, "\n", cap2_dv)
+    paste0("Filled circles and and thick lines are the ", capdf$cap, "\n", cap2_dv)
   } else if(ind_dv==TRUE & obs_dv==FALSE){
-    paste0("Full weight points and lines are the ", capdf$cap, "\n", cap2_ind)
+    paste0("Filled circles and thick lines are the ", capdf$cap, "\n", cap2_ind)
   } else if(ind_dv==TRUE & obs_dv==TRUE){
-    paste0("Full weight points and lines are the ", capdf$cap, "\n", cap2_inddv)
+    paste0("Filled circles and thick lines are the ", capdf$cap, "\n", cap2_inddv)
   }
 
 
@@ -161,8 +161,6 @@ plot_dvtime <- function(data,
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.data = "mean_sdl", geom = "errorbar")
-  #Stratify if Requested
-  if(!is.null(strat_var)) plot <- plot + ggplot2::facet_wrap(stats::as.formula(paste("~",strat_var)), scales = scales)
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)

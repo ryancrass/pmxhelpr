@@ -9,17 +9,15 @@ plot_dvtime(
   dv_var = c(DV = "DV"),
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   col_var = NULL,
-  strat_var = NULL,
-  cent = "mean",
   loq = NULL,
   loq_method = 0,
+  cent = "mean",
   obs_dv = TRUE,
   ind_dv = FALSE,
   cfb = FALSE,
   ylab = "Concentration",
   xlab = "Time",
-  show_caption = TRUE,
-  scales = "fixed"
+  show_caption = TRUE
 )
 }
 \arguments{
@@ -32,17 +30,6 @@ Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
 \item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
 
-\item{strat_var}{Character string of stratification variable.
-Currently, only a single stratifying variable is supported.}
-
-\item{cent}{Character string specifying the central tendency measure to plot.
-Options are:
-\itemize{
-\item Mean only: \code{"mean"} (default)
-\item Mean +/- Standard Deviation: \code{"mean_sdl"}
-\item Medain only: \code{"median"}
-}}
-
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
 
@@ -53,6 +40,15 @@ Options are:
 Useful for plotting concentration-time data with some data BLQ on the linear scale
 + \code{2} : Impute all BLQ data at \code{TIME} <= 0 to 1/2 x \code{loq} and all BLQ data at \code{TIME} > 0 to 1/2 x \code{loq}.
 Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed}
+
+\item{cent}{Character string specifying the central tendency measure to plot.
+Options are:
+\itemize{
+\item Mean only: \code{"mean"} (default)
+\item Mean +/- Standard Deviation: \code{"mean_sdl"}
+\item Median only: \code{"median"}
+\item None: \code{"none"}
+}}
 
 \item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
 
@@ -67,8 +63,6 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 \item{xlab}{Character string specfing the x-axis label: Default is \code{"Time"}.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
-
-\item{scales}{Passed to \code{ggplot2::facet_wrap()}}
 }
 \value{
 A ggplot2 plot object

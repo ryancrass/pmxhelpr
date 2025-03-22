@@ -49,17 +49,15 @@
 <span>  dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  col_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  obs_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ind_dv <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cfb <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
-<span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  scales <span class="op">=</span> <span class="st">"fixed"</span></span>
+<span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -84,19 +82,6 @@ Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
 <dd><p>Character string of the name of the variable to map to the color aesthetic.</p></dd>
 
 
-<dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
-<dd><p>Character string of stratification variable.
-Currently, only a single stratifying variable is supported.</p></dd>
-
-
-<dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
-<dd><p>Character string specifying the central tendency measure to plot.
-Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
-<li><p>Mean +/- Standard Deviation: <code>"mean_sdl"</code></p></li>
-<li><p>Medain only: <code>"median"</code></p></li>
-</ul></dd>
-
-
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to <code>lloq</code> argument
 of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Specifying this argument implies that <code>OBSDV</code>is missing in <code>sim</code> where &lt; LLOQ.</p></dd>
@@ -110,6 +95,15 @@ Options are:
 Useful for plotting concentration-time data with some data BLQ on the linear scale
 + <code>2</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to 1/2 x <code>loq</code> and all BLQ data at <code>TIME</code> &gt; 0 to 1/2 x <code>loq</code>.
 Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed</p></dd>
+
+
+<dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
+<dd><p>Character string specifying the central tendency measure to plot.
+Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
+<li><p>Mean +/- Standard Deviation: <code>"mean_sdl"</code></p></li>
+<li><p>Median only: <code>"median"</code></p></li>
+<li><p>None: <code>"none"</code></p></li>
+</ul></dd>
 
 
 <dt id="arg-obs-dv">obs_dv<a class="anchor" aria-label="anchor" href="#arg-obs-dv"></a></dt>
@@ -136,10 +130,6 @@ Plots a reference line at y = 0. Default is <code>FALSE</code>.</p></dd>
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>
 <dd><p>Logical indicating if a caption should be show describing the data plotted</p></dd>
-
-
-<dt id="arg-scales">scales<a class="anchor" aria-label="anchor" href="#arg-scales"></a></dt>
-<dd><p>Passed to <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap()</a></code></p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -21,7 +21,7 @@ plot_vpc_exactbins(
 )
 }
 \arguments{
-\item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{TIME}}
+\item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 

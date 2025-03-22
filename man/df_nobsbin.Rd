@@ -11,8 +11,7 @@ df_nobsbin(data, bin_var = "NTIME", strat_vars = NULL)
 
 \item{bin_var}{Binning variable. Default is \code{"NTIME"}.}
 
-\item{strat_vars}{Stratifying variables. Must be a character vector.
-Default is \code{"CMT"}.}
+\item{strat_vars}{Stratifying variables. Must be a character vector.}
 }
 \value{
 A data.frame containing one row per unique combination of

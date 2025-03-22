@@ -31,9 +31,6 @@
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
 #' @param ind_dv Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
 #'  Defaut is `FALSE`.
-#' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
-#'    in binned plot layers. This argument drops small bins from summary statistic calculation
-#'    but retains these observations in the observed data points.
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
@@ -48,7 +45,9 @@
 #' @export plot_dvtime
 #'
 #' @examples
-#'
+#'data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
+#'plot <- plot_dvtime(data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose")
+#'plot
 #'
 #'
 
@@ -104,6 +103,8 @@ plot_dvtime <- function(data,
                                           MDV == 1 ~ 0.5*LOQ))
   }
 
+  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
+
   #Determine Caption
   capdf <- data.frame("cent" = c("mean", "mean_sdl", "median"),
                       "cap" = c("mean","mean with standard deviation error bars","median"))
@@ -128,42 +129,43 @@ plot_dvtime <- function(data,
 
   #Initialize Plot and Primary Aesthetics
   if(is.null(col_var)) {
-    plot <- ggplot2::ggplot(data, aes(x = TIME, y=DV)) +
-      labs(x=xlab, y=ylab)
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
+      ggplot2::labs(x=xlab, y=ylab)
   } else {
-    plot <- ggplot2::ggplot(data, aes(x = TIME, y=DV, color = !!as.symbol(col_var))) +
-      labs(x=xlab, y=ylab)
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!as.symbol(col_var))) +
+      ggplot2::labs(x=xlab, y=ylab)
   }
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0, linewidth = 1, linetype = "dashed")
-  if(loq_method %in% c(1,2)) plot <- plot + ggplot2::geom_hline(yintercept = loq, linewidth = 0.5, linetype = "dashed")
+  if(loq_method %in% c(1,2)) plot <- plot + ggplot2::geom_hline(yintercept = lloq, linewidth = 0.5, linetype = "dashed")
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=1, size=0.75, alpha = 0.5)
   #Connect Observed Data Points within an Individual
-  if(ind_dv == TRUE) plot <- plot + ggplot2::geom_line(aes(x = TIME, y = DV, group = ID), linewidth = 0.5, alpha = 0.5)
+  if(ind_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = ID),
+                                                       linewidth = 0.5, alpha = 0.5)
 
   #Plot Central Tendency Points
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(aes(x=NTIME, y=DV), size = 1.25,
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
                                                                            fun.y = "mean", geom = "point")
-  if(cent == "median") plot <- plot + ggplot2::stat_summary(aes(x=NTIME, y=DV), size = 1.25,
+  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
                                                              fun.y = "median", geom = "point")
 
   #Plot Central Lines
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(aes(x=NTIME, y=DV), linewidth = 1,
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                                            fun.y = "mean", geom = "line")
-  if(cent == "median") plot <- plot + ggplot2::stat_summary(aes(x=NTIME, y=DV), linewidth = 1,
+  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                             fun.y = "median", geom = "line")
 
   #Plot Error Bars
-  if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(aes(x=NTIME, y=DV),
+  if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.data = "mean_sdl", geom = "errorbar")
   #Stratify if Requested
-  if(!is.null(strat_var)) plot <- plot + ggplot2::facet_wrap(as.formula(paste("~",strat_var)), scales = scales)
+  if(!is.null(strat_var)) plot <- plot + ggplot2::facet_wrap(stats::as.formula(paste("~",strat_var)), scales = scales)
 
   #Caption
-  if(show_caption == TRUE) plot <- plot + labs(caption = caption)
+  if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
 }

@@ -1,4 +1,4 @@
 utils::globalVariables(c("ID", "TIME", "NTIME", "MDV", "EVID",
-                         "PRED", "IPRED", "DV",
+                         "PRED", "IPRED", "DV", "LLOQ",
                          "OBSDV", "SIMDV", "PCDV","PCOBSDV", "PREDBIN",
                          "n_obs", "n_miss", "x", "y"))

@@ -23,6 +23,7 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
+library(patchwork, warn.conflicts = FALSE)
 ```
 
 For this vignette, we will peform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package.
@@ -189,16 +190,26 @@ We can plot an individual subject by filtering the input dataset. This could be 
 ids <- sort(unique(plot_data$ID))
 plotlist<- list()
 for(i in 1:length(ids)){
-  plotlist[[i]] <- plot_dvtime(filter(plot_data, ID == ids[1]), 
+  plotlist[[i]] <- plot_dvtime(filter(plot_data, ID == ids[i]), 
                                dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             ind_dv = TRUE,
-            loq_method = 2, loq = 1) +
+            loq_method = 2, loq = 1, show_caption = FALSE) +
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+
-  labs(title = paste0("ID = ", ids[i]))+
-  theme_bw()
+  labs(title = paste0("ID = ", ids[i], " | Dose = ", unique(plot_data$DOSE[plot_data$ID==ids[i]]), " mg"))+
+  theme_bw()+
+  theme(legend.position="none")
 }
 
-plotlist
+
+groups <- length(plotlist)/4
+for(grp in 1:groups){
+  i <- (grp-1)*4+1
+  j <- grp*4
+  plist <- plotlist[i:j]
+  patchwork::wrap_plots(plist)
+}
+
+
 ```

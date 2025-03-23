@@ -148,7 +148,7 @@ The `loq_method` argument species how BLQ imputation should be performed. Option
 The `loq` argument species the value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset. In our case, `LLOQ` is a variable in `plot_data`, so we do not need to specify the `loq` argument (default is `loq = NULL`).
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", 
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2) +
   scale_x_continuous(breaks = seq(0,168,24))+
@@ -159,14 +159,46 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",
 The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2, loq = 1) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
   facet_wrap(~PART)+
   theme_bw()
 ```
 
 A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputated as LLOQ/2. Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
 
+These are great visualizations of the population concentration-time profile by dose; however, we can also use `plot_dvtime` to generate subject-level visualizations with a little pre-processing of the input dataset. 
+
+We can specify `cent = "none"` to remove the central tendency layer when plotting individual subject data. 
+
+```{r plot-dvtime-blq2-indonly, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            ind_dv = TRUE,
+            loq_method = 2, loq = 1) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using a `for` loop,  `purrr::map()` functions, or other methods.
+
+```{r plot-dvtime-blq2-indplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+ids <- sort(unique(plot_data$ID))
+plotlist<- list()
+for(i in 1:length(ids)){
+  plotlist[[i]] <- plot_dvtime(filter(plot_data, ID == ids[1]), 
+                               dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            ind_dv = TRUE,
+            loq_method = 2, loq = 1) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  labs(title = paste0("ID = ", ids[i]))+
+  theme_bw()
+}
+
+plotlist
+```

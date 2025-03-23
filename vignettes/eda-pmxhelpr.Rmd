@@ -115,10 +115,9 @@ The clinical team would like a simpler plot that clearly displays the central te
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean_sdl", 
-            obs_dv = FALSE,
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            obs_dv = FALSE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
   facet_wrap(~PART)+
   theme_bw()
 ```
@@ -128,11 +127,10 @@ Hmm...there is some noise at the late terminal phase. This is likely artifact in
 We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", 
-            cent = "median", ind_dv = TRUE,
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "median", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE, 
+            ind_dv = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
   facet_wrap(~PART)+
   theme_bw()
 ```
@@ -150,11 +148,10 @@ The `loq_method` argument species how BLQ imputation should be performed. Option
 The `loq` argument species the value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset. In our case, `LLOQ` is a variable in `plot_data`, so we do not need to specify the `loq` argument (default is `loq = NULL`).
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", 
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
   facet_wrap(~PART)+
   theme_bw()
 ```
@@ -163,7 +160,7 @@ The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2, loq = 1) +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+

@@ -57,6 +57,10 @@ unique(data_sad$NTIME)
 length(unique(data_sad$NTIME))
 length(unique(data_sad$TIME))
 ```
+# Population Concentration-time plots
+
+## Overview of `plot_dvtime`
+
 Let's visualize the data. Let's visualize the data. For this visualization, we will leverage the functionality of `plot_dvtime` to visualize our data. First, we will filter to observation records only and derive a factor variable from DOSE to pass to the color aesthetic.
 
 ```{r data-plotdata}
@@ -88,9 +92,11 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", show_caption = FALSE) 
 ```
 
-However, this plot could be misleading! The food effect and fasted portions of the study are being pooled together within the 100 mg dose! Also, these data are likely better visualized using a log-scale y-axis, and the x-axis breaks are not optimized for the study design. Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any other `ggplot`!
+However, this plot could be misleading! The food effect and fasted portions of the study are being pooled together within the 100 mg dose! Also, these data are likely better visualized using a log-scale y-axis, and the x-axis breaks are not optimized for the study design. 
 
-Therefore, we will add a manual x-axis scale, facet by PART, and apply a more minimal plot theme.  
+## Adjusting plot aesthetics
+
+Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any other `ggplot`! Therefore, we will add a manual x-axis scale, facet by PART, and apply a more minimal plot theme.  
 
 ```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
@@ -138,6 +144,8 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
 
 It does not seem like there are outlier individuals driving the noise in the late terminal phase; therefore, this is almost certainly artifact introduced by data missing due to assay sensitivity and censoring at the lower limit of quantification (LLOQ). 
 
+## Defining imputations for BLQ data
+
 Let's use imputation to assess the potential impact of the data missing due to assay sensitivity. `plot_dvtime` includes some functionality to do this imputation for us using the `loq` and `loq_method` arguments.
 
 The `loq_method` argument species how BLQ imputation should be performed. Options are:
@@ -170,7 +178,45 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
 
 A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputated as LLOQ/2. Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
 
-These are great visualizations of the population concentration-time profile by dose; however, we can also use `plot_dvtime` to generate subject-level visualizations with a little pre-processing of the input dataset. 
+## Dose-normalization
+
+We can also generate dose-normalized concentration-time plots by specifying `dosenorm = TRUE`. 
+
+```{r plot-dvtime-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            dosenorm = TRUE) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+When `dosenorm = TRUE`, the variable `DOSE` needs to be present in the input dataset `data`. If `DOSE` is not present in `data`, the function will return an *Error* with an informative error message.
+
+```{r plot-dvtime-dn-nodose, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, error=TRUE}
+plot_dvtime(select(plot_data, -DOSE), 
+            dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            dosenorm = TRUE) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+Dose-normalization is performed *AFTER* BLQ imputation in the case in which both options are requested. The reference line for the LLOQ will not be plotted when dose-normalized concentration is the dependent variable. 
+
+```{r plot-dvtime-blq-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
+            loq_method = 2, dosenorm = TRUE) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+# Individual Concentration-time plots
+
+The previous section provides an overview of how to generate population concentration-time profiles by dose using `plot_dvtime`; however, we can also use `plot_dvtime` to generate subject-level visualizations with a little pre-processing of the input dataset. 
 
 We can specify `cent = "none"` to remove the central tendency layer when plotting individual subject data. 
 
@@ -184,7 +230,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "no
   theme_bw()
 ```
 
-We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using a `for` loop,  `purrr::map()` functions, or other methods.
+We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using `for` loops,  `purrr::map()` functions, or other vectorized methods.
 
 ```{r plot-dvtime-blq2-indplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 ids <- sort(unique(plot_data$ID))
@@ -210,6 +256,4 @@ for(grp in 1:groups){
   plist <- plotlist[i:j]
   patchwork::wrap_plots(plist)
 }
-
-
 ```

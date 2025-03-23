@@ -14,6 +14,7 @@ plot_dvtime(
   cent = "mean",
   obs_dv = TRUE,
   ind_dv = FALSE,
+  dosenorm = FALSE,
   cfb = FALSE,
   ylab = "Concentration",
   xlab = "Time",
@@ -31,8 +32,9 @@ Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
 \item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
+Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
+Specifying this argument implies that \code{DV}is missing in \code{data} where < LLOQ.}
 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
 Options are:
@@ -54,7 +56,10 @@ Options are:
 \item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
 
 \item{ind_dv}{Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
-Defaut is \code{FALSE}.}
+Default is \code{FALSE}.}
+
+\item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
+Requires variable \code{DOSE} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
 Plots a reference line at y = 0. Default is \code{FALSE}.}

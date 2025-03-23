@@ -14,6 +14,9 @@
 #' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
 #' @param dv_var Character string of the dependent variable. Default is `"DV"`.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
+#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
+#'  Specifying this argument implies that `DV`is missing in `data` where < LLOQ.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'   Options are:
 #'     + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
@@ -29,7 +32,9 @@
 #'    + None: `"none"`
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
 #' @param ind_dv Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
-#'  Defaut is `FALSE`.
+#'    Default is `FALSE`.
+#' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
+#'    Requires variable `DOSE` to be present in `data`
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
@@ -37,7 +42,6 @@
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
-#' @inheritParams plot_vpc_exactbins
 #'
 #' @return A ggplot2 plot object
 #'
@@ -61,6 +65,7 @@ plot_dvtime <- function(data,
                         cent = "mean",
                         obs_dv = TRUE,
                         ind_dv = FALSE,
+                        dosenorm = FALSE,
                         cfb = FALSE,
                         ylab = "Concentration",
                         xlab = "Time",
@@ -75,6 +80,7 @@ plot_dvtime <- function(data,
   check_varsindf(data, "MDV")
   check_varsindf(data, col_var)
   if(!is.null(col_var)) {check_factor(data, col_var)}
+  if(dosenorm == TRUE){check_varsindf(data, "DOSE")}
   check_loq_method(loq, loq_method, data)
 
   ##Data Rename
@@ -100,6 +106,12 @@ plot_dvtime <- function(data,
   }
 
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
+
+  #Dose-normalize if requested
+  if(dosenorm == TRUE) {
+    data <- data |>
+      dplyr::mutate(DV = DV/DOSE)
+  }
 
   #Determine Caption
   capdf <- data.frame("cent" = rep(c("mean", "mean_sdl", "median", "none"),
@@ -147,7 +159,7 @@ plot_dvtime <- function(data,
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0, linewidth = 1, linetype = "dashed")
-  if(loq_method %in% c(1,2)) plot <- plot + ggplot2::geom_hline(yintercept = lloq, linewidth = 0.5, linetype = "dashed")
+  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(yintercept = lloq, linewidth = 0.5, linetype = "dashed")
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=1, size=0.75, alpha = 0.5)

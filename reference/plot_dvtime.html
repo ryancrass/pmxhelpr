@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <span>  cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  obs_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ind_dv <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  dosenorm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cfb <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration"</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
@@ -85,8 +86,9 @@ Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
 
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
-<dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to <code>lloq</code> argument
-of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Specifying this argument implies that <code>OBSDV</code>is missing in <code>sim</code> where &lt; LLOQ.</p></dd>
+<dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay.
+Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>
+Specifying this argument implies that <code>DV</code>is missing in <code>data</code> where &lt; LLOQ.</p></dd>
 
 
 <dt id="arg-loq-method">loq_method<a class="anchor" aria-label="anchor" href="#arg-loq-method"></a></dt>
@@ -114,7 +116,12 @@ Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
 
 <dt id="arg-ind-dv">ind_dv<a class="anchor" aria-label="anchor" href="#arg-ind-dv"></a></dt>
 <dd><p>Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
-Defaut is <code>FALSE</code>.</p></dd>
+Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-dosenorm">dosenorm<a class="anchor" aria-label="anchor" href="#arg-dosenorm"></a></dt>
+<dd><p>logical indicating if observed data points should be dose normalized. Default is <code>FALSE</code>,
+Requires variable <code>DOSE</code> to be present in <code>data</code></p></dd>
 
 
 <dt id="arg-cfb">cfb<a class="anchor" aria-label="anchor" href="#arg-cfb"></a></dt>

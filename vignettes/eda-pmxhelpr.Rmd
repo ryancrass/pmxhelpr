@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Analysis with pmxhelpr"
+title: "Exploratory Data Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{eda-pmxhelpr}
@@ -184,7 +184,7 @@ We can also generate dose-normalized concentration-time plots by specifying `dos
 
 ```{r plot-dvtime-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Concentration (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
+            ylab = "Dose-normalized Concentration (ng/mL/mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+
@@ -196,7 +196,7 @@ When `dosenorm = TRUE`, the variable `DOSE` needs to be present in the input dat
 ```{r plot-dvtime-dn-nodose, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, error=TRUE}
 plot_dvtime(select(plot_data, -DOSE), 
             dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Concentration (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
+            ylab = "Dose-normalized Concentration (ng/mL/mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+
@@ -207,7 +207,7 @@ Dose-normalization is performed *AFTER* BLQ imputation in the case in which both
 
 ```{r plot-dvtime-blq-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Concentration (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
+            ylab = "Dose-normalized Concentration (ng/mL/mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2, dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+

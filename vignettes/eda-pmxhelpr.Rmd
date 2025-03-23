@@ -125,11 +125,11 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
 
 Hmm...there is some noise at the late terminal phase. This is likely artifact introduced by censoring of data at the assay LLOQ; however, let's confirm there are no weird individual subject profiles by connecting observed data points longitudinally within a subject - in other words, make a spaghetti plot. 
 
-Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 
+We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
-            ind_dv = TRUE,
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", 
+            cent = "median", ind_dv = TRUE,
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
@@ -151,7 +151,8 @@ The `loq` argument species the value of the LLOQ. The `loq` argument must be spe
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours", loq_method = 2) +
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", 
+            loq_method = 2) +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
   facet_wrap(~PART)+
@@ -162,7 +163,8 @@ The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours", loq_method = 2, loq = 1) +
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", 
+            loq_method = 2, loq = 1) +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
   facet_wrap(~PART)+

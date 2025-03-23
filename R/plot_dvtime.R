@@ -34,6 +34,7 @@
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
 #' @param xlab  Character string specfing the x-axis label: Default is `"Time"`.
+#' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_vpc_exactbins
@@ -63,6 +64,7 @@ plot_dvtime <- function(data,
                         cfb = FALSE,
                         ylab = "Concentration",
                         xlab = "Time",
+                        log_y = FALSE,
                         show_caption = TRUE){
 
   #Checks
@@ -100,8 +102,15 @@ plot_dvtime <- function(data,
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
 
   #Determine Caption
-  capdf <- data.frame("cent" = c("mean", "mean_sdl", "median", "none"),
-                      "cap" = c("mean","mean with standard deviation error bars","median", ""))
+  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl", "median", "none"),
+                                   2),
+                      "cap" = c(c("mean","mean + SD error bars","median", ""),
+                                c("geometric mean","geo. mean + geo. SD error bars","median", "")),
+                      "log_y" = c(rep(FALSE, 4),
+                                  rep(TRUE, 4))
+  )
+
+  cap1 <- capdf$cap[capdf$cent==cent&capdf$log_y==log_y]
 
   cap2_dv <- "Open circles are observations"
   cap2_ind <- "Thin lines connect observations within an individual"
@@ -114,13 +123,13 @@ plot_dvtime <- function(data,
   } else if (cent == "none" & ind_dv == TRUE & obs_dv == TRUE) {
     paste0(cap2_inddv)
   } else if(ind_dv==FALSE & obs_dv==FALSE) {
-    paste0("Filled circles and thick lines are the ", capdf$cap)
+    paste0("Solid circles and thick lines are the ", cap1)
   } else if(ind_dv==FALSE & obs_dv==TRUE){
-    paste0("Filled circles and and thick lines are the ", capdf$cap, "\n", cap2_dv)
+    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_dv)
   } else if(ind_dv==TRUE & obs_dv==FALSE){
-    paste0("Filled circles and thick lines are the ", capdf$cap, "\n", cap2_ind)
+    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_ind)
   } else if(ind_dv==TRUE & obs_dv==TRUE){
-    paste0("Filled circles and thick lines are the ", capdf$cap, "\n", cap2_inddv)
+    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_inddv)
   }
 
 
@@ -161,6 +170,9 @@ plot_dvtime <- function(data,
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.data = "mean_sdl", geom = "errorbar")
+
+  #Log Transform
+  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10()
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)

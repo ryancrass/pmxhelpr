@@ -1,0 +1,173 @@
+---
+title: "Exploratory Data Analysis with pmxhelpr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{eda-pmxhelpr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r usethis, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will demonstrate `pmxhelpr` functions for exploratory data analysis. 
+
+First, we will load the required packages.
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+```
+
+For this vignette, we will peform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package.
+
+```{r data-glimpse}
+glimpse(data_sad)
+```
+
+We can see that this dataset is already formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART. 
+
+PART specifies the two study cohorts: 
+
+  - Single Ascending Dose (SAD)
+  - Food Effect (FE).
+
+```{r data-part}
+unique(data_sad$PART)
+```
+
+This dataset also contains an exact binning variable: 
+
+  - Nominal Time (NTIME). 
+
+This variable represents the nominal time of sample collection relative to first dose per study protocol whereas Actual Time (TIME) represents the actual time the sample was collected.
+
+```{r data-ntime}
+##Unique values of NTIME
+unique(data_sad$NTIME)
+
+##Comparison of number of unique values of NTIME and TIME
+length(unique(data_sad$NTIME))
+length(unique(data_sad$TIME))
+```
+Let's visualize the data. Let's visualize the data. For this visualization, we will leverage the functionality of `plot_dvtime` to visualize our data. First, we will filter to observation records only and derive a factor variable from DOSE to pass to the color aesthetic.
+
+```{r data-plotdata}
+plot_data <- data_sad %>% 
+  filter(EVID == 0) %>% 
+  mutate(`Dose (mg)` = factor(DOSE), 
+         DNDV = ODV/DOSE)
+```
+
+Now let's visualize the concentration-time data. `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
+
+In our visualizations, we will leverage the following dataset variables: 
+  + `ODV`: the original dependent variable (drug concentration) in untransformed units (ng/mL)
+  + `TIME` : actual time since first dose (hours) 
+  + `NTIME`: nominal time since first dose (hours)
+  + `LLOQ` : lower limit of quantification for drug concentration
+  
+`plot_dvtime` requires a dependent variable (specified as named vector using `dv_var` argument) and time variable (specifed as named vector using the `time_vars`). The dependent variable in `data_sad` is named `"ODV"`, so we must specify the name using `dv_var`. The default names for the `time_vars` are `"TIME"` and `"NTIME"`. The color aesthetic is specified using the `col_var` argument. The `cent` argument specifies which central tendency measure is plotted. 
+
+```{r plot-dvtime, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") 
+```
+
+Not a bad plot with minimal arguments! We can see the mean for each dose as a colored thick line and observed data points as colored open circles with some alpha added. A caption also prints by default indicating what the plot elements depict. The caption can be removed by specifying `show_caption = FALSE`.
+
+```{r plot-dvtime-nocap, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", show_caption = FALSE) 
+```
+
+However, this plot could be misleading! The food effect and fasted portions of the study are being pooled together within the 100 mg dose! Also, these data are likely better visualized using a log-scale y-axis, and the x-axis breaks are not optimized for the study design. Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any other `ggplot`!
+
+Therefore, we will add a manual x-axis scale, facet by PART, and apply a more minimal plot theme.  
+
+```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+Much better aesthetics! We still need to log-transform the y-axis to better visualize the terminal phase profile. We could specify a log10 y-axis transformation by adding in `scale_y_log10()`; however, `plot_dvtime` includes an argument `log_y` which performs this operation with one added benefit when using automatically generated plot captions with `show_captions = TRUE`. 
+
+`plot_dvtime` uses the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned when requesting `"mean"` from `stat_summary` is the *geometric mean*. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will clearly delineate where arithmetic and gemoetric means are being returned. 
+
+```{r plot-dvtime-part-log, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+The clinical team would like a simpler plot that clearly displays the central tendency. We can use the argument `cent = "mean_sdl"` to plot the mean with error bars and remove the observed points by specifying `obs_dv = FALSE`.
+
+```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean_sdl", 
+            obs_dv = FALSE,
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+Hmm...there is some noise at the late terminal phase. This is likely artifact introduced by censoring of data at the assay LLOQ; however, let's confirm there are no weird individual subject profiles by connecting observed data points longitudinally within a subject - in other words, make a spaghetti plot. 
+
+Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 
+
+```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ind_dv = TRUE,
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+It does not seem like there are outlier individuals driving the noise in the late terminal phase; therefore, this is almost certainly artifact introduced by data missing due to assay sensitivity and censoring at the lower limit of quantification (LLOQ). 
+
+Let's use imputation to assess the potential impact of the data missing due to assay sensitivity. `plot_dvtime` includes some functionality to do this imputation for us using the `loq` and `loq_method` arguments.
+
+The `loq_method` argument species how BLQ imputation should be performed. Options are:
+  + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
+  + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+      Useful for plotting concentration-time data with some data BLQ on the linear scale
+  + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`. 
+  
+The `loq` argument species the value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset. In our case, `LLOQ` is a variable in `plot_data`, so we do not need to specify the `loq` argument (default is `loq = NULL`).
+
+```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours", loq_method = 2) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+The same plot is obtained by specifying `loq = 1`
+
+```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours", loq_method = 2, loq = 1) +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10()+
+  facet_wrap(~PART)+
+  theme_bw()
+```
+
+A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputated as LLOQ/2. Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
+

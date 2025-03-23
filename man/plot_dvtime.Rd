@@ -17,6 +17,7 @@ plot_dvtime(
   cfb = FALSE,
   ylab = "Concentration",
   xlab = "Time",
+  log_y = FALSE,
   show_caption = TRUE
 )
 }
@@ -61,6 +62,8 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 
 \item{xlab}{Character string specfing the x-axis label: Default is \code{"Time"}.}
+
+\item{log_y}{Logical indicator for log10 transformation of the y-axis.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
 }

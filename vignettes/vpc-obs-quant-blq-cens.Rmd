@@ -36,49 +36,33 @@ Next let's explore our input dataset `data_sad`. This dataset was generated via 
 glimpse(data_sad)
 ```
 
-Let's visualize the data. First, we will derive a factor variable from DOSE to pass to the color aesthetic, as well as, a dependent variable (DV) with BLQ values imputed to 1/2 x LLOQ.
+Let's visualize the data. For this visualization, we will leverage the functionality of `plot_dvtime` to visualize our data. First, we will derive a factor variable from DOSE to pass to the color aesthetic. 
 
 ```{r data-plotdata}
 plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
-  mutate(`Dose (mg)` = factor(DOSE), 
-         DV = case_when(BLQ == 0 ~ ODV, 
-                        BLQ %in% c(-1, 1) ~ LLOQ/2, 
-                        .default = NA_real_), 
-         DNDV = ODV/DOSE)
+  mutate(`Dose (mg)` = factor(DOSE))
 ```
 
-Now let's plot the data using ODV colored by DOSE and faceted by PART. The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase.
+Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`. 
 
 ```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-ggplot(aes(x = TIME, y = ODV, col = `Dose (mg)`), data = plot_data)+
-  geom_point(shape = 1, alpha = 0.5)+
-  stat_summary(fun = "mean", geom = "point", 
-               aes(x = NTIME, y = ODV, col = `Dose (mg)`), inherit.aes = FALSE) +
-  stat_summary(fun = "mean", geom = "line", 
-               aes(x = NTIME, y = ODV, col = `Dose (mg)`), inherit.aes = FALSE) +
-  geom_hline(yintercept = unique(plot_data$LLOQ), linetype = "dashed")+
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
   facet_wrap(~PART)+
-  labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
   theme_bw()
 ```
 
-Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
+The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase. To further assess the potential impact of BLQ censoring, we will set the `loq_method = 2` in `plot_dvtime`, which imputes BLQ data to 1/2 x LLOQ. Imputing  concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
 
 ```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-ggplot(aes(x = TIME, y = DV, col = `Dose (mg)`), data = plot_data)+
-  geom_point(shape = 1, alpha = 0.5)+
-  stat_summary(fun = "mean", geom = "point", 
-               aes(x = NTIME, y = DV, col = `Dose (mg)`), inherit.aes = FALSE) +
-  stat_summary(fun = "mean", geom = "line", 
-               aes(x = NTIME, y = DV, col = `Dose (mg)`), inherit.aes = FALSE) +
-  geom_hline(yintercept = unique(plot_data$LLOQ), linetype = "dashed")+
+plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", loq_method = 2, 
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
   facet_wrap(~PART)+
-  labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
   theme_bw()
 ```
 
@@ -89,11 +73,12 @@ Therefore, whenever evaluating concentration-time plots, we hould keep in mind t
  - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing `NA`.
  - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
  
-We will focus in on the 100 mg dose, which is included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact potentiall due to censoring at the LLOQ.
+We will focus in on the 100 mg dose, which is included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact potentially due to censoring at the LLOQ.
 
 ```{r plot-conc-blq-imp-100, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data100 <- plot_data %>% 
-  filter(DOSE == 100)
+  filter(DOSE == 100) %>% 
+  mutate(DV = ifelse(BLQ == 0, ODV, LLOQ/2))
 
 ggplot(aes(x = TIME, y = ODV), data = plot_data100)+
   geom_point(shape = 1, alpha = 0.5)+

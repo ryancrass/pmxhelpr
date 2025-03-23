@@ -95,6 +95,9 @@ input datasets with variable a variable representing exact bin times
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+</h2>
 <p>Next let’s explore the input dataset, <code>data_sad</code>. This
 dataset was generated via simulation from <code>model</code>, an
 <code>mrgsolve</code> model internal to the pmxhelpr package.</p>
@@ -159,6 +162,10 @@ represents the actual time the sample was collected.</p>
 <span><span class="co">#&gt; [1] 19</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">TIME</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 449</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="pk-model">PK Model<a class="anchor" aria-label="anchor" href="#pk-model"></a>
+</h2>
 <p>Luckily for us, someone has already fit a PK model to these data!
 Let’s load <code>model</code> by calling <code><a href="../reference/model_mread_load.html">model_mread_load()</a></code>
 and take a look at it with the <code><a href="https://mrgsolve.org/docs/reference/see.html" class="external-link">see()</a></code> function from the
@@ -218,6 +225,13 @@ and take a look at it with the <code><a href="https://mrgsolve.org/docs/referenc
 <span><span class="co">#&gt; capture DV = IPRED*(1+PROP);</span></span></code></pre></div>
 <p>Unluckily for us, no one has validated this PK model! Therefore, we
 need to generate some Visual Predictive Checks (VPCs).</p>
+</div>
+<div class="section level2">
+<h2 id="vpc-plot-workflow">VPC Plot Workflow<a class="anchor" aria-label="anchor" href="#vpc-plot-workflow"></a>
+</h2>
+<div class="section level3">
+<h3 id="running-the-simulation">Running the simulation<a class="anchor" aria-label="anchor" href="#running-the-simulation"></a>
+</h3>
 <p>We will use <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> to run the simulation
 for the VPC. <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> is a wrapper function
 for <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsim_df()</a></code>, which uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> to
@@ -294,6 +308,10 @@ times.</p>
 <li>
 <code>OBSDV</code> (observed dependent variable).</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="vpc-plots-with-the-vpc-package">VPC plots with the <code>vpc</code> package<a class="anchor" aria-label="anchor" href="#vpc-plots-with-the-vpc-package"></a>
+</h3>
 <p>Now that we have run the simulation, we generate our VPC plots using
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.The documentation for <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> (<a href="https://vpc.ronkeizer.com/binning.html" class="external-link uri">https://vpc.ronkeizer.com/binning.html</a>) describes the
 following binning methods:</p>
@@ -727,6 +745,10 @@ dataset.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 1       96     80.2      96.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 1      120    112       128  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 1      144    128       144.</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="vpc-plots-with-pmxhelpr">VPC Plots with <code>pmxhelpr</code><a class="anchor" aria-label="anchor" href="#vpc-plots-with-pmxhelpr"></a>
+</h3>
 <p>The pmxhelpr function <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> is a wrapper
 function for <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, which is optimized for input datasets
 containing exact bins. This wrapper passes the the unique exact bins
@@ -899,7 +921,10 @@ Currently, only one variable can be passed to this argument.</p>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" width="576"></p>
-  </main>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

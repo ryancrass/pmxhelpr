@@ -83,6 +83,9 @@ passed to <code>lloq</code> in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.ht
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+</h2>
 <p>Next let’s explore our input dataset <code>data_sad</code>. This
 dataset was generated via simulation from the mrgsolve
 <code>model</code> internal to the pmxhelpr package. We can take a quick
@@ -252,6 +255,10 @@ censoring is in line with the expectations by dose and in time.</p>
 explortory plots of concentration over time, the handling of BLQ data in
 VPCs may impact the interpretation of these graphical model
 diagnostics.</p>
+</div>
+<div class="section level2">
+<h2 id="vpc-plots-accounting-for-blq-censoring">VPC Plots Accounting for BLQ Censoring<a class="anchor" aria-label="anchor" href="#vpc-plots-accounting-for-blq-censoring"></a>
+</h2>
 <p>Lets run a simulation and generate some VPC plots to demonstrate the
 impact of different approaches to BLQ handling to the visual assessment
 of the adequacy of model fit and the true underlying PK profile.</p>
@@ -381,7 +388,9 @@ error message will print from <code><a href="https://rdrr.io/pkg/vpc/man/vpc.htm
 <span></span>
 <span><span class="va">vpc_pc</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-pcvpc-1.png" width="768"></p>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

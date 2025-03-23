@@ -30,6 +30,8 @@ library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
 ```
 
+# Exploratory Data Analysis
+
 Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the `dplyr`.
 
 ```{r data-glimpse}
@@ -143,6 +145,8 @@ In summary, the observed patters of BLQ data were in the example dataset are ant
 BLQ data are often ignored (i.e., set as missing; M1 method) in population PK model development. This is unlikely to introduce appreciable bias in model parameter estimation, provided the absolute frequency of BLQ data is low (e.g., <10-20%) and the pattern of BLQ censoring is in line with the expectations by dose and in time.  
 
 However, just as BLQ censoring introduced some artifact to the explortory plots of concentration over time, the handling of BLQ data in VPCs may impact the interpretation of these graphical model diagnostics.
+
+# VPC Plots Accounting for BLQ Censoring
 
 Lets run a simulation and generate some VPC plots to demonstrate the impact of different approaches to BLQ handling to the visual assessment of the adequacy of model fit and the true underlying PK profile. 
 

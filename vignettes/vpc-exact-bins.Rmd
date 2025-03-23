@@ -37,6 +37,8 @@ library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
 ```
 
+# Exploratory Data Analysis
+
 Next let's explore the input dataset, `data_sad`. This dataset was generated via simulation from `model`, an `mrgsolve` model internal to the pmxhelpr package. 
 
 We can take a quick look at the dataset using `glimpse()` from the dplyr package.
@@ -70,6 +72,8 @@ unique(data_sad$NTIME)
 length(unique(data_sad$NTIME))
 length(unique(data_sad$TIME))
 ```
+# PK Model
+
 Luckily for us, someone has already fit a PK model to these data! Let's load `model` by calling `model_mread_load()` and take a look at it with the `see()` function from the `mrgsolve` package.
 
 ```{r model_mread_load}
@@ -78,6 +82,10 @@ see(model)
 ```
 
 Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs). 
+
+# VPC Plot Workflow
+
+## Running the simulation
 
 We will use `df_mrgsim_replicate()` to run the simulation for the VPC. `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
@@ -110,6 +118,8 @@ Glimpsing the output reveals the following model outputs:
   - `IPRED` (individual prediction)
   - `SIMDV` (simulated dependent variable)
   - `OBSDV` (observed dependent variable). 
+
+## VPC plots with the `vpc` package
 
 Now that we have run the simulation, we generate our VPC plots using `vpc()`.The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
 
@@ -307,6 +317,8 @@ distinct(select(vpc_data$data, bin_mid, bin_min, bin_max))
 ##Bin midpoints and boundaries determined by vpc() using bins = "time"
 distinct(select(vpc_time$data, bin_mid, bin_min, bin_max))
 ```
+
+## VPC Plots with `pmxhelpr`
 
 The pmxhelpr function `plot_vpc_exactbins()` is a wrapper function for `vpc()`, which is optimized for input datasets containing exact bins. This wrapper passes the the unique exact bins (e.g., nominal times) in the input dataset as bin boundaries with the addition of `Inf` to the end of the vector to ensure that the final exact bin is included, rather than set only as a boundary. 
 

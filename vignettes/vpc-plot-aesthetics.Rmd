@@ -45,6 +45,8 @@ simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                      obsonly = TRUE)
 ```
 
+# Default Aesthetics
+
 Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is only single dose administration in this dataset, thus we are able to pool across doses and food conditions with prediction-correction. We will set `min_bin_count = 5` to avoid the simulated intervals extending to the final timepoint with only a single observation.
 
 ```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
@@ -62,6 +64,8 @@ vpc_pc <- plot_vpc_exactbins(
 
 vpc_pc
 ```
+
+# VPC Plot Aesthetics
 
 The default elements shown in the plot are inherited from `vpc()`. The `shown` argument can be provided to `plot_vpc_exactbins()` and passed on to the `show` argument of `vpc()`. 
 
@@ -203,6 +207,8 @@ vpc_pc_new2 <- plot_vpc_exactbins(
 
 vpc_pc_new2
 ```
+
+# VPC Plot Legends
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 

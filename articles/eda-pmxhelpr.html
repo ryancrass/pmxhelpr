@@ -75,6 +75,7 @@ exploratory data analysis.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/Hmisc/" class="external-link">Hmisc</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>For this vignette, we will peform exploratory data analysis on the
 <code>data_sad</code> dataset internal to <code>pmxhelpr</code>. We can
@@ -160,11 +161,19 @@ to the color aesthetic.</p>
 observed concentration-time data in exploratory data analysis:
 <code>plot_dvtime</code></p>
 <p>In our visualizations, we will leverage the following dataset
-variables: + <code>ODV</code>: the original dependent variable (drug
-concentration) in untransformed units (ng/mL) + <code>TIME</code> :
-actual time since first dose (hours) + <code>NTIME</code>: nominal time
-since first dose (hours) + <code>LLOQ</code> : lower limit of
-quantification for drug concentration</p>
+variables:</p>
+<ul>
+<li>
+<code>ODV</code>: the original dependent variable (drug
+concentration) in untransformed units (ng/mL)</li>
+<li>
+<code>TIME</code> : actual time since first dose (hours)</li>
+<li>
+<code>NTIME</code>: nominal time since first dose (hours)</li>
+<li>
+<code>LLOQ</code> : lower limit of quantification for drug
+concentration</li>
+</ul>
 <p><code>plot_dvtime</code> requires a dependent variable (specified as
 named vector using <code>dv_var</code> argument) and time variable
 (specifed as named vector using the <code>time_vars</code>). The
@@ -273,14 +282,21 @@ missing due to assay sensitivity. <code>plot_dvtime</code> includes some
 functionality to do this imputation for us using the <code>loq</code>
 and <code>loq_method</code> arguments.</p>
 <p>The <code>loq_method</code> argument species how BLQ imputation
-should be performed. Options are: + <code>0</code> : No handling. Plot
-input dataset <code>DV</code> vs <code>TIME</code> as is. (default) +
-<code>1</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to 0
-and all BLQ data at <code>TIME</code> &gt; 0 to 1/2 x <code>loq</code>.
-Useful for plotting concentration-time data with some data BLQ on the
-linear scale + <code>2</code> : Impute all BLQ data at <code>TIME</code>
-&lt;= 0 to 1/2 x <code>loq</code> and all BLQ data at <code>TIME</code>
-&gt; 0 to 1/2 x <code>loq</code>.</p>
+should be performed. Options are:</p>
+<ul>
+<li>
+<code>0</code> : No handling. Plot input dataset <code>DV</code> vs
+<code>TIME</code> as is. (default)</li>
+<li>
+<code>1</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to
+0 and all BLQ data at <code>TIME</code> &gt; 0 to 1/2 x
+<code>loq</code>. Useful for plotting concentration-time data with some
+data BLQ on the linear scale</li>
+<li>
+<code>2</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to
+1/2 x <code>loq</code> and all BLQ data at <code>TIME</code> &gt; 0 to
+1/2 x <code>loq</code>.</li>
+</ul>
 <p>The <code>loq</code> argument species the value of the LLOQ. The
 <code>loq</code> argument must be specified when <code>loq_method</code>
 is <code>1</code> or <code>2</code>, but can be <code>NULL</code>

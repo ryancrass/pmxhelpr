@@ -25,6 +25,7 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
+library(Hmisc, warn.conflicts = FALSE)
 library(vpc, warn.conflicts =  FALSE)
 library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
@@ -50,9 +51,8 @@ Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`
 
 ```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours") +
+            ylab = "Concentration (ng/mL)", xlab = "Time (hours", log_y = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
   facet_wrap(~PART)+
   theme_bw()
 ```
@@ -126,7 +126,7 @@ We can visualize this by summarizing the fraction of samples that are missing du
 ```{r plot-line-freq-blq-dose-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_data_sumblq <- plot_data %>% 
   group_by(DOSE, `Dose (mg)`,NTIME, PART) %>% 
-  summarize(`Fraction BLQ`= mean(MDV)) %>% 
+  dplyr::summarize(`Fraction BLQ`= mean(MDV)) %>% 
   ungroup()
 
 ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_sumblq)+

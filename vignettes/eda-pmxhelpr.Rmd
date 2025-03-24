@@ -23,6 +23,7 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
+library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
@@ -73,6 +74,7 @@ plot_data <- data_sad %>%
 Now let's visualize the concentration-time data. `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
 
 In our visualizations, we will leverage the following dataset variables: 
+
   + `ODV`: the original dependent variable (drug concentration) in untransformed units (ng/mL)
   + `TIME` : actual time since first dose (hours) 
   + `NTIME`: nominal time since first dose (hours)
@@ -149,6 +151,7 @@ It does not seem like there are outlier individuals driving the noise in the lat
 Let's use imputation to assess the potential impact of the data missing due to assay sensitivity. `plot_dvtime` includes some functionality to do this imputation for us using the `loq` and `loq_method` arguments.
 
 The `loq_method` argument species how BLQ imputation should be performed. Options are:
+
   + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
   + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
       Useful for plotting concentration-time data with some data BLQ on the linear scale

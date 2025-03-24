@@ -189,5 +189,8 @@ plot_dvtime <- function(data,
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
+  #Apply theme_bw() as base plot theme
+  plot <- plot + ggplot2::theme_bw()
+
   return(plot)
 }

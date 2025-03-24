@@ -67,8 +67,7 @@ Let's visualize the data. Let's visualize the data. For this visualization, we w
 ```{r data-plotdata}
 plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
-  mutate(`Dose (mg)` = factor(DOSE), 
-         DNDV = ODV/DOSE)
+  mutate(`Dose (mg)` = factor(DOSE))
 ```
 
 Now let's visualize the concentration-time data. `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
@@ -104,8 +103,7 @@ Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any ot
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)") +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 Much better aesthetics! We still need to log-transform the y-axis to better visualize the terminal phase profile. We could specify a log10 y-axis transformation by adding in `scale_y_log10()`; however, `plot_dvtime` includes an argument `log_y` which performs this operation with one added benefit when using automatically generated plot captions with `show_captions = TRUE`. 
@@ -116,8 +114,7 @@ Much better aesthetics! We still need to log-transform the y-axis to better visu
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 The clinical team would like a simpler plot that clearly displays the central tendency. We can use the argument `cent = "mean_sdl"` to plot the mean with error bars and remove the observed points by specifying `obs_dv = FALSE`.
@@ -127,8 +124,7 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             obs_dv = FALSE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 Hmm...there is some noise at the late terminal phase. This is likely artifact introduced by censoring of data at the assay LLOQ; however, let's confirm there are no weird individual subject profiles by connecting observed data points longitudinally within a subject - in other words, make a spaghetti plot. 
@@ -140,8 +136,7 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE, 
             ind_dv = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 It does not seem like there are outlier individuals driving the noise in the late terminal phase; therefore, this is almost certainly artifact introduced by data missing due to assay sensitivity and censoring at the lower limit of quantification (LLOQ). 
@@ -164,8 +159,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 The same plot is obtained by specifying `loq = 1`
@@ -175,8 +169,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
             ylab = "Concentration (ng/mL)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2, loq = 1) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputated as LLOQ/2. Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
@@ -190,8 +183,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 When `dosenorm = TRUE`, the variable `DOSE` needs to be present in the input dataset `data`. If `DOSE` is not present in `data`, the function will return an *Error* with an informative error message.
@@ -202,8 +194,7 @@ plot_dvtime(select(plot_data, -DOSE),
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 Dose-normalization is performed *AFTER* BLQ imputation in the case in which both options are requested. The reference line for the LLOQ will not be plotted when dose-normalized concentration is the dependent variable. 
@@ -213,8 +204,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", xlab = "Time (hours)", log_y = TRUE,
             loq_method = 2, dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 # Individual Concentration-time plots
@@ -229,8 +219,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "no
             ind_dv = TRUE,
             loq_method = 2, loq = 1) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using `for` loops,  `purrr::map()` functions, or other vectorized methods.
@@ -247,7 +236,6 @@ for(i in 1:length(ids)){
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+
   labs(title = paste0("ID = ", ids[i], " | Dose = ", unique(plot_data$DOSE[plot_data$ID==ids[i]]), " mg"))+
-  theme_bw()+
   theme(legend.position="none")
 }
 

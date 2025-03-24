@@ -53,8 +53,7 @@ Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
             ylab = "Concentration (ng/mL)", xlab = "Time (hours", log_y = TRUE) +
   scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase. To further assess the potential impact of BLQ censoring, we will set the `loq_method = 2` in `plot_dvtime`, which imputes BLQ data to 1/2 x LLOQ. Imputing  concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
@@ -64,8 +63,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", loq_method
             ylab = "Concentration (ng/mL)", xlab = "Time (hours") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10()+
-  facet_wrap(~PART)+
-  theme_bw()
+  facet_wrap(~PART)
 ```
 
 Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution is truncated by the lower limit of quantification of the assays used in bioanalysis. 

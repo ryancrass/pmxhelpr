@@ -51,8 +51,7 @@ Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`
 
 ```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours", log_y = TRUE) +
-  scale_x_continuous(breaks = seq(0,168,24))+
+            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
   facet_wrap(~PART)
 ```
 
@@ -60,9 +59,7 @@ The concentration-time profiles increase with dose with some potential impact of
 
 ```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", loq_method = 2, 
-            ylab = "Concentration (ng/mL)", xlab = "Time (hours") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10()+
+            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
   facet_wrap(~PART)
 ```
 

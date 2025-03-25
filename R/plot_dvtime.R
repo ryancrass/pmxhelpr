@@ -1,14 +1,3 @@
-
-
-#Pooled GOF Plots
-#Purpose: post-process nlmixr2 output to derive pooled overlay GOF plots
-#Arguments
-#fit = nlmixr2 fit object
-#strat_var = character, variable to stratify plots by (e.g., "DOSE")
-#units_dv = character, units of the dependent variable (e.g., "mg/L")
-#units_time = character, units of the time variable (e.g., "hours")
-#log_y = logical, log-scale y-axis (default = FALSE)
-
 #' Plot a dependent variable versus time
 #'
 #' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
@@ -20,6 +9,7 @@
 #'    + "days"
 #'    + "weeks"
 #'    + "months"
+#' @param n_breaks Number of breaks requested for x-axis. Default is 5.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
@@ -45,7 +35,6 @@
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
-#' @param xlab  Character string specfing the x-axis label: Default is `"Time"`.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
@@ -154,7 +143,7 @@ plot_dvtime <- function(data,
   }
 
   #Determine breaks
-  xbreaks <- breaks_times(sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+  xbreaks <- breaks_time(sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
 
 ###Plot
@@ -163,11 +152,11 @@ plot_dvtime <- function(data,
   if(is.null(col_var)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      scale_x_continuous(breaks = xbreaks)
+      ggplot2::scale_x_continuous(breaks = xbreaks)
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!as.symbol(col_var))) +
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      scale_x_continuous(breaks = xbreaks)
+      ggplot2::scale_x_continuous(breaks = xbreaks)
   }
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
@@ -233,7 +222,7 @@ plot_dvtime <- function(data,
 #'breaks <- breaks_time(ntimes)
 #'
 #'
-breaks_times <- function(x, unit="hours", n=5) {
+breaks_time <- function(x, unit="hours", n=5) {
   check_timeu(unit)
   rng <- range(x)
   diff <- rng[2] - rng[1]

@@ -61,6 +61,10 @@ library(withr)
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
 
+#Plot data 
+plot_dvtime(data = data_sad, dv_var = c(DV = "ODV"), cent = "median", 
+            ylab = "Concentration (ng/mL)", timeu = "hours", n_breaks = 10)
+
 #Read internal mrgsolve model file
 model <- model_mread_load("model")
 

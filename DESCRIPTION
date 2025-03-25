@@ -21,7 +21,8 @@ Imports:
     rlang,
     stats,
     vpc,
-    withr
+    withr,
+    labeling
 Suggests: 
     knitr,
     rmarkdown,

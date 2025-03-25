@@ -8,6 +8,7 @@ plot_dvtime(
   data,
   dv_var = c(DV = "DV"),
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  timeu = "hours",
   col_var = NULL,
   loq = NULL,
   loq_method = 0,
@@ -17,9 +18,9 @@ plot_dvtime(
   dosenorm = FALSE,
   cfb = FALSE,
   ylab = "Concentration",
-  xlab = "Time",
   log_y = FALSE,
-  show_caption = TRUE
+  show_caption = TRUE,
+  n_breaks = 5
 )
 }
 \arguments{
@@ -29,6 +30,16 @@ plot_dvtime(
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults are \code{"TIME"} and \code{"NTIME"}.}
+
+\item{timeu}{Character string specifying units for the time variable.
+Passed to \code{breaks_time} and assigned to default x-axis label.
+Options include:
+\itemize{
+\item "hours" (default)
+\item "days"
+\item "weeks"
+\item "months"
+}}
 
 \item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
 
@@ -66,11 +77,11 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 
-\item{xlab}{Character string specfing the x-axis label: Default is \code{"Time"}.}
-
 \item{log_y}{Logical indicator for log10 transformation of the y-axis.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
+
+\item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
 }
 \value{
 A ggplot2 plot object

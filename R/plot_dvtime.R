@@ -13,6 +13,13 @@
 #'
 #' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
 #' @param dv_var Character string of the dependent variable. Default is `"DV"`.
+#' @param timeu Character string specifying units for the time variable.
+#'    Passed to `breaks_time` and assigned to default x-axis label.
+#'    Options include:
+#'    + "hours" (default)
+#'    + "days"
+#'    + "weeks"
+#'    + "months"
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
@@ -59,6 +66,7 @@ plot_dvtime <- function(data,
                         dv_var = c(DV = "DV"),
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
+                        timeu = "hours",
                         col_var = NULL,
                         loq = NULL,
                         loq_method = 0,
@@ -68,9 +76,9 @@ plot_dvtime <- function(data,
                         dosenorm = FALSE,
                         cfb = FALSE,
                         ylab = "Concentration",
-                        xlab = "Time",
                         log_y = FALSE,
-                        show_caption = TRUE){
+                        show_caption = TRUE,
+                        n_breaks = 5){
 
   #Checks
   check_df(data)
@@ -78,6 +86,7 @@ plot_dvtime <- function(data,
   check_varsindf(data, time_vars[["TIME"]])
   check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, "MDV")
+  check_timeu(timeu)
   check_varsindf(data, col_var)
   if(!is.null(col_var)) {check_factor(data, col_var)}
   if(dosenorm == TRUE){check_varsindf(data, "DOSE")}
@@ -144,6 +153,8 @@ plot_dvtime <- function(data,
     paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_inddv)
   }
 
+  #Determine breaks
+  xbreaks <- breaks_times(sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
 
 ###Plot
@@ -151,10 +162,12 @@ plot_dvtime <- function(data,
   #Initialize Plot and Primary Aesthetics
   if(is.null(col_var)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
-      ggplot2::labs(x=xlab, y=ylab)
+      ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
+      scale_x_continuous(breaks = xbreaks)
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!as.symbol(col_var))) +
-      ggplot2::labs(x=xlab, y=ylab)
+      ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
+      scale_x_continuous(breaks = xbreaks)
   }
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
@@ -193,4 +206,55 @@ plot_dvtime <- function(data,
   plot <- plot + ggplot2::theme_bw()
 
   return(plot)
+}
+
+
+
+
+
+
+#' Determine axis breaks automatically for time variables
+#'
+#' @param x Numeric vector of times from which to determine breaks
+#' @param unit Character string for time units.
+#'    Options include:
+#'    + "hours" (default)
+#'    + "days"
+#'    + "weeks"
+#'    + "months"
+#' @param n Ideal number of axis breaks requested (default = 5). Passed to `labeling::extended()`
+#'
+#' @return A numeric vector of breaks
+#'
+#' @export breaks_time
+#'
+#' @examples
+#'ntimes <- sort(unique(data_sad$NTIME))
+#'breaks <- breaks_time(ntimes)
+#'
+#'
+breaks_times <- function(x, unit="hours", n=5) {
+  check_timeu(unit)
+  rng <- range(x)
+  diff <- rng[2] - rng[1]
+
+  if (unit == "hours") {
+    scale <- 24
+  } else if (unit == "days") {
+    scale <- 7
+  } else if (unit == "weeks") {
+    scale <- 4
+  } else if (unit == "months") {
+    scale <- 1
+  }
+
+  rng <- rng / scale
+  breaks <- labeling::extended(
+    rng[1], rng[2], n,
+    Q = c(1, 2, 1.5, 4, 3),
+    only.loose = FALSE)
+
+  breaks <- ceiling(breaks*scale)
+
+  return(breaks)
 }

@@ -120,3 +120,12 @@ check_loq_method <- function(loq, loq_method, data) {
     }
   }
 }
+
+
+check_timeu <- function(var){
+  values <- c("hours", "days", "weeks", "months")
+  output_warning <- paste0("argument timeu must be one of:", values)
+  if(! var %in% c(values)){
+    rlang::abort(message = output_warning)
+  }
+}

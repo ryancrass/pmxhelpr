@@ -134,7 +134,7 @@ Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any ot
 
 ```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", n_breaks = 10) +
+            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
   facet_wrap(~PART)
 ```
 

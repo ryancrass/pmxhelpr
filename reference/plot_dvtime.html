@@ -49,6 +49,7 @@
 <span>  <span class="va">data</span>,</span>
 <span>  dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
+<span>  timeu <span class="op">=</span> <span class="st">"hours"</span>,</span>
 <span>  col_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -58,9 +59,9 @@
 <span>  dosenorm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  cfb <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration"</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_breaks <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -79,6 +80,16 @@
 <dt id="arg-time-vars">time_vars<a class="anchor" aria-label="anchor" href="#arg-time-vars"></a></dt>
 <dd><p>Names of actual and nominal time variables. Must be named character vector.
 Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
+
+
+<dt id="arg-timeu">timeu<a class="anchor" aria-label="anchor" href="#arg-timeu"></a></dt>
+<dd><p>Character string specifying units for the time variable.
+Passed to <code>breaks_time</code> and assigned to default x-axis label.
+Options include:</p><ul><li><p>"hours" (default)</p></li>
+<li><p>"days"</p></li>
+<li><p>"weeks"</p></li>
+<li><p>"months"</p></li>
+</ul></dd>
 
 
 <dt id="arg-col-var">col_var<a class="anchor" aria-label="anchor" href="#arg-col-var"></a></dt>
@@ -133,16 +144,16 @@ Plots a reference line at y = 0. Default is <code>FALSE</code>.</p></dd>
 <dd><p>Character string specifing the y-axis label: Default is <code>"Concentration"</code>.</p></dd>
 
 
-<dt id="arg-xlab">xlab<a class="anchor" aria-label="anchor" href="#arg-xlab"></a></dt>
-<dd><p>Character string specfing the x-axis label: Default is <code>"Time"</code>.</p></dd>
-
-
 <dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
 <dd><p>Logical indicator for log10 transformation of the y-axis.</p></dd>
 
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>
 <dd><p>Logical indicating if a caption should be show describing the data plotted</p></dd>
+
+
+<dt id="arg-n-breaks">n_breaks<a class="anchor" aria-label="anchor" href="#arg-n-breaks"></a></dt>
+<dd><p>Number of breaks requested for x-axis. Default is 5.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -119,6 +119,10 @@
 <span><span class="co">#Read internal analysis-ready dataset for an example Phase 1 study</span></span>
 <span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co">#Plot data </span></span>
+<span><span class="fu"><a href="reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, cent <span class="op">=</span> <span class="st">"median"</span>, </span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, timeu <span class="op">=</span> <span class="st">"hours"</span>, n_breaks <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co">#Read internal mrgsolve model file</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
 <span></span>

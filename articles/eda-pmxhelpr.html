@@ -220,7 +220,8 @@ Default = 5.</li>
 <span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]   0  24  48  72  96 120 144 168</span></span>
 <span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ntimes</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1]   0  10  20  29  39  48  58  68  77  87  96 106 116 125 135 144 154 164 173</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1]   0.0   9.6  19.2  28.8  38.4  48.0  57.6  67.2  76.8  86.4  96.0 105.6</span></span>
+<span><span class="co">#&gt; [13] 115.2 124.8 134.4 144.0 153.6 163.2 172.8</span></span></code></pre></div>
 <p>We can see that the default of n = 5 does not give an optimal number
 of breaks, but it also does not select too many breaks. It appears that
 an n = 8-10 is optimal for this dataset. Requesting a breaks vector of

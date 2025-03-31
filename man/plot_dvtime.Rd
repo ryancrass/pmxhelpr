@@ -20,7 +20,7 @@ plot_dvtime(
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
-  n_breaks = 5
+  n_breaks = 8
 )
 }
 \arguments{

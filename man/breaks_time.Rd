@@ -4,7 +4,7 @@
 \alias{breaks_time}
 \title{Determine axis breaks automatically for time variables}
 \usage{
-breaks_time(x, unit = "hours", n = 5)
+breaks_time(x, unit = "hours", n = 8)
 }
 \arguments{
 \item{x}{Numeric vector of times from which to determine breaks}

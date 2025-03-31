@@ -67,7 +67,7 @@ plot_dvtime <- function(data,
                         ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
-                        n_breaks = 5){
+                        n_breaks = 8){
 
   #Checks
   check_df(data)
@@ -143,7 +143,7 @@ plot_dvtime <- function(data,
   }
 
   #Determine breaks
-  xbreaks <- breaks_time(sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+  xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
 
 ###Plot
@@ -222,28 +222,37 @@ plot_dvtime <- function(data,
 #'breaks <- breaks_time(ntimes)
 #'
 #'
-breaks_time <- function(x, unit="hours", n=5) {
+breaks_time <- function(x, unit="hours", n=8) {
   check_timeu(unit)
   rng <- range(x)
-  diff <- rng[2] - rng[1]
 
   if (unit == "hours") {
     scale <- 24
   } else if (unit == "days") {
     scale <- 7
   } else if (unit == "weeks") {
-    scale <- 4
+    scale <- 1
   } else if (unit == "months") {
     scale <- 1
   }
 
   rng <- rng / scale
-  breaks <- labeling::extended(
-    rng[1], rng[2], n,
-    Q = c(1, 2, 1.5, 4, 3),
-    only.loose = FALSE)
 
-  breaks <- ceiling(breaks*scale)
+  if(max(rng)<=1) {
+    if(unit == "hours") Ql <- c(4/24, 8/24, 12/24, 1)
+    if(unit == "days") Ql <- c(1/7, 1)
+    if(unit %in% c("weeks", "months")) Ql <- c(0.5, 1)
+
+    breaks <- labeling::extended(
+      rng[1], rng[2], n,
+      Q = Ql,
+      only.loose = FALSE)*scale
+  } else {
+    breaks <- labeling::extended(
+      rng[1], rng[2], n,
+      Q = c(1, 2, 4, 7),
+      only.loose = FALSE)*scale
+  }
 
   return(breaks)
 }

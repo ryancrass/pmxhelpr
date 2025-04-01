@@ -94,7 +94,7 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
             ylab = "Concentration (ng/mL)", show_caption = FALSE) 
 ```
 
-## Adjusting plot aesthetics
+## Adjusting Time Breaks
 
 `plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
@@ -117,6 +117,29 @@ The default `n_breaks = 10` is a good value for our dataset, and `data_sad` uses
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
             ylab = "Concentration (ng/mL)") 
 ```
+
+However, perhaps someone on the team would prefer the x-axis breaks in units of `days`. The x-axis breaks will transform to the new units automatically as long as we specify the new time unit with `timeu = "days"`.
+
+```{r plot-dvtime-breaks-days, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_days <- plot_data %>% 
+  mutate(TIME = TIME/24, 
+         NTIME = NTIME/24)
+
+plot_dvtime(data = plot_data_days, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)", timeu = "days") 
+```
+
+Nice! However, someone else on the team would prefer to see the first 24 hours of treatment in greater detail to visualize the absorption phase. If we can either truncate the x-axis range using `scale_x_continuous()`, or filter the input data and allow the x-axis breaks to adjust automatically with the new time range in the data!
+
+```{r plot-dvtime-breaks-24h, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_24 <- plot_data %>% 
+  filter(NTIME <= 24)
+
+plot_dvtime(data = plot_data_24, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
+            ylab = "Concentration (ng/mL)") 
+```
+
+## Specifying the Central Tendency
 
 Much better! However, these data are probably best visualized on a log-scale y-axis to better visualize the terminal phase profile. `plot_dvtime` includes an argument `log_y` which performs this operation with one added benefit over adding in a layer with `scale_y_log10` when using automatically generated plot captions with `show_captions = TRUE`. 
 

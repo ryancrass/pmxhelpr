@@ -99,7 +99,7 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
 `plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
   + `timeu` character string specifying time units. Options include: "hours" (default), "days", "weeks", "months"
-  + `n_breaks` number breaks requested from the algorithm. Default = 5.
+  + `n_breaks` number breaks requested from the algorithm. Default = 8.
   
 Let's pass the vector of nominal times we defined earlier into the `breaks_time` function and see what we get!
 
@@ -109,13 +109,13 @@ breaks_time(ntimes, unit = "hours", n = 10)
 breaks_time(ntimes, unit = "hours", n = length(ntimes))
 ```
 
-We can see that the default of n = 5 does not give an optimal number of breaks, but it also does not select too many breaks. It appears that an n = 8-10 is optimal for this dataset. Requesting a breaks vector of the length of the unique nominal time vector also does not produce an optimal number of breaks.
+We can see that the default of n = 10 gives an optimal number of breaks in this case whereas reducing the number of breaks gives a less optimal distribution of values. Requesting breaks equal to the length of the vector of unique `NTIMES` will generally produce too many breaks. The default axes breaks behavior can always be overwritten by specifying the axis breaks manually using `scale_x_continuous()`.
 
-Let's request 10 breaks for our x-axis using the `n_breaks` argument of `plot_dvtime`. Our dataset uses the default time units ("hours"); therefore, explicit specification of the `timeu` argument is not required.
+The default `n_breaks = 10` is a good value for our dataset, and `data_sad` uses the default time units (`"hours"`); therefore, explicit specification of the `n_breaks` and `timeu` arguments are not required.
 
 ```{r plot-dvtime-breaks, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", n_breaks = 10) 
+            ylab = "Concentration (ng/mL)") 
 ```
 
 Much better! However, these data are probably best visualized on a log-scale y-axis to better visualize the terminal phase profile. `plot_dvtime` includes an argument `log_y` which performs this operation with one added benefit over adding in a layer with `scale_y_log10` when using automatically generated plot captions with `show_captions = TRUE`. 
@@ -124,8 +124,7 @@ Much better! However, these data are probably best visualized on a log-scale y-a
 
 ```{r plot-dvtime-part-log, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            n_breaks = 8) 
+            ylab = "Concentration (ng/mL)", log_y = TRUE) 
 ```
 
 But wait...this plot is potentially misleading! The food effect portion of the study is being pooled together with the fasted data within the 100 mg dose! 
@@ -134,7 +133,7 @@ Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any ot
 
 ```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
+            ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
 
@@ -142,7 +141,7 @@ The clinical team would like a simpler plot that clearly displays the central te
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean_sdl", 
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE) +
   facet_wrap(~PART)
 ```
@@ -153,7 +152,7 @@ We will change the central tendency measure to the median and add the spaghetti 
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "median", 
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE, 
+            ylab = "Concentration (ng/mL)", log_y = TRUE, 
             ind_dv = TRUE) +
   facet_wrap(~PART)
 ```
@@ -175,7 +174,7 @@ The `loq` argument species the value of the LLOQ. The `loq` argument must be spe
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Concentration (ng/mL)", n_breaks=10, log_y = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2) +
   facet_wrap(~PART)
 ```
@@ -184,7 +183,7 @@ The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE,
+            ylab = "Concentration (ng/mL)",  log_y = TRUE,
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
 ```
@@ -197,7 +196,7 @@ We can also generate dose-normalized concentration-time plots by specifying `dos
 
 ```{r plot-dvtime-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", n_breaks = 10, log_y = TRUE,
+            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
 ```
@@ -207,7 +206,7 @@ When `dosenorm = TRUE`, the variable `DOSE` needs to be present in the input dat
 ```{r plot-dvtime-dn-nodose, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, error=TRUE}
 plot_dvtime(select(plot_data, -DOSE), 
             dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", n_breaks=10, log_y = TRUE,
+            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
 ```
@@ -216,7 +215,7 @@ Dose-normalization is performed *AFTER* BLQ imputation in the case in which both
 
 ```{r plot-dvtime-blq-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "mean",
-            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", n_breaks = 10, log_y = TRUE,
+            ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             loq_method = 2, dosenorm = TRUE) +
   facet_wrap(~PART)
 ```
@@ -229,7 +228,7 @@ We can specify `cent = "none"` to remove the central tendency layer when plottin
 
 ```{r plot-dvtime-blq2-indonly, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
             ind_dv = TRUE,
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
@@ -243,7 +242,7 @@ plist<- list()
 for(i in 1:length(ids)){
   plist[[i]] <- plot_dvtime(filter(plot_data, ID == ids[i]), 
                                dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
             ind_dv = TRUE,
             loq_method = 2, loq = 1, show_caption = FALSE) +
   facet_wrap(~PART)+

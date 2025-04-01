@@ -51,7 +51,7 @@ Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`
 
 ```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)",  
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
+            ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
 
@@ -59,7 +59,7 @@ The concentration-time profiles increase with dose with some potential impact of
 
 ```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", loq_method = 2, 
-            ylab = "Concentration (ng/mL)", n_breaks = 10, log_y = TRUE) +
+            ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
 
@@ -181,8 +181,7 @@ vpc_blq_drop <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   strat_var = "PART"
-) +
-  scale_x_continuous(breaks = seq(0,168,24))
+) 
 
 vpc_blq_drop
 ```
@@ -202,8 +201,7 @@ vpc_blq_qobs_cens <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
   loq = 1
-) +
-  scale_x_continuous(breaks = seq(0,168,24))
+) 
 
 vpc_blq_qobs_cens
 ```
@@ -230,8 +228,7 @@ vpc_pc <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   loq = 1
-) +
-  scale_x_continuous(breaks = seq(0,168,24))
+) 
 
 vpc_pc
 ```

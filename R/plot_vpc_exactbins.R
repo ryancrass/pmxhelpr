@@ -32,6 +32,7 @@
 #' @param ... Other arguments passed to [vpc::vpc()].
 #'
 #' @inheritParams df_mrgsim_replicate
+#' @inheritParams plot_dvtime
 #'
 #' @return A list containing calculated VPC information (when `vpcdb=TRUE`), or a ggplot2 object (default)
 #' @export plot_vpc_exactbins
@@ -68,6 +69,8 @@ plot_vpc_exactbins <- function(sim,
                                lower_bound = 0,
                                shown = NULL,
                                theme = NULL,
+                               timeu = "hours",
+                               n_breaks = 10,
                                ...)
 {
 
@@ -124,6 +127,9 @@ plot_vpc_exactbins <- function(sim,
   ##Define Bins
   bins <- c(unique(obs_sum$NTIME), Inf) #Add Infinity to ensure last time point is in a unique bin
 
+  #Determine breaks
+  xbreaks <- breaks_time(x = unique(obs$NTIME), unit = timeu, n = n_breaks)
+
   ##VPC Function
   plot <- vpc::vpc(
     sim = as.data.frame(sim_sum),
@@ -167,6 +173,10 @@ plot_vpc_exactbins <- function(sim,
       plot <- plot+
         ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
     }
+
+    #Add x-axis breaks
+    plot <- plot +
+      ggplot2::scale_x_continuous(breaks = xbreaks)
 
     return(plot)
   }

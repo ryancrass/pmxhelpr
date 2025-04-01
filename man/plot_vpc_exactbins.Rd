@@ -17,6 +17,8 @@ plot_vpc_exactbins(
   lower_bound = 0,
   shown = NULL,
   theme = NULL,
+  timeu = "hours",
+  n_breaks = 10,
   ...
 )
 }
@@ -63,6 +65,18 @@ Defaults are:
 
 \item{theme}{Named list of aesthetic parameters for the plot.Passed to \code{vpc_theme} arumgent of \code{\link[vpc:vpc]{vpc::vpc()}}.
 Defaults can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
+
+\item{timeu}{Character string specifying units for the time variable.
+Passed to \code{breaks_time} and assigned to default x-axis label.
+Options include:
+\itemize{
+\item "hours" (default)
+\item "days"
+\item "weeks"
+\item "months"
+}}
+
+\item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

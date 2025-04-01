@@ -247,11 +247,15 @@ breaks_time <- function(x, unit="hours", n=8) {
       rng[1], rng[2], n,
       Q = Ql,
       only.loose = FALSE)*scale
+
+    breaks <- breaks[breaks<=max(x)]
   } else {
     breaks <- labeling::extended(
       rng[1], rng[2], n,
       Q = c(1, 2, 4, 7),
       only.loose = FALSE)*scale
+
+    breaks <- breaks[breaks<=max(x)]
   }
 
   return(breaks)

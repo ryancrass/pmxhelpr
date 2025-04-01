@@ -363,8 +363,7 @@ vpc_exact <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)+
-  scale_x_continuous(breaks = seq(0,168,24))
+)
 
 vpc_exact
 ```
@@ -396,8 +395,7 @@ vpc_exact_bin_gt10 <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-) +
-  scale_x_continuous(breaks = seq(0,168,24))
+) 
 
 vpc_exact_bin_gt10
 ```
@@ -412,8 +410,7 @@ vpc_exact_food <- plot_vpc_exactbins(
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-) +
-  scale_x_continuous(breaks = seq(0,168,24))
+)
 
 vpc_exact_food
 ```

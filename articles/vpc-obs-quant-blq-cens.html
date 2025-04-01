@@ -131,7 +131,7 @@ aesthetic.</p>
 <code>Dose (mg)</code> and faceted by <code>PART</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>,  </span>
-<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, n_breaks <span class="op">=</span> <span class="fl">10</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-1.png" width="768"></p>
 <p>The concentration-time profiles increase with dose with some
@@ -145,7 +145,7 @@ terminal phase is due to censoring of observations below the LLOQ, which
 impacts lower doses more than higher doses.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, loq_method <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, n_breaks <span class="op">=</span> <span class="fl">10</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-time-blq-1.png" width="768"></p>
 <p>Indeed, while pharmacokinetic data are generally treated as
@@ -297,8 +297,7 @@ of the observed is BLQ (<code>MDV=1</code>) in the bin.</li>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="st">"PART"</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> </span>
 <span></span>
 <span><span class="va">vpc_blq_drop</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-drop-1.png" width="768">
@@ -326,8 +325,7 @@ package.</p>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="st">"PART"</span>,</span>
 <span>  loq <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> </span>
 <span></span>
 <span><span class="va">vpc_blq_qobs_cens</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-qobs-cens-1.png" width="768">
@@ -374,8 +372,7 @@ error message will print from <code><a href="https://rdrr.io/pkg/vpc/man/vpc.htm
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> </span>
 <span><span class="co">#&gt; Joining with `by = join_by(CMT, NTIME)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(CMT, NTIME)`</span></span>
 <span><span class="co">#&gt; Prediction-correction cannot be used together with censored data (&lt;LLOQ or</span></span>

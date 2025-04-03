@@ -98,8 +98,14 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
 
 `plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
-  + `timeu` character string specifying time units. Options include: "hours" (default), "days", "weeks", "months"
-  + `n_breaks` number breaks requested from the algorithm. Default = 8.
+  + `timeu` character string specifying time units. Options include:
+  
+      * "hours" (default)
+      * "days"
+      * "weeks"
+      * "months"
+      
+  + `n_breaks` number breaks requested from the algorithm. Default = 10.
   
 Let's pass the vector of nominal times we defined earlier into the `breaks_time` function and see what we get!
 

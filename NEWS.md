@@ -1,6 +1,17 @@
 # pmxhelpr (development version)
 
+# pmxhelpr 0.2.0
+
+* Added `plot_dvtime` function for exploratory concentration-time plotting
+* Added `breaks_time` function to automatically determine x-axis breaks for time
+* Functionality from `breaks_time` added to `plot_vpcexactbins`
+
+* `Exploratory Data Analysis` vignette created to demonstrate functionality of new functions
+
+* Added dependency: `labelling`
+
 # pmxhelpr 0.1.4
+
 * Fixed bug leading to error when generating stratified vpcs using the `strat_var` argument
 
 # pmxhelpr 0.1.3

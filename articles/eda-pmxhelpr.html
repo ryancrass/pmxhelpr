@@ -206,11 +206,17 @@ based on the units of the time variable! Two arguments in
 <code>plot_dvtime</code> are passed to <code>breaks_time</code>:</p>
 <ul>
 <li>
-<code>timeu</code> character string specifying time units. Options
-include: “hours” (default), “days”, “weeks”, “months”</li>
-<li>
-<code>n_breaks</code> number breaks requested from the algorithm.
-Default = 8.</li>
+<p><code>timeu</code> character string specifying time units.
+Options include:</p>
+<ul>
+<li>“hours” (default)</li>
+<li>“days”</li>
+<li>“weeks”</li>
+<li>“months”</li>
+</ul>
+</li>
+<li><p><code>n_breaks</code> number breaks requested from the algorithm.
+Default = 10.</p></li>
 </ul>
 <p>Let’s pass the vector of nominal times we defined earlier into the
 <code>breaks_time</code> function and see what we get!</p>

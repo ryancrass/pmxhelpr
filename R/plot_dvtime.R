@@ -224,7 +224,7 @@ plot_dvtime <- function(data,
 #'
 breaks_time <- function(x, unit="hours", n=8) {
   check_timeu(unit)
-  rng <- range(x)
+  rng <- range(x, na.rm = TRUE)
 
   if (unit == "hours") {
     scale <- 24
@@ -238,7 +238,7 @@ breaks_time <- function(x, unit="hours", n=8) {
 
   rng <- rng / scale
 
-  if(max(rng)<=1) {
+  if(max(rng, na.rm = TRUE)<=1) {
     if(unit == "hours") Ql <- c(4/24, 8/24, 12/24, 1)
     if(unit == "days") Ql <- c(1/7, 1)
     if(unit %in% c("weeks", "months")) Ql <- c(0.5, 1)
@@ -248,14 +248,14 @@ breaks_time <- function(x, unit="hours", n=8) {
       Q = Ql,
       only.loose = FALSE)*scale
 
-    breaks <- breaks[breaks<=max(x)]
+    breaks <- breaks[breaks<=max(x, na.rm=TRUE)]
   } else {
     breaks <- labeling::extended(
       rng[1], rng[2], n,
       Q = c(1, 2, 4, 7),
       only.loose = FALSE)*scale
 
-    breaks <- breaks[breaks<=max(x)]
+    breaks <- breaks[breaks<=max(x, na.rm = TRUE)]
   }
 
   return(breaks)

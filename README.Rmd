@@ -41,6 +41,7 @@ Functions in this package use the following naming conventions:
   + `plot_vpc_exactbins()` wraps `vpc::vpc()` to generate a VPC plot using exact time bins returning a `ggplot` object.
   
 * Helper functions: *ReturnObject*_*Purpose*
+  + `plot_dvtime` returns a `ggplot` object with a dependent variable plotted versus time
   + `df_nobsbin` returns a summary `data.frame` with counts of the number of missing and non-missing observations per bin.
   + `df_pcdv` returns a `data.frame` containing the prediction-corrected dependent variable.
   + `plot_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
@@ -61,18 +62,22 @@ library(withr)
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
 
-#Plot data 
-plot_dvtime(data = data_sad, dv_var = c(DV = "ODV"), cent = "median", 
-            ylab = "Concentration (ng/mL)", timeu = "hours", n_breaks = 10)
+#Plot data
+data <- data_sad
+  mutate(Dose = paste(DOSE, "mg"), 
+         Dose_f = factor(Dose, levels = c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg")))
+         
+plot_dvtime(data = data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose_f",
+            ylab = "Concentration (ng/mL)", timeu = "hours")
 
 #Read internal mrgsolve model file
 model <- model_mread_load("model")
 
 #Simulated replicates of the dataset using mrgsim 
-simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100,
+simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                               output_vars = c(DV = "ODV"),
                               num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                              char_vars = c("USUBJID", "PART"))
+                              char_vars = c("USUBJID", "PART", "Dose_f))
 glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
@@ -88,7 +93,6 @@ plot_obj_food <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
-  loq = 1,
   log_y = TRUE
 )
 

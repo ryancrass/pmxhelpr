@@ -101,6 +101,12 @@ plot_vpc_exactbins <- function(sim,
   sim <- sim |>
     dplyr::rename((dplyr::any_of(c(output_vars, time_vars))))
 
+  ##Ensure stratification variable is a not an ordered factor (will cause vpc::add_stratification() to fail)
+  if(!is.null(strat_var)){
+    sim <- sim |>
+      dplyr::mutate(!!strat_var := factor(!!rlang::sym(strat_var), ordered = FALSE))
+  }
+
   #Set MDV to zero for appropriate censoring if not pred-corrected
   if(pcvpc==FALSE & !is.null(loq)){
     sim$MDV <- 0

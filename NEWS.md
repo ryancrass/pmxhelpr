@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.2.2
 
 # pmxhelpr 0.2.1
 * Corrected bug in `NA` handling within `breaks_time`

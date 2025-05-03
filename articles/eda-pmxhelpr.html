@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.2.2/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>eda-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -317,6 +317,15 @@ specifying <code>obs_dv = FALSE</code>.</p>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-1.png" width="576"></p>
+<p>We could also plot these data as median + interquartile range (IQR)
+using the same approach, if we do not feel the sample size is sufficient
+for parametric summary statistics.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"median_iqr"</span>, </span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-medianiqr-1.png" width="576"></p>
 <p>Hmm…there is some noise at the late terminal phase. This is likely
 artifact introduced by censoring of data at the assay LLOQ; however,
 let’s confirm there are no weird individual subject profiles by
@@ -325,7 +334,7 @@ other words, make a spaghetti plot.</p>
 <p>We will change the central tendency measure to the median and add the
 spaghetti lines. Data points within an individual will be connected by a
 narrow line when <code>ind_dv = TRUE</code></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"median"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            ind_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -366,14 +375,14 @@ is <code>1</code> or <code>2</code>, but can be <code>NULL</code>
 our case, <code>LLOQ</code> is a variable in <code>plot_data</code>, so
 we do not need to specify the <code>loq</code> argument (default is
 <code>loq = NULL</code>).</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq1-1.png" width="576"></p>
 <p>The same plot is obtained by specifying <code>loq = 1</code></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -392,7 +401,7 @@ of observations below the LLOQ.</p>
 </h3>
 <p>We can also generate dose-normalized concentration-time plots by
 specifying <code>dosenorm = TRUE</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -402,7 +411,7 @@ specifying <code>dosenorm = TRUE</code>.</p>
 needs to be present in the input dataset <code>data</code>. If
 <code>DOSE</code> is not present in <code>data</code>, the function will
 return an <em>Error</em> with an informative error message.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="op">-</span><span class="va">DOSE</span><span class="op">)</span>, </span>
 <span>            dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -414,7 +423,7 @@ return an <em>Error</em> with an informative error message.</p>
 case in which both options are requested. The reference line for the
 LLOQ will not be plotted when dose-normalized concentration is the
 dependent variable.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -432,7 +441,7 @@ population concentration-time profiles by dose using
 little pre-processing of the input dataset.</p>
 <p>We can specify <code>cent = "none"</code> to remove the central
 tendency layer when plotting individual subject data.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            ind_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -443,7 +452,7 @@ tendency layer when plotting individual subject data.</p>
 This could be extended generate plots for all individuals using
 <code>for</code> loops, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code> functions, or other
 vectorized methods.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">plist</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>

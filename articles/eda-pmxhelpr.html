@@ -150,12 +150,13 @@ represents the actual time the sample was collected.</p>
 <p>Let’s visualize the data. Let’s visualize the data. For this
 visualization, we will leverage the functionality of
 <code>plot_dvtime</code> to visualize our data. First, we will filter to
-observation records only and derive a factor variable from DOSE to pass
-to the color aesthetic.</p>
+observation records only and derive some factor variables, which can be
+passed to the color aesthetic.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">EVID</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">DOSE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">DOSE</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">50</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">400</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>         `Food Status` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now let’s visualize the concentration-time data.
 <code>pmxhelpr</code> includes a function for common visualizations of
 observed concentration-time data in exploratory data analysis:
@@ -430,6 +431,69 @@ dependent variable.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq-dn-1.png" width="576"></p>
 </div>
+<div class="section level3">
+<h3 id="adjusting-the-color-aesthetics">Adjusting the Color Aesthetics<a class="anchor" aria-label="anchor" href="#adjusting-the-color-aesthetics"></a>
+</h3>
+<p>Only a single variable can be passed to the <code>col_var</code>
+argument of <code>plot_dvtime</code>. Suppose we want to look at the
+interaction between two variables in the color aesthetic. This can be
+accomplished in <code>ggplot2</code> using the <code>interaction</code>
+function, which computes an unordered factor representing the
+interaction between the two variables. Let’s visualize the interaction
+between the factor versions of the variables <code>DOSE</code> and
+<code>FOOD</code>.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TIME</span>, y <span class="op">=</span> <span class="va">ODV</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">`Dose (mg)`</span>, <span class="va">`Food Status`</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">NTIME</span>, y <span class="op">=</span> <span class="va">ODV</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">`Dose (mg)`</span>, <span class="va">`Food Status`</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               fun.y <span class="op">=</span> <span class="st">"mean"</span>, geom <span class="op">=</span> <span class="st">"line"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time (hours)"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-int-1.png" width="576"></p>
+<p>The functionality of <code><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction()</a></code> cannot be used within
+<code>plot_dvtime</code>; however, we can reproduce it by formally
+creating a variable for the interaction we want to visualize. This also
+affords us the opportunity to define the factor labels, levels, and
+order formally, which will affect how the interaction is displayed on
+the plot.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_data_int</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">`Dose (mg) and Food`</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"10 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"50 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"100 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"100 mg Fed"</span>, </span>
+<span>                                                                         <span class="st">"200 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"400 mg Fasted"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg) and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-1.png" width="576"></p>
+<p>This looks pretty nice! The legend is formatted cleanly and the
+colors are assigned to each unique condition of the interaction.
+However, we can actually take this one step further, and define our
+interaction variable as an <em>ordered</em> factor, which results
+<code>ggplot2</code> applying the <em>viridis</em> color scale from the
+<code>viridisLite</code> package.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_data_int</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">`Dose (mg) and Food`</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"10 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"50 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"100 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"100 mg Fed"</span>, </span>
+<span>                                                                         <span class="st">"200 mg Fasted"</span>, </span>
+<span>                                                                         <span class="st">"400 mg Fasted"</span><span class="op">)</span>,</span>
+<span>                                       ordered <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg) and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-order-1.png" width="576"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="individual-concentration-time-plots">Individual Concentration-time plots<a class="anchor" aria-label="anchor" href="#individual-concentration-time-plots"></a>
@@ -441,7 +505,7 @@ population concentration-time profiles by dose using
 little pre-processing of the input dataset.</p>
 <p>We can specify <code>cent = "none"</code> to remove the central
 tendency layer when plotting individual subject data.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            ind_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -452,7 +516,7 @@ tendency layer when plotting individual subject data.</p>
 This could be extended generate plots for all individuals using
 <code>for</code> loops, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code> functions, or other
 vectorized methods.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">plist</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>

@@ -61,6 +61,7 @@ Options are:
 \item Mean only: \code{"mean"} (default)
 \item Mean +/- Standard Deviation: \code{"mean_sdl"}
 \item Median only: \code{"median"}
+\item Median +/- Interquartile Range: \code{median_iqr}
 \item None: \code{"none"}
 }}
 

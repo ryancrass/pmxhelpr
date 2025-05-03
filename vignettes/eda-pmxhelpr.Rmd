@@ -175,6 +175,16 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
   facet_wrap(~PART)
 ```
 
+
+We could also plot these data as median + interquartile range (IQR) using the same approach, if we do not feel the sample size is sufficient for parametric summary statistics.
+
+```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "median_iqr", 
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            obs_dv = FALSE) +
+  facet_wrap(~PART)
+```
+
 Hmm...there is some noise at the late terminal phase. This is likely artifact introduced by censoring of data at the assay LLOQ; however, let's confirm there are no weird individual subject profiles by connecting observed data points longitudinally within a subject - in other words, make a spaghetti plot. 
 
 We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 

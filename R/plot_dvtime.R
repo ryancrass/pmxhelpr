@@ -26,6 +26,7 @@
 #'    + Mean only: `"mean"` (default)
 #'    + Mean +/- Standard Deviation: `"mean_sdl"`
 #'    + Median only: `"median"`
+#'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
 #' @param ind_dv Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
@@ -112,12 +113,12 @@ plot_dvtime <- function(data,
   }
 
   #Determine Caption
-  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl", "median", "none"),
+  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl", "median", "median_iqr", "none"),
                                    2),
-                      "cap" = c(c("mean","mean + SD error bars","median", ""),
-                                c("geometric mean","geo. mean + geo. SD error bars","median", "")),
-                      "log_y" = c(rep(FALSE, 4),
-                                  rep(TRUE, 4))
+                      "cap" = c(c("mean","mean + SD error bars","median", "median + IQR error bars", ""),
+                                c("geometric mean","geo. mean + geo. SD error bars","median", "median", "")),
+                      "log_y" = c(rep(FALSE, 5),
+                                  rep(TRUE, 5))
   )
 
   cap1 <- capdf$cap[capdf$cent==cent&capdf$log_y==log_y]
@@ -178,12 +179,16 @@ plot_dvtime <- function(data,
   #Plot Central Lines
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                                            fun.y = "mean", geom = "line")
-  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                             fun.y = "median", geom = "line")
 
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.data = "mean_sdl", geom = "errorbar")
+  if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                              fun.max = function(x){stats::quantile(x,0.75)},
+                                                              fun.min = function(x){stats::quantile(x,0.25)},
+                                                              geom = "errorbar")
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10()

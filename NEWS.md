@@ -1,8 +1,16 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.2.3
+
+* Added `cent = "median_iqr"` option to `plot_dvtime` to plot median with inter-quartile range error bars
+* Updated the `ind_dv` logical argument in `plot_dvtime` to `grp_dv` to generalize use of grouping beyond connecting points within an individual subject
+* Added the `grp_var` argument to `plot_dvtime `to allow specification of the variable assigned to the group aesthetic by the user. Default is `grp_var = "ID"`
 
 # pmxhelpr 0.2.2
 
+* Corrected bug in `plot_vpc_exactbins` when *ordered* factor variables are pasted to the `strat_var` argument.
+  Ordered factors cannot be passed to the underlying stratification function from the `vpc` package (`add_stratification()`); therefore, ordered factors will be coerced to unordered factors within `plot_vpc_exactbins`
+
 # pmxhelpr 0.2.1
+
 * Corrected bug in `NA` handling within `breaks_time`
 
 # pmxhelpr 0.2.0

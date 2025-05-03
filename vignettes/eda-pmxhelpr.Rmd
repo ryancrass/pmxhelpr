@@ -176,7 +176,6 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
   facet_wrap(~PART)
 ```
 
-
 We could also plot these data as median + interquartile range (IQR) using the same approach, if we do not feel the sample size is sufficient for parametric summary statistics.
 
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -188,12 +187,12 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
 
 Hmm...there is some noise at the late terminal phase. This is likely artifact introduced by censoring of data at the assay LLOQ; however, let's confirm there are no weird individual subject profiles by connecting observed data points longitudinally within a subject - in other words, make a spaghetti plot. 
 
-We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual will be connected by a narrow line when `ind_dv = TRUE` 
+We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual value of `grp_var` will be connected by a narrow line when `grp_dv = TRUE`. The default is `grp_var = "ID"`.
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "median", 
             ylab = "Concentration (ng/mL)", log_y = TRUE, 
-            ind_dv = TRUE) +
+            grp_dv = TRUE) +
   facet_wrap(~PART)
 ```
 
@@ -260,7 +259,7 @@ plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "me
   facet_wrap(~PART)
 ```
 
-## Adjusting the Color Aesthetics
+## Adjusting the Color and Group Aesthetics
 
 Only a single variable can be passed to the `col_var` argument of `plot_dvtime`. Suppose we want to look at the interaction between two variables in the color aesthetic. This can be accomplished in `ggplot2` using the `interaction` function, which computes an unordered factor representing the interaction between the two variables. Let's visualize the interaction between the factor versions of the variables `DOSE` and `FOOD`.
 
@@ -295,7 +294,7 @@ plot_dvtime(plot_data_int, dv_var = c(DV = "ODV"), col_var = "Dose (mg) and Food
 This looks pretty nice! The legend is formatted cleanly and the colors are assigned to each unique condition of the interaction. However, we can actually take this one step further, and define our interaction variable as an *ordered* factor, which results `ggplot2` applying the *viridis* color scale from the `viridisLite` package. 
 
 ```{r plot-dvtime-int-order, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_int <- plot_data %>%  
+plot_data_int_ordered <- plot_data %>%  
   mutate(`Dose (mg) and Food` = ifelse(FOOD == 0, paste(DOSE, "mg", "Fasted"), paste(DOSE, "mg", "Fed")), 
          `Dose (mg) and Food` = factor(`Dose (mg) and Food`, levels = c("10 mg Fasted", 
                                                                          "50 mg Fasted", 
@@ -305,10 +304,47 @@ plot_data_int <- plot_data %>%
                                                                          "400 mg Fasted"),
                                        ordered = TRUE))
 
-plot_dvtime(plot_data_int, dv_var = c(DV = "ODV"), col_var = "Dose (mg) and Food", cent = "mean",
+plot_dvtime(plot_data_int_ordered, dv_var = c(DV = "ODV"), col_var = "Dose (mg) and Food", cent = "mean",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2)
 ```
+
+The same approach can be used to define an interaction variable to be assigned to the group aesthetic using the `grp_var` argument to `plot_dvtime`. Such an approach may be used if we wanted to visualize the data for a cross-over study condition separately for each period within an individual. In this case, the default `grp_var = "ID"` would connect all data points within an individual across both periods whereas we want to visualize points connected within the individual `"ID"` separately by cross-over period. 
+
+To explore this, we will modify `data_sad` such that the same subjects are included in `"PART1-SAD"` and `"PART2-FE` (e.g., modify from a parallel group to a crossover design).
+
+```{r data-crossover}
+plot_data_crossover <- plot_data %>% 
+  mutate(ID = ifelse(FOOD == 1, ID - 6, ID))
+
+plot_data_crossover %>% 
+  select(ID, DOSE, FOOD) %>% 
+  distinct() %>% 
+  group_by(ID) %>% 
+  filter(max(FOOD) == 1) %>% 
+  arrange(ID, FOOD)
+```
+
+Now we have a dataset with a cross-over design for the Food Effect Part. We can define a factor (or food) ID variable that is the interaction between `"ID"` and `"FOOD"`. Now when we visualize the data, the data points will be connected within the group defined by both variables.
+
+```{r plot-dvtime-crossover, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_crossover_fid <- plot_data_crossover %>% 
+  mutate(FID = interaction(ID, FOOD),
+         `Dose (mg) and Food` = ifelse(FOOD == 0, paste(DOSE, "mg", "Fasted"), paste(DOSE, "mg", "Fed")), 
+         `Dose (mg) and Food` = factor(`Dose (mg) and Food`, levels = c("10 mg Fasted", 
+                                                                         "50 mg Fasted", 
+                                                                         "100 mg Fasted", 
+                                                                         "100 mg Fed", 
+                                                                         "200 mg Fasted", 
+                                                                         "400 mg Fasted"),
+                                       ordered = TRUE))
+
+plot_dvtime(plot_data_crossover_fid, dv_var = c(DV = "ODV"), col_var = "Dose (mg) and Food", cent = "mean",
+            grp_var = "FID", grp_dv = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            loq_method = 2)
+```
+
 
 # Individual Concentration-time plots
 
@@ -319,7 +355,7 @@ We can specify `cent = "none"` to remove the central tendency layer when plottin
 ```{r plot-dvtime-blq2-indonly, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
-            ind_dv = TRUE,
+            grp_dv = TRUE,
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
 ```
@@ -333,7 +369,7 @@ for(i in 1:length(ids)){
   plist[[i]] <- plot_dvtime(filter(plot_data, ID == ids[i]), 
                                dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cent = "none",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
-            ind_dv = TRUE,
+            grp_dv = TRUE,
             loq_method = 2, loq = 1, show_caption = FALSE) +
   facet_wrap(~PART)+
   labs(title = paste0("ID = ", ids[i], " | Dose = ", unique(plot_data$DOSE[plot_data$ID==ids[i]]), " mg"))+

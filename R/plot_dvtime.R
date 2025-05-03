@@ -11,6 +11,7 @@
 #'    + "months"
 #' @param n_breaks Number of breaks requested for x-axis. Default is 5.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
+#' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
 #'  Specifying this argument implies that `DV`is missing in `data` where < LLOQ.
@@ -29,7 +30,7 @@
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
-#' @param ind_dv Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
+#' @param grp_dv Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
 #'    Default is `FALSE`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable `DOSE` to be present in `data`
@@ -58,11 +59,12 @@ plot_dvtime <- function(data,
                                       NTIME = "NTIME"),
                         timeu = "hours",
                         col_var = NULL,
+                        grp_var = "ID",
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
                         obs_dv = TRUE,
-                        ind_dv = FALSE,
+                        grp_dv = FALSE,
                         dosenorm = FALSE,
                         cfb = FALSE,
                         ylab = "Concentration",
@@ -127,19 +129,19 @@ plot_dvtime <- function(data,
   cap2_ind <- "Thin lines connect observations within an individual"
   cap2_inddv <- "Thin lines connect observations (open circles) within an individual"
 
-  caption <- if(cent == "none" & ind_dv == FALSE & obs_dv == TRUE) {
+  caption <- if(cent == "none" & grp_dv == FALSE & obs_dv == TRUE) {
     paste0(cap2_dv)
-  } else if (cent == "none" & ind_dv == TRUE & obs_dv == FALSE) {
+  } else if (cent == "none" & grp_dv == TRUE & obs_dv == FALSE) {
     paste0(cap2_ind)
-  } else if (cent == "none" & ind_dv == TRUE & obs_dv == TRUE) {
+  } else if (cent == "none" & grp_dv == TRUE & obs_dv == TRUE) {
     paste0(cap2_inddv)
-  } else if(ind_dv==FALSE & obs_dv==FALSE) {
+  } else if(grp_dv==FALSE & obs_dv==FALSE) {
     paste0("Solid circles and thick lines are the ", cap1)
-  } else if(ind_dv==FALSE & obs_dv==TRUE){
+  } else if(grp_dv==FALSE & obs_dv==TRUE){
     paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_dv)
-  } else if(ind_dv==TRUE & obs_dv==FALSE){
+  } else if(grp_dv==TRUE & obs_dv==FALSE){
     paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_ind)
-  } else if(ind_dv==TRUE & obs_dv==TRUE){
+  } else if(grp_dv==TRUE & obs_dv==TRUE){
     paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_inddv)
   }
 
@@ -167,7 +169,7 @@ plot_dvtime <- function(data,
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=1, size=0.75, alpha = 0.5)
   #Connect Observed Data Points within an Individual
-  if(ind_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = ID),
+  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!as.symbol(grp_var)),
                                                        linewidth = 0.5, alpha = 0.5)
 
   #Plot Central Tendency Points

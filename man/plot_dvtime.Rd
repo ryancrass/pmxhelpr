@@ -10,11 +10,12 @@ plot_dvtime(
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
+  grp_var = "ID",
   loq = NULL,
   loq_method = 0,
   cent = "mean",
   obs_dv = TRUE,
-  ind_dv = FALSE,
+  grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
   ylab = "Concentration",
@@ -43,6 +44,8 @@ Options include:
 
 \item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
 
+\item{grp_var}{Character string of the variable to map to the group aesthetic. Default is \code{"ID"}}
+
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
 Specifying this argument implies that \code{DV}is missing in \code{data} where < LLOQ.}
@@ -67,7 +70,7 @@ Options are:
 
 \item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
 
-\item{ind_dv}{Logical indiciating if observed data points shoudld be connected within an individual (i.e., spaghetti plot).
+\item{grp_dv}{Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
 Default is \code{FALSE}.}
 
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},

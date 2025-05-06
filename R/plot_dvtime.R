@@ -115,10 +115,14 @@ plot_dvtime <- function(data,
   }
 
   #Determine Caption
-  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl", "median", "median_iqr", "none"),
+  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl",
+                                     "median", "median_iqr",
+                                     "none"),
                                    2),
-                      "cap" = c(c("mean","mean + SD error bars","median", "median + IQR error bars", ""),
-                                c("geometric mean","geo. mean + geo. SD error bars","median", "median", "")),
+                      "cap" = c(c("mean","mean + SD error bars",
+                                  "median", "median + IQR error bars", ""),
+                                c("geometric mean","geo. mean + geo. SD error bars",
+                                  "median", "median + IQR error bars", "")),
                       "log_y" = c(rep(FALSE, 5),
                                   rep(TRUE, 5))
   )

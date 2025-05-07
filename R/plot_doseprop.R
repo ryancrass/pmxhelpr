@@ -12,11 +12,11 @@
 #' @export mod_loglog
 #'
 #' @examples
-#'
+#' #example needed
 #'
 mod_loglog <- function(data, exp_var = "PPORRES", dose_var="DOSE"){
-  form <- as.formula(paste(paste0("log(",exp_var,")"),"~",paste0("log(",dose_var,")")))
-  fit <- lm(form, data)
+  form <- stats::as.formula(paste(paste0("log(",exp_var,")"),"~",paste0("log(",dose_var,")")))
+  fit <- stats::lm(form, data)
   return(fit)
 }
 
@@ -29,14 +29,15 @@ mod_loglog <- function(data, exp_var = "PPORRES", dose_var="DOSE"){
 #' @export df_loglog
 #'
 #' @examples
+#' #example needed
 df_loglog <- function(fit){
   tab <- data.frame(
-    Intercept = coef(fit)[[1]],
-    Power = coef(fit)[[2]],
-    StandardError = sqrt(diag(vcov(fit)))[[2]]
-  ) |>
-   dplyr::mutate(`95% LCL` = Power + qt((1 - 0.95)/2, (length(fit$residuals)-1))*StandardError,
-                `95% UCL` = Power + qt((1 + 0.95)/2, (length(fit$residuals)-1))*StandardError)
+    Intercept = stats::coef(fit)[[1]],
+    Power = stats::coef(fit)[[2]],
+    StandardError = sqrt(diag(stats::vcov(fit)))[[2]],
+    `95% LCL` = stats::coef(fit)[[2]] - stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
+    `95% UCL` = stats::coef(fit)[[2]] + stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]])
+
   return(tab)
 }
 

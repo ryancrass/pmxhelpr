@@ -25,6 +25,7 @@ library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
+library(PKNCA, warn.conflicts = FALSE)
 ```
 
 For this vignette, we will peform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package.
@@ -387,4 +388,94 @@ for(grp in 1:groups){
 }
 
 grpplist
+```
+
+
+# Dose-proportionality Assessment: Power Law Regression
+
+Another assessment that is commonly performed for pharmacokinetic data is dose proportionality (e.g., does exposure increase proportionally with dose). This is an important assessment prior to population PK modeling, as it informs whether non-linearity is an important consideration in modeling. 
+
+The industry standard approach to assessing dose proportionality is power law regression. Power law regression is based on the following relationship:
+
+$$Exposure = \alpha*(DOSE)^\gamma$$
+This power relationship can be transformed to a linear relationship to support quantitative estimation of the power ($\gamma$) via simple linear regression by taking the logarithm of both sides:
+
+$$log(Exposure) = intercept + \gamma*log(DOSE)$$
+`NOTE`: Use of natural logarithm and log10 transformations will not impact the assessment of the power and will only shift the intercept. This approach facilitates hypothesis testing via assessment of the 95% CI around the power ($\gamma$) estimated from the log-log regression. The null hypothesis is that exposure increases proportionally to dose (e.g., $\gamma=1$) and the alternative hypothesis is that exposure does *NOT* increase proportionally to dose (e.g., $\gamma\ne 1$). 
+
+Interpretation of the relationship is based on the 95% CI of the $\gamma$ estimate as follows:
+
+  + 95% CI includes one (1): exposure increases proportionally to dose
+  + 95% CI excludes one (1) & is less than 1: exposure increases less-than-proportionally to dose
+  + 95% CI excludes one (1) & is greater than 1: exposure increases greater-than-proportionally to dose
+  
+This assessment is generally performed based on both maximum concentration (Cmax) and area under the concentration-time curve (AUC). While not a hard and fast rule, some inference can be drawn about which phase of the pharmacokinetic profile is most likely contributing the majority of non-linearity of exposure with dose. 
+
+  + AUC = *NOT* dose-proportional | Cmax = dose-proportional = elimination phase
+  + AUC = dose-proportional | Cmax = *NOT* dose-proportional = absorption phase (rate)
+  + AUC = *NOT* dose-proportional | Cmax = *NOT* dose-proportional = absorption phase (extent)
+  
+These exploratory assessments provide quantitative support for structural PK model decision-making. Practically speaking, non-linearities in absorption rate are rarely impactful, and the modeler is really deciding between dose-dependent bioavailability and concentration-dependent elimination (e.g., Michaelis-Menten kinetics, target-mediated drug disposition [TMDD])
+  
+## Step 1: Derive NCA Parameters
+
+The first step in performing this assessment is deriving the necessary NCA PK parameters. NCA software (e.g., Phoenix WinNonlin) is quite expensive; however, thankfully there is an excellent R package for performing NCA analyses - `PKNCA`.
+
+Refer to the documentation for the `PKNCA` packge for details. This vignette will not provide a detailed overview of `PKNCA` functions and workflows.
+
+First, let's set the options for our NCA analysis and define the intervals over which we want to obtain the NCA parameters. The `data_sad` dataset internal to `pmxhelpr` is a single ascending dose (SAD) design with a parallel food effect (FE) cohort; therefore, our interval is [0, $\infty$]
+
+```{r nca-set up}
+##Set NCA options
+PKNCA.options(conc.blq = list("first" = "keep", 
+                              "middle" = unique(data_sad$LLOQ[!is.na(data_sad$LLOQ)]), 
+                              "last" = "drop"),
+              allow.tmax.in.half.life = FALSE,
+              min.hl.r.squared = 0.9)
+
+##Calculation Intervals and Requested Parameters
+intervals <-
+  data.frame(start = 0,
+             end = Inf,
+             auclast = TRUE,
+             aucinf.obs = TRUE,
+             aucpext.obs = TRUE,
+             half.life = TRUE,
+             cmax = TRUE,
+             vz.obs = TRUE, 
+             cl.obs = TRUE 
+             )  
+```
+
+Next, we will set up our dose and concentration objects and perform the NCA using `PKNCA`
+
+```{r nca-output}
+#Impute BLQ concentrations to 0 (PKNCA formatting)
+data_sad_nca <- data_sad %>% 
+  mutate(CONC = ifelse(is.na(ODV), 0, ODV))
+
+#Build PKNCA objects for concentration and dose including relevant strata
+conc_obj <- PKNCAconc(filter(data_sad_nca, EVID==0), CONC~TIME|ID+DOSE+PART)
+dose_obj <- PKNCAdose(filter(data_sad_nca, EVID==1), AMT~TIME|ID+PART)
+nca_data_obj <- PKNCAdata(conc_obj, dose_obj, intervals = intervals)
+nca_results_obj <- as.data.frame(pk.nca(nca_data_obj))
+glimpse(nca_results_obj)
+```
+
+The NCA results object output from `PKNCA` is formatted using the `SDTM` standards for the `PP` domain (Pharmacokinetic Parameters). We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step!
+
+## Step 2: 
+
+```{r power-law}
+auc <- filter(nca_results_obj, PPTESTCD == "aucinf.obs") 
+cmax <- filter(nca_results_obj, PPTESTCD == "cmax")
+
+fit_auc <- mod_loglog(auc)
+fit_cmax <- mod_loglog(cmax)
+fit_auc_df <- df_loglog(fit_auc) %>% 
+  mutate(PPTESTCD = "aucinf.obs")
+fit_cmax_df <- df_loglog(fit_cmax) %>% 
+  mutate(PPTESTCD = "cmax")
+
+fit_data <- bind_rows(fit_auc_df, fit_cmax_df)
 ```

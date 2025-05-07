@@ -76,7 +76,8 @@ exploratory data analysis.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/Hmisc/" class="external-link">Hmisc</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://billdenney.github.io/pknca/" class="external-link">PKNCA</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>For this vignette, we will peform exploratory data analysis on the
 <code>data_sad</code> dataset internal to <code>pmxhelpr</code>. We can
 take a quick look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code> from the
@@ -630,6 +631,146 @@ vectorized methods.</p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[9]]</span></span></code></pre>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-9.png" width="576"></p>
+</div>
+<div class="section level2">
+<h2 id="dose-proportionality-assessment-power-law-regression">Dose-proportionality Assessment: Power Law Regression<a class="anchor" aria-label="anchor" href="#dose-proportionality-assessment-power-law-regression"></a>
+</h2>
+<p>Another assessment that is commonly performed for pharmacokinetic
+data is dose proportionality (e.g., does exposure increase
+proportionally with dose). This is an important assessment prior to
+population PK modeling, as it informs whether non-linearity is an
+important consideration in modeling.</p>
+<p>The industry standard approach to assessing dose proportionality is
+power law regression. Power law regression is based on the following
+relationship:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo>=</mo><mi>α</mi><mo>*</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>γ</mi></msup></mrow><annotation encoding="application/x-tex">Exposure = \alpha*(DOSE)^\gamma</annotation></semantics></math>
+This power relationship can be transformed to a linear relationship to
+support quantitative estimation of the power
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
+via simple linear regression by taking the logarithm of both sides:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>i</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>p</mi><mi>t</mi><mo>+</mo><mi>γ</mi><mo>*</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(Exposure) = intercept + \gamma*log(DOSE)</annotation></semantics></math><code>NOTE</code>: Use of natural logarithm and log10 transformations
+will not impact the assessment of the power and will only shift the
+intercept. This approach facilitates hypothesis testing via assessment
+of the 95% CI around the power
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
+estimated from the log-log regression. The null hypothesis is that
+exposure increases proportionally to dose (e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma=1</annotation></semantics></math>)
+and the alternative hypothesis is that exposure does <em>NOT</em>
+increase proportionally to dose (e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>≠</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma\ne 1</annotation></semantics></math>).</p>
+<p>Interpretation of the relationship is based on the 95% CI of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
+estimate as follows:</p>
+<ul>
+<li>95% CI includes one (1): exposure increases proportionally to
+dose</li>
+<li>95% CI excludes one (1) &amp; is less than 1: exposure increases
+less-than-proportionally to dose</li>
+<li>95% CI excludes one (1) &amp; is greater than 1: exposure increases
+greater-than-proportionally to dose</li>
+</ul>
+<p>This assessment is generally performed based on both maximum
+concentration (Cmax) and area under the concentration-time curve (AUC).
+While not a hard and fast rule, some inference can be drawn about which
+phase of the pharmacokinetic profile is most likely contributing the
+majority of non-linearity of exposure with dose.</p>
+<ul>
+<li>AUC = <em>NOT</em> dose-proportional | Cmax = dose-proportional =
+elimination phase</li>
+<li>AUC = dose-proportional | Cmax = <em>NOT</em> dose-proportional =
+absorption phase (rate)</li>
+<li>AUC = <em>NOT</em> dose-proportional | Cmax = <em>NOT</em>
+dose-proportional = absorption phase (extent)</li>
+</ul>
+<p>These exploratory assessments provide quantitative support for
+structural PK model decision-making. Practically speaking,
+non-linearities in absorption rate are rarely impactful, and the modeler
+is really deciding between dose-dependent bioavailability and
+concentration-dependent elimination (e.g., Michaelis-Menten kinetics,
+target-mediated drug disposition [TMDD])</p>
+<div class="section level3">
+<h3 id="step-1-derive-nca-parameters">Step 1: Derive NCA Parameters<a class="anchor" aria-label="anchor" href="#step-1-derive-nca-parameters"></a>
+</h3>
+<p>The first step in performing this assessment is deriving the
+necessary NCA PK parameters. NCA software (e.g., Phoenix WinNonlin) is
+quite expensive; however, thankfully there is an excellent R package for
+performing NCA analyses - <code>PKNCA</code>.</p>
+<p>Refer to the documentation for the <code>PKNCA</code> packge for
+details. This vignette will not provide a detailed overview of
+<code>PKNCA</code> functions and workflows.</p>
+<p>First, let’s set the options for our NCA analysis and define the
+intervals over which we want to obtain the NCA parameters. The
+<code>data_sad</code> dataset internal to <code>pmxhelpr</code> is a
+single ascending dose (SAD) design with a parallel food effect (FE)
+cohort; therefore, our interval is [0,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>]</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">##Set NCA options</span></span>
+<span><span class="fu"><a href="http://billdenney.github.io/pknca/reference/PKNCA.options.html" class="external-link">PKNCA.options</a></span><span class="op">(</span>conc.blq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"first"</span> <span class="op">=</span> <span class="st">"keep"</span>, </span>
+<span>                              <span class="st">"middle"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>                              <span class="st">"last"</span> <span class="op">=</span> <span class="st">"drop"</span><span class="op">)</span>,</span>
+<span>              allow.tmax.in.half.life <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>              min.hl.r.squared <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">##Calculation Intervals and Requested Parameters</span></span>
+<span><span class="va">intervals</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>             end <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>             auclast <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             aucinf.obs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             aucpext.obs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             half.life <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             cmax <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             vz.obs <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>             cl.obs <span class="op">=</span> <span class="cn">TRUE</span> </span>
+<span>             <span class="op">)</span>  </span></code></pre></div>
+<p>Next, we will set up our dose and concentration objects and perform
+the NCA using <code>PKNCA</code></p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Impute BLQ concentrations to 0 (PKNCA formatting)</span></span>
+<span><span class="va">data_sad_nca</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>CONC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">ODV</span><span class="op">)</span>, <span class="fl">0</span>, <span class="va">ODV</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Build PKNCA objects for concentration and dose including relevant strata</span></span>
+<span><span class="va">conc_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://billdenney.github.io/pknca/reference/PKNCAconc.html" class="external-link">PKNCAconc</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">EVID</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span>, <span class="va">CONC</span><span class="op">~</span><span class="va">TIME</span><span class="op">|</span><span class="va">ID</span><span class="op">+</span><span class="va">DOSE</span><span class="op">+</span><span class="va">PART</span><span class="op">)</span></span>
+<span><span class="va">dose_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://billdenney.github.io/pknca/reference/PKNCAdose.html" class="external-link">PKNCAdose</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">EVID</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span>, <span class="va">AMT</span><span class="op">~</span><span class="va">TIME</span><span class="op">|</span><span class="va">ID</span><span class="op">+</span><span class="va">PART</span><span class="op">)</span></span>
+<span><span class="va">nca_data_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://billdenney.github.io/pknca/reference/PKNCAdata.html" class="external-link">PKNCAdata</a></span><span class="op">(</span><span class="va">conc_obj</span>, <span class="va">dose_obj</span>, intervals <span class="op">=</span> <span class="va">intervals</span><span class="op">)</span></span>
+<span><span class="va">nca_results_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="http://billdenney.github.io/pknca/reference/pk.nca.html" class="external-link">pk.nca</a></span><span class="op">(</span><span class="va">nca_data_obj</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">nca_results_obj</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 612</span></span>
+<span><span class="co">#&gt; Columns: 8</span></span>
+<span><span class="co">#&gt; $ ID       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2…</span></span>
+<span><span class="co">#&gt; $ DOSE     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>1…</span></span>
+<span><span class="co">#&gt; $ PART     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part…</span></span>
+<span><span class="co">#&gt; $ start    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0…</span></span>
+<span><span class="co">#&gt; $ end      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>I…</span></span>
+<span><span class="co">#&gt; $ PPTESTCD <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "auclast"<span style="color: #949494;">, </span>"cmax"<span style="color: #949494;">, </span>"tmax"<span style="color: #949494;">, </span>"tlast"<span style="color: #949494;">, </span>"clast.obs"<span style="color: #949494;">, </span>"lambda.z"<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ PPORRES  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 277.77014572<span style="color: #949494;">, </span>13.43000000<span style="color: #949494;">, </span>7.81000000<span style="color: #949494;">, </span>35.95000000<span style="color: #949494;">, </span>3.9000000…</span></span>
+<span><span class="co">#&gt; $ exclude  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">N</span>…</span></span></code></pre></div>
+<p>The NCA results object output from <code>PKNCA</code> is formatted
+using the <code>SDTM</code> standards for the <code>PP</code> domain
+(Pharmacokinetic Parameters). We will need to select the relevant PK
+parameters from this dataset for input into our power law regression
+analysis of dose-proportionality. Thankfully, <code>pmxhelpr</code>
+handles the filtering and power law regression in one step!</p>
+</div>
+<div class="section level3">
+<h3 id="step-2">Step 2:<a class="anchor" aria-label="anchor" href="#step-2"></a>
+</h3>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">auc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nca_results_obj</span>, <span class="va">PPTESTCD</span> <span class="op">==</span> <span class="st">"aucinf.obs"</span><span class="op">)</span> </span>
+<span><span class="va">cmax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nca_results_obj</span>, <span class="va">PPTESTCD</span> <span class="op">==</span> <span class="st">"cmax"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_auc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mod_loglog.html">mod_loglog</a></span><span class="op">(</span><span class="va">auc</span><span class="op">)</span></span>
+<span><span class="va">fit_cmax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mod_loglog.html">mod_loglog</a></span><span class="op">(</span><span class="va">cmax</span><span class="op">)</span></span>
+<span><span class="va">fit_auc_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_loglog.html">df_loglog</a></span><span class="op">(</span><span class="va">fit_auc</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>PPTESTCD <span class="op">=</span> <span class="st">"aucinf.obs"</span><span class="op">)</span></span>
+<span><span class="va">fit_cmax_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_loglog.html">df_loglog</a></span><span class="op">(</span><span class="va">fit_cmax</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>PPTESTCD <span class="op">=</span> <span class="st">"cmax"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">fit_auc_df</span>, <span class="va">fit_cmax_df</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

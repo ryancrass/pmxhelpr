@@ -398,9 +398,11 @@ Another assessment that is commonly performed for pharmacokinetic data is dose p
 The industry standard approach to assessing dose proportionality is power law regression. Power law regression is based on the following relationship:
 
 $$Exposure = \alpha*(DOSE)^\gamma$$
+
 This power relationship can be transformed to a linear relationship to support quantitative estimation of the power ($\gamma$) via simple linear regression by taking the logarithm of both sides:
 
 $$log(Exposure) = intercept + \gamma*log(DOSE)$$
+
 `NOTE`: Use of natural logarithm and log10 transformations will not impact the assessment of the power and will only shift the intercept. This approach facilitates hypothesis testing via assessment of the 95% CI around the power ($\gamma$) estimated from the log-log regression. The null hypothesis is that exposure increases proportionally to dose (e.g., $\gamma=1$) and the alternative hypothesis is that exposure does *NOT* increase proportionally to dose (e.g., $\gamma\ne 1$). 
 
 Interpretation of the relationship is based on the 95% CI of the $\gamma$ estimate as follows:

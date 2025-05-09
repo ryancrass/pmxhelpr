@@ -40,11 +40,11 @@ df_loglog <- function(fit, method = "normal"){
     Intercept = stats::coef(fit)[[1]],
     Power = stats::coef(fit)[[2]],
     StandardError = sqrt(diag(stats::vcov(fit)))[[2]],
-    `95% LCL` = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] - 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
+    LCL95 = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] - 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
                                  method == "tdist" ~ stats::coef(fit)[[2]] -
                                    stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
                                  .default = NA_real_),
-    `95% UCL` = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] + 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
+    UCL95 = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] + 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
                                  method == "tdist" ~ stats::coef(fit)[[2]] +
                                    stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
                                  .default = NA_real_))

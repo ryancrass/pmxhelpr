@@ -643,12 +643,13 @@ important consideration in modeling.</p>
 <p>The industry standard approach to assessing dose proportionality is
 power law regression. Power law regression is based on the following
 relationship:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo>=</mo><mi>α</mi><mo>*</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>γ</mi></msup></mrow><annotation encoding="application/x-tex">Exposure = \alpha*(DOSE)^\gamma</annotation></semantics></math>
-This power relationship can be transformed to a linear relationship to
-support quantitative estimation of the power
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo>=</mo><mi>α</mi><mo>*</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>γ</mi></msup></mrow><annotation encoding="application/x-tex">Exposure = \alpha*(DOSE)^\gamma</annotation></semantics></math></p>
+<p>This power relationship can be transformed to a linear relationship
+to support quantitative estimation of the power
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
 via simple linear regression by taking the logarithm of both sides:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>i</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>p</mi><mi>t</mi><mo>+</mo><mi>γ</mi><mo>*</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(Exposure) = intercept + \gamma*log(DOSE)</annotation></semantics></math><code>NOTE</code>: Use of natural logarithm and log10 transformations
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>i</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>p</mi><mi>t</mi><mo>+</mo><mi>γ</mi><mo>*</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(Exposure) = intercept + \gamma*log(DOSE)</annotation></semantics></math></p>
+<p><code>NOTE</code>: Use of natural logarithm and log10 transformations
 will not impact the assessment of the power and will only shift the
 intercept. This approach facilitates hypothesis testing via assessment
 of the 95% CI around the power

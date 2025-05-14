@@ -57,12 +57,9 @@ df_loglog <- function(fit, method = "normal", ci = 0.95){
   return(tab)
 }
 
-plot_doseprop <- function(){
-  plot <- ggplot(data = data_plot, aes(x = DOSE, y = PPORRES)) +
-    geom_point() +
-    labs(x = "Dose", y = "Concentration") +
-    geom_smooth(method = "lm", formula = y~x) +
-    scale_x_log10() +
-    scale_y_log10() +
-    theme_bw()
-}
+
+#tab_doseprop <- function(metrics){
+#  fit_list <-
+#}
+
+

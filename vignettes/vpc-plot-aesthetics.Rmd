@@ -78,6 +78,7 @@ shown_list <- list(obs_dv = TRUE, obs_ci = TRUE,
 ```
 
 The components of the list correspond to the following vpc plot elements:
+
   - Observed points: `obs_dv`
   = Observed quantiles: `obs_ci`
   - Simulated inter-quantile range: `pi`
@@ -148,6 +149,7 @@ print(vpc_theme_list)
 Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `new_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
 
 Let's say we prefer a more classical VPC color schema, based only on basic red-blue-green color brewer. We will make the following changes:
+
   - Observed points blue
   - Observed median and simulated 90% CI of the median red 
   - Observed 5th and 95th and simulated 90% CI of the 5th and 95th blue
@@ -213,6 +215,7 @@ vpc_pc_new2
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 
 `pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. The arguments to `plot_legend()` are as follows:
+
     - `ci` simulated confidence interval plotted. Default is c(0.05, 0.95).
     - `pi` prediction intervals plotted.  Default is c(0.05, 0.95).
     - `lloq` label for lower limit of quantification in the plot legend.

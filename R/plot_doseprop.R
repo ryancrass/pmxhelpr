@@ -26,13 +26,15 @@ mod_loglog <- function(data, exp_var = "PPORRES", dose_var="DOSE"){
 #' @param fit `lm` model object for the log-log regression
 #' @param method character string specifying the distrubtion to be used to derived the confidence interval.
 #'    Options are "normal" (default) and "tdist"
+#' @param ci confidence interval to be calculated.
+#'    Options are 0.95 (default) and 0.90
 #'
 #' @return `data.frame`
 #' @export df_loglog
 #'
 #' @examples
 #' #example needed
-df_loglog <- function(fit, method = "normal"){
+df_loglog <- function(fit, method = "normal", ci = 0.95){
   if(!method %in% c("normal", "tdist"))
     stop("method must be 'normal' or 'tdist'")
 
@@ -40,15 +42,27 @@ df_loglog <- function(fit, method = "normal"){
     Intercept = stats::coef(fit)[[1]],
     Power = stats::coef(fit)[[2]],
     StandardError = sqrt(diag(stats::vcov(fit)))[[2]],
-    LCL95 = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] - 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
-                                 method == "tdist" ~ stats::coef(fit)[[2]] -
-                                   stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
+    CI = paste0(ci*100, "%"),
+    LCL = dplyr::case_when(method == "normal" & ci == 0.95 ~ stats::coef(fit)[[2]] - 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
+                           method == "normal" & ci == 0.90 ~ stats::coef(fit)[[2]] - 1.64*sqrt(diag(stats::vcov(fit)))[[2]],
+                           method == "tdist" ~ stats::coef(fit)[[2]] -
+                                   stats::qt((1 + ci)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
                                  .default = NA_real_),
-    UCL95 = dplyr::case_when(method == "normal" ~ stats::coef(fit)[[2]] + 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
-                                 method == "tdist" ~ stats::coef(fit)[[2]] +
-                                   stats::qt((1 + 0.95)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
+    UCL = dplyr::case_when(method == "normal" & ci == 0.95 ~ stats::coef(fit)[[2]] + 1.96*sqrt(diag(stats::vcov(fit)))[[2]],
+                           method == "normal" & ci == 0.90 ~ stats::coef(fit)[[2]] + 1.64*sqrt(diag(stats::vcov(fit)))[[2]],
+                           method == "tdist" ~ stats::coef(fit)[[2]] +
+                                   stats::qt((1 + ci)/2, (length(fit$residuals)-1))*sqrt(diag(stats::vcov(fit)))[[2]],
                                  .default = NA_real_))
 
   return(tab)
 }
 
+plot_doseprop <- function(){
+  plot <- ggplot(data = data_plot, aes(x = DOSE, y = PPORRES)) +
+    geom_point() +
+    labs(x = "Dose", y = "Concentration") +
+    geom_smooth(method = "lm", formula = y~x) +
+    scale_x_log10() +
+    scale_y_log10() +
+    theme_bw()
+}

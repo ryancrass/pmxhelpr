@@ -466,7 +466,7 @@ glimpse(nca_results_obj)
 
 The NCA results object output from `PKNCA` is formatted using the `SDTM` standards for the `PP` domain (Pharmacokinetic Parameters). We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step!
 
-## Step 2: 
+## Step 2: Perform Power Law Regression
 
 ```{r power-law}
 auc <- filter(nca_results_obj, PPTESTCD == "aucinf.obs") 
@@ -479,5 +479,15 @@ fit_auc_df <- df_loglog(fit_auc) %>%
 fit_cmax_df <- df_loglog(fit_cmax) %>% 
   mutate(PPTESTCD = "cmax")
 
-fit_data <- bind_rows(fit_auc_df, fit_cmax_df)
+
+ggplot(data = auc, aes(x = DOSE, y = PPORRES)) +
+    geom_point() +
+    geom_smooth(method = "lm", formula = y~x) +
+    labs(x = "Dose", y = "Exposure", 
+         title = paste0("Power: ", signif(fit_auc_df$Power, digits=3), 
+                        " (",fit_auc_df$CI," ", signif(fit_auc_df$LCL, digits=3), " - ", 
+                        signif(fit_auc_df$UCL, digits=3), ")")) +
+    scale_x_log10() +
+    scale_y_log10() +
+    theme_bw()
 ```

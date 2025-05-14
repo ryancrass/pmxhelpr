@@ -141,12 +141,24 @@ argument of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external
 <span>                   pi <span class="op">=</span> <span class="cn">FALSE</span>, pi_as_area <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                   obs_median <span class="op">=</span> <span class="cn">TRUE</span>, sim_median <span class="op">=</span><span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The components of the list correspond to the following vpc plot
-elements: - Observed points: <code>obs_dv</code> = Observed quantiles:
-<code>obs_ci</code> - Simulated inter-quantile range: <code>pi</code> -
-Simulated inter-quantile area: <code>pi_as_area</code> - Simulated
-Quantile CI: <code>pi_ci</code> - Observed Median:
-<code>obs_median</code> - Simulated Median: <code>sim_median</code> -
-Simulated Median CI: <code>sim_median_ci</code></p>
+elements:</p>
+<ul>
+<li>Observed points: <code>obs_dv</code> = Observed quantiles:
+<code>obs_ci</code>
+</li>
+<li>Simulated inter-quantile range: <code>pi</code>
+</li>
+<li>Simulated inter-quantile area: <code>pi_as_area</code>
+</li>
+<li>Simulated Quantile CI: <code>pi_ci</code>
+</li>
+<li>Observed Median: <code>obs_median</code>
+</li>
+<li>Simulated Median: <code>sim_median</code>
+</li>
+<li>Simulated Median CI: <code>sim_median_ci</code>
+</li>
+</ul>
 <p>One or more elements to be updated from the defaults above can be
 passed as a list to the argument <code>shown</code>. Any elements not
 specified in <code>shown</code> will inherit the defaults.</p>
@@ -288,10 +300,14 @@ function can then be passed to the <code>theme</code> argument in
 <code>vpc_plot_exactbins</code>, which is also an alias for the
 <code>vpc_theme</code> argument in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
 <p>Let’s say we prefer a more classical VPC color schema, based only on
-basic red-blue-green color brewer. We will make the following changes: -
-Observed points blue - Observed median and simulated 90% CI of the
-median red - Observed 5th and 95th and simulated 90% CI of the 5th and
-95th blue</p>
+basic red-blue-green color brewer. We will make the following
+changes:</p>
+<ul>
+<li>Observed points blue</li>
+<li>Observed median and simulated 90% CI of the median red</li>
+<li>Observed 5th and 95th and simulated 90% CI of the 5th and 95th
+blue</li>
+</ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -363,17 +379,15 @@ however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.</p>
 <p><code>pmxhelpr</code> provides a useful helper function for this
 purpose, <code><a href="../reference/plot_legend.html">plot_legend()</a></code>. The arguments to
-<code><a href="../reference/plot_legend.html">plot_legend()</a></code> are as follows: - <code>ci</code> simulated
-confidence interval plotted. Default is c(0.05, 0.95). - <code>pi</code>
-prediction intervals plotted. Default is c(0.05, 0.95). -
-<code>lloq</code> label for lower limit of quantification in the plot
-legend. - <code>update</code> list containing the plot elements to be
-updated. Default is set by <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code>. -
-<code>shown</code> Named list of logicals specifying which layers to
-include on the plot.</p>
+<code><a href="../reference/plot_legend.html">plot_legend()</a></code> are as follows:</p>
+<pre><code>- `ci` simulated confidence interval plotted. Default is c(0.05, 0.95).
+- `pi` prediction intervals plotted.  Default is c(0.05, 0.95).
+- `lloq` label for lower limit of quantification in the plot legend.
+- `update` list containing the plot elements to be updated. Default is set by `vpc::new_vpc_theme()`.
+- `shown` Named list of logicals specifying which layers to include on the plot. </code></pre>
 <p>To obtain a legend for a plot using default aesthetics, simply run
 plot_legend() without any arguments specified.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768"></p>
@@ -382,18 +396,18 @@ plot!</p>
 <p>To generate one for our second plot with updated aesthetics, let’s
 pass the same named list object (<code>vpc_theme</code>) to the
 <code>update</code> argument.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="va">vpc_theme</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
 <p>Okay, now that we have our legend plot objects, let’s combine them
 with the VPC plot objects into a single plot object with the
 <code>patchwork</code> package.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc</span> <span class="op">+</span> <span class="va">vpc_pc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" width="768"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_new2</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-w-legend-1.png" width="768"></p>

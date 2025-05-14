@@ -58,8 +58,20 @@ df_loglog <- function(fit, method = "normal", ci = 0.95){
 }
 
 
-#tab_doseprop <- function(metrics){
-#  fit_list <-
-#}
+tab_doseprop <- function(data, metrics, exp_var = "PPORRES", dose_var = "DOSE", method = "normal", ci = 0.95){
+  fit_list <- list()
+   for(i in 1:length(metrics)) {
+     fit_list[[i]] <- mod_loglog(filter(data, PPTESTCD == metrics[i]), exp_var, dose_var)
+   }
+
+   tab_list <- list()
+   for(i in 1:length(fit_list)) {
+     tab_list[[i]] <- df_loglog(fit_list[[i]], method, ci) |>
+       dplyr::mutate(PPTESTCD = metrics[i])
+   }
+
+   tab <- do.call(rbind.data.frame, tab_list)
+   return(tab)
+}
 
 

@@ -479,6 +479,8 @@ fit_auc_df <- df_loglog(fit_auc) %>%
 fit_cmax_df <- df_loglog(fit_cmax) %>% 
   mutate(PPTESTCD = "cmax")
 
+tab <- tab_doseprop(nca_results_obj, metrics = c("aucinf.obs", "cmax"))
+
 
 ggplot(data = auc, aes(x = DOSE, y = PPORRES)) +
     geom_point() +

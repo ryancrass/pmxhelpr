@@ -159,11 +159,13 @@ plot_dvtime <- function(data,
   if(is.null(col_var)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      ggplot2::scale_x_continuous(breaks = xbreaks)
+      ggplot2::scale_x_continuous(breaks = xbreaks) +
+      ggplot2::theme_bw()
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!dplyr::sym(col_var))) +
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      ggplot2::scale_x_continuous(breaks = xbreaks)
+      ggplot2::scale_x_continuous(breaks = xbreaks) +
+      ggplot2::theme_bw()
   }
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
@@ -202,9 +204,6 @@ plot_dvtime <- function(data,
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
-
-  #Apply theme_bw() as base plot theme
-  plot <- plot + ggplot2::theme_bw()
 
   return(plot)
 }

@@ -4,13 +4,18 @@
 \alias{df_loglog}
 \title{Compute estimate table for log-log regression}
 \usage{
-df_loglog(fit, method = "normal")
+df_loglog(fit, method = "normal", ci = 0.95, sigdigits = 3)
 }
 \arguments{
 \item{fit}{\code{lm} model object for the log-log regression}
 
-\item{method}{character string specifying the distrubtion to be used to derived the confidence interval.
+\item{method}{character string specifying the distribution to be used to derived the confidence interval.
 Options are "normal" (default) and "tdist"}
+
+\item{ci}{confidence interval to be calculated.
+Options are 0.95 (default) and 0.90}
+
+\item{sigdigits}{number of significant digits for rounding}
 }
 \value{
 \code{data.frame}

@@ -161,7 +161,7 @@ plot_dvtime <- function(data,
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
       ggplot2::scale_x_continuous(breaks = xbreaks)
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!as.symbol(col_var))) +
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!dplyr::sym(col_var))) +
       ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
       ggplot2::scale_x_continuous(breaks = xbreaks)
   }
@@ -173,7 +173,7 @@ plot_dvtime <- function(data,
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=1, size=0.75, alpha = 0.5)
   #Connect Observed Data Points within an Individual
-  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!as.symbol(grp_var)),
+  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!dplyr::sym(grp_var)),
                                                        linewidth = 0.5, alpha = 0.5)
 
   #Plot Central Tendency Points
@@ -197,7 +197,8 @@ plot_dvtime <- function(data,
                                                               geom = "errorbar")
 
   #Log Transform
-  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10()
+  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks") +
+    ggplot2::theme(panel.grid.minor.y = ggplot2::element_blank())
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)

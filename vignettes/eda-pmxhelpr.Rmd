@@ -427,7 +427,7 @@ Refer to the documentation for the `PKNCA` packge for details. This vignette wil
 
 First, let's set the options for our NCA analysis and define the intervals over which we want to obtain the NCA parameters. The `data_sad` dataset internal to `pmxhelpr` is a single ascending dose (SAD) design with a parallel food effect (FE) cohort; therefore, our interval is [0, $\infty$]
 
-```{r nca-set up}
+```{r nca-set-up}
 ##Set NCA options
 PKNCA.options(conc.blq = list("first" = "keep", 
                               "middle" = unique(data_sad$LLOQ[!is.na(data_sad$LLOQ)]), 
@@ -453,43 +453,33 @@ Next, we will set up our dose and concentration objects and perform the NCA usin
 
 ```{r nca-output}
 #Impute BLQ concentrations to 0 (PKNCA formatting)
-data_sad_nca <- data_sad %>% 
-  mutate(CONC = ifelse(is.na(ODV), 0, ODV))
+data_sad_nca_input <- data_sad %>% 
+  mutate(CONC = ifelse(is.na(ODV), 0, ODV), 
+         AMT = AMT/1000) #Convert from mg to ug (concentration is ng/mL = ug/L)
 
 #Build PKNCA objects for concentration and dose including relevant strata
-conc_obj <- PKNCAconc(filter(data_sad_nca, EVID==0), CONC~TIME|ID+DOSE+PART)
-dose_obj <- PKNCAdose(filter(data_sad_nca, EVID==1), AMT~TIME|ID+PART)
+conc_obj <- PKNCAconc(filter(data_sad_nca_input, EVID==0), CONC~TIME|ID+DOSE+PART)
+dose_obj <- PKNCAdose(filter(data_sad_nca_input, EVID==1), AMT~TIME|ID+PART)
 nca_data_obj <- PKNCAdata(conc_obj, dose_obj, intervals = intervals)
 nca_results_obj <- as.data.frame(pk.nca(nca_data_obj))
 glimpse(nca_results_obj)
 ```
 
-The NCA results object output from `PKNCA` is formatted using the `SDTM` standards for the `PP` domain (Pharmacokinetic Parameters). We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step!
+The NCA results object output from `PKNCA` is formatted using the `SDTM` standards for the `PP` domain (Pharmacokinetic Parameters). This NCA output dataset is also available internally within `pmxhelpr` as `data_sad_nca` with a few additional columns specifying units.
+
+```{r nca-data}
+glimpse(data_sad_nca)
+```
+
+We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step with functions for outputing either tables or plots of results!
 
 ## Step 2: Perform Power Law Regression
 
-```{r power-law}
-auc <- filter(nca_results_obj, PPTESTCD == "aucinf.obs") 
-cmax <- filter(nca_results_obj, PPTESTCD == "cmax")
+```{r power-law-table}
+power_table <- df_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
+glimpse(power_table)
+```
 
-fit_auc <- mod_loglog(auc)
-fit_cmax <- mod_loglog(cmax)
-fit_auc_df <- df_loglog(fit_auc) %>% 
-  mutate(PPTESTCD = "aucinf.obs")
-fit_cmax_df <- df_loglog(fit_cmax) %>% 
-  mutate(PPTESTCD = "cmax")
-
-tab <- tab_doseprop(nca_results_obj, metrics = c("aucinf.obs", "cmax"))
-
-
-ggplot(data = auc, aes(x = DOSE, y = PPORRES)) +
-    geom_point() +
-    geom_smooth(method = "lm", formula = y~x) +
-    labs(x = "Dose", y = "Exposure", 
-         title = paste0("Power: ", signif(fit_auc_df$Power, digits=3), 
-                        " (",fit_auc_df$CI," ", signif(fit_auc_df$LCL, digits=3), " - ", 
-                        signif(fit_auc_df$UCL, digits=3), ")")) +
-    scale_x_log10() +
-    scale_y_log10() +
-    theme_bw()
+```{r power-law-plot}
+plot_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
 ```

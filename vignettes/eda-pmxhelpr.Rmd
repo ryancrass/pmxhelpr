@@ -471,14 +471,46 @@ The NCA results object output from `PKNCA` is formatted using the `SDTM` standar
 glimpse(data_sad_nca)
 ```
 
-We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step with functions for outputing either tables or plots of results!
+We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step with functions for outputting either tables or plots of results!
 
 ## Step 2: Perform Power Law Regression
 
+The `df_doseprop` function is a wrapper function which bundles two other `pmxhelpr` functions:
+
+  + `mod_loglog` a function to perform log-log regression which returns a `lm` object
+  + `df_loglog` a function to tabulate the power estimate and CI which returns a `data.frame`
+  
+There are two required arguments to `df_doseprop`.
+
+  + `data` a `data.frame` containing NCA parameter estimates
+  + `metrics` a character vector of NCA parameters to evaluate in log-log regression
+
 ```{r power-law-table}
-power_table <- df_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
-glimpse(power_table)
+power_table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+power_table
 ```
+
+The table includes the relevant estimates from the power law regression (intercept, standard error, power, lower confidence limit, upper confidence limit), as well as, a logical flag for dose-proportionality and text interpretation.
+
+Based on this assessment, these data appear dose-proportional for both Cmax and AUC! However, we should not include the food effect part of the study in this assessment, as food could also influence these parameters, and confounds the assessment of dose proportionality. The most important thing is to understand the input data!
+
+Let's run it again, but this time only include `Part 1-SAD`.
+
+```{r power-law-table-nofe}
+power_table <- df_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
+power_table
+```
+
+In this case, the interpretation is unchanged with and without inclusion of the food effect cohort. `df_doseprop` provides two arguments for defining the confidence interval.
+
+  + `method`: method to derive the upper and lower confidence limits. The default is `"normal"`, specifying use of the normal distribution, with `"tdist"` as an alternative, specifying use of the t-distribution. The t-distribution is preferred for analyses with smaller sample sizes
+  + `ci`: width of the confidence interval. The default is `0.95` (95% CI) with `0.90` (90% CI) as an alternative
+
+## Step 3: Visualize the Power Law Regression
+
+We can also visualize these data using the `plot_doseprop` function. This function leverages the linear regression option within `ggplot2::geom_smooth()` to perform the log-log regression for visualization and pulls in the functionality of `df_doseprop` to extract the power estimate and CI into the facet label.
+
+The required arguments to `plot_doseprop` are the same as `df_doseprop`!
 
 ```{r power-law-plot}
 plot_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))

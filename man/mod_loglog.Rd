@@ -23,6 +23,10 @@ Default is "DOSE".}
 Perform a log-log Regression
 }
 \examples{
-#example needed
+mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+summary(mod_auc)
+
+mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
+summary(mod_cmax)
 
 }

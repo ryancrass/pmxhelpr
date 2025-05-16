@@ -24,5 +24,9 @@ Options are 0.95 (default) and 0.90}
 Compute estimate table for log-log regression
 }
 \examples{
-#example needed
+mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+df_loglog(mod_auc)
+
+mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
+df_loglog(mod_cmax)
 }

@@ -95,8 +95,6 @@ Plot a dependent variable versus time
 }
 \examples{
 data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
-plot <- plot_dvtime(data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose")
-plot
-
+plot_dvtime(data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose")
 
 }

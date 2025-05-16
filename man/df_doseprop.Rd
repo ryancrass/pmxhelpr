@@ -45,5 +45,5 @@ Options are 0.95 (default) and 0.90}
 Compute and tabulate estimates for log-log regression
 }
 \examples{
-#example needed
+df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 }

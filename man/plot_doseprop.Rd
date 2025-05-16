@@ -12,7 +12,8 @@ plot_doseprop(
   dose_var = "DOSE",
   method = "normal",
   ci = 0.95,
-  sigdigits = 3
+  sigdigits = 3,
+  se = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ Options are "normal" (default) and "tdist"}
 Options are 0.95 (default) and 0.90}
 
 \item{sigdigits}{number of significant digits for rounding}
+
+\item{se}{logical to display confidence interval around regression. Default is \code{TRUE}.}
 }
 \value{
 a \code{ggplot} plot object
@@ -45,5 +48,5 @@ a \code{ggplot} plot object
 Plot a dose-proportionality assessment via power law (log-log) regression
 }
 \examples{
-#examples needed
+plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
 }

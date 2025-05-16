@@ -12,7 +12,11 @@
 #' @export mod_loglog
 #'
 #' @examples
-#' #example needed
+#' mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+#' summary(mod_auc)
+#'
+#' mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
+#' summary(mod_cmax)
 #'
 mod_loglog <- function(data,
                        exp_var = "PPORRES",
@@ -38,7 +42,12 @@ mod_loglog <- function(data,
 #' @export df_loglog
 #'
 #' @examples
-#' #example needed
+#' mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+#' df_loglog(mod_auc)
+#'
+#' mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
+#' df_loglog(mod_cmax)
+
 df_loglog <- function(fit,
                       method = "normal",
                       ci = 0.95,
@@ -68,7 +77,7 @@ df_loglog <- function(fit,
     dplyr::mutate(Proportional = dplyr::case_when(LCL < 1 & UCL < 1 ~ FALSE,
                                         LCL > 1 & UCL > 1 ~ FALSE,
                                         .default = TRUE),
-                  PowerCI = paste0("Power:", Power, " (", CI," CI ",LCL ,"-",UCL,")"),
+                  PowerCI = paste0("Power: ", Power, " (", CI," CI ",LCL ,"-",UCL,")"),
                   Interpretation = dplyr::case_when(LCL < 1 & UCL < 1 ~ "Less than dose-proportional",
                                       LCL > 1 & UCL > 1 ~ "Greater than dose-proportional",
                                       .default = "Dose-proportional"))
@@ -89,7 +98,7 @@ df_loglog <- function(fit,
 #' @export df_doseprop
 #'
 #' @examples
-#' #example needed
+#' df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 
 df_doseprop <- function(data,
                         metrics,
@@ -119,6 +128,7 @@ df_doseprop <- function(data,
 
 #' Plot a dose-proportionality assessment via power law (log-log) regression
 #'
+#' @param se logical to display confidence interval around regression. Default is `TRUE`.
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
 #' @inheritParams df_doseprop
@@ -127,7 +137,7 @@ df_doseprop <- function(data,
 #' @export plot_doseprop
 #'
 #' @examples
-#' #examples needed
+#' plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
 
 plot_doseprop <- function(data,
                           metrics,
@@ -136,7 +146,8 @@ plot_doseprop <- function(data,
                           dose_var = "DOSE",
                           method = "normal",
                           ci = 0.95,
-                          sigdigits=3) {
+                          sigdigits=3,
+                          se = TRUE) {
 
   dat <- dplyr::filter(data, !!dplyr::sym(metric_var) %in% metrics)
   tab <- df_doseprop(data, metrics, metric_var, exp_var, dose_var, method, ci) |>
@@ -147,7 +158,7 @@ plot_doseprop <- function(data,
   plot <-
   ggplot2::ggplot(data = plot_data, ggplot2::aes(x = !!dplyr::sym(dose_var), y = !!dplyr::sym(exp_var))) +
     ggplot2::geom_point() +
-    ggplot2::geom_smooth(method = "lm", formula = y~x) +
+    ggplot2::geom_smooth(method = "lm", formula = y~x, se = se, level = ci) +
     ggplot2::labs(x = "Dose", y = "Exposure")+
     ggplot2::scale_x_log10(guide = "axis_logticks") +
     ggplot2::scale_y_log10(guide = "axis_logticks") +

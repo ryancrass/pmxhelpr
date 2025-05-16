@@ -88,7 +88,7 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
 }
 \value{
-A ggplot2 plot object
+A \code{ggplot2} plot object
 }
 \description{
 Plot a dependent variable versus time

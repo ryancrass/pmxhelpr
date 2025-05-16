@@ -58,11 +58,11 @@ df_loglog <- function(fit,
                       sigdigits = 3) {
 
   check_lm(fit)
-  check_varsindf(data, exp_var)
-  check_varsindf(data, dose_var)
+  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
+  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  check_integer(sigdigits)
 
-  if(!method %in% c("normal", "tdist"))
-    stop("method must be 'normal' or 'tdist'")
+
 
   int <- stats::coef(fit)[[1]]
   est <- stats::coef(fit)[[2]]
@@ -118,9 +118,6 @@ df_doseprop <- function(data,
                         sigdigits=3) {
 
   check_df(data)
-  check_varsindf(data, metric_var)
-  check_varsindf(data, exp_var)
-  check_varsindf(data, dose_var)
   if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
   check_integer(sigdigits)
 
@@ -165,9 +162,6 @@ plot_doseprop <- function(data,
                           se = TRUE) {
 
   check_df(data)
-  check_varsindf(data, metric_var)
-  check_varsindf(data, exp_var)
-  check_varsindf(data, dose_var)
   if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
   check_integer(sigdigits)
 

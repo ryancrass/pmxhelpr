@@ -41,7 +41,7 @@
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
 #'
-#' @return A ggplot2 plot object
+#' @return A `ggplot2` plot object
 #'
 #' @export plot_dvtime
 #'

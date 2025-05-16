@@ -22,6 +22,10 @@ mod_loglog <- function(data,
                        exp_var = "PPORRES",
                        dose_var="DOSE") {
 
+  check_df(data)
+  check_varsindf(data, exp_var)
+  check_varsindf(data, dose_var)
+
   form <- stats::as.formula(paste(paste0("log(",exp_var,")"),"~",paste0("log(",dose_var,")")))
   fit <- stats::lm(form, data)
   return(fit)
@@ -52,6 +56,10 @@ df_loglog <- function(fit,
                       method = "normal",
                       ci = 0.95,
                       sigdigits = 3) {
+
+  check_lm(fit)
+  check_varsindf(data, exp_var)
+  check_varsindf(data, dose_var)
 
   if(!method %in% c("normal", "tdist"))
     stop("method must be 'normal' or 'tdist'")
@@ -109,6 +117,13 @@ df_doseprop <- function(data,
                         ci = 0.95,
                         sigdigits=3) {
 
+  check_df(data)
+  check_varsindf(data, metric_var)
+  check_varsindf(data, exp_var)
+  check_varsindf(data, dose_var)
+  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  check_integer(sigdigits)
+
   fit_list <- list()
    for(i in 1:length(metrics)) {
      fit_list[[i]] <- mod_loglog(dplyr::filter(data, !!dplyr::sym(metric_var) == metrics[i]), exp_var, dose_var)
@@ -148,6 +163,13 @@ plot_doseprop <- function(data,
                           ci = 0.95,
                           sigdigits=3,
                           se = TRUE) {
+
+  check_df(data)
+  check_varsindf(data, metric_var)
+  check_varsindf(data, exp_var)
+  check_varsindf(data, dose_var)
+  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  check_integer(sigdigits)
 
   dat <- dplyr::filter(data, !!dplyr::sym(metric_var) %in% metrics)
   tab <- df_doseprop(data, metrics, metric_var, exp_var, dose_var, method, ci) |>

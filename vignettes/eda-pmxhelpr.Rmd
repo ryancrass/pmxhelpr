@@ -107,7 +107,7 @@ plot_dvtime(data = plot_data, dv_var = c(DV = "ODV"), col_var = "Dose (mg)", cen
       * "weeks"
       * "months"
       
-  + `n_breaks` number breaks requested from the algorithm. Default = 10.
+  + `n_breaks` number breaks requested from the algorithm. Default = 8.
   
 Let's pass the vector of nominal times we defined earlier into the `breaks_time` function and see what we get!
 

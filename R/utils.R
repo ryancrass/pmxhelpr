@@ -129,3 +129,11 @@ check_timeu <- function(var){
     rlang::abort(message = output_warning)
   }
 }
+
+check_lm <- function(fit){
+  input_name <-deparse(substitute(fit))
+  output_warning <- paste0("argument `", input_name, "` must be class `lm`")
+  if(!"lm" %in% class(fit)){
+    rlang::abort(message = output_warning)
+  }
+}

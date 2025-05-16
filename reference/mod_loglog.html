@@ -74,7 +74,49 @@ Default is "DOSE".</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#example needed</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mod_auc</span> <span class="op">&lt;-</span> <span class="fu">mod_loglog</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PPTESTCD</span> <span class="op">==</span> <span class="st">"aucinf.obs"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_auc</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stats::lm(formula = form, data = data)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Min       1Q   Median       3Q      Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.80124 -0.29492 -0.03507  0.14386  1.24984 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  4.04173    0.30499   13.25  5.5e-15 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(DOSE)    0.99657    0.06629   15.03  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual standard error: 0.4606 on 34 degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Multiple R-squared:  0.8692,	Adjusted R-squared:  0.8654 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> F-statistic:   226 on 1 and 34 DF,  p-value: &lt; 2.2e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mod_cmax</span> <span class="op">&lt;-</span> <span class="fu">mod_loglog</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PPTESTCD</span> <span class="op">==</span> <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod_cmax</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> stats::lm(formula = form, data = data)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Min       1Q   Median       3Q      Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.95350 -0.31769  0.00194  0.26984  0.98285 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   1.0917     0.2834   3.852 0.000494 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> log(DOSE)     1.0680     0.0616  17.337  &lt; 2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Residual standard error: 0.428 on 34 degrees of freedom</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Multiple R-squared:  0.8984,	Adjusted R-squared:  0.8954 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> F-statistic: 300.6 on 1 and 34 DF,  p-value: &lt; 2.2e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

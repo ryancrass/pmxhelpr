@@ -774,27 +774,88 @@ with a few additional columns specifying units.</p>
 for input into our power law regression analysis of
 dose-proportionality. Thankfully, <code>pmxhelpr</code> handles the
 filtering and power law regression in one step with functions for
-outputing either tables or plots of results!</p>
+outputting either tables or plots of results!</p>
 </div>
 <div class="section level3">
 <h3 id="step-2-perform-power-law-regression">Step 2: Perform Power Law Regression<a class="anchor" aria-label="anchor" href="#step-2-perform-power-law-regression"></a>
 </h3>
+<p>The <code>df_doseprop</code> function is a wrapper function which
+bundles two other <code>pmxhelpr</code> functions:</p>
+<ul>
+<li>
+<code>mod_loglog</code> a function to perform log-log regression
+which returns a <code>lm</code> object</li>
+<li>
+<code>df_loglog</code> a function to tabulate the power estimate and
+CI which returns a <code>data.frame</code>
+</li>
+</ul>
+<p>There are two required arguments to <code>df_doseprop</code>.</p>
+<ul>
+<li>
+<code>data</code> a <code>data.frame</code> containing NCA parameter
+estimates</li>
+<li>
+<code>metrics</code> a character vector of NCA parameters to
+evaluate in log-log regression</li>
+</ul>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">power_table</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 2</span></span>
-<span><span class="co">#&gt; Columns: 10</span></span>
-<span><span class="co">#&gt; $ Intercept      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 3.97<span style="color: #949494;">, </span>1.06</span></span>
-<span><span class="co">#&gt; $ StandardError  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.0438<span style="color: #949494;">, </span>0.0616</span></span>
-<span><span class="co">#&gt; $ CI             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "95%"<span style="color: #949494;">, </span>"95%"</span></span>
-<span><span class="co">#&gt; $ Power          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.979<span style="color: #949494;">, </span>1.060</span></span>
-<span><span class="co">#&gt; $ LCL            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.893<span style="color: #949494;">, </span>0.939</span></span>
-<span><span class="co">#&gt; $ UCL            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.07<span style="color: #949494;">, </span>1.18</span></span>
-<span><span class="co">#&gt; $ Proportional   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> TRUE<span style="color: #949494;">, </span>TRUE</span></span>
-<span><span class="co">#&gt; $ PowerCI        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Power:0.979 (95% CI 0.893-1.07)"<span style="color: #949494;">, </span>"Power:1.06 (95% CI …</span></span>
-<span><span class="co">#&gt; $ Interpretation <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Dose-proportional"<span style="color: #949494;">, </span>"Dose-proportional"</span></span>
-<span><span class="co">#&gt; $ PPTESTCD       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "aucinf.obs"<span style="color: #949494;">, </span>"cmax"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">power_table</span></span>
+<span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
+<span><span class="co">#&gt; 1      4.04        0.0663 95% 0.997 0.867 1.13         TRUE</span></span>
+<span><span class="co">#&gt; 2      1.09        0.0616 95% 1.070 0.947 1.19         TRUE</span></span>
+<span><span class="co">#&gt;                            PowerCI    Interpretation   PPTESTCD</span></span>
+<span><span class="co">#&gt; 1 Power: 0.997 (95% CI 0.867-1.13) Dose-proportional aucinf.obs</span></span>
+<span><span class="co">#&gt; 2  Power: 1.07 (95% CI 0.947-1.19) Dose-proportional       cmax</span></span></code></pre></div>
+<p>The table includes the relevant estimates from the power law
+regression (intercept, standard error, power, lower confidence limit,
+upper confidence limit), as well as, a logical flag for
+dose-proportionality and text interpretation.</p>
+<p>Based on this assessment, these data appear dose-proportional for
+both Cmax and AUC! However, we should not include the food effect part
+of the study in this assessment, as food could also influence these
+parameters, and confounds the assessment of dose proportionality. The
+most important thing is to understand the input data!</p>
+<p>Let’s run it again, but this time only include
+<code>Part 1-SAD</code>.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">power_table</span></span>
+<span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
+<span><span class="co">#&gt; 1      3.97        0.0438 95% 0.979 0.893 1.07         TRUE</span></span>
+<span><span class="co">#&gt; 2      1.06        0.0616 95% 1.060 0.939 1.18         TRUE</span></span>
+<span><span class="co">#&gt;                            PowerCI    Interpretation   PPTESTCD</span></span>
+<span><span class="co">#&gt; 1 Power: 0.979 (95% CI 0.893-1.07) Dose-proportional aucinf.obs</span></span>
+<span><span class="co">#&gt; 2  Power: 1.06 (95% CI 0.939-1.18) Dose-proportional       cmax</span></span></code></pre></div>
+<p>In this case, the interpretation is unchanged with and without
+inclusion of the food effect cohort. <code>df_doseprop</code> provides
+two arguments for defining the confidence interval.</p>
+<ul>
+<li>
+<code>method</code>: method to derive the upper and lower confidence
+limits. The default is <code>"normal"</code>, specifying use of the
+normal distribution, with <code>"tdist"</code> as an alternative,
+specifying use of the t-distribution. The t-distribution is preferred
+for analyses with smaller sample sizes</li>
+<li>
+<code>ci</code>: width of the confidence interval. The default is
+<code>0.95</code> (95% CI) with <code>0.90</code> (90% CI) as an
+alternative</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="step-3-visualize-the-power-law-regression">Step 3: Visualize the Power Law Regression<a class="anchor" aria-label="anchor" href="#step-3-visualize-the-power-law-regression"></a>
+</h3>
+<p>We can also visualize these data using the <code>plot_doseprop</code>
+function. This function leverages the linear regression option within
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">ggplot2::geom_smooth()</a></code> to perform the log-log regression
+for visualization and pulls in the functionality of
+<code>df_doseprop</code> to extract the power estimate and CI into the
+facet label.</p>
+<p>The required arguments to <code>plot_doseprop</code> are the same as
+<code>df_doseprop</code>!</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/power-law-plot-1.png" width="700"></p>
 </div>

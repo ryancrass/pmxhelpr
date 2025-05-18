@@ -45,14 +45,14 @@ test_that("Output is a `ggplot` plot object", {
 
 test_that("Output plot maps variable TIME to the x aesthetic", {
   expect_equal(
-    quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$x),
+    rlang::quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$x),
     "TIME"
   )
 })
 
 test_that("Output plot maps variable DV to the y aesthetic", {
   expect_equal(
-    quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$y),
+    rlang::quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$y),
     "DV"
   )
 })

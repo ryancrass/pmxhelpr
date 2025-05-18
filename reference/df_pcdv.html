@@ -52,7 +52,7 @@ of observed or simulated depedent variables.</p>
 <span>  <span class="va">data</span>,</span>
 <span>  bin_var <span class="op">=</span> <span class="st">"NTIME"</span>,</span>
 <span>  strat_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
+<span>  dvpred_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -73,9 +73,9 @@ of observed or simulated depedent variables.</p>
 <dd><p>Stratifying variables. Default is <code>"CMT"</code>.</p></dd>
 
 
-<dt id="arg-output-vars">output_vars<a class="anchor" aria-label="anchor" href="#arg-output-vars"></a></dt>
-<dd><p>Names of model outputs from <code>model</code>. Must be named character vector.
-Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>. Currently both <code>"IPRED"</code> and <code>"DV"</code> are required in <code>model@capture</code>.</p></dd>
+<dt id="arg-dvpred-vars">dvpred_vars<a class="anchor" aria-label="anchor" href="#arg-dvpred-vars"></a></dt>
+<dd><p>Names of variables for the dependent variable and population model prediction. Must be named character vector.
+Defaults are <code>"PRED"</code> and <code>"DV"</code>.</p></dd>
 
 
 <dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
@@ -94,7 +94,7 @@ prediction-corrected observations.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_addpred.html">df_addpred</a></span><span class="op">(</span><span class="va">data_sad</span>, <span class="va">model</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu">df_pcdv</span><span class="op">(</span><span class="va">data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span>, PRED <span class="op">=</span> <span class="st">"PRED"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu">df_pcdv</span><span class="op">(</span><span class="va">data</span>, dvpred_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span>, PRED <span class="op">=</span> <span class="st">"PRED"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -6,7 +6,7 @@ articles:
   vpc-exact-bins: vpc-exact-bins.html
   vpc-obs-quant-blq-cens: vpc-obs-quant-blq-cens.html
   vpc-plot-aesthetics: vpc-plot-aesthetics.html
-last_built: 2025-05-16T01:23Z
+last_built: 2025-05-18T02:11Z
 urls:
   reference: https://ryancrass.github.io/pmxhelpr/reference
   article: https://ryancrass.github.io/pmxhelpr/articles

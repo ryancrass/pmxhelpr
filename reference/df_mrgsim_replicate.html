@@ -52,6 +52,7 @@ that returns a data.frame containing <code>replicates</code> iterations of <code
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">model</span>,</span>
 <span>  <span class="va">replicates</span>,</span>
+<span>  dv_var <span class="op">=</span> <span class="st">"DV"</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  num_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -79,6 +80,10 @@ other arguments.</p></dd>
 <dd><p>Number of replicates. Either an integer, or something coercible to an integer.</p></dd>
 
 
+<dt id="arg-dv-var">dv_var<a class="anchor" aria-label="anchor" href="#arg-dv-var"></a></dt>
+<dd><p>Character name of the DV variable in <code>data</code>.</p></dd>
+
+
 <dt id="arg-time-vars">time_vars<a class="anchor" aria-label="anchor" href="#arg-time-vars"></a></dt>
 <dd><p>Names of actual and nominal time variables. Must be named character vector.
 Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
@@ -86,7 +91,7 @@ Defaults are <code>"TIME"</code> and <code>"NTIME"</code>.</p></dd>
 
 <dt id="arg-output-vars">output_vars<a class="anchor" aria-label="anchor" href="#arg-output-vars"></a></dt>
 <dd><p>Names of model outputs from <code>model</code>. Must be named character vector.
-Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>. Currently both <code>"IPRED"</code> and <code>"DV"</code> are required in <code>model@capture</code>.</p></dd>
+Defaults are <code>"PRED"</code>, <code>"IPRED"</code>, and <code>"DV"</code>.</p></dd>
 
 
 <dt id="arg-num-vars">num_vars<a class="anchor" aria-label="anchor" href="#arg-num-vars"></a></dt>
@@ -115,7 +120,7 @@ and return in output.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.frame with <code>data</code> x <code>replicates</code> rows (unless <code>obsonly=TRUE</code>)
+    <p>A data.frame with <code>data</code> x <code>replicates</code> rows (unless <code>obsonly=TRUE</code> is passed to <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim_df()</a></code>)
 and the output variables in <code>output_vars</code>, <code>num_vars</code>, and <code>char_vars</code>.</p>
     </div>
 
@@ -124,7 +129,7 @@ and the output variables in <code>output_vars</code>, <code>num_vars</code>, and
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
 <span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu">df_mrgsim_replicate</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span></span>
 <span class="r-in"><span>num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>irep_name <span class="op">=</span> <span class="st">"SIM"</span><span class="op">)</span></span></span>

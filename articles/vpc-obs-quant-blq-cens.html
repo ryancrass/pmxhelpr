@@ -262,8 +262,9 @@ of the adequacy of model fit and the true underlying PK profile.</p>
 <span><span class="co">#&gt; Building model_cpp ... done.</span></span>
 <span></span>
 <span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>,replicates <span class="op">=</span> <span class="fl">100</span>, </span>
+<span>                     dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span>
 <span>                     time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
-<span>                     output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>,</span>
+<span>                     output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>                     num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"DOSE"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span>
 <span>                     char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span><span class="op">)</span>,</span>
 <span>                     obsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -373,8 +374,8 @@ error message will print from <code><a href="https://rdrr.io/pkg/vpc/man/vpc.htm
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span> </span>
-<span><span class="co">#&gt; Joining with `by = join_by(CMT, NTIME)`</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(CMT, NTIME)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Prediction-correction cannot be used together with censored data (&lt;LLOQ or</span></span>
 <span><span class="co">#&gt; &gt;ULOQ). VPC plot will be shown for non-censored data only!</span></span>
 <span></span>

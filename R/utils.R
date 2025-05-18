@@ -72,7 +72,7 @@ check_numeric <- function(var){
   input_name <-deparse(substitute(var))
   output_warning <- paste0("argument `", input_name, "` must be coercible to class `numeric`")
   num <- suppressWarnings(as.numeric(var))
-  if(is.na(num) | !is.numeric(num)){
+  if(sum(is.na(num)) | sum(!is.numeric(num))){
     rlang::abort(message = output_warning)
   }
 }
@@ -108,14 +108,12 @@ check_loq_method <- function(loq, loq_method, data) {
   if(loq_method != 0) {
     if(is.null(loq)) {
       if(!"LLOQ" %in% colnames(data)) {
-        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data`
-                     or argument `loq` must specified and numeric or coercible to numeric")
+        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
       }
     } else {
       num <- suppressWarnings(as.numeric(loq))
       if(is.na(num) | !is.numeric(num)) {
-        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data`
-                     or argument `loq` must specified and numeric or coercible to numeric")
+        rlang::abort(message = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
       }
     }
   }
@@ -124,7 +122,7 @@ check_loq_method <- function(loq, loq_method, data) {
 
 check_timeu <- function(var){
   values <- c("hours", "days", "weeks", "months")
-  output_warning <- paste0("argument timeu must be one of:", values)
+  output_warning <- paste0("argument timeu must be one of: ", paste(values, collapse = ", "))
   if(! var %in% c(values)){
     rlang::abort(message = output_warning)
   }

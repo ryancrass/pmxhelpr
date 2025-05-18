@@ -6,11 +6,12 @@
 \usage{
 plot_dvtime(
   data,
-  dv_var = c(DV = "DV"),
+  dv_var = "DV",
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
   grp_var = "ID",
+  dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -27,7 +28,7 @@ plot_dvtime(
 \arguments{
 \item{data}{Input dataset. Must contain the variables: \code{"ID"}, \code{"DV"} \code{"MDV"}.}
 
-\item{dv_var}{Character string of the dependent variable. Default is \code{"DV"}.}
+\item{dv_var}{Character name of the DV variable in \code{data}.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults are \code{"TIME"} and \code{"NTIME"}.}
@@ -46,17 +47,23 @@ Options include:
 
 \item{grp_var}{Character string of the variable to map to the group aesthetic. Default is \code{"ID"}}
 
+\item{dose_var}{Character string of the variable to use in dosenormalization when \code{dosenorm} = TRUE.
+Default is \code{"DOSE"}.}
+
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
-Specifying this argument implies that \code{DV}is missing in \code{data} where < LLOQ.}
+Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.}
 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
+
 Options are:
-+ \code{0} : No handling. Plot input dataset \code{DV} vs \code{TIME} as is. (default)
-+ \code{1} : Impute all BLQ data at \code{TIME} <= 0 to 0 and all BLQ data at \code{TIME} > 0 to 1/2 x \code{loq}.
-Useful for plotting concentration-time data with some data BLQ on the linear scale
-+ \code{2} : Impute all BLQ data at \code{TIME} <= 0 to 1/2 x \code{loq} and all BLQ data at \code{TIME} > 0 to 1/2 x \code{loq}.
-Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{+ `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
++ `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+   Useful for plotting concentration-time data with some data BLQ on the linear scale
++ `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+   Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+}\if{html}{\out{</div>}}}
 
 \item{cent}{Character string specifying the central tendency measure to plot.
 Options are:
@@ -95,6 +102,6 @@ Plot a dependent variable versus time
 }
 \examples{
 data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
-plot_dvtime(data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose")
+plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
 
 }

@@ -1,7 +1,6 @@
 #' Plot a dependent variable versus time
 #'
 #' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
-#' @param dv_var Character string of the dependent variable. Default is `"DV"`.
 #' @param timeu Character string specifying units for the time variable.
 #'    Passed to `breaks_time` and assigned to default x-axis label.
 #'    Options include:
@@ -12,28 +11,36 @@
 #' @param n_breaks Number of breaks requested for x-axis. Default is 5.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
+#' @param dose_var Character string of the variable to use in dosenormalization when `dosenorm` = TRUE.
+#'   Default is `"DOSE"`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
-#'  Specifying this argument implies that `DV`is missing in `data` where < LLOQ.
+#'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
+#'
 #'   Options are:
+#'
 #'     + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
 #'     + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the linear scale
 #'     + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+#'
 #' @param cent Character string specifying the central tendency measure to plot.
+#'
 #'  Options are:
+#'
 #'    + Mean only: `"mean"` (default)
 #'    + Mean +/- Standard Deviation: `"mean_sdl"`
 #'    + Median only: `"median"`
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
+#'
 #' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
 #' @param grp_dv Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
 #'    Default is `FALSE`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
-#'    Requires variable `DOSE` to be present in `data`
+#'    Requires variable specified in `dose_var` to be present in `data`
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
@@ -47,16 +54,17 @@
 #'
 #' @examples
 #'data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
-#'plot_dvtime(data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose")
+#'plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
 #'
 
 plot_dvtime <- function(data,
-                        dv_var = c(DV = "DV"),
+                        dv_var = "DV",
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
                         timeu = "hours",
                         col_var = NULL,
                         grp_var = "ID",
+                        dose_var = "DOSE",
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
@@ -75,19 +83,23 @@ plot_dvtime <- function(data,
 
   #Checks
   check_df(data)
-  check_varsindf(data, dv_var[["DV"]])
+  check_varsindf(data, dv_var)
   check_varsindf(data, time_vars[["TIME"]])
   check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, "MDV")
   check_timeu(timeu)
   check_varsindf(data, col_var)
+  if(grp_dv == TRUE) {check_varsindf(data, grp_var)}
   if(!is.null(col_var)) {check_factor(data, col_var)}
-  if(dosenorm == TRUE){check_varsindf(data, "DOSE")}
+  if(dosenorm == TRUE){check_varsindf(data, dose_var)}
   check_loq_method(loq, loq_method, data)
 
   ##Data Rename
   data <- data |>
-    dplyr::rename((dplyr::any_of(c(dv_var, time_vars))))
+    dplyr::rename(dplyr::any_of(c(c(DV = dv_var), time_vars, c(DOSE = dose_var))))
+
+  ##Coerce Color Variable to a Factor
+  if(!is.null(col_var)){ data[[col_var]] <- factor(data[[col_var]])}
 
   ##BLQ Handling
   if(loq_method==1) {
@@ -223,7 +235,7 @@ plot_dvtime <- function(data,
 #'    + "days"
 #'    + "weeks"
 #'    + "months"
-#' @param n Ideal number of axis breaks requested (default = 5). Passed to `labeling::extended()`
+#' @param n Ideal number of axis breaks requested (default = 8). Passed to `labeling::extended()`
 #'
 #' @return A numeric vector of breaks
 #'
@@ -235,7 +247,15 @@ plot_dvtime <- function(data,
 #'
 #'
 breaks_time <- function(x, unit="hours", n=8) {
+
+  #Checks
+  check_numeric(x)
   check_timeu(unit)
+  check_integer(n)
+
+  x <- as.numeric(x)
+
+  #Define range
   rng <- range(x, na.rm = TRUE)
 
   if (unit == "hours") {

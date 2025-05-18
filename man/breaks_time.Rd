@@ -18,7 +18,7 @@ Options include:
 \item "months"
 }}
 
-\item{n}{Ideal number of axis breaks requested (default = 5). Passed to \code{labeling::extended()}}
+\item{n}{Ideal number of axis breaks requested (default = 8). Passed to \code{labeling::extended()}}
 }
 \value{
 A numeric vector of breaks

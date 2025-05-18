@@ -66,6 +66,7 @@ Options are:
 }\if{html}{\out{</div>}}}
 
 \item{cent}{Character string specifying the central tendency measure to plot.
+
 Options are:
 \itemize{
 \item Mean only: \code{"mean"} (default)
@@ -81,7 +82,7 @@ Options are:
 Default is \code{FALSE}.}
 
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
-Requires variable \code{DOSE} to be present in \code{data}}
+Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
 Plots a reference line at y = 0. Default is \code{FALSE}.}

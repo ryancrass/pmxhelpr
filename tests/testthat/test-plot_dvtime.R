@@ -19,7 +19,7 @@ test_that("Maximum time break is <= maximum value of the time binning variable "
 
 test_that("Error if incorrect class for arugmument `x`", {
   expect_error(breaks_time(x = c("1", "$", "3")),
-               regexp = "argument `x` must be a coercible to class `numeric`")
+               regexp = "argument `x` must be coercible to class `numeric`")
 })
 
 test_that("Error if `unit` is not within expected values", {

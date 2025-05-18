@@ -84,7 +84,7 @@ df_mrgsim_replicate <- function(data,
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
                                            carry_out = paste(c(output_vars[["PRED"]], output_vars[["IPRED"]],
-                                                               output_vars[["DV"]], "OBSDV",
+                                                               output_vars[["DV"]], "OBSDV", "MDV",
                                                                time_vars,
                                                                num_vars),
                                                              collapse = ","),

@@ -47,11 +47,12 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_dvtime</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
+<span>  dv_var <span class="op">=</span> <span class="st">"DV"</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  timeu <span class="op">=</span> <span class="st">"hours"</span>,</span>
 <span>  col_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grp_var <span class="op">=</span> <span class="st">"ID"</span>,</span>
+<span>  dose_var <span class="op">=</span> <span class="st">"DOSE"</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
@@ -75,7 +76,7 @@
 
 
 <dt id="arg-dv-var">dv_var<a class="anchor" aria-label="anchor" href="#arg-dv-var"></a></dt>
-<dd><p>Character string of the dependent variable. Default is <code>"DV"</code>.</p></dd>
+<dd><p>Character name of the DV variable in <code>data</code>.</p></dd>
 
 
 <dt id="arg-time-vars">time_vars<a class="anchor" aria-label="anchor" href="#arg-time-vars"></a></dt>
@@ -101,25 +102,30 @@ Options include:</p><ul><li><p>"hours" (default)</p></li>
 <dd><p>Character string of the variable to map to the group aesthetic. Default is <code>"ID"</code></p></dd>
 
 
+<dt id="arg-dose-var">dose_var<a class="anchor" aria-label="anchor" href="#arg-dose-var"></a></dt>
+<dd><p>Character string of the variable to use in dosenormalization when <code>dosenorm</code> = TRUE.
+Default is <code>"DOSE"</code>.</p></dd>
+
+
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>
-Specifying this argument implies that <code>DV</code>is missing in <code>data</code> where &lt; LLOQ.</p></dd>
+Specifying this argument implies that <code>DV</code> is missing in <code>data</code> where &lt; LLOQ.</p></dd>
 
 
 <dt id="arg-loq-method">loq_method<a class="anchor" aria-label="anchor" href="#arg-loq-method"></a></dt>
-<dd><p>Method for handling data below the lower limit of quantification (BLQ) in the plot.
-Options are:
-+ <code>0</code> : No handling. Plot input dataset <code>DV</code> vs <code>TIME</code> as is. (default)
-+ <code>1</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to 0 and all BLQ data at <code>TIME</code> &gt; 0 to 1/2 x <code>loq</code>.
-Useful for plotting concentration-time data with some data BLQ on the linear scale
-+ <code>2</code> : Impute all BLQ data at <code>TIME</code> &lt;= 0 to 1/2 x <code>loq</code> and all BLQ data at <code>TIME</code> &gt; 0 to 1/2 x <code>loq</code>.
-Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed</p></dd>
+<dd><p>Method for handling data below the lower limit of quantification (BLQ) in the plot.</p>
+<p>Options are:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">+</span> <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="sc">:</span> No handling. Plot input dataset <span class="st">`</span><span class="at">DV</span><span class="st">`</span> vs <span class="st">`</span><span class="at">TIME</span><span class="st">`</span> as <span class="fu">is.</span> (default)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="sc">+</span> <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="sc">:</span> Impute all BLQ data at <span class="st">`</span><span class="at">TIME</span><span class="st">`</span> <span class="sc">&lt;=</span> <span class="dv">0</span> to <span class="dv">0</span> and all BLQ data at <span class="st">`</span><span class="at">TIME</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> to <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> x <span class="st">`</span><span class="at">loq</span><span class="st">`</span>.</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>   Useful <span class="cf">for</span> plotting concentration<span class="sc">-</span>time data with some data BLQ on the linear scale</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="sc">+</span> <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="sc">:</span> Impute all BLQ data at <span class="st">`</span><span class="at">TIME</span><span class="st">`</span> <span class="sc">&lt;=</span> <span class="dv">0</span> to <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> x <span class="st">`</span><span class="at">loq</span><span class="st">`</span> and all BLQ data at <span class="st">`</span><span class="at">TIME</span><span class="st">`</span> <span class="sc">&gt;</span> <span class="dv">0</span> to <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> x <span class="st">`</span><span class="at">loq</span><span class="st">`</span>.</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>   Useful <span class="cf">for</span> plotting concentration<span class="sc">-</span>time data with some data BLQ on the log scale where <span class="dv">0</span> cannot be displayed</span></code></pre><p></p></div></dd>
 
 
 <dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
-<dd><p>Character string specifying the central tendency measure to plot.
-Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
+<dd><p>Character string specifying the central tendency measure to plot.</p>
+<p>Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
 <li><p>Mean +/- Standard Deviation: <code>"mean_sdl"</code></p></li>
 <li><p>Median only: <code>"median"</code></p></li>
 <li><p>Median +/- Interquartile Range: <code>median_iqr</code></p></li>
@@ -138,7 +144,7 @@ Default is <code>FALSE</code>.</p></dd>
 
 <dt id="arg-dosenorm">dosenorm<a class="anchor" aria-label="anchor" href="#arg-dosenorm"></a></dt>
 <dd><p>logical indicating if observed data points should be dose normalized. Default is <code>FALSE</code>,
-Requires variable <code>DOSE</code> to be present in <code>data</code></p></dd>
+Requires variable specified in <code>dose_var</code> to be present in <code>data</code></p></dd>
 
 
 <dt id="arg-cfb">cfb<a class="anchor" aria-label="anchor" href="#arg-cfb"></a></dt>
@@ -170,7 +176,7 @@ Plots a reference line at y = 0. Default is <code>FALSE</code>.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">data_sad</span>, Dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">DOSE</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">plot_dvtime</span><span class="op">(</span><span class="va">data</span>, dv_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, cent <span class="op">=</span> <span class="st">"median"</span>, col_var <span class="op">=</span> <span class="st">"Dose"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_dvtime</span><span class="op">(</span><span class="va">data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, cent <span class="op">=</span> <span class="st">"median"</span>, col_var <span class="op">=</span> <span class="st">"Dose"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `fun.y` argument of `stat_summary()` is deprecated as of ggplot2 3.3.0.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use the `fun` argument instead.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">pmxhelpr</span> package.</span>

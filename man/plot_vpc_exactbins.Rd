@@ -18,7 +18,7 @@ plot_vpc_exactbins(
   shown = NULL,
   theme = NULL,
   timeu = "hours",
-  n_breaks = 10,
+  n_breaks = 8,
   ...
 )
 }
@@ -34,7 +34,7 @@ Defaults are \code{"TIME"} and \code{"NTIME"}.}
 Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
 
 \item{strat_var}{Character string of stratification variable passed to \code{stratify} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, only a single stratifying variable is supported.}

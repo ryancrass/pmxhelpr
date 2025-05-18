@@ -6,7 +6,7 @@
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to `lloq` argument
-#'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV`is missing in `sim` where < LLOQ.
+#'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV` is missing in `sim` where < LLOQ.
 #' @param strat_var Character string of stratification variable passed to `stratify` argument
 #'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
@@ -70,14 +70,24 @@ plot_vpc_exactbins <- function(sim,
                                shown = NULL,
                                theme = NULL,
                                timeu = "hours",
-                               n_breaks = 10,
+                               n_breaks = 8,
                                ...)
 {
+
+  #Update Lists
+  time_vars <- list_update(time_vars, c(TIME = "TIME",
+                                        NTIME = "NTIME"))
+
+  output_vars <- list_update(output_vars, c(PRED = "PRED",
+                                            IPRED = "IPRED",
+                                            SIMDV = "SIMDV",
+                                            OBSDV = "OBSDV"))
 
   #Checks
   check_df(sim)
   check_varsindf(sim, time_vars[["TIME"]])
   check_varsindf(sim, time_vars[["NTIME"]])
+  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]])}
   check_varsindf(sim, output_vars[["SIMDV"]])
   check_varsindf(sim, output_vars[["OBSDV"]])
   check_varsindf(sim, "MDV")
@@ -146,7 +156,7 @@ plot_vpc_exactbins <- function(sim,
     bins = bins,
     pred_corr = pcvpc,
     pred_corr_lower_bnd = lower_bound,
-    lloq = loq,
+    lloq = as.numeric(loq),
     show = show_vpc,
     vpc_theme = vpctheme,
     ...)
@@ -237,7 +247,7 @@ df_nobsbin <- function(data,
 #'
 #' @param data Input dataset
 #' @param bin_var Exact binning variable. Default is `"NTIME"`.
-#' @param strat_vars Stratifying variables. Default is `"CMT"`.
+#' @param strat_vars Stratifying variables. Default is `NULL`.
 #' @param dvpred_vars Names of variables for the dependent variable and population model prediction. Must be named character vector.
 #'    Defaults are `"PRED"` and `"DV"`.
 #' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.

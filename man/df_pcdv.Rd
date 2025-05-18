@@ -17,7 +17,7 @@ df_pcdv(
 
 \item{bin_var}{Exact binning variable. Default is \code{"NTIME"}.}
 
-\item{strat_vars}{Stratifying variables. Default is \code{"CMT"}.}
+\item{strat_vars}{Stratifying variables. Default is \code{NULL}.}
 
 \item{dvpred_vars}{Names of variables for the dependent variable and population model prediction. Must be named character vector.
 Defaults are \code{"PRED"} and \code{"DV"}.}

@@ -89,6 +89,7 @@ test_that("output `PCDV' is modified when the `lower_bound` argument is specifie
   expect_false(result)
 })
 
+
 ##Test Argument Handling
 
 test_that("Error if incorrect class for argument `data`", {

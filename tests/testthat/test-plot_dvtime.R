@@ -43,6 +43,20 @@ test_that("Output is a `ggplot` plot object", {
                class = "ggplot")
 })
 
+test_that("Output plot maps variable TIME to the x aesthetic", {
+  expect_equal(
+    quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$x),
+    "TIME"
+  )
+})
+
+test_that("Output plot maps variable DV to the y aesthetic", {
+  expect_equal(
+    quo_name(plot_dvtime(data_sad, dv_var = "ODV")$mapping$y),
+    "DV"
+  )
+})
+
 test_that("Output plot contains a caption when argument `show_caption` = TRUE", {
   expect_equal(
     plot_dvtime(data_sad, dv_var = "ODV")$labels$caption,
@@ -59,13 +73,17 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
 
 test_that("Output plot maps variable specified in `col_var` to the color aesthetic", {
   expect_equal(
-    plot_dvtime(data_sad, dv_var = "ODV")$labels$caption,
-    "Solid circles and thick lines are the mean\nOpen circles are observations"
+    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels$colour,
+    "DOSE"
   )
 })
 
-
-
+test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
+  expect_equal(
+    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels$group,
+    "ID"
+  )
+})
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {

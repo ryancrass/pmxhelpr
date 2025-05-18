@@ -6,5 +6,6 @@ test_that("Function returns a mrgsolve model object", {
 
 ##Test Argument Handling
 test_that("Error if incorrect model does not exist in library", {
-  expect_error(model_mread_load("test"))
+  expect_error(model_mread_load("test"),
+               regexp = "`test` does not exist in the pmxhelpr model library")
 })

@@ -56,54 +56,59 @@ test_that("output data.frame contains variable requested with argument `irep_nam
 
 ## Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
-  expect_error(df_mrgsim_replicate(data="",model=model_mread_load("model"), replicates = 1,
-                                   dv_var = "ODV"))
+  expect_error(df_mrgsim_replicate(data="",model=model_mread_load("model"), replicates = 1,dv_var = "ODV"),
+               regexp = "argument `data` must be a `data.frame`")
 })
 
 test_that("Error if incorrect class for arugmument `model`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model="model", replicates = 1,
-                                   dv_var = "ODV"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model="model", replicates = 1, dv_var = "ODV"),
+               regexp = "argument `model` must be class `mrgmod`")
 })
 
 test_that("Error if incorrect class for arugmument `replicates`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = "a",
-                                   dv_var = "ODV"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = "a", dv_var = "ODV"),
+               regexp = "argument `replicates` must be coercible to class `integer`")
 })
 
 test_that("Error if TIME variable specified in time_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 1,
-                                   dv_var = "ODV", time_vars = c(TIME = "test")))
+                                   dv_var = "ODV", time_vars = c(TIME = "test")),
+               regexp = "argument `time_vars` must be variables in `data`")
 })
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
-                                   dv_var = "ODV", time_vars = c(NTIME = "test")))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   time_vars = c(NTIME = "test")),
+               regexp = "argument `time_vars` must be variables in `data`")
 })
 
 
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
-                                   dv_var = "DV"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "DV"),
+               regexp = "argument `dv_var` must be variables in `data`")
 })
 
 test_that("Error if variables specified by num_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
-                                   dv_var = "ODV", num_vars = "test"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   num_vars = "test"))
 })
 
 test_that("Error if variables specified by char_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
-                                   dv_var = "ODV", char_vars = "test"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   char_vars = "test"),
+               regexp = "argument `char_vars` must be variables in `data`")
 })
 
 test_that("Error if variable specified by irep_name does not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
-                                   dv_var = "ODV", char_vars = "test"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   char_vars = "test"),
+               regexp = "argument `char_vars` must be variables in `data`")
 })
 
 test_that("Error if incorrect class for arugmument `seed`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2, seed = "A",
-                                   dv_var = "ODV"))
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2, dv_var = "ODV",
+                                   seed = "A"),
+               regexp = "argument `seed` must be coercible to class `integer`")
 })
 
 

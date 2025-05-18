@@ -27,13 +27,16 @@ test_that("output is returned if non-default option specified for argument `outp
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
-  expect_error(df_addpred(data="",model=model_mread_load("model")))
+  expect_error(df_addpred(data="",model=model_mread_load("model")),
+               regexp = "argument `data` must be a `data.frame`")
 })
 
 test_that("Error if incorrect class for arugmument `model`", {
-  expect_error(df_addpred(data=data_sad,model="model"))
+  expect_error(df_addpred(data=data_sad,model="model"),
+               regexp = "argument `model` must be class `mrgmod`")
 })
 
 test_that("Error if incorrect class for arugmument `output_var`", {
-  expect_error(df_addpred(data=data_sad,model="model", output_var = "PRED"))
+  expect_error(df_addpred(data=data_sad,model=model_mread_load("model"), output_var = "PRED"),
+  regexp = "argument `output_var` must be captured as output in `model`")
 })

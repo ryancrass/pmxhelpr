@@ -8,7 +8,7 @@ df_pcdv(
   data,
   bin_var = "NTIME",
   strat_vars = NULL,
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
+  dvpred_vars = c(PRED = "PRED", DV = "DV"),
   lower_bound = 0
 )
 }
@@ -19,8 +19,8 @@ df_pcdv(
 
 \item{strat_vars}{Stratifying variables. Default is \code{"CMT"}.}
 
-\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}. Currently both \code{"IPRED"} and \code{"DV"} are required in \code{model@capture}.}
+\item{dvpred_vars}{Names of variables for the dependent variable and population model prediction. Must be named character vector.
+Defaults are \code{"PRED"} and \code{"DV"}.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 }
@@ -36,6 +36,6 @@ of observed or simulated depedent variables.
 \examples{
 model <- model_mread_load(model = "model")
 data <- df_addpred(data_sad, model)
-simout <- df_pcdv(data, output_vars = c(DV = "ODV", PRED = "PRED"))
+simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
 
 }

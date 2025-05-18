@@ -1,4 +1,4 @@
-$PARAM 
+$PARAM
 TVCL = 20
 TVVC = 35.7
 TVKA = 0.3
@@ -37,7 +37,7 @@ dxdt_TRANS1 = KA*GUT - KA*TRANS1;
 dxdt_TRANS2 = KA*TRANS1 - KA*TRANS2;
 
 $OMEGA @labels ETA_CL ETA_VC ETA_KA ETA_Q ETA_VP
-0.075 0.1 0.2 0 0 
+0.075 0.1 0.2 0 0
 
 $SIGMA @labels PROP
 0.09
@@ -45,4 +45,5 @@ $SIGMA @labels PROP
 $TABLE
 capture IPRED = CENT/(VC/1000);
 capture DV = IPRED*(1+PROP);
+capture Y = DV;
 

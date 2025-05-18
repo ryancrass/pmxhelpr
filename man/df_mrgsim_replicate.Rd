@@ -8,6 +8,7 @@ df_mrgsim_replicate(
   data,
   model,
   replicates,
+  dv_var = "DV",
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   num_vars = NULL,
@@ -25,11 +26,13 @@ other arguments.}
 
 \item{replicates}{Number of replicates. Either an integer, or something coercible to an integer.}
 
+\item{dv_var}{Character name of the DV variable in \code{data}.}
+
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}. Currently both \code{"IPRED"} and \code{"DV"} are required in \code{model@capture}.}
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
 \item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{carry_out}
@@ -46,7 +49,7 @@ and return in output.}
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
 }
 \value{
-A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE})
+A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
 and the output variables in \code{output_vars}, \code{num_vars}, and \code{char_vars}.
 }
 \description{
@@ -56,7 +59,7 @@ that returns a data.frame containing \code{replicates} iterations of \code{data}
 \examples{
 model <- model_mread_load(model = "model")
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-output_vars = c(DV = "ODV"),
+dv_var = "ODV",
 num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
 irep_name = "SIM")

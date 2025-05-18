@@ -89,9 +89,7 @@ Unluckily for us, no one has validated this PK model! Therefore, we need to gene
 
 We will use `df_mrgsim_replicate()` to run the simulation for the VPC. `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
-We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the output_vars argument. 
-
-**Note: Currently output variables `IPRED` and `DV` are required in `model` capture statement**
+We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the `dv_var` argument. 
 
 We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
 
@@ -99,8 +97,9 @@ We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the c
 simout <- df_mrgsim_replicate(data = data_sad, 
                      model = model, 
                      replicates = 100, 
+                     dv_var = "ODV",
                      time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "ODV"),
+                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)

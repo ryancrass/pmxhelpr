@@ -149,8 +149,9 @@ Lets run a simulation and generate some VPC plots to demonstrate the impact of d
 model <- model_mread_load("model")
 
 simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100, 
+                     dv_var = "ODV",
                      time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "ODV"),
+                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)

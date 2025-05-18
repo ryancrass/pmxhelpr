@@ -40,7 +40,7 @@
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-#' output_vars = c(DV = "ODV"),
+#' dv_var = "ODV",
 #' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
 #' irep_name = "SIM")
@@ -115,7 +115,7 @@ plot_vpc_exactbins <- function(sim,
   ##Observed Data
   obs <- sim |>
     dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
-    df_pcdv(strat_vars = strat_var, output_vars = c(DV = "OBSDV", PRED = "PRED"),
+    df_pcdv(strat_vars = strat_var, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
             lower_bound = lower_bound) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
@@ -238,8 +238,9 @@ df_nobsbin <- function(data,
 #' @param data Input dataset
 #' @param bin_var Exact binning variable. Default is `"NTIME"`.
 #' @param strat_vars Stratifying variables. Default is `"CMT"`.
+#' @param dvpred_vars Names of variables for the dependent variable and population model prediction. Must be named character vector.
+#'    Defaults are `"PRED"` and `"DV"`.
 #' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.
-#' @inheritParams df_mrgsim_replicate
 #'
 #' @return A data.frame containing one row per unique combination of
 #'    `bin_var` and `strat_vars` and new variable `PCDV` containing
@@ -249,23 +250,26 @@ df_nobsbin <- function(data,
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' data <- df_addpred(data_sad, model)
-#' simout <- df_pcdv(data, output_vars = c(DV = "ODV", PRED = "PRED"))
+#' simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
 #'
 df_pcdv <- function(data,
                     bin_var = "NTIME",
                     strat_vars = NULL,
-                    output_vars = c(PRED = "PRED",
-                                    IPRED = "IPRED",
+                    dvpred_vars = c(PRED = "PRED",
                                     DV = "DV"),
                     lower_bound = 0) {
+
+  dvpred_vars <- list_update(dvpred_vars, c(PRED = "PRED",
+                                            DV = "DV"))
+
   check_df(data)
   check_varsindf(data, bin_var)
   check_varsindf(data, strat_vars)
-  check_varsindf(data, output_vars[["PRED"]])
-  check_varsindf(data, output_vars[["DV"]])
+  check_varsindf(data, dvpred_vars[["PRED"]])
+  check_varsindf(data, dvpred_vars[["DV"]])
 
   data <- data |>
-    dplyr::rename(dplyr::all_of(output_vars)) |>
+    dplyr::rename(dplyr::all_of(dvpred_vars)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars, "CMT")))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
                   PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound))) |>

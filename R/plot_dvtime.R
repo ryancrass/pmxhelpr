@@ -69,6 +69,10 @@ plot_dvtime <- function(data,
                         show_caption = TRUE,
                         n_breaks = 8){
 
+
+  time_vars <- list_update(time_vars, c(TIME = "TIME",
+                                        NTIME = "NTIME"))
+
   #Checks
   check_df(data)
   check_varsindf(data, dv_var[["DV"]])

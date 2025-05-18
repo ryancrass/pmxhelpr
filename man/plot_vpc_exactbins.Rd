@@ -31,7 +31,7 @@ plot_vpc_exactbins(
 Defaults are \code{"TIME"} and \code{"NTIME"}.}
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}. Currently both \code{"IPRED"} and \code{"DV"} are required in \code{model@capture}.}
+Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV}is missing in \code{sim} where < LLOQ.}
@@ -90,7 +90,7 @@ that returns a \code{ggplot2} object.
 \examples{
 model <- model_mread_load(model = "model")
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-output_vars = c(DV = "ODV"),
+dv_var = "ODV",
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
 irep_name = "SIM")

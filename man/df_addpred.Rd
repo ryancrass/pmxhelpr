@@ -12,7 +12,7 @@ df_addpred(data, model, output_var = "IPRED", ...)
 \item{model}{\code{mrgsolve} model object.}
 
 \item{output_var}{Name of output from \code{model} to be captured as \code{PRED}
-after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}.Default is \code{"IPRED"}.}
+after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}. Default is \code{"IPRED"}.}
 
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
 }

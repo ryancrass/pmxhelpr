@@ -162,6 +162,9 @@ plot_doseprop <- function(data,
                           se = TRUE) {
 
   check_df(data)
+  check_varsindf(data, metric_var)
+  check_varsindf(data, dose_var)
+  check_levelsinvar(data, metric_var, metrics)
   if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
   check_integer(sigdigits)
 

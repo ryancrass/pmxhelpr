@@ -80,8 +80,8 @@ check_numeric <- function(var){
 check_integer <- function(var){
   input_name <-deparse(substitute(var))
   output_warning <- paste0("argument `", input_name, "` must be coercible to class `integer`")
-  int <- suppressWarnings(as.integer(var))
-  if(is.na(int) | !is.integer(int)){
+  num <- suppressWarnings(as.integer(var))
+  if(sum(is.na(num)) | sum(!is.numeric(num))){
     rlang::abort(message = output_warning)
   }
 }
@@ -91,6 +91,16 @@ check_varsindf <- function(data, vars){
   input_name2 <-deparse(substitute(vars))
   output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
   if(length(setdiff(vars, colnames(data)))>=1){
+    rlang::abort(message = output_warning)
+  }
+}
+
+check_levelsinvar <- function(data, var, levels){
+  input_name1 <-deparse(substitute(var))
+  input_name2 <-deparse(substitute(levels))
+  vect <- data[[var]]
+  output_warning <- paste0("argument `", input_name2, "` must be levels in variable `",input_name1,"`")
+  if(sum(!levels %in% vect)){
     rlang::abort(message = output_warning)
   }
 }

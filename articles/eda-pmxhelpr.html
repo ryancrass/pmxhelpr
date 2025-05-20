@@ -81,7 +81,9 @@ exploratory data analysis.</p>
 <p>For this vignette, we will peform exploratory data analysis on the
 <code>data_sad</code> dataset internal to <code>pmxhelpr</code>. We can
 take a quick look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code> from the
-dplyr package.</p>
+dplyr package. Dataset definitions can also be viewed by calling
+<code><a href="../reference/data_sad.html">?data_sad</a></code>, as one would to view the documentation for a
+package function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 720</span></span>
@@ -112,9 +114,9 @@ dplyr package.</p>
 <p>We can see that this dataset is already formatted for modeling. It
 contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as
 well as, dependent variables of drug concentration in original units
-(ODV) and natural logarithm transformed units (LDV). In addition to the
-numeric variables, there are two character variables: USUBJID and
-PART.</p>
+(ODV) and natural logarithm transformed units (LDV).</p>
+<p>In addition to the numeric variables, there are two character
+variables: USUBJID and PART.</p>
 <p>PART specifies the two study cohorts:</p>
 <ul>
 <li>Single Ascending Dose (SAD)</li>
@@ -148,11 +150,9 @@ represents the actual time the sample was collected.</p>
 <div class="section level3">
 <h3 id="overview-of-plot_dvtime">Overview of <code>plot_dvtime</code><a class="anchor" aria-label="anchor" href="#overview-of-plot_dvtime"></a>
 </h3>
-<p>Let’s visualize the data. Let’s visualize the data. For this
-visualization, we will leverage the functionality of
-<code>plot_dvtime</code> to visualize our data. First, we will filter to
-observation records only and derive some factor variables, which can be
-passed to the color aesthetic.</p>
+<p>Let’s visualize the data. First, we will filter to observation
+records only and derive some factor variables, which can be passed to
+the color aesthetic in our plots.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">EVID</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -176,15 +176,13 @@ concentration) in untransformed units (ng/mL)</li>
 <code>LLOQ</code> : lower limit of quantification for drug
 concentration</li>
 </ul>
-<p><code>plot_dvtime</code> requires a dependent variable (specified as
-named vector using <code>dv_var</code> argument) and time variable
-(specifed as named vector using the <code>time_vars</code>). The
-dependent variable in <code>data_sad</code> is named <code>"ODV"</code>,
-so we must specify the name using <code>dv_var</code>. The default names
-for the <code>time_vars</code> are <code>"TIME"</code> and
-<code>"NTIME"</code>. The color aesthetic is specified using the
-<code>col_var</code> argument. The <code>cent</code> argument specifies
-which central tendency measure is plotted.</p>
+<p><code>plot_dvtime</code> requires a dependent variable, specified as
+string via the <code>dv_var</code> argument, and time variables for
+actual and nominal time, specified as a named vector using the
+<code>time_vars</code>. The default names for the <code>time_vars</code>
+are <code>"TIME"</code> and <code>"NTIME"</code>. The color aesthetic is
+specified using the <code>col_var</code> argument. The <code>cent</code>
+argument specifies which central tendency measure is plotted.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> </span></code></pre></div>
@@ -192,8 +190,9 @@ which central tendency measure is plotted.</p>
 <p>Not a bad plot with minimal arguments! We can see the mean for each
 dose as a colored thick line and observed data points as colored open
 circles with some alpha added. A caption also prints by default
-indicating what the plot elements depict. The caption can be removed by
-specifying <code>show_caption = FALSE</code>.</p>
+describing the plot elements.</p>
+<p>The caption can be removed by specifying
+<code>show_caption = FALSE</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, show_caption <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
@@ -221,26 +220,27 @@ Options include:</p>
 Default = 8.</p></li>
 </ul>
 <p>Let’s pass the vector of nominal times we defined earlier into the
-<code>breaks_time</code> function and see what we get!</p>
+<code>breaks_time</code> function and see what we get with different
+requested numbers of breaks!</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]   0  48  96 144</span></span>
-<span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1]   0  24  48  72  96 120 144 168</span></span>
+<span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   0  48  96 144</span></span>
 <span><span class="fu"><a href="../reference/breaks_time.html">breaks_time</a></span><span class="op">(</span><span class="va">ntimes</span>, unit <span class="op">=</span> <span class="st">"hours"</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ntimes</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1]   0.0   9.6  19.2  28.8  38.4  48.0  57.6  67.2  76.8  86.4  96.0 105.6</span></span>
 <span><span class="co">#&gt; [13] 115.2 124.8 134.4 144.0 153.6 163.2</span></span></code></pre></div>
-<p>We can see that the default of n = 10 gives an optimal number of
-breaks in this case whereas reducing the number of breaks gives a less
+<p>We can see that the default (n = 8) gives an optimal number of breaks
+in this case whereas reducing the number of breaks (n=5) gives a less
 optimal distribution of values. Requesting breaks equal to the length of
 the vector of unique <code>NTIMES</code> will generally produce too many
 breaks. The default axes breaks behavior can always be overwritten by
 specifying the axis breaks manually using
 <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous()</a></code>.</p>
-<p>The default <code>n_breaks = 10</code> is a good value for our
-dataset, and <code>data_sad</code> uses the default time units
-(<code>"hours"</code>); therefore, explicit specification of the
-<code>n_breaks</code> and <code>timeu</code> arguments are not
+<p>The default <code>n_breaks = 8</code> is a good value for
+<code>data_sad</code>, and <code>data_sad</code> uses the default time
+units (<code>"hours"</code>); therefore, explicit specification of the
+<code>n_breaks</code> and <code>timeu</code> arguments is not
 required.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
@@ -260,10 +260,10 @@ new units automatically as long as we specify the new time unit with
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-days-1.png" width="576"></p>
 <p>Nice! However, someone else on the team would prefer to see the first
 24 hours of treatment in greater detail to visualize the absorption
-phase. If we can either truncate the x-axis range using
+phase. We can either truncate the x-axis range using
 <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous()</a></code>, or filter the input data and allow
 the x-axis breaks to adjust automatically with the new time range in the
-data!</p>
+input data!</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_24</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">NTIME</span> <span class="op">&lt;=</span> <span class="fl">24</span><span class="op">)</span></span>
@@ -275,12 +275,18 @@ data!</p>
 <div class="section level3">
 <h3 id="specifying-the-central-tendency">Specifying the Central Tendency<a class="anchor" aria-label="anchor" href="#specifying-the-central-tendency"></a>
 </h3>
-<p>Much better! However, these data are probably best visualized on a
-log-scale y-axis to better visualize the terminal phase profile.
-<code>plot_dvtime</code> includes an argument <code>log_y</code> which
-performs this operation with one added benefit over adding in a layer
-with <code>scale_y_log10</code> when using automatically generated plot
-captions with <code>show_captions = TRUE</code>.</p>
+<p>These data are probably best visualized on a log-scale y-axis
+upweight the terminal phase profile. <code>plot_dvtime</code> includes
+an argument <code>log_y</code> which performs this operation with some
+additional formatting benefits over manually adding the layer to the
+returned object with <code>scale_y_log10</code>.</p>
+<ul>
+<li>Includes log tick marks on the y-axis</li>
+<li>Removes minor gridlines from the y-axis, which are misleading on a
+log-scale</li>
+<li>Updates the caption with the correct central tendency measure if
+<code>show_captions = TRUE</code>.</li>
+</ul>
 <p><code>plot_dvtime</code> uses the <code>stat_summary</code> function
 from <code>ggplot2</code> to calculate and plot the central tendency
 measures and error bars. An often overlooked feature of
@@ -291,15 +297,15 @@ the plot, the data are log-transformed for plotting and the central
 tendency measure returned when requesting <code>"mean"</code> from
 <code>stat_summary</code> is the <em>geometric mean</em>. If the
 <code>log_y</code> argument is used to generate semi-log plots along
-with <code>show_captions = TRUE</code>, then the caption will clearly
-delineate where arithmetic and gemoetric means are being returned.</p>
+with <code>show_captions = TRUE</code>, then the caption will delineate
+where arithmetic and gemoetric means are being returned.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-log-1.png" width="576"></p>
 <p>But wait…this plot is potentially misleading! The food effect portion
 of the study is being pooled together with the fasted data within the
-100 mg dose!</p>
+100 mg dose.</p>
 <p>Luckily, <code>plot_dvtime</code> returns a <code>ggplot</code>
 object which we can modify like any other <code>ggplot</code>!
 Therefore, we can facet by PART by simply adding in another layer to our
@@ -332,7 +338,7 @@ for parametric summary statistics.</p>
 artifact introduced by censoring of data at the assay LLOQ; however,
 let’s confirm there are no weird individual subject profiles by
 connecting observed data points longitudinally within a subject - in
-other words, make a spaghetti plot.</p>
+other words, let’s make spaghetti plots!</p>
 <p>We will change the central tendency measure to the median and add the
 spaghetti lines. Data points within an individual value of
 <code>grp_var</code> will be connected by a narrow line when
@@ -393,7 +399,7 @@ we do not need to specify the <code>loq</code> argument (default is
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-1.png" width="576"></p>
 <p>A reference line is drawn to denote the LLOQ and all observations
-with <code>EVID=0</code> and <code>MDV=1</code> are imputated as LLOQ/2.
+with <code>EVID=0</code> and <code>MDV=1</code> are imputed as LLOQ/2.
 Imputing post-dose concentrations below the lower limit of
 quantification as 1/2 x LLOQ normalizes the late terminal phase of the
 concentration-time profile. This is confirmatory evidence for our
@@ -411,10 +417,11 @@ specifying <code>dosenorm = TRUE</code>.</p>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dn-1.png" width="576"></p>
-<p>When <code>dosenorm = TRUE</code>, the variable <code>DOSE</code>
-needs to be present in the input dataset <code>data</code>. If
-<code>DOSE</code> is not present in <code>data</code>, the function will
-return an <em>Error</em> with an informative error message.</p>
+<p>When <code>dosenorm = TRUE</code>, the variable specified in
+<code>dose_var</code> (default = “DOSE”) needs to be present in the
+input dataset <code>data</code>. If <code>dose_var</code> is not present
+in <code>data</code>, the function will return an <em>Error</em> with an
+informative error message.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="op">-</span><span class="va">DOSE</span><span class="op">)</span>, </span>
 <span>            dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
@@ -440,11 +447,11 @@ dependent variable.</p>
 <p>Only a single variable can be passed to the <code>col_var</code>
 argument of <code>plot_dvtime</code>. Suppose we want to look at the
 interaction between two variables in the color aesthetic. This can be
-accomplished in <code>ggplot2</code> using the <code>interaction</code>
-function, which computes an unordered factor representing the
-interaction between the two variables. Let’s visualize the interaction
-between the factor versions of the variables <code>DOSE</code> and
-<code>FOOD</code>.</p>
+accomplished using the <code>interaction</code> function within the
+<code>aes</code> call, which computes an unordered factor representing
+the interaction between the two variables. Let’s visualize the
+interaction between the factor versions of the variables
+<code>DOSE</code> and <code>FOOD</code>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TIME</span>, y <span class="op">=</span> <span class="va">ODV</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">`Dose (mg)`</span>, <span class="va">`Food Status`</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
@@ -459,8 +466,8 @@ between the factor versions of the variables <code>DOSE</code> and
 <code>plot_dvtime</code>; however, we can reproduce it by formally
 creating a variable for the interaction we want to visualize. This also
 affords us the opportunity to define the factor labels, levels, and
-order formally, which will affect how the interaction is displayed on
-the plot.</p>
+order, which will affect how the interaction is displayed on the
+plot.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_int</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -502,12 +509,12 @@ to <code>plot_dvtime</code>. Such an approach may be used if we wanted
 to visualize the data for a cross-over study condition separately for
 each period within an individual. In this case, the default
 <code>grp_var = "ID"</code> would connect all data points within an
-individual across both periods whereas we want to visualize points
-connected within the individual <code>"ID"</code> separately by
+individual across both periods whereas we actually want to visualize
+points connected within the individual <code>"ID"</code> separately by
 cross-over period.</p>
 <p>To explore this, we will modify <code>data_sad</code> such that the
 same subjects are included in <code>"PART1-SAD"</code> and
-<code>"PART2-FE</code> (e.g., modify from a parallel group to a
+<code>"PART2-FE</code> (e.g., modify from a parallel group design to a
 crossover design).</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_crossover</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -536,7 +543,7 @@ crossover design).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>    18   100     0</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>    18   100     1</span></span></code></pre></div>
 <p>Now we have a dataset with a cross-over design for the Food Effect
-Part. We can define a factor (or food) ID variable that is the
+protion of the study. We can define a factor variable that is the
 interaction between <code>"ID"</code> and <code>"FOOD"</code>. Now when
 we visualize the data, the data points will be connected within the
 group defined by both variables.</p>
@@ -639,7 +646,7 @@ vectorized methods.</p>
 data is dose proportionality (e.g., does exposure increase
 proportionally with dose). This is an important assessment prior to
 population PK modeling, as it informs whether non-linearity is an
-important consideration in modeling.</p>
+important consideration in model development.</p>
 <p>The industry standard approach to assessing dose proportionality is
 power law regression. Power law regression is based on the following
 relationship:</p>
@@ -651,8 +658,9 @@ via simple linear regression by taking the logarithm of both sides:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>E</mi><mi>x</mi><mi>p</mi><mi>o</mi><mi>s</mi><mi>u</mi><mi>r</mi><mi>e</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>i</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>r</mi><mi>c</mi><mi>e</mi><mi>p</mi><mi>t</mi><mo>+</mo><mi>γ</mi><mo>*</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mi>O</mi><mi>S</mi><mi>E</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">log(Exposure) = intercept + \gamma*log(DOSE)</annotation></semantics></math></p>
 <p><code>NOTE</code>: Use of natural logarithm and log10 transformations
 will not impact the assessment of the power and will only shift the
-intercept. This approach facilitates hypothesis testing via assessment
-of the 95% CI around the power
+intercept.</p>
+<p>This approach facilitates hypothesis testing via assessment of the
+95% CI around the power
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>)
 estimated from the log-log regression. The null hypothesis is that
 exposure increases proportionally to dose (e.g.,
@@ -675,7 +683,7 @@ greater-than-proportionally to dose</li>
 concentration (Cmax) and area under the concentration-time curve (AUC).
 While not a hard and fast rule, some inference can be drawn about which
 phase of the pharmacokinetic profile is most likely contributing the
-majority of non-linearity of exposure with dose.</p>
+majority of the non-linearity of exposure with dose.</p>
 <ul>
 <li>AUC = <em>NOT</em> dose-proportional | Cmax = dose-proportional =
 elimination phase</li>
@@ -751,10 +759,11 @@ the NCA using <code>PKNCA</code></p>
 <span><span class="co">#&gt; $ PPORRES  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 277.7701457207<span style="color: #949494;">, </span>13.4300000000<span style="color: #949494;">, </span>7.8100000000<span style="color: #949494;">, </span>35.9500000000<span style="color: #949494;">, </span>3…</span></span>
 <span><span class="co">#&gt; $ exclude  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">N</span>…</span></span></code></pre></div>
 <p>The NCA results object output from <code>PKNCA</code> is formatted
-using the <code>SDTM</code> standards for the <code>PP</code> domain
-(Pharmacokinetic Parameters). This NCA output dataset is also available
-internally within <code>pmxhelpr</code> as <code>data_sad_nca</code>
-with a few additional columns specifying units.</p>
+using the variable names in <code>SDTM</code> standards for the
+<code>PP</code> domain (Pharmacokinetic Parameters). This NCA output
+dataset is also available internally within <code>pmxhelpr</code> as
+<code>data_sad_nca</code> with a few additional columns specifying
+units.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad_nca</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 612</span></span>

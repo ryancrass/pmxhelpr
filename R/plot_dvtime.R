@@ -213,7 +213,7 @@ plot_dvtime <- function(data,
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks") +
-    ggplot2::theme(panel.grid.minor.yl = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor.y = ggplot2::element_blank())
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)

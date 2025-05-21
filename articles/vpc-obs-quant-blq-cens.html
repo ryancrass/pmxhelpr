@@ -85,7 +85,7 @@ passed to <code>lloq</code> in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.ht
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+<h2 id="analysis-dataset">Analysis Dataset<a class="anchor" aria-label="anchor" href="#analysis-dataset"></a>
 </h2>
 <p>Next let’s explore our input dataset <code>data_sad</code>. This
 dataset was generated via simulation from the mrgsolve
@@ -120,8 +120,8 @@ look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glim
 <span><span class="co">#&gt; $ USUBJID <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-…</span></span>
 <span><span class="co">#&gt; $ PART    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part …</span></span></code></pre></div>
 <p>Let’s visualize the data. For this visualization, we will leverage
-the functionality of <code>plot_dvtime</code> to visualize our data.
-First, we will derive a factor variable from DOSE to pass to the color
+the functionality of <code>plot_dvtime</code>. First, we will derive a
+factor variable from <code>"DOSE"</code> to pass to the color
 aesthetic.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -186,23 +186,24 @@ artifact potentially due to censoring at the LLOQ.</p>
 <span>               <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">NTIME</span>, y <span class="op">=</span> <span class="va">DV</span>, col <span class="op">=</span> <span class="st">"DV (&gt;0.5LLOQ)"</span><span class="op">)</span>, inherit.aes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Data Handling"</span>, </span>
 <span>                     breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DV (&gt;LLOQ)"</span>, <span class="st">"DV (&gt;0.5LLOQ)"</span><span class="op">)</span>, </span>
 <span>                     values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DV (&gt;LLOQ)"</span> <span class="op">=</span> <span class="st">"#440154FF"</span>, <span class="st">"DV (&gt;0.5LLOQ)"</span> <span class="op">=</span> <span class="st">"#21908CFF"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since Dose Administration (hours)"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.grid.minor.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-conc-blq-imp-100-1.png" width="768"></p>
 <p>We can see in these plots that the central tendency of the late
 terminal phase is influenced by censoring at the LLOQ. This leads to
 visual artifact, which may sometimes appear like another log-linear
 slope. The exact pattern of impact will depend on the dose intensity,
-the assay sensitivity, and the study sampling scheme.</p>
+the assay sensitivity, and the study sampling schema.</p>
 <p>The relative impact of the unobserved portion of the distribution of
-concentration can be further visualized as histograms facetted by
-nominal sampling time. These distributions are pooled across both Part
-1-SAD and Part 2-FE for the 100 mg in these histograms.</p>
+concentration can be further visualized as histograms faceted by nominal
+sampling time. These distributions are pooled across both Part 1-SAD and
+Part 2-FE for the 100 mg in these histograms.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">DV</span><span class="op">)</span>, data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data100</span>, <span class="va">NTIME</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">24</span>,<span class="fl">144</span>,<span class="fl">24</span><span class="op">)</span>, <span class="va">DOSE</span> <span class="op">==</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
@@ -238,17 +239,19 @@ dose, and study part.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-line-freq-blq-dose-time-1.png" width="768"></p>
 <p>In summary, the observed patters of BLQ data were in the example
-dataset are anticipated for an early phase clinical study. - increasing
-frequency of BLQ data with increasing time - decreasing frequency of BLQ
-data with increasing dose</p>
+dataset are anticipated for an early phase clinical study.</p>
+<ul>
+<li>increasing frequency of BLQ data with increasing time</li>
+<li>decreasing frequency of BLQ data with increasing dose</li>
+</ul>
 <p>BLQ data are often ignored (i.e., set as missing; M1 method) in
 population PK model development. This is unlikely to introduce
 appreciable bias in model parameter estimation, provided the absolute
 frequency of BLQ data is low (e.g., &lt;10-20%) and the pattern of BLQ
-censoring is in line with the expectations by dose and in time.</p>
+censoring is in line with the expectations by dose and time.</p>
 <p>However, just as BLQ censoring introduced some artifact to the
-explortory plots of concentration over time, the handling of BLQ data in
-VPCs may impact the interpretation of these graphical model
+exploratory plots of concentration over time, the handling of BLQ data
+in VPCs may impact the interpretation of these graphical model
 diagnostics.</p>
 </div>
 <div class="section level2">
@@ -281,8 +284,8 @@ VPC:</p>
 (<code>MDV=1</code>) in both the observed and simulated data</li>
 <li>
 <code>Censor Observed Quantiles</code>: set quantiles of the
-observed data <code>NA</code>, if the sample representing that quantile
-of the observed is BLQ (<code>MDV=1</code>) in the bin.</li>
+observed data to <code>NA</code>, if the sample representing that
+quantile of the observed is BLQ (<code>MDV=1</code>) in the bin.</li>
 </ol>
 <p>Let’s plot using the default arguments to
 <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>. The default behavior is
@@ -304,11 +307,11 @@ of the observed is BLQ (<code>MDV=1</code>) in the bin.</li>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-drop-1.png" width="768">
 The observed median appears consistent with the exploratory
 concentration-time profiles generated earlier excluding data below the
-lower limit of quantification (<code>ODV</code>). Notice that the
-increasing trend in the observed quantiles at later timelines coincides
-with completely overlapping simulated confidence intervals for all
-quantiles. This is due to the decreasing sample size with time due to
-exclusion of timeplints where <code>MDV=1</code>.</p>
+lower limit of quantification (i.e., plotting <code>"ODV"</code>).
+Notice that the increasing trend in the observed quantiles at later
+timelines coincides with completely overlapping simulated confidence
+intervals for all quantiles. This is due to the decreasing sample size
+with time due to exclusion of timepoints where <code>MDV=1</code>.</p>
 <p>Let’s instead try specifying a new argument <code>loq</code> to
 <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code>.</p>
 <p><code>loq</code> is the numeric value of the lower limit of
@@ -334,11 +337,11 @@ Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice
 also the increase in the y-axis range, the change in the shape of the
 observed quantiles, and the greater resolution in separation between the
 confidence intervals.</p>
-<p>Specifying <code>loq</code> assumes that in the input dataset for the
-plot, <code>sim</code>, <code>MDV=1</code> represents <em>only</em> BLQ
-samples (e.g., <code>EVID = 0</code>). The <code>MDV</code> variable in
-<code>sim</code> is set to zero (0) so that all timepoints are
-included.</p>
+<p>Specifying <code>loq</code> assumes that <code>MDV=1</code>
+represents <em>only</em> BLQ samples in the input dataset for the plot
+(<code>sim</code>) when <code>EVID=0</code>. The function sets the
+<code>MDV</code> variable in <code>sim</code> to zero (0) so that all
+timepoints are included.</p>
 <ul>
 <li>In the calculation of the summary statistics of the observed data,
 the quantiles are calculated across all data per bin and taken as
@@ -351,7 +354,7 @@ underlying PK profile in the absence of real-world assay
 limitations.</li>
 </ul>
 <p>Specifying <code>loq</code> is the preferred method for plotting VPC
-diagnostics with the <code>pmexhelpr</code> package.This is not the
+diagnostics with the <code>pmxhelpr</code> package. This is not the
 default method due to the all-too-common case where the assay LLOQ is
 not known to the analyst. Additionally, this method of accounting for
 the censoring of data below the LLOQ by specifying the <code>loq</code>

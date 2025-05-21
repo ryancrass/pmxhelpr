@@ -77,7 +77,7 @@ generate VPC plots including, but certainly not limited to:</p>
 <li>data processing and visualization steps combined in one
 function</li>
 <li>built-in options for automatic binning for datasets without a binned
-variable</li>
+time variable</li>
 <li>built-in option for prediction-correction</li>
 <li>built-in option for censoring at the lower limit of quantification
 (LLOQ)</li>
@@ -96,13 +96,15 @@ input datasets with variable a variable representing exact bin times
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+<h2 id="analysis-dataset">Analysis Dataset<a class="anchor" aria-label="anchor" href="#analysis-dataset"></a>
 </h2>
 <p>Next let’s explore the input dataset, <code>data_sad</code>. This
 dataset was generated via simulation from <code>model</code>, an
 <code>mrgsolve</code> model internal to the pmxhelpr package.</p>
 <p>We can take a quick look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code>
-from the dplyr package.</p>
+from the dplyr package. Documentation for the dataset can also be viewed
+using the R help functionality, just as one would for a function, with
+<code>?data_sad()</code></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 720</span></span>
@@ -130,12 +132,11 @@ from the dplyr package.</p>
 <span><span class="co">#&gt; $ CRCLBL  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>12…</span></span>
 <span><span class="co">#&gt; $ USUBJID <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-…</span></span>
 <span><span class="co">#&gt; $ PART    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part …</span></span></code></pre></div>
-<p>We can see that this dataset is already formatted for modeling. It
-contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as
-well as, dependent variables of drug concentration in original units
-(ODV) and natural logarithm transformed units (LDV). In addition to the
-numeric variables, there are two character variables: USUBJID and
-PART.</p>
+<p>This dataset is formatted for modeling. It contains NONMEM reserved
+variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent
+variables of drug concentration in original units (ODV) and natural
+logarithm transformed units (LDV). In addition to the numeric variables,
+there are two character variables: USUBJID and PART.</p>
 <p>PART specifies the two study cohorts:</p>
 <ul>
 <li>Single Ascending Dose (SAD)</li>
@@ -244,7 +245,8 @@ arguments, respectively, and run the simulation for 100
 <code>replicates</code>. The names of actual and nominal time variables
 in <code>data_sad</code> match the default arguments; however, our
 dependent variable is named <code>"ODV"</code>, which must be specified
-in the <code>dv_var</code> argument.</p>
+in the <code>dv_var</code> argument, since it differs from the default
+(<code>"DV"</code>).</p>
 <p>We would like to recover the numerical variables <code>"DOSE"</code>
 and <code>"FOOD"</code> and the character variable <code>"PART"</code>
 from the input dataset, as we may need these study conditions to
@@ -312,7 +314,7 @@ times.</p>
 <div class="section level3">
 <h3 id="vpc-plots-with-the-vpc-package">VPC plots with the <code>vpc</code> package<a class="anchor" aria-label="anchor" href="#vpc-plots-with-the-vpc-package"></a>
 </h3>
-<p>Now that we have run the simulation, we generate our VPC plots using
+<p>Now that we have run the simulation, we can generate VPC plots using
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.The documentation for <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> (<a href="https://vpc.ronkeizer.com/binning.html" class="external-link uri">https://vpc.ronkeizer.com/binning.html</a>) describes the
 following binning methods:</p>
 <ul>
@@ -338,8 +340,8 @@ breaks optimization, similar to K-means clustering.</li>
 <li>
 <code>pretty</code>, <code>quantile</code>, <code>hclust</code>,
 <code>sd</code>, <code>bclust</code>, <code>fisher</code>. Methods
-provided by the classInt package, see the package help for more
-information.</li>
+provided by the <code>classInt</code> package, see the package help for
+more information.</li>
 </ul>
 <p>We can visualize the bins assigned by the various binning approaches
 in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> using by assigning the plot as an object , let’s
@@ -376,9 +378,7 @@ determine binning intervals from the data. Currently, there is no method
 to use <em>exact bins contained in the data</em> in place of <em>bin
 intervals determined from the data</em>. The presence of exact bins in
 the data is a common scenario in pharmacometrics, as Clinical Study
-Protocols usually specify specific Study Visits corresponding ot each
-sample, which are associated with a nominal (protocol-specified) time of
-collection.</p>
+Protocols usually specific Study Days and times for collection.</p>
 <p>We can use the <code><a href="../reference/df_nobsbin.html">df_nobsbin()</a></code> function to calculate and
 return a summary data.frame containing the unique exact bin times, count
 of non-missing observations (EVID=0 &amp; MDV=0), and count of missing
@@ -434,8 +434,8 @@ data.</p>
 method does not reproduce the exact bins in the observed dataset,
 <em>even when passing nominal, rather than actual, time as the
 independent variable (<code>idv</code>)</em>. How about the other
-binning methods native to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>? Let’s take a look at
-<code>bins = "pretty"</code> next.</p>
+binning methods native to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>?</p>
+<p>Let’s take a look at <code>bins = "pretty"</code> next.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pretty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -758,9 +758,7 @@ final exact bin is included, rather than set only as a boundary.</p>
 <p>This functionality can be reproduced using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> by
 passing a vector of unique exact bins to <code>bins</code> with the
 addition of <code>Inf</code> as follows:</p>
-<ul>
-<li><code>bins = c(sort(unique(simout$NTIME)), Inf)</code></li>
-</ul>
+<p><code>bins = c(sort(unique(simout$NTIME)), Inf)</code></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exact_bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">simout</span><span class="op">$</span><span class="va">NTIME</span><span class="op">)</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span></span>
 <span></span>
@@ -785,7 +783,8 @@ addition of <code>Inf</code> as follows:</p>
 <p>However, this workaround only works if <code>idv</code> is set to the
 nominal time variable (<code>idv = "NTIME</code>) in both
 <code>sim_cols</code> and <code>obs_cols</code>, which removes the
-option to plot the observationsby actual time (<code>"TIME"</code>).</p>
+option to plot the observations by actual time
+(<code>"TIME"</code>).</p>
 <p><code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> gets around this limitation by
 plotting the observed data in a separate layer on top of the plot object
 returned by <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>, including prediction-correction of those
@@ -869,14 +868,14 @@ Huzzah!</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> 1       120     120     144  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> 1       144     144     <span style="color: #BB0000;">Inf</span></span></span></code></pre></div>
 <p><code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> also contains an argument built
-around a function we introduced earlier (<code><a href="../reference/df_nobsbin.html">df_nobsbin()</a></code>). The
-argument <code>min_bin_count</code> (default = 1) filters out exact bins
-with fewer quantifiable observations than the minimum set by this
-argument. Importantly, the observed data points in these small bins are
-<em>still plotted</em>; however, they do not influence the calculation
-of summary statistics or summary plot elements (shaded intervals,
-lines). This provides the greatest fidelity to the data visualized
-without introducing visual artifacts due to small sample timepoints.</p>
+around <code><a href="../reference/df_nobsbin.html">df_nobsbin()</a></code>. The argument
+<code>min_bin_count</code> (default = 1) filters out exact bins with
+fewer quantifiable observations than the minimum set by this argument.
+Importantly, the observed data points in these small bins are <em>still
+plotted</em>; however, they do not influence the calculation of summary
+statistics or summary plot elements (shaded intervals, lines). This
+provides the greatest fidelity to the data visualized without
+introducing visual artifacts due to small sample timepoints.</p>
 <p>Additionally, because our plot input dataset <code>simout</code> was
 generated using <code>df_mrgsim_replicate</code>, the
 <code>time_vars</code> and <code>output_vars</code> match the default

@@ -77,6 +77,14 @@ check_numeric <- function(var){
   }
 }
 
+check_numeric_strict <- function(var){
+  input_name <-deparse(substitute(var))
+  output_warning <- paste0("argument `", input_name, "` must be class `numeric`")
+  if(sum(is.na(var)) | sum(!is.numeric(var))){
+    rlang::abort(message = output_warning)
+  }
+}
+
 check_integer <- function(var){
   input_name <-deparse(substitute(var))
   output_warning <- paste0("argument `", input_name, "` must be coercible to class `integer`")

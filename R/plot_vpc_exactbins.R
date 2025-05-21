@@ -94,7 +94,7 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, strat_var)
   check_varsindf(sim, irep_name)
   if(!is.null(strat_var)) {check_factor(sim, strat_var)}
-  if(!is.null(loq)) {check_numeric(loq)}
+  if(!is.null(loq)) {check_numeric_strict(loq)}
 
   ##Set vpc aesthetics shown ensuring that obsserved points are not plotted by vpc::vpc()
   show_vpc <- list_update(shown,
@@ -156,7 +156,7 @@ plot_vpc_exactbins <- function(sim,
     bins = bins,
     pred_corr = pcvpc,
     pred_corr_lower_bnd = lower_bound,
-    lloq = as.numeric(loq),
+    lloq = loq,
     show = show_vpc,
     vpc_theme = vpctheme,
     ...)

@@ -193,15 +193,15 @@ plot_dvtime <- function(data,
 
   #Plot Central Tendency Points
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
-                                                                           fun.y = "mean", geom = "point")
+                                                                           fun = "mean", geom = "point")
   if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
-                                                             fun.y = "median", geom = "point")
+                                                             fun = "median", geom = "point")
 
   #Plot Central Lines
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                                            fun.y = "mean", geom = "line")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
-                                                            fun.y = "median", geom = "line")
+                                                            fun = "median", geom = "line")
 
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),

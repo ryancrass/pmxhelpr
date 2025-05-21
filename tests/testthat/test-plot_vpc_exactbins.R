@@ -234,28 +234,18 @@ test_that("Error if OBSDV variable specified in output_vars does not exist in `s
   )
 })
 
-test_that("Error if argument for `loq` cannot be coerced to numeric", {
+test_that("Error if argument for `loq` is not class numeric", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("model"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim, loq = "$"),
-    regexp = "argument `loq` must be coercible to class `numeric`"
+    plot_vpc_exactbins(sim = testsim, loq = "1"),
+    regexp = "argument `loq` must be class `numeric`"
   )
 })
 
-test_that("No error if argument for `loq` is not numeric but can be coerced to numeric", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
-
-  expect_no_error(
-    plot_vpc_exactbins(sim = testsim, loq = "1")
-  )
-})
 
 test_that("Error if variable specified by `strat_var` does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,

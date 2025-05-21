@@ -19,7 +19,7 @@ This vignette will review the limitations of the `vpc()` function in the `vpc` p
 The `vpc`package offers a lot of great functionality to generate VPC plots including, but certainly not limited to: 
 
 1) data processing and visualization steps combined in one function
-2) built-in options for automatic binning for datasets without a binned variable
+2) built-in options for automatic binning for datasets without a binned time variable
 3) built-in option for prediction-correction
 4) built-in option for censoring at the lower limit of quantification (LLOQ) 
 
@@ -37,17 +37,17 @@ library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
 ```
 
-# Exploratory Data Analysis
+# Analysis Dataset
 
 Next let's explore the input dataset, `data_sad`. This dataset was generated via simulation from `model`, an `mrgsolve` model internal to the pmxhelpr package. 
 
-We can take a quick look at the dataset using `glimpse()` from the dplyr package.
+We can take a quick look at the dataset using `glimpse()` from the dplyr package. Documentation for the dataset can also be viewed using the R help functionality, just as one would for a function, with `?data_sad()`
 
 ```{r data-glimpse}
 glimpse(data_sad)
 ```
 
-We can see that this dataset is already formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART. 
+This dataset is  formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART. 
 
 PART specifies the two study cohorts: 
 
@@ -89,7 +89,7 @@ Unluckily for us, no one has validated this PK model! Therefore, we need to gene
 
 We will use `df_mrgsim_replicate()` to run the simulation for the VPC. `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
-We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the `dv_var` argument. 
+We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `"ODV"`, which must be specified in the `dv_var` argument, since it differs from the default (`"DV"`). 
 
 We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
 
@@ -120,14 +120,14 @@ Glimpsing the output reveals the following model outputs:
 
 ## VPC plots with the `vpc` package
 
-Now that we have run the simulation, we generate our VPC plots using `vpc()`.The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
+Now that we have run the simulation, we can generate VPC plots using `vpc()`.The documentation for `vpc()` (https://vpc.ronkeizer.com/binning.html) describes the following binning methods:
 
   - `time`: Divide bins equally over time (or whatever independent variable is used). Recommended only when there is no observable clustering in the independent variable.
   - `data`: Divide bins equally over the amount of data ordered by independent variable. Recommended only when data are for nominal timepoints and all datapoints are available.
   - `density`: Divide bins based on data-density, i.e. place the bin-separators at nadirs in the density function. An approximate number of bins can be specified, but it is not certain that the algorithm will strictly use the specified number. More info in `?auto_bin()`.
   - `jenks`: Default and recommended method. Jenk's natural breaks optimization, similar to K-means clustering.
   - `kmeans`: K-means clustering.
-  - `pretty`, `quantile`, `hclust`, `sd`, `bclust`, `fisher`. Methods provided by the classInt package, see the package help for more information.
+  - `pretty`, `quantile`, `hclust`, `sd`, `bclust`, `fisher`. Methods provided by the `classInt` package, see the package help for more information.
 
 We can visualize the bins assigned by the various binning approaches in `vpc()` using by assigning the plot as an object , let's call it `plot_object`, and calling `plot_object$data`.
 
@@ -154,7 +154,7 @@ vpc_jenks <- vpc(
 vpc_jenks
 ```
 
-This plot looks pretty good! The default binning in `vpc::vpc()` produce a very nice looking plot. However, all of the binning methods internal to `vpc()` are designed to determine binning intervals from the data. Currently, there is no method to use *exact bins contained in the data* in place of *bin intervals determined from the data*. The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols usually specify specific Study Visits corresponding ot each sample, which are associated with a nominal (protocol-specified) time of collection.
+This plot looks pretty good! The default binning in `vpc::vpc()` produce a very nice looking plot. However, all of the binning methods internal to `vpc()` are designed to determine binning intervals from the data. Currently, there is no method to use *exact bins contained in the data* in place of *bin intervals determined from the data*. The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols usually specific Study Days and times for collection.
 
 We can use the `df_nobsbin()` function to calculate and return a summary data.frame containing the unique exact bin times, count of non-missing observations (EVID=0 & MDV=0), and count of missing (EVID=0 & MDV=1) observations.
 
@@ -168,7 +168,9 @@ distinct(select(vpc_jenks$data, bin_mid, bin_min, bin_max))
 
 The `bin_mid` variable is where`vpc()` will plot the summary statistics calculated for the observed and simulated data. 
 
-We can clearly see that the default `bins = "jenks"` method does not reproduce the exact bins in the observed dataset, *even when passing nominal, rather than actual, time as the independent variable (`idv`)*. How about the other binning methods native to `vpc()`? Let's take a look at `bins = "pretty"` next.
+We can clearly see that the default `bins = "jenks"` method does not reproduce the exact bins in the observed dataset, *even when passing nominal, rather than actual, time as the independent variable (`idv`)*. How about the other binning methods native to `vpc()`? 
+
+Let's take a look at `bins = "pretty"` next.
 
 ```{r plot-pretty, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_pretty <- vpc(
@@ -323,7 +325,7 @@ The pmxhelpr function `plot_vpc_exactbins()` is a wrapper function for `vpc()`, 
 
 This functionality can be reproduced using `vpc()` by passing a vector of unique exact bins to `bins` with the addition of `Inf` as follows:
 
-- `bins = c(sort(unique(simout$NTIME)), Inf)`
+`bins = c(sort(unique(simout$NTIME)), Inf)`
 
 ```{r plot-vpc-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 exact_bins <- c(sort(unique(simout$NTIME)), Inf)
@@ -347,7 +349,7 @@ vpc_exact_ntime <- vpc(
 vpc_exact_ntime
 ```
 
-However, this workaround only works if `idv` is set to the nominal time variable (`idv = "NTIME`) in both `sim_cols` and `obs_cols`, which removes the option to plot the observationsby actual time (`"TIME"`). 
+However, this workaround only works if `idv` is set to the nominal time variable (`idv = "NTIME`) in both `sim_cols` and `obs_cols`, which removes the option to plot the observations by actual time (`"TIME"`). 
 
 `plot_vpc_exactbins()` gets around this limitation by plotting the observed data in a separate layer on top of the plot object returned by `vpc()`, including prediction-correction of those observed points if `pcvpc = TRUE` (also passed along to the `pred_corr` argument of `vpc()`).
 
@@ -380,7 +382,7 @@ distinct(select(vpc_exact$data, bin_mid, bin_min, bin_max))
 
 ```
 
-`plot_vpc_exactbins()` also contains an argument built around a function we introduced earlier (`df_nobsbin()`). The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+`plot_vpc_exactbins()` also contains an argument built around `df_nobsbin()`. The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
 Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the `time_vars` and `output_vars` match the default values, so we do not need to specify these arguments and they can be removed. Furthermore, the `pi` and `ci` arguments we are specifying match the default 90% PI and CI in `vpc()` and can be removed.
 

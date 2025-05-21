@@ -53,8 +53,6 @@ Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is
 ```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc <- plot_vpc_exactbins(
   sim = simout, 
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
@@ -81,7 +79,7 @@ shown_list <- list(obs_dv = TRUE, obs_ci = TRUE,
 The components of the list correspond to the following vpc plot elements:
 
   - Observed points: `obs_dv`
-  = Observed quantiles: `obs_ci`
+  - Observed quantiles: `obs_ci`
   - Simulated inter-quantile range: `pi`
   - Simulated inter-quantile area: `pi_as_area`
   - Simulated Quantile CI: `pi_ci` 
@@ -92,7 +90,29 @@ The components of the list correspond to the following vpc plot elements:
   
 One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults. 
 
-For example, let's say we want to remove the observed data points from the plot above to better visualize the observed quntile lines relative to their corresponding simulated confidence intervals. We can do this as follows.
+For example, we may want to visualize the 90% prediction interval (i.e., 5th to 95th percentiles) derived from the simulation, rather than the confidence intervals of the 5th and 95th percentiles independently. In this case, we want to also see how close the simulated median falls relative to the observed median. 
+
+Let's see how this can be down using `shown`!
+
+```{r plot-vpc-pcvpc-90pi, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+
+vpc_pc_pi <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  min_bin_count = 5,
+  shown = list(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
+) +
+  scale_x_continuous(breaks = seq(0,168,24))
+
+vpc_pc_pi
+```
+
+Now, let's say we want to remove the observed data points from the plot above to better visualize the observed quantile lines relative to their corresponding simulated confidence intervals. We can do this as follows.
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
@@ -203,9 +223,9 @@ vpc_pc_new2 <- plot_vpc_exactbins(
   theme = vpc_theme
 ) +
   scale_x_continuous(breaks = seq(0,168,24)) +
+  scale_y_log10(guide = "axis_logticks")+
   theme(panel.background = element_rect(fill = "white", linewidth = 0.5, color = "black"),
-        panel.grid.minor.y = element_blank(), 
-        panel.grid.minor.x = element_blank(), 
+        panel.grid.minor = element_blank(), 
         panel.grid.major.x = element_blank())
 
 vpc_pc_new2
@@ -215,15 +235,7 @@ vpc_pc_new2
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 
-`pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. The arguments to `plot_legend()` are as follows:
-
-    - `ci` simulated confidence interval plotted. Default is c(0.05, 0.95).
-    - `pi` prediction intervals plotted.  Default is c(0.05, 0.95).
-    - `lloq` label for lower limit of quantification in the plot legend.
-    - `update` list containing the plot elements to be updated. Default is set by `vpc::new_vpc_theme()`.
-    - `shown` Named list of logicals specifying which layers to include on the plot. 
-    
-To obtain a legend for a plot using default aesthetics, simply run plot_legend() without any arguments specified.
+`pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_legend()` without any arguments specified.
 
 ```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_legend <- plot_legend()

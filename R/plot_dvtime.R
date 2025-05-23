@@ -99,7 +99,7 @@ plot_dvtime <- function(data,
     dplyr::rename(dplyr::any_of(c(c(DV = dv_var), time_vars, c(DOSE = dose_var))))
 
   ##Coerce Color Variable to a Factor
-  if(!is.null(col_var)){ data[[col_var]] <- factor(data[[col_var]])}
+  if(!is.null(col_var)){data[[col_var]] <- factor(data[[col_var]])}
 
   ##BLQ Handling
   if(loq_method==1) {
@@ -128,58 +128,27 @@ plot_dvtime <- function(data,
   }
 
   #Determine Caption
-  capdf <- data.frame("cent" = rep(c("mean", "mean_sdl",
-                                     "median", "median_iqr",
-                                     "none"),
-                                   2),
-                      "cap" = c(c("mean","mean + SD error bars",
-                                  "median", "median + IQR error bars", ""),
-                                c("geometric mean","geo. mean + geo. SD error bars",
-                                  "median", "median + IQR error bars", "")),
-                      "log_y" = c(rep(FALSE, 5),
-                                  rep(TRUE, 5))
-  )
+  caption <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
 
-  cap1 <- capdf$cap[capdf$cent==cent&capdf$log_y==log_y]
-
-  cap2_dv <- "Open circles are observations"
-  cap2_ind <- "Thin lines connect observations within an individual"
-  cap2_inddv <- "Thin lines connect observations (open circles) within an individual"
-
-  caption <- if(cent == "none" & grp_dv == FALSE & obs_dv == TRUE) {
-    paste0(cap2_dv)
-  } else if (cent == "none" & grp_dv == TRUE & obs_dv == FALSE) {
-    paste0(cap2_ind)
-  } else if (cent == "none" & grp_dv == TRUE & obs_dv == TRUE) {
-    paste0(cap2_inddv)
-  } else if(grp_dv==FALSE & obs_dv==FALSE) {
-    paste0("Solid circles and thick lines are the ", cap1)
-  } else if(grp_dv==FALSE & obs_dv==TRUE){
-    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_dv)
-  } else if(grp_dv==TRUE & obs_dv==FALSE){
-    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_ind)
-  } else if(grp_dv==TRUE & obs_dv==TRUE){
-    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2_inddv)
-  }
-
-  #Determine breaks
+  #Determine Breaks
   xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
 
 ###Plot
 
-  #Initialize Plot and Primary Aesthetics
+  #Initialize Plot Aesthetics
   if(is.null(col_var)) {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
-      ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      ggplot2::scale_x_continuous(breaks = xbreaks) +
-      ggplot2::theme_bw()
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV))
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!dplyr::sym(col_var))) +
-      ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-      ggplot2::scale_x_continuous(breaks = xbreaks) +
-      ggplot2::theme_bw()
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!dplyr::sym(col_var)))
   }
+
+  plot <- plot +
+    ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
+    ggplot2::scale_x_continuous(breaks = xbreaks) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_blank())
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0, linewidth = 1, linetype = "dashed")
@@ -212,8 +181,7 @@ plot_dvtime <- function(data,
                                                               geom = "errorbar")
 
   #Log Transform
-  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks") +
-    ggplot2::theme(panel.grid.minor.y = ggplot2::element_blank())
+  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
@@ -291,4 +259,50 @@ breaks_time <- function(x, unit="hours", n=8) {
   }
 
   return(breaks)
+}
+
+
+#' Define a caption for `plot_dvtime`
+#'
+#' @inheritParams plot_dvtime
+#'
+#' @return a `character` string containing the plot caption
+#' @export dvtime_caption
+#'
+#' @examples
+#' dvtime_caption(cent = "mean")
+#' dvtime_caption(cent = "mean", log_y = TRUE)
+
+dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
+
+  cap1df <- data.frame(
+    cent = c("mean", "mean_sdl",
+             "median", "median_iqr",
+             "none"),
+    label = c("mean","mean + SD error bars",
+              "median", "median + IQR error bars",
+              ""),
+    loglabel = c("geometric mean","geo. mean + geo. SD error bars",
+                 "median", "median + IQR error bars",
+                 ""))
+
+  cap2df <- data.frame(
+    obs_dv = c(TRUE, FALSE, TRUE, FALSE),
+    grp_dv = c(FALSE, TRUE, TRUE, FALSE),
+    label = c("Open circles are observations",
+              "Thin lines connect observations within an individual",
+              "Thin lines connect observations (open circles) within an individual",
+              "")
+  )
+
+  cap1 <- ifelse(log_y == FALSE, cap1df$label[cap1df$cent==cent], cap1df$loglabel[cap1df$cent==cent])
+  cap2 <- cap2df$label[cap2df$obs_dv==obs_dv&cap2df$grp_dv==grp_dv]
+
+  caption <- if(cent == "none") {
+    paste0(cap2)
+  } else {
+    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
+  }
+
+  return(caption)
 }

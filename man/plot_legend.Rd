@@ -34,7 +34,7 @@ Defaults are:
 
 \item{lloq}{label for lower limit of quantification in the plot legend.}
 
-\item{update}{list containing the plot elements to be updated. Default is set by \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}}.}
+\item{update}{list containing the plot elements to be updated. Default is set by \code{\link[=pmxhelpr_vpc_theme]{pmxhelpr_vpc_theme()}}.}
 
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }

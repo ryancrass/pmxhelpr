@@ -100,6 +100,5 @@ sim = simout,
 pcvpc = TRUE,
 pi = c(0.05, 0.95),
 ci = c(0.05, 0.95),
-loq = 1,
-log_y = TRUE)
+loq = 1)
 }

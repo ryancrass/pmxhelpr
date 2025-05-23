@@ -96,7 +96,8 @@ ggplot(aes(x = TIME, y = ODV), data = plot_data100)+
   facet_wrap(~PART)+
   labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
   theme_bw() +
-  theme(panel.grid.minor.y = element_blank())
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.x = element_blank())
 ```
 
 We can see in these plots that the central tendency of the late terminal phase is influenced by censoring at the LLOQ. This leads to visual artifact, which may sometimes appear like another log-linear slope. The exact pattern of impact will depend on the dose intensity, the assay sensitivity, and the study sampling schema.
@@ -110,7 +111,8 @@ ggplot(aes(x = DV), data = filter(plot_data100, NTIME %in% seq(24,144,24), DOSE 
   scale_x_log10()+
   facet_wrap(~NTIME)+
   labs(y = "Density", x = "Concentration (ng/mL)")+
-  theme_bw()
+  theme_bw()+ 
+  theme(panel.grid.minor = element_blank())
 ```
 
 If the study protocol had only included sampling through 72 hours, then the impact of censoring at the assay LLOQ would have been negligible for a single 100 mg dose, regardless of food condition. However, a large portion of the distribution of concentrations is BLQ at later timepoints the one week duration of sampling. 
@@ -130,7 +132,8 @@ ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_s
   scale_x_continuous(breaks = seq(0,168,24))+
   facet_wrap(~PART)+
   labs(y = "Fraction of Samples BLQ", x = "Nominal Time Since Dose Administration (hours)")+
-  theme_bw()
+  theme_bw() + 
+  theme(panel.grid.minor = element_blank())
 
 ```
 
@@ -180,11 +183,12 @@ vpc_blq_drop <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
-  strat_var = "PART"
-) 
+  strat_var = "PART",
+  min_bin_count = 4
+) +
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_blq_drop
 ```
@@ -199,12 +203,13 @@ vpc_blq_qobs_cens <- plot_vpc_exactbins(
   sim = sim100, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
+  min_bin_count = 4,
   loq = 1
-) 
+) +
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_blq_qobs_cens
 ```
@@ -226,12 +231,13 @@ vpc_pc <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
+  min_bin_count = 4,
   loq = 1
-) 
+) +
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_pc
 ```

@@ -327,7 +327,7 @@ This functionality can be reproduced using `vpc()` by passing a vector of unique
 
 `bins = c(sort(unique(simout$NTIME)), Inf)`
 
-```{r plot-vpc-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-exact-ntime, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 exact_bins <- c(sort(unique(simout$NTIME)), Inf)
 
 vpc_exact_ntime <- vpc(
@@ -361,12 +361,12 @@ vpc_exact <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-)
+) + 
+  scale_y_log10(guide = "axis_logticks")
 
-vpc_exact
+vpc_exact 
 ```
 
 The difference in plotting the observed prediction-corrected data points by `"TIME"` versus `"NTIME"` is negligible for this example dataset, due to the high concordance between `"TIME"` and `"NTIME"` in this example Phase 1 study. However, this difference is often much larger for pooled analyses including later phase clinical studies where plotting the observed points versus actual time will result in a plot that is much more representative of the distribution of times in the model training dataset.
@@ -393,10 +393,10 @@ vpc_exact_bin_gt10 <- plot_vpc_exactbins(
   sim = simout, 
   pcvpc = TRUE,
   min_bin_count = 10,
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "PRED-corrected Concentration (ng/mL)"
-) 
+) +
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_exact_bin_gt10
 ```
@@ -408,11 +408,56 @@ vpc_exact_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
   strat_var = "FOOD_f",
   pcvpc = TRUE,
-  log_y = TRUE,
   xlab = "Time (hours)",
-  ylab = "PRED-corrected Concentration (ng/mL)"
-)
+  ylab = "PRED-corrected Concentration (ng/mL)",
+  min_bin_count = 4
+) + 
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_exact_food
 ```
 
+Note that all these plots add a layer to the `ggplot2` object returned by `plot_vpc_exactbins` to transform the y-axis from linear to log10 scales. One could specify the `log_y` argument in `plot_vpc_exactbins`, which is not native to `plot_vpc_exactbins`, but will be passed to `vpc::vpc`.
+
+It is important to understand how the data are handled within `vpc::vpc()` when specifying the `log_y` argument. From the `vpc::vpc()` function documentation:
+
+  + `log_y`: Boolean indicting whether y-axis should be shown as logarithmic. Default is FALSE.
+  + `log_y_min`: minimal value when using log_y argument. Default is 1e-3.
+  
+Therefore, `vpc::vpc()` will will transform the data prior to calculating summary statistics and plotting by imputing any values < `log_y_min` to the value specified in this argument (default = 0.001). Therefore, if there are observed values less than this threshold, they will be censored at this minimum. 
+
+This can lead to unexpected behavior if data fall in a very low concentration range and the `log_y_min` argument is not specified.
+
+```{r plot-exact-logy, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_exact_transform_logy <- plot_vpc_exactbins(
+  sim = mutate(simout, 
+               PRED = PRED/(10^6),
+               OBSDV = OBSDV/(10^6),
+               SIMDV = SIMDV/(10^6)),
+  pcvpc = TRUE,
+  xlab = "Time (hours)",
+  ylab = "PRED-corrected Concentration (mg/mL)",
+  min_bin_count = 4,
+  log_y = TRUE
+) 
+
+vpc_exact_transform_logy
+```
+
+Thus, to avoid unexpected censoring of data on the VPC plot, one can plot without specifying `log_y` and then add a new log10 scale for the y-axis.
+
+```{r plot-exact-yscale, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_exact_transform_yscale <- plot_vpc_exactbins(
+  sim = mutate(simout, 
+               PRED = PRED/(10^6),
+               OBSDV = OBSDV/(10^6),
+               SIMDV = SIMDV/(10^6)),
+  pcvpc = TRUE,
+  xlab = "Time (hours)",
+  ylab = "PRED-corrected Concentration (mg/mL)",
+  min_bin_count = 4
+)  + 
+  scale_y_log10(guide = "axis_logticks")
+
+vpc_exact_transform_yscale
+```

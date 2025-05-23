@@ -1,5 +1,14 @@
 # pmxhelpr (development version)
 
+* Added new functionality for dose-proportionality assessment with `df_doseprop` and `plot_doseprop`, including helpers `mod_loglog` and `df_loglog` to perform and tabulate power law (log-log) regression of exposure versus dose
+* Added new internal package dataset `data_sad_nca` for use with dose-proportinality assessment functions
+* Added helper function `dvtime_caption` to generate the caption for `plot_dvtime`
+* Added helper function `pmxhelpr_vpc_theme` to capture default VPC plot aesthetics `
+* Revised vignettes to describe workflow with new default aesthetics
+* Remove use of `log_y` argument in VPC plot examples and added rationale to primary vignette for `plot_vpc_exactbins`
+
+* Add unit tests for all primary functions
+
 # pmxhelpr 0.2.4
 
 * Fix bug in `plot_dvtime` to ensure `median + IQR error bars` prints on both linear and log-scale axes when `cent = "median_iqr"`
@@ -8,7 +17,7 @@
 
 * Added `cent = "median_iqr"` option to `plot_dvtime` to plot median with inter-quartile range error bars
 * Updated the `ind_dv` logical argument in `plot_dvtime` to `grp_dv` to generalize use of grouping beyond connecting points within an individual subject
-* Added the `grp_var` argument to `plot_dvtime `to allow specification of the variable assigned to the group aesthetic by the user. Default is `grp_var = "ID"`
+* Added the `grp_var` argument to `plot_dvtime` to allow specification of the variable assigned to the group aesthetic by the user. Default is `grp_var = "ID"`
 
 # pmxhelpr 0.2.2
 

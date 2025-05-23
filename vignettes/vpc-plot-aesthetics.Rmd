@@ -46,25 +46,24 @@ simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                      obsonly = TRUE)
 ```
 
-# Default Aesthetics
-
 Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is only single dose administration in this dataset, thus we are able to pool across doses and food conditions with prediction-correction. We will set `min_bin_count = 5` to avoid the simulated intervals extending to the final timepoint with only a single observation.
 
 ```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc <- plot_vpc_exactbins(
-  sim = simout, 
-  log_y = TRUE,
+  sim = simout,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5
 ) +
-  scale_x_continuous(breaks = seq(0,168,24))
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_pc
 ```
 
-# VPC Plot Aesthetics
+# Plot Elements
+
+## Default Elements
 
 The default elements shown in the plot are inherited from `vpc()`. The `shown` argument can be provided to `plot_vpc_exactbins()` and passed on to the `show` argument of `vpc()`. 
 
@@ -87,8 +86,9 @@ The components of the list correspond to the following vpc plot elements:
   - Simulated Median: `sim_median`
   - Simulated Median CI: `sim_median_ci` 
   
-  
 One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults. 
+
+## Adjusting Elements
 
 For example, we may want to visualize the 90% prediction interval (i.e., 5th to 95th percentiles) derived from the simulation, rather than the confidence intervals of the 5th and 95th percentiles independently. In this case, we want to also see how close the simulated median falls relative to the observed median. 
 
@@ -100,14 +100,13 @@ vpc_pc_pi <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = list(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
 ) +
-  scale_x_continuous(breaks = seq(0,168,24))
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_pi
 ```
@@ -120,20 +119,18 @@ vpc_pc_noobs <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = list(obs_dv = FALSE)
 ) +
-  scale_x_continuous(breaks = seq(0,168,24))
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_noobs
 ```
 
-
-We could also take this one step further and only look at the median and the simulated confidence interval of the median, to closely interrogate central tendency. This is common for VPC strata which have few observations, leading to inadrquate sample size to discriminate between the confidence intervals of the median and the extremes. This is common scenario when evaluating VPC plots stratified by individual study arms in early phase trials. 
+We could also take this one step further and only look at the median and the simulated confidence interval of the median, to closely interrogate central tendency. This is common for VPC strata which have few observations, leading to inadequate sample size to discriminate between the confidence intervals of the median and the extremes. This is common scenario when evaluating VPC plots stratified by individual study arms in early phase trials. 
 
 ```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
@@ -141,97 +138,99 @@ vpc_pc_noobs_medonly <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = list(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
 ) +
-  scale_x_continuous(breaks = seq(0,168,24))
+  scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_noobs_medonly
 ```
 
+# Plot Aesthetics
 
+## Default Aesthetics
 
+Similarly, the default aesthetics for vpc plots in pmxhelpr use the classical red-blue-green brewer color schema. The defaults for `pmxhelpr` can be visualized by specifying the `pmxhlepr_vpc_theme()` function with no arguments. 
 
+```{r vpc-theme-pmxhelpr}
+pmxhelpr_theme_list <- pmxhelpr_vpc_theme()
+print(pmxhelpr_theme_list)
+```
 
+We can compare to the corresponding aesthetics from the `vpc` package, which can be viewed by running `new_vpc_theme()` with no arguments.
 
-
-
-Similarly, the default aesthetics for this plot are inherited from the defaults in the `vpc` package, which can be viewed by running `new_vpc_theme()` with no arguments.
-
-```{r vpc-theme-update}
+```{r vpc-theme-vpc}
 vpc_theme_list <- new_vpc_theme()
 print(vpc_theme_list)
 ```
 
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `new_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
+## Adjusting Aesthetics
 
-Let's say we prefer a more classical VPC color schema, based only on basic red-blue-green color brewer. We will make the following changes:
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `pmxhelpr_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
 
-  - Observed points blue
-  - Observed median and simulated 90% CI of the median red 
-  - Observed 5th and 95th and simulated 90% CI of the 5th and 95th blue
+Let's say we prefer a the blue-grey color scheme native to the `vpc` package! We can reproduce this by passing `vpc::new_vpc_theme()`: 
 
-```{r vpc-theme-set}
-vpc_theme <- new_vpc_theme(
-  list(
-  obs_color = rgb(0,0,1),
-  
-  obs_median_color = rgb(1,0,0),
-  obs_ci_color = rgb(0,0,1),
-  
-  sim_median_fill = rgb(1,0,0),
-  sim_pi_fill = rgb(0,0,1)
-  )
-)
-```
+  1) to the update argument of `pmxhelpr_vpc_theme()`
 
-Now, let's take a look at our plot prior plot with the new color schema.
-
-```{r plot-vpc-pcvpc-new-theme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new <- plot_vpc_exactbins(
+```{r plot-vpc-vpctheme1, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_vpctheme <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
-  theme = vpc_theme,
+  theme = pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()),
   min_bin_count = 5
 ) +
-  scale_x_continuous(breaks = seq(0,168,24))
+  scale_y_log10(guide = "axis_logticks")
 
-vpc_pc_new
+vpc_pc_vpctheme
 ```
-
-This is nice; however, I do not like the grey background and I would prefer only major y-axis grid lines without any x-axis grid lines. Conveniently, we can just add `theme()` elements on top of the plot object using the standard `ggplot2` approach.
-
-```{r plot-vpc-pcvpc-new, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new2 <- plot_vpc_exactbins(
+  2) to the theme argument of `plot_vpc_exactbins`.
+  
+```{r plot-vpc-vpctheme2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_vpctheme2 <- plot_vpc_exactbins(
   sim = simout, 
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  log_y = TRUE,
+  xlab = "Time (hours)",
+  ylab = "Concentration (ng/mL)",
+  pcvpc = TRUE,
+  theme = vpc::new_vpc_theme(),
+  min_bin_count = 5
+) +
+  scale_y_log10(guide = "axis_logticks")
+
+vpc_pc_vpctheme2
+```
+
+## Adding Layers
+
+Let's say we would like to visualize the major x-axis grid lines to help locate data corresponding to each sampling timepoint with our plot using the `vpc` package aesthetic defaults. Conveniently, `plot_vpc_exactbins` returns a `ggplot2` plot object, which we can modify by adding layers just like like any other `ggplot2` object. 
+
+```{r plot-vpc-pcvpc-vpctheme-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_vpctheme_xgrid <- plot_vpc_exactbins(
+  sim = simout, 
+  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 5,
-  theme = vpc_theme
-) +
-  scale_x_continuous(breaks = seq(0,168,24)) +
-  scale_y_log10(guide = "axis_logticks")+
-  theme(panel.background = element_rect(fill = "white", linewidth = 0.5, color = "black"),
-        panel.grid.minor = element_blank(), 
-        panel.grid.major.x = element_blank())
+  theme = vpc::new_vpc_theme()
+) + 
+  scale_y_log10(guide = "axis_logticks") + 
+  theme(panel.grid.major.x = element_line())
 
-vpc_pc_new2
+vpc_pc_vpctheme_xgrid
 ```
 
 # VPC Plot Legends
+
+## Defaults Legend
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 
@@ -241,13 +240,12 @@ Okay, now we have gotten the plot aesthetics where we want them; however, there 
 vpc_pc_legend <- plot_legend()
 vpc_pc_legend
 ```
-
 Now we have a `ggplot` object legend for our first plot!
 
-To generate one for our second plot with updated aesthetics, let's pass the same named list object (`vpc_theme`) to the `update` argument.
+To generate one for our second plot with updated aesthetics to match the `vpc` package defaults, let's pass the named list  output from `vpc::new_vpc_theme()` to the `update` argument.
 
 ```{r vpc_pc_new_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_legend <- plot_legend(update = vpc_theme)
+vpc_pc_new_legend <- plot_legend(update = vpc::new_vpc_theme())
 vpc_pc_new_legend
 ```
 
@@ -258,8 +256,8 @@ vpc_pc_wleg <- vpc_pc + vpc_pc_legend + plot_layout(heights = c(2.5,1))
 vpc_pc_wleg
 ```
 
-```{r plot-vpc-pcvpc-new-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_wleg <- vpc_pc_new2 + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
+```{r plot-vpc-pcvpc-vpctheme-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_pc_new_wleg <- vpc_pc_vpctheme_xgrid + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
 vpc_pc_new_wleg
 ```
 

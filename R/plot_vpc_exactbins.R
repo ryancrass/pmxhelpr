@@ -50,8 +50,7 @@
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
 #' ci = c(0.05, 0.95),
-#' loq = 1,
-#' log_y = TRUE)
+#' loq = 1)
 
 plot_vpc_exactbins <- function(sim,
                                pcvpc = FALSE,
@@ -105,7 +104,7 @@ plot_vpc_exactbins <- function(sim,
   show_vpc$obs_dv <- FALSE
 
   #aesthetics for legend based on settings in vpc::new_vpc_theme
-  vpctheme <- list_update(theme, vpc::new_vpc_theme())
+  vpctheme <- list_update(theme, pmxhelpr_vpc_theme())
 
   ##Data Rename
   sim <- sim |>
@@ -190,9 +189,15 @@ plot_vpc_exactbins <- function(sim,
         ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
     }
 
-    #Add x-axis breaks
+    #Add x-axis breaks and theme
     plot <- plot +
-      ggplot2::scale_x_continuous(breaks = xbreaks)
+      ggplot2::scale_x_continuous(breaks = xbreaks) +
+      ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white",
+                                                     linewidth = 0.5,
+                                                     color = "black"),
+                     panel.grid.minor = ggplot2::element_blank(),
+                     panel.grid.major.x = ggplot2::element_blank())
+
 
     return(plot)
   }
@@ -286,4 +291,34 @@ df_pcdv <- function(data,
     dplyr::ungroup()
 
   return(data)
+}
+
+
+
+#' Customized VPC theme with pmxhelpr default aesthetics
+#'
+#' @param update list containing the plot elements to be updated.
+#'    Run `pmxhelpr_vpc_theme()` with no arguments to view defaults.
+#' @return a `list`with vpc theme specifiers
+#' @export pmxhelpr_vpc_theme
+#'
+#' @examples
+#' pmxhelpr_vpc_theme()
+#' new_theme <- pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
+
+
+pmxhelpr_vpc_theme <- function(update = NULL){
+  defaults_list <- list(
+    obs_color = "#0000FF",
+
+    obs_median_color = "#FF0000",
+    obs_ci_color = "#0000FF",
+
+    sim_median_fill = "#FF0000",
+    sim_pi_fill = "#0000FF"
+  )
+
+  default_theme <- list_update(defaults_list, vpc::new_vpc_theme())
+  theme <- list_update(update, default_theme)
+  return(theme)
 }

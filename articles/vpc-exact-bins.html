@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -779,7 +779,7 @@ addition of <code>Inf</code> as follows:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_ntime</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-ntime-1.png" width="576"></p>
 <p>However, this workaround only works if <code>idv</code> is set to the
 nominal time variable (<code>idv = "NTIME</code>) in both
 <code>sim_cols</code> and <code>obs_cols</code>, which removes the
@@ -798,12 +798,12 @@ observed points if <code>pcvpc = TRUE</code> (also passed along to the
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">vpc_exact</span></span></code></pre></div>
+<span><span class="va">vpc_exact</span> </span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-1.png" width="576"></p>
 <p>The difference in plotting the observed prediction-corrected data
 points by <code>"TIME"</code> versus <code>"NTIME"</code> is negligible
@@ -892,10 +892,10 @@ still plotted.</p>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span> </span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_bin_gt10</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-min-bin-count-1.png" width="576"></p>
@@ -910,13 +910,72 @@ Currently, only one variable can be passed to this argument.</p>
 <span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, FOOD_f <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">FOOD</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>  strat_var <span class="op">=</span> <span class="st">"FOOD_f"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span></span>
-<span><span class="op">)</span></span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (ng/mL)"</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>
 <p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" width="576"></p>
+<p>Note that all these plots add a layer to the <code>ggplot2</code>
+object returned by <code>plot_vpc_exactbins</code> to transform the
+y-axis from linear to log10 scales. One could specify the
+<code>log_y</code> argument in <code>plot_vpc_exactbins</code>, which is
+not native to <code>plot_vpc_exactbins</code>, but will be passed to
+<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc</a></code>.</p>
+<p>It is important to understand how the data are handled within
+<code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> when specifying the <code>log_y</code> argument.
+From the <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> function documentation:</p>
+<ul>
+<li>
+<code>log_y</code>: Boolean indicting whether y-axis should be shown
+as logarithmic. Default is FALSE.</li>
+<li>
+<code>log_y_min</code>: minimal value when using log_y argument.
+Default is 1e-3.</li>
+</ul>
+<p>Therefore, <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> will will transform the data prior
+to calculating summary statistics and plotting by imputing any values
+&lt; <code>log_y_min</code> to the value specified in this argument
+(default = 0.001). Therefore, if there are observed values less than
+this threshold, they will be censored at this minimum.</p>
+<p>This can lead to unexpected behavior if data fall in a very low
+concentration range and the <code>log_y_min</code> argument is not
+specified.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vpc_exact_transform_logy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, </span>
+<span>               PRED <span class="op">=</span> <span class="va">PRED</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span>,</span>
+<span>               OBSDV <span class="op">=</span> <span class="va">OBSDV</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span>,</span>
+<span>               SIMDV <span class="op">=</span> <span class="va">SIMDV</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (mg/mL)"</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">vpc_exact_transform_logy</span></span></code></pre></div>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-logy-1.png" width="576"></p>
+<p>Thus, to avoid unexpected censoring of data on the VPC plot, one can
+plot without specifying <code>log_y</code> and then add a new log10
+scale for the y-axis.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vpc_exact_transform_yscale</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span>  sim <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">simout</span>, </span>
+<span>               PRED <span class="op">=</span> <span class="va">PRED</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span>,</span>
+<span>               OBSDV <span class="op">=</span> <span class="va">OBSDV</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span>,</span>
+<span>               SIMDV <span class="op">=</span> <span class="va">SIMDV</span><span class="op">/</span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"PRED-corrected Concentration (mg/mL)"</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span>  <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">vpc_exact_transform_yscale</span></span></code></pre></div>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-yscale-1.png" width="576"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -282,8 +282,6 @@ additional formatting benefits over manually adding the layer to the
 returned object with <code>scale_y_log10</code>.</p>
 <ul>
 <li>Includes log tick marks on the y-axis</li>
-<li>Removes minor gridlines from the y-axis, which are misleading on a
-log-scale</li>
 <li>Updates the caption with the correct central tendency measure if
 <code>show_captions = TRUE</code>.</li>
 </ul>
@@ -585,12 +583,17 @@ tendency layer when plotting individual subject data.</p>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indonly-1.png" width="576"></p>
 <p>We can plot an individual subject by filtering the input dataset.
 This could be extended generate plots for all individuals using
-<code>for</code> loops, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code> functions, or other
-vectorized methods.</p>
+<code>for</code> loops, <code>lapply</code>, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code>
+functions, or other methods.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span> <span class="co">#vector of unique subject ids</span></span>
+<span><span class="va">n_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span> <span class="co">#count of unique subject ids</span></span>
+<span><span class="va">plots_per_pg</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
+<span><span class="va">n_pgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">n_ids</span><span class="op">/</span><span class="va">plots_per_pg</span><span class="op">)</span> <span class="co">#Total number of pages needed</span></span>
+<span></span>
 <span><span class="va">plist</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_ids</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">plist</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="va">ID</span> <span class="op">==</span> <span class="va">ids</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>                               dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -601,17 +604,11 @@ vectorized methods.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position<span class="op">=</span><span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span></span>
-<span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">plist</span><span class="op">)</span><span class="op">/</span><span class="fl">4</span></span>
-<span><span class="va">grpplist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw">for</span><span class="op">(</span><span class="va">grp</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">groups</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="va">i</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">grp</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">4</span><span class="op">+</span><span class="fl">1</span></span>
-<span>  <span class="va">j</span> <span class="op">&lt;-</span> <span class="va">grp</span><span class="op">*</span><span class="fl">4</span></span>
-<span>  <span class="va">tmplist</span> <span class="op">&lt;-</span> <span class="va">plist</span><span class="op">[</span><span class="va">i</span><span class="op">:</span><span class="va">j</span><span class="op">]</span></span>
-<span>  <span class="va">grpplist</span><span class="op">[[</span><span class="va">grp</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span><span class="va">tmplist</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">grpplist</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n_pgs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">n_pg</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">i</span> <span class="op">&lt;-</span>  <span class="op">(</span><span class="va">n_pg</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="va">plots_per_pg</span><span class="op">+</span><span class="fl">1</span></span>
+<span>      <span class="va">j</span> <span class="op">&lt;-</span> <span class="va">n_pg</span><span class="op">*</span><span class="va">plots_per_pg</span></span>
+<span>      <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span><span class="va">plist</span><span class="op">[</span><span class="va">i</span><span class="op">:</span><span class="va">j</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>

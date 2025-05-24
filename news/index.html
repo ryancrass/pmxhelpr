@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,14 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="pmxhelpr-development-version">pmxhelpr (development version)<a class="anchor" aria-label="anchor" href="#pmxhelpr-development-version"></a></h2>
-</div>
+<ul><li><p>Added new functionality for dose-proportionality assessment with <code>df_doseprop</code> and <code>plot_doseprop</code>, including helpers <code>mod_loglog</code> and <code>df_loglog</code> to perform and tabulate power law (log-log) regression of exposure versus dose</p></li>
+<li><p>Added new internal package dataset <code>data_sad_nca</code> for use with dose-proportinality assessment functions</p></li>
+<li><p>Added helper function <code>dvtime_caption</code> to generate the caption for <code>plot_dvtime</code></p></li>
+<li><p>Added helper function <code>pmxhelpr_vpc_theme</code> to capture default VPC plot aesthetics `</p></li>
+<li><p>Revised vignettes to describe workflow with new default aesthetics</p></li>
+<li><p>Remove use of <code>log_y</code> argument in VPC plot examples and added rationale to primary vignette for <code>plot_vpc_exactbins</code></p></li>
+<li><p>Add unit tests for all primary functions</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="pmxhelpr-024">pmxhelpr 0.2.4<a class="anchor" aria-label="anchor" href="#pmxhelpr-024"></a></h2>
 <ul><li>Fix bug in <code>plot_dvtime</code> to ensure <code>median + IQR error bars</code> prints on both linear and log-scale axes when <code>cent = "median_iqr"</code>
@@ -50,7 +57,7 @@
 <h2 class="pkg-version" data-toc-text="0.2.3" id="pmxhelpr-023">pmxhelpr 0.2.3<a class="anchor" aria-label="anchor" href="#pmxhelpr-023"></a></h2>
 <ul><li>Added <code>cent = "median_iqr"</code> option to <code>plot_dvtime</code> to plot median with inter-quartile range error bars</li>
 <li>Updated the <code>ind_dv</code> logical argument in <code>plot_dvtime</code> to <code>grp_dv</code> to generalize use of grouping beyond connecting points within an individual subject</li>
-<li>Added the <code>grp_var</code> argument to <code>plot_dvtime</code>to allow specification of the variable assigned to the group aesthetic by the user. Default is <code>grp_var = "ID"</code>
+<li>Added the <code>grp_var</code> argument to <code>plot_dvtime</code> to allow specification of the variable assigned to the group aesthetic by the user. Default is <code>grp_var = "ID"</code>
 </li>
 </ul></div>
     <div class="section level2">

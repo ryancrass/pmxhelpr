@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -147,21 +147,18 @@
 <span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="st">  sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("</span>Fasted<span class="st">", "</span>Fed<span class="st">"))), </span></span>
 <span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="st">  strat_vars = "</span>FOOD_f<span class="st">",</span></span>
 <span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="st">  pcvpc = TRUE,</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="st">  time_vars = c(TIME = "</span>TIME<span class="st">", NTIME = "</span>NTIME<span class="st">"),</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="st">  output_vars = c(PRED = "</span>PRED<span class="st">", IPRED = "</span>IPRED<span class="st">", SIMDV = "</span>SIMDV<span class="st">", OBSDV = "</span>OBSDV<span class="st">"),</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="st">  pi = c(0.05, 0.95),</span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="st">  ci = c(0.05, 0.95),</span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="st">  log_y = TRUE</span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="st">)</span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="st">plot_obj_food</span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a></span>
-<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="st">#Add Legend</span></span>
-<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="st">plot_obj_leg &lt;- plot_legend(pi = c(0.05, 0.95), ci = c(0.05, 0.95))</span></span>
-<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a><span class="st">plot_obj_leg</span></span>
-<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a></span>
-<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a><span class="st">plot_obj_food_wleg &lt;- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))</span></span>
-<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a><span class="st">plot_obj_food_wleg</span></span></code></pre></div>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="st">  loq = 1</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="st">) + </span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="st"> scale_y_log10(guide = "</span>axis_logticks<span class="st">")</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="st">plot_obj_food</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="st">#Add Legend</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="st">plot_obj_leg &lt;- plot_legend()</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="st">plot_obj_leg</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="st">plot_obj_food_wleg &lt;- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))</span></span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a><span class="st">plot_obj_food_wleg</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

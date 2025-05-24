@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,9 +100,6 @@ simulation.</p>
 <span>                     num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"DOSE"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span>
 <span>                     char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span><span class="op">)</span>,</span>
 <span>                     obsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="default-aesthetics">Default Aesthetics<a class="anchor" aria-label="anchor" href="#default-aesthetics"></a>
-</h2>
 <p>Now let’s plot all data together in a prediction-corrected VPC
 (pcVPC). There is only single dose administration in this dataset, thus
 we are able to pool across doses and food conditions with
@@ -111,25 +108,24 @@ avoid the simulated intervals extending to the final timepoint with only
 a single observation.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
-<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sim <span class="op">=</span> <span class="va">simout</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
 <span><span class="va">vpc_pc</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-1.png" width="768"></p>
-</div>
 <div class="section level2">
-<h2 id="vpc-plot-aesthetics">VPC Plot Aesthetics<a class="anchor" aria-label="anchor" href="#vpc-plot-aesthetics"></a>
+<h2 id="plot-elements">Plot Elements<a class="anchor" aria-label="anchor" href="#plot-elements"></a>
 </h2>
+<div class="section level3">
+<h3 id="default-elements">Default Elements<a class="anchor" aria-label="anchor" href="#default-elements"></a>
+</h3>
 <p>The default elements shown in the plot are inherited from
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. The <code>shown</code> argument can be provided to
 <code><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> and passed on to the <code>show</code>
@@ -162,6 +158,10 @@ elements:</p>
 <p>One or more elements to be updated from the defaults above can be
 passed as a list to the argument <code>shown</code>. Any elements not
 specified in <code>shown</code> will inherit the defaults.</p>
+</div>
+<div class="section level3">
+<h3 id="adjusting-elements">Adjusting Elements<a class="anchor" aria-label="anchor" href="#adjusting-elements"></a>
+</h3>
 <p>For example, we may want to visualize the 90% prediction interval
 (i.e., 5th to 95th percentiles) derived from the simulation, rather than
 the confidence intervals of the 5th and 95th percentiles independently.
@@ -174,18 +174,15 @@ relative to the observed median.</p>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_ci <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">FALSE</span>, sim_median <span class="op">=</span> <span class="cn">TRUE</span>, pi_as_area <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
 <span><span class="va">vpc_pc_pi</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-90pi-1.png" width="768"></p>
@@ -199,25 +196,22 @@ follows.</p>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
 <span><span class="va">vpc_pc_noobs</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-1.png" width="768"></p>
 <p>We could also take this one step further and only look at the median
 and the simulated confidence interval of the median, to closely
 interrogate central tendency. This is common for VPC strata which have
-few observations, leading to inadrquate sample size to discriminate
+few observations, leading to inadequate sample size to discriminate
 between the confidence intervals of the median and the extremes. This is
 common scenario when evaluating VPC plots stratified by individual study
 arms in early phase trials.</p>
@@ -227,25 +221,108 @@ arms in early phase trials.</p>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  shown <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, obs_ci <span class="op">=</span> <span class="cn">FALSE</span>, pi_ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
 <span><span class="va">vpc_pc_noobs_medonly</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-medonly-1.png" width="768"></p>
-<p>Similarly, the default aesthetics for this plot are inherited from
-the defaults in the <code>vpc</code> package, which can be viewed by
-running <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> with no arguments.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="plot-aesthetics">Plot Aesthetics<a class="anchor" aria-label="anchor" href="#plot-aesthetics"></a>
+</h2>
+<div class="section level3">
+<h3 id="default-aesthetics">Default Aesthetics<a class="anchor" aria-label="anchor" href="#default-aesthetics"></a>
+</h3>
+<p>Similarly, the default aesthetics for vpc plots in pmxhelpr use the
+classical red-blue-green brewer color schema. The defaults for
+<code>pmxhelpr</code> can be visualized by specifying the
+<code>pmxhlepr_vpc_theme()</code> function with no arguments.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pmxhelpr_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pmxhelpr_theme_list</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $obs_color</span></span>
+<span><span class="co">#&gt; [1] "#0000FF"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_size</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_median_color</span></span>
+<span><span class="co">#&gt; [1] "#FF0000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_median_linetype</span></span>
+<span><span class="co">#&gt; [1] "solid"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_median_size</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_alpha</span></span>
+<span><span class="co">#&gt; [1] 0.7</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_shape</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_ci_color</span></span>
+<span><span class="co">#&gt; [1] "#0000FF"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_ci_linetype</span></span>
+<span><span class="co">#&gt; [1] "dashed"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_ci_fill</span></span>
+<span><span class="co">#&gt; [1] "#80808033"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $obs_ci_size</span></span>
+<span><span class="co">#&gt; [1] 0.5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_pi_fill</span></span>
+<span><span class="co">#&gt; [1] "#0000FF"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_pi_alpha</span></span>
+<span><span class="co">#&gt; [1] 0.15</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_pi_color</span></span>
+<span><span class="co">#&gt; [1] "#000000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_pi_linetype</span></span>
+<span><span class="co">#&gt; [1] "dotted"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_pi_size</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_median_fill</span></span>
+<span><span class="co">#&gt; [1] "#FF0000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_median_alpha</span></span>
+<span><span class="co">#&gt; [1] 0.3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_median_color</span></span>
+<span><span class="co">#&gt; [1] "#000000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_median_linetype</span></span>
+<span><span class="co">#&gt; [1] "dashed"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sim_median_size</span></span>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $bin_separators_color</span></span>
+<span><span class="co">#&gt; [1] "#000000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $loq_color</span></span>
+<span><span class="co">#&gt; [1] "#990000"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "vpc_theme"</span></span></code></pre></div>
+<p>We can compare to the corresponding aesthetics from the
+<code>vpc</code> package, which can be viewed by running
+<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> with no arguments.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">vpc_theme_list</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $obs_color</span></span>
@@ -319,90 +396,94 @@ running <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="ex
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attr(,"class")</span></span>
 <span><span class="co">#&gt; [1] "vpc_theme"</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="adjusting-aesthetics">Adjusting Aesthetics<a class="anchor" aria-label="anchor" href="#adjusting-aesthetics"></a>
+</h3>
 <p>Now, suppose we want to change the default aesthetics of the VPC
 plot, without changing what is being shown. This can be accomplished by
 passing a named list of elements to update to the function
-<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code>. The named list object generated from this
-function can then be passed to the <code>theme</code> argument in
+<code><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme()</a></code>. The named list object generated from
+this function can then be passed to the <code>theme</code> argument in
 <code>vpc_plot_exactbins</code>, which is also an alias for the
 <code>vpc_theme</code> argument in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
-<p>Let’s say we prefer a more classical VPC color schema, based only on
-basic red-blue-green color brewer. We will make the following
-changes:</p>
-<ul>
-<li>Observed points blue</li>
-<li>Observed median and simulated 90% CI of the median red</li>
-<li>Observed 5th and 95th and simulated 90% CI of the 5th and 95th
-blue</li>
-</ul>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  obs_color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>  </span>
-<span>  obs_median_color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>,</span>
-<span>  obs_ci_color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
-<span>  </span>
-<span>  sim_median_fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span>,</span>
-<span>  sim_pi_fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Now, let’s take a look at our plot prior plot with the new color
-schema.</p>
+<p>Let’s say we prefer a the blue-grey color scheme native to the
+<code>vpc</code> package! We can reproduce this by passing
+<code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code>:</p>
+<ol style="list-style-type: decimal">
+<li>to the update argument of <code><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme()</a></code>
+</li>
+</ol>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_vpctheme</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  theme <span class="op">=</span> <span class="va">vpc_theme</span>,</span>
+<span>  theme <span class="op">=</span> <span class="fu"><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
-<span><span class="va">vpc_pc_new</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-theme-1.png" width="768"></p>
-<p>This is nice; however, I do not like the grey background and I would
-prefer only major y-axis grid lines without any x-axis grid lines.
-Conveniently, we can just add <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> elements on top of
-the plot object using the standard <code>ggplot2</code> approach.</p>
+<span><span class="va">vpc_pc_vpctheme</span></span></code></pre></div>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png" width="768">
+2) to the theme argument of <code>plot_vpc_exactbins</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_vpctheme2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
+<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  theme <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">5</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
+<span></span>
+<span><span class="va">vpc_pc_vpctheme2</span></span></code></pre></div>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme2-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="adding-layers">Adding Layers<a class="anchor" aria-label="anchor" href="#adding-layers"></a>
+</h3>
+<p>Let’s say we would like to visualize the major x-axis grid lines to
+help locate data corresponding to each sampling timepoint with our plot
+using the <code>vpc</code> package aesthetic defaults. Conveniently,
+<code>plot_vpc_exactbins</code> returns a <code>ggplot2</code> plot
+object, which we can modify by adding layers just like like any other
+<code>ggplot2</code> object.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vpc_pc_vpctheme_xgrid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
+<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
+<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  theme <span class="op">=</span> <span class="va">vpc_theme</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_rect</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"white"</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span>,</span>
-<span>        panel.grid.minor <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, </span>
-<span>        panel.grid.major.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>  theme <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>panel.grid.major.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">x</span> is already present. Adding another scale for <span style="color: #00BB00;">x</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
-<span><span class="co">#&gt; Scale for <span style="color: #00BB00;">y</span> is already present. Adding another scale for <span style="color: #00BB00;">y</span>, which will replace</span></span>
-<span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
-<span><span class="va">vpc_pc_new2</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-1.png" width="768"></p>
+<span><span class="va">vpc_pc_vpctheme_xgrid</span></span></code></pre></div>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-xgrid-1.png" width="768"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="vpc-plot-legends">VPC Plot Legends<a class="anchor" aria-label="anchor" href="#vpc-plot-legends"></a>
 </h2>
+<div class="section level3">
+<h3 id="defaults-legend">Defaults Legend<a class="anchor" aria-label="anchor" href="#defaults-legend"></a>
+</h3>
 <p>Okay, now we have gotten the plot aesthetics where we want them;
 however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.</p>
@@ -410,30 +491,31 @@ to make it more easily interpreted in isolation - a legend.</p>
 purpose, <code><a href="../reference/plot_legend.html">plot_legend()</a></code>. To obtain a legend for a plot using
 default aesthetics, simply run <code><a href="../reference/plot_legend.html">plot_legend()</a></code> without any
 arguments specified.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768"></p>
-<p>Now we have a <code>ggplot</code> object legend for our first
-plot!</p>
-<p>To generate one for our second plot with updated aesthetics, let’s
-pass the same named list object (<code>vpc_theme</code>) to the
-<code>update</code> argument.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="va">vpc_theme</span><span class="op">)</span></span>
+<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768">
+Now we have a <code>ggplot</code> object legend for our first plot!</p>
+<p>To generate one for our second plot with updated aesthetics to match
+the <code>vpc</code> package defaults, let’s pass the named list output
+from <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code> to the <code>update</code>
+argument.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
 <p>Okay, now that we have our legend plot objects, let’s combine them
 with the VPC plot objects into a single plot object with the
 <code>patchwork</code> package.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc</span> <span class="op">+</span> <span class="va">vpc_pc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_wleg</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" width="768"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_new2</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_vpctheme_xgrid</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_wleg</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-new-w-legend-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-w-legend-1.png" width="768"></p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

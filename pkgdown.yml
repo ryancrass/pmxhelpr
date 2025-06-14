@@ -1,12 +1,12 @@
 pandoc: 3.1.11
-pkgdown: 2.1.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   eda-pmxhelpr: eda-pmxhelpr.html
   vpc-exact-bins: vpc-exact-bins.html
   vpc-obs-quant-blq-cens: vpc-obs-quant-blq-cens.html
   vpc-plot-aesthetics: vpc-plot-aesthetics.html
-last_built: 2025-05-24T13:12Z
+last_built: 2025-06-14T13:24Z
 urls:
   reference: https://ryancrass.github.io/pmxhelpr/reference
   article: https://ryancrass.github.io/pmxhelpr/articles

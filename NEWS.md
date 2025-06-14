@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.0
 
 * Added new functionality for dose-proportionality assessment with `df_doseprop` and `plot_doseprop`, including helpers `mod_loglog` and `df_loglog` to perform and tabulate power law (log-log) regression of exposure versus dose
 * Added new internal package dataset `data_sad_nca` for use with dose-proportinality assessment functions

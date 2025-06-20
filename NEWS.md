@@ -1,5 +1,8 @@
 # pmxhelpr (development version)
 
+* Add `plot_popgof` to generate population overlay goodness-of-fit plots
+* Add `data_sad_pkfit` NONMEM PK model fit output dataset for `data_sad` based on `model`.
+
 # pmxhelpr 0.3.0
 
 * Added new functionality for dose-proportionality assessment with `df_doseprop` and `plot_doseprop`, including helpers `mod_loglog` and `df_loglog` to perform and tabulate power law (log-log) regression of exposure versus dose

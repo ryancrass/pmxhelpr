@@ -24,7 +24,9 @@
 #'   \item{CRCLBL}{Subject creatinine clearance at baseline (units: mL/min)}
 #'   \item{USUBJID}{Study subject identifier}
 #'   \item{PART}{Study part}
+#'   \item{IPRED}{Individual model predictions}
+#'   \item{PRED}{Population model predictions}
 #'   ...
 #' }
 #' @source simulated
-"data_sad"
+"data_sad_pkfit"

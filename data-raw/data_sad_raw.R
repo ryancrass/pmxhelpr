@@ -1,4 +1,4 @@
-#####Create data_sad internal analysis-ready dataset for a SAD study#####
+#####Create `data_sad` internal NONMEM analysis-ready dataset for a SAD study#####
 
 #Define Study Conditions: Doses, Sample Size, LLOQ
 doses <- c(10, 50, 100, 100, 200, 400) #Dose levels in mg
@@ -109,7 +109,11 @@ withr::with_seed(
 
 usethis::use_data(data_sad, overwrite = TRUE)
 
-#####Create data_nca internal dataset of NCA parameters for data_sad#####
+
+
+
+
+#####Create `data_sad_nca` internal dataset of NCA parameters for `data_sad`#####
 
 ##Set NCA options
 PKNCA::PKNCA.options(conc.blq = list("first" = "keep",
@@ -150,3 +154,16 @@ data_sad_nca <- nca_results_obj |>
                 units_time = "hours")
 
 usethis::use_data(data_sad_nca)
+
+
+
+
+
+#####Create `data_sad_pkfit` internal dataset of PK model outputs for `data_sad` using `model`
+
+fit <- df_mrgsim_replicate(data_sad, mod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+
+data_sad_pkfit <- data_sad %>%
+  left_join(select(fit, LINE, IPRED, PRED))
+
+usethis::use_data(data_sad_pkfit)

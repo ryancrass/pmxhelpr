@@ -28,10 +28,10 @@ plot_vpc_exactbins(
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults are \code{"TIME"} and \code{"NTIME"}.}
+Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
 
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults are \code{"PRED"}, \code{"IPRED"}, and \code{"DV"}.}
+Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}

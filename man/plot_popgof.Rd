@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_popgof.R
 \name{plot_popgof}
 \alias{plot_popgof}
-\title{Plot population overlay goodness-of-fit (GOF) plotds}
+\title{Plot population overlay goodness-of-fit (GOF) plots}
 \usage{
 plot_popgof(
   data,
@@ -26,7 +26,8 @@ plot_popgof(
 )
 }
 \arguments{
-\item{data}{Input dataset. Must contain the variables: \code{"ID"}, \code{"DV"} \code{"MDV"}.}
+\item{data}{Input dataset. Must contain required variables for \code{mrgsim_df()} other than those handled by
+other arguments.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -46,7 +47,6 @@ Defaults are:
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{breaks_time} and assigned to default x-axis label.
-
 Options include:
 \itemize{
 \item "hours" (default)
@@ -67,11 +67,13 @@ Specifying this argument implies that \code{DV} is missing in \code{data} where 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
 
 Options are:
-+ \code{0} : No handling. Plot input dataset \code{DV} vs \code{TIME} as is. (default)
-+ \code{1} : Impute all BLQ data at \code{TIME} <= 0 to 0 and all BLQ data at \code{TIME} > 0 to 1/2 x \code{loq}.
-Useful for plotting concentration-time data with some data BLQ on the linear scale
-+ \code{2} : Impute all BLQ data at \code{TIME} <= 0 to 1/2 x \code{loq} and all BLQ data at \code{TIME} > 0 to 1/2 x \code{loq}.
-Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{+ `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
++ `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+   Useful for plotting concentration-time data with some data BLQ on the linear scale
++ `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+   Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+}\if{html}{\out{</div>}}}
 
 \item{cent}{Character string specifying the central tendency measure to plot.
 
@@ -107,10 +109,9 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 A \code{ggplot2} plot object
 }
 \description{
-Plot population overlay goodness-of-fit (GOF) plotds
+Plot population overlay goodness-of-fit (GOF) plots
 }
 \examples{
-data <- dplyr::mutate(data_sad_pkfit)
-plot_popgof(data, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
+plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
 
 }

@@ -28,7 +28,7 @@ library(patchwork, warn.conflicts = FALSE)
 library(PKNCA, warn.conflicts = FALSE)
 ```
 
-For this vignette, we will peform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package. Dataset definitions can also be viewed by calling `?data_sad`, as one would to view the documentation for a package function.
+For this vignette, we will perform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package. Dataset definitions can also be viewed by calling `?data_sad`, as one would to view the documentation for a package function.
 
 ```{r data-glimpse}
 glimpse(data_sad)

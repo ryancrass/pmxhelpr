@@ -1,6 +1,5 @@
-#' Plot population overlay goodness-of-fit (GOF) plotds
+#' Plot population overlay goodness-of-fit (GOF) plots
 #'
-#' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
 #' @param output_colors Colors for model outputs. Must be named character vector.
 #'
 #'    Defaults are:
@@ -8,58 +7,16 @@
 #'    + `IPRED`=`"green"`,
 #'    + `DV`=`"blue"`.
 #'    + `OBS`=`"darkgrey"`
-#' @param timeu Character string specifying units for the time variable.
-#'    Passed to `breaks_time` and assigned to default x-axis label.
 #'
-#'    Options include:
-#'    + "hours" (default)
-#'    + "days"
-#'    + "weeks"
-#'    + "months"
-#' @param n_breaks Number of breaks requested for x-axis. Default is 5.
-#' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
-#' @param dose_var Character string of the variable to use in dosenormalization when `dosenorm` = TRUE.
-#'   Default is `"DOSE"`.
-#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
-#'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
-#' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
-#'
-#'   Options are:
-#'     + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-#'     + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
-#'        Useful for plotting concentration-time data with some data BLQ on the linear scale
-#'     + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
-#'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
-#'
-#' @param cent Character string specifying the central tendency measure to plot.
-#'
-#'  Options are:
-#'    + Mean only: `"mean"` (default)
-#'    + Mean +/- Standard Deviation: `"mean_sdl"`
-#'    + Median only: `"median"`
-#'    + Median +/- Interquartile Range: `median_iqr`
-#'    + None: `"none"`
-#'
-#' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
-#' @param grp_dv Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
-#'    Default is `FALSE`.
-#' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
-#'    Requires variable specified in `dose_var` to be present in `data`
-#' @param cfb Logical indicating if dependent variable is a change from baseline.
-#'    Plots a reference line at y = 0. Default is `FALSE`.
-#' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
-#' @param log_y Logical indicator for log10 transformation of the y-axis.
-#' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
+#' @inheritParams plot_dvtime
 #'
 #' @return A `ggplot2` plot object
 #'
 #' @export plot_popgof
 #'
 #' @examples
-#'data <- dplyr::mutate(data_sad_pkfit)
-#'plot_popgof(data, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
+#'plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
 #'
 
 plot_popgof <- function(data,
@@ -187,24 +144,32 @@ plot_popgof <- function(data,
                                                        linewidth = 0.25, alpha = 0.25)
 
   #Plot Points
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"), size = 1.5,
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
+                                                                           size = 1.5,
                                                                            fun = "mean", geom = "point")
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"), size = 1.5,
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"),
+                                                                               size = 1.5,
                                                              fun = "median", geom = "point")
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"), size = 1.5,
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+                                                                           size = 1.5,
                                                                            fun = "mean", geom = "point")
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"), size = 1.5,
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+                                                                               size = 1.5,
                                                                                fun = "median", geom = "point")
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"), size = 1.5,
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+                                                                           size = 1.5,
                                                                            fun = "mean", geom = "point",)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"), size = 1.5,
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+                                                                               size = 1.5,
                                                                                fun = "median", geom = "point")
 
   #Plot Observed Central Tendency
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                           linewidth = 1,fun.y = "mean", geom = "line")
+                                                                           fun.y = "mean", geom = "line",
+                                                                           linewidth = 0.75)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                               linewidth = 1,fun = "median", geom = "line")
+                                                                               fun = "median", geom = "line",
+                                                                               linewidth = 0.75)
   #Plot Observed Central Tendency and Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.data = "mean_sdl", geom = "errorbar")
@@ -215,16 +180,20 @@ plot_popgof <- function(data,
 
   #Plot Individual Model Predictions
 
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"), linewidth = 1,
-                                                                           fun.y = "mean", geom = "line") +
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"), linewidth = 1,
-                                                                               fun = "median", geom = "line")
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+                                                                           fun.y = "mean", geom = "line",
+                                                                           linewidth = 0.75) +
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+                                                                               fun = "median", geom = "line",
+                                                                               linewidth = 0.75)
 
   #Plot Population Model Predictions
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"), linewidth = 1,
-                                                                           fun.y = "mean", geom = "line")
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"), linewidth = 1,
-                                                                               fun = "median", geom = "line")
+  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+                                                                           fun.y = "mean", geom = "line",
+                                                                           linewidth = 0.75)
+  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+                                                                               fun = "median", geom = "line",
+                                                                               linewidth = 0.75)
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")

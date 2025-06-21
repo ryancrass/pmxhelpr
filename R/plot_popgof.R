@@ -165,7 +165,7 @@ plot_popgof <- function(data,
 
   #Plot Observed Central Tendency
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                           fun.y = "mean", geom = "line",
+                                                                           fun = "mean", geom = "line",
                                                                            linewidth = 0.75)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                                                fun = "median", geom = "line",
@@ -181,7 +181,7 @@ plot_popgof <- function(data,
   #Plot Individual Model Predictions
 
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
-                                                                           fun.y = "mean", geom = "line",
+                                                                           fun = "mean", geom = "line",
                                                                            linewidth = 0.75) +
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
                                                                                fun = "median", geom = "line",
@@ -189,7 +189,7 @@ plot_popgof <- function(data,
 
   #Plot Population Model Predictions
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
-                                                                           fun.y = "mean", geom = "line",
+                                                                           fun = "mean", geom = "line",
                                                                            linewidth = 0.75)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
                                                                                fun = "median", geom = "line",

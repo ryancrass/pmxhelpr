@@ -168,7 +168,7 @@ plot_dvtime <- function(data,
 
   #Plot Central Lines
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
-                                                                           fun.y = "mean", geom = "line")
+                                                                           fuy = "mean", geom = "line")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                             fun = "median", geom = "line")
 

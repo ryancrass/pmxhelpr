@@ -10,3 +10,10 @@
 ^cran-comments\.md$
 ^doc$
 ^Meta$
+
+^rv$
+^rv\.lock$
+^rproject\.toml$
+^rv\.toml$
+^\.Rprofile$
+

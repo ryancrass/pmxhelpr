@@ -234,10 +234,10 @@ vpc_pc_vpctheme_xgrid
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 
-`pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_legend()` without any arguments specified.
+`pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpclegend()` without any arguments specified.
 
 ```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_legend <- plot_legend()
+vpc_pc_legend <- plot_vpclegend()
 vpc_pc_legend
 ```
 Now we have a `ggplot` object legend for our first plot!
@@ -245,7 +245,7 @@ Now we have a `ggplot` object legend for our first plot!
 To generate one for our second plot with updated aesthetics to match the `vpc` package defaults, let's pass the named list  output from `vpc::new_vpc_theme()` to the `update` argument.
 
 ```{r vpc_pc_new_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_legend <- plot_legend(update = vpc::new_vpc_theme())
+vpc_pc_new_legend <- plot_vpclegend(update = vpc::new_vpc_theme())
 vpc_pc_new_legend
 ```
 

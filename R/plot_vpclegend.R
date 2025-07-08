@@ -9,11 +9,11 @@
 #'
 #' @inheritParams plot_vpc_exactbins
 #' @return a ggplot2 object
-#' @export plot_legend
+#' @export plot_vpclegend
 #'
 #' @examples
-#'plot_legend()
-#'plot_legend(
+#'plot_vpclegend()
+#'plot_vpclegend(
 #'pi = c(0.025, 0.975),
 #'ci = c(0.025, 0.925),
 #'  shown = list(obs_dv = FALSE, obs_ci = TRUE,
@@ -21,7 +21,7 @@
 #'  obs_median = TRUE,
 #'  sim_median =FALSE, sim_median_ci = TRUE))
 
-plot_legend <- function(ci = c(0.05, 0.95),
+plot_vpclegend <- function(ci = c(0.05, 0.95),
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,

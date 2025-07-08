@@ -156,7 +156,7 @@ plot_dvtime <- function(data,
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=1, size=0.75, alpha = 0.5)
-  #Connect Observed Data Points within an Individual
+  #Connect Observed Data Points within Group
   if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!dplyr::sym(grp_var)),
                                                        linewidth = 0.5, alpha = 0.5)
 
@@ -168,13 +168,14 @@ plot_dvtime <- function(data,
 
   #Plot Central Lines
   if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
-                                                                           fun.y = "mean", geom = "line")
+                                                                           fuy = "mean", geom = "line")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                             fun = "median", geom = "line")
 
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                              fun.data = "mean_sdl", geom = "errorbar")
+                                                              fun.data = "mean_sdl",
+                                                              fun.args = list(mult=1),geom = "errorbar")
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},
@@ -192,74 +193,6 @@ plot_dvtime <- function(data,
 
 
 
-
-
-#' Determine axis breaks automatically for time variables
-#'
-#' @param x Numeric vector of times from which to determine breaks
-#' @param unit Character string for time units.
-#'    Options include:
-#'    + "hours" (default)
-#'    + "days"
-#'    + "weeks"
-#'    + "months"
-#' @param n Ideal number of axis breaks requested (default = 8). Passed to `labeling::extended()`
-#'
-#' @return A numeric vector of breaks
-#'
-#' @export breaks_time
-#'
-#' @examples
-#'ntimes <- sort(unique(data_sad$NTIME))
-#'breaks <- breaks_time(ntimes)
-#'
-#'
-breaks_time <- function(x, unit="hours", n=8) {
-
-  #Checks
-  check_numeric(x)
-  check_timeu(unit)
-  check_integer(n)
-
-  x <- as.numeric(x)
-
-  #Define range
-  rng <- range(x, na.rm = TRUE)
-
-  if (unit == "hours") {
-    scale <- 24
-  } else if (unit == "days") {
-    scale <- 7
-  } else if (unit == "weeks") {
-    scale <- 1
-  } else if (unit == "months") {
-    scale <- 1
-  }
-
-  rng <- rng / scale
-
-  if(max(rng, na.rm = TRUE)<=1) {
-    if(unit == "hours") Ql <- c(4/24, 8/24, 12/24, 1)
-    if(unit == "days") Ql <- c(1/7, 1)
-    if(unit %in% c("weeks", "months")) Ql <- c(0.5, 1)
-
-    breaks <- labeling::extended(
-      rng[1], rng[2], n,
-      Q = Ql,
-      only.loose = FALSE)*scale
-
-    breaks <- breaks[breaks<=max(x, na.rm=TRUE)]
-  } else {
-    breaks <- labeling::extended(
-      rng[1], rng[2], n,
-      Q = c(1, 2, 4, 7),
-      only.loose = FALSE)*scale
-
-    breaks <- breaks[breaks<=max(x, na.rm = TRUE)]
-  }
-
-  return(breaks)
-}
 
 
 #' Define a caption for `plot_dvtime`

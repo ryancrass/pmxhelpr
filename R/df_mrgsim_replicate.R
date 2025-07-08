@@ -9,9 +9,9 @@
 #' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
 #' @param dv_var Character name of the DV variable in `data`.
 #' @param time_vars Names of actual and nominal time variables. Must be named character vector.
-#'    Defaults are `"TIME"` and `"NTIME"`.
+#'    Defaults is: c(`TIME`=`"TIME"`, `NTIME`=`"NTIME"`).
 #' @param output_vars Names of model outputs from `model`. Must be named character vector.
-#'    Defaults are `"PRED"`, `"IPRED"`, and `"DV"`.
+#'    Defaults is: c(`PRED`= `"PRED"`, `IPRED` = `"IPRED"`, `DV`= `"DV"`).
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `carry_out`
 #'    and return in output. Defaults are `"CMT"`, `"EVID"`, `"MDV"`, `"NTIME"`.

@@ -42,13 +42,14 @@ Functions in this package use the following naming conventions:
   
 * Helper functions: *ReturnObject*_*Purpose*
   + `plot_dvtime` returns a `ggplot` object with a dependent variable plotted versus time
+  + `plot_popgof` returns a `ggplot` object with observed, population-predicted, and individual-predicted values plotted versus time
   + `df_nobsbin` returns a summary `data.frame` with counts of the number of missing and non-missing observations per bin.
   + `df_pcdv` returns a `data.frame` containing the prediction-corrected dependent variable.
-  + `plot_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
+  + `plot_vpclegend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
 
-## Example Visual Predictive Check Workflow
+## Example Exploratory Data Analysis Workflow
 
-This is a basic example which illustrates a simple VPC workflow using pmxhelpr:
+This is a basic example which illustrates a simple exploratory data analysis workflow using pmxhelpr:
 
 ``` r
 library(pmxhelpr)
@@ -73,10 +74,28 @@ plot_dvtime(data = data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dos
 #Assess dose proportionality in the fasted state
 glimpse(data_sad_nca)
 data_sad_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
+
+#Tabulated dose-proportionality
 table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 table
 
+#Visualize dose-proportionality
 plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
+```
+
+
+## Example Visual Exploratory Data Analysis Workflow
+
+This is a basic example which illustrates a simple VPC workflow using pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(patchwork)
+library(withr)
 
 #Read internal mrgsolve model file
 model <- model_mread_load("model")

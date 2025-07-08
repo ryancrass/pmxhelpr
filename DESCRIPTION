@@ -1,6 +1,6 @@
 Package: pmxhelpr
 Title: Helper Functions for Pharmacometrics
-Version: 0.3.0.9004
+Version: 0.3.1
 Authors@R: 
     person(given="Ryan", family="Crass",
     email = "ryancrass@gmail.com", 

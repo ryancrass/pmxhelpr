@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.1
 
 * Add `plot_popgof` to generate population overlay goodness-of-fit plots
 * Add `data_sad_pkfit` NONMEM PK model fit output dataset for `data_sad` based on `model`.

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,8 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/eda-pmxhelpr.html">Exploratory Data Analysis</a></li>
+<li><a class="dropdown-item" href="../articles/diagnostics-pmxhelpr.html">Standard Model Diagnostics</a></li>
+    <li><a class="dropdown-item" href="../articles/eda-pmxhelpr.html">Exploratory Data Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-exact-bins.html">VPC Plots with Exact Bins</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-plot-aesthetics.html">VPC Plot Aesthetics</a></li>
@@ -61,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plot Aesthetics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/0.3.0/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-plot-aesthetics.Rmd</code></div>
     </div>
 
@@ -71,7 +72,7 @@
 elements of VPC plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> with the
 <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> function from the <code>vpc</code>
 package.</p>
-<p><code><a href="../reference/plot_legend.html">plot_legend()</a></code> is a helper plotting function that creates
+<p><code>plot_legend()</code> is a helper plotting function that creates
 a legend for plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. These legends can
 then be merged with the VPC plot into a single plot object using the
 <code>patchwork</code> package.</p>
@@ -488,11 +489,11 @@ object, which we can modify by adding layers just like like any other
 however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.</p>
 <p><code>pmxhelpr</code> provides a useful helper function for this
-purpose, <code><a href="../reference/plot_legend.html">plot_legend()</a></code>. To obtain a legend for a plot using
-default aesthetics, simply run <code><a href="../reference/plot_legend.html">plot_legend()</a></code> without any
+purpose, <code>plot_legend()</code>. To obtain a legend for a plot using
+default aesthetics, simply run <code><a href="../reference/plot_vpclegend.html">plot_vpclegend()</a></code> without any
 arguments specified.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768">
 Now we have a <code>ggplot</code> object legend for our first plot!</p>
@@ -501,7 +502,7 @@ the <code>vpc</code> package defaults, let’s pass the named list output
 from <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code> to the <code>update</code>
 argument.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_legend.html">plot_legend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
 <p>Okay, now that we have our legend plot objects, let’s combine them

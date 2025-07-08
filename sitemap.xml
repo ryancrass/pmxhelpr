@@ -2,6 +2,7 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/404.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/LICENSE-text.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/LICENSE.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/articles/diagnostics-pmxhelpr.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/articles/eda-pmxhelpr.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/articles/index.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/articles/vpc-exact-bins.html</loc></url>
@@ -13,6 +14,7 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/breaks_time.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad_nca.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_addpred.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_loglog.html</loc></url>
@@ -25,8 +27,9 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_legend.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_popgof.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.html</loc></url>
 </urlset>
 

@@ -2,6 +2,7 @@
 
 * Add `plot_popgof` to generate population overlay goodness-of-fit plots
 * Add `data_sad_pkfit` NONMEM PK model fit output dataset for `data_sad` based on `model`.
+* Fixed bug in `plot_dvtime` that was leading to plotting mean +/- 2*SD instead of mean +/- SD
 
 # pmxhelpr 0.3.0
 

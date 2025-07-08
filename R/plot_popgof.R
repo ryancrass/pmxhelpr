@@ -172,7 +172,8 @@ plot_popgof <- function(data,
                                                                                linewidth = 0.75)
   #Plot Observed Central Tendency and Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                              fun.data = "mean_sdl", geom = "errorbar")
+                                                              fun.data = "mean_sdl", fun.args = list(mult=1),
+                                                              geom = "errorbar")
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},

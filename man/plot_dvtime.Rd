@@ -6,7 +6,7 @@
 \usage{
 plot_dvtime(
   data,
-  dv_var = "DV",
+  dv_var = DV,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,

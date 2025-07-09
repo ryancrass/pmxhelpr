@@ -58,7 +58,7 @@
 #'
 
 plot_dvtime <- function(data,
-                        dv_var = "DV",
+                        dv_var = DV,
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
                         timeu = "hours",
@@ -77,13 +77,13 @@ plot_dvtime <- function(data,
                         show_caption = TRUE,
                         n_breaks = 8){
 
-
+  dv <- rlang::enquo(dv_var)
   time_vars <- list_update(time_vars, c(TIME = "TIME",
                                         NTIME = "NTIME"))
 
   #Checks
   check_df(data)
-  check_varsindf(data, dv_var)
+  check_varsindf(data, dv)
   check_varsindf(data, time_vars[["TIME"]])
   check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, "MDV")
@@ -96,7 +96,7 @@ plot_dvtime <- function(data,
 
   ##Data Rename
   data <- data |>
-    dplyr::rename(dplyr::any_of(c(c(DV = dv_var), time_vars, c(DOSE = dose_var))))
+    dplyr::rename(dplyr::any_of(c(c(DV = rlang::as_name(dv)), time_vars, c(DOSE = dose_var))))
 
   ##Coerce Color Variable to a Factor
   if(!is.null(col_var)){data[[col_var]] <- factor(data[[col_var]])}

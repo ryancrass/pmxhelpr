@@ -96,8 +96,15 @@ Not a bad plot with minimal arguments! We can see the mean for each dose as a co
 The caption can be removed by specifying `show_caption = FALSE`.
 
 ```{r plot-dvtime-nocap, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", show_caption = FALSE) 
+
+plot_dvtime(
+  data = plot_data, 
+  dv_var = ODV, 
+  col_var = "Dose (mg)", 
+  cent = "mean", 
+  ylab = "Concentration (ng/mL)", 
+  show_caption = FALSE
+) 
 ```
 
 ## Adjusting Time Breaks
@@ -126,8 +133,13 @@ We can see that the default (n = 8) gives an optimal number of breaks in this ca
 The default `n_breaks = 8` is a good value for `data_sad`, and `data_sad` uses the default time units (`"hours"`); therefore, explicit specification of the `n_breaks` and `timeu` arguments is not required.
 
 ```{r plot-dvtime-breaks, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)") 
+plot_dvtime(
+  data = plot_data, 
+  dv_var = "ODV", 
+  col_var = "Dose (mg)", 
+  cent = "mean", 
+  ylab = "Concentration (ng/mL)"
+)
 ```
 
 However, perhaps someone on the team would prefer the x-axis breaks in units of `days`. The x-axis breaks will transform to the new units automatically as long as we specify the new time unit with `timeu = "days"`.
@@ -137,8 +149,14 @@ plot_data_days <- plot_data %>%
   mutate(TIME = TIME/24, 
          NTIME = NTIME/24)
 
-plot_dvtime(data = plot_data_days, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", timeu = "days") 
+plot_dvtime(
+  data = plot_data_days, 
+  dv_var = "ODV", 
+  col_var = "Dose (mg)", 
+  cent = "mean", 
+  ylab = "Concentration (ng/mL)", 
+  timeu = "days"
+)
 ```
 
 Nice! However, someone else on the team would prefer to see the first 24 hours of treatment in greater detail to visualize the absorption phase. We can either truncate the x-axis range using `scale_x_continuous()`, or filter the input data and allow the x-axis breaks to adjust automatically with the new time range in the input data!
@@ -147,7 +165,8 @@ Nice! However, someone else on the team would prefer to see the first 24 hours o
 plot_data_24 <- plot_data %>% 
   filter(NTIME <= 24)
 
-plot_dvtime(data = plot_data_24, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
+plot_dvtime(
+  data = plot_data_24, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
             ylab = "Concentration (ng/mL)") 
 ```
 

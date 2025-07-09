@@ -95,10 +95,20 @@ check_integer <- function(var){
 }
 
 check_varsindf <- function(data, vars){
-  input_name1 <-deparse(substitute(data))
-  input_name2 <-deparse(substitute(vars))
-  output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
-  if(length(setdiff(vars, colnames(data)))>=1){
+  input_name1 <- deparse(substitute(data))
+
+  # Handle both quosures and regular arguments
+  if(rlang::is_quosure(vars)){
+    input_name2 <- rlang::quo_name(vars)
+    vars_names <- as.character(rlang::quo_get_expr(vars))  # Extract the names
+  } else {
+    input_name2 <- deparse(substitute(vars))
+    vars_names <- vars
+  }
+
+  output_warning <- paste0("argument `", input_name2, "` must be variables in `", input_name1, "`")
+
+  if(length(setdiff(vars_names, colnames(data))) >= 1){
     rlang::abort(message = output_warning)
   }
 }

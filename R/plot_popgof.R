@@ -165,7 +165,7 @@ plot_popgof <- function(data,
                                                                                fun = "median", geom = "point")
   if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
                                                                            size = 1.5,
-                                                                           fun = "mean", geom = "point",)
+                                                                           fun = "mean", geom = "point")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
                                                                                size = 1.5,
                                                                                fun = "median", geom = "point")
@@ -180,7 +180,8 @@ plot_popgof <- function(data,
   #Plot Observed Central Tendency and Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.data = "mean_sdl", fun.args = list(mult=1),
-                                                              geom = "errorbar")
+                                                              geom = "errorbar",
+                                                              width = width)
   if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                                     fun.max = function(x){mean(x)+stats::sd(x)},
                                                                     fun.min = function(x){NA_real_},
@@ -190,7 +191,7 @@ plot_popgof <- function(data,
                                                                     fun.max = function(x){mean(x)+stats::sd(x)},
                                                                     fun.min = function(x){mean(x)},
                                                                     geom = "linerange",
-                                                                    width = width)
+                                                                    width = width, show.legend = FALSE)
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},

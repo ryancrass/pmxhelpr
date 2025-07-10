@@ -195,7 +195,8 @@ plot_dvtime <- function(data,
                                               ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                                     fun.max = function(x){mean(x)+stats::sd(x)},
                                                                     fun.min = function(x){mean(x)},
-                                                                    geom = "linerange")
+                                                                    geom = "linerange",
+                                                                    show.legend = FALSE)
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},

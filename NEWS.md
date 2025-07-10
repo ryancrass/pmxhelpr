@@ -1,5 +1,8 @@
 # pmxhelpr (development version)
 
+* Add `cent = "mean_sdl_upper"` option to `plot_dvtime` and `plot_popgof` for plotting only the upper error bar
+* Add `barwidth` argument to `plot_dvtime` and `plot_popgof` to allow user to change error bar cap width. 
+
 # pmxhelpr 0.3.1
 
 * Add `plot_popgof` to generate population overlay goodness-of-fit plots

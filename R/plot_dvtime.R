@@ -31,7 +31,8 @@
 #'  Options are:
 #'
 #'    + Mean only: `"mean"` (default)
-#'    + Mean +/- Standard Deviation: `"mean_sdl"`
+#'    + Mean +/- Standard Deviation (upper and lower error bar): `"mean_sdl"`
+#'    + Mean + Standard Deviation (upper error bar only): `"mean_sdl_upper"`
 #'    + Median only: `"median"`
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
@@ -46,6 +47,7 @@
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
+#' @param barwidth Numeric value passed to `width` in `geom_errorbar`. Default is 2.5% of maximum `NTIME`
 #' @inheritParams df_mrgsim_replicate
 #'
 #' @return A `ggplot2` plot object
@@ -75,7 +77,8 @@ plot_dvtime <- function(data,
                         ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
-                        n_breaks = 8){
+                        n_breaks = 8,
+                        barwidth = NULL){
 
 
   time_vars <- list_update(time_vars, c(TIME = "TIME",
@@ -133,6 +136,13 @@ plot_dvtime <- function(data,
   #Determine Breaks
   xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
+  #Determine Error Bar Cap Width
+  if(is.null(barwidth)) {
+    width <- max(data$NTIME, na.rm = TRUE)*0.025
+  } else {
+    width <- barwidth
+  }
+
 
 ###Plot
 
@@ -161,21 +171,31 @@ plot_dvtime <- function(data,
                                                        linewidth = 0.5, alpha = 0.5)
 
   #Plot Central Tendency Points
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
                                                                            fun = "mean", geom = "point")
   if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), size = 1.25,
                                                              fun = "median", geom = "point")
 
   #Plot Central Lines
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
-                                                                           fuy = "mean", geom = "line")
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
+                                                                           fun = "mean", geom = "line")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV), linewidth = 1,
                                                             fun = "median", geom = "line")
 
   #Plot Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.data = "mean_sdl",
-                                                              fun.args = list(mult=1),geom = "errorbar")
+                                                              fun.args = list(mult=1),geom = "errorbar",
+                                                              width = width)
+  if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                                fun.max = function(x){mean(x)+stats::sd(x)},
+                                                                fun.min = function(x){NA_real_},
+                                                                geom = "errorbar",
+                                                                width = width) +
+                                              ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
+                                                                    fun.min = function(x){mean(x)},
+                                                                    geom = "linerange")
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},
@@ -209,13 +229,13 @@ plot_dvtime <- function(data,
 dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
   cap1df <- data.frame(
-    cent = c("mean", "mean_sdl",
+    cent = c("mean", "mean_sdl", "mean_sdl_upper",
              "median", "median_iqr",
              "none"),
-    label = c("mean","mean + SD error bars",
+    label = c("mean","mean + SD error bars", "mean + SD error bars",
               "median", "median + IQR error bars",
               ""),
-    loglabel = c("geometric mean","geo. mean + geo. SD error bars",
+    loglabel = c("geometric mean","geo. mean + geo. SD error bars", "geo. mean + geo. SD error bars",
                  "median", "median + IQR error bars",
                  ""))
 

@@ -42,7 +42,8 @@ plot_popgof <- function(data,
                         ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
-                        n_breaks = 8){
+                        n_breaks = 8,
+                        barwidth = NULL){
 
 
   ##Update Defaults to time_vars and output_vars
@@ -121,6 +122,12 @@ plot_popgof <- function(data,
   #Determine Breaks
   xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
+  #Determine Error Bar Cap Width
+  if(is.null(barwidth)) {
+    width <- max(data$NTIME, na.rm = TRUE)*0.025
+  } else {
+    width <- barwidth
+  }
 
 ###Plot
 
@@ -144,19 +151,19 @@ plot_popgof <- function(data,
                                                        linewidth = 0.25, alpha = 0.25)
 
   #Plot Points
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                                            size = 1.5,
                                                                            fun = "mean", geom = "point")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"),
                                                                                size = 1.5,
                                                              fun = "median", geom = "point")
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
                                                                            size = 1.5,
                                                                            fun = "mean", geom = "point")
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
                                                                                size = 1.5,
                                                                                fun = "median", geom = "point")
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
                                                                            size = 1.5,
                                                                            fun = "mean", geom = "point",)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
@@ -164,7 +171,7 @@ plot_popgof <- function(data,
                                                                                fun = "median", geom = "point")
 
   #Plot Observed Central Tendency
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                                            fun = "mean", geom = "line",
                                                                            linewidth = 0.75)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
@@ -174,14 +181,23 @@ plot_popgof <- function(data,
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.data = "mean_sdl", fun.args = list(mult=1),
                                                               geom = "errorbar")
+  if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
+                                                                    fun.min = function(x){NA_real_},
+                                                                    geom = "errorbar",
+                                                                    width = width) +
+                                              ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
+                                                                    fun.min = function(x){mean(x)},
+                                                                    geom = "linerange",
+                                                                    width = width)
   if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.max = function(x){stats::quantile(x,0.75)},
                                                               fun.min = function(x){stats::quantile(x,0.25)},
                                                               geom = "errorbar")
 
   #Plot Individual Model Predictions
-
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
                                                                            fun = "mean", geom = "line",
                                                                            linewidth = 0.75) +
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
@@ -189,7 +205,7 @@ plot_popgof <- function(data,
                                                                                linewidth = 0.75)
 
   #Plot Population Model Predictions
-  if(cent %in% c("mean", "mean_sdl")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
+  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
                                                                            fun = "mean", geom = "line",
                                                                            linewidth = 0.75)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),

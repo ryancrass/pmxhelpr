@@ -22,7 +22,8 @@ plot_popgof(
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
-  n_breaks = 8
+  n_breaks = 8,
+  barwidth = NULL
 )
 }
 \arguments{
@@ -80,7 +81,8 @@ Options are:
 Options are:
 \itemize{
 \item Mean only: \code{"mean"} (default)
-\item Mean +/- Standard Deviation: \code{"mean_sdl"}
+\item Mean +/- Standard Deviation (upper and lower error bar): \code{"mean_sdl"}
+\item Mean + Standard Deviation (upper error bar only): \code{"mean_sdl_upper"}
 \item Median only: \code{"median"}
 \item Median +/- Interquartile Range: \code{median_iqr}
 \item None: \code{"none"}
@@ -104,6 +106,8 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
 
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
+
+\item{barwidth}{Numeric value passed to \code{width} in \code{geom_errorbar}. Default is 2.5\% of maximum \code{NTIME}}
 }
 \value{
 A \code{ggplot2} plot object

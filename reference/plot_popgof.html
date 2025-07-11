@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot population overlay goodness-of-fit (GOF) plots</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.1/R/plot_popgof.R" class="external-link"><code>R/plot_popgof.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_popgof.R" class="external-link"><code>R/plot_popgof.R</code></a></small>
       <div class="d-none name"><code>plot_popgof.Rd</code></div>
     </div>
 
@@ -64,7 +64,8 @@
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration"</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_breaks <span class="op">=</span> <span class="fl">8</span></span>
+<span>  n_breaks <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  barwidth <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,7 +74,7 @@
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Input dataset. Must contain required variables for <code>mrgsim_df()</code> other than those handled by
+<dd><p>Input dataset. Must contain required variables for <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsim_df()</a></code> other than those handled by
 other arguments.</p></dd>
 
 
@@ -134,7 +135,8 @@ Specifying this argument implies that <code>DV</code> is missing in <code>data</
 <dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
 <dd><p>Character string specifying the central tendency measure to plot.</p>
 <p>Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
-<li><p>Mean +/- Standard Deviation: <code>"mean_sdl"</code></p></li>
+<li><p>Mean +/- Standard Deviation (upper and lower error bar): <code>"mean_sdl"</code></p></li>
+<li><p>Mean + Standard Deviation (upper error bar only): <code>"mean_sdl_upper"</code></p></li>
 <li><p>Median only: <code>"median"</code></p></li>
 <li><p>Median +/- Interquartile Range: <code>median_iqr</code></p></li>
 <li><p>None: <code>"none"</code></p></li>
@@ -174,6 +176,10 @@ Plots a reference line at y = 0. Default is <code>FALSE</code>.</p></dd>
 
 <dt id="arg-n-breaks">n_breaks<a class="anchor" aria-label="anchor" href="#arg-n-breaks"></a></dt>
 <dd><p>Number of breaks requested for x-axis. Default is 5.</p></dd>
+
+
+<dt id="arg-barwidth">barwidth<a class="anchor" aria-label="anchor" href="#arg-barwidth"></a></dt>
+<dd><p>Numeric value passed to <code>width</code> in <code>geom_errorbar</code>. Default is 2.5% of maximum <code>NTIME</code></p></dd>
 
 </dl></div>
     <div class="section level2">

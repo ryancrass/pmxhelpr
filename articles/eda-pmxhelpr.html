@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.1/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>eda-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -324,10 +324,30 @@ specifying <code>obs_dv = FALSE</code>.</p>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-1.png" width="576"></p>
-<p>We could also plot these data as median + interquartile range (IQR)
-using the same approach, if we do not feel the sample size is sufficient
-for parametric summary statistics.</p>
+<p>The default error bar width is 2.5% of the maximum nominal time in
+the dataset. This can be overwritten to a user-specified value using the
+<code>barwidth</code> argument, which is passed to the
+<code>width</code> argument of <code>geom_errorbar</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, barwidth <span class="op">=</span> <span class="fl">8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-width-1.png" width="576"></p>
+<p>We may want to only show the upper error bar, especially when
+computing the arithmetic mean +/- arithmetic SD on the linear scale.
+This can be accomplished by changing the <code>cent</code> argument to
+<code>mean_sdl_upper</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl_upper"</span>, </span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-upper-1.png" width="576"></p>
+<p>We could also plot these data as median + interquartile range (IQR)
+using, if we do not feel the sample size is sufficient for parametric
+summary statistics. This can be accomplished by changing the
+<code>cent</code> argument to <code>median_iqr</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"median_iqr"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -343,7 +363,7 @@ spaghetti lines. Data points within an individual value of
 <code>grp_var</code> will be connected by a narrow line when
 <code>grp_dv = TRUE</code>. The default is
 <code>grp_var = "ID"</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"median"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -384,14 +404,14 @@ is <code>1</code> or <code>2</code>, but can be <code>NULL</code>
 our case, <code>LLOQ</code> is a variable in <code>plot_data</code>, so
 we do not need to specify the <code>loq</code> argument (default is
 <code>loq = NULL</code>).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq1-1.png" width="576"></p>
 <p>The same plot is obtained by specifying <code>loq = 1</code></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -410,7 +430,7 @@ of observations below the LLOQ.</p>
 </h3>
 <p>We can also generate dose-normalized concentration-time plots by
 specifying <code>dosenorm = TRUE</code>.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -421,7 +441,7 @@ specifying <code>dosenorm = TRUE</code>.</p>
 input dataset <code>data</code>. If <code>dose_var</code> is not present
 in <code>data</code>, the function will return an <em>Error</em> with an
 informative error message.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="op">-</span><span class="va">DOSE</span><span class="op">)</span>, </span>
 <span>            dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -433,7 +453,7 @@ informative error message.</p>
 case in which both options are requested. The reference line for the
 LLOQ will not be plotted when dose-normalized concentration is the
 dependent variable.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -451,7 +471,7 @@ accomplished using the <code>interaction</code> function within the
 the interaction between the two variables. Let’s visualize the
 interaction between the factor versions of the variables
 <code>DOSE</code> and <code>FOOD</code>.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TIME</span>, y <span class="op">=</span> <span class="va">ODV</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">`Dose (mg)`</span>, <span class="va">`Food Status`</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">NTIME</span>, y <span class="op">=</span> <span class="va">ODV</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">`Dose (mg)`</span>, <span class="va">`Food Status`</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -467,7 +487,7 @@ creating a variable for the interaction we want to visualize. This also
 affords us the opportunity to define the factor labels, levels, and
 order, which will affect how the interaction is displayed on the
 plot.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_int</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">`Dose (mg) and Food`</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"10 mg Fasted"</span>, </span>
@@ -487,7 +507,7 @@ However, we can actually take this one step further, and define our
 interaction variable as an <em>ordered</em> factor, which results
 <code>ggplot2</code> applying the <em>viridis</em> color scale from the
 <code>viridisLite</code> package.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_int_ordered</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">`Dose (mg) and Food`</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"10 mg Fasted"</span>, </span>
@@ -515,7 +535,7 @@ cross-over period.</p>
 same subjects are included in <code>"PART1-SAD"</code> and
 <code>"PART2-FE</code> (e.g., modify from a parallel group design to a
 crossover design).</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_crossover</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="va">ID</span> <span class="op">-</span> <span class="fl">6</span>, <span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -546,7 +566,7 @@ protion of the study. We can define a factor variable that is the
 interaction between <code>"ID"</code> and <code>"FOOD"</code>. Now when
 we visualize the data, the data points will be connected within the
 group defined by both variables.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_crossover_fid</span> <span class="op">&lt;-</span> <span class="va">plot_data_crossover</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>FID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">ID</span>, <span class="va">FOOD</span><span class="op">)</span>,</span>
 <span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -575,7 +595,7 @@ population concentration-time profiles by dose using
 little pre-processing of the input dataset.</p>
 <p>We can specify <code>cent = "none"</code> to remove the central
 tendency layer when plotting individual subject data.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -586,7 +606,7 @@ tendency layer when plotting individual subject data.</p>
 This could be extended generate plots for all individuals using
 <code>for</code> loops, <code>lapply</code>, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code>
 functions, or other methods.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span> <span class="co">#vector of unique subject ids</span></span>
 <span><span class="va">n_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span> <span class="co">#count of unique subject ids</span></span>
@@ -712,7 +732,7 @@ intervals over which we want to obtain the NCA parameters. The
 single ascending dose (SAD) design with a parallel food effect (FE)
 cohort; therefore, our interval is [0,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>]</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Set NCA options</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/PKNCA/man/PKNCA.options.html" class="external-link">PKNCA.options</a></span><span class="op">(</span>conc.blq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"first"</span> <span class="op">=</span> <span class="st">"keep"</span>, </span>
 <span>                              <span class="st">"middle"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, </span>
@@ -734,7 +754,7 @@ cohort; therefore, our interval is [0,
 <span>             <span class="op">)</span>  </span></code></pre></div>
 <p>Next, we will set up our dose and concentration objects and perform
 the NCA using <code>PKNCA</code></p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Impute BLQ concentrations to 0 (PKNCA formatting)</span></span>
 <span><span class="va">data_sad_nca_input</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>CONC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">ODV</span><span class="op">)</span>, <span class="fl">0</span>, <span class="va">ODV</span><span class="op">)</span>, </span>
@@ -762,7 +782,7 @@ using the variable names in <code>SDTM</code> standards for the
 dataset is also available internally within <code>pmxhelpr</code> as
 <code>data_sad_nca</code> with a few additional columns specifying
 units.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad_nca</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 612</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -806,7 +826,7 @@ estimates</li>
 <code>metrics</code> a character vector of NCA parameters to
 evaluate in log-log regression</li>
 </ul>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">power_table</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
@@ -826,7 +846,7 @@ parameters, and confounds the assessment of dose proportionality. The
 most important thing is to understand the input data!</p>
 <p>Let’s run it again, but this time only include
 <code>Part 1-SAD</code>.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">power_table</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
@@ -862,7 +882,7 @@ for visualization and pulls in the functionality of
 facet label.</p>
 <p>The required arguments to <code>plot_doseprop</code> are the same as
 <code>df_doseprop</code>!</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/power-law-plot-1.png" width="700"></p>
 </div>

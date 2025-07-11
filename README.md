@@ -41,17 +41,20 @@ Functions in this package use the following naming conventions:
 - Helper functions: *ReturnObject*\_*Purpose*
   - `plot_dvtime` returns a `ggplot` object with a dependent variable
     plotted versus time
+  - `plot_popgof` returns a `ggplot` object with observed,
+    population-predicted, and individual-predicted values plotted versus
+    time
   - `df_nobsbin` returns a summary `data.frame` with counts of the
     number of missing and non-missing observations per bin.
   - `df_pcdv` returns a `data.frame` containing the prediction-corrected
     dependent variable.
-  - `plot_legend` returns a `ggplot` object containing a legend for a
+  - `plot_vpclegend` returns a `ggplot` object containing a legend for a
     VPC plot generated using `plot_vpc_exactbins`
 
-## Example Visual Predictive Check Workflow
+## Example Exploratory Data Analysis Workflow
 
-This is a basic example which illustrates a simple VPC workflow using
-pmxhelpr:
+This is a basic example which illustrates a simple exploratory data
+analysis workflow using pmxhelpr:
 
 ``` r
 library(pmxhelpr)
@@ -66,40 +69,65 @@ library(withr)
 glimpse(data_sad)
 
 #Plot data
-data <- data_sad
+data <- data_sad %>% 
   mutate(Dose = paste(DOSE, "mg"), 
          Dose_f = factor(Dose, levels = c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg")))
          
 plot_dvtime(data = data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose_f",
             ylab = "Concentration (ng/mL)", timeu = "hours")
 
+#Assess dose proportionality in the fasted state
+glimpse(data_sad_nca)
+data_sad_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
+
+#Tabulated dose-proportionality
+table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+table
+
+#Visualize dose-proportionality
+plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
+```
+
+## Example Visual Exploratory Data Analysis Workflow
+
+This is a basic example which illustrates a simple VPC workflow using
+pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(patchwork)
+library(withr)
+
 #Read internal mrgsolve model file
 model <- model_mread_load("model")
 
 #Simulated replicates of the dataset using mrgsim 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
-                              output_vars = c(DV = "ODV"),
+                              dv_var = "ODV",
                               num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                              char_vars = c("USUBJID", "PART", "Dose_f))
+                              char_vars = c("USUBJID", "PART", "Dose_f"))
 glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
   #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
-  #LLOQ in the dataset is 1 ng/mL
-  
+
+
 plot_obj_food <- plot_vpc_exactbins(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
-  strat_vars = "FOOD_f",
-  pcvpc = TRUE,
-  loq = 1
+  strat_var = "FOOD_f",
+  pcvpc = TRUE
 ) + 
- scale_y_log10(guide = "axis_logticks")
+  scale_y_log10(guide = "axis_logticks")
 
 plot_obj_food
 
 #Add Legend
-plot_obj_leg <- plot_legend()
+plot_obj_leg <- plot_vpclegend()
 plot_obj_leg
 
 plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))

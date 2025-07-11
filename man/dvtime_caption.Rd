@@ -12,7 +12,8 @@ dvtime_caption(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE)
 Options are:
 \itemize{
 \item Mean only: \code{"mean"} (default)
-\item Mean +/- Standard Deviation: \code{"mean_sdl"}
+\item Mean +/- Standard Deviation (upper and lower error bar): \code{"mean_sdl"}
+\item Mean + Standard Deviation (upper error bar only): \code{"mean_sdl_upper"}
 \item Median only: \code{"median"}
 \item Median +/- Interquartile Range: \code{median_iqr}
 \item None: \code{"none"}

@@ -41,6 +41,10 @@ Functions in this package use the following naming conventions:
 - Helper functions: *ReturnObject*\_*Purpose*
   - `plot_dvtime` returns a `ggplot` object with a dependent variable
     plotted versus time
+  - `plot_doseprop` returns a `ggplot` object with log-log regression of
+    exposure metrics versus dose
+  - `df_doseprop` returns a `data.frame` containing parameters from a
+    log-log regression of exposure metrics versus dose
   - `plot_popgof` returns a `ggplot` object with observed,
     population-predicted, and individual-predicted values plotted versus
     time

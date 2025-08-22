@@ -1,3 +1,6 @@
+* Fix bug in `plot_dvtime` and `plot_popgof` where variable for "DOSE" was being assessed when dosenorm = FALSE
+* Update `breaks_time` to accept abbreviations for time units
+
 # pmxhelpr 0.3.2
 
 * Add `cent = "mean_sdl_upper"` option to `plot_dvtime` and `plot_popgof` for plotting only the upper error bar

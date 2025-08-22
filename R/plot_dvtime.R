@@ -99,7 +99,7 @@ plot_dvtime <- function(data,
 
   ##Data Rename
   data <- data |>
-    dplyr::rename(dplyr::any_of(c(output_vars, time_vars)))
+    dplyr::rename(dplyr::any_of(c(c(DV = dv_var), time_vars)))
 
   if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var)))}
 

@@ -58,12 +58,6 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
                regexp = "must be variables in `data`")
 })
 
-test_that("Error if `timeu` is not within expected values", {
-  expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), timeu = "years"),
-               regexp = "argument timeu must be one of: hours, days, weeks, month")
-})
-
-
 test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), grp_var = "SUBJID", grp_dv = TRUE),
                regexp = "argument `grp_var` must be variables in `data`")

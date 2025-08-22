@@ -139,7 +139,11 @@ check_loq_method <- function(loq, loq_method, data) {
 
 
 check_timeu <- function(var){
-  values <- c("hours", "days", "weeks", "months")
+  values <- c("hours", "hrs", "hr", "h",
+              "days", "dys", "dy", "d",
+              "weeks", "wks", "wk", "w",
+              "months", "mons", "mos", "mo", "m")
+
   output_warning <- paste0("argument timeu must be one of: ", paste(values, collapse = ", "))
   if(! var %in% c(values)){
     rlang::abort(message = output_warning)

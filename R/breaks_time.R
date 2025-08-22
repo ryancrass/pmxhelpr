@@ -3,10 +3,11 @@
 #' @param x Numeric vector of times from which to determine breaks
 #' @param unit Character string for time units.
 #'    Options include:
-#'    + "hours" (default)
-#'    + "days"
-#'    + "weeks"
-#'    + "months"
+#'    + "hours" (default), "hrs", "hr", "h"
+#'    + "days", "dys", "dy", "d"
+#'    + "weeks", "wks", "wk", "w"
+#'    + "months", "mons", "mos", "mo", "m"
+#'
 #' @param n Ideal number of axis breaks requested (default = 8). Passed to `labeling::extended()`
 #'
 #' @return A numeric vector of breaks
@@ -30,22 +31,23 @@ breaks_time <- function(x, unit="hours", n=8) {
   #Define range
   rng <- range(x, na.rm = TRUE)
 
-  if (unit == "hours") {
+  if (unit %in% c("hours", "hrs", "hr", "h")) {
     scale <- 24
-  } else if (unit == "days") {
+  } else if (unit %in% c("days", "dys", "dy", "d")) {
     scale <- 7
-  } else if (unit == "weeks") {
+  } else if (unit %in% c("weeks", "wks", "wk", "w")) {
     scale <- 1
-  } else if (unit == "months") {
+  } else if (unit %in% c("months", "mons", "mos", "mo", "m")) {
     scale <- 1
   }
 
   rng <- rng / scale
 
   if(max(rng, na.rm = TRUE)<=1) {
-    if(unit == "hours") Ql <- c(4/24, 8/24, 12/24, 1)
-    if(unit == "days") Ql <- c(1/7, 1)
-    if(unit %in% c("weeks", "months")) Ql <- c(0.5, 1)
+    if(unit %in% c("hours", "hrs", "hr", "h")) Ql <- c(4/24, 8/24, 12/24, 1)
+    if(unit %in% c("days", "dys", "dy", "d")) Ql <- c(1/7, 1)
+    if(unit %in% c("weeks", "wks", "wk", "w",
+                   "months", "mons", "mos", "mo", "m")) Ql <- c(0.5, 1)
 
     breaks <- labeling::extended(
       rng[1], rng[2], n,

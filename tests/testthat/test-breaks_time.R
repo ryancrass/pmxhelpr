@@ -24,7 +24,7 @@ test_that("Error if incorrect class for arugmument `x`", {
 
 test_that("Error if `unit` is not within expected values", {
   expect_error(breaks_time(unique(data_sad$NTIME), unit = "years"),
-               regexp = "argument timeu must be one of: hours, days, weeks, month")
+               regexp = "argument timeu must be one of: hours, hrs, hr, h, days, dys, dy, d, weeks, wks, wk, w, months, mons, mos, mo, m")
 })
 
 test_that("Error if arugmument `n` is not coercible to an integer", {

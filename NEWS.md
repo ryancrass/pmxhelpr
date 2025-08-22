@@ -1,3 +1,5 @@
+# pmxhelpr 0.3.3
+
 * Fix bug in `plot_dvtime` and `plot_popgof` where variable for "DOSE" was being assessed when dosenorm = FALSE
 * Update `breaks_time` to accept abbreviations for time units
 

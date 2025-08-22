@@ -106,10 +106,10 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
 
   + `timeu` character string specifying time units. Options include:
   
-      * "hours" (default)
-      * "days"
-      * "weeks"
-      * "months"
+     * "hours" (default), "hrs", "hr", "h"
+     * "days", "dys", "dy", "d"
+     * "weeks", "wks", "wk", "w"
+     * "months", "mons", "mos", "mo", "m"
       
   + `n_breaks` number breaks requested from the algorithm. Default = 8.
   

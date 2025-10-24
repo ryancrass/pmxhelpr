@@ -36,14 +36,14 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
 
 test_that("Output plot maps variable specified in `col_var` to the color aesthetic", {
   expect_equal(
-    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels$colour,
+    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels[grepl("col", names(plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels))][[1]],
     "DOSE"
   )
 })
 
 test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
   expect_equal(
-    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels$group,
+    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels[grepl("gro", names(plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels))][[1]],
     "ID"
   )
 })

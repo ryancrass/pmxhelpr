@@ -73,15 +73,25 @@ test_that("Error if incorrect class for arugmument `replicates`", {
 test_that("Error if TIME variable specified in time_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 1,
                                    dv_var = "ODV", time_vars = c(TIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+               regexp = "must be variables in `data`")
 })
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
                                    time_vars = c(NTIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+               regexp = "must be variables in `data`")
 })
 
+test_that("No error if TIME variable specified in time_vars is NA", {
+  expect_no_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   time_vars = c(TIME = NA)))
+})
+
+test_that("Error if NTIME variable specified in time_vars is NA ", {
+  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                      time_vars = c(NTIME = NA)),
+               regexp = "Selections can't have missing values.")
+})
 
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "DV"),

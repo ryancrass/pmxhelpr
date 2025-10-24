@@ -32,7 +32,10 @@ plot_dvtime(
 \item{dv_var}{Character name of the DV variable in \code{data}.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).
+A nominal time variable must be specified. If the dataset contains only nominal time variables,
+then the actual time variable \code{TIME} should be specified as \code{NULL} to use only nominal times
+as follows: c(\code{TIME}=\code{NA}, \code{NTIME}=\code{"NTIME"}).}
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{breaks_time} and assigned to default x-axis label.

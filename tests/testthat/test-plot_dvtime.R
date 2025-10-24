@@ -54,14 +54,23 @@ test_that("Error if incorrect class for arugmument `data`", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
+test_that("Error if TIME variable specified in time_vars does not exist in `data`", {
   expect_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(TIME = "ATFD")),
                regexp = "must be variables in `data`")
 })
 
-test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
+test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
   expect_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(TIME = "NTFD")),
                regexp = "must be variables in `data`")
+})
+
+test_that("No Error if TIME variable specified as NA in time_vars", {
+  expect_no_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(TIME = NULL)))
+})
+
+test_that("Error if NTIME variable specified as NA in time_vars", {
+  expect_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(NTIME = NA)),
+               regexp = "Selections can't have missing values.")
 })
 
 test_that("Error if `col_var` does not exist in `data`", {

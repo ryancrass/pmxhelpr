@@ -99,7 +99,9 @@ check_varsindf <- function(data, vars){
   input_name2 <-deparse(substitute(vars))
   output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
   if(length(setdiff(vars, colnames(data)))>=1){
-    rlang::abort(message = output_warning)
+    if(!is.na(vars)){
+      rlang::abort(message = output_warning)
+    }
   }
 }
 

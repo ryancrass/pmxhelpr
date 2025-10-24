@@ -10,6 +10,9 @@
 #' @param dv_var Character name of the DV variable in `data`.
 #' @param time_vars Names of actual and nominal time variables. Must be named character vector.
 #'    Defaults is: c(`TIME`=`"TIME"`, `NTIME`=`"NTIME"`).
+#'    A nominal time variable must be specified. If the dataset contains only nominal time variables,
+#'    then the actual time variable `TIME` should be specified as `NA` to use only nominal times
+#'    as follows: c(`TIME`=`NA`, `NTIME`=`"NTIME"`).
 #' @param output_vars Names of model outputs from `model`. Must be named character vector.
 #'    Defaults is: c(`PRED`= `"PRED"`, `IPRED` = `"IPRED"`, `DV`= `"DV"`).
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
@@ -64,15 +67,23 @@ df_mrgsim_replicate <- function(data,
   check_mrgmod_outputvars(model, output_vars)
   check_integer(replicates)
   check_varsindf(data, dv_var)
-  check_varsindf(data, time_vars)
+  check_varsindf(data, time_vars[["TIME"]])
+  check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, num_vars)
   check_varsindf(data, char_vars)
   check_integer(seed)
 
-  ##Data Rename
-  data <- data |>
-    dplyr::rename(dplyr::any_of(time_vars)) |>
-    dplyr::rename("OBSDV" = !!as.symbol(dv_var))
+  ##Data Rename or Mutate
+  if(!is.na(time_vars[["TIME"]])){
+    data <- data |>
+      dplyr::rename(dplyr::any_of(time_vars)) |>
+      dplyr::rename("OBSDV" = !!as.symbol(dv_var))
+  } else {
+    data <- data |>
+      dplyr::rename("OBSDV" = !!as.symbol(dv_var)) |>
+      dplyr::mutate(TIME = !!dplyr::sym(time_vars[["NTIME"]]),
+                    NTIME = !!dplyr::sym(time_vars[["NTIME"]]))
+  }
 
   data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
 

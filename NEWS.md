@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.5
 
 * Update `time_vars` argument to handle the special case of data with no actual time variable by passing a missing value (NA) as the `TIME` variable name: `time_vars = c(TIME = NA)`.
 

@@ -70,9 +70,16 @@ plot_popgof <- function(data,
   if(dosenorm == TRUE){check_varsindf(data, dose_var)}
   check_loq_method(loq, loq_method, data)
 
-  ##Data Rename
-  data <- data |>
-    dplyr::rename(dplyr::any_of(c(output_vars, time_vars)))
+  ##Data Rename or Mutate
+  if(!is.na(time_vars[["TIME"]])){
+    data <- data |>
+      dplyr::rename(dplyr::any_of(c(output_vars, time_vars)))
+  } else {
+    data <- data |>
+      dplyr::rename(dplyr::any_of(c(output_vars))) |>
+      dplyr::mutate(TIME = !!dplyr::sym(time_vars[["NTIME"]]),
+                    NTIME = !!dplyr::sym(time_vars[["NTIME"]]))
+  }
 
   if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var)))}
 

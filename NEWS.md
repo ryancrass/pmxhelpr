@@ -1,5 +1,7 @@
 # pmxhelpr (development version)
 
+* Update `time_vars` argument to handle the special case of data with no actual time variable by passing a missing value (NA) as the `TIME` variable name: `time_vars = c(TIME = NA)`.
+
 # pmxhelpr 0.3.4
 
 * Fix bug in `df_mrgsim_replicate` that was precluding use of non-default time variable names

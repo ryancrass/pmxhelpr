@@ -184,12 +184,13 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
   facet_wrap(~PART)
 ```
 
-The default error bar width is 2.5% of the maximum nominal time in the dataset. This can be overwritten to a user-specified value using the `barwidth` argument, which is passed to the `width` argument of `geom_errorbar`. 
+The default error bar width is 2.5% of the maximum nominal time in the dataset. This can be overwritten to a user-specified value using the `theme` argument by specifying the `width_errorbar` value as demonstrated in the code below. These value is passed to the `width` argument of `geom_errorbar`. 
 
 ```{r plot-dvtime_part-meansdl-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
-            obs_dv = FALSE, barwidth = 8) +
+            obs_dv = FALSE, 
+            theme = list(width_errorbar = 8)) +
   facet_wrap(~PART)
 ```
 

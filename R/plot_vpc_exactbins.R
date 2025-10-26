@@ -106,10 +106,6 @@ plot_vpc_exactbins <- function(sim,
   #aesthetics for legend based on settings in vpc::new_vpc_theme
   vpctheme <- list_update(theme, pmxhelpr_vpc_theme())
 
-  ##Data Rename
-  sim <- sim |>
-    dplyr::rename((dplyr::any_of(c(output_vars, time_vars))))
-
   #Handle Output and Time Variables
   if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
     sim <- dplyr::rename(sim, dplyr::any_of(c(time_vars, output_vars)))

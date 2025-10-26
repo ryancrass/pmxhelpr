@@ -131,7 +131,9 @@ plot_popgof <- function(data,
   xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
   #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvtime_theme(list(size_point_obs = 1.25)))
+  plottheme <- list_update(theme, plot_dvtime_theme(list(size_point_obs = 1.25,
+                                                         linewidth_obs = 1,
+                                                         alpha_line_obs = 1)))
 
   #Determine Error Bar Cap Width
   if(is.numeric(plottheme$width_errorbar)) {

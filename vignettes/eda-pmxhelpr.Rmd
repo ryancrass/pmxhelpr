@@ -184,15 +184,6 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
   facet_wrap(~PART)
 ```
 
-The default error bar width is 2.5% of the maximum nominal time in the dataset. This can be overwritten to a user-specified value using the `barwidth` argument, which is passed to the `width` argument of `geom_errorbar`. 
-
-```{r plot-dvtime_part-meansdl-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            obs_dv = FALSE, barwidth = 8) +
-  facet_wrap(~PART)
-```
-
 We may want to only show the upper error bar, especially when computing the arithmetic mean +/- arithmetic SD on the linear scale. This can be accomplished by changing the `cent` argument to `mean_sdl_upper`.
 
 ```{r plot-dvtime_part-meansdl-upper, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -370,6 +361,45 @@ plot_dvtime(plot_data_crossover_fid, dv_var = "ODV", col_var = "Dose (mg) and Fo
             loq_method = 2)
 ```
 
+## Adjusting the Attributes for Points and Lines
+
+The default attributes of data points and lines are controlled by the `theme` argument. The defaults
+
+```{r plot-dvtime-theme, message = FALSE, warning=FALSE}
+plot_dvtime_theme()
+```
+
+These attributes can be updated by passing a named list to the `theme` argument. Say we want to reduce the linewidth of the error bars and reduce the size of the mean summary points to only visualize the lines. This can be accomplished for an individual plot as follows:
+
+```{r plot-dvtime-part-meansdl-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            obs_dv = FALSE, 
+            theme = list(linewidth_errorbar = 0.5, size_point_cent = 0.1)) +
+  facet_wrap(~PART)
+```
+
+One could also globally set a new theme by updating the default using `plot_dvtime_theme` and pass the new theme list object to the `theme` argument. This is useful if generating multiple plots using the same modified theme.
+
+```{r plot-dvtime-part-meansdl-themeset, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+new_theme <- plot_dvtime_theme(list(linewidth_errorbar = 0.5, size_point_cent = 0.1))
+
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            obs_dv = FALSE, 
+            theme = new_theme) +
+  facet_wrap(~PART)
+```
+
+The default error bar width is 2.5% of the maximum nominal time in the dataset. This can be overwritten to a user-specified value using the `width_errorbar` attribute of `plot_dvtime_theme`. This value is passed to the `width` argument of `geom_errorbar`. 
+
+```{r plot-dvtime-part-meansdl-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            obs_dv = FALSE, 
+            theme = list(width_errorbar = 8)) +
+  facet_wrap(~PART)
+```
 
 # Individual Concentration-time plots
 

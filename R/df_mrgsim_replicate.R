@@ -69,10 +69,17 @@ df_mrgsim_replicate <- function(data,
   check_varsindf(data, char_vars)
   check_integer(seed)
 
-  ##Data Rename
-  data <- data |>
-    dplyr::rename(dplyr::any_of(time_vars)) |>
-    dplyr::rename("OBSDV" = !!as.symbol(dv_var))
+  ##Handle DV Variable
+  data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var)))
+
+  #Handle Time Variables
+  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
+    data <- dplyr::rename(data, dplyr::any_of(time_vars))
+  } else {
+    data <- data |>
+      dplyr::rename(dplyr::any_of(c(NTIME = time_vars[["NTIME"]]))) |>
+      dplyr::mutate(TIME = NTIME)
+  }
 
   data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
 

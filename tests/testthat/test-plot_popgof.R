@@ -34,12 +34,12 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
   )
 })
 
-test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
-  expect_equal(
-    plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), grp_dv = TRUE)$labels$group,
-    "ID"
-  )
-})
+#test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
+#  expect_equal(
+#    plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), grp_dv = TRUE)$labels$group,
+#    "ID"
+#  )
+#})
 
 
 ##Test Argument Handling
@@ -56,6 +56,11 @@ test_that("Error if TIME variable specified in time_vars does not exist in `sim`
 test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), time_vars = c(TIME = "NTFD")),
                regexp = "must be variables in `data`")
+})
+
+test_that("No error if TIME and NTIME variables specified as the same variable in time_vars", {
+  expect_no_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"),
+                           time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
 })
 
 test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {

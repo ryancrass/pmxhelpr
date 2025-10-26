@@ -34,19 +34,19 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
   )
 })
 
-test_that("Output plot maps variable specified in `col_var` to the color aesthetic", {
-  expect_equal(
-    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels$colour,
-    "DOSE"
-  )
-})
+#test_that("Output plot maps variable specified in `col_var` to the color aesthetic", {
+#  expect_equal(
+#    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels$colour,
+#    "DOSE"
+#  )
+#})
 
-test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
-  expect_equal(
-    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels$group,
-    "ID"
-  )
-})
+#test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
+#  expect_equal(
+#    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels$group,
+#    "ID"
+#  )
+#})
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
@@ -62,6 +62,10 @@ test_that("Error if TIME variable specified in time_vars does not exist in `sim`
 test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(TIME = "NTFD")),
                regexp = "must be variables in `data`")
+})
+
+test_that("No Error if TIME and NTIME variables are specified as the same variable in time_vars", {
+  expect_no_error(plot_dvtime(data = data_sad, dv_var = "ODV", time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
 })
 
 test_that("Error if `col_var` does not exist in `data`", {

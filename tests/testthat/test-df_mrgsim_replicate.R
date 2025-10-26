@@ -82,6 +82,10 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `dat
                regexp = "argument `time_vars` must be variables in `data`")
 })
 
+test_that("No error if TIME and NTIME variables are specified as the same variable in time_vars", {
+  expect_no_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
+                                   time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
+})
 
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "DV"),

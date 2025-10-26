@@ -23,7 +23,7 @@ plot_dvtime(
   log_y = FALSE,
   show_caption = TRUE,
   n_breaks = 8,
-  barwidth = NULL
+  theme = NULL
 )
 }
 \arguments{
@@ -97,7 +97,15 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
 
-\item{barwidth}{Numeric value passed to \code{width} in \code{geom_errorbar}. Default is 2.5\% of maximum \code{NTIME}}
+\item{theme}{Named list of aesthetic parameters to be supplied to the plot.
+Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
+Default \code{width_errorbar} is 2.5\% of maximum \code{NTIME}.
+Defaults for observations updated in \code{plot_popgof} as follows:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ +`size_point_obs` = 1.25
+ +`linewidth_obs` = 1
+ + `alpha_line_obs` = 1
+}\if{html}{\out{</div>}}}
 }
 \value{
 A \code{ggplot2} plot object

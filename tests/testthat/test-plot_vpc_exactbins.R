@@ -187,6 +187,17 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
   )
 })
 
+test_that("No error if TIME and NTIME specified as same variabl in time_vars", {
+  testsim <- df_mrgsim_replicate(data=data_sad,
+                                 model=model_mread_load("model"),
+                                 replicates = 10,
+                                 dv_var = "ODV")
+
+  expect_no_error(
+    plot_vpc_exactbins(sim = testsim,time_vars = c(TIME = "NTIME", NTIME = "NTIME")),
+  )
+})
+
 test_that("Error if PRED variable specified in output_vars does not exist in `sim` and pcvpc = TRUE", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("model"),

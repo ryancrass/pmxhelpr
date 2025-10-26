@@ -1,7 +1,5 @@
 # pmxhelpr 0.3.4
-
-* Add option to control default aesthetics (linewidth, linetype, size, shape, alpha) in `plot_dvtime` and `plot_popgof`
-* Fix bug in `plot_popgof` that was preventing upper error bars from inheriting the color mapped to "DV"
+* Fix bug in `df_mrgsim_replicate` that was precluding use of non-default time variable names
 
 # pmxhelpr 0.3.3
 

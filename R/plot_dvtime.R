@@ -8,7 +8,7 @@
 #'    + "days"
 #'    + "weeks"
 #'    + "months"
-#' @param n_breaks Number of breaks requested for x-axis. Default is 5.
+#' @param n_breaks Number of breaks requested for x-axis. Default is 8.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
 #' @param dose_var Character string of the variable to use in dosenormalization when `dosenorm` = TRUE.

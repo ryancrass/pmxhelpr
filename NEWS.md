@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.6
 
 * Add `df_addn` helper function to create and order factor labels including count of unique values to include counts in plot legends
 * Add `plot_popgof_theme` function to set and adjust default aesthetics for `plot_popgof`

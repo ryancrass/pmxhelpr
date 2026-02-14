@@ -243,7 +243,9 @@ plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
   facet_wrap(~PART)
 ```
 
-A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputed as LLOQ/2. Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
+A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputed as LLOQ/2. The numeric value of LLOQ is printed in the legend and a caption is added to indicate the imputation method for BLQ data.
+
+Imputing post-dose concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This is confirmatory evidence for our hypothesis that the noise in the late terminal phase is due to censoring of observations below the LLOQ.
 
 ## Dose-normalization
 
@@ -325,6 +327,30 @@ plot_dvtime(plot_data_int_ordered, dv_var = "ODV", col_var = "Dose (mg) and Food
             loq_method = 2)
 ```
 
+`pmxhelpr` also includes a helper function `df_addn`, which will add counts of a identifier variable passed to the `id_var` argument to the variable specified in `grp_var`. If a numeric variable is passed to `grp_var`, the factor variable returned will be correctly sorted in increasing order of values.
+
+```{r plot-dvtime-dfaddn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_int <- plot_data %>%  
+  mutate(`Dose (mg)` = DOSE)
+
+plot_data_int_addn <- df_addn(plot_data_int, grp_var = "Dose (mg)", id_var = "ID")
+
+
+plot_dvtime(plot_data_int_addn, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            loq_method = 2)
+```
+A character separator can also be passed to the `sep` argument, which will be printed between the values of `grp_var` and the counts. A common use case is when dose is expressed as a numeric variable and the dose units are passed to `sep`
+
+```{r plot-dvtime-dfaddn-sep, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_int_addn_sep <- df_addn(plot_data, grp_var = "DOSE", id_var = "ID", sep = "mg")
+
+plot_dvtime(plot_data_int_addn_sep, dv_var = "ODV", col_var = "DOSE", cent = "mean",
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            loq_method = 2)
+```
+
+
 The same approach can be used to define an interaction variable to be assigned to the group aesthetic using the `grp_var` argument to `plot_dvtime`. Such an approach may be used if we wanted to visualize the data for a cross-over study condition separately for each period within an individual. In this case, the default `grp_var = "ID"` would connect all data points within an individual across both periods whereas we actually want to visualize points connected within the individual `"ID"` separately by cross-over period. 
 
 To explore this, we will modify `data_sad` such that the same subjects are included in `"PART1-SAD"` and `"PART2-FE` (e.g., modify from a parallel group design to a crossover design).
@@ -360,6 +386,7 @@ plot_dvtime(plot_data_crossover_fid, dv_var = "ODV", col_var = "Dose (mg) and Fo
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2)
 ```
+
 
 ## Adjusting the Attributes for Points and Lines
 

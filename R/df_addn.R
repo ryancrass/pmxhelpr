@@ -29,7 +29,7 @@ df_addn <- function(data,
   n <- data |>
     dplyr::group_by(!!dplyr::sym(grp_var)) |>
     dplyr::summarize(n = dplyr::n_distinct(!!dplyr::sym(id_var))) |>
-    dplyr::mutate(tmp = paste(DOSE, sep ,"(n=", n, ")")) |>
+    dplyr::mutate(tmp = paste(!!dplyr::sym(grp_var), sep ,paste0("(n=", n, ")"))) |>
     dplyr::ungroup()
 
   data <- dplyr::left_join(data, n)

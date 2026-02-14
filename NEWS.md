@@ -1,8 +1,11 @@
 # pmxhelpr (development version)
 
-* Add LLOQ value and caption indicating method of BLQ imputation to `plot_dvtime`
 * Add `df_addn` helper function to create and order factor labels including count of unique values to include counts in plot legends
+* Add `plot_popgof_theme` function to set and adjust default aesthetics for `plot_popgof`
+* Add LLOQ value and linetype to legend in `plot_dvtime`
+* Add caption indicating method of BLQ imputation to `plot_dvtime`
 * Fix bug in `df_pcdv` that was including missing values (MDV=1) in the median PRED calculation for nominal times with missing values, resulting in incorrect PRED-correction of observations in these bins ONLY. Simulated intervals and observed quantile lines were unaffected.
+* Correct error in documentation of default number of breaks in `breaks_time`
 
 # pmxhelpr 0.3.5
 

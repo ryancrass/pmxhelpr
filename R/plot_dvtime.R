@@ -266,6 +266,8 @@ plot_dvtime <- function(data,
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
+  if(loq_method == c(1)) caption <- paste0(caption, "\n", "Post-dose BLQ observations are imputed to 1/2 LLOQ")
+  if(loq_method == c(2)) caption <- paste0(caption, "\n", "All BLQ observations are imputed to 1/2 LLOQ")
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)

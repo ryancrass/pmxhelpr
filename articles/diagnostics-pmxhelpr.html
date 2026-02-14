@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Standard Model Diagnostics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.5/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>diagnostics-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -174,7 +174,7 @@ obtained with:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-1.png" class="r-plt" alt="" width="576"></p>
 <p>The pooled analysis population includes multiple dose levels in a
 single plot, which is probably not optimal as a population PK model
 diagnostic. A better minimal plot representation of these data can be
@@ -184,7 +184,7 @@ out the fast and food effect portions:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dn-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dn-1.png" class="r-plt" alt="" width="576"></p>
 <p>Although, generally population goodness-of-fit plots are stratified
 by study design (extrinsic) factors (e.g., Dose and Food Status) in
 order to assess the adequacy of model fit in each unique study
@@ -193,7 +193,7 @@ condition.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-1.png" class="r-plt" alt="" width="576"></p>
 <p><em>NOTE</em> <code>plot_popgof</code> plot aesthetic functionality
 from <code>plot_dvtime</code>.</p>
 <p>This vignette will assume familiarity with the Exploratory Data
@@ -249,7 +249,7 @@ to blue to align with <code>DV</code>.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, output_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>OBS <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-blue-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-blue-1.png" class="r-plt" alt="" width="576"></p>
 <p>Alternatively, the observed data points could be removed with only
 the summary metrics plotted. Notice how different this plot appears when
 only visualizing central tendency!</p>
@@ -257,7 +257,7 @@ only visualizing central tendency!</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-noobs-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-noobs-1.png" class="r-plt" alt="" width="576"></p>
 <p>A better plot that still emphasizes central tendency, but includes
 some visualization of variability in the observed data, could also be
 obtained by specifying one of ““.</p>
@@ -265,7 +265,7 @@ obtained by specifying one of ““.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, cent <span class="op">=</span> <span class="st">"median_iqr"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-noobs-mediqr-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-noobs-mediqr-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="specifying-the-central-tendency">Specifying the Central Tendency<a class="anchor" aria-label="anchor" href="#specifying-the-central-tendency"></a>
@@ -307,7 +307,7 @@ variability, and log-normal distribution of concentration-time data.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span> ,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-meansd-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-meansd-1.png" class="r-plt" alt="" width="576"></p>
 <p>However, when transformed to a semi-log scale with
 <code>log_y = TRUE</code>, the error bars now reflect the geometric
 standard deviation and are displayed correctly for lognormally
@@ -316,7 +316,7 @@ distributed data and the caption updates to reflect this.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-meansd-logy-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-meansd-logy-1.png" class="r-plt" alt="" width="576"></p>
 <p>The caption will <em>NOT</em> update if a new axis is added to the
 plot object outside of <code>plot_popgof</code> with
 <code>scale_y_log10</code>.</p>
@@ -325,7 +325,7 @@ plot object outside of <code>plot_popgof</code> with
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-logscale-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-logscale-1.png" class="r-plt" alt="" width="576"></p>
 <p>Transformation of the plot to a semi-log scale (log-scale y-axis
 only) is recommended to be performed using the <code>log_y</code>
 argument for the following benefits:</p>
@@ -374,7 +374,7 @@ in which zero is not a valid value.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-logy-loq2-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-logy-loq2-1.png" class="r-plt" alt="" width="576"></p>
 <p>Interesting! It looks like the potential misspecification in the late
 terminal phase was in fact an artifact in the observed profile due to
 censoring of data below the LLOQ. This is a common finding in SAD
@@ -419,31 +419,31 @@ functions, or other methods.</p>
 <span>      <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span><span class="va">plist</span><span class="op">[</span><span class="va">i</span><span class="op">:</span><span class="va">j</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-1.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-1.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-2.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-2.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[3]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-3.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-3.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[4]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-4.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-4.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[5]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-5.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-5.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[6]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-6.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-6.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[7]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-7.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-7.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[8]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-8.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-8.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[9]]</span></span></code></pre>
-<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-9.png" width="576"></p>
+<p><img src="diagnostics-pmxhelpr_files/figure-html/plot-indgofplots-9.png" class="r-plt" alt="" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -456,7 +456,7 @@ functions, or other methods.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

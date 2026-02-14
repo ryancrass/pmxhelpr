@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.5/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>eda-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -187,7 +187,7 @@ argument specifies which central tendency measure is plotted.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-1.png" class="r-plt" alt="" width="576"></p>
 <p>Not a bad plot with minimal arguments! We can see the mean for each
 dose as a colored thick line and observed data points as colored open
 circles with some alpha added. A caption also prints by default
@@ -197,7 +197,7 @@ describing the plot elements.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, show_caption <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-nocap-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-nocap-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="adjusting-time-breaks">Adjusting Time Breaks<a class="anchor" aria-label="anchor" href="#adjusting-time-breaks"></a>
@@ -246,7 +246,7 @@ required.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-1.png" class="r-plt" alt="" width="576"></p>
 <p>However, perhaps someone on the team would prefer the x-axis breaks
 in units of <code>days</code>. The x-axis breaks will transform to the
 new units automatically as long as we specify the new time unit with
@@ -258,7 +258,7 @@ new units automatically as long as we specify the new time unit with
 <span></span>
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_days</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, timeu <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-days-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-days-1.png" class="r-plt" alt="" width="576"></p>
 <p>Nice! However, someone else on the team would prefer to see the first
 24 hours of treatment in greater detail to visualize the absorption
 phase. We can either truncate the x-axis range using
@@ -271,7 +271,7 @@ input data!</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_24</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-24h-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-24h-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="specifying-the-central-tendency">Specifying the Central Tendency<a class="anchor" aria-label="anchor" href="#specifying-the-central-tendency"></a>
@@ -301,7 +301,7 @@ where arithmetic and gemoetric means are being returned.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-log-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-log-1.png" class="r-plt" alt="" width="576"></p>
 <p>But wait…this plot is potentially misleading! The food effect portion
 of the study is being pooled together with the fasted data within the
 100 mg dose.</p>
@@ -313,7 +313,7 @@ Therefore, we can facet by PART by simply adding in another layer to our
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-1.png" class="r-plt" alt="" width="576"></p>
 <p>The clinical team would like a simpler plot that clearly displays the
 central tendency. We can use the argument <code>cent = "mean_sdl"</code>
 to plot the mean with error bars and remove the observed points by
@@ -323,7 +323,7 @@ specifying <code>obs_dv = FALSE</code>.</p>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-1.png" class="r-plt" alt="" width="576"></p>
 <p>We may want to only show the upper error bar, especially when
 computing the arithmetic mean +/- arithmetic SD on the linear scale.
 This can be accomplished by changing the <code>cent</code> argument to
@@ -332,7 +332,7 @@ This can be accomplished by changing the <code>cent</code> argument to
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl_upper"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-upper-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-upper-1.png" class="r-plt" alt="" width="576"></p>
 <p>We could also plot these data as median + interquartile range (IQR)
 using, if we do not feel the sample size is sufficient for parametric
 summary statistics. This can be accomplished by changing the
@@ -342,7 +342,7 @@ summary statistics. This can be accomplished by changing the
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-medianiqr-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-medianiqr-1.png" class="r-plt" alt="" width="576"></p>
 <p>Hmm…there is some noise at the late terminal phase. This is likely
 artifact introduced by censoring of data at the assay LLOQ; however,
 let’s confirm there are no weird individual subject profiles by
@@ -358,7 +358,7 @@ spaghetti lines. Data points within an individual value of
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png" class="r-plt" alt="" width="576"></p>
 <p>It does not seem like there are outlier individuals driving the noise
 in the late terminal phase; therefore, this is almost certainly artifact
 introduced by data missing due to assay sensitivity and censoring at the
@@ -399,17 +399,19 @@ we do not need to specify the <code>loq</code> argument (default is
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq1-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq1-1.png" class="r-plt" alt="" width="576"></p>
 <p>The same plot is obtained by specifying <code>loq = 1</code></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-1.png" class="r-plt" alt="" width="576"></p>
 <p>A reference line is drawn to denote the LLOQ and all observations
 with <code>EVID=0</code> and <code>MDV=1</code> are imputed as LLOQ/2.
-Imputing post-dose concentrations below the lower limit of
+The numeric value of LLOQ is printed in the legend and a caption is
+added to indicate the imputation method for BLQ data.</p>
+<p>Imputing post-dose concentrations below the lower limit of
 quantification as 1/2 x LLOQ normalizes the late terminal phase of the
 concentration-time profile. This is confirmatory evidence for our
 hypothesis that the noise in the late terminal phase is due to censoring
@@ -425,7 +427,7 @@ specifying <code>dosenorm = TRUE</code>.</p>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dn-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dn-1.png" class="r-plt" alt="" width="576"></p>
 <p>When <code>dosenorm = TRUE</code>, the variable specified in
 <code>dose_var</code> (default = “DOSE”) needs to be present in the
 input dataset <code>data</code>. If <code>dose_var</code> is not present
@@ -448,7 +450,7 @@ dependent variable.</p>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq-dn-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq-dn-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="adjusting-the-color-and-group-aesthetics">Adjusting the Color and Group Aesthetics<a class="anchor" aria-label="anchor" href="#adjusting-the-color-and-group-aesthetics"></a>
@@ -470,7 +472,7 @@ interaction between the factor versions of the variables
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time (hours)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-int-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-int-1.png" class="r-plt" alt="" width="576"></p>
 <p>The functionality of <code><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction()</a></code> cannot be used within
 <code>plot_dvtime</code>; however, we can reproduce it by formally
 creating a variable for the interaction we want to visualize. This also
@@ -490,7 +492,7 @@ plot.</p>
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg) and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-1.png" class="r-plt" alt="" width="576"></p>
 <p>This looks pretty nice! The legend is formatted cleanly and the
 colors are assigned to each unique condition of the interaction.
 However, we can actually take this one step further, and define our
@@ -511,7 +513,36 @@ interaction variable as an <em>ordered</em> factor, which results
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int_ordered</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg) and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-order-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-int-order-1.png" class="r-plt" alt="" width="576"></p>
+<p><code>pmxhelpr</code> also includes a helper function
+<code>df_addn</code>, which will add counts of a identifier variable
+passed to the <code>id_var</code> argument to the variable specified in
+<code>grp_var</code>. If a numeric variable is passed to
+<code>grp_var</code>, the factor variable returned will be correctly
+sorted in increasing order of values.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_data_int</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span>  </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Dose (mg)` <span class="op">=</span> <span class="va">DOSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plot_data_int_addn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span><span class="va">plot_data_int</span>, grp_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, id_var <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int_addn</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dfaddn-1.png" class="r-plt" alt="" width="576">
+A character separator can also be passed to the <code>sep</code>
+argument, which will be printed between the values of
+<code>grp_var</code> and the counts. A common use case is when dose is
+expressed as a numeric variable and the dose units are passed to
+<code>sep</code></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_data_int_addn_sep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span><span class="va">plot_data</span>, grp_var <span class="op">=</span> <span class="st">"DOSE"</span>, id_var <span class="op">=</span> <span class="st">"ID"</span>, sep <span class="op">=</span> <span class="st">"mg"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_int_addn_sep</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"DOSE"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dfaddn-sep-1.png" class="r-plt" alt="" width="576"></p>
 <p>The same approach can be used to define an interaction variable to be
 assigned to the group aesthetic using the <code>grp_var</code> argument
 to <code>plot_dvtime</code>. Such an approach may be used if we wanted
@@ -525,7 +556,7 @@ cross-over period.</p>
 same subjects are included in <code>"PART1-SAD"</code> and
 <code>"PART2-FE</code> (e.g., modify from a parallel group design to a
 crossover design).</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_crossover</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="va">ID</span> <span class="op">-</span> <span class="fl">6</span>, <span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -556,7 +587,7 @@ protion of the study. We can define a factor variable that is the
 interaction between <code>"ID"</code> and <code>"FOOD"</code>. Now when
 we visualize the data, the data points will be connected within the
 group defined by both variables.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_crossover_fid</span> <span class="op">&lt;-</span> <span class="va">plot_data_crossover</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>FID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html" class="external-link">interaction</a></span><span class="op">(</span><span class="va">ID</span>, <span class="va">FOOD</span><span class="op">)</span>,</span>
 <span>         `Dose (mg) and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="st">"Fed"</span><span class="op">)</span><span class="op">)</span>, </span>
@@ -572,14 +603,14 @@ group defined by both variables.</p>
 <span>            grp_var <span class="op">=</span> <span class="st">"FID"</span>, grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-crossover-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-crossover-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
 <h3 id="adjusting-the-attributes-for-points-and-lines">Adjusting the Attributes for Points and Lines<a class="anchor" aria-label="anchor" href="#adjusting-the-attributes-for-points-and-lines"></a>
 </h3>
 <p>The default attributes of data points and lines are controlled by the
 <code>theme</code> argument. The defaults</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_theme.html">plot_dvtime_theme</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $linewidth_ref</span></span>
 <span><span class="co">#&gt; [1] 0.5</span></span>
@@ -642,18 +673,18 @@ group defined by both variables.</p>
 error bars and reduce the size of the mean summary points to only
 visualize the lines. This can be accomplished for an individual plot as
 follows:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>linewidth_errorbar <span class="op">=</span> <span class="fl">0.5</span>, size_point_cent <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-theme-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-theme-1.png" class="r-plt" alt="" width="576"></p>
 <p>One could also globally set a new theme by updating the default using
 <code>plot_dvtime_theme</code> and pass the new theme list object to the
 <code>theme</code> argument. This is useful if generating multiple plots
 using the same modified theme.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime_theme.html">plot_dvtime_theme</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>linewidth_errorbar <span class="op">=</span> <span class="fl">0.5</span>, size_point_cent <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
@@ -661,19 +692,19 @@ using the same modified theme.</p>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="va">new_theme</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-themeset-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-themeset-1.png" class="r-plt" alt="" width="576"></p>
 <p>The default error bar width is 2.5% of the maximum nominal time in
 the dataset. This can be overwritten to a user-specified value using the
 <code>width_errorbar</code> attribute of <code>plot_dvtime_theme</code>.
 This value is passed to the <code>width</code> argument of
 <code>geom_errorbar</code>.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width_errorbar <span class="op">=</span> <span class="fl">8</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-width-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-meansdl-width-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 </div>
 <div class="section level2">
@@ -686,18 +717,18 @@ population concentration-time profiles by dose using
 little pre-processing of the input dataset.</p>
 <p>We can specify <code>cent = "none"</code> to remove the central
 tendency layer when plotting individual subject data.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose (mg)"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indonly-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indonly-1.png" class="r-plt" alt="" width="576"></p>
 <p>We can plot an individual subject by filtering the input dataset.
 This could be extended generate plots for all individuals using
 <code>for</code> loops, <code>lapply</code>, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code>
 functions, or other methods.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span> <span class="co">#vector of unique subject ids</span></span>
 <span><span class="va">n_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ids</span><span class="op">)</span> <span class="co">#count of unique subject ids</span></span>
@@ -722,31 +753,31 @@ functions, or other methods.</p>
 <span>      <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">wrap_plots</a></span><span class="op">(</span><span class="va">plist</span><span class="op">[</span><span class="va">i</span><span class="op">:</span><span class="va">j</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-1.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-1.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-2.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-2.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[3]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-3.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-3.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[4]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-4.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-4.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[5]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-5.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-5.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[6]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-6.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-6.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[7]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-7.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-7.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[8]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-8.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-8.png" class="r-plt" alt="" width="576"></p>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[9]]</span></span></code></pre>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-9.png" width="576"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indplots-9.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="dose-proportionality-assessment-power-law-regression">Dose-proportionality Assessment: Power Law Regression<a class="anchor" aria-label="anchor" href="#dose-proportionality-assessment-power-law-regression"></a>
@@ -823,7 +854,7 @@ intervals over which we want to obtain the NCA parameters. The
 single ascending dose (SAD) design with a parallel food effect (FE)
 cohort; therefore, our interval is [0,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>]</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Set NCA options</span></span>
 <span><span class="fu"><a href="http://humanpred.github.io/pknca/reference/PKNCA.options.html" class="external-link">PKNCA.options</a></span><span class="op">(</span>conc.blq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"first"</span> <span class="op">=</span> <span class="st">"keep"</span>, </span>
 <span>                              <span class="st">"middle"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">$</span><span class="va">LLOQ</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, </span>
@@ -845,7 +876,7 @@ cohort; therefore, our interval is [0,
 <span>             <span class="op">)</span>  </span></code></pre></div>
 <p>Next, we will set up our dose and concentration objects and perform
 the NCA using <code>PKNCA</code></p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Impute BLQ concentrations to 0 (PKNCA formatting)</span></span>
 <span><span class="va">data_sad_nca_input</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>CONC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">ODV</span><span class="op">)</span>, <span class="fl">0</span>, <span class="va">ODV</span><span class="op">)</span>, </span>
@@ -873,7 +904,7 @@ using the variable names in <code>SDTM</code> standards for the
 dataset is also available internally within <code>pmxhelpr</code> as
 <code>data_sad_nca</code> with a few additional columns specifying
 units.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad_nca</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 612</span></span>
 <span><span class="co">#&gt; Columns: 11</span></span>
@@ -917,7 +948,7 @@ estimates</li>
 <code>metrics</code> a character vector of NCA parameters to
 evaluate in log-log regression</li>
 </ul>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">power_table</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
@@ -937,7 +968,7 @@ parameters, and confounds the assessment of dose proportionality. The
 most important thing is to understand the input data!</p>
 <p>Let’s run it again, but this time only include
 <code>Part 1-SAD</code>.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">power_table</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
@@ -973,9 +1004,9 @@ for visualization and pulls in the functionality of
 facet label.</p>
 <p>The required arguments to <code>plot_doseprop</code> are the same as
 <code>df_doseprop</code>!</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/power-law-plot-1.png" width="700"></p>
+<p><img src="eda-pmxhelpr_files/figure-html/power-law-plot-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -989,7 +1020,7 @@ facet label.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

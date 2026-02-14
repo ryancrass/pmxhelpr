@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plot Aesthetics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.5/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-plot-aesthetics.Rmd</code></div>
     </div>
 
@@ -120,7 +120,7 @@ a single observation.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-1.png" class="r-plt" alt="" width="768"></p>
 <div class="section level2">
 <h2 id="plot-elements">Plot Elements<a class="anchor" aria-label="anchor" href="#plot-elements"></a>
 </h2>
@@ -186,7 +186,7 @@ relative to the observed median.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_pi</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-90pi-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-90pi-1.png" class="r-plt" alt="" width="768"></p>
 <p>Now, let’s say we want to remove the observed data points from the
 plot above to better visualize the observed quantile lines relative to
 their corresponding simulated confidence intervals. We can do this as
@@ -208,7 +208,7 @@ follows.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_noobs</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-1.png" class="r-plt" alt="" width="768"></p>
 <p>We could also take this one step further and only look at the median
 and the simulated confidence interval of the median, to closely
 interrogate central tendency. This is common for VPC strata which have
@@ -233,7 +233,7 @@ arms in early phase trials.</p>
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_noobs_medonly</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-medonly-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-noobs-medonly-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -431,7 +431,7 @@ this function can then be passed to the <code>theme</code> argument in
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_vpctheme</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png" width="768">
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png" class="r-plt" alt="" width="768">
 2) to the theme argument of <code>plot_vpc_exactbins</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_vpctheme2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
@@ -449,7 +449,7 @@ this function can then be passed to the <code>theme</code> argument in
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_vpctheme2</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme2-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme2-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="adding-layers">Adding Layers<a class="anchor" aria-label="anchor" href="#adding-layers"></a>
@@ -476,7 +476,7 @@ object, which we can modify by adding layers just like like any other
 <span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
 <span></span>
 <span><span class="va">vpc_pc_vpctheme_xgrid</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-xgrid-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-xgrid-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -495,7 +495,7 @@ arguments specified.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" width="768">
+<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_legend-1.png" class="r-plt" alt="" width="768">
 Now we have a <code>ggplot</code> object legend for our first plot!</p>
 <p>To generate one for our second plot with updated aesthetics to match
 the <code>vpc</code> package defaults, let’s pass the named list output
@@ -504,18 +504,18 @@ argument.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_legend</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/vpc_pc_new_legend-1.png" class="r-plt" alt="" width="768"></p>
 <p>Okay, now that we have our legend plot objects, let’s combine them
 with the VPC plot objects into a single plot object with the
 <code>patchwork</code> package.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc</span> <span class="op">+</span> <span class="va">vpc_pc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_wleg</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-w-legend-1.png" class="r-plt" alt="" width="768"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_new_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc_pc_vpctheme_xgrid</span> <span class="op">+</span> <span class="va">vpc_pc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_new_wleg</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-w-legend-1.png" width="768"></p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-pcvpc-vpctheme-w-legend-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -529,7 +529,7 @@ with the VPC plot objects into a single plot object with the
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plots with Exact Bins</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.5/vignettes/vpc-exact-bins.Rmd" class="external-link"><code>vignettes/vpc-exact-bins.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-exact-bins.Rmd" class="external-link"><code>vignettes/vpc-exact-bins.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-exact-bins.Rmd</code></div>
     </div>
 
@@ -371,7 +371,7 @@ plot all the data on a single plot using the argument
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_jenks</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-jenks-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-jenks-1.png" class="r-plt" alt="" width="576"></p>
 <p>This plot looks pretty good! The default binning in
 <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> produce a very nice looking plot. However, all
 of the binning methods internal to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> are designed to
@@ -456,7 +456,7 @@ binning methods native to <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" c
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_pretty</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-pretty-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-pretty-1.png" class="r-plt" alt="" width="576"></p>
 <p>The vpc plot produced with <code>bins = "pretty</code> <em>is</em>
 fairly pretty; however, again we can see that the binning is not true to
 the exact bins in our dataset, especially at the earlier absorption
@@ -527,7 +527,7 @@ simulated intervals.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_kmeans</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-kmeans-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-kmeans-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Exact bins in the input data</span></span>
 <span><span class="fu"><a href="../reference/df_nobsbin.html">df_nobsbin</a></span><span class="op">(</span><span class="va">data_sad</span>, bin_var <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span></span>
@@ -598,7 +598,7 @@ correct bins.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_density</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-density-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-density-1.png" class="r-plt" alt="" width="576"></p>
 <p>Whomp Whomp. <code>bins = "density"</code>, like the previous methods
 evaluated, grouped most of the absorption phase into a single bin.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -682,10 +682,10 @@ bin width in time).</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_data</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-data-time-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-data-time-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_time</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-data-time-2.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-data-time-2.png" class="r-plt" alt="" width="576"></p>
 <p>These methods are designed to equalize data density in each bin,
 which does not produce binning consistent with the exact bins in our
 dataset.</p>
@@ -780,7 +780,7 @@ addition of <code>Inf</code> as follows:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">168</span>,<span class="fl">24</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_ntime</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-ntime-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-vpc-exact-ntime-1.png" class="r-plt" alt="" width="576"></p>
 <p>However, this workaround only works if <code>idv</code> is set to the
 nominal time variable (<code>idv = "NTIME</code>) in both
 <code>sim_cols</code> and <code>obs_cols</code>, which removes the
@@ -805,7 +805,7 @@ observed points if <code>pcvpc = TRUE</code> (also passed along to the
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact</span> </span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-exact-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-1.png" class="r-plt" alt="" width="576"></p>
 <p>The difference in plotting the observed prediction-corrected data
 points by <code>"TIME"</code> versus <code>"NTIME"</code> is negligible
 for this example dataset, due to the high concordance between
@@ -851,18 +851,18 @@ Huzzah!</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># Groups:   strat [1]</span></span></span>
 <span><span class="co">#&gt;    strat bin_mid bin_min bin_max</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1         0.5     0.5     1  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1         1       1       1.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1         1.5     1.5     2  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1         2       2       3  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1         3       3       4  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 1         4       4       5  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1         5       5       8  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 1         8       8      12  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1        12      12      16  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 1        16      16      24  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 1        24      24      36  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 1        36      36      48  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1         0.5     1       1.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1         1       1.5     2  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1         1.5     2       3  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1         2       3       4  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1         3       4       5  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 1         4       5       8  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1         5       8      12  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 1         8      12      16  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1        12      16      24  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 1        16      24      36  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 1        24      36       0.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 1        36       0.5    48  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> 1        48      48      72  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> 1        72      72      96  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> 1        96      96     120  </span></span>
@@ -899,7 +899,7 @@ still plotted.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_bin_gt10</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-exact-min-bin-count-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-min-bin-count-1.png" class="r-plt" alt="" width="576"></p>
 <p>We can also pass stratifying variables to the argument
 <code>strat_var</code> in order to facet our plots by relevant covariate
 conditions. The stratification variables specified in
@@ -918,7 +918,7 @@ Currently, only one variable can be passed to this argument.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_food</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-one-strata-1.png" class="r-plt" alt="" width="576"></p>
 <p>Note that all these plots add a layer to the <code>ggplot2</code>
 object returned by <code>plot_vpc_exactbins</code> to transform the
 y-axis from linear to log10 scales. One could specify the
@@ -958,7 +958,7 @@ specified.</p>
 <span><span class="op">)</span> </span>
 <span></span>
 <span><span class="va">vpc_exact_transform_logy</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-exact-logy-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-logy-1.png" class="r-plt" alt="" width="576"></p>
 <p>Thus, to avoid unexpected censoring of data on the VPC plot, one can
 plot without specifying <code>log_y</code> and then add a new log10
 scale for the y-axis.</p>
@@ -976,7 +976,7 @@ scale for the y-axis.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_exact_transform_yscale</span></span></code></pre></div>
-<p><img src="vpc-exact-bins_files/figure-html/plot-exact-yscale-1.png" width="576"></p>
+<p><img src="vpc-exact-bins_files/figure-html/plot-exact-yscale-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -990,7 +990,7 @@ scale for the y-axis.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

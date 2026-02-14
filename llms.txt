@@ -1,0 +1,236 @@
+# pmxhelpr
+
+The goal of pmxhelpr is to make pharmacometrics workflows more
+standardized, efficient, and reproducible. This package provides helper
+and wrapper functions for common steps in the pharmacometrics analysis
+workflow, such as exploratory data analysis, model development, model
+evaluation, and model application.
+
+## Installation
+
+You can install the development version of pmxhelpr from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ryancrass/pmxhelpr")
+```
+
+## Function Naming Conventions
+
+Functions in this package use the following naming conventions:
+
+- Wrapper functions: *ReturnObject*\_*WrappedFunction*\_*Purpose*
+  - [`model_mread_load()`](https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.md)
+    wraps
+    [`mrgsolve::mread_cache()`](https://mrgsolve.org/docs/reference/mread.html)
+    to read internal package model files returning an `mrgmod` object.
+  - `df_mrgsim_addpred()` wraps
+    [`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
+    including
+    [`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html)
+    to add population predictions (PRED) to the input data returning a
+    `data.frame`.
+  - [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+    wraps
+    [`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
+    to replicate the input data returning a `data.frame`.
+  - [`plot_vpc_exactbins()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.md)
+    wraps [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html) to
+    generate a VPC plot using exact time bins returning a `ggplot`
+    object.
+- Helper functions: *ReturnObject*\_*Purpose*
+  - `plot_dvtime` returns a `ggplot` object with a dependent variable
+    plotted versus time
+  - `plot_doseprop` returns a `ggplot` object with log-log regression of
+    exposure metrics versus dose
+  - `df_doseprop` returns a `data.frame` containing parameters from a
+    log-log regression of exposure metrics versus dose
+  - `plot_popgof` returns a `ggplot` object with observed,
+    population-predicted, and individual-predicted values plotted versus
+    time
+  - `df_nobsbin` returns a summary `data.frame` with counts of the
+    number of missing and non-missing observations per bin.
+  - `df_pcdv` returns a `data.frame` containing the prediction-corrected
+    dependent variable.
+  - `plot_vpclegend` returns a `ggplot` object containing a legend for a
+    VPC plot generated using `plot_vpc_exactbins`
+
+## Example Exploratory Data Analysis Workflow
+
+This is a basic example which illustrates a simple exploratory data
+analysis workflow using pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(patchwork)
+library(withr)
+
+#Read internal analysis-ready dataset for an example Phase 1 study
+glimpse(data_sad)
+
+#Plot data
+data <- data_sad %>% 
+  mutate(Dose = paste(DOSE, "mg"), 
+         Dose_f = factor(Dose, levels = c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg")))
+         
+plot_dvtime(data = data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose_f",
+            ylab = "Concentration (ng/mL)", timeu = "hours")
+
+#Assess dose proportionality in the fasted state
+glimpse(data_sad_nca)
+data_sad_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
+
+#Tabulated dose-proportionality
+table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+table
+
+#Visualize dose-proportionality
+plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
+```
+
+## Example Visual Exploratory Data Analysis Workflow
+
+This is a basic example which illustrates a simple VPC workflow using
+pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(patchwork)
+library(withr)
+
+#Read internal mrgsolve model file
+model <- model_mread_load("model")
+
+#Simulated replicates of the dataset using mrgsim 
+simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
+                              dv_var = "ODV",
+                              num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
+                              char_vars = c("USUBJID", "PART", "Dose_f"))
+glimpse(simout)
+
+#Plot output in a Prediction-corrected Visual Predictive Check (VPC)
+  #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
+  #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
+
+
+plot_obj_food <- plot_vpc_exactbins(
+  sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
+  strat_var = "FOOD_f",
+  pcvpc = TRUE
+) + 
+  scale_y_log10(guide = "axis_logticks")
+
+plot_obj_food
+
+#Add Legend
+plot_obj_leg <- plot_vpclegend()
+plot_obj_leg
+
+plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))
+plot_obj_food_wleg
+```
+
+# Package index
+
+## All functions
+
+- [`breaks_time()`](https://ryancrass.github.io/pmxhelpr/reference/breaks_time.md)
+  : Determine axis breaks automatically for time variables
+
+- [`data_sad`](https://ryancrass.github.io/pmxhelpr/reference/data_sad.md)
+  : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
+  Ascending Dose Study
+
+- [`data_sad_nca`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_nca.md)
+  : Example NCA Parameter Dataset Output from PKNCA
+
+- [`data_sad_pkfit`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.md)
+  : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
+  Ascending Dose Study
+
+- [`df_addn()`](https://ryancrass.github.io/pmxhelpr/reference/df_addn.md)
+  : Add count unique values of an identifier within each level of a
+  variable in a data.frame
+
+- [`df_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_addpred.md)
+  :
+
+  Add population predictions (`PRED`) to a data.frame
+
+- [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  : Compute and tabulate estimates for log-log regression
+
+- [`df_loglog()`](https://ryancrass.github.io/pmxhelpr/reference/df_loglog.md)
+  : Compute estimate table for log-log regression
+
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  :
+
+  Execute a visual predictive check (VPC) simulation using `mrgsolve`
+
+- [`df_nobsbin()`](https://ryancrass.github.io/pmxhelpr/reference/df_nobsbin.md)
+  : Count the non-missing observations in each exact bin
+
+- [`df_pcdv()`](https://ryancrass.github.io/pmxhelpr/reference/df_pcdv.md)
+  : Perform prediction-correction of the dependent variable
+
+- [`dvtime_caption()`](https://ryancrass.github.io/pmxhelpr/reference/dvtime_caption.md)
+  :
+
+  Define a caption for `plot_dvtime`
+
+- [`mod_loglog()`](https://ryancrass.github.io/pmxhelpr/reference/mod_loglog.md)
+  : Perform a log-log Regression
+
+- [`model_mread_load()`](https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.md)
+  : Load an mrgsolve model file from the internal model library
+
+- [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  : Plot a dose-proportionality assessment via power law (log-log)
+  regression
+
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  : Plot a dependent variable versus time
+
+- [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+  : Customized Concentration-time theme with pmxhelpr default aesthetics
+
+- [`plot_popgof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_popgof.md)
+  : Plot population overlay goodness-of-fit (GOF) plots
+
+- [`plot_popgof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_popgof_theme.md)
+  : Customized population overlay goodness-of-fit (GOF) theme with
+  pmxhelpr default aesthetics
+
+- [`plot_vpc_exactbins()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.md)
+  : Plot a visual predictive check (VPC) with exact time bins
+
+- [`plot_vpclegend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.md)
+  : Plot a legend for a visual predictive check (VPC)
+
+- [`pmxhelpr_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.md)
+  : Customized VPC theme with pmxhelpr default aesthetics
+
+# Articles
+
+### All vignettes
+
+- [Standard Model
+  Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/diagnostics-pmxhelpr.md):
+- [Exploratory Data
+  Analysis](https://ryancrass.github.io/pmxhelpr/articles/eda-pmxhelpr.md):
+- [VPC Plots with Exact
+  Bins](https://ryancrass.github.io/pmxhelpr/articles/vpc-exact-bins.md):
+- [VPC Plots with BLQ
+  Censoring](https://ryancrass.github.io/pmxhelpr/articles/vpc-obs-quant-blq-cens.md):
+- [VPC Plot
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/vpc-plot-aesthetics.md):

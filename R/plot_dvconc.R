@@ -1,6 +1,7 @@
 #' Plot a dependent variable versus concentration
 #'
-#' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
+#' @param data Input dataset.
+#' @param idv_var Independent variable. Default is `"CONC"`.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param loess Logical indicating if a loess smoother fit should be shown. Default is `TRUE`
 #' @param se_loess Logical indicating if the standard error should be shown for the loess fit. Default is `FALSE`
@@ -10,12 +11,11 @@
 #'    Plots a reference line at y = 0. Default is `FALSE`.
 #' @param ylab Character string specifying the y-axis label: Default is `"Response"`.
 #' @param xlab Character string specifying the x-axis label: Default is `"Drug Concentration"`
+#' @param log_x Logical indicator for log10 transformation of the x-axis.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
-#' @inheritParams df_mrgsim_replicate
 #' @param theme Named list of aesthetic parameters to be supplied to the plot.
 #'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
-#'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'
@@ -32,10 +32,13 @@ plot_dvconc <- function(data,
                         col_var = NULL,
                         loess = TRUE,
                         linear = FALSE,
+                        se_loess = FALSE,
+                        se_linear = FALSE,
                         cfb = FALSE,
                         ylab = "Response",
                         xlab = "Drug Concentration",
                         log_y = FALSE,
+                        log_x = FALSE,
                         show_caption = TRUE,
                         theme = NULL){
 
@@ -43,17 +46,21 @@ plot_dvconc <- function(data,
   #Checks
   check_df(data)
   check_varsindf(data, dv_var)
+  check_varsindf(data, idv_var)
   check_varsindf(data, col_var)
   if(!is.null(col_var)) {check_factor(data, col_var)}
 
-  ##Handle DV Variable
-  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var)))
+  ##Handle DV and IDV Variables
+  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var, CONC = idv_var)))
 
   ##Coerce Color Variable to a Factor
   if(!is.null(col_var)){data[[col_var]] <- factor(data[[col_var]])}
 
+  #Determine Caption
+  caption <- dvconc_caption(cfb, loess, linear, se_loess, se_linear)
+
   #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvtime_theme())
+  plottheme <- list_update(theme, plot_dvconc_theme())
 
 
 ###Plot
@@ -74,8 +81,8 @@ plot_dvconc <- function(data,
   #Add observations
   plot <- plot +
     ggplot2::geom_point(shape=plottheme$shape_point_obs,
-                         size=plottheme$size_point_obs,,
-                         alpha = plottheme$alpha_point_obs)
+                        size=plottheme$size_point_obs,
+                        alpha = plottheme$alpha_point_obs)
 
   #Reference Lines: Y=0 (cfb = TRUE)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0,
@@ -85,13 +92,13 @@ plot_dvconc <- function(data,
 
 
   #Plot Trend Lines
-  if(loess == TRUE) plot <- plot + ggplot2:geom_smooth(ggplot2::aes(x=CONC, y=DV),
+  if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=CONC, y=DV),
                                                        method = "loess", se = se_loess,
                                                        linewidth = plottheme$linewidth_cent,
                                                        linetype = plottheme$linetype_cent,
                                                        alpha = plottheme$alpha_line_cent)
 
-  if(linear == TRUE) plot <- plot + ggplot2:geom_smooth(ggplot2::aes(x=CONC, y=DV),
+  if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=CONC, y=DV),
                                                        method = "lm", se = se_linear,
                                                        linewidth = plottheme$linewidth_cent,
                                                        linetype = plottheme$linetype_cent,
@@ -122,15 +129,15 @@ plot_dvconc <- function(data,
 #' @examples
 #' dvtime_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
 
-dvtime_caption <- function(cfb, loess, linear, se_loess, se_linear){
+dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
   cfb_lab <- "\n Reference line indicates the null (no change from baseline)"
 
   capdf <- data.frame(
-    loess = rep(c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE,)),
+    loess = rep(c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)),
     linear = rep(c(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)),
-    loess_se = rep(c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,)),
-    linear_se = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE)),
+    se_loess = rep(c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE)),
+    se_linear = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE)),
     label = c("",
               "\n LOESS fit overlaid","\n LOESS fit overlaid with 95% CI",
               "\n Linear fit overlaid","\n Linear fit overlaid with 95% CI",
@@ -140,7 +147,10 @@ dvtime_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
   caption <- paste("Points are observations.",
                    ifelse(cfb==TRUE, cfb_lab, ""),
-                   capdf$label[capdf$cfb==cfb & capdf$loess==loess & capdf$linear==linear & capdf$loess_se==loess_se, capdf$linear_se == linear_se]
+                   capdf$label[capdf$loess==loess &
+                                 capdf$linear==linear &
+                                 capdf$se_loess==se_loess &
+                                 capdf$se_linear == se_linear]
 )
   return(caption)
 }
@@ -170,6 +180,10 @@ plot_dvconc_theme <- function(update = NULL){
     linewidth_obs = 0.5,
     linetype_obs = 1,
     alpha_line_obs = 0.5,
+
+    linewidth_cent = 0.75,
+    linetype_cent = 1,
+    alpha_line_cent = 1
   )
 
   default_theme <- defaults_list

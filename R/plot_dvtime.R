@@ -1,6 +1,6 @@
 #' Plot a dependent variable versus time
 #'
-#' @param data Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
+#' @param data Input dataset.
 #' @param timeu Character string specifying units for the time variable.
 #'    Passed to `breaks_time` and assigned to default x-axis label.
 #'    Options include:

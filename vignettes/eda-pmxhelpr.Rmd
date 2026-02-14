@@ -340,6 +340,8 @@ plot_dvtime(plot_data_int_addn, dv_var = "ODV", col_var = "Dose (mg)", cent = "m
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2)
 ```
+
+
 A character separator can also be passed to the `sep` argument, which will be printed between the values of `grp_var` and the counts. A common use case is when dose is expressed as a numeric variable and the dose units are passed to `sep`
 
 ```{r plot-dvtime-dfaddn-sep, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}

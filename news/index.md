@@ -1,6 +1,6 @@
 # Changelog
 
-## pmxhelpr (development version)
+## pmxhelpr 0.3.6
 
 - Add `df_addn` helper function to create and order factor labels
   including count of unique values to include counts in plot legends

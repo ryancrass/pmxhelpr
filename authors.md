@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/ryancrass/pmxhelpr/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/ryancrass/pmxhelpr/blob/v0.3.6/inst/CITATION)
 
 Ryan L. Crass (2024). *pmxhelpr: an R package of helper functions for
 pharmacometrics applications*. <https://github.com/ryancrass/pmxhelpr>.

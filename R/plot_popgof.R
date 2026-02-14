@@ -10,6 +10,9 @@
 #'
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_dvtime
+#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#'    Defaults can be viewed by running `plot_popgof_theme()` with no arguments.
+#'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'

@@ -51,11 +51,6 @@
 #' @param theme Named list of aesthetic parameters to be supplied to the plot.
 #'    Defaults can be viewed by running `plot_dvtime_theme()` with no arguments.
 #'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
-#'    Defaults for observations updated in `plot_popgof` as follows:
-#'
-#'      +`size_point_obs` = 1.25
-#'      +`linewidth_obs` = 1
-#'      + `alpha_line_obs` = 1
 #'
 #' @return A `ggplot2` plot object
 #'

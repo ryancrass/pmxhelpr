@@ -1,5 +1,9 @@
 # pmxhelpr (development version)
 
+* Add LLOQ value and caption indicating method of BLQ imputation to `plot_dvtime`
+* Add `df_addn` helper function to create and order factor labels including count of unique values to include counts in plot legends
+* Fix bug in `df_pcdv` that was including missing values (MDV=1) in the median PRED calculation for nominal times with missing values, resulting in incorrect PRED-correction of observations in these bins ONLY. Simulated intervals and observed quantile lines were unaffected.
+
 # pmxhelpr 0.3.5
 
 * Add option to pass the same dataset variable to `TIME` and `NTIME` attributes in `time_vars` for all functions

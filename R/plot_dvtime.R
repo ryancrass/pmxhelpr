@@ -139,7 +139,8 @@ plot_dvtime <- function(data,
                                           MDV == 1 ~ 0.5*LOQ))
   }
 
-  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
+  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ[!is.na(data$LOQ)]), NA_real_)
+  lloq_lab <- paste0(lloq)
 
   #Dose-normalize if requested
   if(dosenorm == TRUE) {
@@ -186,10 +187,15 @@ plot_dvtime <- function(data,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)
 
-  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(yintercept = lloq,
+  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(ggplot2::aes(yintercept = lloq,
+                                                                                               linetype = lloq_lab),
                                                                                   linewidth = plottheme$linewidth_ref,
-                                                                                  linetype = plottheme$linetype_ref,
                                                                                   alpha = plottheme$alpha_line_ref)
+
+  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::scale_linetype_manual(name = "LLOQ",
+                                                                                             values = stats::setNames(c(plottheme$linetype_ref),
+                                                                                                                        lloq_lab))+
+    ggplot2::guides(color = ggplot2::guide_legend(order = 1), linetype = ggplot2::guide_legend(order = 2))
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=plottheme$shape_point_obs,

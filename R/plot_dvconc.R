@@ -14,6 +14,7 @@
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @param theme Named list of aesthetic parameters to be supplied to the plot.
 #'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
+#' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
 #'
 #' @return A `ggplot2` plot object
@@ -21,8 +22,8 @@
 #' @export plot_dvconc
 #'
 #' @examples
-#'data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
-#'plot_dvconc(data, dv_var = "ODV", col_var = "Dose")
+#'data <- dplyr::mutate(data_sad_pd, Dose = factor(DOSE))
+#'plot_dvconc(data, dv_var = "ODV", idv_var = "ICONC", col_var = "Dose", col_trend = FALSE)
 #'
 
 plot_dvconc <- function(data,
@@ -150,10 +151,10 @@ plot_dvconc <- function(data,
 #' @inheritParams plot_dvconc
 #'
 #' @return a `character` string containing the plot caption
-#' @export dvtime_caption
+#' @export dvconc_caption
 #'
 #' @examples
-#' dvtime_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
+#' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
 
 dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
@@ -191,7 +192,7 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 #'
 #' @examples
 #' plot_dvconc_theme()
-#' new_theme <- plot_conc_theme(update = list(linewidth_ref = 1))
+#' new_theme <- plot_dvconc_theme(update = list(linewidth_ref = 1))
 
 
 plot_dvconc_theme <- function(update = NULL){
@@ -201,13 +202,13 @@ plot_dvconc_theme <- function(update = NULL){
     alpha_line_ref = 1,
 
     shape_point_obs = 1,
-    size_point_obs = 0.75,
+    size_point_obs = 1,
     alpha_point_obs = 0.5,
     linewidth_obs = 0.5,
     linetype_obs = 1,
     alpha_line_obs = 0.5,
 
-    linewidth_cent = 0.75,
+    linewidth_cent = 1,
     linetype_cent = 1,
     alpha_cent = 1,
     color_cent = "black"

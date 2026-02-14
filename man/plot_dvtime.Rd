@@ -95,7 +95,7 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
 
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
+\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
 \item{theme}{Named list of aesthetic parameters to be supplied to the plot.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.

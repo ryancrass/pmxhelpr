@@ -76,7 +76,7 @@ Options include:
 \item "months"
 }}
 
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 5.}
+\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
 \item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
 }

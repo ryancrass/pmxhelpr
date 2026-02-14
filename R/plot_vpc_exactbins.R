@@ -129,7 +129,7 @@ plot_vpc_exactbins <- function(sim,
 
   ##Observed Data
   obs <- sim |>
-    dplyr::filter(!!dplyr::sym(irep_name) == 1) |>
+    dplyr::filter(!!dplyr::sym(irep_name) == 1 & MDV == 0) |>
     df_pcdv(strat_vars = strat_var, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
             lower_bound = lower_bound) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)

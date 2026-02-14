@@ -8,7 +8,7 @@
 #'    + "days"
 #'    + "weeks"
 #'    + "months"
-#' @param n_breaks Number of breaks requested for x-axis. Default is 5.
+#' @param n_breaks Number of breaks requested for x-axis. Default is 8.
 #' @param col_var Character string of the name of the variable to map to the color aesthetic.
 #' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
 #' @param dose_var Character string of the variable to use in dosenormalization when `dosenorm` = TRUE.
@@ -139,7 +139,8 @@ plot_dvtime <- function(data,
                                           MDV == 1 ~ 0.5*LOQ))
   }
 
-  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
+  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ[!is.na(data$LOQ)]), NA_real_)
+  lloq_lab <- paste0(lloq)
 
   #Dose-normalize if requested
   if(dosenorm == TRUE) {
@@ -186,10 +187,15 @@ plot_dvtime <- function(data,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)
 
-  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(yintercept = lloq,
+  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(ggplot2::aes(yintercept = lloq,
+                                                                                               linetype = lloq_lab),
                                                                                   linewidth = plottheme$linewidth_ref,
-                                                                                  linetype = plottheme$linetype_ref,
                                                                                   alpha = plottheme$alpha_line_ref)
+
+  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::scale_linetype_manual(name = "LLOQ",
+                                                                                             values = stats::setNames(c(plottheme$linetype_ref),
+                                                                                                                        lloq_lab))+
+    ggplot2::guides(color = ggplot2::guide_legend(order = 1), linetype = ggplot2::guide_legend(order = 2))
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=plottheme$shape_point_obs,
@@ -260,6 +266,8 @@ plot_dvtime <- function(data,
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
+  if(loq_method == c(1)) caption <- paste0(caption, "\n", "Post-dose BLQ observations are imputed to 1/2 LLOQ")
+  if(loq_method == c(2)) caption <- paste0(caption, "\n", "All BLQ observations are imputed to 1/2 LLOQ")
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)

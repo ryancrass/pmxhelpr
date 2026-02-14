@@ -131,9 +131,7 @@ plot_popgof <- function(data,
   xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
   #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvtime_theme(list(size_point_obs = 1.25,
-                                                         linewidth_obs = 1,
-                                                         alpha_line_obs = 1)))
+  plottheme <- list_update(theme, plot_popgof_theme())
 
   #Determine Error Bar Cap Width
   if(is.numeric(plottheme$width_errorbar)) {
@@ -285,4 +283,48 @@ plot_popgof <- function(data,
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
+}
+
+
+#' Customized population overlay goodness-of-fit (GOF) theme with pmxhelpr default aesthetics
+#'
+#' @param update list containing the plot elements to be updated.
+#'    Run `plot_popgof_theme()` with no arguments to view defaults.
+#' @return a named list `list`
+#' @export plot_popgof_theme
+#'
+#' @examples
+#' plot_popgof_theme()
+#' new_theme <- plot_popgof_theme(update = list(linewidth_ref = 1))
+
+
+plot_popgof_theme <- function(update = NULL){
+  defaults_list <- list(
+    linewidth_ref = 0.5,
+    linetype_ref = 2,
+    alpha_line_ref = 1,
+
+    shape_point_obs = 1.25,
+    size_point_obs = 0.75,
+    alpha_point_obs = 0.5,
+    linewidth_obs = 1,
+    linetype_obs = 1,
+    alpha_line_obs = 1,
+
+    shape_point_cent = 1,
+    size_point_cent = 1.25,
+    alpha_point_cent = 1,
+    linewidth_cent = 0.75,
+    linetype_cent = 1,
+    alpha_line_cent = 1,
+
+    linewidth_errorbar = 0.75,
+    linetype_errorbar = 1,
+    alpha_errorbar = 1,
+    width_errorbar = NULL
+  )
+
+  default_theme <- defaults_list
+  theme <- list_update(update, default_theme)
+  return(theme)
 }

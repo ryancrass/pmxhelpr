@@ -22,12 +22,12 @@ Imports:
     stats,
     vpc,
     withr,
-    labeling
+    labeling,
+    patchwork
 Suggests: 
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    patchwork,
     Hmisc,
     PKNCA
 Config/testthat/edition: 3

@@ -36,6 +36,8 @@ df_addn <- function(data,
 
   data <- dplyr::left_join(data, n)
   data[[grp_var]] <- factor(data[[grp_var]], levels = n[[grp_var]], labels = n[["tmp"]], ...)
+  data <- data |>
+    dplyr::select(-tmp, -n)
 
   return(data)
 }

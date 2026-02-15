@@ -1,5 +1,10 @@
 # pmxhelpr (development version)
 
+* Add `plot_dvtime_dual` wrapper function for `plot_dvtime` to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.
+* Add option to pass additional arguments to `factor()` into `df_addn` to support ordering of factor variables
+
+# pmxhelpr 0.3.6
+
 * Add `df_addn` helper function to create and order factor labels including count of unique values to include counts in plot legends
 * Add `plot_popgof_theme` function to set and adjust default aesthetics for `plot_popgof`
 * Add LLOQ value and linetype to legend in `plot_dvtime`

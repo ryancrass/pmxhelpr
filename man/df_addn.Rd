@@ -4,7 +4,7 @@
 \alias{df_addn}
 \title{Add count unique values of an identifier within each level of a variable in a data.frame}
 \usage{
-df_addn(data, grp_var, id_var = "ID", sep = "")
+df_addn(data, grp_var, id_var = "ID", sep = "", ...)
 }
 \arguments{
 \item{data}{Input dataset.}
@@ -14,6 +14,8 @@ df_addn(data, grp_var, id_var = "ID", sep = "")
 \item{id_var}{Variable defining distinct values to count. Default is \code{"ID"}.}
 
 \item{sep}{Additional string separator to add between variable and count. Default is an empty string.}
+
+\item{...}{Other arguments passed to \code{factor()}.}
 }
 \value{
 A data.frame with the same number of rows as \code{data} and a factor variable.

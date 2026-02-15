@@ -105,7 +105,7 @@ plot_dvconc <- function(data,
                                                            fill = plottheme$color_se,
                                                            alpha = plottheme$alpha_se)
   } else {
-    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(aes(x=IDV, y=DV,
+    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                               color = !!dplyr::sym(col_var),
                                                               fill = !!dplyr::sym(col_var)),
                                                           method = "loess", se = se_loess,
@@ -114,7 +114,7 @@ plot_dvconc <- function(data,
                                                           alpha = plottheme$alpha_se,
                                                           ...)
 
-    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(aes(x=IDV, y=DV,
+    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                                color = !!dplyr::sym(col_var),
                                                                fill = !!dplyr::sym(col_var)),
                                                                method = "lm", se = se_linear,
@@ -166,7 +166,7 @@ plot_dvconc <- function(data,
 
 dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
-  cfb_lab <- "\n Reference line indicates the null (no change from baseline)"
+  cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
 
   capdf <- data.frame(
     loess = rep(c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)),

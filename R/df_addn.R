@@ -6,6 +6,7 @@
 #' @param grp_var Variable to add counts to.
 #' @param id_var Variable defining distinct values to count. Default is `"ID"`.
 #' @param sep Additional string separator to add between variable and count. Default is an empty string.
+#' @param ... Other arguments passed to `factor()`.
 #'
 #' @return A data.frame with the same number of rows as `data` and a factor variable.
 #' @export df_addn
@@ -20,7 +21,8 @@
 df_addn <- function(data,
                     grp_var,
                     id_var = "ID",
-                    sep = ""){
+                    sep = "",
+                    ...){
 
   check_df(data)
   check_varsindf(data, grp_var)
@@ -33,7 +35,7 @@ df_addn <- function(data,
     dplyr::ungroup()
 
   data <- dplyr::left_join(data, n)
-  data[[grp_var]] <- factor(data[[grp_var]], levels = n[[grp_var]], labels = n[["tmp"]])
+  data[[grp_var]] <- factor(data[[grp_var]], levels = n[[grp_var]], labels = n[["tmp"]], ...)
 
   return(data)
 }

@@ -180,7 +180,7 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
               "\n LOESS fit with 95% CI and linear fit overlaid","\n LOESS fit and linear fit with 95% CI overlaid")
   )
 
-  caption <- paste("Points are observations.-",
+  caption <- paste("Points are observations",
                    ifelse(cfb==TRUE, cfb_lab, ""),
                    capdf$label[capdf$loess==loess &
                                  capdf$linear==linear &

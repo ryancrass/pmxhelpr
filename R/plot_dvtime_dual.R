@@ -1,7 +1,12 @@
 #' Wrapper function for plot_dvtime to plot two dependent variables paneled together
 #'
-#' @param dvid_var Variable to identify unique types of values specified in the dependent variable
-#' @param dvid_values Named vector of dependent variable types to plot as DV1 and DV2.
+#' @param dv_var1 Character string specifying the variable containing observations for the top panel (DV1).
+#'    Default is "DV".
+#' @param dv_var2 Character string specifying the variable containing observations for the bottom panel (DV2).
+#'    Default is "DV".
+#' @param dvid_var Character string specifying the variable to identify each observation type.
+#' @param dvid_val1 Value of variable specified in `dvid_var` to identify observations for top panel (DV1).
+#' @param dvid_val2 Value of variable specified in `dvid_var` to identify observations for bottom panel (DV2).
 #' @param ylab1 Character string specifying the y-axis label for DV1: Default is `"Concentration"`.
 #' @param ylab2 Character string specifying the y-axis label for DV2: Default is `"Response"`.
 #' @param log_y1 Logical indicator for log10 transformation of the y-axis for DV1. Default is `FALSE`.
@@ -14,13 +19,15 @@
 #'
 #' @examples
 #'data <- df_addn(data_sad_pd, id_var = "ID", grp_var = "DOSE", sep = "mg")
-#'plot_dvtime_dual(data, dv_var = "ODV", col_var = "DOSE")
+#'plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV")
 #'
 
 plot_dvtime_dual <- function(data,
-                        dv_var = "DV",
+                        dv_var1 = "DV",
+                        dv_var2 = "DV",
                         dvid_var = "CMT",
-                        dvid_values = c(DV1 = 2, DV2 = 3),
+                        dvid_val1 = 2,
+                        dvid_val2 = 3,
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
                         timeu = "hours",
@@ -34,6 +41,7 @@ plot_dvtime_dual <- function(data,
                         grp_dv = FALSE,
                         dosenorm = FALSE,
                         cfb = FALSE,
+                        cfb_base=0,
                         ylab1 = "Concentration",
                         ylab2 = "Response",
                         log_y1 = FALSE,
@@ -43,8 +51,8 @@ plot_dvtime_dual <- function(data,
                         theme = NULL){
 
   plot_dv1 <- pmxhelpr::plot_dvtime(
-    data = dplyr::filter(data, !!dplyr::sym(dvid_var)==dvid_values[["DV1"]]),
-    dv_var = dv_var,
+    data = dplyr::filter(data, !!dplyr::sym(dvid_var)==dvid_val1),
+    dv_var = dv_var1,
     time_vars = time_vars,
     timeu = timeu,
     col_var = col_var,
@@ -65,8 +73,8 @@ plot_dvtime_dual <- function(data,
   )
 
   plot_dv2 <- pmxhelpr::plot_dvtime(
-    data = dplyr::filter(data, !!dplyr::sym(dvid_var)==dvid_values[["DV2"]]),
-    dv_var = dv_var,
+    data = dplyr::filter(data, !!dplyr::sym(dvid_var)==dvid_val2),
+    dv_var = dv_var2,
     time_vars = time_vars,
     timeu = timeu,
     col_var = col_var,
@@ -78,6 +86,7 @@ plot_dvtime_dual <- function(data,
     grp_dv = grp_dv,
     dosenorm = FALSE,
     cfb = cfb,
+    cfb_base = cfb_base,
     ylab = ylab2,
     log_y = log_y2,
     show_caption = show_caption,

@@ -43,7 +43,8 @@
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
-#'    Plots a reference line at y = 0. Default is `FALSE`.
+#'    Plots a reference line at y = cfb_baseline. Default is `FALSE`.
+#' @param cfb_base Value for y-intercept when cfb = `TRUE`. Default is 0.
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
@@ -57,7 +58,7 @@
 #' @export plot_dvtime
 #'
 #' @examples
-#'data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
+#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
 #'plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
 #'
 
@@ -76,6 +77,7 @@ plot_dvtime <- function(data,
                         grp_dv = FALSE,
                         dosenorm = FALSE,
                         cfb = FALSE,
+                        cfb_base = 0,
                         ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
@@ -98,6 +100,7 @@ plot_dvtime <- function(data,
   if(!is.null(col_var)) {check_factor(data, col_var)}
   if(dosenorm == TRUE){check_varsindf(data, dose_var)}
   check_loq_method(loq, loq_method, data)
+  if(cfb==TRUE)check_numeric(cfb_base)
 
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var)))
@@ -177,7 +180,7 @@ plot_dvtime <- function(data,
                    panel.grid.major.x = ggplot2::element_blank())
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0,
+  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
                                                      linewidth = plottheme$linewidth_ref,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)

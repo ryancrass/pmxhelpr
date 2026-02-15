@@ -8,7 +8,7 @@ dvconc_caption(cfb, loess, linear, se_loess, se_linear)
 }
 \arguments{
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{loess}{Logical indicating if a loess smoother fit should be shown. Default is \code{TRUE}}
 

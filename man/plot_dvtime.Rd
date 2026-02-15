@@ -19,6 +19,7 @@ plot_dvtime(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
@@ -87,7 +88,9 @@ Default is \code{FALSE}.}
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
+
+\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 
@@ -108,7 +111,7 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus time
 }
 \examples{
-data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
+data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
 plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
 
 }

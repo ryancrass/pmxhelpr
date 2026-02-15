@@ -6,9 +6,11 @@
 \usage{
 plot_dvtime_dual(
   data,
-  dv_var = "DV",
+  dv_var1 = "DV",
+  dv_var2 = "DV",
   dvid_var = "CMT",
-  dvid_values = c(DV1 = 2, DV2 = 3),
+  dvid_val1 = 2,
+  dvid_val2 = 3,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
@@ -21,6 +23,7 @@ plot_dvtime_dual(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab1 = "Concentration",
   ylab2 = "Response",
   log_y1 = FALSE,
@@ -33,11 +36,17 @@ plot_dvtime_dual(
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var}{Character name of the DV variable in \code{data}.}
+\item{dv_var1}{Character string specifying the variable containing observations for the top panel (DV1).
+Default is "DV".}
 
-\item{dvid_var}{Variable to identify unique types of values specified in the dependent variable}
+\item{dv_var2}{Character string specifying the variable containing observations for the bottom panel (DV2).
+Default is "DV".}
 
-\item{dvid_values}{Named vector of dependent variable types to plot as DV1 and DV2.}
+\item{dvid_var}{Character string specifying the variable to identify each observation type.}
+
+\item{dvid_val1}{Value of variable specified in \code{dvid_var} to identify observations for top panel (DV1).}
+
+\item{dvid_val2}{Value of variable specified in \code{dvid_var} to identify observations for bottom panel (DV2).}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -95,7 +104,9 @@ Default is \code{FALSE}.}
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
+
+\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
 \item{ylab1}{Character string specifying the y-axis label for DV1: Default is \code{"Concentration"}.}
 
@@ -121,6 +132,6 @@ Wrapper function for plot_dvtime to plot two dependent variables paneled togethe
 }
 \examples{
 data <- df_addn(data_sad_pd, id_var = "ID", grp_var = "DOSE", sep = "mg")
-plot_dvtime_dual(data, dv_var = "ODV", col_var = "DOSE")
+plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV")
 
 }

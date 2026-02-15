@@ -559,17 +559,21 @@ plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC",
 
 # Population Concentration-Time and Response-Time
 
-The wrapper function `plot_dvtime_dual` is provided to support simultaneous plotting of PK and PD profiles for visualization of trends in time.
+The wrapper function `plot_dvtime_dual` is provided to support simultaneous plotting of PK and PD profiles for visualization of trends in time. This function takes two  arguments, `dv_var1` and `dv_var2` to specify the variable to plot as the dependent variable for each of the top and bottom panels. It also takes the `dvid_var` argument to specify the variable that contains the identifiers for each dependent variable to be plotted, as well as `dvid_val1` and `dvid_val2` arguments to specify the values of the variable in `dvid_var` to be used identify each set of data for plotting.
+
+The default values for `dv_var1` and `dv_var2` are `"DV"`, the default `dvid_var` is `"CMT"` with default values of `dvid_val1 = 2` and `dvid_val2 = 3`.
 
 ```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+plot_dvtime_dual(plot_data, dv_var1 = "ODV",dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
                  col_var = "Dose") 
 ```
 
 Both y-axis transformations and labels  can be specified separately.
 
 ```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+plot_dvtime_dual(plot_data, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
                  col_var = "Dose",
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
 ```
@@ -577,18 +581,22 @@ plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV
 However, the top panel (DV1) is presumed to apply to PK and the bottom panel (DV2) is presumed to apply to PD. Therefore, BLQ imputation and dose-normalization options can only be applied to the top panel (DV1). 
 
 ```{r plot-dvtime-dual-col-y1, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+plot_dvtime_dual(plot_data, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
                  col_var = "Dose", loq_method = 2, dosenorm = T,dose_var = "DOSE",
                  log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
 ```
 
-Similarly, specification of a reference line at y=0 for change from baseline is only supported for the bottom panel (DV2).
+Similarly, specification of a reference line at y=`cfb_base` when `cfb=TRUE` is only supported for the bottom panel (DV2).
 
 ```{r plot-dvtime-dual-col-y2, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_cfb <- plot_data %>% 
-  mutate(CFB = ifelse(CMT == 2, ODV, CFB))
+plot_dvtime_dual(plot_data, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose", cfb=TRUE, cfb_base = 100,
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% CFB)") 
 
-plot_dvtime_dual(plot_data_cfb, dv_var = "CFB", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+plot_dvtime_dual(plot_data, dv_var1 = "ODV", dv_var2 = "CFB",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
                  col_var = "Dose", cfb=TRUE,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% CFB)") 
 ```

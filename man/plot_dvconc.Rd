@@ -44,7 +44,7 @@ plot_dvconc(
 \item{se_linear}{Logical indicating if the standard error should be shown for the linear fit. Default is \code{FALSE}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{ylab}{Character string specifying the y-axis label: Default is \code{"Response"}.}
 

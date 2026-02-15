@@ -97,7 +97,7 @@ Default is \code{FALSE}.}
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 

@@ -91,36 +91,36 @@ plot_dvconc <- function(data,
   #Plot Trend Lines
   if(col_trend == FALSE) {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_cent,
-                                                          linetype = plottheme$linetype_cent,
-                                                          color = plottheme$color_cent,
-                                                          fill = plottheme$color_se,
-                                                          alpha = plottheme$alpha_se,
+                                                          linewidth = plottheme$linewidth_loess,
+                                                          linetype = plottheme$linetype_loess,
+                                                          color = plottheme$color_loess,
+                                                          fill = plottheme$color_se_loess,
+                                                          alpha = plottheme$alpha_se_loess,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_cent,
-                                                           linetype = plottheme$linetype_cent,
-                                                           color = plottheme$color_cent,
-                                                           fill = plottheme$color_se,
-                                                           alpha = plottheme$alpha_se)
+                                                           linewidth = plottheme$linewidth_linear,
+                                                           linetype = plottheme$linetype_linear,
+                                                           color = plottheme$color_linear,
+                                                           fill = plottheme$color_se_linear,
+                                                           alpha = plottheme$alpha_se_linear)
   } else {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                               color = !!dplyr::sym(col_var),
                                                               fill = !!dplyr::sym(col_var)),
                                                           method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_cent,
-                                                          linetype = plottheme$linetype_cent,
-                                                          alpha = plottheme$alpha_se,
+                                                          linewidth = plottheme$linewidth_loess,
+                                                          linetype = plottheme$linetype_loess,
+                                                          alpha = plottheme$alpha_se_loess,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                                color = !!dplyr::sym(col_var),
                                                                fill = !!dplyr::sym(col_var)),
                                                                method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_cent,
-                                                           linetype = plottheme$linetype_cent,
-                                                           alpha = plottheme$alpha_se)
+                                                           linewidth = plottheme$linewidth_linear,
+                                                           linetype = plottheme$linetype_linear,
+                                                           alpha = plottheme$alpha_se_linear)
   }
 
   #Add observations
@@ -213,11 +213,16 @@ plot_dvconc_theme <- function(update = NULL){
     size_point_obs = 1.25,
     alpha_point_obs = 0.5,
 
-    linewidth_cent = 1,
-    linetype_cent = 1,
-    color_cent = "black",
-    color_se = "lightgrey",
-    alpha_se = 0.4
+    linewidth_loess = 1,
+    linetype_loess = 1,
+    linewidth_linear = 1,
+    linetype_linear = 2,
+    color_loess = "black",
+    color_linear = "black",
+    color_se_loess = "lightgrey",
+    color_se_linear = "lightgrey",
+    alpha_se_loess = 0.4,
+    alpha_se_linear = 0.4
   )
 
   default_theme <- defaults_list

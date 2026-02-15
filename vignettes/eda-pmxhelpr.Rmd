@@ -327,32 +327,6 @@ plot_dvtime(plot_data_int_ordered, dv_var = "ODV", col_var = "Dose (mg) and Food
             loq_method = 2)
 ```
 
-`pmxhelpr` also includes a helper function `df_addn`, which will add counts of a identifier variable passed to the `id_var` argument to the variable specified in `grp_var`. If a numeric variable is passed to `grp_var`, the factor variable returned will be correctly sorted in increasing order of values.
-
-```{r plot-dvtime-dfaddn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_int <- plot_data %>%  
-  mutate(`Dose (mg)` = DOSE)
-
-plot_data_int_addn <- df_addn(plot_data_int, grp_var = "Dose (mg)", id_var = "ID")
-
-
-plot_dvtime(plot_data_int_addn, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            loq_method = 2)
-```
-
-
-A character separator can also be passed to the `sep` argument, which will be printed between the values of `grp_var` and the counts. A common use case is when dose is expressed as a numeric variable and the dose units are passed to `sep`
-
-```{r plot-dvtime-dfaddn-sep, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_int_addn_sep <- df_addn(plot_data, grp_var = "DOSE", id_var = "ID", sep = "mg")
-
-plot_dvtime(plot_data_int_addn_sep, dv_var = "ODV", col_var = "DOSE", cent = "mean",
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            loq_method = 2)
-```
-
-
 The same approach can be used to define an interaction variable to be assigned to the group aesthetic using the `grp_var` argument to `plot_dvtime`. Such an approach may be used if we wanted to visualize the data for a cross-over study condition separately for each period within an individual. In this case, the default `grp_var = "ID"` would connect all data points within an individual across both periods whereas we actually want to visualize points connected within the individual `"ID"` separately by cross-over period. 
 
 To explore this, we will modify `data_sad` such that the same subjects are included in `"PART1-SAD"` and `"PART2-FE` (e.g., modify from a parallel group design to a crossover design).
@@ -385,6 +359,33 @@ plot_data_crossover_fid <- plot_data_crossover %>%
 
 plot_dvtime(plot_data_crossover_fid, dv_var = "ODV", col_var = "Dose (mg) and Food", cent = "mean",
             grp_var = "FID", grp_dv = TRUE,
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            loq_method = 2)
+```
+
+## Adding Count of Unique Identifiers to Color Aesthetic
+
+`pmxhelpr` also includes a helper function `df_addn`, which will add counts of a identifier variable passed to the `id_var` argument to the variable specified in `grp_var`. If a numeric variable is passed to `grp_var`, the factor variable returned will be correctly sorted in increasing order of values.
+
+```{r plot-dvtime-dfaddn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_int <- plot_data %>%  
+  mutate(`Dose (mg)` = DOSE)
+
+plot_data_int_addn <- df_addn(plot_data_int, grp_var = "Dose (mg)", id_var = "ID")
+
+
+plot_dvtime(plot_data_int_addn, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+            ylab = "Concentration (ng/mL)", log_y = TRUE,
+            loq_method = 2)
+```
+
+
+A character separator can also be passed to the `sep` argument, which will be printed between the values of `grp_var` and the counts. A common use case is when dose is expressed as a numeric variable and the dose units are passed to `sep`
+
+```{r plot-dvtime-dfaddn-sep, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_int_addn_sep <- df_addn(plot_data, grp_var = "DOSE", id_var = "ID", sep = "mg")
+
+plot_dvtime(plot_data_int_addn_sep, dv_var = "ODV", col_var = "DOSE", cent = "mean",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2)
 ```
@@ -472,6 +473,125 @@ lapply(1:n_pgs, function(n_pg) {
 })
 ```
 
+# Population Response-Concentration Plots
+
+## Overview of `plot_dvconc`
+
+Let's visualize the data. First, we will filter to response observation records only (CMT=3) and derive some factor variables, which can be passed to the color aesthetic in our plots.
+
+```{r data-plotdata-pd}
+plot_data <- data_sad_pd %>% 
+  filter(EVID == 0) %>% 
+  mutate(`Food Status` = factor(FOOD, levels = c(0, 1), labels = c("Fasted", "Fed")), 
+         Dose = DOSE)
+
+plot_data <- df_addn(plot_data, grp_var = "Dose", id_var = "ID", sep = "mg")
+plot_data_pd <- filter(plot_data, CMT == 3)
+```
+
+Let's first visualize these data versus time using `plot_dvtime`.
+
+```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data_pd, dv_var = "CFB", col_var = "Dose", ylab = "Response") 
+```
+
+
+Now let's visualize the response-concentration data. `pmxhelpr` includes a function for common visualizations of observed response versus concentration data in exploratory data analysis: `plot_dvconc`
+
+In our visualizations, we will leverage the following dataset variables: 
+
+  + `ODV`: the original dependent variable (biomarker respponse) normalized to baseline
+  + `ICONC` : individual PK model-predicted concentration 
+  
+`plot_dvconc` requires a dependent variable, specified as string via the `dv_var` argument, and an independent variabl, specified as a string via the `idv_var` argument. The default values are `"DV"` and `"CONC"`.
+
+```{r plot-dvconc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC") 
+```
+
+## Specifying the Color Aesthetic
+
+`plot_dvconc` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed as a string to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit without the color aesthetic.
+
+```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = FALSE) 
+```
+
+This behavior can be modified by setting `col_trend = TRUE`.
+
+```{r plot-dvconc-col-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = TRUE) 
+```
+
+## Trend Lines
+
+There are two trend line types supported by `plot_dvconc`, LOESS smoothing fit and linear regression controlled by logical arguments `loess` and `linear`. The default is `loess = TRUE` and `linear = FALSE`
+
+```{r plot-dvconc-col-trend-loess-linear, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = FALSE, loess = TRUE, linear = TRUE) 
+```
+
+The 95%CIs of the trendlines are suppressed by default. They can be added to the plot using the logical arguments `se_loess` and `se_linear`.
+
+```{r plot-dvconc-loess-linear-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = FALSE, 
+            loess = TRUE, linear = TRUE, se_loess = TRUE, se_linear = TRUE) 
+```
+
+Additional arguments can be passed to `geom_smooth(method = "loess")`, such as increasing the span of the smoother.
+```{r plot-dvconc-loess-span, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = FALSE, 
+            loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE, 
+            span = 1) 
+```
+
+If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also mapp to the ribbons defining the 95% CIs. 
+```{r plot-dvconc-col-trend-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
+            col_var = "Dose", col_trend = TRUE,
+            se_loess = TRUE) 
+```
+
+# Population Concentration-Time and Response-Time
+
+The wrapper function `plot_dvtime_dual` is provided to support simultaneous plotting of PK and PD profiles for visualization of trends in time.
+
+```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+                 col_var = "Dose") 
+```
+
+Both y-axis transformations and labels  can be specified separately.
+
+```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+                 col_var = "Dose",
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
+```
+
+However, the top panel (DV1) is presumed to apply to PK and the bottom panel (DV2) is presumed to apply to PD. Therefore, BLQ imputation and dose-normalization options can only be applied to the top panel (DV1). 
+
+```{r plot-dvtime-dual-col-y1, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data, dv_var = "ODV", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+                 col_var = "Dose", loq_method = 2, dosenorm = T,dose_var = "DOSE",
+                 log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
+```
+
+Similarly, specification of a reference line at y=0 for change from baseline is only supported for the bottom panel (DV2).
+
+```{r plot-dvtime-dual-col-y2, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_data_cfb <- plot_data %>% 
+  mutate(CFB = ifelse(CMT == 2, ODV, CFB))
+
+plot_dvtime_dual(plot_data_cfb, dv_var = "CFB", dvid_var = "CMT", dvid_values = c(DV1 = 2, DV2 = 3),
+                 col_var = "Dose", cfb=TRUE,
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% CFB)") 
+```
 
 # Dose-proportionality Assessment: Power Law Regression
 

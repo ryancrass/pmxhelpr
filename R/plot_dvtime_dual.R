@@ -59,7 +59,7 @@ plot_dvtime_dual <- function(data,
     cfb = FALSE,
     ylab = ylab1,
     log_y = log_y1,
-    show_caption = FALSE,
+    show_caption = show_caption,
     n_breaks = n_breaks,
     theme = theme
   )

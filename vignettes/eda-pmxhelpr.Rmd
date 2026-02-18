@@ -87,13 +87,18 @@ One should make sure to only pass the data of interest for visualization into an
 The helper function `df_addn` takes an input dataset `data` and returns a dataset with the variable specified in `grp_var` transformed to a factor including the count of unique values of the identifier variable specified in `id_var` (default `"ID"`). A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose.
 
 ```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data <- data_sad %>% 
+tmp_plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          `Dose and Food` = paste0(DOSE, " mg ", `Food Status`),
-         `Dose` = DOSE) %>% 
+         `Dose` = DOSE)
+
+levels_dosefood <- unique(plot_data$`Dose and Food`)
+levels_dosefood
+
+plot_data <- tmp_plot_data %>% 
   df_addn(grp_var = "Dose", sep = "mg") %>% 
-  df_addn(grp_var = "Dose and Food")
+  df_addn(grp_var = "Dose and Food", levels = levels_dosefood)
 
 unique(plot_data$Dose)
 unique(plot_data$`Dose and Food`)

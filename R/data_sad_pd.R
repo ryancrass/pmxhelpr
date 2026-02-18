@@ -12,8 +12,7 @@
 #'   \item{ODV}{Dependent variable in original units (units: ng/mL cmt=2, % cmt=3)}
 #'   \item{LDV}{Log-transformed dependent variable (units: log(ng/mL) cmt=2, % cmt=3)}
 #'   \item{CFB}{Dependent variable change from baseline (units: %)}
-#'   \item{PCFB}{Dependent variable percentage change from baseline (units: %)}
-#'   \item{ICONC}{Individual predicted drug concentration (units: ng/mL)}
+#'   \item{CONC}{Time-matched Observed Drug Concentration with BLQ imputed to zero (units: ng/mL)}
 #'   \item{CMT}{NONMEM-specific compartment variable (values: 1=dose, 2=plasma concentration, 3=response)}
 #'   \item{MDV}{NONMEM-specific missing dependent variable indicator}
 #'   \item{BLQ}{Concentration below the lower limit of quantification flag (values: -1=pre-dose BLQ, 0=not BLQ, 1=post-dose BLQ)}

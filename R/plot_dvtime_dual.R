@@ -18,8 +18,8 @@
 #' @export plot_dvtime_dual
 #'
 #' @examples
-#'data <- df_addn(data_sad_pd, id_var = "ID", grp_var = "DOSE", sep = "mg")
-#'plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV")
+#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+#'plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV", col_var = "Dose")
 #'
 
 plot_dvtime_dual <- function(data,

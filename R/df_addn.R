@@ -22,7 +22,8 @@ df_addn <- function(data,
                     grp_var,
                     id_var = "ID",
                     sep = "",
-                    ...){
+                    ordered = FALSE,
+                    levels = NULL){
 
   check_df(data)
   check_varsindf(data, grp_var)
@@ -34,10 +35,14 @@ df_addn <- function(data,
     dplyr::mutate(tmp = paste(!!dplyr::sym(grp_var), sep ,paste0("(n=", n, ")"))) |>
     dplyr::ungroup()
 
-  data <- dplyr::left_join(data, n)
-  data[[grp_var]] <- factor(data[[grp_var]], levels = n[[grp_var]], labels = n[["tmp"]], ...)
-  data <- data |>
-    dplyr::select(-tmp, -n)
+  if(!is.null(levels)) {
+    factor_levels <- levels
+  } else {
+    factor_levels <- n[[grp_var]]
+  }
+
+  data <- dplyr::left_join(data, dplyr::select(n, grp_var, tmp))
+  data[[grp_var]] <- factor(data[[grp_var]], levels = factor_levels, ordered = ordered)
 
   return(data)
 }

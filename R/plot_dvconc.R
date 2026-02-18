@@ -22,8 +22,8 @@
 #' @export plot_dvconc
 #'
 #' @examples
-#'data <- dplyr::mutate(data_sad_pd, Dose = factor(DOSE))
-#'plot_dvconc(data, dv_var = "ODV", idv_var = "ICONC", col_var = "Dose", col_trend = FALSE)
+#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+#'plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose", col_trend = FALSE)
 #'
 
 plot_dvconc <- function(data,

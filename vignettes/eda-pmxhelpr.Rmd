@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will demonstrate `pmxhelpr` functions for exploratory data analysis. 
 
-First, we will load the required packages.
+First oad the required packages.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -28,80 +28,120 @@ library(patchwork, warn.conflicts = FALSE)
 library(PKNCA, warn.conflicts = FALSE)
 ```
 
-For this vignette, we will perform exploratory data analysis on the `data_sad` dataset internal to `pmxhelpr`.  We can take a quick look at the dataset using `glimpse()` from the dplyr package. Dataset definitions can also be viewed by calling `?data_sad`, as one would to view the documentation for a package function.
+# Data
 
-```{r data-glimpse}
+The datasets used in this vignette are based on a simple ascending dose (SAD) study of an orally drug product with a parallel group food effect (FE) cohort.
+
+## data_sad
+
+Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the primary dataset for this analysis (`data_ssad`)  using `glimpse()` from the `dplyr` package.
+
+```{r data-sad-glimpse}
 glimpse(data_sad)
 ```
 
-We can see that this dataset is already formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). 
+The study design consisted of two parts. Part 1 was a SAD study over a 10 to 400 mg dose range and Part 2 was a parallel 100 mg single dose food effect (FE) study. 
 
-In addition to the numeric variables, there are two character variables: USUBJID and PART. 
-
-PART specifies the two study cohorts: 
-
-  - Single Ascending Dose (SAD)
-  - Food Effect (FE).
-
-```{r data-part}
-unique(data_sad$PART)
+```{r data-sad-part}
+distinct(data_sad, DOSE, PART, FOOD)
 ```
 
-This dataset also contains an exact binning variable: 
+The dataset is formatted for population pharmacokinetic (PopPK) modeling in NONMEM with oral dose events (`EVID=1`) input into `CMT=1` and drug concentration observations (`EVID=0`) in`CMT=2`. Dose events are input in `AMT` with the nominal dose associated with each observation captured in `DOSE`.
 
-  - Nominal Time (NTIME). 
+Plasma drug concentration observations are expressed in multiple units:  
 
-This variable represents the nominal time of sample collection relative to first dose per study protocol whereas Actual Time (TIME) represents the actual time the sample was collected.
+  - `ODV`: original units of the dependent variable [ng/mL[]
+  - `LDV`: natural logarithm-transformed units of drug concentration [log(ng/mL)]
 
-```{r data-ntime}
-##Unique values of NTIME
+The dataset also contains multiple variables for time:
+
+  - `TIME`: Actual time since first dose administration [hours]
+  - `NTIME`: Nominal time dose event or sample collection per protocol [hours]
+  - `NDAY`: Nominal day on study [day]
+
+The actual time since first dose administration is assigned to the NONMEM reserved variable for time (`TIME`), as this represents the most accurate description of the time order of the repeated-measures data. The nominal time varibles are *exact binning variables*, which are useful for grouping data for exploratory data analysis or model evaluation....but more on that later.
+
+```{r data-sad-ntime}
+##Unique values of time variables
+times <- unique(data_sad$TIME)
 ntimes <- unique(data_sad$NTIME)
 ntimes
 
 ##Comparison of number of unique values of NTIME and TIME
-length(unique(data_sad$NTIME))
-length(unique(data_sad$TIME))
+length(ntimes)
+length(times)
 ```
+
+## data_sad_pd
+
+The companion dataset, `data_sad_pd`, is `data_sad` with an additional pharmacodynamic (PD) response biomarker observation type (`EVID=0`) in an additional compartment`CMT=3`. These response data are expressed as percentage of baseline activity (%) in both `ODV` and `LDV` and as percentage change from baseline activity in `CFB`.
+
+```{r data-sad-pd-glimpse}
+glimpse(data_sad_pd)
+```
+
+## df_addn
+
+One should make sure to only pass the data of interest for visualization into any plotting function. Let's filter to only observations, and define some grouping variables with summative information for subsequent exploratory analysis.
+
+The helper function `df_addn` takes an input dataset `data` and returns a dataset with the variable specified in `grp_var` transformed to a factor including the count of unique values of the identifier variable specified in `id_var` (default `"ID"`). A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose.
+
+```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_data <- data_sad %>% 
+  filter(EVID == 0) %>% 
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+         `Dose and Food` = paste0(DOSE, " mg ", `Food Status`),
+         `Dose` = DOSE) %>% 
+  df_addn(grp_var = "Dose", sep = "mg") %>% 
+  df_addn(grp_var = "Dose and Food")
+
+unique(plot_data$Dose)
+unique(plot_data$`Dose and Food`)
+```
+
+
 # Population Concentration-time plots
 
 ## Overview of `plot_dvtime`
 
-Let's visualize the data. First, we will filter to observation records only and derive some factor variables, which can be passed to the color aesthetic in our plots.
+Now let's visualize the concentration-time data! `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
 
-```{r data-plotdata}
-plot_data <- data_sad %>% 
-  filter(EVID == 0) %>% 
-  mutate(`Dose (mg)` = factor(DOSE, levels = c(10, 50, 100, 200, 400)), 
-         `Food Status` = factor(FOOD, levels = c(0, 1), labels = c("Fasted", "Fed")))
+Let's run it!
+
+```{r plot-dvtime-fail, fig.height=4, fig.width=6, error=TRUE, message=TRUE}
+plot_dvtime(plot_data)
 ```
+Hmm...that didn't work. Hmm...well checking `?plot_dvtime()` it seems that the argument `dv_var` specifies the dependent variable in the dataset and the default is `"DV"`. Since `data_sad` has the original units of the dependent variable as `ODV`, this name must be passed to the function.
 
-Now let's visualize the concentration-time data. `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
-
-In our visualizations, we will leverage the following dataset variables: 
-
-  + `ODV`: the original dependent variable (drug concentration) in untransformed units (ng/mL)
-  + `TIME` : actual time since first dose (hours) 
-  + `NTIME`: nominal time since first dose (hours)
-  + `LLOQ` : lower limit of quantification for drug concentration
-  
-`plot_dvtime` requires a dependent variable, specified as string via the `dv_var` argument, and time variables for actual and nominal time, specified as a named vector using the `time_vars`.  The default names for the `time_vars` are `"TIME"` and `"NTIME"`. The color aesthetic is specified using the `col_var` argument. The `cent` argument specifies which central tendency measure is plotted. 
-
-```{r plot-dvtime, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)") 
+```{r plot-dvtime-pass, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = "ODV")
 ```
-
-Not a bad plot with minimal arguments! We can see the mean for each dose as a colored thick line and observed data points as colored open circles with some alpha added. A caption also prints by default describing the plot elements. 
-
-The caption can be removed by specifying `show_caption = FALSE`.
+Hey a plot! Conveniently, time variables in `data_sad` had names aligned with the default argument; however, this may not always be the case. A caption prints by default describing the plot elements. The caption can be removed by specifying `show_caption = FALSE`.
 
 ```{r plot-dvtime-nocap, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", show_caption = FALSE) 
+plot_dvtime(data = plot_data, dv_var = "ODV", show_caption = FALSE) 
 ```
 
-## Adjusting Time Breaks
+These data are probably best visualized on a log-scale y-axis upweight the terminal phase profile. `plot_dvtime` includes an argument `log_y` which performs this operation with some additional formatting benefits over manually adding the layer to the returned object with `scale_y_log10`.
 
+  + Includes log tick marks on the y-axis 
+  + Updates the caption with the correct central tendency measure if `show_captions = TRUE`. 
+
+`plot_dvtime` uses the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned when requesting `"mean"` from `stat_summary` is the *geometric mean*. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will  delineate where arithmetic and gemoetric means are being returned. 
+
+```{r plot-dvtime-nocap, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = "ODV", log_y) 
+```
+
+
+## Adjusting Time Variables and Breaks
+
+The names of the actual and nominal time variables can be passed as a named character vector with default `time_vars=c(TIME=TIME", NTIME="NTIME")`. These elements of the argument may be specified one at a time, as in the example below showing all nominal values, or both together.
+
+```{r plot-dvtime-nom, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(plot_data, dv_var = "ODV", time_vars = c(TIME = "NTIME"))
+```
+ 
 `plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
   + `timeu` character string specifying time units. Options include:
@@ -126,8 +166,7 @@ We can see that the default (n = 8) gives an optimal number of breaks in this ca
 The default `n_breaks = 8` is a good value for `data_sad`, and `data_sad` uses the default time units (`"hours"`); therefore, explicit specification of the `n_breaks` and `timeu` arguments is not required.
 
 ```{r plot-dvtime-breaks, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)") 
+plot_dvtime(data = plot_data, dv_var = "ODV") 
 ```
 
 However, perhaps someone on the team would prefer the x-axis breaks in units of `days`. The x-axis breaks will transform to the new units automatically as long as we specify the new time unit with `timeu = "days"`.
@@ -137,8 +176,7 @@ plot_data_days <- plot_data %>%
   mutate(TIME = TIME/24, 
          NTIME = NTIME/24)
 
-plot_dvtime(data = plot_data_days, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", timeu = "days") 
+plot_dvtime(data = plot_data_days, dv_var = "ODV", timeu = "days") 
 ```
 
 Nice! However, someone else on the team would prefer to see the first 24 hours of treatment in greater detail to visualize the absorption phase. We can either truncate the x-axis range using `scale_x_continuous()`, or filter the input data and allow the x-axis breaks to adjust automatically with the new time range in the input data!
@@ -147,22 +185,23 @@ Nice! However, someone else on the team would prefer to see the first 24 hours o
 plot_data_24 <- plot_data %>% 
   filter(NTIME <= 24)
 
-plot_dvtime(data = plot_data_24, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)") 
+plot_dvtime(data = plot_data_24, dv_var = "ODV") 
 ```
 
-## Specifying the Central Tendency
 
-These data are probably best visualized on a log-scale y-axis upweight the terminal phase profile. `plot_dvtime` includes an argument `log_y` which performs this operation with some additional formatting benefits over manually adding the layer to the returned object with `scale_y_log10`.
+## Color Aesthetic and Central Trendency
 
-  + Includes log tick marks on the y-axis 
-  + Updates the caption with the correct central tendency measure if  `show_captions = TRUE`. 
+The color aesthetic csn be mapped to a dataset variable using the the `col_var` argument. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
 
-`plot_dvtime` uses the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned when requesting `"mean"` from `stat_summary` is the *geometric mean*. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will  delineate where arithmetic and gemoetric means are being returned. 
+```{r plot-dvtime-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data, dv_var = "ODV", log_y = TRUE, col_var = "Dose", )
+```
+
+The argument `cent` specifies the method of calculating the central tendency (+/- variability) within levels of the variable passed to the `col_var`. The default is `cent = "mean"`; however, note that the calculation performed are *after* any transformations to the data and this option will return the geometric mean when `log_y=TRUE`. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will  delineate where arithmetic and gemoetric means are being returned. 
 
 ```{r plot-dvtime-part-log, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
-            ylab = "Concentration (ng/mL)", log_y = TRUE) 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean", 
+            ylab = "Concentration (ng/mL)") 
 ```
 
 But wait...this plot is potentially misleading! The food effect portion of the study is being pooled together with the fasted data within the 100 mg dose. 
@@ -170,7 +209,7 @@ But wait...this plot is potentially misleading! The food effect portion of the s
 Luckily, `plot_dvtime` returns a `ggplot` object which we can modify like any other `ggplot`! Therefore, we can facet by PART by simply adding in another layer to our `ggplot` object. 
 
 ```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean", 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean", 
             ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
@@ -178,7 +217,7 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
 The clinical team would like a simpler plot that clearly displays the central tendency. We can use the argument `cent = "mean_sdl"` to plot the mean with error bars and remove the observed points by specifying `obs_dv = FALSE`.
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl", 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE) +
   facet_wrap(~PART)
@@ -187,7 +226,7 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
 We may want to only show the upper error bar, especially when computing the arithmetic mean +/- arithmetic SD on the linear scale. This can be accomplished by changing the `cent` argument to `mean_sdl_upper`.
 
 ```{r plot-dvtime_part-meansdl-upper, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean_sdl_upper", 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean_sdl_upper", 
             ylab = "Concentration (ng/mL)", obs_dv = FALSE) +
   facet_wrap(~PART)
 ```
@@ -195,7 +234,7 @@ plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mea
 We could also plot these data as median + interquartile range (IQR) using, if we do not feel the sample size is sufficient for parametric summary statistics. This can be accomplished by changing the `cent` argument to `median_iqr`.
 
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "median_iqr", 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "median_iqr", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE) +
   facet_wrap(~PART)
@@ -206,13 +245,13 @@ Hmm...there is some noise at the late terminal phase. This is likely artifact in
 We will change the central tendency measure to the median and add the spaghetti lines. Data points within an individual value of `grp_var` will be connected by a narrow line when `grp_dv = TRUE`. The default is `grp_var = "ID"`.
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "median", 
+plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose", cent = "median", 
             ylab = "Concentration (ng/mL)", log_y = TRUE, 
             grp_dv = TRUE) +
   facet_wrap(~PART)
 ```
-
 It does not seem like there are outlier individuals driving the noise in the late terminal phase; therefore, this is almost certainly artifact introduced by data missing due to assay sensitivity and censoring at the lower limit of quantification (LLOQ). 
+
 
 ## Defining imputations for BLQ data
 
@@ -228,7 +267,7 @@ The `loq_method` argument species how BLQ imputation should be performed. Option
 The `loq` argument species the value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset. In our case, `LLOQ` is a variable in `plot_data`, so we do not need to specify the `loq` argument (default is `loq = NULL`).
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2) +
   facet_wrap(~PART)
@@ -237,7 +276,7 @@ plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
 The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean",
             ylab = "Concentration (ng/mL)",  log_y = TRUE,
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
@@ -252,7 +291,7 @@ Imputing post-dose concentrations below the lower limit of quantification as 1/2
 We can also generate dose-normalized concentration-time plots by specifying `dosenorm = TRUE`. 
 
 ```{r plot-dvtime-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -262,7 +301,7 @@ When `dosenorm = TRUE`, the variable specified in `dose_var` (default = "DOSE") 
 
 ```{r plot-dvtime-dn-nodose, fig.height=4, fig.width=6, message=TRUE, warning=TRUE, error=TRUE}
 plot_dvtime(select(plot_data, -DOSE), 
-            dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+            dv_var = "ODV", col_var = "Dose", cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -271,7 +310,7 @@ plot_dvtime(select(plot_data, -DOSE),
 Dose-normalization is performed *AFTER* BLQ imputation in the case in which both options are requested. The reference line for the LLOQ will not be plotted when dose-normalized concentration is the dependent variable. 
 
 ```{r plot-dvtime-blq-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
+plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose", cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             loq_method = 2, dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -282,7 +321,7 @@ plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
 Only a single variable can be passed to the `col_var` argument of `plot_dvtime`. Suppose we want to look at the interaction between two variables in the color aesthetic. This can be accomplished using the `interaction` function within the `aes` call, which computes an unordered factor representing the interaction between the two variables. Let's visualize the interaction between the factor versions of the variables `DOSE` and `FOOD`.
 
 ```{r plot-int, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-ggplot(plot_data, aes(x = TIME, y = ODV, col = interaction(`Dose (mg)`, `Food Status`))) +
+ggplot(plot_data, aes(x = TIME, y = ODV, col = interaction(`Dose`, `Food Status`))) +
   geom_point()+
   stat_summary(data = plot_data, aes(x = NTIME, y = ODV, col = interaction(`Dose (mg)`, `Food Status`)),
                fun.y = "mean", geom = "line") + 
@@ -359,33 +398,6 @@ plot_data_crossover_fid <- plot_data_crossover %>%
 
 plot_dvtime(plot_data_crossover_fid, dv_var = "ODV", col_var = "Dose (mg) and Food", cent = "mean",
             grp_var = "FID", grp_dv = TRUE,
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            loq_method = 2)
-```
-
-## Adding Count of Unique Identifiers to Color Aesthetic
-
-`pmxhelpr` also includes a helper function `df_addn`, which will add counts of a identifier variable passed to the `id_var` argument to the variable specified in `grp_var`. If a numeric variable is passed to `grp_var`, the factor variable returned will be correctly sorted in increasing order of values.
-
-```{r plot-dvtime-dfaddn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_int <- plot_data %>%  
-  mutate(`Dose (mg)` = DOSE)
-
-plot_data_int_addn <- df_addn(plot_data_int, grp_var = "Dose (mg)", id_var = "ID")
-
-
-plot_dvtime(plot_data_int_addn, dv_var = "ODV", col_var = "Dose (mg)", cent = "mean",
-            ylab = "Concentration (ng/mL)", log_y = TRUE,
-            loq_method = 2)
-```
-
-
-A character separator can also be passed to the `sep` argument, which will be printed between the values of `grp_var` and the counts. A common use case is when dose is expressed as a numeric variable and the dose units are passed to `sep`
-
-```{r plot-dvtime-dfaddn-sep, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_int_addn_sep <- df_addn(plot_data, grp_var = "DOSE", id_var = "ID", sep = "mg")
-
-plot_dvtime(plot_data_int_addn_sep, dv_var = "ODV", col_var = "DOSE", cent = "mean",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2)
 ```

@@ -162,6 +162,8 @@ plot_dvtime <- function(data,
     width <- max(data$NTIME, na.rm = TRUE)*0.025
   }
 
+  #Remove EVID!=0
+  data <- dplyr::filter(data, EVID==0)
 
 ###Plot
 

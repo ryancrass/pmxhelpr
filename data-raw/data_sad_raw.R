@@ -177,15 +177,14 @@ pd_obs <- data_sad %>%
   filter(CMT == 2) %>%
   left_join(select(fit, LINE, IPRED, IPREDPK)) %>%
   mutate(CMT = 3,
+         CONC = ifelse(is.na(ODV), 0 , ODV),
          ODV = IPRED,
          LDV = IPRED,
-         CFB = ODV-100,
-         PCFB = CFB/100,
-         ICONC = IPREDPK) %>%
+         CFB = ODV-100) %>%
   select(-IPRED, -IPREDPK)
 
 data_sad_pd <- bind_rows(data_sad, pd_obs) %>%
   arrange(ID, TIME, CMT) %>%
-  select(ID:LDV,CFB,PCFB, ICONC, everything())
+  select(ID:LDV,CFB, CONC, everything())
 
 usethis::use_data(data_sad_pd, overwrite = TRUE)

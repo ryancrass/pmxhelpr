@@ -212,7 +212,7 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 
 ## Color Aesthetic and Central Trendency
 
-The color aesthetic csn be mapped to a dataset variable using the the `col_var` argument. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
+The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
 
 ```{r plot-dvtime-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = "ODV", log_y = TRUE, col_var = "Dose and Food", )
@@ -418,74 +418,72 @@ lapply(1:n_pgs, function(n_pg) {
 
 ## Overview of `plot_dvconc`
 
-Let's visualize the data. First, we will filter to response observation records only (CMT=3) and derive some factor variables, which can be passed to the color aesthetic in our plots. Let's first visualize these data versus time using `plot_dvtime`.
+Now let's take a look at the pharmacodynamic (PD) data! We can visualize the response-time profile using `plot_dvtime`, just as we did to visualize the concentration-time profile previously, by filtering our PK/PD dataset to the compartment with the biomarker observations (`CMT=3`).
 
 ```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data_pd, dv_var = "CFB", col_var = "Dose", ylab = "Response") 
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", col_var = "Dose and Food", ylab = "Response") 
 ```
 
-
-Now let's visualize the response-concentration data. `pmxhelpr` includes a function for common visualizations of observed response versus concentration data in exploratory data analysis: `plot_dvconc`
+Now let's visualize the response data versus drug concentration!. `pmxhelpr` includes a function for common visualizations of observed response versus drug concentration data in exploratory data analysis: `plot_dvconc`
 
 In our visualizations, we will leverage the following dataset variables: 
 
-  + `ODV`: the original dependent variable (biomarker respponse) normalized to baseline
-  + `ICONC` : individual PK model-predicted concentration 
+  + `ODV`: the original dependent variable (biomarker response) normalized to baseline
+  + `CONC` : time-matched, observed drug concentration at the time of biomarker assessment 
   
-`plot_dvconc` requires a dependent variable, specified as string via the `dv_var` argument, and an independent variabl, specified as a string via the `idv_var` argument. The default values are `"DV"` and `"CONC"`.
+`plot_dvconc` requires a dependent variable, specified as string via the `dv_var` argument, and an independent variable, specified as a string via the `idv_var` argument. The default values are `"DV"` and `"CONC"`.
 
 ```{r plot-dvconc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC") 
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "ODV", idv_var = "CONC") 
 ```
 
-## Specifying the Color Aesthetic
+## Color Aesthetic
 
-`plot_dvconc` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed as a string to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit without the color aesthetic.
+`plot_dvconc` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed as a string to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data  without stratifying the trend lines by the variable mapped to the color aesthetic.
 
 ```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = FALSE) 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = FALSE) 
 ```
 
-This behavior can be modified by setting `col_trend = TRUE`.
+Trend lines stratified by the variable mapped to the color aesthetic are requested by setting `col_trend = TRUE`.
 
 ```{r plot-dvconc-col-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = TRUE) 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = TRUE) 
 ```
 
-## Trend Lines
+## Central Tendency
 
-There are two trend line types supported by `plot_dvconc`, LOESS smoothing fit and linear regression controlled by logical arguments `loess` and `linear`. The default is `loess = TRUE` and `linear = FALSE`
+There are two trend line types supported by `plot_dvconc`: locally estimated scatter plot smoothing (LOESS) fit and linear regression. The central tendency trend lines visualized are controlled by logical arguments `loess` and `linear`. The default is `loess = TRUE` and `linear = FALSE`
 
 ```{r plot-dvconc-col-trend-loess-linear, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = FALSE, loess = TRUE, linear = TRUE) 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = FALSE, loess = TRUE, linear = TRUE) 
 ```
-
-The 95%CIs of the trendlines are suppressed by default. They can be added to the plot using the logical arguments `se_loess` and `se_linear`.
+The confidence intervals of the trendlines are suppressed by defaul in order to facilitate visualization of the central tendency and spread of observed data points simultaneously. Confidence intervals can be added to the plot using the logical arguments `se_loess` and `se_linear`.
 
 ```{r plot-dvconc-loess-linear-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = FALSE, 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = FALSE, 
             loess = TRUE, linear = TRUE, se_loess = TRUE, se_linear = TRUE) 
 ```
-
-Additional arguments can be passed to `geom_smooth(method = "loess")`, such as increasing the span of the smoother.
+Additional arguments can be passed to `geom_smooth(method = "loess")`, such as increasing the span of the smoothing fit.
 
 ```{r plot-dvconc-loess-span, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = FALSE, 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = FALSE, 
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE, 
             span = 1) 
 ```
+If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also map to the ribbons defining the 95% CIs.
 
-If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also mapp to the ribbons defining the 95% CIs. 
 ```{r plot-dvconc-col-trend-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = "CFB", idv_var = "ICONC", 
-            col_var = "Dose", col_trend = TRUE,
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            col_var = "Dose and Food", col_trend = TRUE,
             se_loess = TRUE) 
 ```
+
 
 # Population Concentration-Time and Response-Time
 

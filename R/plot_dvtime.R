@@ -213,7 +213,8 @@ plot_dvtime <- function(data,
                                                                                              size = plottheme$size_point_cent,
                                                                                              shape = plottheme$shape_point_cent,
                                                                                              alpha = plottheme$alpha_point_cent)
-  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),fun = "median", geom = "point",
+  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
+                                                            fun = "median", geom = "point",
                                                             size = plottheme$size_point_cent,
                                                             shape = plottheme$shape_point_cent,
                                                             alpha = plottheme$alpha_point_cent)
@@ -236,8 +237,7 @@ plot_dvtime <- function(data,
                                                               fun.args = list(mult=1),geom = "errorbar",
                                                               linewidth = plottheme$linewidth_errorbar,
                                                               linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar,
-                                                              width = width)
+                                                              alpha = plottheme$alpha_errorbar)
   if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                                 fun.max = function(x){mean(x)+stats::sd(x)},
                                                                 fun.min = function(x){NA_real_},
@@ -260,7 +260,8 @@ plot_dvtime <- function(data,
                                                               geom = "errorbar",
                                                               linewidth = plottheme$linewidth_errorbar,
                                                               linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar)
+                                                              alpha = plottheme$alpha_errorbar,
+                                                              width = width)
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")

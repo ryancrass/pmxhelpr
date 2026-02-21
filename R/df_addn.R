@@ -5,7 +5,7 @@
 #' @param data Input dataset.
 #' @param grp_var Variable to add counts to.
 #' @param id_var Variable defining distinct values to count. Default is `"ID"`.
-#' @param sep Additional string separator to add between variable and count. Default is an empty string.
+#' @param sep Additional string separator to add between variable and count. Default is NULL.
 #' @param ... Other arguments passed to `factor()`.
 #'
 #' @return A data.frame with the same number of rows as `data` and a factor variable.
@@ -21,20 +21,28 @@
 df_addn <- function(data,
                     grp_var,
                     id_var = "ID",
-                    sep = ""){
+                    sep = NULL){
 
   check_df(data)
   check_varsindf(data, grp_var)
   check_varsindf(data, id_var)
 
-  n <- data |>
+  data_counts <- data |>
     dplyr::group_by(!!dplyr::sym(grp_var)) |>
-    dplyr::summarize(n = dplyr::n_distinct(!!dplyr::sym(id_var))) |>
+    dplyr::summarize(N = dplyr::n_distinct(!!dplyr::sym(id_var))) |>
     dplyr::ungroup()
 
-  data <- dplyr::left_join(data, n) |>
-    dplyr::mutate(grp_var = paste(!!dplyr::sym(grp_var), sep ,paste0("(n=", n, ")")),
-                  grp_var = factor(grp_var))
+  if(!is.null(sep)){
+    out <- dplyr::left_join(data, data_counts) |>
+      dplyr::mutate(tmp = factor(paste(!!dplyr::sym(grp_var),sep, paste0("(n=", N, ")"))))
+  } else {
+    out <- dplyr::left_join(data, data_counts) |>
+      dplyr::mutate(tmp = factor(paste(!!dplyr::sym(grp_var), paste0("(n=", N, ")"))))
+  }
 
-  return(data)
+
+  out[[grp_var]] <- out[["tmp"]]
+  out <- dplyr::select(out, -N, -tmp)
+
+  return(out)
 }

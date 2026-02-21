@@ -237,7 +237,8 @@ plot_dvtime <- function(data,
                                                               fun.args = list(mult=1),geom = "errorbar",
                                                               linewidth = plottheme$linewidth_errorbar,
                                                               linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar)
+                                                              alpha = plottheme$alpha_errorbar,
+                                                              width = width)
   if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
                                                                 fun.max = function(x){mean(x)+stats::sd(x)},
                                                                 fun.min = function(x){NA_real_},

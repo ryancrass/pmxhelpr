@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.6
 
 * Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines
 * Add `plot_dvtime_dual` wrapper function for `plot_dvtime` to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.

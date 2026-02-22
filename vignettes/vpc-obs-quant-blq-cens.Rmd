@@ -186,9 +186,9 @@ vpc_blq_drop <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
-  min_bin_count = 4
-) +
-  scale_y_log10(guide = "axis_logticks")
+  min_bin_count = 4,
+  log_y = TRUE
+) 
 
 vpc_blq_drop
 ```
@@ -207,9 +207,8 @@ vpc_blq_qobs_cens <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
   min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
+  loq = 1,
+  log_y = TRUE)
 
 vpc_blq_qobs_cens
 ```
@@ -235,9 +234,9 @@ vpc_pc <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
   min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
+  loq = 1,
+  log_y = TRUE
+) 
 
 vpc_pc
 ```

@@ -139,11 +139,13 @@ plot_vpc_exactbins <- function(sim,
 
   ##Identify observed summary data
   obs_sum <- dplyr::left_join(obs, bin_count) |>
-    dplyr::filter(n_obs >= min_bin_count)
+    dplyr::filter(n_obs >= min_bin_count) |>
+    dplyr::filter(MDV == 0)
 
   ##Identify simulated summary data
   sim_sum <- dplyr::left_join(sim, bin_count) |>
-    dplyr::filter(n_obs >= min_bin_count)
+    dplyr::filter(n_obs >= min_bin_count)|>
+    dplyr::filter(MDV == 0)
 
   ##Define Bins
   bins <- c(unique(obs_sum$NTIME), Inf) #Add Infinity to ensure last time point is in a unique bin

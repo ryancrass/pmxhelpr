@@ -1,3 +1,5 @@
+# pmxhelpr 0.3.7
+
 # pmxhelpr 0.3.6
 
 * Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines

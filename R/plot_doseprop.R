@@ -39,7 +39,7 @@ mod_loglog <- function(data,
 #' @param method character string specifying the distribution to be used to derived the confidence interval.
 #'    Options are "normal" (default) and "tdist"
 #' @param ci confidence interval to be calculated.
-#'    Options are 0.95 (default) and 0.90
+#'    Options 0.90 (default) and 0.95
 #' @param sigdigits number of significant digits for rounding
 #'
 #' @return `data.frame`
@@ -54,7 +54,7 @@ mod_loglog <- function(data,
 
 df_loglog <- function(fit,
                       method = "normal",
-                      ci = 0.95,
+                      ci = 0.9,
                       sigdigits = 3) {
 
   check_lm(fit)
@@ -114,7 +114,7 @@ df_doseprop <- function(data,
                         exp_var = "PPORRES",
                         dose_var = "DOSE",
                         method = "normal",
-                        ci = 0.95,
+                        ci = 0.90,
                         sigdigits=3) {
 
   check_df(data)

@@ -10,6 +10,9 @@
 #'
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_dvtime
+#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#'    Defaults can be viewed by running `plot_popgof_theme()` with no arguments.
+#'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'
@@ -209,14 +212,14 @@ plot_popgof <- function(data,
   #Plot Observed Central Tendency
   if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                                            fun = "mean", geom = "line",
-                                                                           linewidth = plottheme$linewidth_obs,
-                                                                           linetype = plottheme$linetype_obs,
-                                                                           alpha = plottheme$alpha_line_obs)
+                                                                           linewidth = plottheme$linewidth_dv,
+                                                                           linetype = plottheme$linetype_dv,
+                                                                           alpha = plottheme$alpha_line_dv)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                                                fun = "median", geom = "line",
-                                                                               linewidth = plottheme$linewidth_obs,
-                                                                               linetype = plottheme$linetype_obs,
-                                                                               alpha = plottheme$alpha_line_obs)
+                                                                               linewidth = plottheme$linewidth_dv,
+                                                                               linetype = plottheme$linetype_dv,
+                                                                               alpha = plottheme$alpha_line_dv)
   #Plot Observed Central Tendency and Error Bars
   if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
                                                               fun.data = "mean_sdl", fun.args = list(mult=1),
@@ -247,7 +250,8 @@ plot_popgof <- function(data,
                                                               geom = "errorbar",
                                                               linewidth = plottheme$linewidth_errorbar,
                                                               linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar)
+                                                              alpha = plottheme$alpha_errorbar,
+                                                              width = width)
 
   #Plot Individual Model Predictions
   if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
@@ -307,9 +311,13 @@ plot_popgof_theme <- function(update = NULL){
     shape_point_obs = 1.25,
     size_point_obs = 0.75,
     alpha_point_obs = 0.5,
-    linewidth_obs = 1,
+    linewidth_obs = 0.5,
     linetype_obs = 1,
-    alpha_line_obs = 1,
+    alpha_line_obs = 0.75,
+
+    linewidth_dv = 1,
+    linetype_dv = 1,
+    alpha_line_dv  = 1,
 
     shape_point_cent = 1,
     size_point_cent = 1.25,

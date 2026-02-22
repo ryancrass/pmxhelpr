@@ -19,6 +19,7 @@ plot_dvtime(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
@@ -27,7 +28,7 @@ plot_dvtime(
 )
 }
 \arguments{
-\item{data}{Input dataset. Must contain the variables: \code{"ID"}, \code{"DV"} \code{"MDV"}.}
+\item{data}{Input dataset.}
 
 \item{dv_var}{Character name of the DV variable in \code{data}.}
 
@@ -87,7 +88,9 @@ Default is \code{FALSE}.}
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = 0. Default is \code{FALSE}.}
+Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
+
+\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 
@@ -99,13 +102,7 @@ Plots a reference line at y = 0. Default is \code{FALSE}.}
 
 \item{theme}{Named list of aesthetic parameters to be supplied to the plot.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
-Default \code{width_errorbar} is 2.5\% of maximum \code{NTIME}.
-Defaults for observations updated in \code{plot_popgof} as follows:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ +`size_point_obs` = 1.25
- +`linewidth_obs` = 1
- + `alpha_line_obs` = 1
-}\if{html}{\out{</div>}}}
+Default \code{width_errorbar} is 2.5\% of maximum \code{NTIME}.}
 }
 \value{
 A \code{ggplot2} plot object
@@ -114,7 +111,7 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus time
 }
 \examples{
-data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
+data <- df_addn(dplyr::mutate(data_sad,Dose=DOSE), grp_var="Dose", sep = "mg")
 plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
 
 }

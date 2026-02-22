@@ -57,9 +57,9 @@ sim_input_data <- dplyr::left_join(dose_data, cov_data)
 colnames(sim_input_data) <- toupper(colnames(sim_input_data))
 
 
-##Load Model File
+##Load Model Files
 mod <- mrgsolve::mread(system.file("models", "model.cpp", package="pmxhelpr"))
-
+pdmod <- mrgsolve::mread(system.file("models", "pdmodel.cpp", package="pmxhelpr"))
 
 ##Run Simulation
 withr::with_seed(
@@ -153,7 +153,7 @@ data_sad_nca <- nca_results_obj |>
                 units_conc = "ng/mL",
                 units_time = "hours")
 
-usethis::use_data(data_sad_nca)
+usethis::use_data(data_sad_nca, overwrite = TRUE)
 
 
 
@@ -166,4 +166,25 @@ fit <- df_mrgsim_replicate(data_sad, mod, replicates = 1, dv_var = "ODV", num_va
 data_sad_pkfit <- data_sad %>%
   left_join(select(fit, LINE, IPRED, PRED))
 
-usethis::use_data(data_sad_pkfit)
+usethis::use_data(data_sad_pkfit, overwrite = TRUE)
+
+
+#####Create `data_sad_pd` internal dataset with PK and PD observations using `pdmodel`
+
+fit <- df_mrgsim_replicate(data_sad, pdmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+
+pd_obs <- data_sad %>%
+  filter(CMT == 2) %>%
+  left_join(select(fit, LINE, IPRED, IPREDPK)) %>%
+  mutate(CMT = 3,
+         CONC = ifelse(is.na(ODV), 0 , ODV),
+         ODV = IPRED,
+         LDV = IPRED,
+         CFB = ODV-100) %>%
+  select(-IPRED, -IPREDPK)
+
+data_sad_pd <- bind_rows(data_sad, pd_obs) %>%
+  arrange(ID, TIME, CMT) %>%
+  select(ID:LDV,CFB, CONC, everything())
+
+usethis::use_data(data_sad_pd, overwrite = TRUE)

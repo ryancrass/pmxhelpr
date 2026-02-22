@@ -186,9 +186,9 @@ vpc_blq_drop <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
-  min_bin_count = 4
-) +
-  scale_y_log10(guide = "axis_logticks")
+  min_bin_count = 4,
+  log_y = TRUE
+) 
 
 vpc_blq_drop
 ```
@@ -207,9 +207,8 @@ vpc_blq_qobs_cens <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
   min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
+  loq = 1,
+  log_y = TRUE)
 
 vpc_blq_qobs_cens
 ```
@@ -218,26 +217,10 @@ Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the i
 Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input dataset for the plot (`sim`) when `EVID=0`. The function sets the `MDV` variable in `sim` to zero (0) so that all timepoints are included. 
 
   - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`. 
-  - In the calcluation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
+  - In the calculation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
   
 Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`). 
 
 If`loq` is specified with`pcvpc = TRUE`, an error message will print from `vpc::vpc()`.
 
-```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc <- plot_vpc_exactbins(
-  sim = simout, 
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
-  xlab = "Time (hours)",
-  ylab = "Concentration (ng/mL)",
-  pcvpc = TRUE,
-  min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
-
-vpc_pc
-```
+**Prediction-correction cannot be used together with censored data (<LLOQ or >ULOQ). VPC plot will be shown for non-censored data only!**

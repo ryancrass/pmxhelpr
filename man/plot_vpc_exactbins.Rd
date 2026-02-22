@@ -99,6 +99,5 @@ vpc_plot <- plot_vpc_exactbins(
 sim = simout,
 pcvpc = TRUE,
 pi = c(0.05, 0.95),
-ci = c(0.05, 0.95),
-loq = 1)
+ci = c(0.05, 0.95))
 }

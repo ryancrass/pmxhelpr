@@ -23,6 +23,7 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
+library(forcats, warn.conflicts = FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
@@ -38,14 +39,18 @@ This dataset contains two additional variables relative to the observed dataset 
 + `PRED`: population model predicted values accounting only for fixed effects (THETAs)
 + `IPRED`: individual model predicted values accounting for fixed effects (THETAs) and level 1 (inter-individual) random effects (ETAs)
 
-Let's add some additional derived character variables, which may be useful for plotting. 
+Let's derive some additional variables and leverage the functionality of `df_addn` to create a new factor variable including a count of unique individuals in each unique dosing condition for plotting
 
 ```{r data-plotdata}
 plot_data <- data_sad_pkfit %>% 
   mutate(FoodStatus = ifelse(FOOD == 0, "Fasted", "Fed"), 
-         DoseGroup = paste0(DOSE, " mg ", FoodStatus), 
-         DoseGroup = factor(DoseGroup, levels = c("10 mg Fasted", "50 mg Fasted", "100 mg Fasted", "100 mg Fed", 
-                                                  "200 mg Fasted", "400 mg Fasted")))
+         DoseGroup = paste0(DOSE, " mg ", FoodStatus)) %>% 
+  df_addn("DoseGroup")
+
+unique(plot_data$DoseGroup)
+plot_data <- plot_data %>% 
+  mutate(DoseGroup = fct_relevel(DoseGroup, "50 mg Fasted (n=6)", after = 1))
+unique(plot_data$DoseGroup)
 ```
 
 

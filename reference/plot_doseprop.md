@@ -13,7 +13,7 @@ plot_doseprop(
   exp_var = "PPORRES",
   dose_var = "DOSE",
   method = "normal",
-  ci = 0.9,
+  ci = 0.95,
   sigdigits = 3,
   se = TRUE
 )

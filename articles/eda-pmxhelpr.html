@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.7/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>eda-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -70,7 +70,7 @@
     
 <p>This vignette will demonstrate <code>pmxhelpr</code> functions for
 exploratory data analysis.</p>
-<p>First oad the required packages.</p>
+<p>First load the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
@@ -916,8 +916,8 @@ variable to map to the y-axis. Default is <code>"DV"</code>.</li>
 variable to map to the y-axis. Default is <code>"CONC"</code>.</li>
 </ul>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% of Baseline)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-1.png" class="r-plt" alt="" width="576"></p>
 <p>Like <code>plot_dvtime</code>, we can specify a reference line using
 <code>cfb = TRUE</code>, which is plotted at <code>cfb_base</code>
@@ -939,15 +939,15 @@ data points are colored based on this variable; however, by default
 of the data without stratifying the trend lines by the variable mapped
 to the color aesthetic.</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from of Baseline)"</span>, </span>
 <span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-1.png" class="r-plt" alt="" width="576"></p>
 <p>Trend lines stratified by the variable mapped to the color aesthetic
 are requested by setting <code>col_trend = TRUE</code>.</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<span>           cfb <span class="op">=</span> <span class="cn">TRUE</span>,  xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from  Baseline)"</span>, </span>
 <span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-1.png" class="r-plt" alt="" width="576"></p>
 </div>
@@ -960,9 +960,9 @@ regression. The central tendency trend lines visualized are controlled
 by logical arguments <code>loess</code> and <code>linear</code>. The
 default is <code>loess = TRUE</code> and <code>linear = FALSE</code></p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>,  col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-loess-linear-1.png" class="r-plt" alt="" width="576">
 The confidence intervals of the trend lines are suppressed by default in
 order to facilitate visualization of the central tendency and spread of
@@ -970,16 +970,18 @@ observed data points simultaneously. Confidence intervals can be added
 to the plot using the logical arguments <code>se_loess</code> and
 <code>se_linear</code>.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>,</span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span>, se_loess <span class="op">=</span> <span class="cn">TRUE</span>, se_linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-linear-se-1.png" class="r-plt" alt="" width="576">
 Additional arguments can be passed to
 <code>geom_smooth(method = "loess")</code>, such as increasing the span
 of the smoothing fit.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>,</span>
+<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>,</span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">FALSE</span>, se_loess <span class="op">=</span> <span class="cn">TRUE</span>, se_linear <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            span <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-span-1.png" class="r-plt" alt="" width="576">
@@ -987,8 +989,9 @@ If the color aesthetic is mapped to the trendlines with
 <code>col_trend = TRUE</code>, it will also map to the ribbons defining
 the CIs of the trend lines.</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change of Baseline)"</span>,</span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            se_loess <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-se-1.png" class="r-plt" alt="" width="576"></p>
 </div>

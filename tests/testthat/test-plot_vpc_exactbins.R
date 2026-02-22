@@ -187,7 +187,7 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
   )
 })
 
-test_that("No error if TIME and NTIME specified as same variabl in time_vars", {
+test_that("No error if TIME and NTIME specified as same variable in time_vars", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("model"),
                                  replicates = 10,

@@ -49,8 +49,7 @@
 #' sim = simout,
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
-#' ci = c(0.05, 0.95),
-#' loq = 1)
+#' ci = c(0.05, 0.95))
 
 plot_vpc_exactbins <- function(sim,
                                pcvpc = FALSE,

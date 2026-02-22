@@ -61,24 +61,30 @@ This is a basic example which illustrates a simple exploratory data
 analysis workflow using pmxhelpr:
 
 ``` r
-library(pmxhelpr)
-library(dplyr)
-library(ggplot2)
-library(mrgsolve)
-library(vpc)
-library(patchwork)
-library(withr)
-
 #Read internal analysis-ready dataset for an example Phase 1 study
-glimpse(data_sad)
+glimpse(data_sad_pd)
 
-#Plot data
-data <- data_sad %>% 
-  mutate(Dose = paste(DOSE, "mg"), 
-         Dose_f = factor(Dose, levels = c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg")))
-         
-plot_dvtime(data = data, dv_var = c(DV = "ODV"), cent = "median", col_var = "Dose_f",
-            ylab = "Concentration (ng/mL)", timeu = "hours")
+#Pre-process data for plotting
+data <- data_sad_pd %>% 
+  mutate(Regimen = DOSE) %>% 
+  df_addn(grp_var = "Regimen", id_var = "ID", sep = "mg x1") %>% 
+  mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
+
+#Plot drug concentration-time
+plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl", 
+            col_var = "Regimen", ylab = "Concentration (ng/mL)", 
+            log_y = TRUE, obs_dv = FALSE)
+
+#Plot drug concentration and biomarker response versus time
+plot_dvtime_dual(data = data, dv_var1 = "ODV", dv_var2 = "CFB", dvid_var = "CMT",
+            cent = "mean_sdl", col_var = "Regimen", 
+            ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change)", 
+            log_y1 = TRUE)
+
+#Plot response versus concentration
+plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",  
+            col_var = "Regimen", ylab = "Response (% Change)", 
+            loess = TRUE, linear = TRUE)
 
 #Assess dose proportionality in the fasted state
 glimpse(data_sad_nca)
@@ -90,6 +96,43 @@ table
 
 #Visualize dose-proportionality
 plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
+```
+
+## Example Population Overly Goodness-of-fit Plot Workflow
+
+This is a basic example which illustrates a simple model diagnostic
+workflow using pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(vpc)
+library(patchwork)
+library(withr)
+
+##Pre-process Data for Plotting
+data <- data_sad_pkfit %>% 
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
+         DoseGroup = paste0(DOSE, " mg ", Food)) %>% 
+  df_addn("DoseGroup") %>% 
+  df_addn("Food")
+unique(data$DoseGroup)
+unique(data$Food)
+
+data <- data %>% 
+  mutate(DoseGroup = fct_relevel(DoseGroup, "50 mg Fasted (n=6)", after = 1))
+unique(data$DoseGroup)
+
+##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
+plot_popgof(data = data, output_vars = c(DV ="ODV"), dosenorm = TRUE, 
+            ylab = "Dose-normalized Conc. (ng/mL)") +
+  facet_wrap(~Food)
+
+plot_popgof(data = data, output_vars = c(DV ="ODV"), 
+            ylab = "Dose-normalized Conc. (ng/mL)", log_y = TRUE) +
+  facet_wrap(~DoseGroup)
 ```
 
 ## Example Visual Exploratory Data Analysis Workflow
@@ -109,11 +152,16 @@ library(withr)
 #Read internal mrgsolve model file
 model <- model_mread_load("model")
 
+#Process Data
+data <- data_sad%>% 
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
+  df_addn(grp_var = "Food", id_var = "ID")
+
 #Simulated replicates of the dataset using mrgsim 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                               dv_var = "ODV",
                               num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                              char_vars = c("USUBJID", "PART", "Dose_f"))
+                              char_vars = c("USUBJID", "PART", "Food"))
 glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
@@ -122,8 +170,8 @@ glimpse(simout)
 
 
 plot_obj_food <- plot_vpc_exactbins(
-  sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))), 
-  strat_var = "FOOD_f",
+  sim = simout, 
+  strat_var = "Food",
   pcvpc = TRUE
 ) + 
   scale_y_log10(guide = "axis_logticks")

@@ -157,7 +157,7 @@ plot_doseprop <- function(data,
                           exp_var = "PPORRES",
                           dose_var = "DOSE",
                           method = "normal",
-                          ci = 0.95,
+                          ci = 0.90,
                           sigdigits=3,
                           se = TRUE) {
 

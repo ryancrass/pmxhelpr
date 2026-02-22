@@ -5,12 +5,15 @@
 #' @param dv_var2 Character string specifying the variable containing observations for the bottom panel (DV2).
 #'    Default is "DV".
 #' @param dvid_var Character string specifying the variable to identify each observation type.
-#' @param dvid_val1 Value of variable specified in `dvid_var` to identify observations for top panel (DV1).
-#' @param dvid_val2 Value of variable specified in `dvid_var` to identify observations for bottom panel (DV2).
-#' @param ylab1 Character string specifying the y-axis label for DV1: Default is `"Concentration"`.
-#' @param ylab2 Character string specifying the y-axis label for DV2: Default is `"Response"`.
-#' @param log_y1 Logical indicator for log10 transformation of the y-axis for DV1. Default is `FALSE`.
-#' @param log_y2 Logical indicator for log10 transformation of the y-axis. Default is `FALSE`
+#' @param dvid_val1 Value of variable specified in `dvid_var` to identify observations for the top panel (DV1).
+#' @param dvid_val2 Value of variable specified in `dvid_var` to identify observations for the bottom panel (DV2).
+#' @param ylab1 Character string specifying the y-axis label for the top panel (DV1): Default is `"Concentration"`.
+#' @param ylab2 Character string specifying the y-axis label for the bottom panel (DV2): Default is `"Response"`.
+#' @param log_y1 Logical indicator for log10 transformation of the y-axis for the top panel (DV1). Default is `FALSE`.
+#' @param log_y2 Logical indicator for log10 transformation of the y-axis for the bottom panel (DV2). Default is `FALSE`.
+#' @param show_caption1 Logical indicating if a caption should be show describing the data plotted for the top panel (DV1).
+#' @param show_caption2 Logical indicating if a caption should be show describing the data plotted for the bottom panel (DV2).
+#' @param onelegend Logical indicator if the plot legends should be collected into a single legend. Default is `FALSE`.
 #' @inheritParams plot_dvtime
 #'
 #' @return A `ggplot2` plot object
@@ -18,7 +21,7 @@
 #' @export plot_dvtime_dual
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
 #'plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV", col_var = "Dose")
 #'
 
@@ -46,8 +49,10 @@ plot_dvtime_dual <- function(data,
                         ylab2 = "Response",
                         log_y1 = FALSE,
                         log_y2 = FALSE,
-                        show_caption = TRUE,
+                        show_caption1 = TRUE,
+                        show_caption2 = TRUE,
                         n_breaks = 8,
+                        onelegend = TRUE,
                         theme = NULL){
 
   plot_dv1 <- pmxhelpr::plot_dvtime(
@@ -67,7 +72,7 @@ plot_dvtime_dual <- function(data,
     cfb = FALSE,
     ylab = ylab1,
     log_y = log_y1,
-    show_caption = show_caption,
+    show_caption = show_caption1,
     n_breaks = n_breaks,
     theme = theme
   )
@@ -89,11 +94,12 @@ plot_dvtime_dual <- function(data,
     cfb_base = cfb_base,
     ylab = ylab2,
     log_y = log_y2,
-    show_caption = show_caption,
+    show_caption = show_caption2,
     n_breaks = n_breaks,
     theme = theme
   )
 
   plot <- patchwork::wrap_plots(plot_dv1, plot_dv2) + patchwork::plot_layout(ncol = 1, nrow = 2)
+  if(onelegend == TRUE) {plot <- plot + patchwork::plot_layout(guides = "collect")}
   return(plot)
 }

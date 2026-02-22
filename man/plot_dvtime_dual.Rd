@@ -28,8 +28,10 @@ plot_dvtime_dual(
   ylab2 = "Response",
   log_y1 = FALSE,
   log_y2 = FALSE,
-  show_caption = TRUE,
+  show_caption1 = TRUE,
+  show_caption2 = TRUE,
   n_breaks = 8,
+  onelegend = TRUE,
   theme = NULL
 )
 }
@@ -44,9 +46,9 @@ Default is "DV".}
 
 \item{dvid_var}{Character string specifying the variable to identify each observation type.}
 
-\item{dvid_val1}{Value of variable specified in \code{dvid_var} to identify observations for top panel (DV1).}
+\item{dvid_val1}{Value of variable specified in \code{dvid_var} to identify observations for the top panel (DV1).}
 
-\item{dvid_val2}{Value of variable specified in \code{dvid_var} to identify observations for bottom panel (DV2).}
+\item{dvid_val2}{Value of variable specified in \code{dvid_var} to identify observations for the bottom panel (DV2).}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -108,17 +110,21 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
-\item{ylab1}{Character string specifying the y-axis label for DV1: Default is \code{"Concentration"}.}
+\item{ylab1}{Character string specifying the y-axis label for the top panel (DV1): Default is \code{"Concentration"}.}
 
-\item{ylab2}{Character string specifying the y-axis label for DV2: Default is \code{"Response"}.}
+\item{ylab2}{Character string specifying the y-axis label for the bottom panel (DV2): Default is \code{"Response"}.}
 
-\item{log_y1}{Logical indicator for log10 transformation of the y-axis for DV1. Default is \code{FALSE}.}
+\item{log_y1}{Logical indicator for log10 transformation of the y-axis for the top panel (DV1). Default is \code{FALSE}.}
 
-\item{log_y2}{Logical indicator for log10 transformation of the y-axis. Default is \code{FALSE}}
+\item{log_y2}{Logical indicator for log10 transformation of the y-axis for the bottom panel (DV2). Default is \code{FALSE}.}
 
-\item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
+\item{show_caption1}{Logical indicating if a caption should be show describing the data plotted for the top panel (DV1).}
+
+\item{show_caption2}{Logical indicating if a caption should be show describing the data plotted for the bottom panel (DV2).}
 
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
+
+\item{onelegend}{Logical indicator if the plot legends should be collected into a single legend. Default is \code{FALSE}.}
 
 \item{theme}{Named list of aesthetic parameters to be supplied to the plot.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
@@ -131,7 +137,7 @@ A \code{ggplot2} plot object
 Wrapper function for plot_dvtime to plot two dependent variables paneled together
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
 plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV", col_var = "Dose")
 
 }

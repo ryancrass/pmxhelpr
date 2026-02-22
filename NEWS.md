@@ -1,7 +1,11 @@
 # pmxhelpr (development version)
 
+* Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines
 * Add `plot_dvtime_dual` wrapper function for `plot_dvtime` to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.
-* Add option to pass additional arguments to `factor()` into `df_addn` to support ordering of factor variables
+* Update `df_addn` to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., `forcats`)
+* Update `plot_popgof_theme` to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.
+* Revise the `Exploratory Data Analysis` vignette to include new functionality and revised workflows with new functions.
+* Fix bug that was not scaling error bar caps for the x-axis range when `cent = "median_iqer` across functions
 
 # pmxhelpr 0.3.6
 

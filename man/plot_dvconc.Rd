@@ -15,6 +15,7 @@ plot_dvconc(
   se_loess = FALSE,
   se_linear = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Response",
   xlab = "Drug Concentration",
   log_y = FALSE,
@@ -46,6 +47,8 @@ plot_dvconc(
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
 Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
+\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
+
 \item{ylab}{Character string specifying the y-axis label: Default is \code{"Response"}.}
 
 \item{xlab}{Character string specifying the x-axis label: Default is \code{"Drug Concentration"}}
@@ -68,7 +71,7 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus concentration
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
 plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose", col_trend = FALSE)
 
 }

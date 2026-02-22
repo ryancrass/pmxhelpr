@@ -6,7 +6,6 @@
 #' @param grp_var Variable to add counts to.
 #' @param id_var Variable defining distinct values to count. Default is `"ID"`.
 #' @param sep Additional string separator to add between variable and count. Default is NULL.
-#' @param ... Other arguments passed to `factor()`.
 #'
 #' @return A data.frame with the same number of rows as `data` and a factor variable.
 #' @export df_addn

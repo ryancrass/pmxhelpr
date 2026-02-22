@@ -35,7 +35,7 @@ Default is "DOSE".}
 Options are "normal" (default) and "tdist"}
 
 \item{ci}{confidence interval to be calculated.
-Options are 0.95 (default) and 0.90}
+Options 0.90 (default) and 0.95}
 
 \item{sigdigits}{number of significant digits for rounding}
 

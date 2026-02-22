@@ -22,7 +22,7 @@
 #' @export plot_dvconc
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = "Dose", id_var = "ID", sep = "mg")
+#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
 #'plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose", col_trend = FALSE)
 #'
 
@@ -36,6 +36,7 @@ plot_dvconc <- function(data,
                         se_loess = FALSE,
                         se_linear = FALSE,
                         cfb = FALSE,
+                        cfb_base = 0,
                         ylab = "Response",
                         xlab = "Drug Concentration",
                         log_y = FALSE,
@@ -81,8 +82,8 @@ plot_dvconc <- function(data,
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                    panel.grid.major.x = ggplot2::element_blank())
 
-  #Reference Lines: Y=0 (cfb = TRUE)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0,
+  #Reference Lines: Y=cfb_base (cfb = TRUE)
+  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
                                                      linewidth = plottheme$linewidth_ref,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)

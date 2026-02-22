@@ -149,10 +149,10 @@ These data are probably best visualized on a log-scale y-axis upweight the termi
   + Includes log tick marks on the y-axis 
   + Updates the caption with the correct central tendency measure if `show_captions = TRUE`. 
 
-`plot_dvtime` uses the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned when requesting `"mean"` from `stat_summary` is the *geometric mean*. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will  delineate where arithmetic and gemoetric means are being returned. 
+`plot_dvtime` uses the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned when requesting `"mean"` from `stat_summary` is the *geometric mean*. If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will  delineate where arithmetic and geometric means are being returned. 
 
 ```{r plot-dvtime-logy, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", log_y) 
+plot_dvtime(data = plot_data_pk, dv_var = "ODV", log_y = TRUE) 
 ```
 
 
@@ -177,7 +177,7 @@ plot_dvtime(plot_data_pk, dv_var = "ODV", time_vars = c(TIME = "NTIME"))
   
 Let's pass the vector of nominal times we defined earlier into the `breaks_time` function and see what we get with different requested numbers of breaks!
 
-```{r}
+```{r breaks-time}
 breaks_time(ntimes, unit = "hours")
 breaks_time(ntimes, unit = "hours", n = 5)
 breaks_time(ntimes, unit = "hours", n = length(ntimes))
@@ -366,7 +366,7 @@ plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent
 The default error bar width is 2.5% of the maximum nominal time in the dataset. This can be overwritten to a user-specified value using the `width_errorbar` attribute of `plot_dvtime_theme`. This value is passed to the `width` argument of `geom_errorbar`. 
 
 ```{r plot-dvtime-part-meansdl-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
+plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE, 
             theme = list(width_errorbar = 8)) +
@@ -403,7 +403,7 @@ for(i in 1:n_ids){
             grp_dv = TRUE,
             loq_method = 2, loq = 1, show_caption = FALSE) +
   facet_wrap(~PART)+
-  labs(title = paste0("ID = ", ids[i], " | Dose = ", unique(plot_data$DOSE[plot_data_pk$ID==ids[i]]), " mg"))+
+  labs(title = paste0("ID = ", ids[i], " | Dose = ", unique(plot_data_pk$DOSE[plot_data_pk$ID==ids[i]]), " mg"))+
   theme(legend.position="none")
 }
 
@@ -414,9 +414,8 @@ lapply(1:n_pgs, function(n_pg) {
 })
 ```
 
-# Population Response-Concentration Plots
 
-## Overview of `plot_dvconc`
+# Population Concentration and Response-Time Plots
 
 Now let's take a look at the pharmacodynamic (PD) data! We can visualize the response-time profile using `plot_dvtime`, just as we did to visualize the concentration-time profile previously, by filtering our PK/PD dataset to the compartment with the biomarker observations (`CMT=3`).
 
@@ -424,18 +423,111 @@ Now let's take a look at the pharmacodynamic (PD) data! We can visualize the res
 plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", col_var = "Dose and Food", ylab = "Response") 
 ```
 
-Now let's visualize the response data versus drug concentration!. `pmxhelpr` includes a function for common visualizations of observed response versus drug concentration data in exploratory data analysis: `plot_dvconc`
+We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
 
-In our visualizations, we will leverage the following dataset variables: 
+```{r plot-dvtime-pd-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", col_var = "Dose and Food", ylab = "Response", 
+            cfb = TRUE, cfb_base = 100) 
+```
 
-  + `ODV`: the original dependent variable (biomarker response) normalized to baseline
-  + `CONC` : time-matched, observed drug concentration at the time of biomarker assessment 
+We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
+
+```{r plot-dvtime-pd-ref0, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", col_var = "Dose and Food", ylab = "Response", 
+            cfb=TRUE)
+```
+
+## Overview of `plot_dvtime_dual`
+
+The wrapper function `plot_dvtime_dual` supports simultaneous visualization of the time-course of drug concentration and response. 
+This function uses the `patchwork` package to plot the PK and PD profiles in two vertically arranged panels. `plot_dvtime_dual` includes the following arguments to specify elements of the panels:
   
-`plot_dvconc` requires a dependent variable, specified as string via the `dv_var` argument, and an independent variable, specified as a string via the `idv_var` argument. The default values are `"DV"` and `"CONC"`.
+  + `dv_var1` and `dv_var2` arguments to specify the dependent variable (y-axis) to plot in the top (1) and bottom (2) panels. The default is `"DV".` 
+  + `dvid_var` argument to specify the variable that contains the identifiers for each dependent variable to be plotted. The default is `"CMT"`.
+  + `dvid_val1` and `dvid_val2` arguments to specify the values of the variable in `dvid_var` to identify the dependent variables to plot in the top (1) and bottom (2) panel. The defaults are `2` and `3`, respectively.
+
+```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV",dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose and Food")
+```
+
+The following arguments are available to specify y-axis labels and transformations:
+
+  + `ylab1`: Character string specifying the label for the top panel y-axis. Default is `"Concentration"`.
+  + `ylab2`: Character string specifying the label for the bottom panel y-axis. Default is `"Response"`.
+  + `log_y1`: Logical specifying if the top panel y-axis should be transformed to a log scale. Default is `FALSE`.
+  + `log_y2`: Logical specifying if the bottom panel y-axis should be transformed to a log scale. Default is `FALSE`.
+
+```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose and Food",
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
+```
+
+This wrapper function expects that the top panel will display drug concentration (PK) and the bottom panel will display response (PD). Thus, BLQ imputation and dose-normalization options specified using the standard arguments to `plot_dvtime` are only applied to the top panel. 
+
+```{r plot-dvtime-dual-col-dosenorm-blq, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose and Food", loq_method = 2, dosenorm = T,dose_var = "DOSE",
+                 log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
+```
+
+Similarly, since function expects that the bottom panel displays response (PD), a reference line at y=`cfb_base` is only added to the bottom panel when `cfb=TRUE`. 
+
+```{r plot-dvtime-dual-col-ref, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose", cfb=TRUE, cfb_base = 100,
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Baseline)") 
+```
+
+The default value of `cfb_base` is `0`, which is the reference condition for when we express our response variable in units of change from baseline or percentage change from baseline. We can modify our plot to use change from baseline as the dependent variable for the PD panel but updating the variable passed to `dv_var2`.
+
+```{r plot-dvtime-dual-col-ref-cfb, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "CFB",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose", cfb=TRUE, 
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)") 
+```
+
+Finally, we can modify both of the captions separately using the logical arguments `show_caption1` and `show_caption2`. Their default values are `TRUE`. Since both panels of this plot have the same elements, we can turn the caption off in the top panel and print a single caption under the bottom panel to represent both panels in the plot.
+
+```{r plot-dvtime-dual-col-ref-cfb-nocap, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "CFB",
+                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = "Dose", cfb=TRUE, 
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)", 
+                 show_caption1 = FALSE, show_caption2 = TRUE) 
+```
+
+
+# Population Response-Concentration Plots
+
+## Overview of `plot_dvconc`
+
+Now that we have visualized our longitudinal PK and PD profiles, let's visualize the PD data versus drug concentration! `plot_dvconc` is a plotting function for visualizing the relationship between a dependent variable for response and drug concentration.
+  
+`plot_dvconc` requires the following arguments which specify the variables to be plotted:
+
+  + `dv_var`: character string specifying the dependent variable to map to the y-axis. Default is `"DV"`.
+  + `idv_var`: character string specifying the dependent variable to map to the y-axis. Default is `"CONC"`.
 
 ```{r plot-dvconc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "ODV", idv_var = "CONC") 
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "CFB", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)") 
 ```
+
+Like `plot_dvtime`, we can specify a reference line using `cfb = TRUE`, which is plotted at `cfb_base` (default = 0).
+
+```{r plot-dvconc-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "CFB", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
+            cfb = TRUE) 
+```
+
 
 ## Color Aesthetic
 
@@ -443,6 +535,7 @@ plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "ODV", idv_var = "CONC
 
 ```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
             col_var = "Dose and Food", col_trend = FALSE) 
 ```
 
@@ -450,6 +543,7 @@ Trend lines stratified by the variable mapped to the color aesthetic are request
 
 ```{r plot-dvconc-col-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
             col_var = "Dose and Food", col_trend = TRUE) 
 ```
 
@@ -459,9 +553,10 @@ There are two trend line types supported by `plot_dvconc`: locally estimated sca
 
 ```{r plot-dvconc-col-trend-loess-linear, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
             col_var = "Dose and Food", col_trend = FALSE, loess = TRUE, linear = TRUE) 
 ```
-The confidence intervals of the trendlines are suppressed by defaul in order to facilitate visualization of the central tendency and spread of observed data points simultaneously. Confidence intervals can be added to the plot using the logical arguments `se_loess` and `se_linear`.
+The confidence intervals of the trend lines are suppressed by default in order to facilitate visualization of the central tendency and spread of observed data points simultaneously. Confidence intervals can be added to the plot using the logical arguments `se_loess` and `se_linear`.
 
 ```{r plot-dvconc-loess-linear-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
@@ -476,57 +571,12 @@ plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CO
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE, 
             span = 1) 
 ```
-If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also map to the ribbons defining the 95% CIs.
+If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also map to the ribbons defining the CIs of the trend lines.
 
 ```{r plot-dvconc-col-trend-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
             col_var = "Dose and Food", col_trend = TRUE,
             se_loess = TRUE) 
-```
-
-
-# Population Concentration-Time and Response-Time
-
-The wrapper function `plot_dvtime_dual` is provided to support simultaneous plotting of PK and PD profiles for visualization of trends in time. This function takes two  arguments, `dv_var1` and `dv_var2` to specify the variable to plot as the dependent variable for each of the top and bottom panels. It also takes the `dvid_var` argument to specify the variable that contains the identifiers for each dependent variable to be plotted, as well as `dvid_val1` and `dvid_val2` arguments to specify the values of the variable in `dvid_var` to be used identify each set of data for plotting.
-
-The default values for `dv_var1` and `dv_var2` are `"DV"`, the default `dvid_var` is `"CMT"` with default values of `dvid_val1 = 2` and `dvid_val2 = 3`.
-
-```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV",dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose") 
-```
-
-Both y-axis transformations and labels  can be specified separately.
-
-```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose",
-                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
-```
-
-However, the top panel (DV1) is presumed to apply to PK and the bottom panel (DV2) is presumed to apply to PD. Therefore, BLQ imputation and dose-normalization options can only be applied to the top panel (DV1). 
-
-```{r plot-dvtime-dual-col-y1, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", loq_method = 2, dosenorm = T,dose_var = "DOSE",
-                 log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% Base)") 
-```
-
-Similarly, specification of a reference line at y=`cfb_base` when `cfb=TRUE` is only supported for the bottom panel (DV2).
-
-```{r plot-dvtime-dual-col-y2, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", cfb=TRUE, cfb_base = 100,
-                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% CFB)") 
-
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "CFB",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", cfb=TRUE,
-                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% CFB)") 
 ```
 
 # Dose-proportionality Assessment: Power Law Regression
@@ -547,9 +597,9 @@ This approach facilitates hypothesis testing via assessment of the 95% CI around
 
 Interpretation of the relationship is based on the 95% CI of the $\gamma$ estimate as follows:
 
-  + 95% CI includes one (1): exposure increases proportionally to dose
-  + 95% CI excludes one (1) & is less than 1: exposure increases less-than-proportionally to dose
-  + 95% CI excludes one (1) & is greater than 1: exposure increases greater-than-proportionally to dose
+  + 90% CI includes one (1): exposure increases proportionally to dose
+  + 90% CI excludes one (1) & is less than 1: exposure increases less-than-proportionally to dose
+  + 90% CI excludes one (1) & is greater than 1: exposure increases greater-than-proportionally to dose
   
 This assessment is generally performed based on both maximum concentration (Cmax) and area under the concentration-time curve (AUC). While not a hard and fast rule, some inference can be drawn about which phase of the pharmacokinetic profile is most likely contributing the majority of the non-linearity of exposure with dose. 
 
@@ -561,11 +611,11 @@ These exploratory assessments provide quantitative support for structural PK mod
   
 ## Step 1: Derive NCA Parameters
 
-The first step in performing this assessment is deriving the necessary NCA PK parameters. NCA software (e.g., Phoenix WinNonlin) is quite expensive; however, thankfully there is an excellent R package for performing NCA analyses - `PKNCA`.
+The first step in performing this assessment is deriving the necessary NCA PK parameters. NCA software (e.g., Phoenix WinNonlin) is quite expensive; however, thankfully there is an R package for performing NCA analyses: `PKNCA`.
 
 Refer to the documentation for the `PKNCA` packge for details. This vignette will not provide a detailed overview of `PKNCA` functions and workflows.
 
-First, let's set the options for our NCA analysis and define the intervals over which we want to obtain the NCA parameters. The `data_sad` dataset internal to `pmxhelpr` is a single ascending dose (SAD) design with a parallel food effect (FE) cohort; therefore, our interval is [0, $\infty$]
+First, let's set the options for our NCA analysis and define the intervals over which we want to obtain the NCA parameters.  `data_sad` is a single ascending dose (SAD) design with a parallel food effect (FE) cohort; therefore, our interval is [0, $\infty$]
 
 ```{r nca-set-up}
 ##Set NCA options
@@ -644,7 +694,7 @@ power_table
 In this case, the interpretation is unchanged with and without inclusion of the food effect cohort. `df_doseprop` provides two arguments for defining the confidence interval.
 
   + `method`: method to derive the upper and lower confidence limits. The default is `"normal"`, specifying use of the normal distribution, with `"tdist"` as an alternative, specifying use of the t-distribution. The t-distribution is preferred for analyses with smaller sample sizes
-  + `ci`: width of the confidence interval. The default is `0.95` (95% CI) with `0.90` (90% CI) as an alternative
+  + `ci`: width of the confidence interval. The default is `0.90` (90% CI), which is used in the bioequivalence criteria, with `0.95` (95% CI) as an alternative
 
 ## Step 3: Visualize the Power Law Regression
 

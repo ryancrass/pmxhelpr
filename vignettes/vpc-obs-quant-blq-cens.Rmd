@@ -223,20 +223,4 @@ Specifying `loq` is the preferred method for plotting VPC diagnostics with the `
 
 If`loq` is specified with`pcvpc = TRUE`, an error message will print from `vpc::vpc()`.
 
-```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc <- plot_vpc_exactbins(
-  sim = simout, 
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
-  xlab = "Time (hours)",
-  ylab = "Concentration (ng/mL)",
-  pcvpc = TRUE,
-  min_bin_count = 4,
-  loq = 1,
-  log_y = TRUE
-) 
-
-vpc_pc
-```
+**Prediction-correction cannot be used together with censored data (<LLOQ or >ULOQ). VPC plot will be shown for non-censored data only!**

@@ -154,13 +154,9 @@ vpc_plot <- plot_vpc_exactbins(
 sim = simout,
 pcvpc = TRUE,
 pi = c(0.05, 0.95),
-ci = c(0.05, 0.95),
-loq = 1)
+ci = c(0.05, 0.95))
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
-#> Prediction-correction cannot be used together with censored data (<LLOQ or >ULOQ). VPC plot will be shown for non-censored data only!
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the vpc package.
-#>   Please report the issue to the authors.
+#> Scale for x is already present.
+#> Adding another scale for x, which will replace the existing scale.
 ```

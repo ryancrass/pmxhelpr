@@ -35,7 +35,7 @@ pmxhelpr_vpc_theme()
 #> $obs_median_linetype
 #> [1] "solid"
 #> 
-#> $obs_median_size
+#> $obs_median_linewidth
 #> [1] 1
 #> 
 #> $obs_alpha
@@ -53,7 +53,7 @@ pmxhelpr_vpc_theme()
 #> $obs_ci_fill
 #> [1] "#80808033"
 #> 
-#> $obs_ci_size
+#> $obs_ci_linewidth
 #> [1] 0.5
 #> 
 #> $sim_pi_fill
@@ -68,7 +68,7 @@ pmxhelpr_vpc_theme()
 #> $sim_pi_linetype
 #> [1] "dotted"
 #> 
-#> $sim_pi_size
+#> $sim_pi_linewidth
 #> [1] 1
 #> 
 #> $sim_median_fill
@@ -83,7 +83,7 @@ pmxhelpr_vpc_theme()
 #> $sim_median_linetype
 #> [1] "dashed"
 #> 
-#> $sim_median_size
+#> $sim_median_linewidth
 #> [1] 1
 #> 
 #> $bin_separators_color

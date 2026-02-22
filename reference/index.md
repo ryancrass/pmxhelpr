@@ -12,6 +12,10 @@
 - [`data_sad_nca`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_nca.md)
   : Example NCA Parameter Dataset Output from PKNCA
 
+- [`data_sad_pd`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pd.md)
+  : Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single
+  Ascending Dose Study
+
 - [`data_sad_pkfit`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.md)
   : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
   Ascending Dose Study
@@ -42,6 +46,11 @@
 - [`df_pcdv()`](https://ryancrass.github.io/pmxhelpr/reference/df_pcdv.md)
   : Perform prediction-correction of the dependent variable
 
+- [`dvconc_caption()`](https://ryancrass.github.io/pmxhelpr/reference/dvconc_caption.md)
+  :
+
+  Define a caption for `plot_dvconc`
+
 - [`dvtime_caption()`](https://ryancrass.github.io/pmxhelpr/reference/dvtime_caption.md)
   :
 
@@ -57,8 +66,19 @@
   : Plot a dose-proportionality assessment via power law (log-log)
   regression
 
+- [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+  : Plot a dependent variable versus concentration
+
+- [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md)
+  : Customized Response versus drug concentration theme with pmxhelpr
+  default aesthetics
+
 - [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
   : Plot a dependent variable versus time
+
+- [`plot_dvtime_dual()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_dual.md)
+  : Wrapper function for plot_dvtime to plot two dependent variables
+  paneled together
 
 - [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
   : Customized Concentration-time theme with pmxhelpr default aesthetics

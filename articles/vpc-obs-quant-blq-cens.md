@@ -268,9 +268,9 @@ vpc_blq_drop <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
-  min_bin_count = 4
-) +
-  scale_y_log10(guide = "axis_logticks")
+  min_bin_count = 4,
+  log_y = TRUE
+) 
 
 vpc_blq_drop
 ```
@@ -301,9 +301,8 @@ vpc_blq_qobs_cens <- plot_vpc_exactbins(
   ylab = "Concentration (ng/mL)",
   strat_var = "PART",
   min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
+  loq = 1,
+  log_y = TRUE)
 
 vpc_blq_qobs_cens
 ```
@@ -322,7 +321,7 @@ included.
 - In the calculation of the summary statistics of the observed data, the
   quantiles are calculated across all data per bin and taken as `NA`
   when that quantile of observations is below `loq`.
-- In the calcluation of summary statistics of the simulated data, the
+- In the calculation of summary statistics of the simulated data, the
   simulated confidence intervals are based on all data without any
   censoring, which is representative of the model-predicted “true”
   underlying PK profile in the absence of real-world assay limitations.
@@ -338,26 +337,5 @@ to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`).
 If`loq` is specified with`pcvpc = TRUE`, an error message will print
 from [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
 
-``` r
-vpc_pc <- plot_vpc_exactbins(
-  sim = simout, 
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
-  xlab = "Time (hours)",
-  ylab = "Concentration (ng/mL)",
-  pcvpc = TRUE,
-  min_bin_count = 4,
-  loq = 1
-) +
-  scale_y_log10(guide = "axis_logticks")
-#> Joining with `by = join_by(NTIME, CMT)`
-#> Joining with `by = join_by(NTIME, CMT)`
-#> Prediction-correction cannot be used together with censored data (<LLOQ or
-#> >ULOQ). VPC plot will be shown for non-censored data only!
-
-vpc_pc
-```
-
-![](vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-pcvpc-1.png)
+**Prediction-correction cannot be used together with censored data
+(ULOQ). VPC plot will be shown for non-censored data only!**

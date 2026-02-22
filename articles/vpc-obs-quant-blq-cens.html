@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plots with BLQ Censoring</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.6/vignettes/vpc-obs-quant-blq-cens.Rmd" class="external-link"><code>vignettes/vpc-obs-quant-blq-cens.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-obs-quant-blq-cens.Rmd" class="external-link"><code>vignettes/vpc-obs-quant-blq-cens.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-obs-quant-blq-cens.Rmd</code></div>
     </div>
 
@@ -304,9 +304,9 @@ quantile of the observed is BLQ (<code>MDV=1</code>) in the bin.</li>
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="st">"PART"</span>,</span>
-<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span> </span>
 <span></span>
 <span><span class="va">vpc_blq_drop</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-drop-1.png" class="r-plt" alt="" width="768">
@@ -333,9 +333,8 @@ package.</p>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="st">"PART"</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  loq <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
+<span>  loq <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vpc_blq_qobs_cens</span></span></code></pre></div>
 <p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-blq-qobs-cens-1.png" class="r-plt" alt="" width="768">
@@ -353,7 +352,7 @@ timepoints are included.</p>
 the quantiles are calculated across all data per bin and taken as
 <code>NA</code> when that quantile of observations is below
 <code>loq</code>.</li>
-<li>In the calcluation of summary statistics of the simulated data, the
+<li>In the calculation of summary statistics of the simulated data, the
 simulated confidence intervals are based on all data without any
 censoring, which is representative of the model-predicted “true”
 underlying PK profile in the absence of real-world assay
@@ -370,27 +369,9 @@ Prediction-corrected Visual Predictive Checks
 (<code>pcvpc = TRUE</code>).</p>
 <p>If<code>loq</code> is specified with<code>pcvpc = TRUE</code>, an
 error message will print from <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
-<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
-<span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
-<span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
-<span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
-<span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  min_bin_count <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  loq <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(NTIME, CMT)`</span></span>
-<span><span class="co">#&gt; Prediction-correction cannot be used together with censored data (&lt;LLOQ or</span></span>
-<span><span class="co">#&gt; &gt;ULOQ). VPC plot will be shown for non-censored data only!</span></span>
-<span></span>
-<span><span class="va">vpc_pc</span></span></code></pre></div>
-<p><img src="vpc-obs-quant-blq-cens_files/figure-html/plot-vpc-pcvpc-1.png" class="r-plt" alt="" width="768"></p>
+<p><strong>Prediction-correction cannot be used together with censored
+data (<lloq or>ULOQ). VPC plot will be shown for non-censored data
+only!</lloq></strong></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

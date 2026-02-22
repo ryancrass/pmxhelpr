@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Standard Model Diagnostics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.6/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>diagnostics-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -76,6 +76,7 @@ generating standard model diagnostics.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://forcats.tidyverse.org/" class="external-link">forcats</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/Hmisc/" class="external-link">Hmisc</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>For this vignette, we will generate model diagnostics for a PK model
@@ -125,14 +126,27 @@ for fixed effects (THETAs)</li>
 fixed effects (THETAs) and level 1 (inter-individual) random effects
 (ETAs)</li>
 </ul>
-<p>Let’s add some additional derived character variables, which may be
-useful for plotting.</p>
+<p>Let’s derive some additional variables and leverage the functionality
+of <code>df_addn</code> to create a new factor variable including a
+count of unique individuals in each unique dosing condition for
+plotting</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">data_sad_pkfit</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>FoodStatus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span>, </span>
-<span>         DoseGroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">" mg "</span>, <span class="va">FoodStatus</span><span class="op">)</span>, </span>
-<span>         DoseGroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">DoseGroup</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"10 mg Fasted"</span>, <span class="st">"50 mg Fasted"</span>, <span class="st">"100 mg Fasted"</span>, <span class="st">"100 mg Fed"</span>, </span>
-<span>                                                  <span class="st">"200 mg Fasted"</span>, <span class="st">"400 mg Fasted"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>         DoseGroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">" mg "</span>, <span class="va">FoodStatus</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span><span class="st">"DoseGroup"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(DoseGroup)`</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">DoseGroup</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 10 mg Fasted (n=6)  50 mg Fasted (n=6)  100 mg Fasted (n=6)</span></span>
+<span><span class="co">#&gt; [4] 100 mg Fed (n=6)    200 mg Fasted (n=6) 400 mg Fasted (n=6)</span></span>
+<span><span class="co">#&gt; 6 Levels: 10 mg Fasted (n=6) 100 mg Fasted (n=6) ... 50 mg Fasted (n=6)</span></span>
+<span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">plot_data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DoseGroup <span class="op">=</span> <span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_relevel.html" class="external-link">fct_relevel</a></span><span class="op">(</span><span class="va">DoseGroup</span>, <span class="st">"50 mg Fasted (n=6)"</span>, after <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">DoseGroup</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 10 mg Fasted (n=6)  50 mg Fasted (n=6)  100 mg Fasted (n=6)</span></span>
+<span><span class="co">#&gt; [4] 100 mg Fed (n=6)    200 mg Fasted (n=6) 400 mg Fasted (n=6)</span></span>
+<span><span class="co">#&gt; 6 Levels: 10 mg Fasted (n=6) 50 mg Fasted (n=6) ... 400 mg Fasted (n=6)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="population-overlay-goodness-of-fit-plots">Population Overlay Goodness of Fit Plots<a class="anchor" aria-label="anchor" href="#population-overlay-goodness-of-fit-plots"></a>
 </h2>

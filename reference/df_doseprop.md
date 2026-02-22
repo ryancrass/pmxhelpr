@@ -12,7 +12,7 @@ df_doseprop(
   exp_var = "PPORRES",
   dose_var = "DOSE",
   method = "normal",
-  ci = 0.95,
+  ci = 0.9,
   sigdigits = 3
 )
 ```
@@ -52,8 +52,7 @@ df_doseprop(
 
 - ci:
 
-  confidence interval to be calculated. Options are 0.95 (default) and
-  0.90
+  confidence interval to be calculated. Options 0.90 (default) and 0.95
 
 - sigdigits:
 
@@ -68,9 +67,9 @@ df_doseprop(
 ``` r
 df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      4.04        0.0663 95% 0.997 0.867 1.13         TRUE
-#> 2      1.09        0.0616 95% 1.070 0.947 1.19         TRUE
+#> 1      4.04        0.0663 90% 0.997 0.888 1.11         TRUE
+#> 2      1.09        0.0616 90% 1.070 0.967 1.17         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
-#> 1 Power: 0.997 (95% CI 0.867-1.13) Dose-proportional aucinf.obs
-#> 2  Power: 1.07 (95% CI 0.947-1.19) Dose-proportional       cmax
+#> 1 Power: 0.997 (90% CI 0.888-1.11) Dose-proportional aucinf.obs
+#> 2  Power: 1.07 (90% CI 0.967-1.17) Dose-proportional       cmax
 ```

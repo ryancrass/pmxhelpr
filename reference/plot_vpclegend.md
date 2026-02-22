@@ -79,6 +79,8 @@ plot_vpclegend()
 #> ✖ Problematic argument:
 #> • na.rm = TRUE
 #> ℹ Did you misspell an argument name?
+#> Warning: Ignoring empty aesthetic: `linewidth`.
+#> Warning: Ignoring empty aesthetic: `linewidth`.
 
 plot_vpclegend(
 pi = c(0.025, 0.975),
@@ -91,4 +93,6 @@ ci = c(0.025, 0.925),
 #> ✖ Problematic argument:
 #> • na.rm = TRUE
 #> ℹ Did you misspell an argument name?
+#> Warning: Ignoring empty aesthetic: `linewidth`.
+#> Warning: Ignoring empty aesthetic: `linewidth`.
 ```

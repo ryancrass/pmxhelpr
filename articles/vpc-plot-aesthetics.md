@@ -59,6 +59,10 @@ vpc_pc <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc
 ```
@@ -125,6 +129,10 @@ vpc_pc_pi <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_pi
 ```
@@ -150,6 +158,10 @@ vpc_pc_noobs <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_noobs
 ```
@@ -179,6 +191,10 @@ vpc_pc_noobs_medonly <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_noobs_medonly
 ```
@@ -209,7 +225,7 @@ print(pmxhelpr_theme_list)
 #> $obs_median_linetype
 #> [1] "solid"
 #> 
-#> $obs_median_size
+#> $obs_median_linewidth
 #> [1] 1
 #> 
 #> $obs_alpha
@@ -227,7 +243,7 @@ print(pmxhelpr_theme_list)
 #> $obs_ci_fill
 #> [1] "#80808033"
 #> 
-#> $obs_ci_size
+#> $obs_ci_linewidth
 #> [1] 0.5
 #> 
 #> $sim_pi_fill
@@ -242,7 +258,7 @@ print(pmxhelpr_theme_list)
 #> $sim_pi_linetype
 #> [1] "dotted"
 #> 
-#> $sim_pi_size
+#> $sim_pi_linewidth
 #> [1] 1
 #> 
 #> $sim_median_fill
@@ -257,7 +273,7 @@ print(pmxhelpr_theme_list)
 #> $sim_median_linetype
 #> [1] "dashed"
 #> 
-#> $sim_median_size
+#> $sim_median_linewidth
 #> [1] 1
 #> 
 #> $bin_separators_color
@@ -290,7 +306,7 @@ print(vpc_theme_list)
 #> $obs_median_linetype
 #> [1] "solid"
 #> 
-#> $obs_median_size
+#> $obs_median_linewidth
 #> [1] 1
 #> 
 #> $obs_alpha
@@ -308,7 +324,7 @@ print(vpc_theme_list)
 #> $obs_ci_fill
 #> [1] "#80808033"
 #> 
-#> $obs_ci_size
+#> $obs_ci_linewidth
 #> [1] 0.5
 #> 
 #> $sim_pi_fill
@@ -323,7 +339,7 @@ print(vpc_theme_list)
 #> $sim_pi_linetype
 #> [1] "dotted"
 #> 
-#> $sim_pi_size
+#> $sim_pi_linewidth
 #> [1] 1
 #> 
 #> $sim_median_fill
@@ -338,7 +354,7 @@ print(vpc_theme_list)
 #> $sim_median_linetype
 #> [1] "dashed"
 #> 
-#> $sim_median_size
+#> $sim_median_linewidth
 #> [1] 1
 #> 
 #> $bin_separators_color
@@ -383,6 +399,10 @@ vpc_pc_vpctheme <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_vpctheme
 ```
@@ -404,6 +424,10 @@ vpc_pc_vpctheme2 <- plot_vpc_exactbins(
   scale_y_log10(guide = "axis_logticks")
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_vpctheme2
 ```
@@ -432,6 +456,10 @@ vpc_pc_vpctheme_xgrid <- plot_vpc_exactbins(
   theme(panel.grid.major.x = element_line())
 #> Joining with `by = join_by(NTIME, CMT)`
 #> Joining with `by = join_by(NTIME, CMT)`
+#> Scale for x is already present. Adding another scale for x, which will replace
+#> the existing scale.
+#> Scale for y is already present. Adding another scale for y, which will replace
+#> the existing scale.
 
 vpc_pc_vpctheme_xgrid
 ```

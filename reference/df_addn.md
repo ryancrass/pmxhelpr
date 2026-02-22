@@ -6,7 +6,7 @@ of individuals.
 ## Usage
 
 ``` r
-df_addn(data, grp_var, id_var = "ID", sep = "")
+df_addn(data, grp_var, id_var = "ID", sep = NULL)
 ```
 
 ## Arguments
@@ -26,7 +26,7 @@ df_addn(data, grp_var, id_var = "ID", sep = "")
 - sep:
 
   Additional string separator to add between variable and count. Default
-  is an empty string.
+  is NULL.
 
 ## Value
 
@@ -39,12 +39,12 @@ variable.
 data <- df_addn(data = data_sad, grp_var = "DOSE", id_var = "ID")
 #> Joining with `by = join_by(DOSE)`
 unique(data$DOSE)
-#> [1] 10  (n=6)   50  (n=6)   100  (n=12) 200  (n=6)  400  (n=6) 
-#> Levels: 10  (n=6) 50  (n=6) 100  (n=12) 200  (n=6) 400  (n=6)
+#> [1] 10 (n=6)   50 (n=6)   100 (n=12) 200 (n=6)  400 (n=6) 
+#> Levels: 10 (n=6) 100 (n=12) 200 (n=6) 400 (n=6) 50 (n=6)
 
 data <- df_addn(data = data_sad, grp_var = "DOSE", id_var = "ID", sep = "mg")
 #> Joining with `by = join_by(DOSE)`
 unique(data$DOSE)
 #> [1] 10 mg (n=6)   50 mg (n=6)   100 mg (n=12) 200 mg (n=6)  400 mg (n=6) 
-#> Levels: 10 mg (n=6) 50 mg (n=6) 100 mg (n=12) 200 mg (n=6) 400 mg (n=6)
+#> Levels: 10 mg (n=6) 100 mg (n=12) 200 mg (n=6) 400 mg (n=6) 50 mg (n=6)
 ```

@@ -20,6 +20,7 @@ plot_dvtime(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
@@ -32,7 +33,7 @@ plot_dvtime(
 
 - data:
 
-  Input dataset. Must contain the variables: `"ID"`, `"DV"` `"MDV"`.
+  Input dataset.
 
 - dv_var:
 
@@ -129,7 +130,11 @@ plot_dvtime(
 - cfb:
 
   Logical indicating if dependent variable is a change from baseline.
-  Plots a reference line at y = 0. Default is `FALSE`.
+  Plots a reference line at y = cfb_baseline. Default is `FALSE`.
+
+- cfb_base:
+
+  Value for y-intercept when cfb = `TRUE`. Default is 0.
 
 - ylab:
 
@@ -155,12 +160,7 @@ plot_dvtime(
   Defaults can be viewed by running
   [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
   with no arguments. Default `width_errorbar` is 2.5% of maximum
-  `NTIME`. Defaults for observations updated in `plot_popgof` as
-  follows:
-
-       +`size_point_obs` = 1.25
-       +`linewidth_obs` = 1
-       + `alpha_line_obs` = 1
+  `NTIME`.
 
 ## Value
 
@@ -169,13 +169,14 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
-data <- dplyr::mutate(data_sad, Dose = factor(DOSE))
+data <- df_addn(dplyr::mutate(data_sad,Dose=DOSE), grp_var="Dose", sep = "mg")
+#> Joining with `by = join_by(Dose)`
 plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
-#> Warning: Removed 205 rows containing non-finite outside the scale range
+#> Warning: Removed 169 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 205 rows containing non-finite outside the scale range
+#> Warning: Removed 169 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 205 rows containing missing values or values outside the scale range
+#> Warning: Removed 169 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 ```

@@ -43,12 +43,21 @@ plot_popgof_theme()
 #> [1] 0.5
 #> 
 #> $linewidth_obs
-#> [1] 1
+#> [1] 0.5
 #> 
 #> $linetype_obs
 #> [1] 1
 #> 
 #> $alpha_line_obs
+#> [1] 0.75
+#> 
+#> $linewidth_dv
+#> [1] 1
+#> 
+#> $linetype_dv
+#> [1] 1
+#> 
+#> $alpha_line_dv
 #> [1] 1
 #> 
 #> $shape_point_cent

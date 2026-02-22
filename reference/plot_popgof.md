@@ -141,7 +141,7 @@ plot_popgof(
 - cfb:
 
   Logical indicating if dependent variable is a change from baseline.
-  Plots a reference line at y = 0. Default is `FALSE`.
+  Plots a reference line at y = cfb_baseline. Default is `FALSE`.
 
 - ylab:
 
@@ -165,14 +165,9 @@ plot_popgof(
 
   Named list of aesthetic parameters to be supplied to the plot.
   Defaults can be viewed by running
-  [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+  [`plot_popgof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_popgof_theme.md)
   with no arguments. Default `width_errorbar` is 2.5% of maximum
-  `NTIME`. Defaults for observations updated in `plot_popgof` as
-  follows:
-
-       +`size_point_obs` = 1.25
-       +`linewidth_obs` = 1
-       + `alpha_line_obs` = 1
+  `NTIME`.
 
 ## Value
 

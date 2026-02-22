@@ -5,7 +5,7 @@ Compute estimate table for log-log regression
 ## Usage
 
 ``` r
-df_loglog(fit, method = "normal", ci = 0.95, sigdigits = 3)
+df_loglog(fit, method = "normal", ci = 0.9, sigdigits = 3)
 ```
 
 ## Arguments
@@ -21,8 +21,7 @@ df_loglog(fit, method = "normal", ci = 0.95, sigdigits = 3)
 
 - ci:
 
-  confidence interval to be calculated. Options are 0.95 (default) and
-  0.90
+  confidence interval to be calculated. Options 0.90 (default) and 0.95
 
 - sigdigits:
 
@@ -38,14 +37,14 @@ df_loglog(fit, method = "normal", ci = 0.95, sigdigits = 3)
 mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
 df_loglog(mod_auc)
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      4.04        0.0663 95% 0.997 0.867 1.13         TRUE
+#> 1      4.04        0.0663 90% 0.997 0.888 1.11         TRUE
 #>                            PowerCI    Interpretation
-#> 1 Power: 0.997 (95% CI 0.867-1.13) Dose-proportional
+#> 1 Power: 0.997 (90% CI 0.888-1.11) Dose-proportional
 
 mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
 df_loglog(mod_cmax)
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      1.09        0.0616 95%  1.07 0.947 1.19         TRUE
+#> 1      1.09        0.0616 90%  1.07 0.967 1.17         TRUE
 #>                           PowerCI    Interpretation
-#> 1 Power: 1.07 (95% CI 0.947-1.19) Dose-proportional
+#> 1 Power: 1.07 (90% CI 0.967-1.17) Dose-proportional
 ```

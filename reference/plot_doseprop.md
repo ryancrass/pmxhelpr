@@ -54,8 +54,7 @@ plot_doseprop(
 
 - ci:
 
-  confidence interval to be calculated. Options are 0.95 (default) and
-  0.90
+  confidence interval to be calculated. Options 0.90 (default) and 0.95
 
 - sigdigits:
 

@@ -14,6 +14,7 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/breaks_time.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad_nca.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad_pd.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_addn.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_addpred.html</loc></url>
@@ -22,12 +23,16 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_nobsbin.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/df_pcdv.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/dvconc_caption.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/dvtime_caption.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/index.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/mod_loglog.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_dual.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_popgof.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_popgof_theme.html</loc></url>

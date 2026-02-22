@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,18 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.6/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.7" id="pmxhelpr-037">pmxhelpr 0.3.7<a class="anchor" aria-label="anchor" href="#pmxhelpr-037"></a></h2>
+<ul><li>Add <code>plot_dvconc</code> to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines</li>
+<li>Add <code>plot_dvtime_dual</code> wrapper function for <code>plot_dvtime</code> to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.</li>
+<li>Update <code>df_addn</code> to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., <code>forcats</code>)</li>
+<li>Update <code>plot_popgof_theme</code> to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.</li>
+<li>Revise the <code>Exploratory Data Analysis</code> vignette to include new functionality and revised workflows with new functions.</li>
+<li>Fix bug that was not scaling error bar caps for the x-axis range when <code>cent = "median_iqer</code> across functions</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6" id="pmxhelpr-036">pmxhelpr 0.3.6<a class="anchor" aria-label="anchor" href="#pmxhelpr-036"></a></h2>
 <ul><li>Add <code>df_addn</code> helper function to create and order factor labels including count of unique values to include counts in plot legends</li>

@@ -3,7 +3,7 @@
 This vignette will demonstrate `pmxhelpr` functions for exploratory data
 analysis.
 
-First oad the required packages.
+First load the required packages.
 
 ``` r
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -944,8 +944,8 @@ variables to be plotted:
   to the y-axis. Default is `"CONC"`.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "CFB", idv_var = "CONC", 
-            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)") 
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "ODV", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% of Baseline)") 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-1.png)
@@ -971,8 +971,8 @@ line is fit to the totality of the data without stratifying the trend
 lines by the variable mapped to the color aesthetic.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
-            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+            cfb = TRUE, xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from of Baseline)", 
             col_var = "Dose and Food", col_trend = FALSE) 
 ```
 
@@ -982,8 +982,8 @@ Trend lines stratified by the variable mapped to the color aesthetic are
 requested by setting `col_trend = TRUE`.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
-            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+           cfb = TRUE,  xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from  Baseline)", 
             col_var = "Dose and Food", col_trend = TRUE) 
 ```
 
@@ -998,9 +998,9 @@ arguments `loess` and `linear`. The default is `loess = TRUE` and
 `linear = FALSE`
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
-            col_var = "Dose and Food", col_trend = FALSE, loess = TRUE, linear = TRUE) 
+            cfb = TRUE,  col_var = "Dose and Food", col_trend = FALSE, loess = TRUE, linear = TRUE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-loess-linear-1.png)
@@ -1010,8 +1010,9 @@ observed data points simultaneously. Confidence intervals can be added
 to the plot using the logical arguments `se_loess` and `se_linear`.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
-            col_var = "Dose and Food", col_trend = FALSE, 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)",
+            cfb = TRUE, col_var = "Dose and Food", col_trend = FALSE, 
             loess = TRUE, linear = TRUE, se_loess = TRUE, se_linear = TRUE) 
 ```
 
@@ -1020,8 +1021,9 @@ Additional arguments can be passed to `geom_smooth(method = "loess")`,
 such as increasing the span of the smoothing fit.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
-            col_var = "Dose and Food", col_trend = FALSE, 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC",
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)",
+            cfb = TRUE, col_var = "Dose and Food", col_trend = FALSE, 
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE, 
             span = 1) 
 ```
@@ -1031,8 +1033,9 @@ color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it
 will also map to the ribbons defining the CIs of the trend lines.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", idv_var = "CONC", 
-            col_var = "Dose and Food", col_trend = TRUE,
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+            xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change of Baseline)",
+            cfb = TRUE, col_var = "Dose and Food", col_trend = TRUE,
             se_loess = TRUE) 
 ```
 

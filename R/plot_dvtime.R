@@ -351,7 +351,7 @@ plot_dvtime_theme <- function(update = NULL){
     linetype_obs = 1,
     alpha_line_obs = 0.5,
 
-    shape_point_cent = 1,
+    shape_point_cent = 16,
     size_point_cent = 1.25,
     alpha_point_cent = 1,
     linewidth_cent = 0.75,

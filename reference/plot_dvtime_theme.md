@@ -51,7 +51,7 @@ plot_dvtime_theme()
 #> [1] 0.5
 #> 
 #> $shape_point_cent
-#> [1] 1
+#> [1] 16
 #> 
 #> $size_point_cent
 #> [1] 1.25

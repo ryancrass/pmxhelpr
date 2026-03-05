@@ -1,3 +1,8 @@
+# pmxhelpr 0.3.8
+
+* Fix bug in `plot_dvtime` to ensure closed circles are plotted in place of open circles for central tendency points
+* Add minimum R version of 4.4.1 given use of native pipe operator (|>)
+
 # pmxhelpr 0.3.7
 
 * Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines

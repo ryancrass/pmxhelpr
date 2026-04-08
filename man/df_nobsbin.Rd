@@ -4,12 +4,12 @@
 \alias{df_nobsbin}
 \title{Count the non-missing observations in each exact bin}
 \usage{
-df_nobsbin(data, bin_var = "NTIME", strat_vars = NULL)
+df_nobsbin(data, bin_var = NTIME, strat_vars = NULL)
 }
 \arguments{
 \item{data}{Input dataset.}
 
-\item{bin_var}{Binning variable. Default is \code{"NTIME"}.}
+\item{bin_var}{Binning variable. Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{strat_vars}{Stratifying variables. Must be a character vector.}
 }

@@ -6,7 +6,7 @@
 \usage{
 df_pcdv(
   data,
-  bin_var = "NTIME",
+  bin_var = NTIME,
   strat_vars = NULL,
   dvpred_vars = c(PRED = "PRED", DV = "DV"),
   lower_bound = 0
@@ -15,7 +15,7 @@ df_pcdv(
 \arguments{
 \item{data}{Input dataset}
 
-\item{bin_var}{Exact binning variable. Default is \code{"NTIME"}.}
+\item{bin_var}{Exact binning variable. Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{strat_vars}{Stratifying variables. Default is \code{NULL}.}
 

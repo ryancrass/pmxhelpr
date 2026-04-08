@@ -7,8 +7,8 @@
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to `lloq` argument
 #'    of [vpc::vpc()]. Specifying this argument implies that `OBSDV` is missing in `sim` where < LLOQ.
-#' @param strat_var Character string of stratification variable passed to `stratify` argument
-#'    of [vpc::vpc()]. Currently, only a single stratifying variable is supported.
+#' @param strat_var Stratification variable passed to `stratify` argument
+#'    of [vpc::vpc()]. Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
@@ -40,10 +40,10 @@
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-#' dv_var = "ODV",
+#' dv_var = ODV,
 #' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
-#' irep_name = "SIM")
+#' irep_name = SIM)
 #'
 #' vpc_plot <- plot_vpc_exactbins(
 #' sim = simout,
@@ -60,8 +60,8 @@ plot_vpc_exactbins <- function(sim,
                                                SIMDV = "SIMDV",
                                                OBSDV = "OBSDV"),
                                loq = NULL,
-                               strat_var=NULL,
-                               irep_name = "SIM",
+                               strat_var = NULL,
+                               irep_name = SIM,
                                min_bin_count=1,
                                show_rep = TRUE,
                                lower_bound = 0,
@@ -71,6 +71,9 @@ plot_vpc_exactbins <- function(sim,
                                n_breaks = 8,
                                ...)
 {
+
+  strat_var_str  <- capture_col(rlang::enquo(strat_var))
+  irep_name_str  <- rlang::as_name(rlang::ensym(irep_name))
 
   #Update Lists
   time_vars <- list_update(time_vars, c(TIME = "TIME",
@@ -89,9 +92,9 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, output_vars[["SIMDV"]])
   check_varsindf(sim, output_vars[["OBSDV"]])
   check_varsindf(sim, "MDV")
-  check_varsindf(sim, strat_var)
-  check_varsindf(sim, irep_name)
-  if(!is.null(strat_var)) {check_factor(sim, strat_var)}
+  check_varsindf(sim, strat_var_str)
+  check_varsindf(sim, irep_name_str)
+  if(!is.null(strat_var_str)) {check_factor(sim, strat_var_str)}
   if(!is.null(loq)) {check_numeric_strict(loq)}
 
   ##Set vpc aesthetics shown ensuring that observed points are not plotted by vpc::vpc()
@@ -116,9 +119,9 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Ensure stratification variable is a not an ordered factor (will cause vpc::add_stratification() to fail)
-  if(!is.null(strat_var)){
+  if(!is.null(strat_var_str)){
     sim <- sim |>
-      dplyr::mutate(!!strat_var := factor(!!rlang::sym(strat_var), ordered = FALSE))
+      dplyr::mutate(!!strat_var_str := factor(.data[[strat_var_str]], ordered = FALSE))
   }
 
   #Set MDV to zero for appropriate censoring if not pred-corrected
@@ -128,13 +131,13 @@ plot_vpc_exactbins <- function(sim,
 
   ##Observed Data
   obs <- sim |>
-    dplyr::filter(!!dplyr::sym(irep_name) == 1 & MDV == 0) |>
-    df_pcdv(strat_vars = strat_var, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
+    dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0) |>
+    df_pcdv(strat_vars = strat_var_str, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
             lower_bound = lower_bound) |>
     dplyr::rename(OBSDV = DV, PCOBSDV = PCDV)
 
   ##Determine number of observations in each bin
-  bin_count <- df_nobsbin(obs, bin_var = "NTIME", strat_vars = strat_var)
+  bin_count <- df_nobsbin(obs, bin_var = "NTIME", strat_vars = strat_var_str)
 
   ##Identify observed summary data
   obs_sum <- dplyr::left_join(obs, bin_count) |>
@@ -156,7 +159,7 @@ plot_vpc_exactbins <- function(sim,
   plot <- vpc::vpc(
     sim = as.data.frame(sim_sum),
     obs = as.data.frame(obs_sum),
-    stratify = strat_var,
+    stratify = strat_var_str,
     obs_cols = list("dv" = "OBSDV", "idv" = "NTIME", "pred" = "PRED"),
     sim_cols = list("dv" = "SIMDV", "idv" = "NTIME", "pred" = "PRED"),
     bins = bins,
@@ -193,7 +196,7 @@ plot_vpc_exactbins <- function(sim,
     ##Add Subtitle with Replicates
     if(show_rep == TRUE){
       plot <- plot+
-        ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name]])))
+        ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name_str]])))
     }
 
     #Add x-axis breaks and theme
@@ -221,7 +224,7 @@ plot_vpc_exactbins <- function(sim,
 #'    and non-missing observations in exact bins.
 #'
 #' @param data Input dataset.
-#' @param bin_var Binning variable. Default is `"NTIME"`.
+#' @param bin_var Binning variable. Accepts bare names or strings. Default is `NTIME`.
 #' @param strat_vars Stratifying variables. Must be a character vector.
 #'
 #' @return A data.frame containing one row per unique combination of
@@ -233,15 +236,18 @@ plot_vpc_exactbins <- function(sim,
 #' df_nobsbin(data_sad)
 #'
 df_nobsbin <- function(data,
-                       bin_var = "NTIME",
+                       bin_var = NTIME,
                        strat_vars = NULL){
+
+  bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
+
   check_df(data)
-  check_varsindf(data, bin_var)
+  check_varsindf(data, bin_var_str)
   check_varsindf(data, strat_vars)
 
   bin_count <- data |>
     dplyr::filter(EVID == 0) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars, "CMT")))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var_str, strat_vars, "CMT")))) |>
     dplyr::summarize(n_obs = sum(MDV==0),
                      n_miss = sum(MDV==1)) |>
     dplyr::ungroup()
@@ -258,7 +264,7 @@ df_nobsbin <- function(data,
 #'    of observed or simulated depedent variables.
 #'
 #' @param data Input dataset
-#' @param bin_var Exact binning variable. Default is `"NTIME"`.
+#' @param bin_var Exact binning variable. Accepts bare names or strings. Default is `NTIME`.
 #' @param strat_vars Stratifying variables. Default is `NULL`.
 #' @param dvpred_vars Names of variables for the dependent variable and population model prediction. Must be named character vector.
 #'    Defaults are `"PRED"` and `"DV"`.
@@ -275,24 +281,26 @@ df_nobsbin <- function(data,
 #' simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
 #'
 df_pcdv <- function(data,
-                    bin_var = "NTIME",
+                    bin_var = NTIME,
                     strat_vars = NULL,
                     dvpred_vars = c(PRED = "PRED",
                                     DV = "DV"),
                     lower_bound = 0) {
 
+  bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
+
   dvpred_vars <- list_update(dvpred_vars, c(PRED = "PRED",
                                             DV = "DV"))
 
   check_df(data)
-  check_varsindf(data, bin_var)
+  check_varsindf(data, bin_var_str)
   check_varsindf(data, strat_vars)
   check_varsindf(data, dvpred_vars[["PRED"]])
   check_varsindf(data, dvpred_vars[["DV"]])
 
   data <- data |>
     dplyr::rename(dplyr::all_of(dvpred_vars)) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var, strat_vars, "CMT")))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var_str, strat_vars, "CMT")))) |>
     dplyr::mutate(PREDBIN = stats::median(PRED),
                   PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound))) |>
     dplyr::ungroup()

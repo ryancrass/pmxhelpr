@@ -33,8 +33,8 @@ plot_popgof <- function(data,
                                           DV = "blue",
                                           OBS = "darkgrey"),
                         timeu = "hours",
-                        grp_var = "ID",
-                        dose_var = "DOSE",
+                        grp_var = ID,
+                        dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
@@ -48,6 +48,9 @@ plot_popgof <- function(data,
                         n_breaks = 8,
                         theme = NULL){
 
+
+  grp_var_str  <- rlang::as_name(rlang::ensym(grp_var))
+  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
 
   ##Update Defaults to time_vars and output_vars
   time_vars <- list_update(time_vars, c(TIME = "TIME",
@@ -69,8 +72,8 @@ plot_popgof <- function(data,
   check_varsindf(data, output_vars[["PRED"]])
   check_varsindf(data, "MDV")
   check_timeu(timeu)
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var)}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var)}
+  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}
+  if(dosenorm == TRUE){check_varsindf(data, dose_var_str)}
   check_loq_method(loq, loq_method, data)
 
   #Handle Output and Time Variables
@@ -83,7 +86,7 @@ plot_popgof <- function(data,
       dplyr::mutate(TIME = NTIME)
   }
 
-  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var)))}
+  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
 
   ##BLQ Handling
   if(loq_method==1) {
@@ -172,7 +175,7 @@ plot_popgof <- function(data,
                                                          alpha = plottheme$alpha_point_obs)
   #Connect Observed Data Points within Group
   if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, color = "OBS",
-                                                                    group = !!dplyr::sym(grp_var)),
+                                                                    group = !!rlang::sym(grp_var_str)),
                                                        linewidth = plottheme$linewidth_obs,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)

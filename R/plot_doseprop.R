@@ -3,10 +3,10 @@
 #'
 #' @param data Input dataset for log-log regression.
 #'    Default expected format is output from `PKNCA::pk.nca()` (i.e., SDTM PP formatting)
-#' @param exp_var Character string specifying the variable in `data` containing the exposure metric (dependent variable)
-#'    Default is "PPORRES".
-#' @param dose_var Character string specifying the variable in `data` containing the dose (independent variable)
-#'    Default is "DOSE".
+#' @param exp_var Column in `data` containing the exposure metric (dependent variable).
+#'    Accepts bare names or strings. Default is `PPORRES`.
+#' @param dose_var Column in `data` containing the dose (independent variable).
+#'    Accepts bare names or strings. Default is `DOSE`.
 #'
 #' @return `lm` object
 #' @export mod_loglog
@@ -19,14 +19,17 @@
 #' summary(mod_cmax)
 #'
 mod_loglog <- function(data,
-                       exp_var = "PPORRES",
-                       dose_var="DOSE") {
+                       exp_var = PPORRES,
+                       dose_var = DOSE) {
+
+  exp_var_str  <- rlang::as_name(rlang::ensym(exp_var))
+  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
 
   check_df(data)
-  check_varsindf(data, exp_var)
-  check_varsindf(data, dose_var)
+  check_varsindf(data, exp_var_str)
+  check_varsindf(data, dose_var_str)
 
-  form <- stats::as.formula(paste(paste0("log(",exp_var,")"),"~",paste0("log(",dose_var,")")))
+  form <- stats::as.formula(paste(paste0("log(",exp_var_str,")"),"~",paste0("log(",dose_var_str,")")))
   fit <- stats::lm(form, data)
   return(fit)
 
@@ -97,8 +100,8 @@ df_loglog <- function(fit,
 #' Compute and tabulate estimates for log-log regression
 #'
 #' @param metrics character vector of exposure metrics in `data` to plot
-#' @param metric_var character string of variable in `data` containing the values provided in `metrics`.
-#'    Default is "PPTESTCD".
+#' @param metric_var Column in `data` containing the values provided in `metrics`.
+#'    Accepts bare names or strings. Default is `PPTESTCD`.
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
 #'
@@ -110,12 +113,16 @@ df_loglog <- function(fit,
 
 df_doseprop <- function(data,
                         metrics,
-                        metric_var="PPTESTCD",
-                        exp_var = "PPORRES",
-                        dose_var = "DOSE",
+                        metric_var = PPTESTCD,
+                        exp_var = PPORRES,
+                        dose_var = DOSE,
                         method = "normal",
                         ci = 0.90,
                         sigdigits=3) {
+
+  metric_var_str <- rlang::as_name(rlang::ensym(metric_var))
+  exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
+  dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
 
   check_df(data)
   if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
@@ -123,13 +130,13 @@ df_doseprop <- function(data,
 
   fit_list <- list()
    for(i in 1:length(metrics)) {
-     fit_list[[i]] <- mod_loglog(dplyr::filter(data, !!dplyr::sym(metric_var) == metrics[i]), exp_var, dose_var)
+     fit_list[[i]] <- rlang::inject(mod_loglog(dplyr::filter(data, .data[[metric_var_str]] == metrics[i]), exp_var = !!exp_var_str, dose_var = !!dose_var_str))
    }
 
    tab_list <- list()
    for(i in 1:length(fit_list)) {
      tab_list[[i]] <- df_loglog(fit_list[[i]], method, ci, sigdigits) |>
-       dplyr::mutate(!!metric_var := metrics[i])
+       dplyr::mutate(!!metric_var_str := metrics[i])
    }
 
    tab <- do.call(rbind.data.frame, tab_list)
@@ -153,29 +160,33 @@ df_doseprop <- function(data,
 
 plot_doseprop <- function(data,
                           metrics,
-                          metric_var="PPTESTCD",
-                          exp_var = "PPORRES",
-                          dose_var = "DOSE",
+                          metric_var = PPTESTCD,
+                          exp_var = PPORRES,
+                          dose_var = DOSE,
                           method = "normal",
                           ci = 0.90,
                           sigdigits=3,
                           se = TRUE) {
 
+  metric_var_str <- rlang::as_name(rlang::ensym(metric_var))
+  exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
+  dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
+
   check_df(data)
-  check_varsindf(data, metric_var)
-  check_varsindf(data, dose_var)
-  check_levelsinvar(data, metric_var, metrics)
+  check_varsindf(data, metric_var_str)
+  check_varsindf(data, dose_var_str)
+  check_levelsinvar(data, metric_var_str, metrics)
   if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
   check_integer(sigdigits)
 
-  dat <- dplyr::filter(data, !!dplyr::sym(metric_var) %in% metrics)
-  tab <- df_doseprop(data, metrics, metric_var, exp_var, dose_var, method, ci) |>
-    dplyr::mutate(label = paste0(!!dplyr::sym(metric_var), " | ", PowerCI))
+  dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
+  tab <- rlang::inject(df_doseprop(data, metrics, metric_var = !!metric_var_str, exp_var = !!exp_var_str, dose_var = !!dose_var_str, method, ci)) |>
+    dplyr::mutate(label = paste0(.data[[metric_var_str]], " | ", PowerCI))
 
-  plot_data <- dplyr::left_join(dat, tab, by = metric_var)
+  plot_data <- dplyr::left_join(dat, tab, by = metric_var_str)
 
   plot <-
-  ggplot2::ggplot(data = plot_data, ggplot2::aes(x = !!dplyr::sym(dose_var), y = !!dplyr::sym(exp_var))) +
+  ggplot2::ggplot(data = plot_data, ggplot2::aes(x = !!rlang::sym(dose_var_str), y = !!rlang::sym(exp_var_str))) +
     ggplot2::geom_point() +
     ggplot2::geom_smooth(method = "lm", formula = y~x, se = se, level = ci) +
     ggplot2::labs(x = "Dose", y = "Exposure")+

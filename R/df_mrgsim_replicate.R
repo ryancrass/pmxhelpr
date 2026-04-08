@@ -7,7 +7,7 @@
 #'    other arguments.
 #' @param model `mrgsolve` model object.
 #' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
-#' @param dv_var Character name of the DV variable in `data`.
+#' @param dv_var Column containing the DV variable in `data`. Accepts bare names or strings.
 #' @param time_vars Names of actual and nominal time variables. Must be named character vector.
 #'    Defaults is: c(`TIME`=`"TIME"`, `NTIME`=`"NTIME"`).
 #' @param output_vars Names of model outputs from `model`. Must be named character vector.
@@ -18,7 +18,7 @@
 #' @param char_vars Character variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `recover`
 #'    and return in output.
-#' @param irep_name Name of replicate variable in `data`. Must be a string. Default is `"SIM"`.
+#' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
@@ -31,15 +31,15 @@
 #' @examples
 #' model <- model_mread_load(model = "model")
 #' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-#' dv_var = "ODV",
+#' dv_var = ODV,
 #' num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
-#' irep_name = "SIM")
+#' irep_name = SIM)
 
 df_mrgsim_replicate <- function(data,
                     model,
                     replicates,
-                    dv_var = "DV",
+                    dv_var = DV,
                     time_vars = c(TIME = "TIME",
                                   NTIME = "NTIME"),
                     output_vars = c(PRED = "PRED",
@@ -47,9 +47,12 @@ df_mrgsim_replicate <- function(data,
                                     DV = "DV"),
                     num_vars = NULL,
                     char_vars = NULL,
-                    irep_name = "SIM",
+                    irep_name = SIM,
                     seed = 123456789,
                     ...) {
+
+  dv_var_str    <- rlang::as_name(rlang::ensym(dv_var))
+  irep_name_str <- rlang::as_name(rlang::ensym(irep_name))
 
   ##Update Defaults to time_vars and output_vars
   time_vars <- list_update(time_vars, c(TIME = "TIME",
@@ -63,14 +66,14 @@ df_mrgsim_replicate <- function(data,
   check_mrgmod(model)
   check_mrgmod_outputvars(model, output_vars)
   check_integer(replicates)
-  check_varsindf(data, dv_var)
+  check_varsindf(data, dv_var_str)
   check_varsindf(data, time_vars)
   check_varsindf(data, num_vars)
   check_varsindf(data, char_vars)
   check_integer(seed)
 
   ##Handle DV Variable
-  data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var)))
+  data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
   #Handle Time Variables
   if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
@@ -81,7 +84,7 @@ df_mrgsim_replicate <- function(data,
       dplyr::mutate(TIME = NTIME)
   }
 
-  data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
+  data <- rlang::inject(df_addpred(data, model, output_var = !!output_vars[["IPRED"]]))
 
   ##Run Simulation
   withr::with_seed(seed = seed,
@@ -97,7 +100,7 @@ df_mrgsim_replicate <- function(data,
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
-                         dplyr::mutate(!!irep_name := rep) |>
+                         dplyr::mutate(!!irep_name_str := rep) |>
                          dplyr::select(ID,
                                        TIME,
                                        NTIME,

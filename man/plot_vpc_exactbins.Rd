@@ -11,7 +11,7 @@ plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   loq = NULL,
   strat_var = NULL,
-  irep_name = "SIM",
+  irep_name = SIM,
   min_bin_count = 1,
   show_rep = TRUE,
   lower_bound = 0,
@@ -36,10 +36,10 @@ Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
 of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
 
-\item{strat_var}{Character string of stratification variable passed to \code{stratify} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Currently, only a single stratifying variable is supported.}
+\item{strat_var}{Stratification variable passed to \code{stratify} argument
+of \code{\link[vpc:vpc]{vpc::vpc()}}. Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Must be a string. Default is \code{"SIM"}.}
+\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations in exact bin for inclusion
 in binned plot layers. This argument drops small bins from summary statistic calculation
@@ -90,10 +90,10 @@ that returns a \code{ggplot2} object.
 \examples{
 model <- model_mread_load(model = "model")
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-dv_var = "ODV",
+dv_var = ODV,
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
-irep_name = "SIM")
+irep_name = SIM)
 
 vpc_plot <- plot_vpc_exactbins(
 sim = simout,

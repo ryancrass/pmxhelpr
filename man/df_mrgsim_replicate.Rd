@@ -8,12 +8,12 @@ df_mrgsim_replicate(
   data,
   model,
   replicates,
-  dv_var = "DV",
+  dv_var = DV,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   num_vars = NULL,
   char_vars = NULL,
-  irep_name = "SIM",
+  irep_name = SIM,
   seed = 123456789,
   ...
 )
@@ -26,7 +26,7 @@ other arguments.}
 
 \item{replicates}{Number of replicates. Either an integer, or something coercible to an integer.}
 
-\item{dv_var}{Character name of the DV variable in \code{data}.}
+\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -42,7 +42,7 @@ and return in output. Defaults are \code{"CMT"}, \code{"EVID"}, \code{"MDV"}, \c
 Must be a character vector of variable names from the simulation output to \code{recover}
 and return in output.}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Must be a string. Default is \code{"SIM"}.}
+\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
@@ -59,8 +59,8 @@ that returns a data.frame containing \code{replicates} iterations of \code{data}
 \examples{
 model <- model_mread_load(model = "model")
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-dv_var = "ODV",
+dv_var = ODV,
 num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
-irep_name = "SIM")
+irep_name = SIM)
 }

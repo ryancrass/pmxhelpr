@@ -49,7 +49,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
   sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
 
   df <- data.frame(x=NA_real_, y=NA_real_)
-  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y), na.rm= TRUE)
+  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y))
 
   plot <- plot_blank +
     {if(nlist$obs_dv == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),

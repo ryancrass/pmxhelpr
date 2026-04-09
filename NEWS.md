@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.3.9
 
 * Add NSE support to accept bare column names in all exported functions (e.g., dv_var = DV) in addition
 to strings (e.g., dv_var = "DV") across all exported functions that take column name arguments. Revise vignettes to highlight this functionality.

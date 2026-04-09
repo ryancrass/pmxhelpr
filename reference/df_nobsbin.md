@@ -6,7 +6,7 @@ non-missing observations in exact bins.
 ## Usage
 
 ``` r
-df_nobsbin(data, bin_var = "NTIME", strat_vars = NULL)
+df_nobsbin(data, bin_var = NTIME, strat_vars = NULL)
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ df_nobsbin(data, bin_var = "NTIME", strat_vars = NULL)
 
 - bin_var:
 
-  Binning variable. Default is `"NTIME"`.
+  Binning variable. Accepts bare names or strings. Default is `NTIME`.
 
 - strat_vars:
 

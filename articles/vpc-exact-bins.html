@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plots with Exact Bins</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/vignettes/vpc-exact-bins.Rmd" class="external-link"><code>vignettes/vpc-exact-bins.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-exact-bins.Rmd" class="external-link"><code>vignettes/vpc-exact-bins.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-exact-bins.Rmd</code></div>
     </div>
 
@@ -245,9 +245,10 @@ previous steps to the <code>data</code> and <code>model</code>
 arguments, respectively, and run the simulation for 100
 <code>replicates</code>. The names of actual and nominal time variables
 in <code>data_sad</code> match the default arguments; however, our
-dependent variable is named <code>"ODV"</code>, which must be specified
-in the <code>dv_var</code> argument, since it differs from the default
-(<code>"DV"</code>).</p>
+dependent variable is named <code>ODV</code>, which must be specified in
+the <code>dv_var</code> argument, since it differs from the default
+(<code>DV</code>). This argument uses non-standard evaluation and can be
+passed as a bare column name or as astrings.</p>
 <p>We would like to recover the numerical variables <code>"DOSE"</code>
 and <code>"FOOD"</code> and the character variable <code>"PART"</code>
 from the input dataset, as we may need these study conditions to
@@ -262,7 +263,7 @@ and reduce file size.</p>
 <code class="sourceCode R"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, </span>
 <span>                     model <span class="op">=</span> <span class="va">model</span>, </span>
 <span>                     replicates <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>                     dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span>
+<span>                     dv_var <span class="op">=</span> <span class="va">ODV</span>,</span>
 <span>                     time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>                     output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>                     num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"DOSE"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span>
@@ -691,7 +692,7 @@ which does not produce binning consistent with the exact bins in our
 dataset.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">##Exact bins in the input data</span></span>
-<span><span class="fu"><a href="../reference/df_nobsbin.html">df_nobsbin</a></span><span class="op">(</span><span class="va">data_sad</span>, bin_var <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/df_nobsbin.html">df_nobsbin</a></span><span class="op">(</span><span class="va">data_sad</span>, bin_var <span class="op">=</span> <span class="va">NTIME</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 19 × 4</span></span></span>
 <span><span class="co">#&gt;    NTIME   CMT n_obs n_miss</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>

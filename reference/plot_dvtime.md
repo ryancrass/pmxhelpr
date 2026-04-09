@@ -7,12 +7,12 @@ Plot a dependent variable versus time
 ``` r
 plot_dvtime(
   data,
-  dv_var = "DV",
+  dv_var = DV,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -37,7 +37,8 @@ plot_dvtime(
 
 - dv_var:
 
-  Character name of the DV variable in `data`.
+  Column containing the DV variable in `data`. Accepts bare names or
+  strings.
 
 - time_vars:
 
@@ -59,18 +60,18 @@ plot_dvtime(
 
 - col_var:
 
-  Character string of the name of the variable to map to the color
-  aesthetic.
+  Column to map to the color aesthetic. Accepts bare names or strings.
+  Default is `NULL`.
 
 - grp_var:
 
-  Character string of the variable to map to the group aesthetic.
-  Default is `"ID"`
+  Column to map to the group aesthetic. Accepts bare names or strings.
+  Default is `ID`.
 
 - dose_var:
 
-  Character string of the variable to use in dosenormalization when
-  `dosenorm` = TRUE. Default is `"DOSE"`.
+  Column to use in dosenormalization when `dosenorm` = TRUE. Accepts
+  bare names or strings. Default is `DOSE`.
 
 - loq:
 
@@ -169,9 +170,9 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
-data <- df_addn(dplyr::mutate(data_sad,Dose=DOSE), grp_var="Dose", sep = "mg")
+data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
 #> Joining with `by = join_by(Dose)`
-plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
+plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 #> Warning: Removed 169 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
 #> Warning: Removed 169 rows containing non-finite outside the scale range

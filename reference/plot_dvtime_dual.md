@@ -8,16 +8,16 @@ together
 ``` r
 plot_dvtime_dual(
   data,
-  dv_var1 = "DV",
-  dv_var2 = "DV",
-  dvid_var = "CMT",
+  dv_var1 = DV,
+  dv_var2 = DV,
+  dvid_var = CMT,
   dvid_val1 = 2,
   dvid_val2 = 3,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -46,18 +46,18 @@ plot_dvtime_dual(
 
 - dv_var1:
 
-  Character string specifying the variable containing observations for
-  the top panel (DV1). Default is "DV".
+  Column containing observations for the top panel (DV1). Accepts bare
+  names or strings. Default is `DV`.
 
 - dv_var2:
 
-  Character string specifying the variable containing observations for
-  the bottom panel (DV2). Default is "DV".
+  Column containing observations for the bottom panel (DV2). Accepts
+  bare names or strings. Default is `DV`.
 
 - dvid_var:
 
-  Character string specifying the variable to identify each observation
-  type.
+  Column to identify each observation type. Accepts bare names or
+  strings.
 
 - dvid_val1:
 
@@ -89,18 +89,18 @@ plot_dvtime_dual(
 
 - col_var:
 
-  Character string of the name of the variable to map to the color
-  aesthetic.
+  Column to map to the color aesthetic. Accepts bare names or strings.
+  Default is `NULL`.
 
 - grp_var:
 
-  Character string of the variable to map to the group aesthetic.
-  Default is `"ID"`
+  Column to map to the group aesthetic. Accepts bare names or strings.
+  Default is `ID`.
 
 - dose_var:
 
-  Character string of the variable to use in dosenormalization when
-  `dosenorm` = TRUE. Default is `"DOSE"`.
+  Column to use in dosenormalization when `dosenorm` = TRUE. Accepts
+  bare names or strings. Default is `DOSE`.
 
 - loq:
 
@@ -220,9 +220,9 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
+data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 #> Joining with `by = join_by(Dose)`
-plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV", col_var = "Dose")
+plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose)
 #> Warning: Removed 169 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
 #> Warning: Removed 169 rows containing non-finite outside the scale range

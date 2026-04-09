@@ -8,7 +8,7 @@ observed or simulated depedent variables.
 ``` r
 df_pcdv(
   data,
-  bin_var = "NTIME",
+  bin_var = NTIME,
   strat_vars = NULL,
   dvpred_vars = c(PRED = "PRED", DV = "DV"),
   lower_bound = 0
@@ -23,7 +23,8 @@ df_pcdv(
 
 - bin_var:
 
-  Exact binning variable. Default is `"NTIME"`.
+  Exact binning variable. Accepts bare names or strings. Default is
+  `NTIME`.
 
 - strat_vars:
 

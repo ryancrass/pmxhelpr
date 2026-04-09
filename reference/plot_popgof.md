@@ -11,8 +11,8 @@ plot_popgof(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   output_colors = c(PRED = "red", IPRED = "green", DV = "blue", OBS = "darkgrey"),
   timeu = "hours",
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -75,13 +75,13 @@ plot_popgof(
 
 - grp_var:
 
-  Character string of the variable to map to the group aesthetic.
-  Default is `"ID"`
+  Column to map to the group aesthetic. Accepts bare names or strings.
+  Default is `ID`.
 
 - dose_var:
 
-  Character string of the variable to use in dosenormalization when
-  `dosenorm` = TRUE. Default is `"DOSE"`.
+  Column to use in dosenormalization when `dosenorm` = TRUE. Accepts
+  bare names or strings. Default is `DOSE`.
 
 - loq:
 

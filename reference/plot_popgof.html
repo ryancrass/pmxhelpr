@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot population overlay goodness-of-fit (GOF) plots</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/R/plot_popgof.R" class="external-link"><code>R/plot_popgof.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_popgof.R" class="external-link"><code>R/plot_popgof.R</code></a></small>
       <div class="d-none name"><code>plot_popgof.Rd</code></div>
     </div>
 
@@ -52,8 +52,8 @@
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  output_colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"red"</span>, IPRED <span class="op">=</span> <span class="st">"green"</span>, DV <span class="op">=</span> <span class="st">"blue"</span>, OBS <span class="op">=</span> <span class="st">"darkgrey"</span><span class="op">)</span>,</span>
 <span>  timeu <span class="op">=</span> <span class="st">"hours"</span>,</span>
-<span>  grp_var <span class="op">=</span> <span class="st">"ID"</span>,</span>
-<span>  dose_var <span class="op">=</span> <span class="st">"DOSE"</span>,</span>
+<span>  grp_var <span class="op">=</span> <span class="va">ID</span>,</span>
+<span>  dose_var <span class="op">=</span> <span class="va">DOSE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
@@ -108,12 +108,12 @@ Options include:</p><ul><li><p>"hours" (default)</p></li>
 
 
 <dt id="arg-grp-var">grp_var<a class="anchor" aria-label="anchor" href="#arg-grp-var"></a></dt>
-<dd><p>Character string of the variable to map to the group aesthetic. Default is <code>"ID"</code></p></dd>
+<dd><p>Column to map to the group aesthetic. Accepts bare names or strings. Default is <code>ID</code>.</p></dd>
 
 
 <dt id="arg-dose-var">dose_var<a class="anchor" aria-label="anchor" href="#arg-dose-var"></a></dt>
-<dd><p>Character string of the variable to use in dosenormalization when <code>dosenorm</code> = TRUE.
-Default is <code>"DOSE"</code>.</p></dd>
+<dd><p>Column to use in dosenormalization when <code>dosenorm</code> = TRUE.
+Accepts bare names or strings. Default is <code>DOSE</code>.</p></dd>
 
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>

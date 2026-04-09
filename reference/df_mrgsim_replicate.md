@@ -11,12 +11,12 @@ df_mrgsim_replicate(
   data,
   model,
   replicates,
-  dv_var = "DV",
+  dv_var = DV,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   num_vars = NULL,
   char_vars = NULL,
-  irep_name = "SIM",
+  irep_name = SIM,
   seed = 123456789,
   ...
 )
@@ -41,7 +41,8 @@ df_mrgsim_replicate(
 
 - dv_var:
 
-  Character name of the DV variable in `data`.
+  Column containing the DV variable in `data`. Accepts bare names or
+  strings.
 
 - time_vars:
 
@@ -68,8 +69,8 @@ df_mrgsim_replicate(
 
 - irep_name:
 
-  Name of replicate variable in `data`. Must be a string. Default is
-  `"SIM"`.
+  Name of replicate variable in `data`. Accepts bare names or strings.
+  Default is `SIM`.
 
 - seed:
 
@@ -93,8 +94,8 @@ and the output variables in `output_vars`, `num_vars`, and `char_vars`.
 model <- model_mread_load(model = "model")
 #> Loading model from cache.
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-dv_var = "ODV",
+dv_var = ODV,
 num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
-irep_name = "SIM")
+irep_name = SIM)
 ```

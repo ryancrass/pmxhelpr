@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Exploratory Data Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/eda-pmxhelpr.Rmd" class="external-link"><code>vignettes/eda-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>eda-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -233,19 +233,21 @@ information for subsequent exploratory analysis.</p>
 <code>data</code> and returns a dataset with the variable specified in
 <code>grp_var</code> transformed to a factor including the count of
 unique values of the identifier variable specified in
-<code>id_var</code> (default <code>"ID"</code>). A string constant
-separator can be added between the values in <code>grp_var</code> and
-the count of <code>id_var</code> using <code>sep</code>. A common use is
-to specify the dose units when linking dose and count of unique
-individuals receiving that dose.</p>
+<code>id_var</code> (default <code>ID</code>). Both arguments use
+non-standard evaluation and can be passed as bare column names or
+strings, as shown below.</p>
+<p>A string constant separator can be added between the values in
+<code>grp_var</code> and the count of <code>id_var</code> using
+<code>sep</code>. A common use is to specify the dose units when linking
+dose and count of unique individuals receiving that dose.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data_pk</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">EVID</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`Food Status` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"Fasted"</span>, <span class="st">"Fed"</span><span class="op">)</span>, </span>
 <span>         `Dose and Food` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">"mg"</span>, <span class="va">`Food Status`</span><span class="op">)</span>,</span>
 <span>         Dose <span class="op">=</span> <span class="va">DOSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="st">"Dose"</span>, sep <span class="op">=</span> <span class="st">"mg"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="st">"Dose and Food"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="va">Dose</span>, sep <span class="op">=</span> <span class="st">"mg"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="va">`Dose and Food`</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plot_data_pd</span> <span class="op">&lt;-</span> <span class="va">data_sad_pd</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">EVID</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -301,11 +303,13 @@ observed concentration-time data in exploratory data analysis:
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> argument `dv_var` must be variables in `data`</span></span></code></pre></div>
 <p>Hmm…that didn’t work. Hmm…well checking <code>?plot_dvtime()</code>
 it seems that the argument <code>dv_var</code> specifies the dependent
-variable in the dataset and the default is <code>"DV"</code>. Since
-<code>data_sad</code> has the original units of the dependent variable
-as <code>ODV</code>, this name must be passed to the function.</p>
+variable in the dataset and the default is <code>DV</code>. This
+argument uses non-standard evaluation and can be passed as a bare column
+names or as a string. Since <code>data_sad</code> has the original units
+of the dependent variable as <code>ODV</code>, this name must be passed
+to the function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-pass-1.png" class="r-plt" alt="" width="576">
 Hey a plot! Conveniently, time variables in <code>data_sad</code> had
 names aligned with the default argument; however, this may not always be
@@ -313,7 +317,7 @@ the case. A caption prints by default describing the plot elements. The
 caption can be removed by specifying
 <code>show_caption = FALSE</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, show_caption <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, show_caption <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-nocap-1.png" class="r-plt" alt="" width="576"></p>
 <p>These data are probably best visualized on a log-scale y-axis
 upweight the terminal phase profile. <code>plot_dvtime</code> includes
@@ -338,7 +342,7 @@ tendency measure returned when requesting <code>"mean"</code> from
 with <code>show_captions = TRUE</code>, then the caption will delineate
 where arithmetic and geometric means are being returned.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-logy-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
@@ -348,9 +352,11 @@ where arithmetic and geometric means are being returned.</p>
 named character vector with default
 <code>time_vars=c(TIME=TIME", NTIME="NTIME")</code>. These elements of
 the argument may be specified one at a time, as in the example below
-showing all nominal values, or both together.</p>
+showing all nominal values, or both together. The <code>time_vars</code>
+argument does <em>NOT</em> use non-standard evaluation and must passed
+as a named character vector.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-nom-1.png" class="r-plt" alt="" width="576"></p>
 <p><code>plot_dvtime</code> includes uses a helper function
 (<code>breaks_time</code>) to automatically determine x-axis breaks
@@ -394,7 +400,7 @@ units (<code>"hours"</code>); therefore, explicit specification of the
 <code>n_breaks</code> and <code>timeu</code> arguments is not
 required.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-1.png" class="r-plt" alt="" width="576">
 However, perhaps someone on the team would prefer the x-axis breaks in
 units of <code>days</code>. The x-axis breaks will transform to the new
@@ -405,7 +411,7 @@ units automatically as long as we specify the new time unit with
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="va">TIME</span><span class="op">/</span><span class="fl">24</span>, </span>
 <span>         NTIME <span class="op">=</span> <span class="va">NTIME</span><span class="op">/</span><span class="fl">24</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk_days</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, timeu <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk_days</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, timeu <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-days-1.png" class="r-plt" alt="" width="576"></p>
 <p>Nice! However, someone else on the team would prefer to see the first
 24 hours of treatment in greater detail to visualize the absorption
@@ -424,10 +430,12 @@ input data!</p>
 <h3 id="color-aesthetic-and-central-trendency">Color Aesthetic and Central Trendency<a class="anchor" aria-label="anchor" href="#color-aesthetic-and-central-trendency"></a>
 </h3>
 <p>The color aesthetic can be mapped to a dataset variable using the the
-<code>col_var</code> argument. Let’s use a variable we defined earlier
-using <code>df_addn</code> to list unique study conditions.</p>
+<code>col_var</code> argument. This argument uses non-standard
+evaluation and can be passed as a bare column name or as a string. Let’s
+use a variable we defined earlier using <code>df_addn</code> to list
+unique study conditions.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, <span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-col-1.png" class="r-plt" alt="" width="576">
 The argument <code>cent</code> specifies the method of calculating the
 central tendency (+/- variability) within levels of the variable passed
@@ -439,16 +447,16 @@ used to generate semi-log plots along with
 <code>show_captions = TRUE</code>, then the caption will automatically
 delineate where arithmetic and geometric means are being returned.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-log-1.png" class="r-plt" alt="" width="576"></p>
-<p>It looks like coadministration with food may impact the absorption
+<p>It looks like co-administration with food may impact the absorption
 profile. Luckily, <code>plot_dvtime</code> returns a <code>ggplot</code>
 object which we can modify like any other <code>ggplot</code>!
 Therefore, we can facet by PART by simply adding in another layer to our
 <code>ggplot</code> object.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-1.png" class="r-plt" alt="" width="576"></p>
@@ -457,7 +465,7 @@ central tendency. We can use the argument <code>cent = "mean_sdl"</code>
 to plot the mean with error bars and remove the observed points by
 specifying <code>obs_dv = FALSE</code>.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -467,7 +475,7 @@ computing the arithmetic mean +/- arithmetic SD on the linear scale.
 This can be accomplished by changing the <code>cent</code> argument to
 <code>mean_sdl_upper</code>.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl_upper"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean_sdl_upper"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime_part-meansdl-upper-1.png" class="r-plt" alt="" width="576"></p>
@@ -476,7 +484,7 @@ if we do not feel the sample size is sufficient for parametric summary
 statistics. This can be accomplished by changing the <code>cent</code>
 argument to <code>median_iqr</code>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"median_iqr"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"median_iqr"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -492,13 +500,13 @@ spaghetti lines. Data points within an individual value of
 <code>grp_dv = TRUE</code>. The default is
 <code>grp_var = "ID"</code>.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"median"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"median"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png" class="r-plt" alt="" width="576">
-It does not seem like there are outlier individuals driving the noise in
-the late terminal phase; therefore, this is almost certainly artifact
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png" class="r-plt" alt="" width="576"></p>
+<p>It does not seem like there are outlier individuals driving the noise
+in the late terminal phase; therefore, this is almost certainly artifact
 introduced by data missing due to assay sensitivity and censoring at the
 lower limit of quantification (LLOQ).</p>
 </div>
@@ -533,14 +541,14 @@ our case, <code>LLOQ</code> is a variable in <code>plot_data</code>, so
 we do not need to specify the <code>loq</code> argument (default is
 <code>loq = NULL</code>).</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-blq1-1.png" class="r-plt" alt="" width="576">
 The same plot is obtained by specifying <code>loq = 1</code></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,  log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -561,19 +569,20 @@ of observations below the LLOQ.</p>
 <p>We can also generate dose-normalized concentration-time plots by
 specifying <code>dosenorm = TRUE</code>.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dn-1.png" class="r-plt" alt="" width="576"></p>
 <p>When <code>dosenorm = TRUE</code>, the variable specified in
-<code>dose_var</code> (default = “DOSE”) needs to be present in the
-input dataset <code>data</code>. If <code>dose_var</code> is not present
-in <code>data</code>, the function will return an <em>Error</em> with an
-informative error message.</p>
+<code>dose_var</code> (default = DOSE) needs to be present in the input
+dataset <code>data</code>. If <code>dose_var</code> is not present in
+<code>data</code>, the function will return an <em>Error</em> with an
+informative error message. This argument uses non-standard evaluation
+and can be passed as a bare column name or as a string.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, <span class="op">-</span><span class="va">DOSE</span><span class="op">)</span>, </span>
-<span>            dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>            dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span>
@@ -584,7 +593,7 @@ case in which both options are requested. The reference line for the
 LLOQ will not be plotted when dose-normalized concentration is the
 dependent variable.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL per mg Drug)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -659,7 +668,7 @@ error bars and reduce the size of the mean summary points to only
 visualize the lines. This can be accomplished for an individual plot as
 follows:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>linewidth_errorbar <span class="op">=</span> <span class="fl">0.5</span>, size_point_cent <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -672,7 +681,7 @@ using the same modified theme.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime_theme.html">plot_dvtime_theme</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>linewidth_errorbar <span class="op">=</span> <span class="fl">0.5</span>, size_point_cent <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
+<span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="va">new_theme</span><span class="op">)</span> <span class="op">+</span></span>
@@ -684,7 +693,7 @@ the dataset. This can be overwritten to a user-specified value using the
 This value is passed to the <code>width</code> argument of
 <code>geom_errorbar</code>.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            obs_dv <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            theme <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>width_errorbar <span class="op">=</span> <span class="fl">8</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -703,7 +712,7 @@ little pre-processing of the input dataset.</p>
 <p>We can specify <code>cent = "none"</code> to remove the central
 tendency layer when plotting individual subject data.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -723,7 +732,7 @@ functions, or other methods.</p>
 <span><span class="va">plist</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_ids</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="va">plist</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pk</span>, <span class="va">ID</span> <span class="op">==</span> <span class="va">ids</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, </span>
-<span>                               dv_var <span class="op">=</span> <span class="st">"ODV"</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>                               dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            grp_dv <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            loq_method <span class="op">=</span> <span class="fl">2</span>, loq <span class="op">=</span> <span class="fl">1</span>, show_caption <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -773,7 +782,8 @@ as we did to visualize the concentration-time profile previously, by
 filtering our PK/PD dataset to the compartment with the biomarker
 observations (<code>CMT=3</code>).</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, ylab <span class="op">=</span> <span class="st">"Response"</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, </span>
+<span>            ylab <span class="op">=</span> <span class="st">"Response"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-pd-1.png" class="r-plt" alt="" width="576"></p>
 <p>We can add a reference line to our plot using the
 <code>plot_dvtime</code> argument <code>cfb=TRUE</code>, which by
@@ -781,7 +791,8 @@ default plots a reference line at y=0. The location of the reference
 line can be modified by specifying a y-intercept value using the
 argument<code>cfb_base</code>.</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, ylab <span class="op">=</span> <span class="st">"Response"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, </span>
+<span>            col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, ylab <span class="op">=</span> <span class="st">"Response"</span>, </span>
 <span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, cfb_base <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-pd-ref-1.png" class="r-plt" alt="" width="576"></p>
 <p>We can add a reference line to our plot using the
@@ -790,7 +801,8 @@ default plots a reference line at y=0. The location of the reference
 line can be modified by specifying a y-intercept value using the
 argument<code>cfb_base</code>.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, ylab <span class="op">=</span> <span class="st">"Response"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, </span>
+<span>            col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, ylab <span class="op">=</span> <span class="st">"Response"</span>, </span>
 <span>            cfb<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-pd-ref0-1.png" class="r-plt" alt="" width="576"></p>
 <div class="section level3">
@@ -806,22 +818,24 @@ specify elements of the panels:</p>
 <li>
 <code>dv_var1</code> and <code>dv_var2</code> arguments to specify
 the dependent variable (y-axis) to plot in the top (1) and bottom (2)
-panels. The default is <code>"DV".</code>
-</li>
+panels. The default is <code>DV</code> .</li>
 <li>
 <code>dvid_var</code> argument to specify the variable that contains
 the identifiers for each dependent variable to be plotted. The default
-is <code>"CMT"</code>.</li>
+is <code>CMT</code>.</li>
 <li>
 <code>dvid_val1</code> and <code>dvid_val2</code> arguments to
 specify the values of the variable in <code>dvid_var</code> to identify
 the dependent variables to plot in the top (1) and bottom (2) panel. The
 defaults are <code>2</code> and <code>3</code>, respectively.</li>
 </ul>
+<p>Both <code>dv_var1</code> and <code>dv_var2</code> arguments use
+non-standard evaluation and can be passed as bare column names or
+strings.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>,dv_var2 <span class="op">=</span> <span class="st">"ODV"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose and Food"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>,dv_var2 <span class="op">=</span> <span class="va">ODV</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">`Dose and Food`</span><span class="op">)</span></span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-1.png" class="r-plt" alt="" width="576"></p>
 <p>The following arguments are available to specify y-axis labels and
 transformations:</p>
@@ -842,9 +856,9 @@ should be transformed to a log scale. Default is
 <code>FALSE</code>.</li>
 </ul>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"ODV"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>, dv_var2 <span class="op">=</span> <span class="va">ODV</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>,</span>
 <span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% of Base)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-y12-1.png" class="r-plt" alt="" width="576"></p>
 <p>This wrapper function expects that the top panel will display drug
@@ -853,18 +867,18 @@ Thus, BLQ imputation and dose-normalization options specified using the
 standard arguments to <code>plot_dvtime</code> are only applied to the
 top panel.</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"ODV"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">T</span>,dose_var <span class="op">=</span> <span class="st">"DOSE"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>, dv_var2 <span class="op">=</span> <span class="va">ODV</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, loq_method <span class="op">=</span> <span class="fl">2</span>, dosenorm <span class="op">=</span> <span class="cn">T</span>,dose_var <span class="op">=</span> <span class="va">DOSE</span>,</span>
 <span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Dose-norm Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% of Base)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-dosenorm-blq-1.png" class="r-plt" alt="" width="576"></p>
 <p>Similarly, since function expects that the bottom panel displays
 response (PD), a reference line at y=<code>cfb_base</code> is only added
 to the bottom panel when <code>cfb=TRUE</code>.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"ODV"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose"</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, cfb_base <span class="op">=</span> <span class="fl">100</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>, dv_var2 <span class="op">=</span> <span class="va">ODV</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">Dose</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, cfb_base <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% of Baseline)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-ref-1.png" class="r-plt" alt="" width="576"></p>
 <p>The default value of <code>cfb_base</code> is <code>0</code>, which
@@ -874,9 +888,9 @@ modify our plot to use change from baseline as the dependent variable
 for the PD panel but updating the variable passed to
 <code>dv_var2</code>.</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"CFB"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose"</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>, dv_var2 <span class="op">=</span> <span class="va">CFB</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">Dose</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, </span>
 <span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-ref-cfb-1.png" class="r-plt" alt="" width="576"></p>
 <p>Finally, we can modify both of the captions separately using the
@@ -886,10 +900,10 @@ Since both panels of this plot have the same elements, we can turn the
 caption off in the top panel and print a single caption under the bottom
 panel to represent both panels in the plot.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"CFB"</span>,</span>
-<span>                 dvid_var <span class="op">=</span> <span class="st">"CMT"</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                 col_var <span class="op">=</span> <span class="st">"Dose"</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, </span>
-<span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, dv_var1 <span class="op">=</span> <span class="va">ODV</span>, dv_var2 <span class="op">=</span> <span class="va">CFB</span>,</span>
+<span>                 dvid_var <span class="op">=</span> <span class="va">CMT</span>, dvid_val1 <span class="op">=</span> <span class="fl">2</span>, dvid_val2 <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                 col_var <span class="op">=</span> <span class="va">Dose</span>, cfb<span class="op">=</span><span class="cn">TRUE</span>, </span>
+<span>                 log_y1 <span class="op">=</span> <span class="cn">TRUE</span>, ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>,</span>
 <span>                 show_caption1 <span class="op">=</span> <span class="cn">FALSE</span>, show_caption2 <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-ref-cfb-nocap-1.png" class="r-plt" alt="" width="576"></p>
 </div>
@@ -910,20 +924,22 @@ specify the variables to be plotted:</p>
 <ul>
 <li>
 <code>dv_var</code>: character string specifying the dependent
-variable to map to the y-axis. Default is <code>"DV"</code>.</li>
+variable to map to the y-axis. Default is <code>DV</code>.</li>
 <li>
 <code>idv_var</code>: character string specifying the dependent
-variable to map to the y-axis. Default is <code>"CONC"</code>.</li>
+variable to map to the y-axis. Default is <code>CONC</code>.</li>
 </ul>
+<p>Both arguments use non-standard evaluation and can be passed as bare
+column names or strings.</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% of Baseline)"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-1.png" class="r-plt" alt="" width="576"></p>
 <p>Like <code>plot_dvtime</code>, we can specify a reference line using
 <code>cfb = TRUE</code>, which is plotted at <code>cfb_base</code>
 (default = 0).</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span><span class="op">==</span><span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
 <span>            cfb <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-ref-1.png" class="r-plt" alt="" width="576"></p>
@@ -933,22 +949,24 @@ variable to map to the y-axis. Default is <code>"CONC"</code>.</li>
 </h3>
 <p><code>plot_dvconc</code> includes two arguments for controlling the
 color aesthetic, <code>col_var</code> and <code>col_trend</code>. If a
-variable is passed as a string to the <code>col_var</code> argument, the
-data points are colored based on this variable; however, by default
+variable is passed to the <code>col_var</code> argument, the data points
+are colored based on this variable; however, by default
 <code>col_trend = FALSE</code> and the trend line is fit to the totality
 of the data without stratifying the trend lines by the variable mapped
-to the color aesthetic.</p>
+to the color aesthetic. The <code>col_var</code> argument uses
+non-standard evaluation and can be passed as a bare column name or as a
+string.</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from of Baseline)"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
+<span>            col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-1.png" class="r-plt" alt="" width="576"></p>
 <p>Trend lines stratified by the variable mapped to the color aesthetic
 are requested by setting <code>col_trend = TRUE</code>.</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>           cfb <span class="op">=</span> <span class="cn">TRUE</span>,  xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from  Baseline)"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
+<span>           col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-1.png" class="r-plt" alt="" width="576"></p>
 </div>
 <div class="section level3">
@@ -960,9 +978,9 @@ regression. The central tendency trend lines visualized are controlled
 by logical arguments <code>loess</code> and <code>linear</code>. The
 default is <code>loess = TRUE</code> and <code>linear = FALSE</code></p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>, </span>
-<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>,  col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>,  col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-loess-linear-1.png" class="r-plt" alt="" width="576">
 The confidence intervals of the trend lines are suppressed by default in
 order to facilitate visualization of the central tendency and spread of
@@ -970,28 +988,28 @@ observed data points simultaneously. Confidence intervals can be added
 to the plot using the logical arguments <code>se_loess</code> and
 <code>se_linear</code>.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>,</span>
-<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span>, se_loess <span class="op">=</span> <span class="cn">TRUE</span>, se_linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-linear-se-1.png" class="r-plt" alt="" width="576">
-Additional arguments can be passed to
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-linear-se-1.png" class="r-plt" alt="" width="576"></p>
+<p>Additional arguments can be passed to
 <code>geom_smooth(method = "loess")</code>, such as increasing the span
 of the smoothing fit.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>,</span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change from Baseline)"</span>,</span>
-<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">FALSE</span>, se_loess <span class="op">=</span> <span class="cn">TRUE</span>, se_linear <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>            span <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-span-1.png" class="r-plt" alt="" width="576">
-If the color aesthetic is mapped to the trendlines with
+<p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-loess-span-1.png" class="r-plt" alt="" width="576"></p>
+<p>If the color aesthetic is mapped to the trendlines with
 <code>col_trend = TRUE</code>, it will also map to the ribbons defining
 the CIs of the trend lines.</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, idv_var <span class="op">=</span> <span class="st">"CONC"</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">plot_data_pd</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="va">CFB</span>, idv_var <span class="op">=</span> <span class="va">CONC</span>, </span>
 <span>            xlab <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change of Baseline)"</span>,</span>
-<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="st">"Dose and Food"</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            cfb <span class="op">=</span> <span class="cn">TRUE</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, col_trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            se_loess <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-se-1.png" class="r-plt" alt="" width="576"></p>
 </div>
@@ -1163,6 +1181,19 @@ estimates</li>
 <li>
 <code>metrics</code> a character vector of NCA parameters to
 evaluate in log-log regression</li>
+</ul>
+<p>Additional optional arguments can be specified if variables containin
+exposure metric names and values differ from defaults. Both arguments
+use non-standard evaluation and can be passed as bare column names or
+strings.</p>
+<ul>
+<li>
+<code>metric_var</code> dataset variable containing exposure metric
+names. Default is <code>PPTESTCD</code>.</li>
+<li>
+<code>exp_var</code> dataset variable containing exposure metric
+values. Default is <code>PPORRES</code>
+</li>
 </ul>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">power_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>

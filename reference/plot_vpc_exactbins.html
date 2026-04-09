@@ -9,7 +9,7 @@ that returns a ggplot2 object."><meta property="og:image" content="https://ryanc
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ that returns a ggplot2 object."><meta property="og:image" content="https://ryanc
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot a visual predictive check (VPC) with exact time bins</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/R/plot_vpc_exactbins.R" class="external-link"><code>R/plot_vpc_exactbins.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_vpc_exactbins.R" class="external-link"><code>R/plot_vpc_exactbins.R</code></a></small>
       <div class="d-none name"><code>plot_vpc_exactbins.Rd</code></div>
     </div>
 
@@ -56,7 +56,7 @@ that returns a <code>ggplot2</code> object.</p>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, SIMDV <span class="op">=</span> <span class="st">"SIMDV"</span>, OBSDV <span class="op">=</span> <span class="st">"OBSDV"</span><span class="op">)</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
+<span>  irep_name <span class="op">=</span> <span class="va">SIM</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -96,12 +96,12 @@ of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vp
 
 
 <dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
-<dd><p>Character string of stratification variable passed to <code>stratify</code> argument
-of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Currently, only a single stratifying variable is supported.</p></dd>
+<dd><p>Stratification variable passed to <code>stratify</code> argument
+of <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code>. Accepts bare names or strings. Currently, only a single stratifying variable is supported.</p></dd>
 
 
 <dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
-<dd><p>Name of replicate variable in <code>data</code>. Must be a string. Default is <code>"SIM"</code>.</p></dd>
+<dd><p>Name of replicate variable in <code>data</code>. Accepts bare names or strings. Default is <code>SIM</code>.</p></dd>
 
 
 <dt id="arg-min-bin-count">min_bin_count<a class="anchor" aria-label="anchor" href="#arg-min-bin-count"></a></dt>
@@ -164,10 +164,10 @@ Options include:</p><ul><li><p>"hours" (default)</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
 <span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span></span>
+<span class="r-in"><span>dv_var <span class="op">=</span> <span class="va">ODV</span>,</span></span>
 <span class="r-in"><span>num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"NTIME"</span>, <span class="st">"LLOQ"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>irep_name <span class="op">=</span> <span class="st">"SIM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>irep_name <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">vpc_plot</span> <span class="op">&lt;-</span> <span class="fu">plot_vpc_exactbins</span><span class="op">(</span></span></span>
 <span class="r-in"><span>sim <span class="op">=</span> <span class="va">simout</span>,</span></span>

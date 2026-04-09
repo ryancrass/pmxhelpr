@@ -198,8 +198,9 @@ We can pass `data_sad` and `model` from the previous steps to the `data`
 and `model` arguments, respectively, and run the simulation for 100
 `replicates`. The names of actual and nominal time variables in
 `data_sad` match the default arguments; however, our dependent variable
-is named `"ODV"`, which must be specified in the `dv_var` argument,
-since it differs from the default (`"DV"`).
+is named `ODV`, which must be specified in the `dv_var` argument, since
+it differs from the default (`DV`). This argument uses non-standard
+evaluation and can be passed as a bare column name or as astrings.
 
 We would like to recover the numerical variables `"DOSE"` and `"FOOD"`
 and the character variable `"PART"` from the input dataset, as we may
@@ -215,7 +216,7 @@ dose records from the simulation output and reduce file size.
 simout <- df_mrgsim_replicate(data = data_sad, 
                      model = model, 
                      replicates = 100, 
-                     dv_var = "ODV",
+                     dv_var = ODV,
                      time_vars = c(TIME = "TIME", NTIME = "NTIME"),
                      output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
@@ -672,7 +673,7 @@ does not produce binning consistent with the exact bins in our dataset.
 
 ``` r
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad, bin_var = NTIME)
 #> # A tibble: 19 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>

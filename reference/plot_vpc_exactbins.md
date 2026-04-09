@@ -14,7 +14,7 @@ plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   loq = NULL,
   strat_var = NULL,
-  irep_name = "SIM",
+  irep_name = SIM,
   min_bin_count = 1,
   show_rep = TRUE,
   lower_bound = 0,
@@ -55,14 +55,15 @@ plot_vpc_exactbins(
 
 - strat_var:
 
-  Character string of stratification variable passed to `stratify`
-  argument of [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
-  Currently, only a single stratifying variable is supported.
+  Stratification variable passed to `stratify` argument of
+  [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html). Accepts bare
+  names or strings. Currently, only a single stratifying variable is
+  supported.
 
 - irep_name:
 
-  Name of replicate variable in `data`. Must be a string. Default is
-  `"SIM"`.
+  Name of replicate variable in `data`. Accepts bare names or strings.
+  Default is `SIM`.
 
 - min_bin_count:
 
@@ -145,10 +146,10 @@ ggplot2 object (default)
 model <- model_mread_load(model = "model")
 #> Loading model from cache.
 simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
-dv_var = "ODV",
+dv_var = ODV,
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
-irep_name = "SIM")
+irep_name = SIM)
 
 vpc_plot <- plot_vpc_exactbins(
 sim = simout,

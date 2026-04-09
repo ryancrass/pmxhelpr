@@ -9,7 +9,7 @@ that returns a data.frame containing replicates iterations of data"><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ that returns a data.frame containing replicates iterations of data"><meta proper
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Execute a visual predictive check (VPC) simulation using <code>mrgsolve</code></h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/R/df_mrgsim_replicate.R" class="external-link"><code>R/df_mrgsim_replicate.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/df_mrgsim_replicate.R" class="external-link"><code>R/df_mrgsim_replicate.R</code></a></small>
       <div class="d-none name"><code>df_mrgsim_replicate.Rd</code></div>
     </div>
 
@@ -53,12 +53,12 @@ that returns a data.frame containing <code>replicates</code> iterations of <code
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">model</span>,</span>
 <span>  <span class="va">replicates</span>,</span>
-<span>  dv_var <span class="op">=</span> <span class="st">"DV"</span>,</span>
+<span>  dv_var <span class="op">=</span> <span class="va">DV</span>,</span>
 <span>  time_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>TIME <span class="op">=</span> <span class="st">"TIME"</span>, NTIME <span class="op">=</span> <span class="st">"NTIME"</span><span class="op">)</span>,</span>
 <span>  output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, IPRED <span class="op">=</span> <span class="st">"IPRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  num_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  char_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
+<span>  irep_name <span class="op">=</span> <span class="va">SIM</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123456789</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -82,7 +82,7 @@ other arguments.</p></dd>
 
 
 <dt id="arg-dv-var">dv_var<a class="anchor" aria-label="anchor" href="#arg-dv-var"></a></dt>
-<dd><p>Character name of the DV variable in <code>data</code>.</p></dd>
+<dd><p>Column containing the DV variable in <code>data</code>. Accepts bare names or strings.</p></dd>
 
 
 <dt id="arg-time-vars">time_vars<a class="anchor" aria-label="anchor" href="#arg-time-vars"></a></dt>
@@ -108,7 +108,7 @@ and return in output.</p></dd>
 
 
 <dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
-<dd><p>Name of replicate variable in <code>data</code>. Must be a string. Default is <code>"SIM"</code>.</p></dd>
+<dd><p>Name of replicate variable in <code>data</code>. Accepts bare names or strings. Default is <code>SIM</code>.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -130,10 +130,10 @@ and the output variables in <code>output_vars</code>, <code>num_vars</code>, and
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
 <span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu">df_mrgsim_replicate</span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span></span>
+<span class="r-in"><span>dv_var <span class="op">=</span> <span class="va">ODV</span>,</span></span>
 <span class="r-in"><span>num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>irep_name <span class="op">=</span> <span class="st">"SIM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>irep_name <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

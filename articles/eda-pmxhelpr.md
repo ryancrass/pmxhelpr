@@ -168,10 +168,14 @@ exploratory analysis.
 The helper function `df_addn` takes an input dataset `data` and returns
 a dataset with the variable specified in `grp_var` transformed to a
 factor including the count of unique values of the identifier variable
-specified in `id_var` (default `"ID"`). A string constant separator can
-be added between the values in `grp_var` and the count of `id_var` using
-`sep`. A common use is to specify the dose units when linking dose and
-count of unique individuals receiving that dose.
+specified in `id_var` (default `ID`). Both arguments use non-standard
+evaluation and can be passed as bare column names or strings, as shown
+below.
+
+A string constant separator can be added between the values in `grp_var`
+and the count of `id_var` using `sep`. A common use is to specify the
+dose units when linking dose and count of unique individuals receiving
+that dose.
 
 ``` r
 plot_data_pk <- data_sad %>% 
@@ -179,8 +183,8 @@ plot_data_pk <- data_sad %>%
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          `Dose and Food` = paste(DOSE, "mg", `Food Status`),
          Dose = DOSE) %>% 
-  df_addn(grp_var = "Dose", sep = "mg") %>% 
-  df_addn(grp_var = "Dose and Food")
+  df_addn(grp_var = Dose, sep = "mg") %>% 
+  df_addn(grp_var = `Dose and Food`)
 
 plot_data_pd <- data_sad_pd %>% 
   filter(EVID == 0) %>% 
@@ -240,12 +244,13 @@ plot_dvtime(plot_data_pk)
 
 Hmm…that didn’t work. Hmm…well checking `?plot_dvtime()` it seems that
 the argument `dv_var` specifies the dependent variable in the dataset
-and the default is `"DV"`. Since `data_sad` has the original units of
-the dependent variable as `ODV`, this name must be passed to the
-function.
+and the default is `DV`. This argument uses non-standard evaluation and
+can be passed as a bare column names or as a string. Since `data_sad`
+has the original units of the dependent variable as `ODV`, this name
+must be passed to the function.
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV")
+plot_dvtime(plot_data_pk, dv_var = ODV)
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-pass-1.png) Hey a plot!
@@ -255,7 +260,7 @@ prints by default describing the plot elements. The caption can be
 removed by specifying `show_caption = FALSE`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", show_caption = FALSE) 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, show_caption = FALSE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-nocap-1.png)
@@ -284,7 +289,7 @@ caption will delineate where arithmetic and geometric means are being
 returned.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", log_y = TRUE) 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-logy-1.png)
@@ -295,10 +300,11 @@ The names of the actual and nominal time variables can be passed as a
 named character vector with default
 `time_vars=c(TIME=TIME", NTIME="NTIME")`. These elements of the argument
 may be specified one at a time, as in the example below showing all
-nominal values, or both together.
+nominal values, or both together. The `time_vars` argument does *NOT*
+use non-standard evaluation and must passed as a named character vector.
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", time_vars = c(TIME = "NTIME"))
+plot_dvtime(plot_data_pk, dv_var = ODV, time_vars = c(TIME = "NTIME"))
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-nom-1.png)
@@ -343,7 +349,7 @@ The default `n_breaks = 8` is a good value for `data_sad`, and
 specification of the `n_breaks` and `timeu` arguments is not required.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV") 
+plot_dvtime(data = plot_data_pk, dv_var = ODV) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-1.png) However,
@@ -356,7 +362,7 @@ plot_data_pk_days <- plot_data_pk %>%
   mutate(TIME = TIME/24, 
          NTIME = NTIME/24)
 
-plot_dvtime(data = plot_data_pk_days, dv_var = "ODV", timeu = "days") 
+plot_dvtime(data = plot_data_pk_days, dv_var = ODV, timeu = "days") 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-days-1.png)
@@ -380,11 +386,12 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 ### Color Aesthetic and Central Trendency
 
 The color aesthetic can be mapped to a dataset variable using the the
-`col_var` argument. Let’s use a variable we defined earlier using
-`df_addn` to list unique study conditions.
+`col_var` argument. This argument uses non-standard evaluation and can
+be passed as a bare column name or as a string. Let’s use a variable we
+defined earlier using `df_addn` to list unique study conditions.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", log_y = TRUE, col_var = "Dose and Food", )
+plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE, col_var = `Dose and Food`)
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-col-1.png) The argument
@@ -398,19 +405,19 @@ caption will automatically delineate where arithmetic and geometric
 means are being returned.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean", 
             ylab = "Concentration (ng/mL)") 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-part-log-1.png)
 
-It looks like coadministration with food may impact the absorption
+It looks like co-administration with food may impact the absorption
 profile. Luckily, `plot_dvtime` returns a `ggplot` object which we can
 modify like any other `ggplot`! Therefore, we can facet by PART by
 simply adding in another layer to our `ggplot` object.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean", 
             ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
@@ -423,7 +430,7 @@ the mean with error bars and remove the observed points by specifying
 `obs_dv = FALSE`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE) +
   facet_wrap(~PART)
@@ -436,7 +443,7 @@ the arithmetic mean +/- arithmetic SD on the linear scale. This can be
 accomplished by changing the `cent` argument to `mean_sdl_upper`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl_upper", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean_sdl_upper", 
             ylab = "Concentration (ng/mL)", obs_dv = FALSE) +
   facet_wrap(~PART)
 ```
@@ -449,7 +456,7 @@ statistics. This can be accomplished by changing the `cent` argument to
 `median_iqr`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "median_iqr", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "median_iqr", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE) +
   facet_wrap(~PART)
@@ -469,15 +476,16 @@ will be connected by a narrow line when `grp_dv = TRUE`. The default is
 `grp_var = "ID"`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "median", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "median", 
             ylab = "Concentration (ng/mL)", log_y = TRUE, 
             grp_dv = TRUE) +
   facet_wrap(~PART)
 ```
 
-![](eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png) It does
-not seem like there are outlier individuals driving the noise in the
-late terminal phase; therefore, this is almost certainly artifact
+![](eda-pmxhelpr_files/figure-html/plot-dvtime-part-ind-1.png)
+
+It does not seem like there are outlier individuals driving the noise in
+the late terminal phase; therefore, this is almost certainly artifact
 introduced by data missing due to assay sensitivity and censoring at the
 lower limit of quantification (LLOQ).
 
@@ -504,7 +512,7 @@ is a variable in `plot_data`, so we do not need to specify the `loq`
 argument (default is `loq = NULL`).
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean",
+plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             loq_method = 2) +
   facet_wrap(~PART)
@@ -514,7 +522,7 @@ plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mea
 is obtained by specifying `loq = 1`
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean",
+plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
             ylab = "Concentration (ng/mL)",  log_y = TRUE,
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
@@ -539,7 +547,7 @@ We can also generate dose-normalized concentration-time plots by
 specifying `dosenorm = TRUE`.
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean",
+plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -548,13 +556,14 @@ plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mea
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-dn-1.png)
 
 When `dosenorm = TRUE`, the variable specified in `dose_var` (default =
-“DOSE”) needs to be present in the input dataset `data`. If `dose_var`
-is not present in `data`, the function will return an *Error* with an
-informative error message.
+DOSE) needs to be present in the input dataset `data`. If `dose_var` is
+not present in `data`, the function will return an *Error* with an
+informative error message. This argument uses non-standard evaluation
+and can be passed as a bare column name or as a string.
 
 ``` r
 plot_dvtime(select(plot_data_pk, -DOSE), 
-            dv_var = "ODV", col_var = "Dose and Food", cent = "mean",
+            dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -568,7 +577,7 @@ not be plotted when dose-normalized concentration is the dependent
 variable.
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean",
+plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
             ylab = "Dose-normalized Conc. (ng/mL per mg Drug)", log_y = TRUE,
             loq_method = 2, dosenorm = TRUE) +
   facet_wrap(~PART)
@@ -647,7 +656,7 @@ reduce the size of the mean summary points to only visualize the lines.
 This can be accomplished for an individual plot as follows:
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE, 
             theme = list(linewidth_errorbar = 0.5, size_point_cent = 0.1)) +
@@ -664,7 +673,7 @@ modified theme.
 ``` r
 new_theme <- plot_dvtime_theme(list(linewidth_errorbar = 0.5, size_point_cent = 0.1))
 
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE, 
             theme = new_theme) +
@@ -679,7 +688,7 @@ dataset. This can be overwritten to a user-specified value using the
 to the `width` argument of `geom_errorbar`.
 
 ``` r
-plot_dvtime(data = plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "mean_sdl", 
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean_sdl", 
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             obs_dv = FALSE, 
             theme = list(width_errorbar = 8)) +
@@ -699,7 +708,7 @@ We can specify `cent = "none"` to remove the central tendency layer when
 plotting individual subject data.
 
 ``` r
-plot_dvtime(plot_data_pk, dv_var = "ODV", col_var = "Dose and Food", cent = "none",
+plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "none",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             grp_dv = TRUE,
             loq_method = 2, loq = 1) +
@@ -723,7 +732,7 @@ n_pgs <- ceiling(n_ids/plots_per_pg) #Total number of pages needed
 plist<- list()
 for(i in 1:n_ids){
   plist[[i]] <- plot_dvtime(filter(plot_data_pk, ID == ids[i]), 
-                               dv_var = "ODV", cent = "none",
+                               dv_var = ODV, cent = "none",
             ylab = "Concentration (ng/mL)", log_y = TRUE,
             grp_dv = TRUE,
             loq_method = 2, loq = 1, show_caption = FALSE) +
@@ -791,7 +800,8 @@ PK/PD dataset to the compartment with the biomarker observations
 (`CMT=3`).
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", col_var = "Dose and Food", ylab = "Response") 
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, col_var = `Dose and Food`, 
+            ylab = "Response") 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-pd-1.png)
@@ -802,7 +812,8 @@ of the reference line can be modified by specifying a y-intercept value
 using the argument`cfb_base`.
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "ODV", col_var = "Dose and Food", ylab = "Response", 
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, 
+            col_var = `Dose and Food`, ylab = "Response", 
             cfb = TRUE, cfb_base = 100) 
 ```
 
@@ -814,7 +825,8 @@ of the reference line can be modified by specifying a y-intercept value
 using the argument`cfb_base`.
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", col_var = "Dose and Food", ylab = "Response", 
+plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, 
+            col_var = `Dose and Food`, ylab = "Response", 
             cfb=TRUE)
 ```
 
@@ -830,19 +842,22 @@ the following arguments to specify elements of the panels:
 
 - `dv_var1` and `dv_var2` arguments to specify the dependent variable
   (y-axis) to plot in the top (1) and bottom (2) panels. The default is
-  `"DV".`
+  `DV` .
 - `dvid_var` argument to specify the variable that contains the
   identifiers for each dependent variable to be plotted. The default is
-  `"CMT"`.
+  `CMT`.
 - `dvid_val1` and `dvid_val2` arguments to specify the values of the
   variable in `dvid_var` to identify the dependent variables to plot in
   the top (1) and bottom (2) panel. The defaults are `2` and `3`,
   respectively.
 
+Both `dv_var1` and `dv_var2` arguments use non-standard evaluation and
+can be passed as bare column names or strings.
+
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV",dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose and Food")
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV,dv_var2 = ODV,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = `Dose and Food`)
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-dual-col-1.png)
@@ -860,9 +875,9 @@ transformations:
   transformed to a log scale. Default is `FALSE`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose and Food",
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = `Dose and Food`,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
 ```
 
@@ -874,9 +889,9 @@ Thus, BLQ imputation and dose-normalization options specified using the
 standard arguments to `plot_dvtime` are only applied to the top panel.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose and Food", loq_method = 2, dosenorm = T,dose_var = "DOSE",
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = `Dose and Food`, loq_method = 2, dosenorm = T,dose_var = DOSE,
                  log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
 ```
 
@@ -887,9 +902,9 @@ response (PD), a reference line at y=`cfb_base` is only added to the
 bottom panel when `cfb=TRUE`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "ODV",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", cfb=TRUE, cfb_base = 100,
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = Dose, cfb=TRUE, cfb_base = 100,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Baseline)") 
 ```
 
@@ -902,9 +917,9 @@ use change from baseline as the dependent variable for the PD panel but
 updating the variable passed to `dv_var2`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "CFB",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", cfb=TRUE, 
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = Dose, cfb=TRUE, 
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)") 
 ```
 
@@ -917,10 +932,10 @@ turn the caption off in the top panel and print a single caption under
 the bottom panel to represent both panels in the plot.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = "ODV", dv_var2 = "CFB",
-                 dvid_var = "CMT", dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = "Dose", cfb=TRUE, 
-                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)", 
+plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
+                 col_var = Dose, cfb=TRUE, 
+                 log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)",
                  show_caption1 = FALSE, show_caption2 = TRUE) 
 ```
 
@@ -939,12 +954,15 @@ variable for response and drug concentration.
 variables to be plotted:
 
 - `dv_var`: character string specifying the dependent variable to map to
-  the y-axis. Default is `"DV"`.
+  the y-axis. Default is `DV`.
 - `idv_var`: character string specifying the dependent variable to map
-  to the y-axis. Default is `"CONC"`.
+  to the y-axis. Default is `CONC`.
+
+Both arguments use non-standard evaluation and can be passed as bare
+column names or strings.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "ODV", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = ODV, idv_var = CONC, 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% of Baseline)") 
 ```
 
@@ -954,7 +972,7 @@ Like `plot_dvtime`, we can specify a reference line using `cfb = TRUE`,
 which is plotted at `cfb_base` (default = 0).
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = CFB, idv_var = CONC, 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
             cfb = TRUE) 
 ```
@@ -964,16 +982,17 @@ plot_dvconc(data = filter(plot_data_pd, CMT==3), dv_var = "CFB", idv_var = "CONC
 ### Color Aesthetic
 
 `plot_dvconc` includes two arguments for controlling the color
-aesthetic, `col_var` and `col_trend`. If a variable is passed as a
-string to the `col_var` argument, the data points are colored based on
-this variable; however, by default `col_trend = FALSE` and the trend
-line is fit to the totality of the data without stratifying the trend
-lines by the variable mapped to the color aesthetic.
+aesthetic, `col_var` and `col_trend`. If a variable is passed to the
+`col_var` argument, the data points are colored based on this variable;
+however, by default `col_trend = FALSE` and the trend line is fit to the
+totality of the data without stratifying the trend lines by the variable
+mapped to the color aesthetic. The `col_var` argument uses non-standard
+evaluation and can be passed as a bare column name or as a string.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC, 
             cfb = TRUE, xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from of Baseline)", 
-            col_var = "Dose and Food", col_trend = FALSE) 
+            col_var = `Dose and Food`, col_trend = FALSE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-col-1.png)
@@ -982,9 +1001,9 @@ Trend lines stratified by the variable mapped to the color aesthetic are
 requested by setting `col_trend = TRUE`.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC, 
            cfb = TRUE,  xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from  Baseline)", 
-            col_var = "Dose and Food", col_trend = TRUE) 
+           col_var = `Dose and Food`, col_trend = TRUE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-1.png)
@@ -998,9 +1017,9 @@ arguments `loess` and `linear`. The default is `loess = TRUE` and
 `linear = FALSE`
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC, 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)", 
-            cfb = TRUE,  col_var = "Dose and Food", col_trend = FALSE, loess = TRUE, linear = TRUE) 
+            cfb = TRUE,  col_var = `Dose and Food`, col_trend = FALSE, loess = TRUE, linear = TRUE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-col-trend-loess-linear-1.png)
@@ -1010,32 +1029,35 @@ observed data points simultaneously. Confidence intervals can be added
 to the plot using the logical arguments `se_loess` and `se_linear`.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC, 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)",
-            cfb = TRUE, col_var = "Dose and Food", col_trend = FALSE, 
+            cfb = TRUE, col_var = `Dose and Food`, col_trend = FALSE, 
             loess = TRUE, linear = TRUE, se_loess = TRUE, se_linear = TRUE) 
 ```
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvconc-loess-linear-se-1.png)
+
 Additional arguments can be passed to `geom_smooth(method = "loess")`,
 such as increasing the span of the smoothing fit.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC",
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC,
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change from Baseline)",
-            cfb = TRUE, col_var = "Dose and Food", col_trend = FALSE, 
+            cfb = TRUE, col_var = `Dose and Food`, col_trend = FALSE, 
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE, 
             span = 1) 
 ```
 
-![](eda-pmxhelpr_files/figure-html/plot-dvconc-loess-span-1.png) If the
-color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it
-will also map to the ribbons defining the CIs of the trend lines.
+![](eda-pmxhelpr_files/figure-html/plot-dvconc-loess-span-1.png)
+
+If the color aesthetic is mapped to the trendlines with
+`col_trend = TRUE`, it will also map to the ribbons defining the CIs of
+the trend lines.
 
 ``` r
-plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = "CFB", idv_var = "CONC", 
+plot_dvconc(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, idv_var = CONC, 
             xlab = "Drug Conc. (ng/mL)", ylab = "Response (% Change of Baseline)",
-            cfb = TRUE, col_var = "Dose and Food", col_trend = TRUE,
+            cfb = TRUE, col_var = `Dose and Food`, col_trend = TRUE,
             se_loess = TRUE) 
 ```
 
@@ -1208,6 +1230,16 @@ There are two required arguments to `df_doseprop`.
 - `data` a `data.frame` containing NCA parameter estimates
 - `metrics` a character vector of NCA parameters to evaluate in log-log
   regression
+
+Additional optional arguments can be specified if variables containin
+exposure metric names and values differ from defaults. Both arguments
+use non-standard evaluation and can be passed as bare column names or
+strings.
+
+- `metric_var` dataset variable containing exposure metric names.
+  Default is `PPTESTCD`.
+- `exp_var` dataset variable containing exposure metric values. Default
+  is `PPORRES`
 
 ``` r
 power_table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))

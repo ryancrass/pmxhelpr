@@ -75,10 +75,6 @@ a ggplot2 object
 
 ``` r
 plot_vpclegend()
-#> Warning: Arguments in `...` must be used.
-#> ✖ Problematic argument:
-#> • na.rm = TRUE
-#> ℹ Did you misspell an argument name?
 #> Warning: Ignoring empty aesthetic: `linewidth`.
 #> Warning: Ignoring empty aesthetic: `linewidth`.
 
@@ -89,10 +85,6 @@ ci = c(0.025, 0.925),
  pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
  obs_median = TRUE,
  sim_median =FALSE, sim_median_ci = TRUE))
-#> Warning: Arguments in `...` must be used.
-#> ✖ Problematic argument:
-#> • na.rm = TRUE
-#> ℹ Did you misspell an argument name?
 #> Warning: Ignoring empty aesthetic: `linewidth`.
 #> Warning: Ignoring empty aesthetic: `linewidth`.
 ```

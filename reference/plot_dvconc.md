@@ -7,8 +7,8 @@ Plot a dependent variable versus concentration
 ``` r
 plot_dvconc(
   data,
-  dv_var = "DV",
-  idv_var = "CONC",
+  dv_var = DV,
+  idv_var = CONC,
   col_var = NULL,
   col_trend = FALSE,
   loess = TRUE,
@@ -35,16 +35,18 @@ plot_dvconc(
 
 - dv_var:
 
-  Character name of the DV variable in `data`.
+  Column containing the DV variable in `data`. Accepts bare names or
+  strings.
 
 - idv_var:
 
-  Independent variable. Default is `"CONC"`.
+  Independent variable column. Accepts bare names or strings. Default is
+  `CONC`.
 
 - col_var:
 
-  Character string of the name of the variable to map to the color
-  aesthetic.
+  Column to map to the color aesthetic. Accepts bare names or strings.
+  Default is `NULL`.
 
 - col_trend:
 
@@ -121,9 +123,9 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
+data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 #> Joining with `by = join_by(Dose)`
-plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose", col_trend = FALSE)
+plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #> `geom_smooth()` using formula = 'y ~ x'
 #> Warning: Removed 720 rows containing non-finite outside the scale range
 #> (`stat_smooth()`).

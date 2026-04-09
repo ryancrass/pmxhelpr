@@ -106,7 +106,7 @@ and output variables:
   - Default is: c(`PRED`= `"PRED"`, `IPRED` = `"IPRED"`, `DV`= `"DV"`).
 
 The example dataset `data_sad_pkfit` only differs from these defaults in
-the variable nname for the dependenrt variable, `"ODV"`. Thus, the most
+the variable name for the dependent variable, `"ODV"`. Thus, the most
 basic population GOF plot can be obtained with:
 
 ``` r
@@ -123,7 +123,7 @@ dose-normalizing and stratifying by study part to separate out the fast
 and food effect portions:
 
 ``` r
-plot_popgof(data = plot_data, output_vars = c(DV ="ODV"), dosenorm = TRUE, 
+plot_popgof(data = plot_data, output_vars = c(DV = "ODV"), dosenorm = TRUE, 
             ylab = "Dose-normalized Conc. (ng/mL)") +
   facet_wrap(~PART)
 ```
@@ -142,7 +142,7 @@ plot_popgof(data = plot_data, output_vars = c(DV ="ODV"),
 
 ![](diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-1.png)
 
-*NOTE* `plot_popgof` plot aesthetic functionality from `plot_dvtime`.
+*NOTE* `plot_popgof` ports aesthetic functionality from `plot_dvtime`.
 
 This vignette will assume familiarity with the Exploratory Data Analysis
 Vignette and `plot_dvtime`. The arguments and functionality inherited

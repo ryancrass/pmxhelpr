@@ -5,7 +5,7 @@ Perform a log-log Regression
 ## Usage
 
 ``` r
-mod_loglog(data, exp_var = "PPORRES", dose_var = "DOSE")
+mod_loglog(data, exp_var = PPORRES, dose_var = DOSE)
 ```
 
 ## Arguments
@@ -19,13 +19,13 @@ mod_loglog(data, exp_var = "PPORRES", dose_var = "DOSE")
 
 - exp_var:
 
-  Character string specifying the variable in `data` containing the
-  exposure metric (dependent variable) Default is "PPORRES".
+  Column in `data` containing the exposure metric (dependent variable).
+  Accepts bare names or strings. Default is `PPORRES`.
 
 - dose_var:
 
-  Character string specifying the variable in `data` containing the dose
-  (independent variable) Default is "DOSE".
+  Column in `data` containing the dose (independent variable). Accepts
+  bare names or strings. Default is `DOSE`.
 
 ## Value
 

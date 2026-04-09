@@ -73,7 +73,7 @@ Now let’s plot the data using `ODV` colored by `Dose (mg)` and faceted
 by `PART`.
 
 ``` r
-plot_dvtime(plot_data, dv_var = "ODV", col_var = "Dose (mg)",  
+plot_dvtime(plot_data, dv_var = ODV, col_var = `Dose (mg)`,  
             ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
@@ -91,7 +91,7 @@ due to censoring of observations below the LLOQ, which impacts lower
 doses more than higher doses.
 
 ``` r
-plot_dvtime(plot_data, dv_var =  "ODV", col_var = "Dose (mg)", loq_method = 2, 
+plot_dvtime(plot_data, dv_var =  ODV, col_var = `Dose (mg)`, loq_method = 2, 
             ylab = "Concentration (ng/mL)", log_y = TRUE) +
   facet_wrap(~PART)
 ```
@@ -230,7 +230,7 @@ model <- model_mread_load("model")
 #> Building model_cpp ... done.
 
 simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100, 
-                     dv_var = "ODV",
+                     dv_var = ODV,
                      time_vars = c(TIME = "TIME", NTIME = "NTIME"),
                      output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),

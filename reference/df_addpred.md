@@ -9,7 +9,7 @@ that returns a data.frame with the addition of a new variable (`PRED`).
 ## Usage
 
 ``` r
-df_addpred(data, model, output_var = "IPRED", ...)
+df_addpred(data, model, output_var = IPRED, ...)
 ```
 
 ## Arguments
@@ -27,7 +27,7 @@ df_addpred(data, model, output_var = "IPRED", ...)
   Name of output from `model` to be captured as `PRED` after removing
   random effects with
   [`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html).
-  Default is `"IPRED"`.
+  Accepts bare names or strings. Default is `IPRED`.
 
 - ...:
 

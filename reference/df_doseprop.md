@@ -8,9 +8,9 @@ Compute and tabulate estimates for log-log regression
 df_doseprop(
   data,
   metrics,
-  metric_var = "PPTESTCD",
-  exp_var = "PPORRES",
-  dose_var = "DOSE",
+  metric_var = PPTESTCD,
+  exp_var = PPORRES,
+  dose_var = DOSE,
   method = "normal",
   ci = 0.9,
   sigdigits = 3
@@ -32,18 +32,18 @@ df_doseprop(
 
 - metric_var:
 
-  character string of variable in `data` containing the values provided
-  in `metrics`. Default is "PPTESTCD".
+  Column in `data` containing the values provided in `metrics`. Accepts
+  bare names or strings. Default is `PPTESTCD`.
 
 - exp_var:
 
-  Character string specifying the variable in `data` containing the
-  exposure metric (dependent variable) Default is "PPORRES".
+  Column in `data` containing the exposure metric (dependent variable).
+  Accepts bare names or strings. Default is `PPORRES`.
 
 - dose_var:
 
-  Character string specifying the variable in `data` containing the dose
-  (independent variable) Default is "DOSE".
+  Column in `data` containing the dose (independent variable). Accepts
+  bare names or strings. Default is `DOSE`.
 
 - method:
 

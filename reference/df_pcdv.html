@@ -9,7 +9,7 @@ of observed or simulated depedent variables."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ of observed or simulated depedent variables."><meta property="og:image" content=
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Perform prediction-correction of the dependent variable</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/R/plot_vpc_exactbins.R" class="external-link"><code>R/plot_vpc_exactbins.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_vpc_exactbins.R" class="external-link"><code>R/plot_vpc_exactbins.R</code></a></small>
       <div class="d-none name"><code>df_pcdv.Rd</code></div>
     </div>
 
@@ -51,7 +51,7 @@ of observed or simulated depedent variables.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">df_pcdv</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  bin_var <span class="op">=</span> <span class="st">"NTIME"</span>,</span>
+<span>  bin_var <span class="op">=</span> <span class="va">NTIME</span>,</span>
 <span>  strat_vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dvpred_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>PRED <span class="op">=</span> <span class="st">"PRED"</span>, DV <span class="op">=</span> <span class="st">"DV"</span><span class="op">)</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span></span>
@@ -67,7 +67,7 @@ of observed or simulated depedent variables.</p>
 
 
 <dt id="arg-bin-var">bin_var<a class="anchor" aria-label="anchor" href="#arg-bin-var"></a></dt>
-<dd><p>Exact binning variable. Default is <code>"NTIME"</code>.</p></dd>
+<dd><p>Exact binning variable. Accepts bare names or strings. Default is <code>NTIME</code>.</p></dd>
 
 
 <dt id="arg-strat-vars">strat_vars<a class="anchor" aria-label="anchor" href="#arg-strat-vars"></a></dt>

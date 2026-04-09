@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Standard Model Diagnostics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.8/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>diagnostics-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -182,7 +182,7 @@ input (observations) and output (model prediction) variables.
 </li>
 </ul>
 <p>The example dataset <code>data_sad_pkfit</code> only differs from
-these defaults in the variable nname for the dependenrt variable,
+these defaults in the variable name for the dependent variable,
 <code>"ODV"</code>. Thus, the most basic population GOF plot can be
 obtained with:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -195,7 +195,7 @@ diagnostic. A better minimal plot representation of these data can be
 obtained by dose-normalizing and stratifying by study part to separate
 out the fast and food effect portions:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span> <span class="st">"ODV"</span><span class="op">)</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
 <p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dn-1.png" class="r-plt" alt="" width="576"></p>
@@ -208,7 +208,7 @@ condition.</p>
 <span>            ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="diagnostics-pmxhelpr_files/figure-html/plot-popgof-dosegrp-1.png" class="r-plt" alt="" width="576"></p>
-<p><em>NOTE</em> <code>plot_popgof</code> plot aesthetic functionality
+<p><em>NOTE</em> <code>plot_popgof</code> ports aesthetic functionality
 from <code>plot_dvtime</code>.</p>
 <p>This vignette will assume familiarity with the Exploratory Data
 Analysis Vignette and <code>plot_dvtime</code>. The arguments and

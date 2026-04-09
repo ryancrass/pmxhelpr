@@ -10,8 +10,8 @@ plot_popgof(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
   output_colors = c(PRED = "red", IPRED = "green", DV = "blue", OBS = "darkgrey"),
   timeu = "hours",
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -56,10 +56,10 @@ Options include:
 \item "months"
 }}
 
-\item{grp_var}{Character string of the variable to map to the group aesthetic. Default is \code{"ID"}}
+\item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
 
-\item{dose_var}{Character string of the variable to use in dosenormalization when \code{dosenorm} = TRUE.
-Default is \code{"DOSE"}.}
+\item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
+Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}

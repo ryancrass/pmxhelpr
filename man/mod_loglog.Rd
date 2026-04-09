@@ -4,17 +4,17 @@
 \alias{mod_loglog}
 \title{Perform a log-log Regression}
 \usage{
-mod_loglog(data, exp_var = "PPORRES", dose_var = "DOSE")
+mod_loglog(data, exp_var = PPORRES, dose_var = DOSE)
 }
 \arguments{
 \item{data}{Input dataset for log-log regression.
 Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP formatting)}
 
-\item{exp_var}{Character string specifying the variable in \code{data} containing the exposure metric (dependent variable)
-Default is "PPORRES".}
+\item{exp_var}{Column in \code{data} containing the exposure metric (dependent variable).
+Accepts bare names or strings. Default is \code{PPORRES}.}
 
-\item{dose_var}{Character string specifying the variable in \code{data} containing the dose (independent variable)
-Default is "DOSE".}
+\item{dose_var}{Column in \code{data} containing the dose (independent variable).
+Accepts bare names or strings. Default is \code{DOSE}.}
 }
 \value{
 \code{lm} object

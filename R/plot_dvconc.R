@@ -1,7 +1,7 @@
 #' Plot a dependent variable versus concentration
 #'
 #' @param data Input dataset.
-#' @param idv_var Independent variable. Default is `"CONC"`.
+#' @param idv_var Independent variable column. Accepts bare names or strings. Default is `CONC`.
 #' @param col_trend Logical indicating if the variable specified in `col_var` should be used to stratify trend lines
 #' @param loess Logical indicating if a loess smoother fit should be shown. Default is `TRUE`
 #' @param se_loess Logical indicating if the standard error should be shown for the loess fit. Default is `FALSE`
@@ -22,13 +22,13 @@
 #' @export plot_dvconc
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
-#'plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose", col_trend = FALSE)
+#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+#'plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #'
 
 plot_dvconc <- function(data,
-                        dv_var = "DV",
-                        idv_var = "CONC",
+                        dv_var = DV,
+                        idv_var = CONC,
                         col_var = NULL,
                         col_trend = FALSE,
                         loess = TRUE,
@@ -45,19 +45,22 @@ plot_dvconc <- function(data,
                         theme = NULL,
                         ...){
 
+  dv_var_str  <- rlang::as_name(rlang::ensym(dv_var))
+  idv_var_str <- rlang::as_name(rlang::ensym(idv_var))
+  col_var_str <- capture_col(rlang::enquo(col_var))
 
   #Checks
   check_df(data)
-  check_varsindf(data, dv_var)
-  check_varsindf(data, idv_var)
-  check_varsindf(data, col_var)
-  if(!is.null(col_var)) {check_factor(data, col_var)}
+  check_varsindf(data, dv_var_str)
+  check_varsindf(data, idv_var_str)
+  check_varsindf(data, col_var_str)
+  if(!is.null(col_var_str)) {check_factor(data, col_var_str)}
 
   ##Handle DV and IDV Variables
-  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var, IDV = idv_var)))
+  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))
 
   ##Coerce Color Variable to a Factor
-  if(!is.null(col_var)){data[[col_var]] <- factor(data[[col_var]])}
+  if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   #Determine Caption
   caption <- dvconc_caption(cfb, loess, linear, se_loess, se_linear)
@@ -73,7 +76,7 @@ plot_dvconc <- function(data,
     plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV))
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV,
-                                               color = !!dplyr::sym(col_var), group = !!dplyr::sym(col_var)))
+                                               color = !!rlang::sym(col_var_str), group = !!rlang::sym(col_var_str)))
   }
 
   plot <- plot +
@@ -107,8 +110,8 @@ plot_dvconc <- function(data,
                                                            alpha = plottheme$alpha_se_linear)
   } else {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                              color = !!dplyr::sym(col_var),
-                                                              fill = !!dplyr::sym(col_var)),
+                                                              color = !!rlang::sym(col_var_str),
+                                                              fill = !!rlang::sym(col_var_str)),
                                                           method = "loess", se = se_loess,
                                                           linewidth = plottheme$linewidth_loess,
                                                           linetype = plottheme$linetype_loess,
@@ -116,8 +119,8 @@ plot_dvconc <- function(data,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                               color = !!dplyr::sym(col_var),
-                                                               fill = !!dplyr::sym(col_var)),
+                                                               color = !!rlang::sym(col_var_str),
+                                                               fill = !!rlang::sym(col_var_str)),
                                                                method = "lm", se = se_linear,
                                                            linewidth = plottheme$linewidth_linear,
                                                            linetype = plottheme$linetype_linear,
@@ -125,7 +128,7 @@ plot_dvconc <- function(data,
   }
 
   #Add observations
-  if(is.null(col_var)){
+  if(is.null(col_var_str)){
     plot <- plot +
       ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV),
                           shape=plottheme$shape_point_obs,
@@ -133,7 +136,7 @@ plot_dvconc <- function(data,
                           alpha = plottheme$alpha_point_obs)
   } else {
     plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = !!dplyr::sym(col_var)),
+      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = !!rlang::sym(col_var_str)),
                           shape=plottheme$shape_point_obs,
                           size=plottheme$size_point_obs,
                           alpha = plottheme$alpha_point_obs)

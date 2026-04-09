@@ -6,16 +6,16 @@
 \usage{
 plot_dvtime_dual(
   data,
-  dv_var1 = "DV",
-  dv_var2 = "DV",
-  dvid_var = "CMT",
+  dv_var1 = DV,
+  dv_var2 = DV,
+  dvid_var = CMT,
   dvid_val1 = 2,
   dvid_val2 = 3,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -38,13 +38,13 @@ plot_dvtime_dual(
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var1}{Character string specifying the variable containing observations for the top panel (DV1).
-Default is "DV".}
+\item{dv_var1}{Column containing observations for the top panel (DV1). Accepts bare names or strings.
+Default is \code{DV}.}
 
-\item{dv_var2}{Character string specifying the variable containing observations for the bottom panel (DV2).
-Default is "DV".}
+\item{dv_var2}{Column containing observations for the bottom panel (DV2). Accepts bare names or strings.
+Default is \code{DV}.}
 
-\item{dvid_var}{Character string specifying the variable to identify each observation type.}
+\item{dvid_var}{Column to identify each observation type. Accepts bare names or strings.}
 
 \item{dvid_val1}{Value of variable specified in \code{dvid_var} to identify observations for the top panel (DV1).}
 
@@ -63,12 +63,12 @@ Options include:
 \item "months"
 }}
 
-\item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
+\item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
-\item{grp_var}{Character string of the variable to map to the group aesthetic. Default is \code{"ID"}}
+\item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
 
-\item{dose_var}{Character string of the variable to use in dosenormalization when \code{dosenorm} = TRUE.
-Default is \code{"DOSE"}.}
+\item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
+Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
@@ -137,7 +137,7 @@ A \code{ggplot2} plot object
 Wrapper function for plot_dvtime to plot two dependent variables paneled together
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose=DOSE), grp_var="Dose", sep="mg")
-plot_dvtime_dual(data, dv_var1 = "ODV", dv_var2 = "ODV", col_var = "Dose")
+data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose)
 
 }

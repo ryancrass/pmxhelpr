@@ -6,12 +6,12 @@
 \usage{
 plot_dvtime(
   data,
-  dv_var = "DV",
+  dv_var = DV,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   timeu = "hours",
   col_var = NULL,
-  grp_var = "ID",
-  dose_var = "DOSE",
+  grp_var = ID,
+  dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
@@ -30,7 +30,7 @@ plot_dvtime(
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var}{Character name of the DV variable in \code{data}.}
+\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -45,12 +45,12 @@ Options include:
 \item "months"
 }}
 
-\item{col_var}{Character string of the name of the variable to map to the color aesthetic.}
+\item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
-\item{grp_var}{Character string of the variable to map to the group aesthetic. Default is \code{"ID"}}
+\item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
 
-\item{dose_var}{Character string of the variable to use in dosenormalization when \code{dosenorm} = TRUE.
-Default is \code{"DOSE"}.}
+\item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
+Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
@@ -111,7 +111,7 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus time
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad,Dose=DOSE), grp_var="Dose", sep = "mg")
-plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
+data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }

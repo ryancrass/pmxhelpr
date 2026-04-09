@@ -49,7 +49,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
   sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
 
   df <- data.frame(x=NA_real_, y=NA_real_)
-  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y), na.rm= TRUE)
+  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y))
 
   plot <- plot_blank +
     {if(nlist$obs_dv == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
@@ -66,7 +66,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                                                  linewidth = plist$obs_median_size, na.rm= TRUE)} +
     {if(nlist$sim_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
                                                      color = plist$sim_median_color,
-                                                     linewdith = plist$sim_median_size, na.rm= TRUE)} +
+                                                     linewidth = plist$sim_median_size, na.rm= TRUE)} +
     {if(nlist$pi == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
                                              color = plist$sim_pi_color,
                                              linewidth = plist$sim_pi_size, na.rm= TRUE)} +
@@ -78,7 +78,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                                                 alpha = plist$sim_pi_alpha, na.rm= TRUE)}+
     {if(nlist$pi_as_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                   fill = sim_pilab),
-                                                     sim_pi_alpha = plist$sim_pi_alpha, na.rm= TRUE)}+
+                                                     alpha = plist$sim_pi_alpha, na.rm= TRUE)}+
     {if(nlist$obs_dv == TRUE) ggplot2::scale_shape_manual(name = "Points",
                        breaks = obs,
                        values = assign(obs,plist$obs_shape))}+

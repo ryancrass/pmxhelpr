@@ -9,10 +9,10 @@
 #'    + "weeks"
 #'    + "months"
 #' @param n_breaks Number of breaks requested for x-axis. Default is 8.
-#' @param col_var Character string of the name of the variable to map to the color aesthetic.
-#' @param grp_var Character string of the variable to map to the group aesthetic. Default is `"ID"`
-#' @param dose_var Character string of the variable to use in dosenormalization when `dosenorm` = TRUE.
-#'   Default is `"DOSE"`.
+#' @param col_var Column to map to the color aesthetic. Accepts bare names or strings. Default is `NULL`.
+#' @param grp_var Column to map to the group aesthetic. Accepts bare names or strings. Default is `ID`.
+#' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
+#'   Accepts bare names or strings. Default is `DOSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
 #'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
@@ -58,18 +58,18 @@
 #' @export plot_dvtime
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad,Dose=DOSE), grp_var="Dose", sep = "mg")
-#'plot_dvtime(data, dv_var = "ODV", cent = "median", col_var = "Dose")
+#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+#'plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 #'
 
 plot_dvtime <- function(data,
-                        dv_var = "DV",
+                        dv_var = DV,
                         time_vars = c(TIME = "TIME",
                                       NTIME = "NTIME"),
                         timeu = "hours",
                         col_var = NULL,
-                        grp_var = "ID",
-                        dose_var = "DOSE",
+                        grp_var = ID,
+                        dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
@@ -84,26 +84,30 @@ plot_dvtime <- function(data,
                         n_breaks = 8,
                         theme = NULL){
 
+  dv_var_str   <- rlang::as_name(rlang::ensym(dv_var))
+  grp_var_str  <- rlang::as_name(rlang::ensym(grp_var))
+  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
+  col_var_str  <- capture_col(rlang::enquo(col_var))
 
   time_vars <- list_update(time_vars, c(TIME = "TIME",
                                         NTIME = "NTIME"))
 
   #Checks
   check_df(data)
-  check_varsindf(data, dv_var)
+  check_varsindf(data, dv_var_str)
   check_varsindf(data, time_vars[["TIME"]])
   check_varsindf(data, time_vars[["NTIME"]])
   check_varsindf(data, "MDV")
   check_timeu(timeu)
-  check_varsindf(data, col_var)
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var)}
-  if(!is.null(col_var)) {check_factor(data, col_var)}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var)}
+  check_varsindf(data, col_var_str)
+  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}
+  if(!is.null(col_var_str)) {check_factor(data, col_var_str)}
+  if(dosenorm == TRUE){check_varsindf(data, dose_var_str)}
   check_loq_method(loq, loq_method, data)
   if(cfb==TRUE)check_numeric(cfb_base)
 
   ##Handle DV Variable
-  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var)))
+  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str)))
 
   #Handle Time Variables
   if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
@@ -114,10 +118,10 @@ plot_dvtime <- function(data,
       dplyr::mutate(TIME = NTIME)
  }
 
-  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var)))}
+  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
 
   ##Coerce Color Variable to a Factor
-  if(!is.null(col_var)){data[[col_var]] <- factor(data[[col_var]])}
+  if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   ##BLQ Handling
   if(loq_method==1) {
@@ -168,10 +172,10 @@ plot_dvtime <- function(data,
 ###Plot
 
   #Initialize Plot Aesthetics
-  if(is.null(col_var)) {
+  if(is.null(col_var_str)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV))
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!dplyr::sym(col_var)))
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!rlang::sym(col_var_str)))
   }
 
   plot <- plot +
@@ -202,7 +206,7 @@ plot_dvtime <- function(data,
                                                          size=plottheme$size_point_obs,,
                                                          alpha = plottheme$alpha_point_obs)
   #Connect Observed Data Points within Group
-  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!dplyr::sym(grp_var)),
+  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!rlang::sym(grp_var_str)),
                                                        linewidth = plottheme$linewidth_obs,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)

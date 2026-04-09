@@ -1,3 +1,8 @@
+capture_col <- function(col_quo) {
+  if (rlang::quo_is_null(col_quo)) return(NULL)
+  rlang::as_name(col_quo)
+}
+
 list_update <- function(update=NULL, src, mess){
 
   update_list_name <-deparse(substitute(update))
@@ -51,7 +56,7 @@ check_mrgmod_outputvars <- function(mod, output_vars){
 
 check_capture <- function(mod, var){
   input_name1 <-deparse(substitute(mod))
-  input_name2 <-deparse(substitute(var))
+  input_name2 <-sub("_str$", "", deparse(substitute(var)))
   output_warning <- paste0("argument `", input_name2, "` must be captured as output in `",input_name1,"`")
   captures <- mod$capture
   if(!var %in% captures){
@@ -96,7 +101,7 @@ check_integer <- function(var){
 
 check_varsindf <- function(data, vars){
   input_name1 <-deparse(substitute(data))
-  input_name2 <-deparse(substitute(vars))
+  input_name2 <-sub("_str$", "", deparse(substitute(vars)))
   output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
   if(length(setdiff(vars, colnames(data)))>=1){
     rlang::abort(message = output_warning)
@@ -104,7 +109,7 @@ check_varsindf <- function(data, vars){
 }
 
 check_levelsinvar <- function(data, var, levels){
-  input_name1 <-deparse(substitute(var))
+  input_name1 <-sub("_str$", "", deparse(substitute(var)))
   input_name2 <-deparse(substitute(levels))
   vect <- data[[var]]
   output_warning <- paste0("argument `", input_name2, "` must be levels in variable `",input_name1,"`")

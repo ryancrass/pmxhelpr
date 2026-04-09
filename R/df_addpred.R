@@ -7,7 +7,7 @@
 #' @param data Input dataset.
 #' @param model `mrgsolve` model object.
 #' @param output_var Name of output from `model` to be captured as `PRED`
-#'    after removing random effects with [mrgsolve::zero_re()]. Default is `"IPRED"`.
+#'    after removing random effects with [mrgsolve::zero_re()]. Accepts bare names or strings. Default is `IPRED`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
 #' @return A data.frame with the same number of rows as `data` and on additional
@@ -20,14 +20,16 @@
 #'
 df_addpred <- function(data,
                        model,
-                       output_var="IPRED",
+                       output_var = IPRED,
                        ...){
+
+  output_var_str <- rlang::as_name(rlang::ensym(output_var))
 
   check_df(data)
   check_mrgmod(model)
-  check_capture(model, output_var)
+  check_capture(model, output_var_str)
 
   data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
-                                   data = data, carry_out = output_var)[,output_var]
+                                   data = data, carry_out = output_var_str)[,output_var_str]
   return(data)
 }

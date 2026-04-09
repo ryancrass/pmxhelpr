@@ -7,9 +7,9 @@
 df_doseprop(
   data,
   metrics,
-  metric_var = "PPTESTCD",
-  exp_var = "PPORRES",
-  dose_var = "DOSE",
+  metric_var = PPTESTCD,
+  exp_var = PPORRES,
+  dose_var = DOSE,
   method = "normal",
   ci = 0.9,
   sigdigits = 3
@@ -21,14 +21,14 @@ Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP for
 
 \item{metrics}{character vector of exposure metrics in \code{data} to plot}
 
-\item{metric_var}{character string of variable in \code{data} containing the values provided in \code{metrics}.
-Default is "PPTESTCD".}
+\item{metric_var}{Column in \code{data} containing the values provided in \code{metrics}.
+Accepts bare names or strings. Default is \code{PPTESTCD}.}
 
-\item{exp_var}{Character string specifying the variable in \code{data} containing the exposure metric (dependent variable)
-Default is "PPORRES".}
+\item{exp_var}{Column in \code{data} containing the exposure metric (dependent variable).
+Accepts bare names or strings. Default is \code{PPORRES}.}
 
-\item{dose_var}{Character string specifying the variable in \code{data} containing the dose (independent variable)
-Default is "DOSE".}
+\item{dose_var}{Column in \code{data} containing the dose (independent variable).
+Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{method}{character string specifying the distribution to be used to derived the confidence interval.
 Options are "normal" (default) and "tdist"}

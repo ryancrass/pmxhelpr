@@ -69,25 +69,25 @@ test_that("plot_popgof_theme default alpha_point_obs is 0.5", {
   expect_equal(plot_popgof_theme()$alpha_point_obs, 0.5)
 })
 
-#####pmxhelpr_vpc_theme####
+#####plot_vpc_theme####
 
-test_that("pmxhelpr_vpc_theme returns a named list with defaults", {
-  theme <- pmxhelpr_vpc_theme()
+test_that("plot_vpc_theme returns a named list with defaults", {
+  theme <- plot_vpc_theme()
   expect_type(theme, "list")
   expect_true("obs_color" %in% names(theme))
   expect_true("sim_median_fill" %in% names(theme))
 })
 
-test_that("pmxhelpr_vpc_theme update argument overrides a default", {
-  theme <- pmxhelpr_vpc_theme(update = list(obs_color = "#000000"))
+test_that("plot_vpc_theme update argument overrides a default", {
+  theme <- plot_vpc_theme(update = list(obs_color = "#000000"))
   expect_equal(theme$obs_color, "#000000")
 })
 
-test_that("pmxhelpr_vpc_theme warns on invalid update key", {
-  expect_warning(pmxhelpr_vpc_theme(update = list(fake_key = 1)),
+test_that("plot_vpc_theme warns on invalid update key", {
+  expect_warning(plot_vpc_theme(update = list(fake_key = 1)),
                  regexp = "not a valid element")
 })
 
-test_that("pmxhelpr_vpc_theme default obs_color is '#0000FF'", {
-  expect_equal(pmxhelpr_vpc_theme()$obs_color, "#0000FF")
+test_that("plot_vpc_theme default obs_color is '#0000FF'", {
+  expect_equal(plot_vpc_theme()$obs_color, "#0000FF")
 })

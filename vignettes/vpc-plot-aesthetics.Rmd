@@ -153,10 +153,10 @@ vpc_pc_noobs_medonly
 
 ## Default Aesthetics
 
-Similarly, the default aesthetics for vpc plots in pmxhelpr use the classical red-blue-green brewer color schema. The defaults for `pmxhelpr` can be visualized by specifying the `pmxhlepr_vpc_theme()` function with no arguments. 
+Similarly, the default aesthetics for vpc plots in pmxhelpr use the classical red-blue-green brewer color schema. The defaults for `pmxhelpr` can be visualized by specifying the `plot_vpc_theme()` function with no arguments. 
 
 ```{r vpc-theme-pmxhelpr}
-pmxhelpr_theme_list <- pmxhelpr_vpc_theme()
+pmxhelpr_theme_list <- plot_vpc_theme()
 print(pmxhelpr_theme_list)
 ```
 
@@ -169,7 +169,7 @@ print(vpc_theme_list)
 
 ## Adjusting Aesthetics
 
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `pmxhelpr_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `plot_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
 
 Let's say we prefer a the blue-grey color scheme native to the `vpc` package! We can reproduce this by passing `vpc::new_vpc_theme()`: 
 
@@ -183,13 +183,14 @@ vpc_pc_vpctheme <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
-  theme = pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()),
+  theme = plot_vpc_theme(update = vpc::new_vpc_theme()),
   min_bin_count = 5
 ) +
   scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_vpctheme
 ```
+ 
   2) to the theme argument of `plot_vpc_exactbins`.
   
 ```{r plot-vpc-vpctheme2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}

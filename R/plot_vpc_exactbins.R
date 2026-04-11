@@ -26,7 +26,8 @@
 #'    + Simulated Median CI: `sim_median_ci` = TRUE
 #'
 #' @param theme Named list of aesthetic parameters for the plot.Passed to `vpc_theme` arumgent of [vpc::vpc()].
-#'    Defaults can be obtained by running [vpc::new_vpc_theme()] with no arguments.
+#'    Defaults for `pmxhelpr`dev can be obtained by running `plot_vpc_theme` with no arguments.
+#'    Defaults for `vpc` can be obtained by running [vpc::new_vpc_theme()] with no arguments.
 #'
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
@@ -105,7 +106,7 @@ plot_vpc_exactbins <- function(sim,
   show_vpc$obs_dv <- FALSE
 
   #aesthetics for legend based on settings in vpc::new_vpc_theme
-  vpctheme <- list_update(theme, pmxhelpr_vpc_theme())
+  vpctheme <- list_update(theme, plot_vpc_theme())
 
   #Handle Output and Time Variables
   sim <- rename_time_vars(sim, time_vars, output_vars)
@@ -305,16 +306,16 @@ df_pcdv <- function(data,
 #' Customized VPC theme with pmxhelpr default aesthetics
 #'
 #' @param update list containing the plot elements to be updated.
-#'    Run `pmxhelpr_vpc_theme()` with no arguments to view defaults.
+#'    Run `plot_vpc_theme()` with no arguments to view defaults.
 #' @return a `list`with vpc theme specifiers
-#' @export pmxhelpr_vpc_theme
+#' @export plot_vpc_theme
 #'
 #' @examples
-#' pmxhelpr_vpc_theme()
-#' new_theme <- pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
+#' plot_vpc_theme()
+#' new_theme <- plot_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
 
 
-pmxhelpr_vpc_theme <- function(update = NULL){
+plot_vpc_theme <- function(update = NULL){
   defaults_list <- list(
     obs_color = "#0000FF",
 

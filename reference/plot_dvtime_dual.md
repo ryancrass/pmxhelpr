@@ -220,7 +220,7 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
 #> Joining with `by = join_by(Dose)`
 plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose)
 #> Warning: Removed 169 rows containing non-finite outside the scale range

@@ -20,6 +20,7 @@ plot_popgof(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
@@ -142,6 +143,10 @@ plot_popgof(
 
   Logical indicating if dependent variable is a change from baseline.
   Plots a reference line at y = cfb_baseline. Default is `FALSE`.
+
+- cfb_base:
+
+  Value for y-intercept when cfb = `TRUE`. Default is 0.
 
 - ylab:
 

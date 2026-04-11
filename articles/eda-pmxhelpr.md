@@ -18,7 +18,7 @@ library(PKNCA, warn.conflicts = FALSE)
 
 ## Data
 
-The datasets used in this vignette are based on a simple ascending dose
+The dataset used in this vignette are based on a simple ascending dose
 (SAD) study of an orally drug product with a parallel group food effect
 (FE) cohort.
 
@@ -27,31 +27,33 @@ The datasets used in this vignette are based on a simple ascending dose
 Dataset definitions can be viewed by calling
 [`?data_sad`](https://ryancrass.github.io/pmxhelpr/reference/data_sad.md).
 We can take a quick look at the primary dataset for this analysis
-(`data_ssad`) using
+(`data_sad`) using
 [`glimpse()`](https://pillar.r-lib.org/reference/glimpse.html) from the
 `dplyr` package.
 
 ``` r
 glimpse(data_sad)
-#> Rows: 720
-#> Columns: 23
-#> $ LINE    <dbl> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,…
-#> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,…
-#> $ TIME    <dbl> 0.00, 0.00, 0.48, 0.81, 1.49, 2.11, 3.05, 4.14, 5.14, 7.81, 12…
-#> $ NTIME   <dbl> 0.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0, 16.0, …
-#> $ NDAY    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 1,…
+#> Rows: 1,404
+#> Columns: 25
+#> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+#> $ TIME    <dbl> 0.00, 0.00, 0.00, 0.48, 0.48, 0.81, 0.81, 1.49, 1.49, 2.11, 2.…
+#> $ NTIME   <dbl> 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0, 3.0, 3.…
+#> $ NDAY    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
 #> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
-#> $ AMT     <dbl> NA, 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-#> $ EVID    <dbl> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, NA, 2.02, 4.02, 3.50, 7.18, 9.31, 12.46, 13.43, 12.11,…
-#> $ LDV     <dbl> NA, NA, NA, 0.7031, 1.3913, 1.2528, 1.9713, 2.2311, 2.5225, 2.…
-#> $ CMT     <dbl> 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
-#> $ MDV     <dbl> 1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1…
-#> $ BLQ     <dbl> -1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, …
-#> $ LLOQ    <dbl> 1, NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+#> $ AMT     <dbl> 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+#> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 2.02000, 99.44932, 4.02000, 9…
+#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.70310, 99.44932, 1.39130, 9…
+#> $ CFB     <dbl> NA, NA, 0.0000000, NA, -0.1229974, NA, -0.5506789, NA, -2.3928…
+#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 2.02, NA, 4.02, NA, 3.50, NA, 7.18…
+#> $ LINE    <dbl> 2, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,…
+#> $ CMT     <dbl> 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,…
+#> $ MDV     <dbl> NA, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+#> $ BLQ     <dbl> NA, -1, -1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ LLOQ    <dbl> NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
 #> $ FOOD    <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ SEXF    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-#> $ RACE    <dbl> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,…
+#> $ RACE    <dbl> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
 #> $ AGEBL   <int> 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25…
 #> $ WTBL    <dbl> 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82…
 #> $ SCRBL   <dbl> 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.…
@@ -77,17 +79,21 @@ distinct(data_sad, DOSE, PART, FOOD)
 #> 6   400 Part 1-SAD     0
 ```
 
-The dataset is formatted for population pharmacokinetic (PopPK) modeling
-in NONMEM with oral dose events (`EVID=1`) input into `CMT=1` and drug
-concentration observations (`EVID=0`) in`CMT=2`. Dose events are input
-in `AMT` with the nominal dose associated with each observation captured
-in `DOSE`.
+The dataset is formatted for population pharmacokinetic (PopPK) and
+pharmacokinetic/pharmacodynamic (PK/PD) modeling in NONMEM with oral
+dose events (`EVID=1`) input into `CMT=1`, drug concentration
+observations (`EVID=0`) in`CMT=2`, and pharmacodynamic response
+observations (`EVID=0`) in `CMT=3`. Dose events are input in `AMT` with
+the nominal dose associated with each observation captured in `DOSE`.
 
 Plasma drug concentration observations are expressed in multiple units:
 
-- `ODV`: original units of the dependent variable \[ng/mL\[\]
-- `LDV`: natural logarithm-transformed units of drug concentration
-  \[log(ng/mL)\]
+- `ODV`: original units of the dependent variable \[CMT = 2 ng/mL, CMT =
+  3 % baseline activity\]
+- `LDV`: logarithm-transformed drug concentration \[CMT = 2 log(ng/mL),
+  CMT = 3 % baseline activity\]
+- `CFB`: percentage change from baseline \[CMT = 2 missing, CMT = 3 %
+  change from baseline\]
 
 The dataset also contains multiple variables for time:
 
@@ -118,46 +124,6 @@ length(times)
 #> [1] 449
 ```
 
-### data_sad_pd
-
-The companion dataset, `data_sad_pd`, is `data_sad` with an additional
-pharmacodynamic (PD) response biomarker observation type (`EVID=0`) in
-an additional compartment`CMT=3`. These response data are expressed as
-percentage of baseline activity (%) in both `ODV` and `LDV` and as
-percentage change from baseline activity in `CFB`.
-
-``` r
-glimpse(data_sad_pd)
-#> Rows: 1,404
-#> Columns: 26
-#> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-#> $ TIME    <dbl> 0.00, 0.00, 0.00, 0.48, 0.48, 0.81, 0.81, 1.49, 1.49, 2.11, 2.…
-#> $ NTIME   <dbl> 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0, 3.0, 3.…
-#> $ NDAY    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-#> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
-#> $ AMT     <dbl> 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-#> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 2.02000, 99.44932, 4.02000, 9…
-#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.70310, 99.44932, 1.39130, 9…
-#> $ CFB     <dbl> NA, NA, 0.0000000, NA, -0.1229974, NA, -0.5506789, NA, -2.3928…
-#> $ PCFB    <dbl> NA, NA, 0.000000000, NA, -0.001229974, NA, -0.005506789, NA, -…
-#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 2.02, NA, 4.02, NA, 3.50, NA, 7.18…
-#> $ LINE    <dbl> 2, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,…
-#> $ CMT     <dbl> 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,…
-#> $ MDV     <dbl> NA, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-#> $ BLQ     <dbl> NA, -1, -1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ LLOQ    <dbl> NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#> $ FOOD    <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ SEXF    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-#> $ RACE    <dbl> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
-#> $ AGEBL   <int> 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25…
-#> $ WTBL    <dbl> 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82…
-#> $ SCRBL   <dbl> 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.…
-#> $ CRCLBL  <dbl> 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 12…
-#> $ USUBJID <chr> "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-…
-#> $ PART    <chr> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part …
-```
-
 ### df_addn
 
 One should make sure to only pass the data of interest for visualization
@@ -178,7 +144,7 @@ dose units when linking dose and count of unique individuals receiving
 that dose.
 
 ``` r
-plot_data_pk <- data_sad %>% 
+plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          `Dose and Food` = paste(DOSE, "mg", `Food Status`),
@@ -186,18 +152,10 @@ plot_data_pk <- data_sad %>%
   df_addn(grp_var = Dose, sep = "mg") %>% 
   df_addn(grp_var = `Dose and Food`)
 
-plot_data_pd <- data_sad_pd %>% 
-  filter(EVID == 0) %>% 
-  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
-         `Dose and Food` = paste(DOSE, "mg", `Food Status`),
-         Dose = DOSE) %>% 
-  df_addn(grp_var = "Dose", sep = "mg") %>% 
-  df_addn(grp_var = "Dose and Food")
-
-unique(plot_data_pk$Dose)
+unique(plot_data$Dose)
 #> [1] 10 mg (n=6)   50 mg (n=6)   100 mg (n=12) 200 mg (n=6)  400 mg (n=6) 
 #> Levels: 10 mg (n=6) 100 mg (n=12) 200 mg (n=6) 400 mg (n=6) 50 mg (n=6)
-unique(plot_data_pk$`Dose and Food`)
+unique(plot_data$`Dose and Food`)
 #> [1] 10 mg Fasted (n=6)  50 mg Fasted (n=6)  100 mg Fasted (n=6)
 #> [4] 100 mg Fed (n=6)    200 mg Fasted (n=6) 400 mg Fasted (n=6)
 #> 6 Levels: 10 mg Fasted (n=6) 100 mg Fasted (n=6) ... 50 mg Fasted (n=6)
@@ -209,21 +167,24 @@ group is sorted at the end. We can use the `forcats` package in the
 `tidyverse` to quickly reorder our new variables
 
 ``` r
-plot_data_pk <- plot_data_pk %>% 
+plot_data <- plot_data %>% 
   mutate(Dose = fct_relevel(Dose, "50 mg (n=6)", after = 1), 
          `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 
-plot_data_pd <- plot_data_pd %>% 
-  mutate(Dose = fct_relevel(Dose, "50 mg (n=6)", after = 1), 
-         `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
-  
-unique(plot_data_pk$Dose)
+unique(plot_data$Dose)
 #> [1] 10 mg (n=6)   50 mg (n=6)   100 mg (n=12) 200 mg (n=6)  400 mg (n=6) 
 #> Levels: 10 mg (n=6) 50 mg (n=6) 100 mg (n=12) 200 mg (n=6) 400 mg (n=6)
-unique(plot_data_pk$`Dose and Food`)
+unique(plot_data$`Dose and Food`)
 #> [1] 10 mg Fasted (n=6)  50 mg Fasted (n=6)  100 mg Fasted (n=6)
 #> [4] 100 mg Fed (n=6)    200 mg Fasted (n=6) 400 mg Fasted (n=6)
 #> 6 Levels: 10 mg Fasted (n=6) 50 mg Fasted (n=6) ... 400 mg Fasted (n=6)
+```
+
+Let’s filter to each of PK and PD data in separate plotting datasets.
+
+``` r
+plot_data_pk <- filter(plot_data, CMT == 2)
+plot_data_pd <- filter(plot_data, CMT == 3)
 ```
 
 ## Population Concentration-time plots
@@ -253,11 +214,12 @@ must be passed to the function.
 plot_dvtime(plot_data_pk, dv_var = ODV)
 ```
 
-![](eda-pmxhelpr_files/figure-html/plot-dvtime-pass-1.png) Hey a plot!
-Conveniently, time variables in `data_sad` had names aligned with the
-default argument; however, this may not always be the case. A caption
-prints by default describing the plot elements. The caption can be
-removed by specifying `show_caption = FALSE`.
+![](eda-pmxhelpr_files/figure-html/plot-dvtime-pass-1.png)
+
+Hey a plot! Conveniently, time variables in `data_sad` had names aligned
+with the default argument; however, this may not always be the case. A
+caption prints by default describing the plot elements. The caption can
+be removed by specifying `show_caption = FALSE`.
 
 ``` r
 plot_dvtime(data = plot_data_pk, dv_var = ODV, show_caption = FALSE) 
@@ -309,9 +271,9 @@ plot_dvtime(plot_data_pk, dv_var = ODV, time_vars = c(TIME = "NTIME"))
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-nom-1.png)
 
-`plot_dvtime` includes uses a helper function (`breaks_time`) to
-automatically determine x-axis breaks based on the units of the time
-variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
+`plot_dvtime` uses a helper function (`breaks_time`) to automatically
+determine x-axis breaks based on the units of the time variable! Two
+arguments in `plot_dvtime` are passed to `breaks_time`:
 
 - `timeu` character string specifying time units. Options include:
 
@@ -383,7 +345,7 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-breaks-24h-1.png)
 
-### Color Aesthetic and Central Trendency
+### Color Aesthetic and Central Tendency
 
 The color aesthetic can be mapped to a dataset variable using the the
 `col_var` argument. This argument uses non-standard evaluation and can
@@ -495,7 +457,7 @@ Let’s use imputation to assess the potential impact of the data missing
 due to assay sensitivity. `plot_dvtime` includes some functionality to
 do this imputation for us using the `loq` and `loq_method` arguments.
 
-The `loq_method` argument species how BLQ imputation should be
+The `loq_method` argument specifies how BLQ imputation should be
 performed. Options are:
 
 - `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
@@ -717,8 +679,8 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "none"
 
 ![](eda-pmxhelpr_files/figure-html/plot-dvtime-blq2-indonly-1.png) We
 can plot an individual subject by filtering the input dataset. This
-could be extended generate plots for all individuals using `for` loops,
-`lapply`,
+could be extended to generate plots for all individuals using `for`
+loops, `lapply`,
 [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html)
 functions, or other methods.
 
@@ -800,7 +762,7 @@ PK/PD dataset to the compartment with the biomarker observations
 (`CMT=3`).
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, col_var = `Dose and Food`, 
+plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`, 
             ylab = "Response") 
 ```
 
@@ -812,7 +774,7 @@ of the reference line can be modified by specifying a y-intercept value
 using the argument`cfb_base`.
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, 
+plot_dvtime(data = plot_data_pd, dv_var = ODV, 
             col_var = `Dose and Food`, ylab = "Response", 
             cfb = TRUE, cfb_base = 100) 
 ```
@@ -825,7 +787,7 @@ of the reference line can be modified by specifying a y-intercept value
 using the argument`cfb_base`.
 
 ``` r
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, 
+plot_dvtime(data = plot_data_pd, dv_var = CFB, 
             col_var = `Dose and Food`, ylab = "Response", 
             cfb=TRUE)
 ```
@@ -855,7 +817,7 @@ Both `dv_var1` and `dv_var2` arguments use non-standard evaluation and
 can be passed as bare column names or strings.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV,dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV,dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`)
 ```
@@ -875,7 +837,7 @@ transformations:
   transformed to a log scale. Default is `FALSE`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
@@ -889,7 +851,7 @@ Thus, BLQ imputation and dose-normalization options specified using the
 standard arguments to `plot_dvtime` are only applied to the top panel.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`, loq_method = 2, dosenorm = T,dose_var = DOSE,
                  log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
@@ -902,7 +864,7 @@ response (PD), a reference line at y=`cfb_base` is only added to the
 bottom panel when `cfb=TRUE`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, cfb_base = 100,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Baseline)") 
@@ -917,7 +879,7 @@ use change from baseline as the dependent variable for the PD panel but
 updating the variable passed to `dv_var2`.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, 
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)") 
@@ -932,7 +894,7 @@ turn the caption off in the top panel and print a single caption under
 the bottom panel to represent both panels in the plot.
 
 ``` r
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, 
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)",
@@ -1165,6 +1127,7 @@ NCA using `PKNCA`
 ``` r
 #Impute BLQ concentrations to 0 (PKNCA formatting)
 data_sad_nca_input <- data_sad %>% 
+  filter(CMT %in% c(1,2)) %>% 
   mutate(CONC = ifelse(is.na(ODV), 0, ODV), 
          AMT = AMT/1000) #Convert from mg to ug (concentration is ng/mL = ug/L)
 
@@ -1194,9 +1157,9 @@ units.
 
 ``` r
 glimpse(data_sad_nca)
-#> Rows: 612
+#> Rows: 648
 #> Columns: 11
-#> $ ID         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,…
+#> $ ID         <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,…
 #> $ DOSE       <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,…
 #> $ PART       <chr> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Pa…
 #> $ start      <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…

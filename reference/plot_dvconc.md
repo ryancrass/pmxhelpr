@@ -123,13 +123,10 @@ A `ggplot2` plot object
 ## Examples
 
 ``` r
+data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 #> Joining with `by = join_by(Dose)`
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #> `geom_smooth()` using formula = 'y ~ x'
-#> Warning: Removed 720 rows containing non-finite outside the scale range
-#> (`stat_smooth()`).
-#> Warning: Removed 720 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
 
 ```

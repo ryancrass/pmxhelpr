@@ -50,8 +50,9 @@ observations.
 ## Examples
 
 ``` r
-model <- model_mread_load(model = "model")
+model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-data <- df_addpred(data_sad, model)
+data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+data <- df_addpred(data_sad_pk, model)
 simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
 ```

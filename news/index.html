@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,20 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.9/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="pmxhelpr-040">pmxhelpr 0.4.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-040"></a></h2>
+<ul><li>Rename <code>data_sad_pd</code> as <code>data_sad</code>. No longer export <code>data_sad_pd</code>.</li>
+<li>Rename <code>model</code> as <code>pkmodel</code> for consistency with <code>pdmodel</code>.</li>
+<li>Rename <code>pmxhelpr_vpc_theme</code> to <code>plot_vpc_theme</code> for consistency with other plot theme functions</li>
+<li>Change <code>dvconc_caption</code> and <code>dvtime_caption</code> to internal functions after simplifying</li>
+<li>Added <code>cfb_base</code> argument to <code>plot_popgof</code> (was hardcoded as yintercept = 0)</li>
+<li>Add helpers for central tendency handing, time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls</li>
+<li>Expand test coverage and refactor existing tests to reduce redundancy</li>
+<li>Fix bugs and typoes globally in package</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.9" id="pmxhelpr-039">pmxhelpr 0.3.9<a class="anchor" aria-label="anchor" href="#pmxhelpr-039"></a></h2>
 <ul><li>Add NSE support to accept bare column names in all exported functions (e.g., dv_var = DV) in addition to strings (e.g., dv_var = “DV”) across all exported functions that take column name arguments. Revise vignettes to highlight this functionality.</li>

@@ -25,12 +25,6 @@ Functions in this package use the following naming conventions:
     wraps
     [`mrgsolve::mread_cache()`](https://mrgsolve.org/docs/reference/mread.html)
     to read internal package model files returning an `mrgmod` object.
-  - `df_mrgsim_addpred()` wraps
-    [`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
-    including
-    [`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html)
-    to add population predictions (PRED) to the input data returning a
-    `data.frame`.
   - [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
     wraps
     [`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
@@ -40,21 +34,45 @@ Functions in this package use the following naming conventions:
     generate a VPC plot using exact time bins returning a `ggplot`
     object.
 - Helper functions: *ReturnObject*\_*Purpose*
+  - `df_addn` returns a `data.frame` with counts of the number of unique
+    values of an ID variable per bin.
+  - `df_addpred` returns a `data.frame` with population model
+    predictions (PRED) appended.
+  - `df_doseprop` returns a `data.frame` containing parameters from
+    log-log regression of multiple exposure metrics versus dose
+  - `df_loglog` returns a `data.frame` containing parameters from a
+    log-log regression of a single exposure metric versus dose
+  - `df_pcdv` returns a `data.frame` containing the prediction-corrected
+    dependent variable.
+  - `df_nobsbin` returns a summary `data.frame` with counts of the
+    number of missing and non-missing observations per bin.
+  - `mod_loglog` returns a `lm` object from a log-log regression of a
+    single exposure metric versus dose
   - `plot_dvtime` returns a `ggplot` object with a dependent variable
     plotted versus time
   - `plot_doseprop` returns a `ggplot` object with log-log regression of
     exposure metrics versus dose
-  - `df_doseprop` returns a `data.frame` containing parameters from a
-    log-log regression of exposure metrics versus dose
   - `plot_popgof` returns a `ggplot` object with observed,
     population-predicted, and individual-predicted values plotted versus
     time
-  - `df_nobsbin` returns a summary `data.frame` with counts of the
-    number of missing and non-missing observations per bin.
-  - `df_pcdv` returns a `data.frame` containing the prediction-corrected
-    dependent variable.
   - `plot_vpclegend` returns a `ggplot` object containing a legend for a
     VPC plot generated using `plot_vpc_exactbins`
+- Plot theme lists
+  - [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
+    [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md),
+    [`plot_popgof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_popgof_theme.md),
+    and
+    [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+    return a named `list` with elements of modifiable elements of the
+    plot theme
+- Data sets
+  - `data_sad` a dataset for a single ascending dose (SAD) study with
+    parallel food effect cohort formatted for non-linear mixed effects
+    (NMLE) population PK and PK/PD modeling
+  - `data_sad_nca` a dataset containing PK parameters derived using
+    non-compartmental analysis (NCA)
+  - `data_sad_pkfit` a dataset consistent with `data_sad` including
+    individual (IPRED) and population (PRED) PK model predictions
 
 ## Example Exploratory Data Analysis Workflow
 
@@ -63,10 +81,10 @@ analysis workflow using pmxhelpr:
 
 ``` r
 #Read internal analysis-ready dataset for an example Phase 1 study
-glimpse(data_sad_pd)
+glimpse(data_sad)
 
 #Pre-process data for plotting
-data <- data_sad_pd %>% 
+data <- data_sad %>% 
   mutate(Regimen = DOSE) %>% 
   df_addn(grp_var = "Regimen", id_var = "ID", sep = "mg x1") %>% 
   mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
@@ -136,7 +154,7 @@ plot_popgof(data = data, output_vars = c(DV ="ODV"),
   facet_wrap(~DoseGroup)
 ```
 
-## Example Visual Exploratory Data Analysis Workflow
+## Example Visual Predictive Check Analysis Workflow
 
 This is a basic example which illustrates a simple VPC workflow using
 pmxhelpr:
@@ -151,7 +169,7 @@ library(patchwork)
 library(withr)
 
 #Read internal mrgsolve model file
-model <- model_mread_load("model")
+model <- model_mread_load("pkmodel")
 
 #Process Data
 data <- data_sad%>% 

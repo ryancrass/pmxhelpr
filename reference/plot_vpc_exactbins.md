@@ -107,9 +107,10 @@ plot_vpc_exactbins(
 
 - theme:
 
-  Named list of aesthetic parameters for the plot.Passed to `vpc_theme`
-  arumgent of [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
-  Defaults can be obtained by running
+  Named list of aesthetic parameters for the plot. Passed to `vpc_theme`
+  argument of [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
+  Defaults for `pmxhelpr`dev can be obtained by running `plot_vpc_theme`
+  with no arguments. Defaults for `vpc` can be obtained by running
   [`vpc::new_vpc_theme()`](https://rdrr.io/pkg/vpc/man/new_vpc_theme.html)
   with no arguments.
 
@@ -143,9 +144,10 @@ ggplot2 object (default)
 ## Examples
 
 ``` r
-model <- model_mread_load(model = "model")
+model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),

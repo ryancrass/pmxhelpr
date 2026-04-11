@@ -6,10 +6,11 @@ elements of VPC plots generated using
 [`new_vpc_theme()`](https://rdrr.io/pkg/vpc/man/new_vpc_theme.html)
 function from the `vpc` package.
 
-`plot_legend()` is a helper plotting function that creates a legend for
-plots generated using [`vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
-These legends can then be merged with the VPC plot into a single plot
-object using the `patchwork` package.
+[`plot_vpclegend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.md)
+is a helper plotting function that creates a legend for plots generated
+using [`vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html). These legends can
+then be merged with the VPC plot into a single plot object using the
+`patchwork` package.
 
 Let’s get started. First, we will load the required packages.
 
@@ -28,9 +29,10 @@ Next, let’s load use the internal data and model objects from `pmxhelpr`
 and `df_mrgsim_replicate` to run the simulation.
 
 ``` r
-data <- data_sad
-model <- model_mread_load("model")
-#> Building model_cpp ... done.
+data <- data_sad %>% 
+  filter(CMT %in% c(1,2))
+model <- model_mread_load("pkmodel")
+#> Building pkmodel_cpp ... done.
 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100, 
                      dv_var = "ODV",
@@ -207,11 +209,12 @@ vpc_pc_noobs_medonly
 
 Similarly, the default aesthetics for vpc plots in pmxhelpr use the
 classical red-blue-green brewer color schema. The defaults for
-`pmxhelpr` can be visualized by specifying the `pmxhlepr_vpc_theme()`
+`pmxhelpr` can be visualized by specifying the
+[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
 function with no arguments.
 
 ``` r
-pmxhelpr_theme_list <- pmxhelpr_vpc_theme()
+pmxhelpr_theme_list <- plot_vpc_theme()
 print(pmxhelpr_theme_list)
 #> $obs_color
 #> [1] "#0000FF"
@@ -372,9 +375,9 @@ print(vpc_theme_list)
 Now, suppose we want to change the default aesthetics of the VPC plot,
 without changing what is being shown. This can be accomplished by
 passing a named list of elements to update to the function
-[`pmxhelpr_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.md).
+[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
 The named list object generated from this function can then be passed to
-the `theme` argument in `vpc_plot_exactbins`, which is also an alias for
+the `theme` argument in `plot_vpc_exactbins`, which is also an alias for
 the `vpc_theme` argument in
 [`vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html).
 
@@ -382,8 +385,7 @@ Let’s say we prefer a the blue-grey color scheme native to the `vpc`
 package! We can reproduce this by passing
 [`vpc::new_vpc_theme()`](https://rdrr.io/pkg/vpc/man/new_vpc_theme.html):
 
-1.  to the update argument of
-    [`pmxhelpr_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.md)
+1.  to the update argument of `pmxhelpr_vpc_theme()`
 
 ``` r
 vpc_pc_vpctheme <- plot_vpc_exactbins(
@@ -393,7 +395,7 @@ vpc_pc_vpctheme <- plot_vpc_exactbins(
   xlab = "Time (hours)",
   ylab = "Concentration (ng/mL)",
   pcvpc = TRUE,
-  theme = pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()),
+  theme = plot_vpc_theme(update = vpc::new_vpc_theme()),
   min_bin_count = 5
 ) +
   scale_y_log10(guide = "axis_logticks")
@@ -407,8 +409,9 @@ vpc_pc_vpctheme <- plot_vpc_exactbins(
 vpc_pc_vpctheme
 ```
 
-![](vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png) 2)
-to the theme argument of `plot_vpc_exactbins`.
+![](vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png)
+
+2.  to the theme argument of `plot_vpc_exactbins`.
 
 ``` r
 vpc_pc_vpctheme2 <- plot_vpc_exactbins(
@@ -475,8 +478,8 @@ however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.
 
 `pmxhelpr` provides a useful helper function for this purpose,
-`plot_legend()`. To obtain a legend for a plot using default aesthetics,
-simply run
+[`plot_vpclegend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.md).
+To obtain a legend for a plot using default aesthetics, simply run
 [`plot_vpclegend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.md)
 without any arguments specified.
 

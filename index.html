@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,6 @@
 <li>
 <code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object.</li>
 <li>
-<code>df_mrgsim_addpred()</code> wraps <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> including <code><a href="https://mrgsolve.org/docs/reference/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code> to add population predictions (PRED) to the input data returning a <code>data.frame</code>.</li>
-<li>
 <code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>.</li>
 <li>
 <code><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> wraps <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> to generate a VPC plot using exact time bins returning a <code>ggplot</code> object.</li>
@@ -94,20 +92,44 @@
 <li>Helper functions: <em>ReturnObject</em>_<em>Purpose</em>
 <ul>
 <li>
+<code>df_addn</code> returns a <code>data.frame</code> with counts of the number of unique values of an ID variable per bin.</li>
+<li>
+<code>df_addpred</code> returns a <code>data.frame</code> with population model predictions (PRED) appended.</li>
+<li>
+<code>df_doseprop</code> returns a <code>data.frame</code> containing parameters from log-log regression of multiple exposure metrics versus dose</li>
+<li>
+<code>df_loglog</code> returns a <code>data.frame</code> containing parameters from a log-log regression of a single exposure metric versus dose</li>
+<li>
+<code>df_pcdv</code> returns a <code>data.frame</code> containing the prediction-corrected dependent variable.</li>
+<li>
+<code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin.</li>
+<li>
+<code>mod_loglog</code> returns a <code>lm</code> object from a log-log regression of a single exposure metric versus dose</li>
+<li>
 <code>plot_dvtime</code> returns a <code>ggplot</code> object with a dependent variable plotted versus time</li>
 <li>
 <code>plot_doseprop</code> returns a <code>ggplot</code> object with log-log regression of exposure metrics versus dose</li>
 <li>
-<code>df_doseprop</code> returns a <code>data.frame</code> containing parameters from a log-log regression of exposure metrics versus dose</li>
-<li>
 <code>plot_popgof</code> returns a <code>ggplot</code> object with observed, population-predicted, and individual-predicted values plotted versus time</li>
-<li>
-<code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin.</li>
-<li>
-<code>df_pcdv</code> returns a <code>data.frame</code> containing the prediction-corrected dependent variable.</li>
 <li>
 <code>plot_vpclegend</code> returns a <code>ggplot</code> object containing a legend for a VPC plot generated using <code>plot_vpc_exactbins</code>
 </li>
+</ul>
+</li>
+<li>Plot theme lists
+<ul>
+<li>
+<code><a href="reference/plot_dvconc_theme.html">plot_dvconc_theme()</a></code>, <code><a href="reference/plot_dvtime_theme.html">plot_dvtime_theme()</a></code>, <code><a href="reference/plot_popgof_theme.html">plot_popgof_theme()</a></code>, and <code><a href="reference/plot_vpc_theme.html">plot_vpc_theme()</a></code> return a named <code>list</code> with elements of modifiable elements of the plot theme</li>
+</ul>
+</li>
+<li>Data sets
+<ul>
+<li>
+<code>data_sad</code> a dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling</li>
+<li>
+<code>data_sad_nca</code> a dataset containing PK parameters derived using non-compartmental analysis (NCA)</li>
+<li>
+<code>data_sad_pkfit</code> a dataset consistent with <code>data_sad</code> including individual (IPRED) and population (PRED) PK model predictions</li>
 </ul>
 </li>
 </ul>
@@ -118,10 +140,10 @@
 <p>This is a basic example which illustrates a simple exploratory data analysis workflow using pmxhelpr:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Read internal analysis-ready dataset for an example Phase 1 study</span></span>
-<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">data_sad_pd</span><span class="op">)</span></span>
+<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Pre-process data for plotting</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad_pd</span> <span class="op">%&gt;%</span> </span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>Regimen <span class="op">=</span> <span class="va">DOSE</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="st">"Regimen"</span>, id_var <span class="op">=</span> <span class="st">"ID"</span>, sep <span class="op">=</span> <span class="st">"mg x1"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>DoseReg <span class="op">=</span> <span class="fu">fct_relevel</span><span class="op">(</span><span class="va">Regimen</span>, <span class="st">"50 mg x1 (n=6)"</span>, after <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -189,7 +211,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example-visual-exploratory-data-analysis-workflow">Example Visual Exploratory Data Analysis Workflow<a class="anchor" aria-label="anchor" href="#example-visual-exploratory-data-analysis-workflow"></a>
+<h2 id="example-visual-predictive-check-analysis-workflow">Example Visual Predictive Check Analysis Workflow<a class="anchor" aria-label="anchor" href="#example-visual-predictive-check-analysis-workflow"></a>
 </h2>
 <p>This is a basic example which illustrates a simple VPC workflow using pmxhelpr:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -202,7 +224,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Read internal mrgsolve model file</span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"pkmodel"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Process Data</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>

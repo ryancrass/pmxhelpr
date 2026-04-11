@@ -91,9 +91,10 @@ and the output variables in `output_vars`, `num_vars`, and `char_vars`.
 ## Examples
 
 ``` r
-model <- model_mread_load(model = "model")
+model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
 num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),

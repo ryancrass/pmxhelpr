@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Standard Model Diagnostics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.9/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/diagnostics-pmxhelpr.Rmd" class="external-link"><code>vignettes/diagnostics-pmxhelpr.Rmd</code></a></small>
       <div class="d-none name"><code>diagnostics-pmxhelpr.Rmd</code></div>
     </div>
 
@@ -80,12 +80,12 @@ generating standard model diagnostics.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/Hmisc/" class="external-link">Hmisc</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>For this vignette, we will generate model diagnostics for a PK model
-(<code>model</code>) fit to <code>data_sad</code> dataset using the
-<code>data_sad_pkfit</code> dataset internal to <code>pmxhelpr</code>.
-We can take a quick look at the dataset using <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code>
-from the dplyr package. Dataset definitions can also be viewed by
-calling <code><a href="../reference/data_sad_pkfit.html">?data_sad_pkfit</a></code>, as one would to view the
-documentation for a package function.</p>
+(<code>pkmodel</code>) fit to the <code>data_sad</code> dataset using
+the <code>data_sad_pkfit</code> dataset internal to
+<code>pmxhelpr</code>. We can take a quick look at the dataset using
+<code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code> from the dplyr package. Dataset definitions can
+also be viewed by calling <code><a href="../reference/data_sad_pkfit.html">?data_sad_pkfit</a></code>, as one would to
+view the documentation for a package function.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad_pkfit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 720</span></span>
@@ -256,7 +256,7 @@ visual distinction between individual observation concentration data and
 summary statistics of observed and model-predicted concentration
 data.</p>
 <p>If one wanted to clarify that all the data mapping back to the
-dataset variable specified in <code>output_vars["DV]</code> with color,
+dataset variable specified in <code>output_vars["DV"]</code> with color,
 then the default for <code>output_colors["OBS"]</code> can be updated to
 to blue to align with <code>DV</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -404,7 +404,7 @@ population overlay GOF plots using <code>plot_popgof</code>; however, we
 can also use <code>plot_popgof</code> to generate subject-level
 visualizations with a little pre-processing of the input dataset.</p>
 <p>We can plot an individual subject by filtering the input dataset.
-This could be extended generate plots for all individuals using
+This could be extended to generate plots for all individuals using
 <code>for</code> loops, <code>lapply</code>, <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">purrr::map()</a></code>
 functions, or other methods.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">

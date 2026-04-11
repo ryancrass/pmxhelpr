@@ -20,9 +20,9 @@ breaks_time(x, unit = "hours", n = 8)
 
   - "hours" (default), "hrs", "hour", "hr", "h"
 
-  - "days", "dys", "day", dy", "d"
+  - "days", "dys", "day", "dy", "d"
 
-  - "weeks", "wks", ,"week," "wk", "w"
+  - "weeks", "wks", "week", "wk", "w"
 
   - "months", "mons", "mos", "month", "mo", "m"
 

@@ -60,7 +60,7 @@ plot_vpclegend(
 - update:
 
   list containing the plot elements to be updated. Default is set by
-  [`pmxhelpr_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.md).
+  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
 
 - ...:
 

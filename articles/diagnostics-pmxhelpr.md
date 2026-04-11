@@ -16,10 +16,11 @@ library(patchwork, warn.conflicts = FALSE)
 ```
 
 For this vignette, we will generate model diagnostics for a PK model
-(`model`) fit to `data_sad` dataset using the `data_sad_pkfit` dataset
-internal to `pmxhelpr`. We can take a quick look at the dataset using
-[`glimpse()`](https://pillar.r-lib.org/reference/glimpse.html) from the
-dplyr package. Dataset definitions can also be viewed by calling
+(`pkmodel`) fit to the `data_sad` dataset using the `data_sad_pkfit`
+dataset internal to `pmxhelpr`. We can take a quick look at the dataset
+using [`glimpse()`](https://pillar.r-lib.org/reference/glimpse.html)
+from the dplyr package. Dataset definitions can also be viewed by
+calling
 [`?data_sad_pkfit`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.md),
 as one would to view the documentation for a package function.
 
@@ -179,7 +180,7 @@ data and summary statistics of observed and model-predicted
 concentration data.
 
 If one wanted to clarify that all the data mapping back to the dataset
-variable specified in `output_vars["DV]` with color, then the default
+variable specified in `output_vars["DV"]` with color, then the default
 for `output_colors["OBS"]` can be updated to to blue to align with `DV`.
 
 ``` r
@@ -340,8 +341,8 @@ overlay GOF plots using `plot_popgof`; however, we can also use
 pre-processing of the input dataset.
 
 We can plot an individual subject by filtering the input dataset. This
-could be extended generate plots for all individuals using `for` loops,
-`lapply`,
+could be extended to generate plots for all individuals using `for`
+loops, `lapply`,
 [`purrr::map()`](https://purrr.tidyverse.org/reference/map.html)
 functions, or other methods.
 

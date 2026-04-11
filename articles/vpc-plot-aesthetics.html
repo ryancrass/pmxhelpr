@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>VPC Plot Aesthetics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/v0.3.9/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/vignettes/vpc-plot-aesthetics.Rmd" class="external-link"><code>vignettes/vpc-plot-aesthetics.Rmd</code></a></small>
       <div class="d-none name"><code>vpc-plot-aesthetics.Rmd</code></div>
     </div>
 
@@ -72,10 +72,10 @@
 elements of VPC plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code> with the
 <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme()</a></code> function from the <code>vpc</code>
 package.</p>
-<p><code>plot_legend()</code> is a helper plotting function that creates
-a legend for plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. These legends can
-then be merged with the VPC plot into a single plot object using the
-<code>patchwork</code> package.</p>
+<p><code><a href="../reference/plot_vpclegend.html">plot_vpclegend()</a></code> is a helper plotting function that
+creates a legend for plots generated using <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>. These
+legends can then be merged with the VPC plot into a single plot object
+using the <code>patchwork</code> package.</p>
 <p>Let’s get started. First, we will load the required packages.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -90,9 +90,10 @@ then be merged with the VPC plot into a single plot object using the
 <code>pmxhelpr</code> and <code>df_mrgsim_replicate</code> to run the
 simulation.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"model"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Building model_cpp ... done.</span></span>
+<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">CMT</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"pkmodel"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Building pkmodel_cpp ... done.</span></span>
 <span></span>
 <span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, model <span class="op">=</span> <span class="va">model</span>,replicates <span class="op">=</span> <span class="fl">100</span>, </span>
 <span>                     dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span>
@@ -261,9 +262,9 @@ arms in early phase trials.</p>
 <p>Similarly, the default aesthetics for vpc plots in pmxhelpr use the
 classical red-blue-green brewer color schema. The defaults for
 <code>pmxhelpr</code> can be visualized by specifying the
-<code>pmxhlepr_vpc_theme()</code> function with no arguments.</p>
+<code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code> function with no arguments.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pmxhelpr_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">pmxhelpr_theme_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_theme.html">plot_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">pmxhelpr_theme_list</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $obs_color</span></span>
 <span><span class="co">#&gt; [1] "#0000FF"</span></span>
@@ -420,15 +421,15 @@ classical red-blue-green brewer color schema. The defaults for
 <p>Now, suppose we want to change the default aesthetics of the VPC
 plot, without changing what is being shown. This can be accomplished by
 passing a named list of elements to update to the function
-<code><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme()</a></code>. The named list object generated from
-this function can then be passed to the <code>theme</code> argument in
-<code>vpc_plot_exactbins</code>, which is also an alias for the
+<code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code>. The named list object generated from this
+function can then be passed to the <code>theme</code> argument in
+<code>plot_vpc_exactbins</code>, which is also an alias for the
 <code>vpc_theme</code> argument in <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc()</a></code>.</p>
 <p>Let’s say we prefer a the blue-grey color scheme native to the
 <code>vpc</code> package! We can reproduce this by passing
 <code><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">vpc::new_vpc_theme()</a></code>:</p>
 <ol style="list-style-type: decimal">
-<li>to the update argument of <code><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme()</a></code>
+<li>to the update argument of <code>pmxhelpr_vpc_theme()</code>
 </li>
 </ol>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -439,7 +440,7 @@ this function can then be passed to the <code>theme</code> argument in
 <span>  xlab <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  theme <span class="op">=</span> <span class="fu"><a href="../reference/pmxhelpr_vpc_theme.html">pmxhelpr_vpc_theme</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  theme <span class="op">=</span> <span class="fu"><a href="../reference/plot_vpc_theme.html">plot_vpc_theme</a></span><span class="op">(</span>update <span class="op">=</span> <span class="fu">vpc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vpc/man/new_vpc_theme.html" class="external-link">new_vpc_theme</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
@@ -451,8 +452,10 @@ this function can then be passed to the <code>theme</code> argument in
 <span><span class="co">#&gt; the existing scale.</span></span>
 <span></span>
 <span><span class="va">vpc_pc_vpctheme</span></span></code></pre></div>
-<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png" class="r-plt" alt="" width="768">
-2) to the theme argument of <code>plot_vpc_exactbins</code>.</p>
+<p><img src="vpc-plot-aesthetics_files/figure-html/plot-vpc-vpctheme1-1.png" class="r-plt" alt="" width="768"></p>
+<ol start="2" style="list-style-type: decimal">
+<li>to the theme argument of <code>plot_vpc_exactbins</code>.</li>
+</ol>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_vpctheme2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
 <span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
@@ -517,9 +520,9 @@ object, which we can modify by adding layers just like like any other
 however, there is one other element we may like to include in the figure
 to make it more easily interpreted in isolation - a legend.</p>
 <p><code>pmxhelpr</code> provides a useful helper function for this
-purpose, <code>plot_legend()</code>. To obtain a legend for a plot using
-default aesthetics, simply run <code><a href="../reference/plot_vpclegend.html">plot_vpclegend()</a></code> without any
-arguments specified.</p>
+purpose, <code><a href="../reference/plot_vpclegend.html">plot_vpclegend()</a></code>. To obtain a legend for a plot
+using default aesthetics, simply run <code><a href="../reference/plot_vpclegend.html">plot_vpclegend()</a></code>
+without any arguments specified.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_pc_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">vpc_pc_legend</span></span></code></pre></div>

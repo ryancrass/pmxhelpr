@@ -34,7 +34,7 @@ plot_popgof_theme()
 #> [1] 1
 #> 
 #> $shape_point_obs
-#> [1] 1.25
+#> [1] 1
 #> 
 #> $size_point_obs
 #> [1] 0.75

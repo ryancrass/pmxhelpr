@@ -1,6 +1,6 @@
-# Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single Ascending Dose Study
+# Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single Ascending Dose Study
 
-Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
+Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single
 Ascending Dose Study
 
 ## Usage
@@ -47,16 +47,25 @@ data_sad
 
 - ODV:
 
-  Dependent variable in original units (units: ng/mL)
+  Dependent variable in original units (units: ng/mL cmt=2, % cmt=3)
 
 - LDV:
 
-  Log-transformed dependent variable (units: log(ng/mL))
+  Log-transformed dependent variable (units: log(ng/mL) cmt=2, % cmt=3)
+
+- CFB:
+
+  Dependent variable change from baseline (units: %)
+
+- CONC:
+
+  Time-matched Observed Drug Concentration with BLQ imputed to zero
+  (units: ng/mL)
 
 - CMT:
 
   NONMEM-specific compartment variable (values: 1=dose, 2=plasma
-  concentration)
+  concentration, 3=response)
 
 - MDV:
 
@@ -81,7 +90,7 @@ data_sad
 
 - RACE:
 
-  Subject race (units: hours)
+  Subject race
 
 - AGEBL:
 

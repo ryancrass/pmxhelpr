@@ -6,15 +6,11 @@
   : Determine axis breaks automatically for time variables
 
 - [`data_sad`](https://ryancrass.github.io/pmxhelpr/reference/data_sad.md)
-  : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
+  : Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single
   Ascending Dose Study
 
 - [`data_sad_nca`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_nca.md)
   : Example NCA Parameter Dataset Output from PKNCA
-
-- [`data_sad_pd`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pd.md)
-  : Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single
-  Ascending Dose Study
 
 - [`data_sad_pkfit`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.md)
   : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
@@ -45,16 +41,6 @@
 
 - [`df_pcdv()`](https://ryancrass.github.io/pmxhelpr/reference/df_pcdv.md)
   : Perform prediction-correction of the dependent variable
-
-- [`dvconc_caption()`](https://ryancrass.github.io/pmxhelpr/reference/dvconc_caption.md)
-  :
-
-  Define a caption for `plot_dvconc`
-
-- [`dvtime_caption()`](https://ryancrass.github.io/pmxhelpr/reference/dvtime_caption.md)
-  :
-
-  Define a caption for `plot_dvtime`
 
 - [`mod_loglog()`](https://ryancrass.github.io/pmxhelpr/reference/mod_loglog.md)
   : Perform a log-log Regression
@@ -93,8 +79,8 @@
 - [`plot_vpc_exactbins()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.md)
   : Plot a visual predictive check (VPC) with exact time bins
 
+- [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+  : Customized VPC theme with pmxhelpr default aesthetics
+
 - [`plot_vpclegend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpclegend.md)
   : Plot a legend for a visual predictive check (VPC)
-
-- [`pmxhelpr_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr_vpc_theme.md)
-  : Customized VPC theme with pmxhelpr default aesthetics

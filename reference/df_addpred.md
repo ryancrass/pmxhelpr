@@ -42,8 +42,8 @@ numeric variable `PRED`.
 ## Examples
 
 ``` r
-model <- model_mread_load(model = "model")
-#> Building model_cpp ... 
+pkmodel <- model_mread_load(model = "pkmodel")
+#> Building pkmodel_cpp ... 
 #> done.
-data <- df_addpred(data = data_sad, model = model)
+data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 ```

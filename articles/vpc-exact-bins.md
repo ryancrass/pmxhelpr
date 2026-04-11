@@ -18,7 +18,7 @@ plots including, but certainly not limited to:
 
 However, although [`vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html)
 contains many great options to automatically identify bins in the data,
-it is not optimized to leverage input datasets with variable a variable
+it is not optimized to leverage input datasets with a variable
 representing exact bin times (e.g., nominal, or protocol-specified,
 times).
 
@@ -37,7 +37,7 @@ library(withr, warn.conflicts =  FALSE)
 ## Analysis Dataset
 
 Next let’s explore the input dataset, `data_sad`. This dataset was
-generated via simulation from `model`, an `mrgsolve` model internal to
+generated via simulation from `pkmodel`, an `mrgsolve` model internal to
 the pmxhelpr package.
 
 We can take a quick look at the dataset using
@@ -48,25 +48,27 @@ the R help functionality, just as one would for a function, with
 
 ``` r
 glimpse(data_sad)
-#> Rows: 720
-#> Columns: 23
-#> $ LINE    <dbl> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,…
-#> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,…
-#> $ TIME    <dbl> 0.00, 0.00, 0.48, 0.81, 1.49, 2.11, 3.05, 4.14, 5.14, 7.81, 12…
-#> $ NTIME   <dbl> 0.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0, 16.0, …
-#> $ NDAY    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 1,…
+#> Rows: 1,404
+#> Columns: 25
+#> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+#> $ TIME    <dbl> 0.00, 0.00, 0.00, 0.48, 0.48, 0.81, 0.81, 1.49, 1.49, 2.11, 2.…
+#> $ NTIME   <dbl> 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.5, 1.5, 2.0, 2.0, 3.0, 3.…
+#> $ NDAY    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
 #> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
-#> $ AMT     <dbl> NA, 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-#> $ EVID    <dbl> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, NA, 2.02, 4.02, 3.50, 7.18, 9.31, 12.46, 13.43, 12.11,…
-#> $ LDV     <dbl> NA, NA, NA, 0.7031, 1.3913, 1.2528, 1.9713, 2.2311, 2.5225, 2.…
-#> $ CMT     <dbl> 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
-#> $ MDV     <dbl> 1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1…
-#> $ BLQ     <dbl> -1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, …
-#> $ LLOQ    <dbl> 1, NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+#> $ AMT     <dbl> 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+#> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 2.02000, 99.44932, 4.02000, 9…
+#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.70310, 99.44932, 1.39130, 9…
+#> $ CFB     <dbl> NA, NA, 0.0000000, NA, -0.1229974, NA, -0.5506789, NA, -2.3928…
+#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 2.02, NA, 4.02, NA, 3.50, NA, 7.18…
+#> $ LINE    <dbl> 2, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,…
+#> $ CMT     <dbl> 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,…
+#> $ MDV     <dbl> NA, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+#> $ BLQ     <dbl> NA, -1, -1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+#> $ LLOQ    <dbl> NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
 #> $ FOOD    <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ SEXF    <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
-#> $ RACE    <dbl> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,…
+#> $ RACE    <dbl> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
 #> $ AGEBL   <int> 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25…
 #> $ WTBL    <dbl> 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82.1, 82…
 #> $ SCRBL   <dbl> 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.87, 0.…
@@ -115,18 +117,18 @@ length(unique(data_sad$TIME))
 ## PK Model
 
 Luckily for us, someone has already fit a PK model to these data! Let’s
-load `model` by calling
+load `pkmodel` by calling
 [`model_mread_load()`](https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.md)
 and take a look at it with the
 [`see()`](https://mrgsolve.org/docs/reference/see.html) function from
 the `mrgsolve` package.
 
 ``` r
-model <- model_mread_load("model")
-#> Building model_cpp ... done.
+model <- model_mread_load("pkmodel")
+#> Building pkmodel_cpp ... done.
 see(model)
 #> 
-#> Model file:  model.cpp 
+#> Model file:  pkmodel.cpp 
 #> $PARAM
 #> TVCL = 20
 #> TVVC = 35.7
@@ -213,7 +215,9 @@ is passed to
 dose records from the simulation output and reduce file size.
 
 ``` r
-simout <- df_mrgsim_replicate(data = data_sad, 
+data_sad_pk <- filter(data_sad, CMT %in% c(1,2))
+
+simout <- df_mrgsim_replicate(data = data_sad_pk, 
                      model = model, 
                      replicates = 100, 
                      dv_var = ODV,
@@ -240,7 +244,7 @@ glimpse(simout)
 #> $ MDV    <dbl> 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, …
 #> $ DOSE   <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,…
 #> $ FOOD   <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
-#> $ GUT    <dbl> 0.00000000000000000, 4.34652773939926984, 4.13276198317304821, …
+#> $ GUT    <dbl> 4.67735141287198175, 4.34652773939926984, 4.13276198317304821, …
 #> $ CENT   <dbl> 0.000000000000, 0.009786371098, 0.023698880423, 0.058880291437,…
 #> $ PERIPH <dbl> 0.00000000000, 0.00080390625, 0.00337854545, 0.01621962833, 0.0…
 #> $ TRANS1 <dbl> 0.0000000000000000, 0.3188382667608536, 0.5115783540267899, 0.8…
@@ -340,7 +344,7 @@ MDV=0), and count of missing (EVID=0 & MDV=1) observations.
 
 ``` r
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 #> # A tibble: 19 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>
@@ -419,36 +423,28 @@ vpc_pretty
 
 ![](vpc-exact-bins_files/figure-html/plot-pretty-1.png)
 
-The vpc plot produced with `bins = "pretty` *is* fairly pretty; however,
-again we can see that the binning is not true to the exact bins in our
-dataset, especially at the earlier absorption phase time-points, which
-are being largely binned together.
+The vpc plot produced with `bins = "pretty"` *is* fairly pretty;
+however, again we can see that the binning is not true to the exact bins
+in our dataset, especially at the earlier absorption phase time-points,
+which are being largely binned together.
 
 ``` r
 ##Exact bins in the input data
 df_nobsbin(data_sad, bin_var = "NTIME")
-#> # A tibble: 19 × 4
+#> # A tibble: 38 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>
 #>  1   0       2     0     36
-#>  2   0.5     2    34      2
-#>  3   1       2    36      0
-#>  4   1.5     2    36      0
-#>  5   2       2    36      0
-#>  6   3       2    36      0
-#>  7   4       2    36      0
-#>  8   5       2    36      0
-#>  9   8       2    36      0
-#> 10  12       2    36      0
-#> 11  16       2    36      0
-#> 12  24       2    36      0
-#> 13  36       2    36      0
-#> 14  48       2    33      3
-#> 15  72       2    29      7
-#> 16  96       2    16     20
-#> 17 120       2     6     30
-#> 18 144       2     1     35
-#> 19 168       2     0     36
+#>  2   0       3     0     36
+#>  3   0.5     2    34      2
+#>  4   0.5     3    34      2
+#>  5   1       2    36      0
+#>  6   1       3    36      0
+#>  7   1.5     2    36      0
+#>  8   1.5     3    36      0
+#>  9   2       2    36      0
+#> 10   2       3    36      0
+#> # ℹ 28 more rows
 
 ##Bin midpoints and boundaries determined by vpc() using bins = "pretty"
 distinct(select(vpc_pretty$data, bin_mid, bin_min, bin_max))
@@ -498,7 +494,7 @@ vpc_kmeans
 
 ``` r
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 #> # A tibble: 19 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>
@@ -578,28 +574,20 @@ grouped most of the absorption phase into a single bin.
 ``` r
 ##Exact bins in the input data
 df_nobsbin(data_sad, bin_var = "NTIME")
-#> # A tibble: 19 × 4
+#> # A tibble: 38 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>
 #>  1   0       2     0     36
-#>  2   0.5     2    34      2
-#>  3   1       2    36      0
-#>  4   1.5     2    36      0
-#>  5   2       2    36      0
-#>  6   3       2    36      0
-#>  7   4       2    36      0
-#>  8   5       2    36      0
-#>  9   8       2    36      0
-#> 10  12       2    36      0
-#> 11  16       2    36      0
-#> 12  24       2    36      0
-#> 13  36       2    36      0
-#> 14  48       2    33      3
-#> 15  72       2    29      7
-#> 16  96       2    16     20
-#> 17 120       2     6     30
-#> 18 144       2     1     35
-#> 19 168       2     0     36
+#>  2   0       3     0     36
+#>  3   0.5     2    34      2
+#>  4   0.5     3    34      2
+#>  5   1       2    36      0
+#>  6   1       3    36      0
+#>  7   1.5     2    36      0
+#>  8   1.5     3    36      0
+#>  9   2       2    36      0
+#> 10   2       3    36      0
+#> # ℹ 28 more rows
 
 ##Bin midpoints and boundaries determined by vpc() using bins = "density"
 distinct(select(vpc_density$data, bin_mid, bin_min, bin_max))
@@ -674,28 +662,20 @@ does not produce binning consistent with the exact bins in our dataset.
 ``` r
 ##Exact bins in the input data
 df_nobsbin(data_sad, bin_var = NTIME)
-#> # A tibble: 19 × 4
+#> # A tibble: 38 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>
 #>  1   0       2     0     36
-#>  2   0.5     2    34      2
-#>  3   1       2    36      0
-#>  4   1.5     2    36      0
-#>  5   2       2    36      0
-#>  6   3       2    36      0
-#>  7   4       2    36      0
-#>  8   5       2    36      0
-#>  9   8       2    36      0
-#> 10  12       2    36      0
-#> 11  16       2    36      0
-#> 12  24       2    36      0
-#> 13  36       2    36      0
-#> 14  48       2    33      3
-#> 15  72       2    29      7
-#> 16  96       2    16     20
-#> 17 120       2     6     30
-#> 18 144       2     1     35
-#> 19 168       2     0     36
+#>  2   0       3     0     36
+#>  3   0.5     2    34      2
+#>  4   0.5     3    34      2
+#>  5   1       2    36      0
+#>  6   1       3    36      0
+#>  7   1.5     2    36      0
+#>  8   1.5     3    36      0
+#>  9   2       2    36      0
+#> 10   2       3    36      0
+#> # ℹ 28 more rows
 
 ##Bin midpoints and boundaries determined by vpc() using bins = "data"
 distinct(select(vpc_data$data, bin_mid, bin_min, bin_max))
@@ -816,7 +796,7 @@ we now see that they are consistent! Huzzah!
 
 ``` r
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 #> # A tibble: 19 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>

@@ -27,6 +27,6 @@ An `mrgsolve` model object.
 ## Examples
 
 ``` r
-model <- model_mread_load("model")
+model <- model_mread_load("pkmodel")
 #> Loading model from cache.
 ```

@@ -32,7 +32,8 @@ observations, and `n_miss`, a count of missing observations.
 ## Examples
 
 ``` r
-df_nobsbin(data_sad)
+data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+df_nobsbin(data_sad_pk)
 #> # A tibble: 19 × 4
 #>    NTIME   CMT n_obs n_miss
 #>    <dbl> <dbl> <int>  <int>

@@ -81,7 +81,7 @@ data_sad_pkfit
 
 - RACE:
 
-  Subject race (units: hours)
+  Subject race
 
 - AGEBL:
 

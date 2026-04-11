@@ -116,6 +116,31 @@ test_that("Caption for no fits returns points only text", {
   expect_no_match(cap, "overlaid")
 })
 
+##Test Edge Cases
+test_that("linear = TRUE, loess = FALSE produces only linear smooth (no loess)", {
+  p <- plot_dvconc(data_sad_pd, dv_var = "ODV", idv_var = "CONC",
+                   linear = TRUE, loess = FALSE)
+  smooth_methods <- vapply(p$layers, function(l) {
+    if (inherits(l$stat, "StatSmooth")) l$stat_params$method else NA_character_
+  }, character(1))
+  smooth_methods <- smooth_methods[!is.na(smooth_methods)]
+  expect_true("lm" %in% smooth_methods)
+  expect_false("loess" %in% smooth_methods)
+})
+
+test_that("linear = TRUE, loess = TRUE produces both smooth layers", {
+  p <- plot_dvconc(data_sad_pd, dv_var = "ODV", idv_var = "CONC",
+                   linear = TRUE, loess = TRUE)
+  smooth_count <- sum(vapply(p$layers, function(l) inherits(l$stat, "StatSmooth"), logical(1)))
+  expect_equal(smooth_count, 2)
+})
+
+test_that("col_var = NULL works without error and has no color aesthetic", {
+  p <- plot_dvconc(data_sad_pd, dv_var = "ODV", idv_var = "CONC", col_var = NULL)
+  expect_s3_class(p, "ggplot")
+  expect_false("colour" %in% names(p$mapping))
+})
+
 ##Test Argument Handling
 test_that("Error if incorrect class for argument `data`", {
   expect_error(plot_dvconc(data = "data_sad_pd", dv_var = "ODV", idv_var = "CONC"),

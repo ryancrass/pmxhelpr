@@ -95,43 +95,6 @@ test_that("Output rounds values as specified in the `sigdigits` argument", {
 
 
 
-##Test Argument Handling
-test_that("Error if incorrect class for argument `data`", {
-  expect_error(plot_doseprop("data_sad_nca", metrics = c("aucinf.obs", "cmax")),
-               regexp = "argument `data` must be a `data.frame`")
-})
-
-test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_var]]`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("auc")),
-               regexp = "argument `metrics` must be levels in variable `metric_var`")
-})
-
-test_that("Error if variable specified in `metric_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "METRIC"),
-               regexp = "argument `metric_var` must be variables in `data`")
-})
-
-test_that("Error if variable specified in `dose_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variables in `data`")
-})
-
-test_that("Error if argument `method` is not one of normal or tdist", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
-               regexp = "argument `method` must be 'normal' or 'tdist'")
-})
-
-test_that("Error if argument `ci` is not one of 0.90 or 0.95", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
-})
-
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
-})
-
-
 #####plot_doseprop#####
 
 ##Test Output

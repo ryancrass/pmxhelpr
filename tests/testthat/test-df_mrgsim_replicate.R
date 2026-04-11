@@ -23,28 +23,10 @@ test_that("output data.frame contains variable SIMDV if non-default output_vars 
                "SIMDV")
 })
 
-test_that("output data.frame contains variable PRED", {
-  expect_named(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 10,
-                                   dv_var = "ODV") |> dplyr::select(PRED),
-               "PRED")
-})
-
-test_that("output data.frame contains variable IPRED", {
-  expect_named(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 10,
-                                   dv_var = "ODV") |> dplyr::select(IPRED),
-               "IPRED")
-})
-
-test_that("output data.frame contains variable SIMDV", {
-  expect_named(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 10,
-                                   dv_var = "ODV") |> dplyr::select(SIMDV),
-               "SIMDV")
-})
-
-test_that("output data.frame contains variable OBSDV", {
-  expect_named(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 10,
-                                   dv_var = "ODV") |> dplyr::select(OBSDV),
-               "OBSDV")
+test_that("output data.frame contains expected output variables PRED, IPRED, SIMDV, OBSDV", {
+  out <- df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 10,
+                             dv_var = "ODV")
+  expect_true(all(c("PRED", "IPRED", "SIMDV", "OBSDV") %in% colnames(out)))
 })
 
 test_that("output data.frame contains variable requested with argument `irep_name`", {
@@ -103,10 +85,12 @@ test_that("Error if variables specified by char_vars do not exist in `data`", {
                regexp = "argument `char_vars` must be variables in `data`")
 })
 
-test_that("Error if variable specified by irep_name does not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,dv_var = "ODV",
-                                   char_vars = "test"),
-               regexp = "argument `char_vars` must be variables in `data`")
+test_that("Same seed produces identical output", {
+  out1 <- df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
+                              dv_var = "ODV", seed = 12345)
+  out2 <- df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"), replicates = 2,
+                              dv_var = "ODV", seed = 12345)
+  expect_identical(out1$SIMDV, out2$SIMDV)
 })
 
 test_that("Error if incorrect class for arugmument `seed`", {

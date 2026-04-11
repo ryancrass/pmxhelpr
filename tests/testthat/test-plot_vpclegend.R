@@ -41,4 +41,21 @@ test_that("Custom theme update via update argument is accepted", {
   expect_s3_class(p, "ggplot")
 })
 
+##Test Legend Content
+test_that("Default legend contains 'Obs Med' linetype label", {
+  p <- plot_vpclegend()
+  linetype_scale <- p$scales$scales[[which(vapply(p$scales$scales,
+    function(s) "linetype" %in% s$aesthetics, logical(1)))]]
+  expect_true("Obs Med" %in% linetype_scale$breaks)
+})
+
+test_that("Custom pi = c(0.025, 0.975) produces label text with '2.5th' and '97.5th'", {
+  p <- plot_vpclegend(pi = c(0.025, 0.975))
+  linetype_scale <- p$scales$scales[[which(vapply(p$scales$scales,
+    function(s) "linetype" %in% s$aesthetics, logical(1)))]]
+  pi_break <- linetype_scale$breaks[grepl("2.5th", linetype_scale$breaks)]
+  expect_length(pi_break, 1)
+  expect_match(pi_break, "97.5th")
+})
+
 ##Test Arguments

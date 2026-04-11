@@ -34,19 +34,37 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
   )
 })
 
-#test_that("Output plot maps variable specified in `col_var` to the color aesthetic", {
-#  expect_equal(
-#    plot_dvtime(data_sad, dv_var = "ODV", col_var = "DOSE")$labels$colour,
-#    "DOSE"
-#  )
-#})
+#####dvtime_caption####
 
-#test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
-#  expect_equal(
-#    plot_dvtime(data_sad, dv_var = "ODV", grp_dv = TRUE)$labels$group,
-#    "ID"
-#  )
-#})
+test_that("dvtime_caption for cent = 'mean' contains 'mean'", {
+  cap <- dvtime_caption(cent = "mean")
+  expect_match(cap, "mean")
+})
+
+test_that("dvtime_caption for cent = 'median' contains 'median'", {
+  cap <- dvtime_caption(cent = "median")
+  expect_match(cap, "median")
+})
+
+test_that("dvtime_caption for cent = 'mean' with log_y = TRUE contains 'geometric mean'", {
+  cap <- dvtime_caption(cent = "mean", log_y = TRUE)
+  expect_match(cap, "geometric mean")
+})
+
+test_that("dvtime_caption for cent = 'none' omits 'Solid circles' prefix", {
+  cap <- dvtime_caption(cent = "none")
+  expect_no_match(cap, "Solid circles")
+})
+
+test_that("dvtime_caption for obs_dv = TRUE, grp_dv = FALSE contains 'Open circles are observations'", {
+  cap <- dvtime_caption(cent = "mean", obs_dv = TRUE, grp_dv = FALSE)
+  expect_match(cap, "Open circles are observations")
+})
+
+test_that("dvtime_caption for obs_dv = FALSE, grp_dv = TRUE contains 'lines connect observations'", {
+  cap <- dvtime_caption(cent = "mean", obs_dv = FALSE, grp_dv = TRUE)
+  expect_match(cap, "lines connect observations within an individual")
+})
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {

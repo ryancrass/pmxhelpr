@@ -48,11 +48,11 @@ jobs:
         run: |
           sed -i 's|^r_version = ".*"$|r_version = "${{ matrix.config.r }}"|' rproject.toml
           cat rproject.toml
-      
+
       - name: rv-sysdeps-install
         run: |
           dnf install -y epel-release
-          MISSING_DEPS="$(rv sysdeps --only-absent --ignore 'libgit2_1.7-devel' --ignore pandoc) libgit2-devel libcurl-devel"
+          MISSING_DEPS="$(rv sysdeps --only-absent --ignore 'libgit2_1.7-devel' --ignore pandoc --ignore libuv-devel) libgit2-devel libcurl-devel"
           if [ -n "$MISSING_DEPS" ]; then
             echo "Found missing system dependencies:"
             echo "$MISSING_DEPS"
@@ -105,7 +105,7 @@ jobs:
       - name: Run R Releaser build-bin
         id: releaser-bin
         uses: A2-ai/r-releaser/build-bin@build-binary
-        with: 
+        with:
           library: ${{ steps.library.outputs.result }}
           src_tarball_path: ${{ steps.releaser.outputs.tarball_path }}
 

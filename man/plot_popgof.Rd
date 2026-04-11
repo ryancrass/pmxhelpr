@@ -19,6 +19,7 @@ plot_popgof(
   grp_dv = FALSE,
   dosenorm = FALSE,
   cfb = FALSE,
+  cfb_base = 0,
   ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
@@ -98,6 +99,8 @@ Requires variable specified in \code{dose_var} to be present in \code{data}}
 
 \item{cfb}{Logical indicating if dependent variable is a change from baseline.
 Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
+
+\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
 \item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
 

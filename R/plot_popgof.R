@@ -42,6 +42,7 @@ plot_popgof <- function(data,
                         grp_dv = FALSE,
                         dosenorm = FALSE,
                         cfb = FALSE,
+                        cfb_base = 0,
                         ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
@@ -74,6 +75,7 @@ plot_popgof <- function(data,
   if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}
   if(dosenorm == TRUE){check_varsindf(data, dose_var_str)}
   check_loq_method(loq, loq_method, data)
+  if(cfb==TRUE)check_numeric(cfb_base)
 
   #Handle Output and Time Variables
   data <- rename_time_vars(data, time_vars, output_vars)
@@ -117,7 +119,7 @@ plot_popgof <- function(data,
                    panel.grid.major.x = ggplot2::element_blank())
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = 0,
+  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
                                                      linewidth = plottheme$linewidth_ref,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)
@@ -139,105 +141,10 @@ plot_popgof <- function(data,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)
 
-  #Plot Points
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                           fun = "mean", geom = "point",
-                                                                           size = plottheme$size_point_cent,
-                                                                           shape = plottheme$shape_point_cent,
-                                                                           alpha = plottheme$alpha_point_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"),
-                                                                               fun = "median", geom = "point",
-                                                                               size = plottheme$size_point_cent,
-                                                                               shape = plottheme$shape_point_cent,
-                                                                               alpha = plottheme$alpha_point_cent)
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED, color = "IPRED"),
-                                                                                             fun = "mean", geom = "point",
-                                                                                             size = plottheme$size_point_cent,
-                                                                                             shape = plottheme$shape_point_cent,
-                                                                                             alpha = plottheme$alpha_point_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
-                                                                               fun = "median", geom = "point",
-                                                                               size = plottheme$size_point_cent,
-                                                                               shape = plottheme$shape_point_cent,
-                                                                               alpha = plottheme$alpha_point_cent)
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
-                                                                           fun = "mean", geom = "point",
-                                                                           size = plottheme$size_point_cent,
-                                                                           shape = plottheme$shape_point_cent,
-                                                                           alpha = plottheme$alpha_point_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
-                                                                               fun = "median", geom = "point",
-                                                                               size = plottheme$size_point_cent,
-                                                                               shape = plottheme$shape_point_cent,
-                                                                               alpha = plottheme$alpha_point_cent)
-
-  #Plot Observed Central Tendency
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                           fun = "mean", geom = "line",
-                                                                           linewidth = plottheme$linewidth_dv,
-                                                                           linetype = plottheme$linetype_dv,
-                                                                           alpha = plottheme$alpha_line_dv)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                                               fun = "median", geom = "line",
-                                                                               linewidth = plottheme$linewidth_dv,
-                                                                               linetype = plottheme$linetype_dv,
-                                                                               alpha = plottheme$alpha_line_dv)
-  #Plot Observed Central Tendency and Error Bars
-  if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                              fun.data = "mean_sdl", fun.args = list(mult=1),
-                                                              geom = "errorbar",
-                                                              linewidth = plottheme$linewidth_errorbar,
-                                                              linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar,
-                                                              width = width)
-  if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"),
-                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
-                                                                    fun.min = function(x){NA_real_},
-                                                                    geom = "errorbar",
-                                                                    linewidth = plottheme$linewidth_errorbar,
-                                                                    linetype = plottheme$linetype_errorbar,
-                                                                    alpha = plottheme$alpha_errorbar,
-                                                                    width = width) +
-                                              ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV, color = "DV"),
-                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
-                                                                    fun.min = function(x){mean(x)},
-                                                                    geom = "linerange",show.legend = FALSE,
-                                                                    linewidth = plottheme$linewidth_errorbar,
-                                                                    linetype = plottheme$linetype_errorbar,
-                                                                    alpha = plottheme$alpha_errorbar,
-                                                                    width = width)
-  if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV,color = "DV"),
-                                                              fun.max = function(x){stats::quantile(x,0.75)},
-                                                              fun.min = function(x){stats::quantile(x,0.25)},
-                                                              geom = "errorbar",
-                                                              linewidth = plottheme$linewidth_errorbar,
-                                                              linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar,
-                                                              width = width)
-
-  #Plot Individual Model Predictions
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
-                                                                           fun = "mean", geom = "line",
-                                                                           linewidth = plottheme$linewidth_cent,
-                                                                           linetype = plottheme$linetype_cent,
-                                                                           alpha = plottheme$alpha_line_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
-                                                                               fun = "median", geom = "line",
-                                                                               linewidth = plottheme$linewidth_cent,
-                                                                               linetype = plottheme$linetype_cent,
-                                                                               alpha = plottheme$alpha_line_cent)
-
-  #Plot Population Model Predictions
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
-                                                                           fun = "mean", geom = "line",
-                                                                           linewidth = plottheme$linewidth_cent,
-                                                                           linetype = plottheme$linetype_cent,
-                                                                           alpha = plottheme$alpha_line_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=PRED,color = "PRED"),
-                                                                               fun = "median", geom = "line",
-                                                                               linewidth = plottheme$linewidth_cent,
-                                                                               linetype = plottheme$linetype_cent,
-                                                                               alpha = plottheme$alpha_line_cent)
+  #Plot Central Tendency (points, lines, error bars)
+  plot <- add_cent_layers(plot, cent, "DV",    plottheme, width, color_aes = "DV",    line_prefix = "dv")
+  plot <- add_cent_layers(plot, cent, "IPRED", plottheme, width, color_aes = "IPRED", show_errorbars = FALSE)
+  plot <- add_cent_layers(plot, cent, "PRED",  plottheme, width, color_aes = "PRED",  show_errorbars = FALSE)
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
@@ -265,33 +172,28 @@ plot_popgof <- function(data,
 
 
 plot_popgof_theme <- function(update = NULL){
-  defaults_list <- list(
-    linewidth_ref = 0.5,
-    linetype_ref = 2,
-    alpha_line_ref = 1,
+  defaults_list <- c(
+    .base_ref_theme,
+    list(
+      shape_point_obs = 1,
+      size_point_obs = 0.75,
+      alpha_point_obs = 0.5,
+      linewidth_obs = 0.5,
+      linetype_obs = 1,
+      alpha_line_obs = 0.75,
 
-    shape_point_obs = 1.25,
-    size_point_obs = 0.75,
-    alpha_point_obs = 0.5,
-    linewidth_obs = 0.5,
-    linetype_obs = 1,
-    alpha_line_obs = 0.75,
+      linewidth_dv = 1,
+      linetype_dv = 1,
+      alpha_line_dv  = 1,
 
-    linewidth_dv = 1,
-    linetype_dv = 1,
-    alpha_line_dv  = 1,
-
-    shape_point_cent = 1,
-    size_point_cent = 1.25,
-    alpha_point_cent = 1,
-    linewidth_cent = 0.75,
-    linetype_cent = 1,
-    alpha_line_cent = 1,
-
-    linewidth_errorbar = 0.75,
-    linetype_errorbar = 1,
-    alpha_errorbar = 1,
-    width_errorbar = NULL
+      shape_point_cent = 1,
+      size_point_cent = 1.25,
+      alpha_point_cent = 1,
+      linewidth_cent = 0.75,
+      linetype_cent = 1,
+      alpha_line_cent = 1
+    ),
+    .base_errorbar_theme
   )
 
   list_update(update, defaults_list)

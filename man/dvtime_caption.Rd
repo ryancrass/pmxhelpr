@@ -36,3 +36,4 @@ Define a caption for \code{plot_dvtime}
 dvtime_caption(cent = "mean")
 dvtime_caption(cent = "mean", log_y = TRUE)
 }
+\keyword{internal}

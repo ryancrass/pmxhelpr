@@ -164,6 +164,7 @@ plot_dvconc <- function(data,
 #'
 #' @return a `character` string containing the plot caption
 #' @export dvconc_caption
+#' @keywords internal
 #'
 #' @examples
 #' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
@@ -206,25 +207,24 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
 
 plot_dvconc_theme <- function(update = NULL){
-  defaults_list <- list(
-    linewidth_ref = 0.5,
-    linetype_ref = 2,
-    alpha_line_ref = 1,
+  defaults_list <- c(
+    .base_ref_theme,
+    list(
+      shape_point_obs = 1,
+      size_point_obs = 1.25,
+      alpha_point_obs = 0.5,
 
-    shape_point_obs = 1,
-    size_point_obs = 1.25,
-    alpha_point_obs = 0.5,
-
-    linewidth_loess = 1,
-    linetype_loess = 1,
-    linewidth_linear = 1,
-    linetype_linear = 2,
-    color_loess = "black",
-    color_linear = "black",
-    color_se_loess = "lightgrey",
-    color_se_linear = "lightgrey",
-    alpha_se_loess = 0.4,
-    alpha_se_linear = 0.4
+      linewidth_loess = 1,
+      linetype_loess = 1,
+      linewidth_linear = 1,
+      linetype_linear = 2,
+      color_loess = "black",
+      color_linear = "black",
+      color_se_loess = "lightgrey",
+      color_se_linear = "lightgrey",
+      alpha_se_loess = 0.4,
+      alpha_se_linear = 0.4
+    )
   )
 
   list_update(update, defaults_list)

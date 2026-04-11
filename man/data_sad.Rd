@@ -26,7 +26,7 @@
 \item{LLOQ}{Lower limit of quantification (units: ng/mL)}
 \item{FOOD}{Co-administration with food (values: 0=fasted, 1=high-fat meal)}
 \item{SEXF}{Subject of female sex (values: 0=male, 1=female)}
-\item{RACE}{Subject race (units: hours)}
+\item{RACE}{Subject race}
 \item{AGEBL}{Subject age at baseline (units: years)}
 \item{WTBL}{Subject body weight at baseline (units:kg)}
 \item{SCRBL}{Subject serum creatinine at baseline (units: g/dL)}

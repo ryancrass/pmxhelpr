@@ -62,8 +62,13 @@ plot_dvtime_dual <- function(data,
   dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
   col_var_str  <- capture_col(rlang::enquo(col_var))
 
+  data_dv1 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val1)
+  data_dv2 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val2)
+  if(nrow(data_dv1) == 0) {rlang::abort(message = paste0("No rows in `data` where `", dvid_var_str, "` == ", dvid_val1))}
+  if(nrow(data_dv2) == 0) {rlang::abort(message = paste0("No rows in `data` where `", dvid_var_str, "` == ", dvid_val2))}
+
   plot_dv1 <- rlang::inject(pmxhelpr::plot_dvtime(
-    data = dplyr::filter(data, .data[[dvid_var_str]]==dvid_val1),
+    data = data_dv1,
     dv_var = !!dv_var1_str,
     time_vars = time_vars,
     timeu = timeu,
@@ -85,7 +90,7 @@ plot_dvtime_dual <- function(data,
   ))
 
   plot_dv2 <- rlang::inject(pmxhelpr::plot_dvtime(
-    data = dplyr::filter(data, .data[[dvid_var_str]]==dvid_val2),
+    data = data_dv2,
     dv_var = !!dv_var2_str,
     time_vars = time_vars,
     timeu = timeu,

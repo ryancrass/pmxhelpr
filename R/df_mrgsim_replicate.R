@@ -66,6 +66,7 @@ df_mrgsim_replicate <- function(data,
   check_mrgmod(model)
   check_mrgmod_outputvars(model, output_vars)
   check_integer(replicates)
+  if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
   check_varsindf(data, dv_var_str)
   check_varsindf(data, time_vars)
   check_varsindf(data, num_vars)

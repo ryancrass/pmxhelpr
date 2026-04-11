@@ -63,7 +63,7 @@ Defaults are:
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
 
-\item{theme}{Named list of aesthetic parameters for the plot.Passed to \code{vpc_theme} arumgent of \code{\link[vpc:vpc]{vpc::vpc()}}.
+\item{theme}{Named list of aesthetic parameters for the plot. Passed to \code{vpc_theme} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
 Defaults for \code{pmxhelpr}dev can be obtained by running \code{plot_vpc_theme} with no arguments.
 Defaults for \code{vpc} can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
 

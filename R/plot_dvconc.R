@@ -158,7 +158,6 @@ plot_dvconc <- function(data,
 
 
 
-
 #' Define a caption for `plot_dvconc`
 #'
 #' @inheritParams plot_dvconc
@@ -193,6 +192,9 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
         ifelse(cfb == TRUE, cfb_lab, ""),
         fit_lab)
 }
+
+
+
 
 
 #' Customized Response versus drug concentration theme with pmxhelpr default aesthetics

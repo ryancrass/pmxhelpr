@@ -13,8 +13,8 @@ breaks_time(x, unit = "hours", n = 8)
 Options include:
 \itemize{
 \item "hours" (default), "hrs", "hour", "hr", "h"
-\item "days", "dys", "day", dy", "d"
-\item "weeks", "wks", ,"week," "wk", "w"
+\item "days", "dys", "day", "dy", "d"
+\item "weeks", "wks", "week", "wk", "w"
 \item "months", "mons", "mos", "month", "mo", "m"
 }}
 

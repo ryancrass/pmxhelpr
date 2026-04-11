@@ -204,7 +204,6 @@ plot_dvtime <- function(data,
 
 
 
-
 #' Define a caption for `plot_dvtime`
 #'
 #' @inheritParams plot_dvtime
@@ -242,6 +241,9 @@ dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
   if(cent == "none") cap2
   else paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
 }
+
+
+
 
 
 #' Customized Concentration-time theme with pmxhelpr default aesthetics

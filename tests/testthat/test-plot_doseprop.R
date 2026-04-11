@@ -50,11 +50,11 @@ test_that("Error if argument `method` not one of normal or tdist", {
                regexp = "argument `method` must be 'normal' or 'tdist'")
 })
 
-test_that("Error if argument `method` not one of normal or tdist", {
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
   fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
 
-  expect_error(df_loglog(fit, ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
+  expect_error(df_loglog(fit, ci = 1.1),
+               regexp = "argument `ci` must be a numeric value between 0 and 1")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {
@@ -149,9 +149,9 @@ test_that("Error if argument `method` is not one of normal or tdist", {
                regexp = "argument `method` must be 'normal' or 'tdist'")
 })
 
-test_that("Error if argument `ci` is not one of 0.90 or 0.95", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
+               regexp = "argument `ci` must be a numeric value between 0 and 1")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {

@@ -1,3 +1,5 @@
+#####Test df_mrgsim_replicate#####
+
 ## Test Output
 test_that("function returns a data.frame", {
   expect_s3_class(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),

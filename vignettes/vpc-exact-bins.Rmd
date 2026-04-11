@@ -39,7 +39,7 @@ library(withr, warn.conflicts =  FALSE)
 
 # Analysis Dataset
 
-Next let's explore the input dataset, `data_sad`. This dataset was generated via simulation from `model`, an `mrgsolve` model internal to the pmxhelpr package. 
+Next let's explore the input dataset, `data_sad`. This dataset was generated via simulation from `pkmodel`, an `mrgsolve` model internal to the pmxhelpr package. 
 
 We can take a quick look at the dataset using `glimpse()` from the dplyr package. Documentation for the dataset can also be viewed using the R help functionality, just as one would for a function, with `?data_sad()`
 
@@ -74,10 +74,10 @@ length(unique(data_sad$TIME))
 ```
 # PK Model
 
-Luckily for us, someone has already fit a PK model to these data! Let's load `model` by calling `model_mread_load()` and take a look at it with the `see()` function from the `mrgsolve` package.
+Luckily for us, someone has already fit a PK model to these data! Let's load `pkmodel` by calling `model_mread_load()` and take a look at it with the `see()` function from the `mrgsolve` package.
 
 ```{r model_mread_load}
-model <- model_mread_load("model")
+model <- model_mread_load("pkmodel")
 see(model)
 ```
 
@@ -94,7 +94,9 @@ We can pass `data_sad` and `model` from the previous steps to the `data` and `mo
 We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
 
 ```{r df_mrgsim_replicate}
-simout <- df_mrgsim_replicate(data = data_sad, 
+data_sad_pk <- filter(data_sad, CMT %in% c(1,2))
+
+simout <- df_mrgsim_replicate(data = data_sad_pk, 
                      model = model, 
                      replicates = 100, 
                      dv_var = ODV,
@@ -160,7 +162,7 @@ We can use the `df_nobsbin()` function to calculate and return a summary data.fr
 
 ```{r bins-jenks}
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 
 ##Bin midpoints and boundaries determined by vpc() using bins = "jenks"
 distinct(select(vpc_jenks$data, bin_mid, bin_min, bin_max))
@@ -228,7 +230,7 @@ vpc_kmeans
 
 ```{r bins-kmeans}
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 
 ##Bin midpoints and boundaries determined by vpc() using bins = "kmeans"
 distinct(select(vpc_kmeans$data, bin_mid, bin_min, bin_max))
@@ -375,7 +377,7 @@ When exploring the bins in the input and output datasets using `plot_vpc_exactbi
 
 ```{r bins-exact}
 ##Exact bins in the input data
-df_nobsbin(data_sad, bin_var = "NTIME")
+df_nobsbin(data_sad_pk, bin_var = "NTIME")
 
 ##Bin midpoints and boundaries determined by plot_vpc_exactbins()
 distinct(select(vpc_exact$data, bin_mid, bin_min, bin_max))

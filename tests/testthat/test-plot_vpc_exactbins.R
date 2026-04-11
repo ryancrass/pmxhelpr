@@ -7,12 +7,12 @@ test_that("Output is a `data.frame`", {
 })
 
 test_that("output data.frame is the same number of rows as unique binning variables when strat_var = NULL", {
-  expect_equal(df_nobsbin(data_sad) |> nrow(),
+  expect_equal(df_nobsbin(dplyr::filter(data_sad, CMT == 2)) |> nrow(),
                length(unique((data_sad$NTIME))))
 })
 
 test_that("output data.frame is the same number of rows as unique binning variables x unique strat_var", {
-  expect_equal(df_nobsbin(data_sad, strat_vars = "FOOD") |> nrow(),
+  expect_equal(df_nobsbin(dplyr::filter(data_sad, CMT == 2), strat_vars = "FOOD") |> nrow(),
                dplyr::distinct(dplyr::select(data_sad, NTIME, FOOD)) |> nrow())
 })
 
@@ -56,31 +56,31 @@ test_that("Error if `strat_vars` do not exist in `data`", {
 
 ##Test Output
 test_that("Output is a `data.frame`", {
-  expect_s3_class(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+  expect_s3_class(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
                           dvpred_vars = c(DV = "ODV")),
                   class = "data.frame")
 })
 
 test_that("output data.frame is the same number of rows as input data frame", {
-  expect_equal(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),dvpred_vars = c(DV = "ODV")) |> nrow(),
-               df_addpred(data_sad, model = model_mread_load("model")) |> nrow())
+  expect_equal(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),dvpred_vars = c(DV = "ODV")) |> nrow(),
+               df_addpred(data_sad, model = model_mread_load("pkmodel")) |> nrow())
 })
 
 test_that("output data.frame contains variable `PCDV`", {
-  expect_named(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),dvpred_vars = c(DV = "ODV")) |> dplyr::select(PCDV),
+  expect_named(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),dvpred_vars = c(DV = "ODV")) |> dplyr::select(PCDV),
                "PCDV")
 })
 
 test_that("output data.frame contains binning variable specified in `bin_var`", {
-  expect_named(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+  expect_named(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
                        dvpred_vars = c(DV = "ODV")) |> dplyr::select(NTIME),
                "NTIME")
 })
 
 test_that("output `PCDV' is modified when the `lower_bound` argument is specified", {
-    a <- df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+    a <- df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
           dvpred_vars = c(DV = "ODV")) |> dplyr::select(PCDV)
-    b <- df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+    b <- df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
             dvpred_vars = c(DV = "ODV"), lower_bound = 5) |> dplyr::select(PCDV)
 
     test <- a == b
@@ -93,25 +93,25 @@ test_that("output `PCDV' is modified when the `lower_bound` argument is specifie
 ##Test Argument Handling
 
 test_that("Error if incorrect class for argument `data`", {
-  expect_error(df_pcdv(df_addpred("data", model = model_mread_load("model")),
+  expect_error(df_pcdv(df_addpred("data", model = model_mread_load("pkmodel")),
                        dvpred_vars = c(DV = "ODV")),
                regexp = "argument `data` must be a `data.frame`")
 })
 
 test_that("Error if `bin_var` does not exist in `data`", {
-  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
                        dvpred_vars = c(DV = "ODV"), bin_var = "NTFD"),
                regexp = "argument `bin_var` must be variables in `data`")
 })
 
 test_that("Error if `strat_vars` do not exist in `data`", {
-  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
                        dvpred_vars = c(DV = "ODV"), strat_vars = "FOOD_f"),
                regexp = "argument `strat_vars` must be variables in `data`")
 })
 
 test_that("Error if `dvpred_vars` do not exist in `data`", {
-  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("model")),
+  expect_error(df_pcdv(df_addpred(data_sad, model = model_mread_load("pkmodel")),
                        dvpred_vars = c(DV = "DV")),
                regexp = "must be variables in `data`")
 })
@@ -126,7 +126,7 @@ test_that("Error if `dvpred_vars` do not exist in `data`", {
 
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
-  expect_s3_class(plot_vpc_exactbins(sim = df_mrgsim_replicate(data=data_sad,model=model_mread_load("model"),
+  expect_s3_class(plot_vpc_exactbins(sim = df_mrgsim_replicate(data=data_sad,model=model_mread_load("pkmodel"),
                                                             replicates = 10,
                                                             dv_var = "ODV")),
                class = "ggplot")
@@ -134,7 +134,7 @@ test_that("Output is a `ggplot` plot object", {
 
 test_that("Output plot contains a caption with number of replicates by default", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -146,7 +146,7 @@ test_that("Output plot contains a caption with number of replicates by default",
 
 test_that("Output plot does not contains a caption with number of replicates when `show_rep = FALSE`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -165,7 +165,7 @@ test_that("Error if incorrect class for arugmument `sim`", {
 
 test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -177,7 +177,7 @@ test_that("Error if TIME variable specified in time_vars does not exist in `sim`
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -189,7 +189,7 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
 
 test_that("No error if TIME and NTIME specified as same variable in time_vars", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -200,7 +200,7 @@ test_that("No error if TIME and NTIME specified as same variable in time_vars", 
 
 test_that("Error if PRED variable specified in output_vars does not exist in `sim` and pcvpc = TRUE", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -212,7 +212,7 @@ test_that("Error if PRED variable specified in output_vars does not exist in `si
 
 test_that("No error if PRED variable specified in output_vars does not exist in `sim` and pcvpc = FALSE", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -223,7 +223,7 @@ test_that("No error if PRED variable specified in output_vars does not exist in 
 
 test_that("Error if SIMDV variable specified in output_vars does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -235,7 +235,7 @@ test_that("Error if SIMDV variable specified in output_vars does not exist in `s
 
 test_that("Error if OBSDV variable specified in output_vars does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -247,7 +247,7 @@ test_that("Error if OBSDV variable specified in output_vars does not exist in `s
 
 test_that("Error if argument for `loq` is not class numeric", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -260,7 +260,7 @@ test_that("Error if argument for `loq` is not class numeric", {
 
 test_that("Error if variable specified by `strat_var` does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -272,7 +272,7 @@ test_that("Error if variable specified by `strat_var` does not exist in `sim`", 
 
 test_that("Error if variable specified by `irep_name` does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
-                                 model=model_mread_load("model"),
+                                 model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
@@ -290,7 +290,7 @@ test_that("df_nobsbin accepts bare names and matches string output", {
 })
 
 test_that("df_pcdv accepts bare names and matches string output", {
-  model <- model_mread_load(model = "model")
+  model <- model_mread_load(model = "pkmodel")
   data_pred <- df_addpred(data_sad, model)
   p1 <- df_pcdv(data_pred, bin_var = NTIME, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
   p2 <- df_pcdv(data_pred, bin_var = "NTIME", dvpred_vars = c(DV = "ODV", PRED = "PRED"))

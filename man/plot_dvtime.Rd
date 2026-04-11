@@ -111,7 +111,8 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus time
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
+data <- df_addn(dplyr::mutate(data_sad_pk, Dose = DOSE), grp_var = Dose, sep = "mg")
 plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }

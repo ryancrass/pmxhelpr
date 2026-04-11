@@ -26,7 +26,7 @@ numeric variable \code{PRED}.
 a data.frame with the addition of a new variable (\code{PRED}).
 }
 \examples{
-model <- model_mread_load(model = "model")
-data <- df_addpred(data = data_sad, model = model)
+pkmodel <- model_mread_load(model = "pkmodel")
+data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 
 }

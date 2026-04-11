@@ -1,18 +1,18 @@
 ##Test Output
 test_that("Function returns a mrgsolve model object", {
-  expect_s4_class(model_mread_load("model"), class = "mrgmod")
+  expect_s4_class(model_mread_load("pkmodel"), class = "mrgmod")
 })
 
 test_that("Returned model object can be simulated", {
-  mod <- model_mread_load("model")
+  mod <- model_mread_load("pkmodel")
   sim <- mrgsolve::mrgsim(mod, end = 24)
   expect_s4_class(sim, "mrgsims")
   expect_true(nrow(sim) > 0)
 })
 
 test_that("Second call returns model object (cache behavior)", {
-  mod1 <- model_mread_load("model")
-  mod2 <- model_mread_load("model")
+  mod1 <- model_mread_load("pkmodel")
+  mod2 <- model_mread_load("pkmodel")
   expect_s4_class(mod2, "mrgmod")
 })
 

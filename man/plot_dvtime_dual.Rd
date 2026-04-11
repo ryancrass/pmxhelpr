@@ -137,7 +137,7 @@ A \code{ggplot2} plot object
 Wrapper function for plot_dvtime to plot two dependent variables paneled together
 }
 \examples{
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
 plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose)
 
 }

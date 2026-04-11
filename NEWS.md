@@ -1,7 +1,9 @@
 # pmxhelpr (development version)
 
-* Simplify caption helpers `dvconc_caption` and `dvtime_caption` and remove from Exported functions
-* Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for naming convention consistency with other plot theme functions
+* Rename dataset `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. `data_sad` now contains both PK and PD compartments.
+* Rename model `model` as `pkmodel` for consistency with `pdmodel`. 
+* Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for  consistency with other plot theme functions
+* Change `dvconc_caption` and `dvtime_caption` to internal functions after simplifying
 * Added `cfb_base` argument to `plot_popgof` (was hardcoded as yintercept = 0)
 * Added helpers to offload central tendency layer building from plotting functions. 
 * Add helpers for time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls

@@ -23,6 +23,7 @@ of non-missing observations, and \code{n_miss}, a count of missing observations.
 and non-missing observations in exact bins.
 }
 \examples{
-df_nobsbin(data_sad)
+data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
+df_nobsbin(data_sad_pk)
 
 }

@@ -3,7 +3,7 @@
 \docType{data}
 \name{data_sad}
 \alias{data_sad}
-\title{Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single Ascending Dose Study}
+\title{Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single Ascending Dose Study}
 \format{
 \subsection{\code{data.frame} a data frame with 720 rows and 23 columns:}{
 
@@ -16,9 +16,11 @@
 \item{DOSE}{Nominal dose assignment (units: mg)}
 \item{AMT}{Actual dose amount administrered (units: mg)}
 \item{EVID}{NONMEM-specific event identifier}
-\item{ODV}{Dependent variable in original units (units: ng/mL)}
-\item{LDV}{Log-transformed dependent variable (units: log(ng/mL))}
-\item{CMT}{NONMEM-specific compartment variable (values: 1=dose, 2=plasma concentration)}
+\item{ODV}{Dependent variable in original units (units: ng/mL cmt=2, \% cmt=3)}
+\item{LDV}{Log-transformed dependent variable (units: log(ng/mL) cmt=2, \% cmt=3)}
+\item{CFB}{Dependent variable change from baseline (units: \%)}
+\item{CONC}{Time-matched Observed Drug Concentration with BLQ imputed to zero (units: ng/mL)}
+\item{CMT}{NONMEM-specific compartment variable (values: 1=dose, 2=plasma concentration, 3=response)}
 \item{MDV}{NONMEM-specific missing dependent variable indicator}
 \item{BLQ}{Concentration below the lower limit of quantification flag (values: -1=pre-dose BLQ, 0=not BLQ, 1=post-dose BLQ)}
 \item{LLOQ}{Lower limit of quantification (units: ng/mL)}
@@ -42,6 +44,6 @@ simulated
 data_sad
 }
 \description{
-Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single Ascending Dose Study
+Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single Ascending Dose Study
 }
 \keyword{datasets}

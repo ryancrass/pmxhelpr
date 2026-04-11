@@ -58,7 +58,8 @@
 #' @export plot_dvtime
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+#'data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#'data <- df_addn(dplyr::mutate(data_sad_pk, Dose = DOSE), grp_var = Dose, sep = "mg")
 #'plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 #'
 
@@ -211,7 +212,6 @@ plot_dvtime <- function(data,
 #' @return a `character` string containing the plot caption
 #' @export dvtime_caption
 #' @keywords internal
-#' @noRd
 #'
 #' @examples
 #' dvtime_caption(cent = "mean")

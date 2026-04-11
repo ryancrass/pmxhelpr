@@ -34,8 +34,9 @@ library(patchwork, warn.conflicts = FALSE)
 Next, let's load use the internal data and model objects from `pmxhelpr` and `df_mrgsim_replicate` to run the simulation.
 
 ```{r sim}
-data <- data_sad
-model <- model_mread_load("model")
+data <- data_sad %>% 
+  filter(CMT %in% c(1,2))
+model <- model_mread_load("pkmodel")
 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100, 
                      dv_var = "ODV",

@@ -39,8 +39,9 @@
 #' @export plot_vpc_exactbins
 #'
 #' @examples
-#' model <- model_mread_load(model = "model")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+#' model <- model_mread_load(model = "pkmodel")
+#' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 #' dv_var = ODV,
 #' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
@@ -164,7 +165,7 @@ plot_vpc_exactbins <- function(sim,
     ...)
 
   #If to capture vpcdb = TRUE passed to vpc::vpc
-  if(!ggplot2::is.ggplot(plot)) {
+  if(!ggplot2::is_ggplot(plot)) {
     return(plot) #if not ggplot object, must be a list containing vpc information with vpcdb=TRUE
   } else {
     ##Overlay Observations if Requested
@@ -226,7 +227,8 @@ plot_vpc_exactbins <- function(sim,
 #' @export df_nobsbin
 #'
 #' @examples
-#' df_nobsbin(data_sad)
+#' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#' df_nobsbin(data_sad_pk)
 #'
 df_nobsbin <- function(data,
                        bin_var = NTIME,
@@ -269,8 +271,9 @@ df_nobsbin <- function(data,
 #' @export df_pcdv
 #'
 #' @examples
-#' model <- model_mread_load(model = "model")
-#' data <- df_addpred(data_sad, model)
+#' model <- model_mread_load(model = "pkmodel")
+#' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#' data <- df_addpred(data_sad_pk, model)
 #' simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
 #'
 df_pcdv <- function(data,

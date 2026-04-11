@@ -28,7 +28,7 @@ library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
-For this vignette, we will generate model diagnostics for a PK model (`model`) fit to `data_sad` dataset using the `data_sad_pkfit` dataset internal to `pmxhelpr`. We can take a quick look at the dataset using `glimpse()` from the dplyr package. Dataset definitions can also be viewed by calling `?data_sad_pkfit`, as one would to view the documentation for a package function.
+For this vignette, we will generate model diagnostics for a PK model (`pkmodel`) fit to the `data_sad` dataset using the `data_sad_pkfit` dataset internal to `pmxhelpr`. We can take a quick look at the dataset using `glimpse()` from the dplyr package. Dataset definitions can also be viewed by calling `?data_sad_pkfit`, as one would to view the documentation for a package function.
 
 ```{r data-glimpse}
 glimpse(data_sad_pkfit)

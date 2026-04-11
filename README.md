@@ -66,12 +66,9 @@ Functions in this package use the following naming conventions:
 - Data sets
   - `data_sad` a dataset for a single ascending dose (SAD) study with
     parallel food effect cohort formatted for non-linear mixed effects
-    (NMLE) population PK modeling
+    (NMLE) population PK and PK/PD modeling
   - `data_sad_nca` a dataset containing PK parameters derived using
     non-compartmental analysis (NCA)
-  - `data_sad_pd` a dataset for a single ascending dose (SAD) study with
-    parallel food effect cohort formatted for non-linear mixed effects
-    (NMLE) population PK and PK/PD modeling
   - `data_sad_pkfit` a dataset consistent with `data_sad` including
     individual (IPRED) and population (PRED) PK model predictions
 
@@ -82,10 +79,10 @@ analysis workflow using pmxhelpr:
 
 ``` r
 #Read internal analysis-ready dataset for an example Phase 1 study
-glimpse(data_sad_pd)
+glimpse(data_sad)
 
 #Pre-process data for plotting
-data <- data_sad_pd %>% 
+data <- data_sad %>% 
   mutate(Regimen = DOSE) %>% 
   df_addn(grp_var = "Regimen", id_var = "ID", sep = "mg x1") %>% 
   mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
@@ -170,7 +167,7 @@ library(patchwork)
 library(withr)
 
 #Read internal mrgsolve model file
-model <- model_mread_load("model")
+model <- model_mread_load("pkmodel")
 
 #Process Data
 data <- data_sad%>% 

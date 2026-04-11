@@ -89,8 +89,9 @@ A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggpl
 that returns a \code{ggplot2} object.
 }
 \examples{
-model <- model_mread_load(model = "model")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+model <- model_mread_load(model = "pkmodel")
+data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),

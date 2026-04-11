@@ -22,6 +22,7 @@
 #' @export plot_dvconc
 #'
 #' @examples
+#'data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 #'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 #'plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #'
@@ -165,7 +166,6 @@ plot_dvconc <- function(data,
 #' @return a `character` string containing the plot caption
 #' @export dvconc_caption
 #' @keywords internal
-#' @noRd
 #'
 #' @examples
 #' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)

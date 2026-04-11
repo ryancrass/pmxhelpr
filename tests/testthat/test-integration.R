@@ -8,7 +8,7 @@ test_that("df_addn -> plot_dvtime: factor col_var from df_addn is accepted", {
 })
 
 test_that("df_addpred -> df_pcdv: prediction-corrected DV pipeline produces valid output", {
-  model <- model_mread_load("model")
+  model <- model_mread_load("pkmodel")
   data_pred <- df_addpred(data_sad, model)
   pcdv <- df_pcdv(data_pred, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
   expect_s3_class(pcdv, "data.frame")
@@ -17,7 +17,7 @@ test_that("df_addpred -> df_pcdv: prediction-corrected DV pipeline produces vali
 })
 
 test_that("df_addn -> plot_dvconc: factor col_var works in dvconc with col_trend", {
-  data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
   p <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
                    col_var = "Dose", col_trend = TRUE)
   expect_s3_class(p, "ggplot")
@@ -25,7 +25,7 @@ test_that("df_addn -> plot_dvconc: factor col_var works in dvconc with col_trend
 })
 
 test_that("df_mrgsim_replicate -> plot_vpc_exactbins: simulated data produces VPC plot", {
-  model <- model_mread_load("model")
+  model <- model_mread_load("pkmodel")
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_exactbins(sim = sim)

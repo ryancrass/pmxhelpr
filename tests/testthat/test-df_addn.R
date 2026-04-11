@@ -52,3 +52,16 @@ test_that("Error if id_var does not exist in data", {
   expect_error(df_addn(data = data_sad, grp_var = "DOSE", id_var = "NONEXIST"),
                regexp = "must be variables in `data`")
 })
+
+##Test NSE Bare Names
+test_that("df_addn accepts bare names and matches string output", {
+  d1 <- df_addn(data_sad, grp_var = DOSE, id_var = ID)
+  d2 <- df_addn(data_sad, grp_var = "DOSE", id_var = "ID")
+  expect_identical(d1, d2)
+})
+
+test_that("df_addn accepts bare names with sep argument", {
+  d1 <- df_addn(data_sad, grp_var = DOSE, id_var = ID, sep = "mg")
+  d2 <- df_addn(data_sad, grp_var = "DOSE", id_var = "ID", sep = "mg")
+  expect_identical(d1, d2)
+})

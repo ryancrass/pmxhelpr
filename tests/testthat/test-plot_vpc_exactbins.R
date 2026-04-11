@@ -281,3 +281,18 @@ test_that("Error if variable specified by `irep_name` does not exist in `sim`", 
     regexp = "argument `irep_name` must be variables in `sim`"
   )
 })
+
+##Test NSE Bare Names
+test_that("df_nobsbin accepts bare names and matches string output", {
+  n1 <- df_nobsbin(data_sad, bin_var = NTIME)
+  n2 <- df_nobsbin(data_sad, bin_var = "NTIME")
+  expect_identical(n1, n2)
+})
+
+test_that("df_pcdv accepts bare names and matches string output", {
+  model <- model_mread_load(model = "model")
+  data_pred <- df_addpred(data_sad, model)
+  p1 <- df_pcdv(data_pred, bin_var = NTIME, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
+  p2 <- df_pcdv(data_pred, bin_var = "NTIME", dvpred_vars = c(DV = "ODV", PRED = "PRED"))
+  expect_identical(p1, p2)
+})

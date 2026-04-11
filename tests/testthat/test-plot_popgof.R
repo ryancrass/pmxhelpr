@@ -86,3 +86,10 @@ test_that("Error if DV variable specified in output_vars does not exist in `data
                regexp = "must be variables in `data`")
 })
 
+##Test NSE Bare Names
+test_that("plot_popgof accepts bare names", {
+  expect_s3_class(plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"),
+                               grp_var = ID, dose_var = DOSE, dosenorm = TRUE),
+                  "ggplot")
+})
+

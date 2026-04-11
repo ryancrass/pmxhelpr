@@ -158,3 +158,27 @@ test_that("Error if argument `sigdigits` is not coercible to an integer", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
                regexp = "argument `sigdigits` must be coercible to class `integer`")
 })
+
+##Test NSE Bare Names
+test_that("mod_loglog accepts bare names and matches string output", {
+  dat <- dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs")
+  m1 <- mod_loglog(dat, exp_var = PPORRES, dose_var = DOSE)
+  m2 <- mod_loglog(dat, exp_var = "PPORRES", dose_var = "DOSE")
+  expect_identical(coef(m1), coef(m2))
+})
+
+test_that("df_doseprop accepts bare names and matches string output", {
+  t1 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE)
+  t2 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_var = "PPTESTCD", exp_var = "PPORRES", dose_var = "DOSE")
+  expect_identical(t1, t2)
+})
+
+test_that("plot_doseprop accepts bare names", {
+  expect_s3_class(
+    plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                  metrics = c("aucinf.obs", "cmax"),
+                  metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE),
+    "ggplot")
+})

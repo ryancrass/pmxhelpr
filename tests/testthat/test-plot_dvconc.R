@@ -162,3 +162,16 @@ test_that("Error if col_var does not exist in data", {
                            col_var = "NONEXIST"),
                regexp = "must be variables in `data`")
 })
+
+##Test NSE Bare Names
+test_that("plot_dvconc accepts bare names and produces ggplot", {
+  data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+  expect_s3_class(plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose), "ggplot")
+})
+
+test_that("plot_dvconc bare names match string output", {
+  data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+  p1 <- plot_dvconc(data, dv_var = ODV, idv_var = CONC)
+  p2 <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC")
+  expect_equal(p1$labels, p2$labels)
+})

@@ -35,3 +35,11 @@ test_that("Error if incorrect class for arugmument `output_var`", {
   expect_error(df_addpred(data=data_sad,model=model_mread_load("model"), output_var = "PRED"),
   regexp = "argument `output_var` must be captured as output in `model`")
 })
+
+##Test NSE Bare Names
+test_that("df_addpred accepts bare names and matches string output", {
+  model <- model_mread_load(model = "model")
+  d1 <- df_addpred(data_sad, model, output_var = IPRED)
+  d2 <- df_addpred(data_sad, model, output_var = "IPRED")
+  expect_identical(d1, d2)
+})

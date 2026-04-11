@@ -52,3 +52,10 @@ test_that("Error if dvid_var does not exist in data", {
   expect_error(plot_dvtime_dual(data = data_sad_pd, dv_var1 = "ODV", dv_var2 = "ODV",
                                 dvid_var = "NONEXIST"))
 })
+
+##Test NSE Bare Names
+test_that("plot_dvtime_dual accepts bare names", {
+  data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+  expect_s3_class(plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose),
+                  "ggplot")
+})

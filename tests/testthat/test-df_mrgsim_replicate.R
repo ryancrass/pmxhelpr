@@ -99,4 +99,15 @@ test_that("Error if incorrect class for arugmument `seed`", {
                regexp = "argument `seed` must be coercible to class `integer`")
 })
 
+##Test NSE Bare Names
+test_that("df_mrgsim_replicate accepts bare names", {
+  model <- model_mread_load(model = "model")
+  s1 <- df_mrgsim_replicate(data_sad, model, replicates = 2,
+                              dv_var = ODV, irep_name = SIM,
+                              num_vars = c("CMT", "EVID", "MDV"),
+                              char_vars = c("USUBJID"))
+  expect_true(nrow(s1) > 0)
+  expect_true("SIM" %in% colnames(s1))
+})
+
 

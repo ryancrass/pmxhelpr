@@ -145,3 +145,19 @@ test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a nu
 test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 2", {
   expect_no_error(plot_dvtime(data = dplyr::select(data_sad, -LLOQ), dv_var = "ODV", loq = 1, loq_method = 2))
 })
+
+##Test NSE Bare Names
+test_that("plot_dvtime accepts bare names and produces ggplot", {
+  expect_s3_class(plot_dvtime(data_sad, dv_var = ODV), "ggplot")
+})
+
+test_that("plot_dvtime bare names match string output aesthetics", {
+  p1 <- plot_dvtime(data_sad, dv_var = ODV)
+  p2 <- plot_dvtime(data_sad, dv_var = "ODV")
+  expect_equal(p1$labels, p2$labels)
+})
+
+test_that("plot_dvtime accepts bare col_var", {
+  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  expect_s3_class(plot_dvtime(data, dv_var = ODV, col_var = Dose), "ggplot")
+})

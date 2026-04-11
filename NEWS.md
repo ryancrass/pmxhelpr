@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.4.0
 
 * Rename `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. 
 * Rename `model` as `pkmodel` for consistency with `pdmodel`. 

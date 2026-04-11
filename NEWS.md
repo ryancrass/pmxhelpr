@@ -1,7 +1,9 @@
 # pmxhelpr (development version)
 
+* Simplify caption helpers `dvconc_caption` and `dvtime_caption` and remove from Exported functions
 * Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for naming convention consistency with other plot theme functions
-* Simplify caption helpers
+* Added `cfb_base` argument to `plot_popgof` (was hardcoded as yintercept = 0)
+* Added helpers to offload central tendency layer building from plotting functions. 
 * Add helpers for time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls
 * Fix bug in `plot_popgof` consisting of a dangling + that created invalid syntax
 * Expand test coverage and refactor existing tests to reduce redundancy

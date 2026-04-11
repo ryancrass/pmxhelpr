@@ -211,6 +211,7 @@ plot_dvtime <- function(data,
 #' @return a `character` string containing the plot caption
 #' @export dvtime_caption
 #' @keywords internal
+#' @noRd
 #'
 #' @examples
 #' dvtime_caption(cent = "mean")

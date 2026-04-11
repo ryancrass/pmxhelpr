@@ -165,6 +165,7 @@ plot_dvconc <- function(data,
 #' @return a `character` string containing the plot caption
 #' @export dvconc_caption
 #' @keywords internal
+#' @noRd
 #'
 #' @examples
 #' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)

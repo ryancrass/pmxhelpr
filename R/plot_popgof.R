@@ -53,8 +53,7 @@ plot_popgof <- function(data,
   dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
 
   ##Update Defaults to time_vars and output_vars
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
                                             DV = "DV"))
@@ -77,48 +76,12 @@ plot_popgof <- function(data,
   check_loq_method(loq, loq_method, data)
 
   #Handle Output and Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(c(time_vars, output_vars)))
-  } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(c(NTIME = time_vars[["NTIME"]]),
-                                  output_vars))) |>
-      dplyr::mutate(TIME = NTIME)
-  }
+  data <- rename_time_vars(data, time_vars, output_vars)
 
   if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
 
   ##BLQ Handling
-  if(loq_method==1) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          TIME <= 0 ~ 0,
-                                          TIME > 0 ~ 0.5*LOQ),
-                    IPRED = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                             TIME <= 0 ~ 0,
-                                             IPRED >= LOQ ~ IPRED,
-                                             IPRED < LOQ ~ 0.5*LOQ),
-                    PRED = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                            TIME <= 0 ~ 0,
-                                            PRED >= LOQ ~ PRED,
-                                            PRED < LOQ ~ 0.5*LOQ))
-  }
-
-  if(loq_method==2) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          MDV == 1 ~ 0.5*LOQ),
-                    IPRED = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                             IPRED >= LOQ ~ IPRED,
-                                             IPRED < LOQ ~ 0.5*LOQ),
-                    PRED = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                           PRED >= LOQ ~ PRED,
-                                           PRED < LOQ ~ 0.5*LOQ))
-  }
+  data <- apply_blq(data, loq, loq_method, extra_vars = c("IPRED", "PRED"))
 
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
 
@@ -140,11 +103,7 @@ plot_popgof <- function(data,
   plottheme <- list_update(theme, plot_popgof_theme())
 
   #Determine Error Bar Cap Width
-  if(is.numeric(plottheme$width_errorbar)) {
-    width <- plottheme$width_errorbar
-  } else {
-    width <- max(data$NTIME, na.rm = TRUE)*0.025
-  }
+  width <- errorbar_width(plottheme, data)
 
 
 ###Plot
@@ -261,7 +220,7 @@ plot_popgof <- function(data,
                                                                            fun = "mean", geom = "line",
                                                                            linewidth = plottheme$linewidth_cent,
                                                                            linetype = plottheme$linetype_cent,
-                                                                           alpha = plottheme$alpha_line_cent) +
+                                                                           alpha = plottheme$alpha_line_cent)
   if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=IPRED,color = "IPRED"),
                                                                                fun = "median", geom = "line",
                                                                                linewidth = plottheme$linewidth_cent,
@@ -335,7 +294,5 @@ plot_popgof_theme <- function(update = NULL){
     width_errorbar = NULL
   )
 
-  default_theme <- defaults_list
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, defaults_list)
 }

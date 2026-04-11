@@ -172,26 +172,24 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
   cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
 
-  capdf <- data.frame(
-    loess = rep(c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)),
-    linear = rep(c(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)),
-    se_loess = rep(c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE)),
-    se_linear = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE)),
-    label = c("",
-              "\n LOESS fit overlaid","\n LOESS fit overlaid with 95% CI",
-              "\n Linear fit overlaid","\n Linear fit overlaid with 95% CIs",
-              "\n LOESS and linear fits overlaid","\n LOESS and linear fits overlaid with 95% CIs",
-              "\n LOESS fit with 95% CI and linear fit overlaid","\n LOESS fit and linear fit with 95% CI overlaid")
+  fit_labels <- list(
+    "FALSE.FALSE.FALSE.FALSE" = "",
+    "TRUE.FALSE.FALSE.FALSE"  = "\n LOESS fit overlaid",
+    "TRUE.FALSE.TRUE.FALSE"   = "\n LOESS fit overlaid with 95% CI",
+    "FALSE.TRUE.FALSE.FALSE"  = "\n Linear fit overlaid",
+    "FALSE.TRUE.FALSE.TRUE"   = "\n Linear fit overlaid with 95% CIs",
+    "TRUE.TRUE.FALSE.FALSE"   = "\n LOESS and linear fits overlaid",
+    "TRUE.TRUE.TRUE.TRUE"     = "\n LOESS and linear fits overlaid with 95% CIs",
+    "TRUE.TRUE.TRUE.FALSE"    = "\n LOESS fit with 95% CI and linear fit overlaid",
+    "TRUE.TRUE.FALSE.TRUE"    = "\n LOESS fit and linear fit with 95% CI overlaid"
   )
 
-  caption <- paste("Points are observations",
-                   ifelse(cfb==TRUE, cfb_lab, ""),
-                   capdf$label[capdf$loess==loess &
-                                 capdf$linear==linear &
-                                 capdf$se_loess==se_loess &
-                                 capdf$se_linear == se_linear]
-)
-  return(caption)
+  key <- paste(loess, linear, se_loess, se_linear, sep = ".")
+  fit_lab <- fit_labels[[key]]
+
+  paste("Points are observations",
+        ifelse(cfb == TRUE, cfb_lab, ""),
+        fit_lab)
 }
 
 
@@ -229,8 +227,6 @@ plot_dvconc_theme <- function(update = NULL){
     alpha_se_linear = 0.4
   )
 
-  default_theme <- defaults_list
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, defaults_list)
 }
 

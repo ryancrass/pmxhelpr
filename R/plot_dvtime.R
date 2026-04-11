@@ -89,8 +89,7 @@ plot_dvtime <- function(data,
   dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
   col_var_str  <- capture_col(rlang::enquo(col_var))
 
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
 
   #Checks
   check_df(data)
@@ -110,13 +109,7 @@ plot_dvtime <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str)))
 
   #Handle Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(time_vars))
-  } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(NTIME = time_vars[["NTIME"]]))) |>
-      dplyr::mutate(TIME = NTIME)
- }
+  data <- rename_time_vars(data, time_vars)
 
   if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
 
@@ -124,22 +117,7 @@ plot_dvtime <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   ##BLQ Handling
-  if(loq_method==1) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          TIME <= 0 ~ 0,
-                                          TIME > 0 ~ 0.5*LOQ))
-  }
-
-  if(loq_method==2) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          MDV == 1 ~ 0.5*LOQ))
-  }
+  data <- apply_blq(data, loq, loq_method)
 
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ[!is.na(data$LOQ)]), NA_real_)
   lloq_lab <- paste0(lloq)
@@ -160,11 +138,7 @@ plot_dvtime <- function(data,
   plottheme <- list_update(theme, plot_dvtime_theme())
 
   #Determine Error Bar Cap Width
-  if(is.numeric(plottheme$width_errorbar)) {
-    width <- plottheme$width_errorbar
-  } else {
-    width <- max(data$NTIME, na.rm = TRUE)*0.025
-  }
+  width <- errorbar_width(plottheme, data)
 
   #Remove EVID!=0
   data <- dplyr::filter(data, EVID==0)
@@ -297,36 +271,28 @@ plot_dvtime <- function(data,
 
 dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
-  cap1df <- data.frame(
-    cent = c("mean", "mean_sdl", "mean_sdl_upper",
-             "median", "median_iqr",
-             "none"),
-    label = c("mean","mean + SD error bars", "mean + SD error bars",
-              "median", "median + IQR error bars",
-              ""),
-    loglabel = c("geometric mean","geo. mean + geo. SD error bars", "geo. mean + geo. SD error bars",
-                 "median", "median + IQR error bars",
-                 ""))
-
-  cap2df <- data.frame(
-    obs_dv = c(TRUE, FALSE, TRUE, FALSE),
-    grp_dv = c(FALSE, TRUE, TRUE, FALSE),
-    label = c("Open circles are observations",
-              "Thin lines connect observations within an individual",
-              "Thin lines connect observations (open circles) within an individual",
-              "")
+  cent_labels <- list(
+    mean           = c(linear = "mean",                    log = "geometric mean"),
+    mean_sdl       = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    mean_sdl_upper = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    median         = c(linear = "median",                  log = "median"),
+    median_iqr     = c(linear = "median + IQR error bars", log = "median + IQR error bars"),
+    none           = c(linear = "",                        log = "")
   )
 
-  cap1 <- ifelse(log_y == FALSE, cap1df$label[cap1df$cent==cent], cap1df$loglabel[cap1df$cent==cent])
-  cap2 <- cap2df$label[cap2df$obs_dv==obs_dv&cap2df$grp_dv==grp_dv]
+  obs_labels <- list(
+    "TRUE.FALSE"  = "Open circles are observations",
+    "FALSE.TRUE"  = "Thin lines connect observations within an individual",
+    "TRUE.TRUE"   = "Thin lines connect observations (open circles) within an individual",
+    "FALSE.FALSE" = ""
+  )
 
-  caption <- if(cent == "none") {
-    paste0(cap2)
-  } else {
-    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
-  }
+  scale <- if(log_y) "log" else "linear"
+  cap1 <- cent_labels[[cent]][[scale]]
+  cap2 <- obs_labels[[paste(obs_dv, grp_dv, sep = ".")]]
 
-  return(caption)
+  if(cent == "none") cap2
+  else paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
 }
 
 
@@ -368,8 +334,6 @@ plot_dvtime_theme <- function(update = NULL){
     width_errorbar = NULL
   )
 
-  default_theme <- defaults_list
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, defaults_list)
 }
 

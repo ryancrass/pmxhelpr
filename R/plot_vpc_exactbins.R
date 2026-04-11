@@ -76,8 +76,7 @@ plot_vpc_exactbins <- function(sim,
   irep_name_str  <- rlang::as_name(rlang::ensym(irep_name))
 
   #Update Lists
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
 
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
@@ -109,14 +108,7 @@ plot_vpc_exactbins <- function(sim,
   vpctheme <- list_update(theme, pmxhelpr_vpc_theme())
 
   #Handle Output and Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    sim <- dplyr::rename(sim, dplyr::any_of(c(time_vars, output_vars)))
-  } else {
-    sim <- sim |>
-      dplyr::rename(dplyr::any_of(c(c(NTIME = time_vars[["NTIME"]]),
-                                    output_vars))) |>
-      dplyr::mutate(TIME = NTIME)
-  }
+  sim <- rename_time_vars(sim, time_vars, output_vars)
 
   ##Ensure stratification variable is a not an ordered factor (will cause vpc::add_stratification() to fail)
   if(!is.null(strat_var_str)){
@@ -334,6 +326,5 @@ pmxhelpr_vpc_theme <- function(update = NULL){
   )
 
   default_theme <- list_update(defaults_list, vpc::new_vpc_theme())
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, default_theme)
 }

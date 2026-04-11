@@ -55,8 +55,7 @@ df_mrgsim_replicate <- function(data,
   irep_name_str <- rlang::as_name(rlang::ensym(irep_name))
 
   ##Update Defaults to time_vars and output_vars
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
                                             DV = "DV"))
@@ -76,13 +75,7 @@ df_mrgsim_replicate <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
   #Handle Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(time_vars))
-  } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(NTIME = time_vars[["NTIME"]]))) |>
-      dplyr::mutate(TIME = NTIME)
-  }
+  data <- rename_time_vars(data, time_vars)
 
   data <- rlang::inject(df_addpred(data, model, output_var = !!output_vars[["IPRED"]]))
 

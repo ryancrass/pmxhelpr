@@ -1,14 +1,13 @@
 # pmxhelpr (development version)
 
-* Rename dataset `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. 
-* Rename model `model` as `pkmodel` for consistency with `pdmodel`. 
+* Rename `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. 
+* Rename `model` as `pkmodel` for consistency with `pdmodel`. 
 * Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for  consistency with other plot theme functions
 * Change `dvconc_caption` and `dvtime_caption` to internal functions after simplifying
 * Added `cfb_base` argument to `plot_popgof` (was hardcoded as yintercept = 0)
-* Added helpers to offload central tendency layer building from plotting functions. 
-* Add helpers for time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls
-* Fix bug in `plot_popgof` consisting of a dangling + that created invalid syntax
+* Add helpers for central tendency handing, time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls
 * Expand test coverage and refactor existing tests to reduce redundancy
+* Fix bugs and typoes globally in package
 
 # pmxhelpr 0.3.9
 

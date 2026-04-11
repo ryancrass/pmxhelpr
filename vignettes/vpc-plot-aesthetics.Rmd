@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will review the functionality for updating aesthetic elements of VPC plots generated using `vpc()` with the `new_vpc_theme()` function  from the `vpc` package. 
 
-`plot_legend()` is a helper plotting function that creates a legend for plots generated using `vpc()`. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
+`plot_vpclegend()` is a helper plotting function that creates a legend for plots generated using `vpc()`. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
 
 Let's get started. First, we will load the required packages.
 
@@ -170,7 +170,7 @@ print(vpc_theme_list)
 
 ## Adjusting Aesthetics
 
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `plot_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `vpc_plot_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `plot_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `plot_vpc_exactbins`, which is also an alias for the `vpc_theme` argument in `vpc()`.
 
 Let's say we prefer a the blue-grey color scheme native to the `vpc` package! We can reproduce this by passing `vpc::new_vpc_theme()`: 
 
@@ -236,7 +236,7 @@ vpc_pc_vpctheme_xgrid
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend. 
 
-`pmxhelpr` provides a useful helper function for this purpose, `plot_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpclegend()` without any arguments specified.
+`pmxhelpr` provides a useful helper function for this purpose, `plot_vpclegend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpclegend()` without any arguments specified.
 
 ```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_legend <- plot_vpclegend()

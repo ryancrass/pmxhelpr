@@ -23,7 +23,7 @@ The `vpc`package offers a lot of great functionality to generate VPC plots inclu
 3) built-in option for prediction-correction
 4) built-in option for censoring at the lower limit of quantification (LLOQ) 
 
-However, although `vpc()` contains many great options to automatically identify bins in the data, it is not optimized to leverage input datasets with variable a variable representing exact bin times (e.g., nominal, or protocol-specified, times). 
+However, although `vpc()` contains many great options to automatically identify bins in the data, it is not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal, or protocol-specified, times). 
 
 First, we will load the required packages.
 
@@ -195,7 +195,7 @@ vpc_pretty <- vpc(
 vpc_pretty
 ```
 
-The vpc plot produced with `bins = "pretty` *is* fairly pretty; however, again we can see that the binning is not true to the exact bins in our dataset, especially at the earlier absorption phase time-points, which are being largely binned together.
+The vpc plot produced with `bins = "pretty"` *is* fairly pretty; however, again we can see that the binning is not true to the exact bins in our dataset, especially at the earlier absorption phase time-points, which are being largely binned together.
 
 ```{r bins-pretty}
 ##Exact bins in the input data

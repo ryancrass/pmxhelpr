@@ -35,7 +35,7 @@ The dataset used in this vignette are based on a simple ascending dose (SAD) stu
 
 ## data_sad
 
-Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the primary dataset for this analysis (`data_ssad`)  using `glimpse()` from the `dplyr` package.
+Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the primary dataset for this analysis (`data_sad`)  using `glimpse()` from the `dplyr` package.
 
 ```{r data-sad-glimpse}
 glimpse(data_sad)
@@ -156,7 +156,7 @@ The names of the actual and nominal time variables can be passed as a named char
 plot_dvtime(plot_data_pk, dv_var = ODV, time_vars = c(TIME = "NTIME"))
 ```
  
-`plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
+`plot_dvtime` uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
   + `timeu` character string specifying time units. Options include:
   
@@ -202,7 +202,7 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 ```
 
 
-## Color Aesthetic and Central Trendency
+## Color Aesthetic and Central Tendency
 
 The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
 
@@ -267,7 +267,7 @@ It does not seem like there are outlier individuals driving the noise in the lat
 
 Let's use imputation to assess the potential impact of the data missing due to assay sensitivity. `plot_dvtime` includes some functionality to do this imputation for us using the `loq` and `loq_method` arguments.
 
-The `loq_method` argument species how BLQ imputation should be performed. Options are:
+The `loq_method` argument specifies how BLQ imputation should be performed. Options are:
 
   + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
   + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
@@ -379,7 +379,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "none"
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
 ```
-We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
+We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
 
 ```{r plot-dvtime-blq2-indplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 

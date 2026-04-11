@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will review the excellent functionality in the `vpc()` function from the `vpc` package for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `lloq` argument. 
 
-`vpc_plot_exactbins()` takes advantage of this functionality through the argument `loq`, which is also passed to `lloq` in `vpc()`.
+`plot_vpc_exactbins()` takes advantage of this functionality through the argument `loq`, which is also passed to `lloq` in `vpc()`.
 
 Let's get started. First, we will load the required packages.
 
@@ -66,7 +66,7 @@ plot_dvtime(plot_data, dv_var =  ODV, col_var = `Dose (mg)`, loq_method = 2,
 
 Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution is truncated by the lower limit of quantification of the assays used in bioanalysis. 
 
-Therefore, whenever evaluating concentration-time plots, we hould keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
+Therefore, whenever evaluating concentration-time plots, we should keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
 
  - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing `NA`.
  - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
@@ -138,7 +138,7 @@ ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_s
 
 ```
 
-In summary, the observed patters of BLQ data were in the example dataset are anticipated for an early phase clinical study.
+In summary, the observed patterns of BLQ data were in the example dataset are anticipated for an early phase clinical study.
 
   - increasing frequency of BLQ data with increasing time
   - decreasing frequency of BLQ data with increasing dose 

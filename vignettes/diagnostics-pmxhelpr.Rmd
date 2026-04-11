@@ -116,7 +116,7 @@ The default plot elements are:
  
 `OBS` and `DV` represent the same data and both map back to the variable in `data` specified in `output_vars["DV"]`. They are differentiated only to allow visual distinction between individual observation concentration data and summary statistics of observed and model-predicted concentration data.
 
-If one wanted to clarify that all the data mapping back to the dataset variable specified in `output_vars["DV]` with color, then the default for `output_colors["OBS"]` can be updated to to blue to align with `DV `.
+If one wanted to clarify that all the data mapping back to the dataset variable specified in `output_vars["DV"]` with color, then the default for `output_colors["OBS"]` can be updated to to blue to align with `DV `.
 
 ```{r plot-popgof-dosegrp-blue, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_popgof(data = plot_data, output_vars = c(DV ="ODV"), 
@@ -214,7 +214,7 @@ Interesting! It looks like the potential misspecification in the late terminal p
 
 The previous section provides an overview of how to generate population overlay GOF plots using `plot_popgof`; however, we can also use `plot_popgof` to generate subject-level visualizations with a little pre-processing of the input dataset. 
 
-We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
+We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
 
 ```{r plot-indgofplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 

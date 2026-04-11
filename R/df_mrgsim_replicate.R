@@ -29,8 +29,9 @@
 #' @export df_mrgsim_replicate
 #'
 #' @examples
-#' model <- model_mread_load(model = "model")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+#' model <- model_mread_load(model = "pkmodel")
+#' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 #' dv_var = ODV,
 #' num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
@@ -55,8 +56,7 @@ df_mrgsim_replicate <- function(data,
   irep_name_str <- rlang::as_name(rlang::ensym(irep_name))
 
   ##Update Defaults to time_vars and output_vars
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
                                             DV = "DV"))
@@ -66,6 +66,7 @@ df_mrgsim_replicate <- function(data,
   check_mrgmod(model)
   check_mrgmod_outputvars(model, output_vars)
   check_integer(replicates)
+  if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
   check_varsindf(data, dv_var_str)
   check_varsindf(data, time_vars)
   check_varsindf(data, num_vars)
@@ -76,13 +77,7 @@ df_mrgsim_replicate <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
   #Handle Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(time_vars))
-  } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(NTIME = time_vars[["NTIME"]]))) |>
-      dplyr::mutate(TIME = NTIME)
-  }
+  data <- rename_time_vars(data, time_vars)
 
   data <- rlang::inject(df_addpred(data, model, output_var = !!output_vars[["IPRED"]]))
 

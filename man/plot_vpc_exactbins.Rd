@@ -63,8 +63,9 @@ Defaults are:
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
 
-\item{theme}{Named list of aesthetic parameters for the plot.Passed to \code{vpc_theme} arumgent of \code{\link[vpc:vpc]{vpc::vpc()}}.
-Defaults can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
+\item{theme}{Named list of aesthetic parameters for the plot. Passed to \code{vpc_theme} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+Defaults for \code{pmxhelpr}dev can be obtained by running \code{plot_vpc_theme} with no arguments.
+Defaults for \code{vpc} can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{breaks_time} and assigned to default x-axis label.
@@ -88,8 +89,9 @@ A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggpl
 that returns a \code{ggplot2} object.
 }
 \examples{
-model <- model_mread_load(model = "model")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+model <- model_mread_load(model = "pkmodel")
+data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
 num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),

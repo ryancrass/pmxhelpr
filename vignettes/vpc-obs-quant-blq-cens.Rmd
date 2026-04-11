@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will review the excellent functionality in the `vpc()` function from the `vpc` package for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `lloq` argument. 
 
-`vpc_plot_exactbins()` takes advantage of this functionality through the argument `loq`, which is also passed to `lloq` in `vpc()`.
+`plot_vpc_exactbins()` takes advantage of this functionality through the argument `loq`, which is also passed to `lloq` in `vpc()`.
 
 Let's get started. First, we will load the required packages.
 
@@ -33,7 +33,7 @@ library(withr, warn.conflicts =  FALSE)
 
 # Analysis Dataset
 
-Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `model` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the `dplyr`.
+Next let's explore our input dataset `data_sad`. This dataset was generated via simulation from the mrgsolve `pkmodel` internal to the pmxhelpr package. We can take a quick look at the dataset using `glimpse()` from the `dplyr`.
 
 ```{r data-glimpse}
 glimpse(data_sad)
@@ -44,6 +44,7 @@ Let's visualize the data. For this visualization, we will leverage the functiona
 ```{r data-plotdata}
 plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
+  filter(CMT %in% c(1,2)) %>% 
   mutate(`Dose (mg)` = factor(DOSE))
 ```
 
@@ -65,7 +66,7 @@ plot_dvtime(plot_data, dv_var =  ODV, col_var = `Dose (mg)`, loq_method = 2,
 
 Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution is truncated by the lower limit of quantification of the assays used in bioanalysis. 
 
-Therefore, whenever evaluating concentration-time plots, we hould keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
+Therefore, whenever evaluating concentration-time plots, we should keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
 
  - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing `NA`.
  - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
@@ -137,7 +138,7 @@ ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_s
 
 ```
 
-In summary, the observed patters of BLQ data were in the example dataset are anticipated for an early phase clinical study.
+In summary, the observed patterns of BLQ data were in the example dataset are anticipated for an early phase clinical study.
 
   - increasing frequency of BLQ data with increasing time
   - decreasing frequency of BLQ data with increasing dose 
@@ -151,9 +152,9 @@ However, just as BLQ censoring introduced some artifact to the exploratory plots
 Lets run a simulation and generate some VPC plots to demonstrate the impact of different approaches to BLQ handling to the visual assessment of the adequacy of model fit and the true underlying PK profile. 
 
 ```{r sim}
-model <- model_mread_load("model")
-
-simout <- df_mrgsim_replicate(data = data_sad, model = model,replicates = 100, 
+model <- model_mread_load("pkmodel")
+data_sad_pk <- filter(data_sad, CMT %in% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,replicates = 100, 
                      dv_var = ODV,
                      time_vars = c(TIME = "TIME", NTIME = "NTIME"),
                      output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),

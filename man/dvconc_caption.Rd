@@ -27,3 +27,4 @@ Define a caption for \code{plot_dvconc}
 \examples{
 dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
 }
+\keyword{internal}

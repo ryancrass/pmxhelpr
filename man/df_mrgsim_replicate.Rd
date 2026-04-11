@@ -57,8 +57,9 @@ and the output variables in \code{output_vars}, \code{num_vars}, and \code{char_
 that returns a data.frame containing \code{replicates} iterations of \code{data}
 }
 \examples{
-model <- model_mread_load(model = "model")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+model <- model_mread_load(model = "pkmodel")
+data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
 num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),

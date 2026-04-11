@@ -58,7 +58,8 @@
 #' @export plot_dvtime
 #'
 #' @examples
-#'data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+#'data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#'data <- df_addn(dplyr::mutate(data_sad_pk, Dose = DOSE), grp_var = Dose, sep = "mg")
 #'plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 #'
 
@@ -89,8 +90,7 @@ plot_dvtime <- function(data,
   dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
   col_var_str  <- capture_col(rlang::enquo(col_var))
 
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
 
   #Checks
   check_df(data)
@@ -110,13 +110,7 @@ plot_dvtime <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str)))
 
   #Handle Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(time_vars))
-  } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(NTIME = time_vars[["NTIME"]]))) |>
-      dplyr::mutate(TIME = NTIME)
- }
+  data <- rename_time_vars(data, time_vars)
 
   if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
 
@@ -124,22 +118,7 @@ plot_dvtime <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   ##BLQ Handling
-  if(loq_method==1) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          TIME <= 0 ~ 0,
-                                          TIME > 0 ~ 0.5*LOQ))
-  }
-
-  if(loq_method==2) {
-    data <- data |>
-      dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq)) |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                          MDV == 0 ~ DV,
-                                          MDV == 1 ~ 0.5*LOQ))
-  }
+  data <- apply_blq(data, loq, loq_method)
 
   lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ[!is.na(data$LOQ)]), NA_real_)
   lloq_lab <- paste0(lloq)
@@ -160,11 +139,7 @@ plot_dvtime <- function(data,
   plottheme <- list_update(theme, plot_dvtime_theme())
 
   #Determine Error Bar Cap Width
-  if(is.numeric(plottheme$width_errorbar)) {
-    width <- plottheme$width_errorbar
-  } else {
-    width <- max(data$NTIME, na.rm = TRUE)*0.025
-  }
+  width <- errorbar_width(plottheme, data)
 
   #Remove EVID!=0
   data <- dplyr::filter(data, EVID==0)
@@ -203,7 +178,7 @@ plot_dvtime <- function(data,
 
   #Show Observed Data Points
   if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=plottheme$shape_point_obs,
-                                                         size=plottheme$size_point_obs,,
+                                                         size=plottheme$size_point_obs,
                                                          alpha = plottheme$alpha_point_obs)
   #Connect Observed Data Points within Group
   if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!rlang::sym(grp_var_str)),
@@ -211,74 +186,19 @@ plot_dvtime <- function(data,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)
 
-  #Plot Central Tendency Points
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                                                             fun = "mean", geom = "point",
-                                                                                             size = plottheme$size_point_cent,
-                                                                                             shape = plottheme$shape_point_cent,
-                                                                                             alpha = plottheme$alpha_point_cent)
-  if(cent == "median") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                            fun = "median", geom = "point",
-                                                            size = plottheme$size_point_cent,
-                                                            shape = plottheme$shape_point_cent,
-                                                            alpha = plottheme$alpha_point_cent)
-
-  #Plot Central Lines
-  if(cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                                           fun = "mean", geom = "line",
-                                                                           linewidth = plottheme$linewidth_cent,
-                                                                           linetype = plottheme$linetype_cent,
-                                                                           alpha = plottheme$alpha_line_cent)
-  if(cent %in% c("median", "median_iqr")) plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                            fun = "median", geom = "line",
-                                                            linewidth = plottheme$linewidth_cent,
-                                                            linetype = plottheme$linetype_cent,
-                                                            alpha = plottheme$alpha_line_cent)
-
-  #Plot Error Bars
-  if(cent == "mean_sdl") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                              fun.data = "mean_sdl",
-                                                              fun.args = list(mult=1),geom = "errorbar",
-                                                              linewidth = plottheme$linewidth_errorbar,
-                                                              linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar,
-                                                              width = width)
-  if(cent == "mean_sdl_upper") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                                fun.max = function(x){mean(x)+stats::sd(x)},
-                                                                fun.min = function(x){NA_real_},
-                                                                geom = "errorbar",
-                                                                linewidth = plottheme$linewidth_errorbar,
-                                                                linetype = plottheme$linetype_errorbar,
-                                                                alpha = plottheme$alpha_errorbar,
-                                                                width = width) +
-                                              ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                                    fun.max = function(x){mean(x)+stats::sd(x)},
-                                                                    fun.min = function(x){mean(x)},
-                                                                    geom = "linerange",
-                                                                    linewidth = plottheme$linewidth_errorbar,
-                                                                    linetype = plottheme$linetype_errorbar,
-                                                                    alpha = plottheme$alpha_errorbar,
-                                                                    show.legend = FALSE)
-  if(cent == "median_iqr") plot <- plot + ggplot2::stat_summary(ggplot2::aes(x=NTIME, y=DV),
-                                                              fun.max = function(x){stats::quantile(x,0.75)},
-                                                              fun.min = function(x){stats::quantile(x,0.25)},
-                                                              geom = "errorbar",
-                                                              linewidth = plottheme$linewidth_errorbar,
-                                                              linetype = plottheme$linetype_errorbar,
-                                                              alpha = plottheme$alpha_errorbar,
-                                                              width = width)
+  #Plot Central Tendency (points, lines, error bars)
+  plot <- add_cent_layers(plot, cent, "DV", plottheme, width)
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
-  if(loq_method == c(1)) caption <- paste0(caption, "\n", "Post-dose BLQ observations are imputed to 1/2 LLOQ")
-  if(loq_method == c(2)) caption <- paste0(caption, "\n", "All BLQ observations are imputed to 1/2 LLOQ")
+  if(loq_method == 1) caption <- paste0(caption, "\n", "Post-dose BLQ observations are imputed to 1/2 LLOQ")
+  if(loq_method == 2) caption <- paste0(caption, "\n", "All BLQ observations are imputed to 1/2 LLOQ")
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
 }
-
 
 
 
@@ -290,6 +210,7 @@ plot_dvtime <- function(data,
 #'
 #' @return a `character` string containing the plot caption
 #' @export dvtime_caption
+#' @keywords internal
 #'
 #' @examples
 #' dvtime_caption(cent = "mean")
@@ -297,37 +218,32 @@ plot_dvtime <- function(data,
 
 dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
-  cap1df <- data.frame(
-    cent = c("mean", "mean_sdl", "mean_sdl_upper",
-             "median", "median_iqr",
-             "none"),
-    label = c("mean","mean + SD error bars", "mean + SD error bars",
-              "median", "median + IQR error bars",
-              ""),
-    loglabel = c("geometric mean","geo. mean + geo. SD error bars", "geo. mean + geo. SD error bars",
-                 "median", "median + IQR error bars",
-                 ""))
-
-  cap2df <- data.frame(
-    obs_dv = c(TRUE, FALSE, TRUE, FALSE),
-    grp_dv = c(FALSE, TRUE, TRUE, FALSE),
-    label = c("Open circles are observations",
-              "Thin lines connect observations within an individual",
-              "Thin lines connect observations (open circles) within an individual",
-              "")
+  cent_labels <- list(
+    mean           = c(linear = "mean",                    log = "geometric mean"),
+    mean_sdl       = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    mean_sdl_upper = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    median         = c(linear = "median",                  log = "median"),
+    median_iqr     = c(linear = "median + IQR error bars", log = "median + IQR error bars"),
+    none           = c(linear = "",                        log = "")
   )
 
-  cap1 <- ifelse(log_y == FALSE, cap1df$label[cap1df$cent==cent], cap1df$loglabel[cap1df$cent==cent])
-  cap2 <- cap2df$label[cap2df$obs_dv==obs_dv&cap2df$grp_dv==grp_dv]
+  obs_labels <- list(
+    "TRUE.FALSE"  = "Open circles are observations",
+    "FALSE.TRUE"  = "Thin lines connect observations within an individual",
+    "TRUE.TRUE"   = "Thin lines connect observations (open circles) within an individual",
+    "FALSE.FALSE" = ""
+  )
 
-  caption <- if(cent == "none") {
-    paste0(cap2)
-  } else {
-    paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
-  }
+  scale <- if(log_y) "log" else "linear"
+  cap1 <- cent_labels[[cent]][[scale]]
+  cap2 <- obs_labels[[paste(obs_dv, grp_dv, sep = ".")]]
 
-  return(caption)
+  if(cent == "none") cap2
+  else paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
 }
+
+
+
 
 
 #' Customized Concentration-time theme with pmxhelpr default aesthetics
@@ -343,33 +259,26 @@ dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
 
 plot_dvtime_theme <- function(update = NULL){
-  defaults_list <- list(
-    linewidth_ref = 0.5,
-    linetype_ref = 2,
-    alpha_line_ref = 1,
+  defaults_list <- c(
+    .base_ref_theme,
+    list(
+      shape_point_obs = 1,
+      size_point_obs = 0.75,
+      alpha_point_obs = 0.5,
+      linewidth_obs = 0.5,
+      linetype_obs = 1,
+      alpha_line_obs = 0.5,
 
-    shape_point_obs = 1,
-    size_point_obs = 0.75,
-    alpha_point_obs = 0.5,
-    linewidth_obs = 0.5,
-    linetype_obs = 1,
-    alpha_line_obs = 0.5,
-
-    shape_point_cent = 16,
-    size_point_cent = 1.25,
-    alpha_point_cent = 1,
-    linewidth_cent = 0.75,
-    linetype_cent = 1,
-    alpha_line_cent = 1,
-
-    linewidth_errorbar = 0.75,
-    linetype_errorbar = 1,
-    alpha_errorbar = 1,
-    width_errorbar = NULL
+      shape_point_cent = 16,
+      size_point_cent = 1.25,
+      alpha_point_cent = 1,
+      linewidth_cent = 0.75,
+      linetype_cent = 1,
+      alpha_line_cent = 1
+    ),
+    .base_errorbar_theme
   )
 
-  default_theme <- defaults_list
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, defaults_list)
 }
 

@@ -10,7 +10,7 @@
 #' @export model_mread_load
 #'
 #' @examples
-#' model <- model_mread_load("model")
+#' model <- model_mread_load("pkmodel")
 
 model_mread_load <- function(model, ...){
   model_path <- system.file("models", paste0(model, ".cpp") , package = "pmxhelpr")

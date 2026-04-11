@@ -1,3 +1,9 @@
+#####Read model files#####
+
+##Load Model Files
+pkmod <- mrgsolve::mread(system.file("models", "pkmodel.cpp", package="pmxhelpr"))
+pdmod <- mrgsolve::mread(system.file("models", "pdmodel.cpp", package="pmxhelpr"))
+
 #####Create `data_sad` internal NONMEM analysis-ready dataset for a SAD study#####
 
 #Define Study Conditions: Doses, Sample Size, LLOQ
@@ -57,14 +63,10 @@ sim_input_data <- dplyr::left_join(dose_data, cov_data)
 colnames(sim_input_data) <- toupper(colnames(sim_input_data))
 
 
-##Load Model Files
-mod <- mrgsolve::mread(system.file("models", "model.cpp", package="pmxhelpr"))
-pdmod <- mrgsolve::mread(system.file("models", "pdmodel.cpp", package="pmxhelpr"))
-
-##Run Simulation
+##Run PK Simulation
 withr::with_seed(
   seed = 123456789,
-  simout <- mrgsolve::mrgsim_df(x = mod, data = sim_input_data, tgrid = times, obsonly=TRUE)
+  simout <- mrgsolve::mrgsim_df(x = pkmod, data = sim_input_data, tgrid = times, obsonly=TRUE)
 )
 
 
@@ -82,11 +84,11 @@ conc_data <- simout |>
   dplyr::rename(ODV = DV)
 
 
-##Assemble Complete Dataset
+##Assemble Complete PK Dataset
 withr::with_seed(
   seed = 123456789,
 
-  data_sad <-
+  data_sad_pk <-
     dplyr::bind_rows(
       dplyr::rename(sim_input_data, NTIME = TIME),
       conc_data) |>
@@ -106,6 +108,28 @@ withr::with_seed(
            FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL,
            USUBJID, PART)
 )
+
+
+##Run PD Simulation
+withr::with_seed(
+  seed = 123456789,
+  pdsimout <- df_mrgsim_replicate(data_sad_pk, pdmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+)
+
+pd_data <- data_sad_pk %>%
+  filter(CMT == 2) %>%
+  left_join(select(pdsimout, LINE, IPRED, IPREDPK)) %>%
+  mutate(CMT = 3,
+         CONC = ifelse(is.na(ODV), 0 , ODV),
+         ODV = IPRED,
+         LDV = IPRED,
+         CFB = ODV-100) %>%
+  select(-IPRED, -IPREDPK)
+
+data_sad <- bind_rows(data_sad_pk, pd_data) %>%
+  arrange(ID, TIME, CMT) %>%
+  select(ID:LDV,CFB, CONC, everything())
+
 
 usethis::use_data(data_sad, overwrite = TRUE)
 
@@ -137,6 +161,7 @@ intervals <-
 
 #Impute BLQ concentrations to 0 (PKNCA formatting)
 data_sad_nca_input <- data_sad |>
+  dplyr::filter(CMT %in% c(1,2)) |>
   dplyr::mutate(CONC = ifelse(is.na(ODV), 0, ODV),
                 AMT = AMT/1000) #convert from mg to ug. Concentration in ng/mL = ug/L
 
@@ -145,7 +170,7 @@ data_sad_nca_input <- data_sad |>
 conc_obj <- PKNCA::PKNCAconc(dplyr::filter(data_sad_nca_input, EVID==0), CONC~TIME|ID+DOSE+PART)
 dose_obj <- PKNCA::PKNCAdose(dplyr::filter(data_sad_nca_input, EVID==1), AMT~TIME|ID+PART)
 nca_data_obj <- PKNCA::PKNCAdata(conc_obj, dose_obj, intervals = intervals)
-nca_results_obj <- as.data.frame(pk.nca(nca_data_obj))
+nca_results_obj <- as.data.frame(PKNCA::pk.nca(nca_data_obj))
 
 #Add Units
 data_sad_nca <- nca_results_obj |>
@@ -161,30 +186,13 @@ usethis::use_data(data_sad_nca, overwrite = TRUE)
 
 #####Create `data_sad_pkfit` internal dataset of PK model outputs for `data_sad` using `model`
 
-fit <- df_mrgsim_replicate(data_sad, mod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+withr::with_seed(
+  seed = 987654321,
+  pkfit <- df_mrgsim_replicate(data_sad_pk, pkmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+)
 
-data_sad_pkfit <- data_sad %>%
-  left_join(select(fit, LINE, IPRED, PRED))
+data_sad_pkfit <- data_sad_pk %>%
+  left_join(select(pkfit, LINE, IPRED, PRED))
 
 usethis::use_data(data_sad_pkfit, overwrite = TRUE)
 
-
-#####Create `data_sad_pd` internal dataset with PK and PD observations using `pdmodel`
-
-fit <- df_mrgsim_replicate(data_sad, pdmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
-
-pd_obs <- data_sad %>%
-  filter(CMT == 2) %>%
-  left_join(select(fit, LINE, IPRED, IPREDPK)) %>%
-  mutate(CMT = 3,
-         CONC = ifelse(is.na(ODV), 0 , ODV),
-         ODV = IPRED,
-         LDV = IPRED,
-         CFB = ODV-100) %>%
-  select(-IPRED, -IPREDPK)
-
-data_sad_pd <- bind_rows(data_sad, pd_obs) %>%
-  arrange(ID, TIME, CMT) %>%
-  select(ID:LDV,CFB, CONC, everything())
-
-usethis::use_data(data_sad_pd, overwrite = TRUE)

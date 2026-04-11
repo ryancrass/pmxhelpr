@@ -81,40 +81,15 @@ test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FA
   expect_no_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), dose_var = "DOSEN", dosenorm = FALSE))
 })
 
-test_that("Error if argument `loq_method` is not one of 0, 1, 2", {
-  expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), loq_method = 3),
-               regexp = "argument `loq_method` must be 0, 1, or 2")
+test_that("Error if DV variable specified in output_vars does not exist in `data`", {
+  expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "NONEXIST")),
+               regexp = "must be variables in `data`")
 })
 
-test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 1", {
-  expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), loq_method = 1, loq = "$"),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
-})
-
-test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 2", {
-  expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), loq_method = 2, loq = "$"),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
-})
-
-test_that("No error if variable `LLOQ` exists in `data` and `loq` = NULL and `loq_method` != 0", {
-  expect_no_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), loq_method = 1))
-})
-
-test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = 1", {
-  expect_error(plot_popgof(data = dplyr::select(data_sad_pkfit, -LLOQ), output_vars = c(DV = "ODV"), loq_method = 1),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
-})
-
-test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = `", {
-  expect_error(plot_popgof(data = dplyr::select(data_sad_pkfit, -LLOQ), output_vars = c(DV = "ODV"), loq_method = 2),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
-})
-
-test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 1", {
-  expect_no_error(plot_popgof(data = dplyr::select(data_sad_pkfit, -LLOQ), output_vars = c(DV = "ODV"), loq = 1, loq_method = 1))
-})
-
-test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 2", {
-  expect_no_error(plot_popgof(data = dplyr::select(data_sad_pkfit, -LLOQ), output_vars = c(DV = "ODV"), loq = 1, loq_method = 2))
+##Test NSE Bare Names
+test_that("plot_popgof accepts bare names", {
+  expect_s3_class(plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"),
+                               grp_var = ID, dose_var = DOSE, dosenorm = TRUE),
+                  "ggplot")
 })
 

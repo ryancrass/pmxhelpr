@@ -71,6 +71,7 @@ A \code{ggplot2} plot object
 Plot a dependent variable versus concentration
 }
 \examples{
+data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 

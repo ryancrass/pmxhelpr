@@ -22,6 +22,7 @@
 #' @export plot_dvconc
 #'
 #' @examples
+#'data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 #'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
 #'plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #'
@@ -157,13 +158,13 @@ plot_dvconc <- function(data,
 
 
 
-
 #' Define a caption for `plot_dvconc`
 #'
 #' @inheritParams plot_dvconc
 #'
 #' @return a `character` string containing the plot caption
 #' @export dvconc_caption
+#' @keywords internal
 #'
 #' @examples
 #' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
@@ -172,27 +173,28 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
   cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
 
-  capdf <- data.frame(
-    loess = rep(c(FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)),
-    linear = rep(c(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)),
-    se_loess = rep(c(FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE)),
-    se_linear = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE)),
-    label = c("",
-              "\n LOESS fit overlaid","\n LOESS fit overlaid with 95% CI",
-              "\n Linear fit overlaid","\n Linear fit overlaid with 95% CIs",
-              "\n LOESS and linear fits overlaid","\n LOESS and linear fits overlaid with 95% CIs",
-              "\n LOESS fit with 95% CI and linear fit overlaid","\n LOESS fit and linear fit with 95% CI overlaid")
+  fit_labels <- list(
+    "FALSE.FALSE.FALSE.FALSE" = "",
+    "TRUE.FALSE.FALSE.FALSE"  = "\n LOESS fit overlaid",
+    "TRUE.FALSE.TRUE.FALSE"   = "\n LOESS fit overlaid with 95% CI",
+    "FALSE.TRUE.FALSE.FALSE"  = "\n Linear fit overlaid",
+    "FALSE.TRUE.FALSE.TRUE"   = "\n Linear fit overlaid with 95% CIs",
+    "TRUE.TRUE.FALSE.FALSE"   = "\n LOESS and linear fits overlaid",
+    "TRUE.TRUE.TRUE.TRUE"     = "\n LOESS and linear fits overlaid with 95% CIs",
+    "TRUE.TRUE.TRUE.FALSE"    = "\n LOESS fit with 95% CI and linear fit overlaid",
+    "TRUE.TRUE.FALSE.TRUE"    = "\n LOESS fit and linear fit with 95% CI overlaid"
   )
 
-  caption <- paste("Points are observations",
-                   ifelse(cfb==TRUE, cfb_lab, ""),
-                   capdf$label[capdf$loess==loess &
-                                 capdf$linear==linear &
-                                 capdf$se_loess==se_loess &
-                                 capdf$se_linear == se_linear]
-)
-  return(caption)
+  key <- paste(loess, linear, se_loess, se_linear, sep = ".")
+  fit_lab <- fit_labels[[key]]
+
+  paste("Points are observations",
+        ifelse(cfb == TRUE, cfb_lab, ""),
+        fit_lab)
 }
+
+
+
 
 
 #' Customized Response versus drug concentration theme with pmxhelpr default aesthetics
@@ -208,29 +210,26 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
 
 plot_dvconc_theme <- function(update = NULL){
-  defaults_list <- list(
-    linewidth_ref = 0.5,
-    linetype_ref = 2,
-    alpha_line_ref = 1,
+  defaults_list <- c(
+    .base_ref_theme,
+    list(
+      shape_point_obs = 1,
+      size_point_obs = 1.25,
+      alpha_point_obs = 0.5,
 
-    shape_point_obs = 1,
-    size_point_obs = 1.25,
-    alpha_point_obs = 0.5,
-
-    linewidth_loess = 1,
-    linetype_loess = 1,
-    linewidth_linear = 1,
-    linetype_linear = 2,
-    color_loess = "black",
-    color_linear = "black",
-    color_se_loess = "lightgrey",
-    color_se_linear = "lightgrey",
-    alpha_se_loess = 0.4,
-    alpha_se_linear = 0.4
+      linewidth_loess = 1,
+      linetype_loess = 1,
+      linewidth_linear = 1,
+      linetype_linear = 2,
+      color_loess = "black",
+      color_linear = "black",
+      color_se_loess = "lightgrey",
+      color_se_linear = "lightgrey",
+      alpha_se_loess = 0.4,
+      alpha_se_linear = 0.4
+    )
   )
 
-  default_theme <- defaults_list
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, defaults_list)
 }
 

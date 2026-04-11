@@ -50,11 +50,11 @@ test_that("Error if argument `method` not one of normal or tdist", {
                regexp = "argument `method` must be 'normal' or 'tdist'")
 })
 
-test_that("Error if argument `method` not one of normal or tdist", {
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
   fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
 
-  expect_error(df_loglog(fit, ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
+  expect_error(df_loglog(fit, ci = 1.1),
+               regexp = "argument `ci` must be a numeric value between 0 and 1")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {
@@ -93,43 +93,6 @@ test_that("Output rounds values as specified in the `sigdigits` argument", {
   expect_equal(result,4)
 })
 
-
-
-##Test Argument Handling
-test_that("Error if incorrect class for argument `data`", {
-  expect_error(plot_doseprop("data_sad_nca", metrics = c("aucinf.obs", "cmax")),
-               regexp = "argument `data` must be a `data.frame`")
-})
-
-test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_var]]`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("auc")),
-               regexp = "argument `metrics` must be levels in variable `metric_var`")
-})
-
-test_that("Error if variable specified in `metric_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "METRIC"),
-               regexp = "argument `metric_var` must be variables in `data`")
-})
-
-test_that("Error if variable specified in `dose_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variables in `data`")
-})
-
-test_that("Error if argument `method` is not one of normal or tdist", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
-               regexp = "argument `method` must be 'normal' or 'tdist'")
-})
-
-test_that("Error if argument `ci` is not one of 0.90 or 0.95", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
-})
-
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
-})
 
 
 #####plot_doseprop#####
@@ -186,12 +149,36 @@ test_that("Error if argument `method` is not one of normal or tdist", {
                regexp = "argument `method` must be 'normal' or 'tdist'")
 })
 
-test_that("Error if argument `ci` is not one of 0.90 or 0.95", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 0.99),
-               regexp = "argument `ci` must be 0.90 or 0.95")
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
+               regexp = "argument `ci` must be a numeric value between 0 and 1")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
                regexp = "argument `sigdigits` must be coercible to class `integer`")
+})
+
+##Test NSE Bare Names
+test_that("mod_loglog accepts bare names and matches string output", {
+  dat <- dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs")
+  m1 <- mod_loglog(dat, exp_var = PPORRES, dose_var = DOSE)
+  m2 <- mod_loglog(dat, exp_var = "PPORRES", dose_var = "DOSE")
+  expect_identical(coef(m1), coef(m2))
+})
+
+test_that("df_doseprop accepts bare names and matches string output", {
+  t1 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE)
+  t2 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_var = "PPTESTCD", exp_var = "PPORRES", dose_var = "DOSE")
+  expect_identical(t1, t2)
+})
+
+test_that("plot_doseprop accepts bare names", {
+  expect_s3_class(
+    plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                  metrics = c("aucinf.obs", "cmax"),
+                  metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE),
+    "ggplot")
 })

@@ -19,5 +19,5 @@ An \code{mrgsolve} model object.
 model library in \code{pmxhelpr}
 }
 \examples{
-model <- model_mread_load("model")
+model <- model_mread_load("pkmodel")
 }

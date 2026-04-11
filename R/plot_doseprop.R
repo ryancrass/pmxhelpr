@@ -28,6 +28,7 @@ mod_loglog <- function(data,
   check_df(data)
   check_varsindf(data, exp_var_str)
   check_varsindf(data, dose_var_str)
+  if(nrow(data) < 2) {rlang::abort(message = "argument `data` must contain at least 2 rows for log-log regression")}
 
   form <- stats::as.formula(paste(paste0("log(",exp_var_str,")"),"~",paste0("log(",dose_var_str,")")))
   fit <- stats::lm(form, data)
@@ -62,10 +63,8 @@ df_loglog <- function(fit,
 
   check_lm(fit)
   if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
-  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
   check_integer(sigdigits)
-
-
 
   int <- stats::coef(fit)[[1]]
   est <- stats::coef(fit)[[2]]
@@ -77,12 +76,10 @@ df_loglog <- function(fit,
     StandardError = signif(se, digits=sigdigits),
     CI = paste0(ci*100, "%"),
     Power = signif(est, digits = sigdigits),
-    LCL = dplyr::case_when(method == "normal" & ci == 0.95 ~ signif(est - 1.96*se, digits=sigdigits),
-                           method == "normal" & ci == 0.90 ~ signif(est - 1.64*se, digits=sigdigits),
+    LCL = dplyr::case_when(method == "normal" ~ signif(est - stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
                            method == "tdist" ~ signif(est - z*se, digits=sigdigits),
                            .default = NA_real_),
-    UCL = dplyr::case_when(method == "normal" & ci == 0.95 ~ signif(est + 1.96*se, digits=sigdigits),
-                           method == "normal" & ci == 0.90 ~ signif(est + 1.64*se, digits=sigdigits),
+    UCL = dplyr::case_when(method == "normal" ~ signif(est + stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
                            method == "tdist" ~ signif(est + z*se, digits=sigdigits),
                            .default = NA_real_)) |>
     dplyr::mutate(Proportional = dplyr::case_when(LCL < 1 & UCL < 1 ~ FALSE,
@@ -125,7 +122,8 @@ df_doseprop <- function(data,
   dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
 
   check_df(data)
-  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
+  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
   check_integer(sigdigits)
 
   fit_list <- list()
@@ -176,7 +174,8 @@ plot_doseprop <- function(data,
   check_varsindf(data, metric_var_str)
   check_varsindf(data, dose_var_str)
   check_levelsinvar(data, metric_var_str, metrics)
-  if(!ci %in% c(0.90, 0.95)) {rlang::abort(message = "argument `ci` must be 0.90 or 0.95")}
+  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
+  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
   check_integer(sigdigits)
 
   dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)

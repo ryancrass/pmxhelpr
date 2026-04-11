@@ -31,11 +31,11 @@ library(PKNCA, warn.conflicts = FALSE)
 
 # Data
 
-The datasets used in this vignette are based on a simple ascending dose (SAD) study of an orally drug product with a parallel group food effect (FE) cohort.
+The dataset used in this vignette are based on a simple ascending dose (SAD) study of an orally drug product with a parallel group food effect (FE) cohort.
 
 ## data_sad
 
-Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the primary dataset for this analysis (`data_ssad`)  using `glimpse()` from the `dplyr` package.
+Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the primary dataset for this analysis (`data_sad`)  using `glimpse()` from the `dplyr` package.
 
 ```{r data-sad-glimpse}
 glimpse(data_sad)
@@ -47,12 +47,13 @@ The study design consisted of two parts. Part 1 was a SAD study over a 10 to 400
 distinct(data_sad, DOSE, PART, FOOD)
 ```
 
-The dataset is formatted for population pharmacokinetic (PopPK) modeling in NONMEM with oral dose events (`EVID=1`) input into `CMT=1` and drug concentration observations (`EVID=0`) in`CMT=2`. Dose events are input in `AMT` with the nominal dose associated with each observation captured in `DOSE`.
+The dataset is formatted for population pharmacokinetic (PopPK) and pharmacokinetic/pharmacodynamic (PK/PD) modeling in NONMEM with oral dose events (`EVID=1`) input into `CMT=1`, drug concentration observations (`EVID=0`) in`CMT=2`, and pharmacodynamic response observations (`EVID=0`) in `CMT=3`. Dose events are input in `AMT` with the nominal dose associated with each observation captured in `DOSE`.
 
 Plasma drug concentration observations are expressed in multiple units:  
 
-  - `ODV`: original units of the dependent variable [ng/mL[]
-  - `LDV`: natural logarithm-transformed units of drug concentration [log(ng/mL)]
+  - `ODV`: original units of the dependent variable [CMT = 2 ng/mL, CMT = 3 % baseline activity]
+  - `LDV`: logarithm-transformed drug concentration [CMT = 2 log(ng/mL), CMT = 3 % baseline activity]
+  - `CFB`: percentage change from baseline [CMT = 2 missing, CMT = 3 % change from baseline]
 
 The dataset also contains multiple variables for time:
 
@@ -73,14 +74,6 @@ length(ntimes)
 length(times)
 ```
 
-## data_sad_pd
-
-The companion dataset, `data_sad_pd`, is `data_sad` with an additional pharmacodynamic (PD) response biomarker observation type (`EVID=0`) in an additional compartment`CMT=3`. These response data are expressed as percentage of baseline activity (%) in both `ODV` and `LDV` and as percentage change from baseline activity in `CFB`.
-
-```{r data-sad-pd-glimpse}
-glimpse(data_sad_pd)
-```
-
 ## df_addn
 
 One should make sure to only pass the data of interest for visualization into any plotting function. Let's filter to only observations, and define some grouping variables with summative information for subsequent exploratory analysis.
@@ -90,7 +83,7 @@ The helper function `df_addn` takes an input dataset `data` and returns a datase
 A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose. 
 
 ```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_pk <- data_sad %>% 
+plot_data <- data_sad %>% 
   filter(EVID == 0) %>% 
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          `Dose and Food` = paste(DOSE, "mg", `Food Status`),
@@ -98,30 +91,25 @@ plot_data_pk <- data_sad %>%
   df_addn(grp_var = Dose, sep = "mg") %>% 
   df_addn(grp_var = `Dose and Food`)
 
-plot_data_pd <- data_sad_pd %>% 
-  filter(EVID == 0) %>% 
-  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
-         `Dose and Food` = paste(DOSE, "mg", `Food Status`),
-         Dose = DOSE) %>% 
-  df_addn(grp_var = "Dose", sep = "mg") %>% 
-  df_addn(grp_var = "Dose and Food")
-
-unique(plot_data_pk$Dose)
-unique(plot_data_pk$`Dose and Food`)
+unique(plot_data$Dose)
+unique(plot_data$`Dose and Food`)
 ```
 Unfortunately, often our factors will not be ordered in ascending numerical order due ordering of strings. In this case, the 50 mg dose group is sorted at the end. We can use the `forcats` package in the `tidyverse` to quickly reorder our new variables
 
-```{r plot-data-reorder, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_data_pk <- plot_data_pk %>% 
+```{r plot-data-reorder, message=FALSE, warning=FALSE}
+plot_data <- plot_data %>% 
   mutate(Dose = fct_relevel(Dose, "50 mg (n=6)", after = 1), 
          `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 
-plot_data_pd <- plot_data_pd %>% 
-  mutate(Dose = fct_relevel(Dose, "50 mg (n=6)", after = 1), 
-         `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
-  
-unique(plot_data_pk$Dose)
-unique(plot_data_pk$`Dose and Food`)
+unique(plot_data$Dose)
+unique(plot_data$`Dose and Food`)
+```
+
+Let's filter to each of PK and PD data in separate plotting datasets.
+
+```{r plot-data-cmt, message=FALSE, warning=FALSE}
+plot_data_pk <- filter(plot_data, CMT == 2)
+plot_data_pd <- filter(plot_data, CMT == 3)
 ```
 
 # Population Concentration-time plots
@@ -135,11 +123,13 @@ Let's run it!
 ```{r plot-dvtime-fail, fig.height=4, fig.width=6, error=TRUE, message=TRUE}
 plot_dvtime(plot_data_pk)
 ```
+
 Hmm...that didn't work. Hmm...well checking `?plot_dvtime()` it seems that the argument `dv_var` specifies the dependent variable in the dataset and the default is `DV`. This argument uses non-standard evaluation and can be passed as a bare column names or as a string. Since `data_sad` has the original units of the dependent variable as `ODV`, this name must be passed to the function.
 
 ```{r plot-dvtime-pass, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV)
 ```
+
 Hey a plot! Conveniently, time variables in `data_sad` had names aligned with the default argument; however, this may not always be the case. A caption prints by default describing the plot elements. The caption can be removed by specifying `show_caption = FALSE`.
 
 ```{r plot-dvtime-nocap, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -166,7 +156,7 @@ The names of the actual and nominal time variables can be passed as a named char
 plot_dvtime(plot_data_pk, dv_var = ODV, time_vars = c(TIME = "NTIME"))
 ```
  
-`plot_dvtime` includes uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
+`plot_dvtime` uses a helper function (`breaks_time`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `breaks_time`:
 
   + `timeu` character string specifying time units. Options include:
   
@@ -212,7 +202,7 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 ```
 
 
-## Color Aesthetic and Central Trendency
+## Color Aesthetic and Central Tendency
 
 The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
 
@@ -277,7 +267,7 @@ It does not seem like there are outlier individuals driving the noise in the lat
 
 Let's use imputation to assess the potential impact of the data missing due to assay sensitivity. `plot_dvtime` includes some functionality to do this imputation for us using the `loq` and `loq_method` arguments.
 
-The `loq_method` argument species how BLQ imputation should be performed. Options are:
+The `loq_method` argument specifies how BLQ imputation should be performed. Options are:
 
   + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
   + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
@@ -389,7 +379,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "none"
             loq_method = 2, loq = 1) +
   facet_wrap(~PART)
 ```
-We can plot an individual subject by filtering the input dataset. This could be extended generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
+We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`,  `purrr::map()` functions, or other methods.
 
 ```{r plot-dvtime-blq2-indplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 
@@ -423,14 +413,14 @@ lapply(1:n_pgs, function(n_pg) {
 Now let's take a look at the pharmacodynamic (PD) data! We can visualize the response-time profile using `plot_dvtime`, just as we did to visualize the concentration-time profile previously, by filtering our PK/PD dataset to the compartment with the biomarker observations (`CMT=3`).
 
 ```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, col_var = `Dose and Food`, 
+plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`, 
             ylab = "Response") 
 ```
 
 We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
 
 ```{r plot-dvtime-pd-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV, 
+plot_dvtime(data = plot_data_pd, dv_var = ODV, 
             col_var = `Dose and Food`, ylab = "Response", 
             cfb = TRUE, cfb_base = 100) 
 ```
@@ -438,7 +428,7 @@ plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = ODV,
 We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
 
 ```{r plot-dvtime-pd-ref0, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = filter(plot_data_pd, CMT == 3), dv_var = CFB, 
+plot_dvtime(data = plot_data_pd, dv_var = CFB, 
             col_var = `Dose and Food`, ylab = "Response", 
             cfb=TRUE)
 ```
@@ -455,7 +445,7 @@ This function uses the `patchwork` package to plot the PK and PD profiles in two
 Both `dv_var1` and `dv_var2` arguments use non-standard evaluation and can be passed as bare column names or strings.
 
 ```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV,dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV,dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`)
 ```
@@ -468,7 +458,7 @@ The following arguments are available to specify y-axis labels and transformatio
   + `log_y2`: Logical specifying if the bottom panel y-axis should be transformed to a log scale. Default is `FALSE`.
 
 ```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
@@ -477,7 +467,7 @@ plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
 This wrapper function expects that the top panel will display drug concentration (PK) and the bottom panel will display response (PD). Thus, BLQ imputation and dose-normalization options specified using the standard arguments to `plot_dvtime` are only applied to the top panel. 
 
 ```{r plot-dvtime-dual-col-dosenorm-blq, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = `Dose and Food`, loq_method = 2, dosenorm = T,dose_var = DOSE,
                  log_y1 = TRUE, ylab1 = "Dose-norm Drug Conc. (ng/mL)", ylab2 = "Response (% of Base)") 
@@ -486,7 +476,7 @@ plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
 Similarly, since function expects that the bottom panel displays response (PD), a reference line at y=`cfb_base` is only added to the bottom panel when `cfb=TRUE`. 
 
 ```{r plot-dvtime-dual-col-ref, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, cfb_base = 100,
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% of Baseline)") 
@@ -495,7 +485,7 @@ plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = ODV,
 The default value of `cfb_base` is `0`, which is the reference condition for when we express our response variable in units of change from baseline or percentage change from baseline. We can modify our plot to use change from baseline as the dependent variable for the PD panel but updating the variable passed to `dv_var2`.
 
 ```{r plot-dvtime-dual-col-ref-cfb, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, 
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)") 
@@ -504,7 +494,7 @@ plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
 Finally, we can modify both of the captions separately using the logical arguments `show_caption1` and `show_caption2`. Their default values are `TRUE`. Since both panels of this plot have the same elements, we can turn the caption off in the top panel and print a single caption under the bottom panel to represent both panels in the plot.
 
 ```{r plot-dvtime-dual-col-ref-cfb-nocap, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data_pd, dv_var1 = ODV, dv_var2 = CFB,
+plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
                  dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
                  col_var = Dose, cfb=TRUE, 
                  log_y1 = TRUE, ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change from Baseline)",
@@ -659,6 +649,7 @@ Next, we will set up our dose and concentration objects and perform the NCA usin
 ```{r nca-output}
 #Impute BLQ concentrations to 0 (PKNCA formatting)
 data_sad_nca_input <- data_sad %>% 
+  filter(CMT %in% c(1,2)) %>% 
   mutate(CONC = ifelse(is.na(ODV), 0, ODV), 
          AMT = AMT/1000) #Convert from mg to ug (concentration is ng/mL = ug/L)
 

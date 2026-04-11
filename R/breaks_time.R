@@ -4,8 +4,8 @@
 #' @param unit Character string for time units.
 #'    Options include:
 #'    + "hours" (default), "hrs", "hour", "hr", "h"
-#'    + "days", "dys", "day", dy", "d"
-#'    + "weeks", "wks", ,"week," "wk", "w"
+#'    + "days", "dys", "day", "dy", "d"
+#'    + "weeks", "wks", "week", "wk", "w"
 #'    + "months", "mons", "mos", "month", "mo", "m"
 #'
 #' @param n Ideal number of axis breaks requested (default = 8). Passed to `labeling::extended()`

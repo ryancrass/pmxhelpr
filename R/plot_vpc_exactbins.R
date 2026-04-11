@@ -25,8 +25,9 @@
 #'    + Simulated Median: `sim_median` = FALSE
 #'    + Simulated Median CI: `sim_median_ci` = TRUE
 #'
-#' @param theme Named list of aesthetic parameters for the plot.Passed to `vpc_theme` arumgent of [vpc::vpc()].
-#'    Defaults can be obtained by running [vpc::new_vpc_theme()] with no arguments.
+#' @param theme Named list of aesthetic parameters for the plot. Passed to `vpc_theme` argument of [vpc::vpc()].
+#'    Defaults for `pmxhelpr`dev can be obtained by running `plot_vpc_theme` with no arguments.
+#'    Defaults for `vpc` can be obtained by running [vpc::new_vpc_theme()] with no arguments.
 #'
 #' @inheritParams df_pcdv
 #' @param ... Other arguments passed to [vpc::vpc()].
@@ -38,8 +39,9 @@
 #' @export plot_vpc_exactbins
 #'
 #' @examples
-#' model <- model_mread_load(model = "model")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 100,
+#' model <- model_mread_load(model = "pkmodel")
+#' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 #' dv_var = ODV,
 #' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
 #' char_vars = c("USUBJID", "PART"),
@@ -76,8 +78,7 @@ plot_vpc_exactbins <- function(sim,
   irep_name_str  <- rlang::as_name(rlang::ensym(irep_name))
 
   #Update Lists
-  time_vars <- list_update(time_vars, c(TIME = "TIME",
-                                        NTIME = "NTIME"))
+  time_vars <- init_time_vars(time_vars)
 
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
@@ -106,17 +107,10 @@ plot_vpc_exactbins <- function(sim,
   show_vpc$obs_dv <- FALSE
 
   #aesthetics for legend based on settings in vpc::new_vpc_theme
-  vpctheme <- list_update(theme, pmxhelpr_vpc_theme())
+  vpctheme <- list_update(theme, plot_vpc_theme())
 
   #Handle Output and Time Variables
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    sim <- dplyr::rename(sim, dplyr::any_of(c(time_vars, output_vars)))
-  } else {
-    sim <- sim |>
-      dplyr::rename(dplyr::any_of(c(c(NTIME = time_vars[["NTIME"]]),
-                                    output_vars))) |>
-      dplyr::mutate(TIME = NTIME)
-  }
+  sim <- rename_time_vars(sim, time_vars, output_vars)
 
   ##Ensure stratification variable is a not an ordered factor (will cause vpc::add_stratification() to fail)
   if(!is.null(strat_var_str)){
@@ -171,7 +165,7 @@ plot_vpc_exactbins <- function(sim,
     ...)
 
   #If to capture vpcdb = TRUE passed to vpc::vpc
-  if(!ggplot2::is.ggplot(plot)) {
+  if(!ggplot2::is_ggplot(plot)) {
     return(plot) #if not ggplot object, must be a list containing vpc information with vpcdb=TRUE
   } else {
     ##Overlay Observations if Requested
@@ -217,112 +211,19 @@ plot_vpc_exactbins <- function(sim,
 
 
 
-#' Count the non-missing observations in each exact bin
-#'
-#' @description
-#' `df_nobsbin()` is a helper function to count the number of missing
-#'    and non-missing observations in exact bins.
-#'
-#' @param data Input dataset.
-#' @param bin_var Binning variable. Accepts bare names or strings. Default is `NTIME`.
-#' @param strat_vars Stratifying variables. Must be a character vector.
-#'
-#' @return A data.frame containing one row per unique combination of
-#'    `bin_var` and `strat_vars` and new variables `n_obs`, a count
-#'    of non-missing observations, and `n_miss`, a count of missing observations.
-#' @export df_nobsbin
-#'
-#' @examples
-#' df_nobsbin(data_sad)
-#'
-df_nobsbin <- function(data,
-                       bin_var = NTIME,
-                       strat_vars = NULL){
-
-  bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
-
-  check_df(data)
-  check_varsindf(data, bin_var_str)
-  check_varsindf(data, strat_vars)
-
-  bin_count <- data |>
-    dplyr::filter(EVID == 0) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var_str, strat_vars, "CMT")))) |>
-    dplyr::summarize(n_obs = sum(MDV==0),
-                     n_miss = sum(MDV==1)) |>
-    dplyr::ungroup()
-
-  return(bin_count)
-}
-
-
-
-#' Perform prediction-correction of the dependent variable
-#'
-#' @description
-#' `df_pcdv` is a helper function to perform prediction-correction
-#'    of observed or simulated depedent variables.
-#'
-#' @param data Input dataset
-#' @param bin_var Exact binning variable. Accepts bare names or strings. Default is `NTIME`.
-#' @param strat_vars Stratifying variables. Default is `NULL`.
-#' @param dvpred_vars Names of variables for the dependent variable and population model prediction. Must be named character vector.
-#'    Defaults are `"PRED"` and `"DV"`.
-#' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.
-#'
-#' @return A data.frame containing one row per unique combination of
-#'    `bin_var` and `strat_vars` and new variable `PCDV` containing
-#'    prediction-corrected observations.
-#' @export df_pcdv
-#'
-#' @examples
-#' model <- model_mread_load(model = "model")
-#' data <- df_addpred(data_sad, model)
-#' simout <- df_pcdv(data, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
-#'
-df_pcdv <- function(data,
-                    bin_var = NTIME,
-                    strat_vars = NULL,
-                    dvpred_vars = c(PRED = "PRED",
-                                    DV = "DV"),
-                    lower_bound = 0) {
-
-  bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
-
-  dvpred_vars <- list_update(dvpred_vars, c(PRED = "PRED",
-                                            DV = "DV"))
-
-  check_df(data)
-  check_varsindf(data, bin_var_str)
-  check_varsindf(data, strat_vars)
-  check_varsindf(data, dvpred_vars[["PRED"]])
-  check_varsindf(data, dvpred_vars[["DV"]])
-
-  data <- data |>
-    dplyr::rename(dplyr::all_of(dvpred_vars)) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(bin_var_str, strat_vars, "CMT")))) |>
-    dplyr::mutate(PREDBIN = stats::median(PRED),
-                  PCDV = lower_bound + (DV-lower_bound)*((PREDBIN-lower_bound)/(PRED-lower_bound))) |>
-    dplyr::ungroup()
-
-  return(data)
-}
-
-
-
 #' Customized VPC theme with pmxhelpr default aesthetics
 #'
 #' @param update list containing the plot elements to be updated.
-#'    Run `pmxhelpr_vpc_theme()` with no arguments to view defaults.
+#'    Run `plot_vpc_theme()` with no arguments to view defaults.
 #' @return a `list`with vpc theme specifiers
-#' @export pmxhelpr_vpc_theme
+#' @export plot_vpc_theme
 #'
 #' @examples
-#' pmxhelpr_vpc_theme()
-#' new_theme <- pmxhelpr_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
+#' plot_vpc_theme()
+#' new_theme <- plot_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
 
 
-pmxhelpr_vpc_theme <- function(update = NULL){
+plot_vpc_theme <- function(update = NULL){
   defaults_list <- list(
     obs_color = "#0000FF",
 
@@ -334,6 +235,5 @@ pmxhelpr_vpc_theme <- function(update = NULL){
   )
 
   default_theme <- list_update(defaults_list, vpc::new_vpc_theme())
-  theme <- list_update(update, default_theme)
-  return(theme)
+  list_update(update, default_theme)
 }

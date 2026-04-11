@@ -25,7 +25,7 @@
 #'    + Simulated Median: `sim_median` = FALSE
 #'    + Simulated Median CI: `sim_median_ci` = TRUE
 #'
-#' @param theme Named list of aesthetic parameters for the plot.Passed to `vpc_theme` arumgent of [vpc::vpc()].
+#' @param theme Named list of aesthetic parameters for the plot. Passed to `vpc_theme` argument of [vpc::vpc()].
 #'    Defaults for `pmxhelpr`dev can be obtained by running `plot_vpc_theme` with no arguments.
 #'    Defaults for `vpc` can be obtained by running [vpc::new_vpc_theme()] with no arguments.
 #'

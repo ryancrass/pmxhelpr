@@ -1,6 +1,6 @@
 # pmxhelpr (development version)
 
-* Rename dataset `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. `data_sad` now contains both PK and PD compartments.
+* Rename dataset `data_sad_pd` as `data_sad`. No longer export `data_sad_pd`. 
 * Rename model `model` as `pkmodel` for consistency with `pdmodel`. 
 * Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for  consistency with other plot theme functions
 * Change `dvconc_caption` and `dvtime_caption` to internal functions after simplifying

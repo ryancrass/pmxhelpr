@@ -62,7 +62,7 @@ errorbar_width <- function(plottheme, data) {
   else max(data$NTIME, na.rm = TRUE) * 0.025
 }
 
-list_update <- function(update=NULL, src, mess){
+list_update <- function(update=NULL, src){
 
   update_list_name <-deparse(substitute(update))
 

@@ -1,8 +1,8 @@
 
 #' Plot a legend for a visual predictive check (VPC)
 #'
-#' @param ci simulated confidence interval plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
-#' @param pi prediction intervals plotted. Should match argument passed to [`vpc::vpc()`]. Default is c(0.05, 0.95).
+#' @param ci simulated confidence interval plotted. Should match argument passed to [plot_vpc_exactbins()]. Default is c(0.05, 0.95).
+#' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_exactbins()]. Default is c(0.05, 0.95).
 #' @param lloq label for lower limit of quantification in the plot legend.
 #' @param update list containing the plot elements to be updated. Default is set by [plot_vpc_theme()].
 #' @param ... Other arguments passed to [ggplot2::theme()].
@@ -28,12 +28,12 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                         update = NULL,
                         ...){
 
-  #aesthetics for legend based on settings in vpc::new_vpc_theme
+  #aesthetics for legend based on settings in plot_vpc_theme
   new_vpc_theme_list <- plot_vpc_theme()
   attr(new_vpc_theme_list, "class") <- NULL
   plist <- list_update(update,new_vpc_theme_list)
 
-  #shown elements for legend based on settings in vpc::vpc
+  #shown elements for legend based on settings in plot_vpc_exactbins
   nlist <- list_update(shown,
                        list(obs_dv = TRUE, obs_ci = TRUE,
                             pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,

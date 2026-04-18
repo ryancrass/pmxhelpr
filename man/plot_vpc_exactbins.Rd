@@ -19,7 +19,9 @@ plot_vpc_exactbins(
   theme = NULL,
   timeu = "hours",
   n_breaks = 8,
-  ...
+  pi = c(0.05, 0.95),
+  ci = c(0.05, 0.95),
+  vpcdb = FALSE
 )
 }
 \arguments{
@@ -33,11 +35,11 @@ Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
 Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay. Passed to \code{lloq} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
+Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
 
-\item{strat_var}{Stratification variable passed to \code{stratify} argument
-of \code{\link[vpc:vpc]{vpc::vpc()}}. Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
+\item{strat_var}{Stratification variable.
+Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -49,7 +51,7 @@ but retains these observations in the observed data points.}
 
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot. Passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+\item{shown}{Named list of logicals specifying which layers to include on the plot.
 
 Defaults are:
 \itemize{
@@ -63,9 +65,8 @@ Defaults are:
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
 
-\item{theme}{Named list of aesthetic parameters for the plot. Passed to \code{vpc_theme} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
-Defaults for \code{pmxhelpr}dev can be obtained by running \code{plot_vpc_theme} with no arguments.
-Defaults for \code{vpc} can be obtained by running \code{\link[vpc:new_vpc_theme]{vpc::new_vpc_theme()}} with no arguments.}
+\item{theme}{Named list of aesthetic parameters for the plot.
+Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{breaks_time} and assigned to default x-axis label.
@@ -79,14 +80,18 @@ Options include:
 
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
-\item{...}{Other arguments passed to \code{\link[vpc:vpc]{vpc::vpc()}}.}
+\item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
+
+\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles. Default is \code{c(0.05, 0.95)}.}
+
+\item{vpcdb}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
 }
 \value{
 A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggplot2 object (default)
 }
 \description{
-\code{plot_vpc_exactbins()} is a wrapper function for \code{\link[vpc:vpc]{vpc::vpc()}}
-that returns a \code{ggplot2} object.
+\code{plot_vpc_exactbins()} generates a VPC plot using exact time bins
+and returns a \code{ggplot2} object.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")

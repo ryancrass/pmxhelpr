@@ -18,5 +18,4 @@ Customized VPC theme with pmxhelpr default aesthetics
 }
 \examples{
 plot_vpc_theme()
-new_theme <- plot_vpc_theme(update = vpc::new_vpc_theme()) #restores vpc package defaults
 }

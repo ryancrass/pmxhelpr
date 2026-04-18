@@ -6,7 +6,7 @@ Authors@R:
     email = "ryancrass@gmail.com", 
     role = c("aut", "cre", "cph"),
     comment = c(ORCID = "0000-0001-5403-4730"))
-Description: Wrapper functions for 'mrgsolve' and 'vpc' package functions
+Description: Wrapper functions for 'mrgsolve' package functions
     and other general helpers to make pharmacometrics workflows more
     seamless.
 License: GPL-3 + file LICENSE
@@ -20,7 +20,6 @@ Imports:
     mrgsolve,
     rlang,
     stats,
-    vpc,
     withr,
     labeling,
     patchwork

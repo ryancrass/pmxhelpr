@@ -33,8 +33,8 @@ Functions in this package use the following naming conventions:
     internal package model files returning an `mrgmod` object.
   - `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the
     input data returning a `data.frame`.
-  - `plot_vpc_exactbins()` wraps `vpc::vpc()` to generate a VPC plot
-    using exact time bins returning a `ggplot` object.
+  - `plot_vpc_exactbins()` generates a VPC plot using exact time bins
+    returning a `ggplot` object.
 - Helper functions: *ReturnObject*\_*Purpose*
   - `df_addn` returns a `data.frame` with counts of the number of unique
     values of an ID variable per bin.
@@ -125,7 +125,6 @@ library(pmxhelpr)
 library(dplyr)
 library(ggplot2)
 library(mrgsolve)
-library(vpc)
 library(patchwork)
 library(withr)
 
@@ -162,7 +161,6 @@ library(pmxhelpr)
 library(dplyr)
 library(ggplot2)
 library(mrgsolve)
-library(vpc)
 library(patchwork)
 library(withr)
 

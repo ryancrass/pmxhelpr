@@ -14,11 +14,11 @@ plot_vpclegend(
 )
 }
 \arguments{
-\item{ci}{simulated confidence interval plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
+\item{ci}{simulated confidence interval plotted. Should match argument passed to \code{\link[=plot_vpc_exactbins]{plot_vpc_exactbins()}}. Default is c(0.05, 0.95).}
 
-\item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[vpc:vpc]{vpc::vpc()}}. Default is c(0.05, 0.95).}
+\item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_exactbins]{plot_vpc_exactbins()}}. Default is c(0.05, 0.95).}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot. Passed to \code{show} argument of \code{\link[vpc:vpc]{vpc::vpc()}}.
+\item{shown}{Named list of logicals specifying which layers to include on the plot.
 
 Defaults are:
 \itemize{

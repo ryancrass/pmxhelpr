@@ -22,7 +22,7 @@
 #'     \item{obs_quant}{Observed quantile summary with columns: `NTIME`,
 #'       `obs5`, `obs50`, `obs95`, and any stratification variable.}
 #'   }
-#' @keywords internal
+
 
 df_vpcstats <- function(sim,
                         pi = c(0.05, 0.95),

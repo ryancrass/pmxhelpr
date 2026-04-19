@@ -49,4 +49,3 @@ A list with two data.frames:
 \code{df_vpcstats()} computes two-stage quantile summary statistics for
 visual predictive check (VPC) plots from simulated and observed data.
 }
-\keyword{internal}

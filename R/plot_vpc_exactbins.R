@@ -241,22 +241,22 @@ plot_vpc_exactbins <- function(sim,
 plot_vpc_theme <- function(update = NULL){
 
   base_theme <- list(
-    obs_color = "#000000",
+    obs_color = "#0000FF",
     obs_size = 1,
     obs_shape = 1,
     obs_alpha = 0.7,
-    obs_median_color = "#000000",
+    obs_median_color = "#FF0000",
     obs_median_linetype = "solid",
     obs_median_size = 1,
-    obs_ci_color = "#000000",
+    obs_ci_color = "#0000FF",
     obs_ci_linetype = "dashed",
     obs_ci_size = 0.5,
-    sim_pi_fill = "#3388cc",
+    sim_pi_fill = "#0000FF",
     sim_pi_alpha = 0.15,
     sim_pi_color = "#000000",
     sim_pi_linetype = "dotted",
     sim_pi_size = 1,
-    sim_median_fill = "#3388cc",
+    sim_median_fill = "#FF0000",
     sim_median_alpha = 0.3,
     sim_median_color = "#000000",
     sim_median_linetype = "dashed",
@@ -265,14 +265,5 @@ plot_vpc_theme <- function(update = NULL){
     loq_color = "#990000"
   )
 
-  defaults_list <- list(
-    obs_color = "#0000FF",
-    obs_median_color = "#FF0000",
-    obs_ci_color = "#0000FF",
-    sim_median_fill = "#FF0000",
-    sim_pi_fill = "#0000FF"
-  )
-
-  default_theme <- list_update(defaults_list, base_theme)
-  list_update(update, default_theme)
+  list_update(update, base_theme)
 }

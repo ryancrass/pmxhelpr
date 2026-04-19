@@ -126,7 +126,7 @@ plot_vpc_exactbins <- function(sim,
     sim$MDV <- 0
   }
 
-  ##Observed Data
+  ##Observed Data (for overlay plotting and bin counting)
   obs <- sim |>
     dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0) |>
     df_pcdv(strat_vars = strat_var_str, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
@@ -136,19 +136,17 @@ plot_vpc_exactbins <- function(sim,
   ##Determine number of observations in each bin
   bin_count <- df_nobsbin(obs, bin_var = "NTIME", strat_vars = strat_var_str)
 
-  ##Identify observed summary data
-  obs_sum <- dplyr::left_join(obs, bin_count) |>
-    dplyr::filter(n_obs >= min_bin_count) |>
-    dplyr::filter(MDV == 0)
-
-  ##Identify simulated summary data
+  ##Identify simulated summary data (all replicates including obs)
   sim_sum <- dplyr::left_join(sim, bin_count) |>
     dplyr::filter(n_obs >= min_bin_count)|>
     dplyr::filter(MDV == 0)
 
-  ##Prediction correction of simulated data (if pcvpc)
+  ##Prediction correction (if pcvpc)
   if(pcvpc == TRUE) {
     sim_sum <- sim_sum |>
+      df_pcdv(strat_vars = strat_var_str, dvpred_vars = c(DV = "OBSDV", PRED = "PRED"),
+              lower_bound = lower_bound) |>
+      dplyr::rename(OBSDV = DV, PCOBSDV = PCDV) |>
       df_pcdv(strat_vars = strat_var_str, dvpred_vars = c(DV = "SIMDV", PRED = "PRED"),
               lower_bound = lower_bound) |>
       dplyr::rename(SIMDV = DV, PCSIMDV = PCDV)
@@ -162,17 +160,16 @@ plot_vpc_exactbins <- function(sim,
   xbreaks <- breaks_time(x = unique(obs$NTIME), unit = timeu, n = n_breaks)
 
   ##Compute VPC Statistics
-  vpc_result <- df_vpcstats(
+  vpc_result <- rlang::inject(df_vpcstats(
     sim = sim_sum,
-    obs = obs_sum,
     pi = pi,
     ci = ci,
-    strat_var = strat_var_str,
-    sim_dv_var = sim_dv,
-    obs_dv_var = obs_dv,
-    irep_name = irep_name_str,
+    strat_var = !!strat_var_str,
+    sim_dv_var = !!sim_dv,
+    obs_dv_var = !!obs_dv,
+    irep_name = !!irep_name_str,
     lloq = loq
-  )
+  ))
 
   ##Return database if requested
   if(vpcdb) {
@@ -180,14 +177,14 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Build VPC Plot
-  plot <- plot_vpc(
+  plot <- rlang::inject(plot_vpc(
     sim_quant = vpc_result$sim_quant,
     obs_quant = vpc_result$obs_quant,
-    strat_var = strat_var_str,
+    strat_var = !!strat_var_str,
     show = show_vpc,
     vpc_theme = vpctheme,
     lloq = loq
-  )
+  ))
 
   ##Overlay Observations if Requested
   if(shown_obs$obs_dv == TRUE & pcvpc == FALSE){

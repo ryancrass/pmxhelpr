@@ -6,7 +6,8 @@
 #'
 #' @param sim_quant Data.frame of simulated quantile statistics from `df_vpcstats()`.
 #' @param obs_quant Data.frame of observed quantile statistics from `df_vpcstats()`.
-#' @param strat_var Character string of stratification variable name, or `NULL`.
+#' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
+#' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
 #' @param show Named list of logicals specifying which layers to include.
 #' @param vpc_theme Named list of aesthetic parameters (colors, sizes, etc.).
 #' @param lloq Numeric value for LLOQ reference line, or `NULL`.
@@ -16,12 +17,16 @@
 
 plot_vpc <- function(sim_quant,
                      obs_quant,
+                     bin_var = NTIME,
                      strat_var = NULL,
                      show,
                      vpc_theme,
                      lloq = NULL) {
 
-  plot <- ggplot2::ggplot(sim_quant, ggplot2::aes(x = NTIME))
+  bin_var   <- rlang::as_name(rlang::ensym(bin_var))
+  strat_var <- capture_col(rlang::enquo(strat_var))
+
+  plot <- ggplot2::ggplot(sim_quant, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
   if (isTRUE(show$pi_as_area)) {
@@ -91,7 +96,7 @@ plot_vpc <- function(sim_quant,
     plot <- plot +
       ggplot2::geom_line(
         data = obs_quant,
-        ggplot2::aes(x = NTIME, y = obs50),
+        ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
         color = vpc_theme$obs_median_color,
         linetype = vpc_theme$obs_median_linetype,
@@ -104,7 +109,7 @@ plot_vpc <- function(sim_quant,
     plot <- plot +
       ggplot2::geom_line(
         data = obs_quant,
-        ggplot2::aes(x = NTIME, y = obs5),
+        ggplot2::aes(x = .data[[bin_var]], y = obs5),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
         linetype = vpc_theme$obs_ci_linetype,
@@ -112,7 +117,7 @@ plot_vpc <- function(sim_quant,
       ) +
       ggplot2::geom_line(
         data = obs_quant,
-        ggplot2::aes(x = NTIME, y = obs95),
+        ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
         linetype = vpc_theme$obs_ci_linetype,

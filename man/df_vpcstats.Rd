@@ -6,32 +6,32 @@
 \usage{
 df_vpcstats(
   sim,
-  obs,
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
+  bin_var = NTIME,
   strat_var = NULL,
-  sim_dv_var = "SIMDV",
-  obs_dv_var = "OBSDV",
-  irep_name = "SIM",
+  sim_dv_var = SIMDV,
+  obs_dv_var = OBSDV,
+  irep_name = SIM,
   lloq = NULL
 )
 }
 \arguments{
-\item{sim}{Simulated data. Must contain \code{NTIME} and a column matching \code{irep_name}.}
-
-\item{obs}{Observed data. Must contain \code{NTIME}.}
+\item{sim}{Simulated data. Must contain columns matching: \code{bin_var} and \code{irep_name}.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
 \item{ci}{Numeric vector of length 2 specifying confidence interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
-\item{strat_var}{Character string of stratification variable name, or \code{NULL}.}
+\item{bin_var}{Binning variable name. Default is \code{NTIME}. Accepts bare names or strings.}
 
-\item{sim_dv_var}{Character string of the simulated dependent variable column in \code{sim}. Default is \code{"SIMDV"}.}
+\item{strat_var}{Stratification variable name, or \code{NULL}. Accepts bare names or strings.}
 
-\item{obs_dv_var}{Character string of the observed dependent variable column in \code{obs}. Default is \code{"OBSDV"}.}
+\item{sim_dv_var}{Simulated dependent variable column in \code{sim}. Default is \code{SIMDV}. Accepts bare names or strings.}
 
-\item{irep_name}{Character string of the replicate identifier column in \code{sim}. Default is \code{"SIM"}.}
+\item{obs_dv_var}{Observed dependent variable column in \code{obs}. Default is \code{OBSDV}. Accepts bare names or strings.}
+
+\item{irep_name}{Replicate identifier column in \code{sim}. Default is \code{SIM}. Accepts bare names or strings.}
 
 \item{lloq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
 }

@@ -4,14 +4,14 @@
 #' `df_vpcstats()` computes two-stage quantile summary statistics for
 #'    visual predictive check (VPC) plots from simulated and observed data.
 #'
-#' @param sim Simulated data. Must contain `NTIME` and a column matching `irep_name`.
-#' @param obs Observed data. Must contain `NTIME`.
+#' @param sim Simulated data. Must contain columns matching: `bin_var` and `irep_name`.
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
-#' @param strat_var Character string of stratification variable name, or `NULL`.
-#' @param sim_dv_var Character string of the simulated dependent variable column in `sim`. Default is `"SIMDV"`.
-#' @param obs_dv_var Character string of the observed dependent variable column in `obs`. Default is `"OBSDV"`.
-#' @param irep_name Character string of the replicate identifier column in `sim`. Default is `"SIM"`.
+#' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
+#' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
+#' @param sim_dv_var Simulated dependent variable column in `sim`. Default is `SIMDV`. Accepts bare names or strings.
+#' @param obs_dv_var Observed dependent variable column in `obs`. Default is `OBSDV`. Accepts bare names or strings.
+#' @param irep_name Replicate identifier column in `sim`. Default is `SIM`. Accepts bare names or strings.
 #' @param lloq Numeric value of the lower limit of quantification, or `NULL`.
 #'
 #' @return A list with two data.frames:
@@ -25,16 +25,22 @@
 #' @keywords internal
 
 df_vpcstats <- function(sim,
-                        obs,
                         pi = c(0.05, 0.95),
                         ci = c(0.05, 0.95),
+                        bin_var = NTIME,
                         strat_var = NULL,
-                        sim_dv_var = "SIMDV",
-                        obs_dv_var = "OBSDV",
-                        irep_name = "SIM",
+                        sim_dv_var = SIMDV,
+                        obs_dv_var = OBSDV,
+                        irep_name = SIM,
                         lloq = NULL) {
 
-  group_vars <- c("NTIME", strat_var)
+  strat_var_str   <- capture_col(rlang::enquo(strat_var))
+  bin_var_str  <- rlang::as_name(rlang::ensym(bin_var))
+  sim_dv_var  <- rlang::as_name(rlang::ensym(sim_dv_var))
+  obs_dv_var  <- rlang::as_name(rlang::ensym(obs_dv_var))
+  irep_name   <- rlang::as_name(rlang::ensym(irep_name))
+
+  group_vars <- c(bin_var_str, strat_var_str)
 
   ## Stage 1: Per-replicate quantiles on simulated data
   stage1 <- sim |>
@@ -61,6 +67,10 @@ df_vpcstats <- function(sim,
       q95_hi  = stats::quantile(q_hi, probs = ci[2], na.rm = TRUE),
       .groups = "drop"
     )
+
+  ## Define observed by filtering to first replicate
+  obs <- sim |>
+    dplyr::filter(.data[[irep_name]] == 1)
 
   ## Observed quantiles
   if (is.null(lloq)) {

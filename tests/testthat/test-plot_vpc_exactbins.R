@@ -172,3 +172,36 @@ test_that("df_pcdv accepts bare names and matches string output", {
   p2 <- df_pcdv(data_pred, bin_var = "NTIME", dvpred_vars = c(DV = "ODV", PRED = "PRED"))
   expect_identical(p1, p2)
 })
+
+test_that("df_vpcstats accepts bare names and matches string output", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV")
+
+  v1 <- df_vpcstats(sim = testsim,
+                     sim_dv_var = SIMDV, obs_dv_var = OBSDV, irep_name = SIM)
+  v2 <- df_vpcstats(sim = testsim,
+                     sim_dv_var = "SIMDV", obs_dv_var = "OBSDV", irep_name = "SIM")
+  expect_identical(v1, v2)
+})
+
+test_that("plot_vpc accepts bare strat_var and matches string output", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 char_vars = "FOOD")
+  testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
+  vpc_db <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcdb = TRUE)
+
+  theme <- plot_vpc_theme()
+  show <- list(obs_dv = FALSE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE,
+               pi_ci = TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE)
+
+  p1 <- plot_vpc(sim_quant = vpc_db$sim_quant, obs_quant = vpc_db$obs_quant,
+                 strat_var = FOOD_f, show = show, vpc_theme = theme)
+  p2 <- plot_vpc(sim_quant = vpc_db$sim_quant, obs_quant = vpc_db$obs_quant,
+                 strat_var = "FOOD_f", show = show, vpc_theme = theme)
+  expect_identical(p1, p2)
+})

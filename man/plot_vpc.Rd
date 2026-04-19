@@ -4,14 +4,24 @@
 \alias{plot_vpc}
 \title{Build a VPC ggplot from summary statistics}
 \usage{
-plot_vpc(sim_quant, obs_quant, strat_var = NULL, show, vpc_theme, lloq = NULL)
+plot_vpc(
+  sim_quant,
+  obs_quant,
+  bin_var = NTIME,
+  strat_var = NULL,
+  show,
+  vpc_theme,
+  lloq = NULL
+)
 }
 \arguments{
 \item{sim_quant}{Data.frame of simulated quantile statistics from \code{df_vpcstats()}.}
 
 \item{obs_quant}{Data.frame of observed quantile statistics from \code{df_vpcstats()}.}
 
-\item{strat_var}{Character string of stratification variable name, or \code{NULL}.}
+\item{bin_var}{Binning variable name. Default is \code{NTIME}. Accepts bare names or strings.}
+
+\item{strat_var}{Stratification variable name, or \code{NULL}. Accepts bare names or strings.}
 
 \item{show}{Named list of logicals specifying which layers to include.}
 

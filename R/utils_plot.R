@@ -25,18 +25,96 @@ vpc_show_defaults <- list(obs_dv = TRUE, obs_ci = TRUE,
 
 
 
-# Shared base theme constants for reference lines, error bars, and observations
-.base_ref_theme <- list(
+# Full default theme lists for each plot type
+.dvtime_defaults <- list(
   linewidth_ref = 0.5,
   linetype_ref = 2,
-  alpha_line_ref = 1
-)
-
-.base_errorbar_theme <- list(
+  alpha_line_ref = 1,
+  shape_point_obs = 1,
+  size_point_obs = 0.75,
+  alpha_point_obs = 0.5,
+  linewidth_obs = 0.5,
+  linetype_obs = 1,
+  alpha_line_obs = 0.5,
+  shape_point_cent = 16,
+  size_point_cent = 1.25,
+  alpha_point_cent = 1,
+  linewidth_cent = 0.75,
+  linetype_cent = 1,
+  alpha_line_cent = 1,
   linewidth_errorbar = 0.75,
   linetype_errorbar = 1,
   alpha_errorbar = 1,
   width_errorbar = NULL
+)
+
+.popgof_defaults <- list(
+  linewidth_ref = 0.5,
+  linetype_ref = 2,
+  alpha_line_ref = 1,
+  shape_point_obs = 1,
+  size_point_obs = 0.75,
+  alpha_point_obs = 0.5,
+  linewidth_obs = 0.5,
+  linetype_obs = 1,
+  alpha_line_obs = 0.75,
+  linewidth_dv = 1,
+  linetype_dv = 1,
+  alpha_line_dv = 1,
+  shape_point_cent = 1,
+  size_point_cent = 1.25,
+  alpha_point_cent = 1,
+  linewidth_cent = 0.75,
+  linetype_cent = 1,
+  alpha_line_cent = 1,
+  linewidth_errorbar = 0.75,
+  linetype_errorbar = 1,
+  alpha_errorbar = 1,
+  width_errorbar = NULL
+)
+
+.dvconc_defaults <- list(
+  linewidth_ref = 0.5,
+  linetype_ref = 2,
+  alpha_line_ref = 1,
+  shape_point_obs = 1,
+  size_point_obs = 1.25,
+  alpha_point_obs = 0.5,
+  linewidth_loess = 1,
+  linetype_loess = 1,
+  linewidth_linear = 1,
+  linetype_linear = 2,
+  color_loess = "black",
+  color_linear = "black",
+  color_se_loess = "lightgrey",
+  color_se_linear = "lightgrey",
+  alpha_se_loess = 0.4,
+  alpha_se_linear = 0.4
+)
+
+.vpc_defaults <- list(
+  obs_color = "#0000FF",
+  obs_size = 1,
+  obs_shape = 1,
+  obs_alpha = 0.7,
+  obs_median_color = "#FF0000",
+  obs_median_linetype = "solid",
+  obs_median_size = 1,
+  obs_ci_color = "#0000FF",
+  obs_ci_linetype = "dashed",
+  obs_ci_size = 0.5,
+  sim_pi_fill = "#0000FF",
+  sim_pi_alpha = 0.15,
+  sim_pi_color = "#000000",
+  sim_pi_linetype = "dotted",
+  sim_pi_size = 1,
+  sim_median_fill = "#FF0000",
+  sim_median_alpha = 0.3,
+  sim_median_color = "#000000",
+  sim_median_linetype = "dashed",
+  sim_median_size = 1,
+  bin_separators_color = "#000000",
+  loq_color = "#990000"
 )
 
 # Internal helper: build aes for central tendency layers

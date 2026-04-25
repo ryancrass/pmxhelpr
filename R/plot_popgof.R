@@ -171,30 +171,4 @@ plot_popgof <- function(data,
 #' new_theme <- plot_popgof_theme(update = list(linewidth_ref = 1))
 
 
-plot_popgof_theme <- function(update = NULL){
-  defaults_list <- c(
-    .base_ref_theme,
-    list(
-      shape_point_obs = 1,
-      size_point_obs = 0.75,
-      alpha_point_obs = 0.5,
-      linewidth_obs = 0.5,
-      linetype_obs = 1,
-      alpha_line_obs = 0.75,
-
-      linewidth_dv = 1,
-      linetype_dv = 1,
-      alpha_line_dv  = 1,
-
-      shape_point_cent = 1,
-      size_point_cent = 1.25,
-      alpha_point_cent = 1,
-      linewidth_cent = 0.75,
-      linetype_cent = 1,
-      alpha_line_cent = 1
-    ),
-    .base_errorbar_theme
-  )
-
-  list_update(update, defaults_list)
-}
+plot_popgof_theme <- function(update = NULL) list_update(update, .popgof_defaults)

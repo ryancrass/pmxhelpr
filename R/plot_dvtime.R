@@ -258,27 +258,5 @@ dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 #' new_theme <- plot_dvtime_theme(update = list(linewidth_ref = 1))
 
 
-plot_dvtime_theme <- function(update = NULL){
-  defaults_list <- c(
-    .base_ref_theme,
-    list(
-      shape_point_obs = 1,
-      size_point_obs = 0.75,
-      alpha_point_obs = 0.5,
-      linewidth_obs = 0.5,
-      linetype_obs = 1,
-      alpha_line_obs = 0.5,
-
-      shape_point_cent = 16,
-      size_point_cent = 1.25,
-      alpha_point_cent = 1,
-      linewidth_cent = 0.75,
-      linetype_cent = 1,
-      alpha_line_cent = 1
-    ),
-    .base_errorbar_theme
-  )
-
-  list_update(update, defaults_list)
-}
+plot_dvtime_theme <- function(update = NULL) list_update(update, .dvtime_defaults)
 

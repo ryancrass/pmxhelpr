@@ -46,6 +46,7 @@ df_vpcstats <- function(sim,
   stage1 <- sim |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
     dplyr::summarise(
+      nbin = dplyr::n(),
       q_lo  = stats::quantile(.data[[sim_dv_var]], probs = pi[1], na.rm = TRUE),
       q50   = stats::quantile(.data[[sim_dv_var]], probs = 0.5,   na.rm = TRUE),
       q_hi  = stats::quantile(.data[[sim_dv_var]], probs = pi[2], na.rm = TRUE),
@@ -56,6 +57,7 @@ df_vpcstats <- function(sim,
   sim_quant <- stage1 |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
+      nbin = dplyr::first(nbin),
       q5_low  = stats::quantile(q_lo, probs = ci[1], na.rm = TRUE),
       q5_med  = stats::quantile(q_lo, probs = 0.5,   na.rm = TRUE),
       q5_hi   = stats::quantile(q_lo, probs = ci[2], na.rm = TRUE),
@@ -93,7 +95,7 @@ df_vpcstats <- function(sim,
       )
   }
 
-  list(sim_quant = sim_quant, obs_quant = obs_quant)
+  dplyr::left_join(sim_quant, obs_quant)
 }
 
 

@@ -4,8 +4,7 @@
 #' `plot_vpc()` constructs a ggplot2 VPC plot from pre-computed quantile
 #'    summary statistics.
 #'
-#' @param sim_quant Data.frame of simulated quantile statistics from `df_vpcstats()`.
-#' @param obs_quant Data.frame of observed quantile statistics from `df_vpcstats()`.
+#' @param vpcstats Data.frame of simulated quantile statistics from `df_vpcstats()`.
 #' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
 #' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
 #' @param show Named list of logicals specifying which layers to include.
@@ -15,18 +14,24 @@
 #' @return A ggplot2 object.
 #' @keywords internal
 
-plot_vpc <- function(sim_quant,
-                     obs_quant,
+plot_vpc <- function(vpcstats,
                      bin_var = NTIME,
                      strat_var = NULL,
-                     show,
-                     vpc_theme,
+                     show = NULL,
+                     vpc_theme = NULL,
                      lloq = NULL) {
 
   bin_var   <- rlang::as_name(rlang::ensym(bin_var))
   strat_var <- capture_col(rlang::enquo(strat_var))
 
-  plot <- ggplot2::ggplot(sim_quant, ggplot2::aes(x = .data[[bin_var]]))
+  ##Set vpc aesthetics and theme
+  show <- list_update(show,
+                      list(obs_dv = TRUE, obs_ci = TRUE,
+                           pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+                           obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
+  vpc_theme <- list_update(vpc_theme, plot_vpc_theme())
+
+  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
   if (isTRUE(show$pi_as_area)) {
@@ -95,7 +100,6 @@ plot_vpc <- function(sim_quant,
   if (isTRUE(show$obs_median)) {
     plot <- plot +
       ggplot2::geom_line(
-        data = obs_quant,
         ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
         color = vpc_theme$obs_median_color,
@@ -108,7 +112,6 @@ plot_vpc <- function(sim_quant,
   if (isTRUE(show$obs_ci)) {
     plot <- plot +
       ggplot2::geom_line(
-        data = obs_quant,
         ggplot2::aes(x = .data[[bin_var]], y = obs5),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
@@ -116,7 +119,6 @@ plot_vpc <- function(sim_quant,
         linewidth = vpc_theme$obs_ci_size
       ) +
       ggplot2::geom_line(
-        data = obs_quant,
         ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
@@ -141,5 +143,5 @@ plot_vpc <- function(sim_quant,
       ggplot2::facet_wrap(stats::as.formula(paste("~", strat_var)))
   }
 
-  plot
+  return(plot)
 }

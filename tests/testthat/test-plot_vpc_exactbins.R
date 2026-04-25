@@ -193,15 +193,9 @@ test_that("plot_vpc accepts bare strat_var and matches string output", {
                                  dv_var = "ODV",
                                  char_vars = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
-  vpc_db <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcdb = TRUE)
+  vpcstat <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE)
 
-  theme <- plot_vpc_theme()
-  show <- list(obs_dv = FALSE, obs_ci = TRUE, pi = FALSE, pi_as_area = FALSE,
-               pi_ci = TRUE, obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE)
-
-  p1 <- plot_vpc(sim_quant = vpc_db$sim_quant, obs_quant = vpc_db$obs_quant,
-                 strat_var = FOOD_f, show = show, vpc_theme = theme)
-  p2 <- plot_vpc(sim_quant = vpc_db$sim_quant, obs_quant = vpc_db$obs_quant,
-                 strat_var = "FOOD_f", show = show, vpc_theme = theme)
+  p1 <- plot_vpc(vpcstat,strat_var = FOOD_f)
+  p2 <- plot_vpc(vpcstat,strat_var = "FOOD_f")
   expect_identical(p1, p2)
 })

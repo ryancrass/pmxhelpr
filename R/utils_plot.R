@@ -110,3 +110,12 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 
   return(plot)
 }
+
+
+# Internal helper: vectorized prediction correction
+  # Applies the standard PC-VPC formula to numeric vectors.
+  # Assumes the vectors are already scoped to a single bin/group.
+var_pc <- function(dv_var, pred_var, lower_bound = 0) {
+  predbin <- stats::median(pred_var)
+  lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
+}

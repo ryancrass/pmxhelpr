@@ -5,19 +5,16 @@
 \title{Build a VPC ggplot from summary statistics}
 \usage{
 plot_vpc(
-  sim_quant,
-  obs_quant,
+  vpcstats,
   bin_var = NTIME,
   strat_var = NULL,
-  show,
-  vpc_theme,
+  show = NULL,
+  vpc_theme = NULL,
   lloq = NULL
 )
 }
 \arguments{
-\item{sim_quant}{Data.frame of simulated quantile statistics from \code{df_vpcstats()}.}
-
-\item{obs_quant}{Data.frame of observed quantile statistics from \code{df_vpcstats()}.}
+\item{vpcstats}{Data.frame of simulated quantile statistics from \code{df_vpcstats()}.}
 
 \item{bin_var}{Binning variable name. Default is \code{NTIME}. Accepts bare names or strings.}
 

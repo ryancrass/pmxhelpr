@@ -6,11 +6,11 @@
 \usage{
 plot_vpc_exactbins(
   sim,
-  pcvpc = FALSE,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  loq = NULL,
   strat_var = NULL,
+  pcvpc = FALSE,
+  loq = NULL,
   irep_name = SIM,
   min_bin_count = 1,
   show_rep = TRUE,
@@ -21,13 +21,11 @@ plot_vpc_exactbins(
   n_breaks = 8,
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
-  vpcdb = FALSE
+  vpcstats = FALSE
 )
 }
 \arguments{
 \item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
-
-\item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
 \item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
 Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
@@ -35,11 +33,13 @@ Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
 \item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
 Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
-
 \item{strat_var}{Stratification variable.
 Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
+
+\item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
+
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
+Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -84,7 +84,7 @@ Options include:
 
 \item{ci}{Numeric vector of length 2 specifying confidence interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
-\item{vpcdb}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
+\item{vpcstats}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
 }
 \value{
 A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggplot2 object (default)

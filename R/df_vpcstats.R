@@ -12,17 +12,15 @@
 #' @param sim_dv_var Simulated dependent variable column in `sim`. Default is `SIMDV`. Accepts bare names or strings.
 #' @param obs_dv_var Observed dependent variable column in `obs`. Default is `OBSDV`. Accepts bare names or strings.
 #' @param irep_name Replicate identifier column in `sim`. Default is `SIM`. Accepts bare names or strings.
-#' @param lloq Numeric value of the lower limit of quantification, or `NULL`.
+#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
 #'
-#' @return A list with two data.frames:
-#'   \describe{
-#'     \item{sim_quant}{Simulated quantile summary with columns: `NTIME`,
-#'       `q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
-#'       `q95_low`, `q95_med`, `q95_hi`, and any stratification variable.}
-#'     \item{obs_quant}{Observed quantile summary with columns: `NTIME`,
-#'       `obs5`, `obs50`, `obs95`, and any stratification variable.}
-#'   }
-
+#' @return A data.frame with columns: `bin_var`, `nbin`,
+#'   `q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
+#'   `q95_low`, `q95_med`, `q95_hi`, `obs5`, `obs50`, `obs95`,
+#'   and any stratification variable. Column names use the "5/50/95"
+#'   convention regardless of actual `pi` values.
+#'
+#' @export df_vpcstats
 
 df_vpcstats <- function(sim,
                         pi = c(0.05, 0.95),
@@ -32,7 +30,7 @@ df_vpcstats <- function(sim,
                         sim_dv_var = SIMDV,
                         obs_dv_var = OBSDV,
                         irep_name = SIM,
-                        lloq = NULL) {
+                        loq = NULL) {
 
   strat_var_str   <- capture_col(rlang::enquo(strat_var))
   bin_var_str  <- rlang::as_name(rlang::ensym(bin_var))
@@ -75,7 +73,7 @@ df_vpcstats <- function(sim,
     dplyr::filter(.data[[irep_name]] == 1)
 
   ## Observed quantiles
-  if (is.null(lloq)) {
+  if (is.null(loq)) {
     obs_quant <- obs |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
       dplyr::summarise(
@@ -88,9 +86,9 @@ df_vpcstats <- function(sim,
     obs_quant <- obs |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
       dplyr::summarise(
-        obs5  = quantile_lloq(.data[[obs_dv_var]], p = pi[1], lloq = lloq),
-        obs50 = quantile_lloq(.data[[obs_dv_var]], p = 0.5,   lloq = lloq),
-        obs95 = quantile_lloq(.data[[obs_dv_var]], p = pi[2], lloq = lloq),
+        obs5  = quantile_lloq(.data[[obs_dv_var]], p = pi[1], loq = loq),
+        obs50 = quantile_lloq(.data[[obs_dv_var]], p = 0.5,   loq = loq),
+        obs95 = quantile_lloq(.data[[obs_dv_var]], p = pi[2], loq = loq),
         .groups = "drop"
       )
   }
@@ -102,19 +100,19 @@ df_vpcstats <- function(sim,
 #' Compute quantile with left-censored (LLOQ) handling
 #'
 #' @description
-#' Replaces values below `lloq` (including `NA`) with `-Inf`, then computes
+#' Replaces values below `loq` (including `NA`) with `-Inf`, then computes
 #' the quantile. Returns `NA` if the result is `-Inf`.
 #'
 #' @param x Numeric vector.
 #' @param p Probability for quantile.
-#' @param lloq Numeric lower limit of quantification.
+#' @param loq Numeric lower limit of quantification.
 #'
 #' @return A single numeric value, or `NA`.
 #' @keywords internal
 
-quantile_lloq <- function(x, p, lloq) {
+quantile_lloq <- function(x, p, loq) {
   x[is.na(x)] <- -Inf
-  x[x < lloq] <- -Inf
+  x[x < loq] <- -Inf
   q <- stats::quantile(x, probs = p, na.rm = TRUE)
   if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
 }

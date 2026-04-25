@@ -16,7 +16,7 @@ plot_vpc_exactbins(
   show_rep = TRUE,
   lower_bound = 0,
   shown = NULL,
-  theme = NULL,
+  vpc_theme = NULL,
   timeu = "hours",
   n_breaks = 8,
   pi = c(0.05, 0.95),
@@ -39,7 +39,11 @@ Accepts bare names or strings. Currently, only a single stratifying variable is 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Specifying this argument implies that \code{OBSDV} is missing in \code{sim} where < LLOQ.}
+Specifying this argument implies that the observed variable\code{OBSDV} is missing (\code{NA})
+and \code{MDV = 1} where < \code{loq} in \code{sim}.
+When non-NULL and \code{pcvpc = FALSE}, all \code{MDV} values are set to 0 so that
+all observations (including BLQ-flagged rows) are included in summary statistics.
+Dashed horizontal line plotted.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -65,7 +69,7 @@ Defaults are:
 \item Simulated Median CI: \code{sim_median_ci} = TRUE
 }}
 
-\item{theme}{Named list of aesthetic parameters for the plot.
+\item{vpc_theme}{Named list of aesthetic parameters for the plot.
 Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}
 
 \item{timeu}{Character string specifying units for the time variable.

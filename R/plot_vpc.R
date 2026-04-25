@@ -7,9 +7,9 @@
 #' @param vpcstats Data.frame of simulated quantile statistics from `df_vpcstats()`.
 #' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
 #' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
-#' @param show Named list of logicals specifying which layers to include.
+#' @param shown Named list of logicals specifying which layers to include.
 #' @param vpc_theme Named list of aesthetic parameters (colors, sizes, etc.).
-#' @param lloq Numeric value for LLOQ reference line, or `NULL`.
+#' @param loq Numeric value for LLOQ reference line or `NULL`.
 #'
 #' @return A ggplot2 object.
 #' @keywords internal
@@ -17,24 +17,21 @@
 plot_vpc <- function(vpcstats,
                      bin_var = NTIME,
                      strat_var = NULL,
-                     show = NULL,
+                     shown = NULL,
                      vpc_theme = NULL,
-                     lloq = NULL) {
+                     loq = NULL) {
 
   bin_var   <- rlang::as_name(rlang::ensym(bin_var))
   strat_var <- capture_col(rlang::enquo(strat_var))
 
   ##Set vpc aesthetics and theme
-  show <- list_update(show,
-                      list(obs_dv = TRUE, obs_ci = TRUE,
-                           pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                           obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
+  shown <- list_update(shown, vpc_show_defaults)
   vpc_theme <- list_update(vpc_theme, plot_vpc_theme())
 
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
-  if (isTRUE(show$pi_as_area)) {
+  if (isTRUE(shown$pi_as_area)) {
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_med, ymax = q95_med),
@@ -44,7 +41,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Simulated prediction interval CI ribbons
-  if (isTRUE(show$pi_ci)) {
+  if (isTRUE(shown$pi_ci)) {
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_low, ymax = q5_hi),
@@ -59,7 +56,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Simulated prediction interval lines
-  if (isTRUE(show$pi)) {
+  if (isTRUE(shown$pi)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q5_med),
@@ -76,7 +73,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Simulated median CI ribbon
-  if (isTRUE(show$sim_median_ci)) {
+  if (isTRUE(shown$sim_median_ci)) {
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q50_low, ymax = q50_hi),
@@ -86,7 +83,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Simulated median line
-  if (isTRUE(show$sim_median)) {
+  if (isTRUE(shown$sim_median)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q50_med),
@@ -97,7 +94,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Observed median line
-  if (isTRUE(show$obs_median)) {
+  if (isTRUE(shown$obs_median)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs50),
@@ -109,7 +106,7 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Observed CI lines (lower and upper quantiles)
-  if (isTRUE(show$obs_ci)) {
+  if (isTRUE(shown$obs_ci)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs5),
@@ -128,10 +125,10 @@ plot_vpc <- function(vpcstats,
   }
 
   ## LOQ reference line
-  if (!is.null(lloq)) {
+  if (!is.null(loq)) {
     plot <- plot +
       ggplot2::geom_hline(
-        yintercept = lloq,
+        yintercept = loq,
         color = vpc_theme$loq_color,
         linetype = "dashed"
       )
@@ -140,7 +137,7 @@ plot_vpc <- function(vpcstats,
   ## Faceting by stratification variable
   if (!is.null(strat_var)) {
     plot <- plot +
-      ggplot2::facet_wrap(stats::as.formula(paste("~", strat_var)))
+      ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var]]))
   }
 
   return(plot)

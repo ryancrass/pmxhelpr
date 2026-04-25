@@ -1,3 +1,30 @@
+
+#' Default VPC show layer settings
+#'
+#' @description A named list of logicals specifying which VPC plot layers to display by default.
+#'
+#' @format A named list with elements:
+#' \describe{
+#'   \item{obs_dv}{Show observed data points. Default `TRUE`.}
+#'   \item{obs_ci}{Show observed quantile lines. Default `TRUE`.}
+#'   \item{pi}{Show simulated prediction interval lines. Default `FALSE`.}
+#'   \item{pi_as_area}{Show simulated prediction interval as shaded area. Default `FALSE`.}
+#'   \item{pi_ci}{Show simulated quantile CI ribbons. Default `TRUE`.}
+#'   \item{obs_median}{Show observed median line. Default `TRUE`.}
+#'   \item{sim_median}{Show simulated median line. Default `FALSE`.}
+#'   \item{sim_median_ci}{Show simulated median CI ribbon. Default `TRUE`.}
+#' }
+#'
+#' @export
+#'
+#' @examples
+#' vpc_show_defaults
+vpc_show_defaults <- list(obs_dv = TRUE, obs_ci = TRUE,
+       pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
+       obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE)
+
+
+
 # Shared base theme constants for reference lines, error bars, and observations
 .base_ref_theme <- list(
   linewidth_ref = 0.5,

@@ -8,9 +8,9 @@ plot_vpc(
   vpcstats,
   bin_var = NTIME,
   strat_var = NULL,
-  show = NULL,
+  shown = NULL,
   vpc_theme = NULL,
-  lloq = NULL
+  loq = NULL
 )
 }
 \arguments{
@@ -20,11 +20,11 @@ plot_vpc(
 
 \item{strat_var}{Stratification variable name, or \code{NULL}. Accepts bare names or strings.}
 
-\item{show}{Named list of logicals specifying which layers to include.}
+\item{shown}{Named list of logicals specifying which layers to include.}
 
 \item{vpc_theme}{Named list of aesthetic parameters (colors, sizes, etc.).}
 
-\item{lloq}{Numeric value for LLOQ reference line, or \code{NULL}.}
+\item{loq}{Numeric value for LLOQ reference line or \code{NULL}.}
 }
 \value{
 A ggplot2 object.

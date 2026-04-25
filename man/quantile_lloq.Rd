@@ -4,20 +4,20 @@
 \alias{quantile_lloq}
 \title{Compute quantile with left-censored (LLOQ) handling}
 \usage{
-quantile_lloq(x, p, lloq)
+quantile_lloq(x, p, loq)
 }
 \arguments{
 \item{x}{Numeric vector.}
 
 \item{p}{Probability for quantile.}
 
-\item{lloq}{Numeric lower limit of quantification.}
+\item{loq}{Numeric lower limit of quantification.}
 }
 \value{
 A single numeric value, or \code{NA}.
 }
 \description{
-Replaces values below \code{lloq} (including \code{NA}) with \code{-Inf}, then computes
+Replaces values below \code{loq} (including \code{NA}) with \code{-Inf}, then computes
 the quantile. Returns \code{NA} if the result is \code{-Inf}.
 }
 \keyword{internal}

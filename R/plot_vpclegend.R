@@ -34,10 +34,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
   plist <- list_update(update,new_vpc_theme_list)
 
   #shown elements for legend based on settings in plot_vpc_exactbins
-  nlist <- list_update(shown,
-                       list(obs_dv = TRUE, obs_ci = TRUE,
-                            pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                            obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
+  nlist <- list_update(shown, vpc_show_defaults)
   lloq_lab <- as.character(lloq)
   obs <- "Obs"
   obs_cent <- "Obs Med"

@@ -36,7 +36,8 @@ Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{
 
 \item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{carry_out}
-and return in output. Defaults are \code{"CMT"}, \code{"EVID"}, \code{"MDV"}, \code{"NTIME"}.}
+and return in output. Default is \code{NULL}. Note that \code{"CMT"}, \code{"EVID"}, \code{"MDV"},
+\code{"TIME"}, and \code{"NTIME"} are always carried automatically.}
 
 \item{char_vars}{Character variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{recover}

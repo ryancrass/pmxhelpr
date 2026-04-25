@@ -13,7 +13,7 @@ df_vpcstats(
   sim_dv_var = SIMDV,
   obs_dv_var = OBSDV,
   irep_name = SIM,
-  lloq = NULL
+  loq = NULL
 )
 }
 \arguments{
@@ -33,17 +33,14 @@ df_vpcstats(
 
 \item{irep_name}{Replicate identifier column in \code{sim}. Default is \code{SIM}. Accepts bare names or strings.}
 
-\item{lloq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
+\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
 }
 \value{
-A list with two data.frames:
-\describe{
-\item{sim_quant}{Simulated quantile summary with columns: \code{NTIME},
+A data.frame with columns: \code{bin_var}, \code{nbin},
 \code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med}, \code{q50_hi},
-\code{q95_low}, \code{q95_med}, \code{q95_hi}, and any stratification variable.}
-\item{obs_quant}{Observed quantile summary with columns: \code{NTIME},
-\code{obs5}, \code{obs50}, \code{obs95}, and any stratification variable.}
-}
+\code{q95_low}, \code{q95_med}, \code{q95_hi}, \code{obs5}, \code{obs50}, \code{obs95},
+and any stratification variable. Column names use the "5/50/95"
+convention regardless of actual \code{pi} values.
 }
 \description{
 \code{df_vpcstats()} computes two-stage quantile summary statistics for

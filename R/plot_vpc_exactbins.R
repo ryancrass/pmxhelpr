@@ -8,7 +8,11 @@
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'    Specifying this argument implies that `OBSDV` is missing in `sim` where < LLOQ.
+#'    Specifying this argument implies that the observed variable`OBSDV` is missing (`NA`)
+#'    and `MDV = 1` where < `loq` in `sim`.
+#'    When non-NULL and `pcvpc = FALSE`, all `MDV` values are set to 0 so that
+#'    all observations (including BLQ-flagged rows) are included in summary statistics.
+#'    Dashed horizontal line plotted.
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
@@ -25,7 +29,7 @@
 #'    + Simulated Median: `sim_median` = FALSE
 #'    + Simulated Median CI: `sim_median_ci` = TRUE
 #'
-#' @param theme Named list of aesthetic parameters for the plot.
+#' @param vpc_theme Named list of aesthetic parameters for the plot.
 #'    Defaults for `pmxhelpr` can be obtained by running `plot_vpc_theme` with no arguments.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
@@ -69,7 +73,7 @@ plot_vpc_exactbins <- function(sim,
                                show_rep = TRUE,
                                lower_bound = 0,
                                shown = NULL,
-                               theme = NULL,
+                               vpc_theme = NULL,
                                timeu = "hours",
                                n_breaks = 8,
                                pi = c(0.05, 0.95),
@@ -108,8 +112,10 @@ plot_vpc_exactbins <- function(sim,
   if(isTRUE(pcvpc)) {
     sim <- sim |>
       dplyr::filter(MDV == 0) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", strat_var_str, "CMT")))) |>
       dplyr::mutate(DV = var_pc(OBSDV, PRED, lower_bound),
-                    DVS = var_pc(SIMDV, PRED, lower_bound))
+                    DVS = var_pc(SIMDV, PRED, lower_bound)) |>
+      dplyr::ungroup()
   } else {
     sim <- sim |>
       dplyr::rename(DV=OBSDV,DVS=SIMDV) |>
@@ -129,7 +135,7 @@ plot_vpc_exactbins <- function(sim,
     sim_dv_var = DVS,
     obs_dv_var = DV,
     irep_name = !!irep_name_str,
-    lloq = loq
+    loq = loq
   ))
 
   ##Return database if requested
@@ -138,11 +144,8 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Set vpc aesthetics and theme
-  show_vpc <- list_update(shown,
-                          list(obs_dv = TRUE, obs_ci = TRUE,
-                               pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                               obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE))
-  vpctheme <- list_update(theme, plot_vpc_theme())
+  show_vpc <- list_update(shown, vpc_show_defaults)
+  vpctheme <- list_update(vpc_theme, plot_vpc_theme())
 
   #Determine breaks
   xbreaks <- breaks_time(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
@@ -151,9 +154,9 @@ plot_vpc_exactbins <- function(sim,
   plot <- rlang::inject(plot_vpc(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
     strat_var = !!strat_var_str,
-    show = show_vpc,
+    shown = show_vpc,
     vpc_theme = vpctheme,
-    lloq = loq
+    loq = loq
   ))
 
   ##Overlay Observations if Requested

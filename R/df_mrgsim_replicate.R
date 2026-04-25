@@ -14,7 +14,8 @@
 #'    Defaults is: c(`PRED`= `"PRED"`, `IPRED` = `"IPRED"`, `DV`= `"DV"`).
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `carry_out`
-#'    and return in output. Defaults are `"CMT"`, `"EVID"`, `"MDV"`, `"NTIME"`.
+#'    and return in output. Default is `NULL`. Note that `"CMT"`, `"EVID"`, `"MDV"`,
+#'    `"TIME"`, and `"NTIME"` are always carried automatically.
 #' @param char_vars Character variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `recover`
 #'    and return in output.
@@ -88,21 +89,19 @@ df_mrgsim_replicate <- function(data,
                      seq(as.integer(replicates)),
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
-                                           carry_out = paste(c(output_vars[["PRED"]], output_vars[["IPRED"]],
-                                                               output_vars[["DV"]], "OBSDV","EVID", "MDV", "CMT",
+                                           carry_out = paste(unique(c(output_vars[["PRED"]], output_vars[["IPRED"]],
+                                                               output_vars[["DV"]], "OBSDV", "EVID", "MDV", "CMT",
                                                                "TIME", "NTIME",
-                                                               num_vars),
+                                                               num_vars)),
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
                          dplyr::mutate(!!irep_name_str := rep) |>
-                         dplyr::select(ID,
-                                       TIME,
-                                       NTIME,
-                                       PRED = output_vars[["PRED"]],
-                                       IPRED = output_vars[["IPRED"]],
-                                       SIMDV= output_vars[["DV"]],
-                                       OBSDV,
+                         dplyr::rename(dplyr::any_of(c(PRED = output_vars[["PRED"]],
+                                                       IPRED = output_vars[["IPRED"]],
+                                                       SIMDV = output_vars[["DV"]]))) |>
+                         dplyr::select(ID, TIME, NTIME,
+                                       PRED, IPRED, SIMDV, OBSDV,
                                        dplyr::everything())} ,
                      data = data,
                      model = model) |>

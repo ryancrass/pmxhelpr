@@ -69,21 +69,19 @@ The default elements shown in the plot are controlled by the `shown` argument in
 The default is as follows:
 
 ```{r vpc-plot-shown}
-shown_list <- list(obs_dv = TRUE, obs_ci = TRUE,
-                   pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-                   obs_median = TRUE, sim_median =FALSE, sim_median_ci = TRUE)
+vpc_show_defaults
 ```
 
 The components of the list correspond to the following vpc plot elements:
 
-  - Observed points: `obs_dv`
-  - Observed quantiles: `obs_ci`
-  - Simulated inter-quantile range: `pi`
-  - Simulated inter-quantile area: `pi_as_area`
-  - Simulated Quantile CI: `pi_ci`
-  - Observed Median: `obs_median`
-  - Simulated Median: `sim_median`
-  - Simulated Median CI: `sim_median_ci`
+-   Observed points: `obs_dv`
+-   Observed quantiles: `obs_ci`
+-   Simulated inter-quantile range: `pi`
+-   Simulated inter-quantile area: `pi_as_area`
+-   Simulated Quantile CI: `pi_ci`
+-   Observed Median: `obs_median`
+-   Simulated Median: `sim_median`
+-   Simulated Median CI: `sim_median_ci`
 
 One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults.
 
@@ -168,7 +166,7 @@ vpc_pc_customtheme <- plot_vpc_exactbins(
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
-  theme = plot_vpc_theme(update = list(obs_color = "#000000",
+  vpc_theme = plot_vpc_theme(update = list(obs_color = "#000000",
                                        obs_median_color = "#000000",
                                        obs_ci_color = "#000000",
                                        sim_median_fill = "#3388cc",
@@ -191,7 +189,7 @@ vpc_pc_xgrid <- plot_vpc_exactbins(
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   pcvpc = TRUE,
   min_bin_count = 5,
-  theme = plot_vpc_theme(update = list(obs_color = "#000000",
+  vpc_theme = plot_vpc_theme(update = list(obs_color = "#000000",
                                        obs_median_color = "#000000",
                                        obs_ci_color = "#000000",
                                        sim_median_fill = "#3388cc",
@@ -216,6 +214,7 @@ Okay, now we have gotten the plot aesthetics where we want them; however, there 
 vpc_pc_legend <- plot_vpclegend()
 vpc_pc_legend
 ```
+
 Now we have a `ggplot` object legend for our first plot!
 
 To generate one with updated aesthetics to match the custom theme, let's pass the named list to the `update` argument.
@@ -240,7 +239,3 @@ vpc_pc_wleg
 vpc_pc_new_wleg <- vpc_pc_xgrid + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
 vpc_pc_new_wleg
 ```
-
-
-
-

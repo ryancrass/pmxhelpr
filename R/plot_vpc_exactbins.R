@@ -95,17 +95,17 @@ plot_vpc_exactbins <- function(sim,
                                             OBSDV = "OBSDV"))
 
   #Checks
-  check_df(sim)
-  check_varsindf(sim, time_vars[["TIME"]], name = "time_vars")
-  check_varsindf(sim, time_vars[["NTIME"]], name = "time_vars")
-  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]], name = "output_vars")}
-  check_varsindf(sim, output_vars[["SIMDV"]], name = "output_vars")
-  check_varsindf(sim, output_vars[["OBSDV"]], name = "output_vars")
-  check_varsindf(sim, "MDV")
-  check_varsindf(sim, strat_var_str)
-  check_varsindf(sim, irep_name_str)
-  if(!is.null(strat_var_str)) {check_factor(sim, strat_var_str)}
-  if(!is.null(loq)) {check_numeric_strict(loq)}
+  check_df(sim, "sim")
+  check_varsindf(sim, time_vars[["TIME"]], "sim", "time_vars")
+  check_varsindf(sim, time_vars[["NTIME"]], "sim", "time_vars")
+  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]], "sim", "output_vars")}
+  check_varsindf(sim, output_vars[["SIMDV"]], "sim", "output_vars")
+  check_varsindf(sim, output_vars[["OBSDV"]], "sim", "output_vars")
+  check_varsindf(sim, "MDV", "sim", "MDV")
+  check_varsindf(sim, strat_var_str, "sim", "strat_var")
+  check_varsindf(sim, irep_name_str, "sim", "irep_name")
+  if(!is.null(strat_var_str)) {check_factor(sim, strat_var_str, "strat_var")}
+  if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
 
   #Rename Output and Time Variables to Standard Names
   sim <- rename_time_vars(sim, time_vars, output_vars)

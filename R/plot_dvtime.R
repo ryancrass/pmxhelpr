@@ -93,18 +93,18 @@ plot_dvtime <- function(data,
   time_vars <- init_time_vars(time_vars)
 
   #Checks
-  check_df(data)
-  check_varsindf(data, dv_var_str)
-  check_varsindf(data, time_vars[["TIME"]], name = "time_vars")
-  check_varsindf(data, time_vars[["NTIME"]], name = "time_vars")
-  check_varsindf(data, "MDV")
+  check_df(data, "data")
+  check_varsindf(data, dv_var_str, "data", "dv_var")
+  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
+  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
+  check_varsindf(data, "MDV", "data", "MDV")
   check_timeu(timeu)
-  check_varsindf(data, col_var_str)
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str)}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var_str)}
+  check_varsindf(data, col_var_str, "data", "col_var")
+  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str, "data", "grp_var")}
+  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
+  if(dosenorm == TRUE){check_varsindf(data, dose_var_str, "data", "dose_var")}
   check_loq_method(loq, loq_method, data)
-  if(cfb==TRUE)check_numeric(cfb_base)
+  if(cfb==TRUE)check_numeric(cfb_base, "cfb_base")
 
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str)))

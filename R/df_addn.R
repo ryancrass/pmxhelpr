@@ -28,9 +28,9 @@ df_addn <- function(data,
   new_var_quo <- rlang::enquo(new_var)
   new_var_str <- if (rlang::quo_is_null(new_var_quo)) grp_var_str else rlang::as_name(new_var_quo)
 
-  check_df(data)
-  check_varsindf(data, grp_var_str)
-  check_varsindf(data, id_var_str)
+  check_df(data, "data")
+  check_varsindf(data, grp_var_str, "data", "grp_var")
+  check_varsindf(data, id_var_str, "data", "id_var")
 
   data[[new_var_str]] <- var_addn(data, grp_var_str, id_var_str, sep)
 

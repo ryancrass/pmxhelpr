@@ -25,9 +25,9 @@ mod_loglog <- function(data,
   exp_var_str  <- rlang::as_name(rlang::ensym(exp_var))
   dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
 
-  check_df(data)
-  check_varsindf(data, exp_var_str)
-  check_varsindf(data, dose_var_str)
+  check_df(data, "data")
+  check_varsindf(data, exp_var_str, "data", "exp_var")
+  check_varsindf(data, dose_var_str, "data", "dose_var")
   if(nrow(data) < 2) {rlang::abort(message = "argument `data` must contain at least 2 rows for log-log regression")}
 
   form <- stats::as.formula(paste(paste0("log(",exp_var_str,")"),"~",paste0("log(",dose_var_str,")")))
@@ -61,7 +61,7 @@ df_loglog <- function(fit,
                       ci = 0.9,
                       sigdigits = 3) {
 
-  check_lm(fit)
+  check_lm(fit, "fit")
   check_loglog_args(method, ci, sigdigits)
 
   int <- stats::coef(fit)[[1]]
@@ -119,10 +119,10 @@ df_doseprop <- function(data,
   exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
   dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
 
-  check_df(data)
-  check_varsindf(data, metric_var_str)
-  check_varsindf(data, exp_var_str)
-  check_varsindf(data, dose_var_str)
+  check_df(data, "data")
+  check_varsindf(data, metric_var_str, "data", "metric_var")
+  check_varsindf(data, exp_var_str, "data", "exp_var")
+  check_varsindf(data, dose_var_str, "data", "dose_var")
   check_loglog_args(method, ci, sigdigits)
 
   tab_list <- lapply(metrics, function(m) {
@@ -165,10 +165,10 @@ plot_doseprop <- function(data,
   exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
   dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
 
-  check_df(data)
-  check_varsindf(data, metric_var_str)
-  check_varsindf(data, dose_var_str)
-  check_levelsinvar(data, metric_var_str, metrics)
+  check_df(data, "data")
+  check_varsindf(data, metric_var_str, "data", "metric_var")
+  check_varsindf(data, dose_var_str, "data", "dose_var")
+  check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
   dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)

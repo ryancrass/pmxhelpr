@@ -51,11 +51,11 @@ plot_dvconc <- function(data,
   col_var_str <- capture_col(rlang::enquo(col_var))
 
   #Checks
-  check_df(data)
-  check_varsindf(data, dv_var_str)
-  check_varsindf(data, idv_var_str)
-  check_varsindf(data, col_var_str)
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str)}
+  check_df(data, "data")
+  check_varsindf(data, dv_var_str, "data", "dv_var")
+  check_varsindf(data, idv_var_str, "data", "idv_var")
+  check_varsindf(data, col_var_str, "data", "col_var")
+  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
 
   ##Handle DV and IDV Variables
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))

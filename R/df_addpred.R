@@ -25,9 +25,9 @@ df_addpred <- function(data,
 
   output_var_str <- rlang::as_name(rlang::ensym(output_var))
 
-  check_df(data)
-  check_mrgmod(model)
-  check_capture(model, output_var_str)
+  check_df(data, "data")
+  check_mrgmod(model, "model")
+  check_capture(model, output_var_str, "model", "output_var")
 
   data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
                                    data = data, carry_out = output_var_str)[,output_var_str]

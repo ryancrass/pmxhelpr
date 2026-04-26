@@ -22,9 +22,9 @@
 breaks_time <- function(x, unit="hours", n=8) {
 
   #Checks
-  check_numeric(x)
+  check_numeric(x, "x")
   check_timeu(unit)
-  check_integer(n)
+  check_integer(n, "n")
 
   x <- as.numeric(x)
 

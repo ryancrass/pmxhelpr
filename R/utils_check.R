@@ -1,20 +1,19 @@
 check_modlib <- function(mod, mod_path){
-  input_name <-mod
-  output_warning <- paste0("`", input_name, "` does not exist in the pmxhelpr model library")
+  output_warning <- paste0("`", mod, "` does not exist in the pmxhelpr model library")
   if(!file.exists(mod_path)){
     rlang::abort(message = output_warning)
   }
 }
 
 
-check_df <- function(df, name = deparse(substitute(df))){
+check_df <- function(df, name){
   output_warning <- paste0("argument `", name, "` must be a `data.frame`")
   if(!is.data.frame(df)){
     rlang::abort(message = output_warning)
   }
 }
 
-check_mrgmod <- function(mod, name = deparse(substitute(mod))){
+check_mrgmod <- function(mod, name){
   output_warning <- paste0("argument `", name, "` must be class `mrgmod`")
   if(!mrgsolve::is.mrgmod(mod)){
     rlang::abort(message = output_warning)
@@ -29,8 +28,7 @@ check_mrgmod_outputvars <- function(mod, output_vars){
   }
 }
 
-check_capture <- function(mod, var, mod_name = deparse(substitute(mod)),
-                          name = sub("_str$", "", deparse(substitute(var)))){
+check_capture <- function(mod, var, mod_name, name){
   output_warning <- paste0("argument `", name, "` must be captured as output in `", mod_name, "`")
   captures <- mod$capture
   if(!var %in% captures){
@@ -38,7 +36,7 @@ check_capture <- function(mod, var, mod_name = deparse(substitute(mod)),
   }
 }
 
-check_factor <- function(data, var, name = deparse(substitute(var))){
+check_factor <- function(data, var, name){
   output_warning <- paste0("argument `", name, "` must be coercible to class `factor`")
   var_vect <- suppressWarnings(as.factor(data[[var]]))
   if(!is.factor(var_vect)){
@@ -46,7 +44,7 @@ check_factor <- function(data, var, name = deparse(substitute(var))){
   }
 }
 
-check_numeric <- function(var, name = deparse(substitute(var))){
+check_numeric <- function(var, name){
   output_warning <- paste0("argument `", name, "` must be coercible to class `numeric`")
   num <- suppressWarnings(as.numeric(var))
   if(sum(is.na(num)) | sum(!is.numeric(num))){
@@ -54,14 +52,14 @@ check_numeric <- function(var, name = deparse(substitute(var))){
   }
 }
 
-check_numeric_strict <- function(var, name = deparse(substitute(var))){
+check_numeric_strict <- function(var, name){
   output_warning <- paste0("argument `", name, "` must be class `numeric`")
   if(sum(is.na(var)) | sum(!is.numeric(var))){
     rlang::abort(message = output_warning)
   }
 }
 
-check_integer <- function(var, name = deparse(substitute(var))){
+check_integer <- function(var, name){
   output_warning <- paste0("argument `", name, "` must be coercible to class `integer`")
   num <- suppressWarnings(as.integer(var))
   if(sum(is.na(num)) | sum(!is.numeric(num))){
@@ -69,17 +67,14 @@ check_integer <- function(var, name = deparse(substitute(var))){
   }
 }
 
-check_varsindf <- function(data, vars, data_name = deparse(substitute(data)),
-                           name = sub("_str$", "", deparse(substitute(vars)))){
-  output_warning <- paste0("argument `", name, "` must be variables in `", data_name, "`")
+check_varsindf <- function(data, vars, data_name, name){
+  output_warning <- paste0("argument `", name, "` must be variable(s) in `", data_name, "`")
   if(length(setdiff(vars, colnames(data)))>=1){
     rlang::abort(message = output_warning)
   }
 }
 
-check_levelsinvar <- function(data, var, levels,
-                              name = sub("_str$", "", deparse(substitute(var))),
-                              levels_name = deparse(substitute(levels))){
+check_levelsinvar <- function(data, var, levels, name, levels_name){
   vect <- data[[var]]
   output_warning <- paste0("argument `", levels_name, "` must be levels in variable `", name, "`")
   if(sum(!levels %in% vect)){
@@ -124,7 +119,7 @@ check_timeu <- function(var){
   }
 }
 
-check_lm <- function(fit, name = deparse(substitute(fit))){
+check_lm <- function(fit, name){
   output_warning <- paste0("argument `", name, "` must be class `lm`")
   if(!"lm" %in% class(fit)){
     rlang::abort(message = output_warning)
@@ -138,5 +133,5 @@ check_loglog_args <- function(method, ci, sigdigits) {
   if (!is.numeric(ci) || ci <= 0 || ci >= 1) {
     rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")
   }
-  check_integer(sigdigits)
+  check_integer(sigdigits, "sigdigits")
 }

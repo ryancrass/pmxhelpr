@@ -64,18 +64,18 @@ plot_popgof <- function(data,
                                                 OBS = "darkgrey"))
 
   #Checks
-  check_df(data)
-  check_varsindf(data, time_vars[["TIME"]], name = "time_vars")
-  check_varsindf(data, time_vars[["NTIME"]], name = "time_vars")
-  check_varsindf(data, output_vars[["DV"]], name = "output_vars")
-  check_varsindf(data, output_vars[["IPRED"]], name = "output_vars")
-  check_varsindf(data, output_vars[["PRED"]], name = "output_vars")
-  check_varsindf(data, "MDV")
+  check_df(data, "data")
+  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
+  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
+  check_varsindf(data, output_vars[["DV"]], "data", "output_vars")
+  check_varsindf(data, output_vars[["IPRED"]], "data", "output_vars")
+  check_varsindf(data, output_vars[["PRED"]], "data", "output_vars")
+  check_varsindf(data, "MDV", "data", "MDV")
   check_timeu(timeu)
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var_str)}
+  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str, "data", "grp_var")}
+  if(dosenorm == TRUE){check_varsindf(data, dose_var_str, "data", "dose_var")}
   check_loq_method(loq, loq_method, data)
-  if(cfb==TRUE)check_numeric(cfb_base)
+  if(cfb==TRUE)check_numeric(cfb_base, "cfb_base")
 
   #Handle Output and Time Variables
   data <- rename_time_vars(data, time_vars, output_vars)

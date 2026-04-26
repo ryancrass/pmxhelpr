@@ -63,16 +63,16 @@ df_mrgsim_replicate <- function(data,
                                             DV = "DV"))
 
   #Checks
-  check_df(data)
-  check_mrgmod(model)
+  check_df(data, "data")
+  check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, output_vars)
-  check_integer(replicates)
+  check_integer(replicates, "replicates")
   if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
-  check_varsindf(data, dv_var_str)
-  check_varsindf(data, time_vars)
-  check_varsindf(data, num_vars)
-  check_varsindf(data, char_vars)
-  check_integer(seed)
+  check_varsindf(data, dv_var_str, "data", "dv_var")
+  check_varsindf(data, time_vars, "data", "time_vars")
+  check_varsindf(data, num_vars, "data", "num_vars")
+  check_varsindf(data, char_vars, "data", "char_vars")
+  check_integer(seed, "seed")
 
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))

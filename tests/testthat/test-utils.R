@@ -30,55 +30,55 @@ test_that("list_update preserves keys not mentioned in update", {
 #####check_df####
 
 test_that("check_df does not error on valid data.frame", {
-  expect_no_error(pmxhelpr:::check_df(data.frame(x = 1)))
+  expect_no_error(pmxhelpr:::check_df(data.frame(x = 1), "data"))
 })
 
 test_that("check_df errors on non-data.frame", {
-  expect_error(pmxhelpr:::check_df("not_a_df"),
+  expect_error(pmxhelpr:::check_df("not_a_df", "data"),
                regexp = "must be a `data.frame`")
 })
 
 #####check_numeric####
 
 test_that("check_numeric does not error on numeric input", {
-  expect_no_error(pmxhelpr:::check_numeric(42))
+  expect_no_error(pmxhelpr:::check_numeric(42, "x"))
 })
 
 test_that("check_numeric errors on non-numeric string", {
-  expect_error(pmxhelpr:::check_numeric("$"),
+  expect_error(pmxhelpr:::check_numeric("$", "x"),
                regexp = "must be coercible to class `numeric`")
 })
 
 #####check_numeric_strict####
 
 test_that("check_numeric_strict does not error on numeric input", {
-  expect_no_error(pmxhelpr:::check_numeric_strict(42))
+  expect_no_error(pmxhelpr:::check_numeric_strict(42, "x"))
 })
 
 test_that("check_numeric_strict errors on character input", {
-  expect_error(pmxhelpr:::check_numeric_strict("1"),
+  expect_error(pmxhelpr:::check_numeric_strict("1", "x"),
                regexp = "must be class `numeric`")
 })
 
 #####check_integer####
 
 test_that("check_integer does not error on integer-coercible input", {
-  expect_no_error(pmxhelpr:::check_integer(5))
+  expect_no_error(pmxhelpr:::check_integer(5, "n"))
 })
 
 test_that("check_integer errors on non-integer string", {
-  expect_error(pmxhelpr:::check_integer("$"),
+  expect_error(pmxhelpr:::check_integer("$", "n"),
                regexp = "must be coercible to class `integer`")
 })
 
 #####check_varsindf####
 
 test_that("check_varsindf does not error when variable exists in data", {
-  expect_no_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "x"))
+  expect_no_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "x", "data", "var"))
 })
 
 test_that("check_varsindf errors when variable does not exist", {
-  expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "y"),
+  expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "y", "data", "var"),
                regexp = "must be variables in")
 })
 
@@ -86,7 +86,7 @@ test_that("check_varsindf errors when variable does not exist", {
 
 test_that("check_factor does not error on factor-coercible column", {
   df <- data.frame(x = c("a", "b", "c"))
-  expect_no_error(pmxhelpr:::check_factor(df, "x"))
+  expect_no_error(pmxhelpr:::check_factor(df, "x", "x"))
 })
 
 #####check_timeu####
@@ -123,12 +123,12 @@ test_that("check_loq_method errors when loq_method = 1, loq = NULL, and no LLOQ 
 
 test_that("check_levelsinvar does not error when levels exist", {
   df <- data.frame(x = c("a", "b", "c"))
-  expect_no_error(pmxhelpr:::check_levelsinvar(df, "x", c("a", "b")))
+  expect_no_error(pmxhelpr:::check_levelsinvar(df, "x", c("a", "b"), "x", "levels"))
 })
 
 test_that("check_levelsinvar errors when levels don't exist", {
   df <- data.frame(x = c("a", "b", "c"))
-  expect_error(pmxhelpr:::check_levelsinvar(df, "x", c("z")),
+  expect_error(pmxhelpr:::check_levelsinvar(df, "x", c("z"), "x", "levels"),
                regexp = "must be levels in variable")
 })
 
@@ -136,11 +136,11 @@ test_that("check_levelsinvar errors when levels don't exist", {
 
 test_that("check_lm does not error on lm object", {
   fit <- lm(mpg ~ wt, data = mtcars)
-  expect_no_error(pmxhelpr:::check_lm(fit))
+  expect_no_error(pmxhelpr:::check_lm(fit, "fit"))
 })
 
 test_that("check_lm errors on non-lm object", {
-  expect_error(pmxhelpr:::check_lm("not_lm"),
+  expect_error(pmxhelpr:::check_lm("not_lm", "fit"),
                regexp = "must be class `lm`")
 })
 

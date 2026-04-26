@@ -23,9 +23,9 @@ df_nobsbin <- function(data,
 
   bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
 
-  check_df(data)
-  check_varsindf(data, bin_var_str)
-  check_varsindf(data, strat_vars)
+  check_df(data, "data")
+  check_varsindf(data, bin_var_str, "data", "bin_var")
+  check_varsindf(data, strat_vars, "data", "strat_vars")
 
   bin_count <- data |>
     dplyr::filter(EVID == 0) |>

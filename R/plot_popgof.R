@@ -65,11 +65,11 @@ plot_popgof <- function(data,
 
   #Checks
   check_df(data)
-  check_varsindf(data, time_vars[["TIME"]])
-  check_varsindf(data, time_vars[["NTIME"]])
-  check_varsindf(data, output_vars[["DV"]])
-  check_varsindf(data, output_vars[["IPRED"]])
-  check_varsindf(data, output_vars[["PRED"]])
+  check_varsindf(data, time_vars[["TIME"]], name = "time_vars")
+  check_varsindf(data, time_vars[["NTIME"]], name = "time_vars")
+  check_varsindf(data, output_vars[["DV"]], name = "output_vars")
+  check_varsindf(data, output_vars[["IPRED"]], name = "output_vars")
+  check_varsindf(data, output_vars[["PRED"]], name = "output_vars")
   check_varsindf(data, "MDV")
   check_timeu(timeu)
   if(grp_dv == TRUE) {check_varsindf(data, grp_var_str)}

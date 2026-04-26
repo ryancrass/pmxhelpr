@@ -96,11 +96,11 @@ plot_vpc_exactbins <- function(sim,
 
   #Checks
   check_df(sim)
-  check_varsindf(sim, time_vars[["TIME"]])
-  check_varsindf(sim, time_vars[["NTIME"]])
-  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]])}
-  check_varsindf(sim, output_vars[["SIMDV"]])
-  check_varsindf(sim, output_vars[["OBSDV"]])
+  check_varsindf(sim, time_vars[["TIME"]], name = "time_vars")
+  check_varsindf(sim, time_vars[["NTIME"]], name = "time_vars")
+  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]], name = "output_vars")}
+  check_varsindf(sim, output_vars[["SIMDV"]], name = "output_vars")
+  check_varsindf(sim, output_vars[["OBSDV"]], name = "output_vars")
   check_varsindf(sim, "MDV")
   check_varsindf(sim, strat_var_str)
   check_varsindf(sim, irep_name_str)

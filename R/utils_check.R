@@ -7,17 +7,15 @@ check_modlib <- function(mod, mod_path){
 }
 
 
-check_df <- function(df){
-  input_name <-deparse(substitute(df))
-  output_warning <- paste0("argument `", input_name, "` must be a `data.frame`")
+check_df <- function(df, name = deparse(substitute(df))){
+  output_warning <- paste0("argument `", name, "` must be a `data.frame`")
   if(!is.data.frame(df)){
     rlang::abort(message = output_warning)
   }
 }
 
-check_mrgmod <- function(mod){
-  input_name <-deparse(substitute(mod))
-  output_warning <- paste0("argument `", input_name, "` must be class `mrgmod`")
+check_mrgmod <- function(mod, name = deparse(substitute(mod))){
+  output_warning <- paste0("argument `", name, "` must be class `mrgmod`")
   if(!mrgsolve::is.mrgmod(mod)){
     rlang::abort(message = output_warning)
   }
@@ -31,65 +29,59 @@ check_mrgmod_outputvars <- function(mod, output_vars){
   }
 }
 
-check_capture <- function(mod, var){
-  input_name1 <-deparse(substitute(mod))
-  input_name2 <-sub("_str$", "", deparse(substitute(var)))
-  output_warning <- paste0("argument `", input_name2, "` must be captured as output in `",input_name1,"`")
+check_capture <- function(mod, var, mod_name = deparse(substitute(mod)),
+                          name = sub("_str$", "", deparse(substitute(var)))){
+  output_warning <- paste0("argument `", name, "` must be captured as output in `", mod_name, "`")
   captures <- mod$capture
   if(!var %in% captures){
     rlang::abort(message = output_warning)
   }
 }
 
-check_factor <- function(data, var){
-  input_name <-deparse(substitute(var))
-  output_warning <- paste0("argument `", input_name, "` must be coercible to class `factor`")
+check_factor <- function(data, var, name = deparse(substitute(var))){
+  output_warning <- paste0("argument `", name, "` must be coercible to class `factor`")
   var_vect <- suppressWarnings(as.factor(data[[var]]))
   if(!is.factor(var_vect)){
     rlang::abort(message = output_warning)
   }
 }
 
-check_numeric <- function(var){
-  input_name <-deparse(substitute(var))
-  output_warning <- paste0("argument `", input_name, "` must be coercible to class `numeric`")
+check_numeric <- function(var, name = deparse(substitute(var))){
+  output_warning <- paste0("argument `", name, "` must be coercible to class `numeric`")
   num <- suppressWarnings(as.numeric(var))
   if(sum(is.na(num)) | sum(!is.numeric(num))){
     rlang::abort(message = output_warning)
   }
 }
 
-check_numeric_strict <- function(var){
-  input_name <-deparse(substitute(var))
-  output_warning <- paste0("argument `", input_name, "` must be class `numeric`")
+check_numeric_strict <- function(var, name = deparse(substitute(var))){
+  output_warning <- paste0("argument `", name, "` must be class `numeric`")
   if(sum(is.na(var)) | sum(!is.numeric(var))){
     rlang::abort(message = output_warning)
   }
 }
 
-check_integer <- function(var){
-  input_name <-deparse(substitute(var))
-  output_warning <- paste0("argument `", input_name, "` must be coercible to class `integer`")
+check_integer <- function(var, name = deparse(substitute(var))){
+  output_warning <- paste0("argument `", name, "` must be coercible to class `integer`")
   num <- suppressWarnings(as.integer(var))
   if(sum(is.na(num)) | sum(!is.numeric(num))){
     rlang::abort(message = output_warning)
   }
 }
 
-check_varsindf <- function(data, vars){
-  input_name1 <-deparse(substitute(data))
-  input_name2 <-sub("_str$", "", deparse(substitute(vars)))
-  output_warning <- paste0("argument `", input_name2, "` must be variables in `",input_name1,"`")
+check_varsindf <- function(data, vars, data_name = deparse(substitute(data)),
+                           name = sub("_str$", "", deparse(substitute(vars)))){
+  output_warning <- paste0("argument `", name, "` must be variables in `", data_name, "`")
   if(length(setdiff(vars, colnames(data)))>=1){
     rlang::abort(message = output_warning)
   }
 }
 
-check_levelsinvar <- function(data, var, levels){
-  input_name1 <-sub("_str$", "", deparse(substitute(var)))
-  input_name2 <-deparse(substitute(levels))
+check_levelsinvar <- function(data, var, levels,
+                              name = sub("_str$", "", deparse(substitute(var))),
+                              levels_name = deparse(substitute(levels))){
   vect <- data[[var]]
-  output_warning <- paste0("argument `", input_name2, "` must be levels in variable `",input_name1,"`")
+  output_warning <- paste0("argument `", levels_name, "` must be levels in variable `", name, "`")
   if(sum(!levels %in% vect)){
     rlang::abort(message = output_warning)
   }
@@ -132,9 +124,8 @@ check_timeu <- function(var){
   }
 }
 
-check_lm <- function(fit){
-  input_name <-deparse(substitute(fit))
-  output_warning <- paste0("argument `", input_name, "` must be class `lm`")
+check_lm <- function(fit, name = deparse(substitute(fit))){
+  output_warning <- paste0("argument `", name, "` must be class `lm`")
   if(!"lm" %in% class(fit)){
     rlang::abort(message = output_warning)
   }

@@ -95,8 +95,8 @@ plot_dvtime <- function(data,
   #Checks
   check_df(data)
   check_varsindf(data, dv_var_str)
-  check_varsindf(data, time_vars[["TIME"]])
-  check_varsindf(data, time_vars[["NTIME"]])
+  check_varsindf(data, time_vars[["TIME"]], name = "time_vars")
+  check_varsindf(data, time_vars[["NTIME"]], name = "time_vars")
   check_varsindf(data, "MDV")
   check_timeu(timeu)
   check_varsindf(data, col_var_str)

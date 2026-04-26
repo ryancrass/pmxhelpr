@@ -20,33 +20,27 @@
 df_addn <- function(data,
                     grp_var,
                     id_var = ID,
+                    new_var = NULL,
                     sep = NULL){
 
-  grp_var <- rlang::ensym(grp_var)
-  id_var  <- rlang::ensym(id_var)
-  grp_var_str <- rlang::as_name(grp_var)
-  id_var_str  <- rlang::as_name(id_var)
+  grp_var_str <- rlang::as_name(rlang::ensym(grp_var))
+  id_var_str  <- rlang::as_name(rlang::ensym(id_var))
+  new_var_quo <- rlang::enquo(new_var)
+  new_var_str <- if (rlang::quo_is_null(new_var_quo)) grp_var_str else rlang::as_name(new_var_quo)
 
   check_df(data)
   check_varsindf(data, grp_var_str)
   check_varsindf(data, id_var_str)
 
-  data_counts <- data |>
-    dplyr::group_by(!!grp_var) |>
-    dplyr::summarize(N = dplyr::n_distinct(!!id_var)) |>
-    dplyr::ungroup()
+  data[[new_var_str]] <- var_addn(data, grp_var_str, id_var_str, sep)
 
-  if(!is.null(sep)){
-    out <- dplyr::left_join(data, data_counts) |>
-      dplyr::mutate(tmp = factor(paste(!!grp_var,sep, paste0("(n=", N, ")"))))
-  } else {
-    out <- dplyr::left_join(data, data_counts) |>
-      dplyr::mutate(tmp = factor(paste(!!grp_var, paste0("(n=", N, ")"))))
-  }
+  return(data)
+}
 
-
-  out[[grp_var_str]] <- out[["tmp"]]
-  out <- dplyr::select(out, -N, -tmp)
-
-  return(out)
+# Internal helper: count distinct id_var per grp_var and return factor labels
+var_addn <- function(data, grp_var_str, id_var_str, sep = NULL) {
+  counts <- tapply(data[[id_var_str]], data[[grp_var_str]], dplyr::n_distinct)
+  n <- unname(counts[as.character(data[[grp_var_str]])])
+  parts <- if (is.null(sep)) paste(data[[grp_var_str]]) else paste(data[[grp_var_str]], sep)
+  factor(paste(parts, paste0("(n=", n, ")")))
 }

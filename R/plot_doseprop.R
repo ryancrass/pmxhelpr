@@ -62,9 +62,7 @@ df_loglog <- function(fit,
                       sigdigits = 3) {
 
   check_lm(fit)
-  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
-  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
-  check_integer(sigdigits)
+  check_loglog_args(method, ci, sigdigits)
 
   int <- stats::coef(fit)[[1]]
   est <- stats::coef(fit)[[2]]
@@ -122,23 +120,20 @@ df_doseprop <- function(data,
   dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
 
   check_df(data)
-  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
-  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
-  check_integer(sigdigits)
+  check_varsindf(data, metric_var_str)
+  check_varsindf(data, exp_var_str)
+  check_varsindf(data, dose_var_str)
+  check_loglog_args(method, ci, sigdigits)
 
-  fit_list <- list()
-   for(i in 1:length(metrics)) {
-     fit_list[[i]] <- rlang::inject(mod_loglog(dplyr::filter(data, .data[[metric_var_str]] == metrics[i]), exp_var = !!exp_var_str, dose_var = !!dose_var_str))
-   }
+  tab_list <- lapply(metrics, function(m) {
+    dat_m <- dplyr::filter(data, .data[[metric_var_str]] == m)
+    fit   <- rlang::inject(mod_loglog(dat_m, exp_var = !!exp_var_str, dose_var = !!dose_var_str))
+    tab   <- df_loglog(fit, method, ci, sigdigits)
+    tab[[metric_var_str]] <- m
+    tab
+  })
 
-   tab_list <- list()
-   for(i in 1:length(fit_list)) {
-     tab_list[[i]] <- df_loglog(fit_list[[i]], method, ci, sigdigits) |>
-       dplyr::mutate(!!metric_var_str := metrics[i])
-   }
-
-   tab <- do.call(rbind.data.frame, tab_list)
-   return(tab)
+  do.call(rbind.data.frame, tab_list)
 }
 
 
@@ -174,12 +169,12 @@ plot_doseprop <- function(data,
   check_varsindf(data, metric_var_str)
   check_varsindf(data, dose_var_str)
   check_levelsinvar(data, metric_var_str, metrics)
-  if(!method %in% c("normal", "tdist")) {rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")}
-  if(!is.numeric(ci) || ci <= 0 || ci >= 1) {rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")}
-  check_integer(sigdigits)
+  check_loglog_args(method, ci, sigdigits)
 
   dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
-  tab <- rlang::inject(df_doseprop(data, metrics, metric_var = !!metric_var_str, exp_var = !!exp_var_str, dose_var = !!dose_var_str, method, ci)) |>
+  tab <- rlang::inject(df_doseprop(data, metrics,
+                     metric_var = !!metric_var_str, exp_var = !!exp_var_str,
+                     dose_var = !!dose_var_str, method, ci, sigdigits)) |>
     dplyr::mutate(label = paste0(.data[[metric_var_str]], " | ", PowerCI))
 
   plot_data <- dplyr::left_join(dat, tab, by = metric_var_str)

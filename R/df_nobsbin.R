@@ -4,7 +4,7 @@
 #' `df_nobsbin()` is a helper function to count the number of missing
 #'    and non-missing observations in exact bins.
 #'
-#' @param data Input dataset.
+#' @param data Input dataset. Must contrain variable "CMT".
 #' @param bin_var Binning variable. Accepts bare names or strings. Default is `NTIME`.
 #' @param strat_vars Stratifying variables. Must be a character vector.
 #'

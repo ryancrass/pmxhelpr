@@ -139,3 +139,13 @@ check_lm <- function(fit){
     rlang::abort(message = output_warning)
   }
 }
+
+check_loglog_args <- function(method, ci, sigdigits) {
+  if (!method %in% c("normal", "tdist")) {
+    rlang::abort(message = "argument `method` must be 'normal' or 'tdist'")
+  }
+  if (!is.numeric(ci) || ci <= 0 || ci >= 1) {
+    rlang::abort(message = "argument `ci` must be a numeric value between 0 and 1")
+  }
+  check_integer(sigdigits)
+}

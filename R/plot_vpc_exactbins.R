@@ -111,7 +111,7 @@ plot_vpc_exactbins <- function(sim,
   vpctheme <- list_update(vpc_theme, plot_vpc_theme())
 
   #Determine Breaks
-  xbreaks <- breaks_time(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
+  xbreaks <- var_timebreaks(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
   plot <- plot_vpc(

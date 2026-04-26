@@ -99,7 +99,7 @@ plot_popgof <- function(data,
   caption <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
 
   #Determine Breaks
-  xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+  xbreaks <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
   #Determine aesthetics
   plottheme <- list_update(theme, plot_popgof_theme())

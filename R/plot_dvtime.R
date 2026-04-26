@@ -2,7 +2,7 @@
 #'
 #' @param data Input dataset.
 #' @param timeu Character string specifying units for the time variable.
-#'    Passed to `breaks_time` and assigned to default x-axis label.
+#'    Passed to `var_timebreaks` and assigned to default x-axis label.
 #'    Options include:
 #'    + "hours" (default)
 #'    + "days"
@@ -132,7 +132,7 @@ plot_dvtime <- function(data,
   caption <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
 
   #Determine Breaks
-  xbreaks <- breaks_time(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+  xbreaks <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
 
   #Determine aesthetics
   plottheme <- list_update(theme, plot_dvtime_theme())

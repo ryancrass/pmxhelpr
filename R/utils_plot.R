@@ -225,3 +225,48 @@ var_pc <- function(dv_var, pred_var, lower_bound = 0) {
   predbin <- stats::median(pred_var)
   lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
 }
+
+# Internal helper: determine axis breaks for time variables
+var_timebreaks <- function(x, unit = "hours", n = 8) {
+  check_numeric(x, "x")
+  check_timeu(unit)
+  check_integer(n, "n")
+
+  x <- as.numeric(x)
+  rng <- range(x, na.rm = TRUE)
+
+  if (unit %in% c("hours", "hrs", "hour", "hr", "h")) {
+    scale <- 24
+  } else if (unit %in% c("days", "dys", "day", "dy", "d")) {
+    scale <- 7
+  } else if (unit %in% c("weeks", "wks", "week", "wk", "w")) {
+    scale <- 1
+  } else if (unit %in% c("months", "mons", "mos", "month", "mo", "m")) {
+    scale <- 1
+  }
+
+  rng <- rng / scale
+
+  if(max(rng, na.rm = TRUE) <= 1) {
+    if(unit %in% c("hours", "hrs", "hour", "hr", "h")) Ql <- c(4/24, 8/24, 12/24, 1)
+    if(unit %in% c("days", "dys", "day", "dy", "d")) Ql <- c(1/7, 1)
+    if(unit %in% c("weeks", "wks", "week", "wk", "w",
+                   "months", "mons", "mos", "month", "mo", "m")) Ql <- c(0.5, 1)
+
+    breaks <- labeling::extended(
+      rng[1], rng[2], n,
+      Q = Ql,
+      only.loose = FALSE) * scale
+
+    breaks <- breaks[breaks <= max(x, na.rm = TRUE)]
+  } else {
+    breaks <- labeling::extended(
+      rng[1], rng[2], n,
+      Q = c(1, 2, 4, 7),
+      only.loose = FALSE) * scale
+
+    breaks <- breaks[breaks <= max(x, na.rm = TRUE)]
+  }
+
+  breaks
+}

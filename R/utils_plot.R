@@ -203,6 +203,11 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 }
 
 
+# Internal helper: vectorized dose normalization
+var_dosenorm <- function(dv_var, dose_var) {
+  dv_var / dose_var
+}
+
 # Internal helper: vectorized prediction correction
   # Applies the standard PC-VPC formula to numeric vectors.
   # Assumes the vectors are already scoped to a single bin/group.

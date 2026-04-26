@@ -125,8 +125,7 @@ plot_dvtime <- function(data,
 
   #Dose-normalize if requested
   if(dosenorm == TRUE) {
-    data <- data |>
-      dplyr::mutate(DV = DV/DOSE)
+    data <- dplyr::mutate(data, DV = var_dosenorm(DV, DOSE))
   }
 
   #Determine Caption

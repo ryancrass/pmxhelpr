@@ -89,10 +89,10 @@ plot_popgof <- function(data,
 
   #Dose-normalize if requested
   if(dosenorm == TRUE) {
-    data <- data |>
-      dplyr::mutate(DV = DV/DOSE,
-                    IPRED = IPRED/DOSE,
-                    PRED = PRED/DOSE)
+    data <- dplyr::mutate(data,
+                          DV    = var_dosenorm(DV, DOSE),
+                          IPRED = var_dosenorm(IPRED, DOSE),
+                          PRED  = var_dosenorm(PRED, DOSE))
   }
 
   #Determine Caption

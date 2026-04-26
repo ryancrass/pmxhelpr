@@ -203,6 +203,16 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 }
 
 
+# Internal helper: quantile with left-censored (LLOQ) handling
+#   Replaces values below loq (including NA) with -Inf, then computes
+#   the quantile. Returns NA if the result is -Inf.
+var_loqcens <- function(x, p, loq) {
+  x[is.na(x)] <- -Inf
+  x[x < loq] <- -Inf
+  q <- stats::quantile(x, probs = p, na.rm = TRUE)
+  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
+}
+
 # Internal helper: vectorized dose normalization
 var_dosenorm <- function(dv_var, dose_var) {
   dv_var / dose_var

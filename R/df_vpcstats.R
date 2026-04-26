@@ -1,54 +1,33 @@
-#' Compute VPC summary statistics
+#' Compute VPC summary statistics from preprocessed simulation data
 #'
 #' @description
-#' `df_vpcstats()` computes two-stage quantile summary statistics for
-#'    visual predictive check (VPC) plots from simulated and observed data.
+#' Internal function. Computes two-stage quantile summary statistics for VPC plots
+#' from data already preprocessed by `df_vpcpreprocess()`.
 #'
-#' @param sim Simulated data. Must contain columns matching: `bin_var` and `irep_name`.
-#' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
-#' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
-#' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
-#' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
-#' @param sim_dv_var Simulated dependent variable column in `sim`. Default is `SIMDV`. Accepts bare names or strings.
-#' @param obs_dv_var Observed dependent variable column in `obs`. Default is `OBSDV`. Accepts bare names or strings.
-#' @param irep_name Replicate identifier column in `sim`. Default is `SIM`. Accepts bare names or strings.
+#' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`, and `irep_name` columns.
+#' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
+#' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
+#' @param bin_var_str String. Binning variable name.
+#' @param strat_var_str String or `NULL`. Stratification variable name.
+#' @param irep_name_str String. Replicate identifier column name.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
 #'
-#' @return A data.frame with columns: `bin_var`, `nbin`,
-#'   `q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
-#'   `q95_low`, `q95_med`, `q95_hi`, `obs5`, `obs50`, `obs95`,
-#'   and any stratification variable. Column names use the "5/50/95"
-#'   convention regardless of actual `pi` values.
-#'
-#' @export df_vpcstats
+#' @return A data.frame with quantile summary columns.
+#' @keywords internal
 
-df_vpcstats <- function(sim,
-                        pi = c(0.05, 0.95),
-                        ci = c(0.05, 0.95),
-                        bin_var = NTIME,
-                        strat_var = NULL,
-                        sim_dv_var = SIMDV,
-                        obs_dv_var = OBSDV,
-                        irep_name = SIM,
-                        loq = NULL) {
-
-  strat_var_str <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  bin_var_str   <- resolve_var(rlang::enquo(bin_var))
-  sim_dv_var    <- resolve_var(rlang::enquo(sim_dv_var))
-  obs_dv_var    <- resolve_var(rlang::enquo(obs_dv_var))
-  irep_name     <- resolve_var(rlang::enquo(irep_name))
+df_vpcstats <- function(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq) {
 
   group_vars <- c(bin_var_str)
-  if(!is.null(strat_var_str)) group_vars <- c(bin_var_str, strat_var_str)
+  if (!is.null(strat_var_str)) group_vars <- c(bin_var_str, strat_var_str)
 
   ## Stage 1: Per-replicate quantiles on simulated data
   stage1 <- sim |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name_str)))) |>
     dplyr::summarise(
       nbin = dplyr::n(),
-      q_lo  = stats::quantile(.data[[sim_dv_var]], probs = pi[1], na.rm = TRUE),
-      q50   = stats::quantile(.data[[sim_dv_var]], probs = 0.5,   na.rm = TRUE),
-      q_hi  = stats::quantile(.data[[sim_dv_var]], probs = pi[2], na.rm = TRUE),
+      q_lo = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
+      q50  = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
+      q_hi = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
       .groups = "drop"
     )
 
@@ -56,7 +35,7 @@ df_vpcstats <- function(sim,
   sim_quant <- stage1 |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
-      nbin = dplyr::first(nbin),
+      nbin    = dplyr::first(nbin),
       q5_low  = stats::quantile(q_lo, probs = ci[1], na.rm = TRUE),
       q5_med  = stats::quantile(q_lo, probs = 0.5,   na.rm = TRUE),
       q5_hi   = stats::quantile(q_lo, probs = ci[2], na.rm = TRUE),
@@ -69,27 +48,26 @@ df_vpcstats <- function(sim,
       .groups = "drop"
     )
 
-  ## Define observed by filtering to first replicate
+  ## Observed quantiles from first replicate
   obs <- sim |>
-    dplyr::filter(.data[[irep_name]] == 1)
+    dplyr::filter(.data[[irep_name_str]] == 1)
 
-  ## Observed quantiles
   if (is.null(loq)) {
     obs_quant <- obs |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
       dplyr::summarise(
-        obs5  = stats::quantile(.data[[obs_dv_var]], probs = pi[1], na.rm = TRUE),
-        obs50 = stats::quantile(.data[[obs_dv_var]], probs = 0.5,   na.rm = TRUE),
-        obs95 = stats::quantile(.data[[obs_dv_var]], probs = pi[2], na.rm = TRUE),
+        obs5  = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
+        obs50 = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
+        obs95 = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
         .groups = "drop"
       )
   } else {
     obs_quant <- obs |>
       dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
       dplyr::summarise(
-        obs5  = quantile_lloq(.data[[obs_dv_var]], p = pi[1], loq = loq),
-        obs50 = quantile_lloq(.data[[obs_dv_var]], p = 0.5,   loq = loq),
-        obs95 = quantile_lloq(.data[[obs_dv_var]], p = pi[2], loq = loq),
+        obs5  = var_loqcens(.data[["OBSDV"]], p = pi[1], loq = loq),
+        obs50 = var_loqcens(.data[["OBSDV"]], p = 0.5,   loq = loq),
+        obs95 = var_loqcens(.data[["OBSDV"]], p = pi[2], loq = loq),
         .groups = "drop"
       )
   }
@@ -98,22 +76,52 @@ df_vpcstats <- function(sim,
 }
 
 
-#' Compute quantile with left-censored (LLOQ) handling
+#' Preprocess simulation data for VPC statistics
 #'
 #' @description
-#' Replaces values below `loq` (including `NA`) with `-Inf`, then computes
-#' the quantile. Returns `NA` if the result is `-Inf`.
+#' Internal function. Validates columns, renames to standard names, and applies
+#' prediction correction or BLQ handling.
 #'
-#' @param x Numeric vector.
-#' @param p Probability for quantile.
-#' @param loq Numeric lower limit of quantification.
+#' @param sim Simulated data from `df_mrgsim_replicate()` or equivalent.
+#' @param time_vars Named character vector for time column mapping.
+#' @param output_vars Named character vector for output column mapping.
+#' @param strat_var_str String or `NULL`. Stratification variable name.
+#' @param pcvpc Logical for prediction correction.
+#' @param lower_bound Lower bound for prediction correction formula.
+#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
 #'
-#' @return A single numeric value, or `NA`.
+#' @return A preprocessed data.frame with standardized column names.
 #' @keywords internal
 
-quantile_lloq <- function(x, p, loq) {
-  x[is.na(x)] <- -Inf
-  x[x < loq] <- -Inf
-  q <- stats::quantile(x, probs = p, na.rm = TRUE)
-  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
+df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
+                             pcvpc, lower_bound, loq) {
+  time_vars <- init_time_vars(time_vars)
+  output_vars <- list_update(output_vars, c(PRED = "PRED", IPRED = "IPRED",
+                                            SIMDV = "SIMDV", OBSDV = "OBSDV"))
+
+  check_df(sim, "sim")
+  check_varsindf(sim, time_vars[["TIME"]], "sim", "time_vars")
+  check_varsindf(sim, time_vars[["NTIME"]], "sim", "time_vars")
+  if (isTRUE(pcvpc)) check_varsindf(sim, output_vars[["PRED"]], "sim", "output_vars")
+  check_varsindf(sim, output_vars[["SIMDV"]], "sim", "output_vars")
+  check_varsindf(sim, output_vars[["OBSDV"]], "sim", "output_vars")
+  check_varsindf(sim, "MDV", "sim", "MDV")
+  if (!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
+  if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
+
+  sim <- rename_time_vars(sim, time_vars, output_vars)
+
+  if (isTRUE(pcvpc)) {
+    sim <- sim |>
+      dplyr::filter(MDV == 0) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", "CMT", strat_var_str)))) |>
+      dplyr::mutate(OBSDV = var_pc(OBSDV, PRED, lower_bound),
+                    SIMDV = var_pc(SIMDV, PRED, lower_bound)) |>
+      dplyr::ungroup()
+  } else {
+    sim <- sim |>
+      dplyr::mutate(MDV = ifelse(!is.null(loq), 0, MDV))
+  }
+
+  sim
 }

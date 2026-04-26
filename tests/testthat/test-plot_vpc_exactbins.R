@@ -167,31 +167,27 @@ test_that("df_nobsbin accepts bare names and matches string output", {
   expect_identical(n1, n2)
 })
 
-test_that("df_vpcstats accepts bare names and matches string output", {
+test_that("plot_vpc_exactbins accepts bare irep_name and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  v1 <- df_vpcstats(sim = testsim,
-                     sim_dv_var = SIMDV, obs_dv_var = OBSDV, irep_name = SIM)
-  v2 <- df_vpcstats(sim = testsim,
-                     sim_dv_var = "SIMDV", obs_dv_var = "OBSDV", irep_name = "SIM")
+  v1 <- plot_vpc_exactbins(sim = testsim, irep_name = SIM, vpcstats = TRUE)
+  v2 <- plot_vpc_exactbins(sim = testsim, irep_name = "SIM", vpcstats = TRUE)
   expect_identical(v1, v2)
 })
 
-test_that("plot_vpc accepts bare strat_var and matches string output", {
+test_that("plot_vpc_exactbins accepts bare strat_var and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
                                  char_vars = "FOOD")
-  d1 <- df_vpcstats(sim = testsim, strat_var = FOOD)
-  d2 <- df_vpcstats(sim = testsim, strat_var = "FOOD")
-  expect_identical(d1, d2)
-  p1 <- plot_vpc(d1, bin_var = NTIME, strat_var = FOOD)
-  p2 <- plot_vpc(d2, bin_var = "NTIME", strat_var = "FOOD")
-  expect_identical(ggplot2::ggplot_build(p1)$data, ggplot2::ggplot_build(p2)$data)
+  testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
+  v1 <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE)
+  v2 <- plot_vpc_exactbins(sim = testsim, strat_var = "FOOD_f", vpcstats = TRUE)
+  expect_identical(v1, v2)
 })
 
 ##Test PC-VPC correctness

@@ -2,47 +2,30 @@
 % Please edit documentation in R/df_vpcstats.R
 \name{df_vpcstats}
 \alias{df_vpcstats}
-\title{Compute VPC summary statistics}
+\title{Compute VPC summary statistics from preprocessed simulation data}
 \usage{
-df_vpcstats(
-  sim,
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
-  bin_var = NTIME,
-  strat_var = NULL,
-  sim_dv_var = SIMDV,
-  obs_dv_var = OBSDV,
-  irep_name = SIM,
-  loq = NULL
-)
+df_vpcstats(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq)
 }
 \arguments{
-\item{sim}{Simulated data. Must contain columns matching: \code{bin_var} and \code{irep_name}.}
+\item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV}, and \code{irep_name} columns.}
 
-\item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
+\item{pi}{Numeric vector of length 2 specifying prediction interval quantiles.}
 
-\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles. Default is \code{c(0.05, 0.95)}.}
+\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles.}
 
-\item{bin_var}{Binning variable name. Default is \code{NTIME}. Accepts bare names or strings.}
+\item{bin_var_str}{String. Binning variable name.}
 
-\item{strat_var}{Stratification variable name, or \code{NULL}. Accepts bare names or strings.}
+\item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 
-\item{sim_dv_var}{Simulated dependent variable column in \code{sim}. Default is \code{SIMDV}. Accepts bare names or strings.}
-
-\item{obs_dv_var}{Observed dependent variable column in \code{obs}. Default is \code{OBSDV}. Accepts bare names or strings.}
-
-\item{irep_name}{Replicate identifier column in \code{sim}. Default is \code{SIM}. Accepts bare names or strings.}
+\item{irep_name_str}{String. Replicate identifier column name.}
 
 \item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
 }
 \value{
-A data.frame with columns: \code{bin_var}, \code{nbin},
-\code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med}, \code{q50_hi},
-\code{q95_low}, \code{q95_med}, \code{q95_hi}, \code{obs5}, \code{obs50}, \code{obs95},
-and any stratification variable. Column names use the "5/50/95"
-convention regardless of actual \code{pi} values.
+A data.frame with quantile summary columns.
 }
 \description{
-\code{df_vpcstats()} computes two-stage quantile summary statistics for
-visual predictive check (VPC) plots from simulated and observed data.
+Internal function. Computes two-stage quantile summary statistics for VPC plots
+from data already preprocessed by \code{df_vpcpreprocess()}.
 }
+\keyword{internal}

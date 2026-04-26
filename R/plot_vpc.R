@@ -5,8 +5,8 @@
 #'    summary statistics.
 #'
 #' @param vpcstats Data.frame of simulated quantile statistics from `df_vpcstats()`.
-#' @param bin_var Binning variable name. Default is `NTIME`. Accepts bare names or strings.
-#' @param strat_var Stratification variable name, or `NULL`. Accepts bare names or strings.
+#' @param bin_var_str String. Binning variable name. Default is `"NTIME"`.
+#' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param shown Named list of logicals specifying which layers to include.
 #' @param vpc_theme Named list of aesthetic parameters (colors, sizes, etc.).
 #' @param loq Numeric value for LLOQ reference line or `NULL`.
@@ -15,14 +15,11 @@
 #' @keywords internal
 
 plot_vpc <- function(vpcstats,
-                     bin_var = NTIME,
-                     strat_var = NULL,
+                     bin_var_str = "NTIME",
+                     strat_var_str = NULL,
                      shown = NULL,
                      vpc_theme = NULL,
                      loq = NULL) {
-
-  bin_var_str   <- resolve_var(rlang::enquo(bin_var))
-  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
 
   ##Set vpc aesthetics and theme
   shown <- list_update(shown, plot_vpc_shown())

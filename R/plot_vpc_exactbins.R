@@ -86,58 +86,20 @@ plot_vpc_exactbins <- function(sim,
   strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
   irep_name_str  <- resolve_var(rlang::enquo(irep_name))
 
-  #Define Time and Output Variables
-  time_vars <- init_time_vars(time_vars)
-  output_vars <- list_update(output_vars, c(PRED = "PRED",
-                                            IPRED = "IPRED",
-                                            SIMDV = "SIMDV",
-                                            OBSDV = "OBSDV"))
+  #Preprocess: validate, rename, prediction-correct or BLQ-handle
+  sim <- df_vpcpreprocess(sim, time_vars, output_vars, strat_var_str,
+                          pcvpc, lower_bound, loq)
 
-  #Checks
-  check_df(sim, "sim")
-  check_varsindf(sim, time_vars[["TIME"]], "sim", "time_vars")
-  check_varsindf(sim, time_vars[["NTIME"]], "sim", "time_vars")
-  if(pcvpc == TRUE) {check_varsindf(sim, output_vars[["PRED"]], "sim", "output_vars")}
-  check_varsindf(sim, output_vars[["SIMDV"]], "sim", "output_vars")
-  check_varsindf(sim, output_vars[["OBSDV"]], "sim", "output_vars")
-  check_varsindf(sim, "MDV", "sim", "MDV")
-  if(!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
-  if(!is.null(strat_var_str)) {check_factor(sim, strat_var_str, "strat_var")}
+  #Post-preprocess checks
   check_varsindf(sim, irep_name_str, "sim", "irep_name")
   if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
 
-  #Rename Output and Time Variables to Standard Names
-  sim <- rename_time_vars(sim, time_vars, output_vars)
-
-  ##Prediction-correct if pcvpc = TRUE
-  if(isTRUE(pcvpc)) {
-    sim <- sim |>
-      dplyr::filter(MDV == 0) |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", "CMT", strat_var_str)))) |>
-      dplyr::mutate(DV = var_pc(OBSDV, PRED, lower_bound),
-                    DVS = var_pc(SIMDV, PRED, lower_bound)) |>
-      dplyr::ungroup()
-  } else {
-    sim <- sim |>
-      dplyr::rename(DV=OBSDV,DVS=SIMDV) |>
-      dplyr::mutate(MDV = ifelse(!is.null(loq), 0, MDV))
-  }
-
-  #Isolate the observed data
+  #Isolate observed data for plot overlay
   obs <- sim |>
     dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
 
   ##Compute VPC Statistics
-  vpcstat <- df_vpcstats(
-    sim = sim,
-    pi = pi,
-    ci = ci,
-    strat_var = !!strat_var_str,
-    sim_dv_var = "DVS",
-    obs_dv_var = "DV",
-    irep_name = irep_name_str,
-    loq = loq
-  )
+  vpcstat <- df_vpcstats(sim, pi, ci, "NTIME", strat_var_str, irep_name_str, loq)
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {
@@ -154,7 +116,7 @@ plot_vpc_exactbins <- function(sim,
   ##Build VPC Plot
   plot <- plot_vpc(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
-    strat_var = strat_var_str,
+    strat_var_str = strat_var_str,
     shown = show_vpc,
     vpc_theme = vpctheme,
     loq = loq
@@ -163,7 +125,7 @@ plot_vpc_exactbins <- function(sim,
   ##Overlay Observations if Requested
   if(isTRUE(show_vpc$obs_dv)){
     plot <- plot+
-      ggplot2::geom_point(ggplot2::aes(y = DV, x = TIME),
+      ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME),
                           data = obs, inherit.aes = FALSE,
                           shape = vpctheme$obs_shape,
                           alpha = vpctheme$obs_alpha,

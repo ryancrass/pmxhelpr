@@ -38,12 +38,12 @@ test_that("Error if incorrect class for arugmument `data`", {
 
 test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_vars = c(TIME = "ATFD")),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_vars = c(TIME = "NTFD")),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("No Error if TIME and NTIME variables are specified as the same variable in time_vars", {
@@ -52,12 +52,12 @@ test_that("No Error if TIME and NTIME variables are specified as the same variab
 
 test_that("Error if `col_var` does not exist in `data`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", col_var = "FOOD_f"),
-               regexp = "argument `col_var` must be variables in `data`")
+               regexp = "argument `col_var` must be variable.*in `data`")
 })
 
 test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", grp_var = "SUBJID", grp_dv = TRUE),
-               regexp = "argument `grp_var` must be variables in `data`")
+               regexp = "argument `grp_var` must be variable.*in `data`")
 })
 
 test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE", {
@@ -66,7 +66,7 @@ test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", dose_var = "DOSEN", dosenorm = TRUE),
-               regexp = "argument `dose_var` must be variables in `data`")
+               regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
@@ -179,17 +179,17 @@ test_that("Error if incorrect class for argument `data`", {
 
 test_that("Error if dv_var does not exist in data", {
   expect_error(plot_dvconc(data = data_sad, dv_var = "NONEXIST", idv_var = "CONC"),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if idv_var does not exist in data", {
   expect_error(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "NONEXIST"),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if col_var does not exist in data", {
   expect_error(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "CONC",
                            col_var = "NONEXIST"),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 

@@ -40,10 +40,10 @@ test_that("Error if incorrect class for arugmument `data`", {
 
 test_that("Error if `bin_var` does not exist in `data`", {
   expect_error(df_nobsbin(data_sad, bin_var = "NTFD"),
-               regexp = "argument `bin_var` must be variables in `data`")
+               regexp = "argument `bin_var` must be variable.*in `data`")
 })
 
 test_that("Error if `strat_vars` do not exist in `data`", {
   expect_error(df_nobsbin(data_sad, strat_var = "FOOD_f"),
-               regexp = "argument `strat_vars` must be variables in `data`")
+               regexp = "argument `strat_vars` must be variable.*in `data`")
 })

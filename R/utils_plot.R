@@ -106,9 +106,9 @@
 # Internal helper: build aes for central tendency layers
 build_cent_aes <- function(y_var, color_aes = NULL) {
   if (is.null(color_aes)) {
-    ggplot2::aes(x = NTIME, y = !!rlang::sym(y_var))
+    ggplot2::aes(x = NTIME, y = .data[[y_var]])
   } else {
-    ggplot2::aes(x = NTIME, y = !!rlang::sym(y_var), color = !!color_aes)
+    ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
   }
 }
 

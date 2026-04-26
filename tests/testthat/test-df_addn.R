@@ -45,12 +45,12 @@ test_that("Error if incorrect class for argument `data`", {
 
 test_that("Error if grp_var does not exist in data", {
   expect_error(df_addn(data = data_sad, grp_var = "NONEXIST"),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if id_var does not exist in data", {
   expect_error(df_addn(data = data_sad, grp_var = "DOSE", id_var = "NONEXIST"),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 ##Test NSE Bare Names

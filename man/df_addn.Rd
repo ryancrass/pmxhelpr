@@ -4,14 +4,17 @@
 \alias{df_addn}
 \title{Add count unique values of an identifier within each level of a variable in a data.frame}
 \usage{
-df_addn(data, grp_var, id_var = ID, sep = NULL)
+df_addn(data, grp_var, id_var = ID, new_var = NULL, sep = NULL)
 }
 \arguments{
 \item{data}{Input dataset.}
 
-\item{grp_var}{Column to add counts to. Accepts bare names or strings.}
+\item{grp_var}{Column of values to add counts. Accepts bare names or strings.}
 
 \item{id_var}{Column defining distinct values to count. Accepts bare names or strings. Default is \code{ID}.}
+
+\item{new_var}{Column name for new variable containing values of \code{grp_var} with counts of \code{id_var}.
+Default is \code{NULL}, which overwrites \code{grp_var}.}
 
 \item{sep}{Additional string separator to add between variable and count. Default is NULL.}
 }

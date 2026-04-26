@@ -3,8 +3,10 @@
 #' @description  `df_addn()` returns a data.frame with a factor variable including count of individuals.
 #'
 #' @param data Input dataset.
-#' @param grp_var Column to add counts to. Accepts bare names or strings.
+#' @param grp_var Column of values to add counts. Accepts bare names or strings.
 #' @param id_var Column defining distinct values to count. Accepts bare names or strings. Default is `ID`.
+#' @param new_var Column name for new variable containing values of `grp_var` with counts of `id_var`.
+#'    Default is `NULL`, which overwrites `grp_var`.
 #' @param sep Additional string separator to add between variable and count. Default is NULL.
 #'
 #' @return A data.frame with the same number of rows as `data` and a factor variable.
@@ -23,10 +25,10 @@ df_addn <- function(data,
                     new_var = NULL,
                     sep = NULL){
 
-  grp_var_str <- rlang::as_name(rlang::ensym(grp_var))
-  id_var_str  <- rlang::as_name(rlang::ensym(id_var))
+  grp_var_str <- resolve_var(rlang::enquo(grp_var))
+  id_var_str  <- resolve_var(rlang::enquo(id_var))
   new_var_quo <- rlang::enquo(new_var)
-  new_var_str <- if (rlang::quo_is_null(new_var_quo)) grp_var_str else rlang::as_name(new_var_quo)
+  new_var_str <- if (rlang::quo_is_null(new_var_quo)) grp_var_str else resolve_var(new_var_quo)
 
   check_df(data, "data")
   check_varsindf(data, grp_var_str, "data", "grp_var")

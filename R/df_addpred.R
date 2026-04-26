@@ -23,7 +23,7 @@ df_addpred <- function(data,
                        output_var = IPRED,
                        ...){
 
-  output_var_str <- rlang::as_name(rlang::ensym(output_var))
+  output_var_str <- resolve_var(rlang::enquo(output_var))
 
   check_df(data, "data")
   check_mrgmod(model, "model")

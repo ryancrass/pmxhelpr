@@ -32,13 +32,14 @@ df_vpcstats <- function(sim,
                         irep_name = SIM,
                         loq = NULL) {
 
-  strat_var_str   <- capture_col(rlang::enquo(strat_var))
-  bin_var_str  <- rlang::as_name(rlang::ensym(bin_var))
-  sim_dv_var  <- rlang::as_name(rlang::ensym(sim_dv_var))
-  obs_dv_var  <- rlang::as_name(rlang::ensym(obs_dv_var))
-  irep_name   <- rlang::as_name(rlang::ensym(irep_name))
+  strat_var_str <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  bin_var_str   <- resolve_var(rlang::enquo(bin_var))
+  sim_dv_var    <- resolve_var(rlang::enquo(sim_dv_var))
+  obs_dv_var    <- resolve_var(rlang::enquo(obs_dv_var))
+  irep_name     <- resolve_var(rlang::enquo(irep_name))
 
-  group_vars <- c(bin_var_str, strat_var_str)
+  group_vars <- c(bin_var_str)
+  if(!is.null(strat_var_str)) group_vars <- c(bin_var_str, strat_var_str)
 
   ## Stage 1: Per-replicate quantiles on simulated data
   stage1 <- sim |>

@@ -50,12 +50,12 @@ test_that("Error if incorrect class for arugmument `data`", {
 
 test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), time_vars = c(TIME = "ATFD")),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), time_vars = c(TIME = "NTFD")),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 test_that("No error if TIME and NTIME variables specified as the same variable in time_vars", {
@@ -65,7 +65,7 @@ test_that("No error if TIME and NTIME variables specified as the same variable i
 
 test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), grp_var = "SUBJID", grp_dv = TRUE),
-               regexp = "argument `grp_var` must be variables in `data`")
+               regexp = "argument `grp_var` must be variable.*in `data`")
 })
 
 test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE", {
@@ -74,7 +74,7 @@ test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "ODV"), dose_var = "DOSEN", dosenorm = TRUE),
-               regexp = "argument `dose_var` must be variables in `data`")
+               regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
@@ -83,7 +83,7 @@ test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FA
 
 test_that("Error if DV variable specified in output_vars does not exist in `data`", {
   expect_error(plot_popgof(data = data_sad_pkfit, output_vars = c(DV = "NONEXIST")),
-               regexp = "must be variables in `data`")
+               regexp = "must be variable.*in `data`")
 })
 
 ##Test NSE Bare Names

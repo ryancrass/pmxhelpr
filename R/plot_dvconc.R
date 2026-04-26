@@ -46,9 +46,9 @@ plot_dvconc <- function(data,
                         theme = NULL,
                         ...){
 
-  dv_var_str  <- rlang::as_name(rlang::ensym(dv_var))
-  idv_var_str <- rlang::as_name(rlang::ensym(idv_var))
-  col_var_str <- capture_col(rlang::enquo(col_var))
+  dv_var_str  <- resolve_var(rlang::enquo(dv_var))
+  idv_var_str <- resolve_var(rlang::enquo(idv_var))
+  col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
   #Checks
   check_df(data, "data")
@@ -77,7 +77,7 @@ plot_dvconc <- function(data,
     plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV))
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV,
-                                               color = !!rlang::sym(col_var_str), group = !!rlang::sym(col_var_str)))
+                                               color = .data[[col_var_str]], group = .data[[col_var_str]]))
   }
 
   plot <- plot +
@@ -111,8 +111,8 @@ plot_dvconc <- function(data,
                                                            alpha = plottheme$alpha_se_linear)
   } else {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                              color = !!rlang::sym(col_var_str),
-                                                              fill = !!rlang::sym(col_var_str)),
+                                                              color = .data[[col_var_str]],
+                                                              fill = .data[[col_var_str]]),
                                                           method = "loess", se = se_loess,
                                                           linewidth = plottheme$linewidth_loess,
                                                           linetype = plottheme$linetype_loess,
@@ -120,8 +120,8 @@ plot_dvconc <- function(data,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                               color = !!rlang::sym(col_var_str),
-                                                               fill = !!rlang::sym(col_var_str)),
+                                                               color = .data[[col_var_str]],
+                                                               fill = .data[[col_var_str]]),
                                                                method = "lm", se = se_linear,
                                                            linewidth = plottheme$linewidth_linear,
                                                            linetype = plottheme$linetype_linear,
@@ -137,7 +137,7 @@ plot_dvconc <- function(data,
                           alpha = plottheme$alpha_point_obs)
   } else {
     plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = !!rlang::sym(col_var_str)),
+      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = .data[[col_var_str]]),
                           shape=plottheme$shape_point_obs,
                           size=plottheme$size_point_obs,
                           alpha = plottheme$alpha_point_obs)

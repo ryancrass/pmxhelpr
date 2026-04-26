@@ -21,16 +21,15 @@ plot_vpc <- function(vpcstats,
                      vpc_theme = NULL,
                      loq = NULL) {
 
-  #NSE Binning and Stratification Variables
-  bin_var   <- rlang::as_name(rlang::ensym(bin_var))
-  strat_var <- capture_col(rlang::enquo(strat_var))
+  bin_var_str   <- resolve_var(rlang::enquo(bin_var))
+  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
 
   ##Set vpc aesthetics and theme
   shown <- list_update(shown, plot_vpc_shown())
   vpc_theme <- list_update(vpc_theme, plot_vpc_theme())
 
   ###Generate Base Plot
-  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
+  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var_str]]))
 
   ## Simulated prediction interval as area
   if (isTRUE(shown$pi_as_area)) {
@@ -99,7 +98,7 @@ plot_vpc <- function(vpcstats,
   if (isTRUE(shown$obs_median)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = obs50),
+        ggplot2::aes(x = .data[[bin_var_str]], y = obs50),
         inherit.aes = FALSE,
         color = vpc_theme$obs_median_color,
         linetype = vpc_theme$obs_median_linetype,
@@ -111,14 +110,14 @@ plot_vpc <- function(vpcstats,
   if (isTRUE(shown$obs_ci)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = obs5),
+        ggplot2::aes(x = .data[[bin_var_str]], y = obs5),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
         linetype = vpc_theme$obs_ci_linetype,
         linewidth = vpc_theme$obs_ci_size
       ) +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = obs95),
+        ggplot2::aes(x = .data[[bin_var_str]], y = obs95),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci_color,
         linetype = vpc_theme$obs_ci_linetype,
@@ -137,9 +136,9 @@ plot_vpc <- function(vpcstats,
   }
 
   ## Faceting by stratification variable
-  if (!is.null(strat_var)) {
+  if (!is.null(strat_var_str)) {
     plot <- plot +
-      ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var]]))
+      ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var_str]]))
   }
 
   return(plot)

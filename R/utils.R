@@ -1,6 +1,17 @@
-capture_col <- function(col_quo) {
-  if (rlang::quo_is_null(col_quo)) return(NULL)
-  rlang::as_name(col_quo)
+resolve_var <- function(quo, nullable = FALSE) {
+  if (rlang::quo_is_null(quo)) return(NULL)
+  expr <- rlang::quo_get_expr(quo)
+  if (is.character(expr)) return(expr)
+  val <- tryCatch(
+    list(value = rlang::eval_tidy(quo), ok = TRUE),
+    error = function(e) list(value = NULL, ok = FALSE)
+  )
+  if (val$ok) {
+    if (is.null(val$value) && nullable) return(NULL)
+    if (is.character(val$value)) return(val$value)
+  }
+  if (is.symbol(expr)) return(as.character(expr))
+  rlang::abort("Column specification must be a name or string")
 }
 
 init_time_vars <- function(time_vars) {
@@ -32,11 +43,11 @@ apply_blq <- function(data, loq, loq_method, extra_vars = NULL) {
                                            TIME > 0 ~ 0.5 * LOQ))
     for(v in extra_vars) {
       data <- data |>
-        dplyr::mutate(!!rlang::sym(v) := dplyr::case_when(
+        dplyr::mutate("{v}" := dplyr::case_when(
           EVID != 0 ~ NA_real_,
           TIME <= 0 ~ 0,
-          !!rlang::sym(v) >= LOQ ~ !!rlang::sym(v),
-          !!rlang::sym(v) < LOQ ~ 0.5 * LOQ))
+          .data[[v]] >= LOQ ~ .data[[v]],
+          .data[[v]] < LOQ ~ 0.5 * LOQ))
     }
   }
 
@@ -47,10 +58,10 @@ apply_blq <- function(data, loq, loq_method, extra_vars = NULL) {
                                            MDV == 1 ~ 0.5 * LOQ))
     for(v in extra_vars) {
       data <- data |>
-        dplyr::mutate(!!rlang::sym(v) := dplyr::case_when(
+        dplyr::mutate("{v}" := dplyr::case_when(
           EVID != 0 ~ NA_real_,
-          !!rlang::sym(v) >= LOQ ~ !!rlang::sym(v),
-          !!rlang::sym(v) < LOQ ~ 0.5 * LOQ))
+          .data[[v]] >= LOQ ~ .data[[v]],
+          .data[[v]] < LOQ ~ 0.5 * LOQ))
     }
   }
 

@@ -85,10 +85,10 @@ plot_dvtime <- function(data,
                         n_breaks = 8,
                         theme = NULL){
 
-  dv_var_str   <- rlang::as_name(rlang::ensym(dv_var))
-  grp_var_str  <- rlang::as_name(rlang::ensym(grp_var))
-  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
-  col_var_str  <- capture_col(rlang::enquo(col_var))
+  dv_var_str   <- resolve_var(rlang::enquo(dv_var))
+  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str <- resolve_var(rlang::enquo(dose_var))
+  col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
   time_vars <- init_time_vars(time_vars)
 
@@ -149,7 +149,7 @@ plot_dvtime <- function(data,
   if(is.null(col_var_str)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV))
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = !!rlang::sym(col_var_str)))
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = .data[[col_var_str]]))
   }
 
   plot <- plot +
@@ -180,7 +180,7 @@ plot_dvtime <- function(data,
                                                          size=plottheme$size_point_obs,
                                                          alpha = plottheme$alpha_point_obs)
   #Connect Observed Data Points within Group
-  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = !!rlang::sym(grp_var_str)),
+  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = .data[[grp_var_str]]),
                                                        linewidth = plottheme$linewidth_obs,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)

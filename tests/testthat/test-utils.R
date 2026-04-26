@@ -79,7 +79,7 @@ test_that("check_varsindf does not error when variable exists in data", {
 
 test_that("check_varsindf errors when variable does not exist", {
   expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "y", "data", "var"),
-               regexp = "must be variables in")
+               regexp = "must be variable")
 })
 
 #####check_factor####
@@ -144,12 +144,26 @@ test_that("check_lm errors on non-lm object", {
                regexp = "must be class `lm`")
 })
 
-#####capture_col####
+#####resolve_var####
 
-test_that("capture_col returns NULL for null quo", {
-  expect_null(pmxhelpr:::capture_col(rlang::quo(NULL)))
+test_that("resolve_var returns NULL for null quo", {
+  expect_null(pmxhelpr:::resolve_var(rlang::quo(NULL)))
 })
 
-test_that("capture_col returns column name string for non-null quo", {
-  expect_equal(pmxhelpr:::capture_col(rlang::quo(DOSE)), "DOSE")
+test_that("resolve_var returns column name string for bare name quo", {
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(DOSE)), "DOSE")
+})
+
+test_that("resolve_var returns string for string literal quo", {
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo("DOSE")), "DOSE")
+})
+
+test_that("resolve_var with nullable returns NULL when value is NULL", {
+  val <- NULL
+  expect_null(pmxhelpr:::resolve_var(rlang::quo(val), nullable = TRUE))
+})
+
+test_that("resolve_var resolves variable containing string", {
+  val <- "DOSE"
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(val)), "DOSE")
 })

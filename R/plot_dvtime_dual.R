@@ -55,26 +55,26 @@ plot_dvtime_dual <- function(data,
                         onelegend = TRUE,
                         theme = NULL){
 
-  dv_var1_str  <- rlang::as_name(rlang::ensym(dv_var1))
-  dv_var2_str  <- rlang::as_name(rlang::ensym(dv_var2))
-  dvid_var_str <- rlang::as_name(rlang::ensym(dvid_var))
-  grp_var_str  <- rlang::as_name(rlang::ensym(grp_var))
-  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
-  col_var_str  <- capture_col(rlang::enquo(col_var))
+  dv_var1_str  <- resolve_var(rlang::enquo(dv_var1))
+  dv_var2_str  <- resolve_var(rlang::enquo(dv_var2))
+  dvid_var_str <- resolve_var(rlang::enquo(dvid_var))
+  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str <- resolve_var(rlang::enquo(dose_var))
+  col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
   data_dv1 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val1)
   data_dv2 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val2)
   if(nrow(data_dv1) == 0) {rlang::abort(message = paste0("No rows in `data` where `", dvid_var_str, "` == ", dvid_val1))}
   if(nrow(data_dv2) == 0) {rlang::abort(message = paste0("No rows in `data` where `", dvid_var_str, "` == ", dvid_val2))}
 
-  plot_dv1 <- rlang::inject(pmxhelpr::plot_dvtime(
+  plot_dv1 <- pmxhelpr::plot_dvtime(
     data = data_dv1,
-    dv_var = !!dv_var1_str,
+    dv_var = dv_var1_str,
     time_vars = time_vars,
     timeu = timeu,
-    col_var = !!col_var_str,
-    grp_var = !!grp_var_str,
-    dose_var = !!dose_var_str,
+    col_var = col_var_str,
+    grp_var = grp_var_str,
+    dose_var = dose_var_str,
     loq = loq,
     loq_method = loq_method,
     cent = cent,
@@ -87,16 +87,16 @@ plot_dvtime_dual <- function(data,
     show_caption = show_caption1,
     n_breaks = n_breaks,
     theme = theme
-  ))
+  )
 
-  plot_dv2 <- rlang::inject(pmxhelpr::plot_dvtime(
+  plot_dv2 <- pmxhelpr::plot_dvtime(
     data = data_dv2,
-    dv_var = !!dv_var2_str,
+    dv_var = dv_var2_str,
     time_vars = time_vars,
     timeu = timeu,
-    col_var = !!col_var_str,
-    grp_var = !!grp_var_str,
-    dose_var = !!dose_var_str,
+    col_var = col_var_str,
+    grp_var = grp_var_str,
+    dose_var = dose_var_str,
     loq_method = 0,
     cent = cent,
     obs_dv = obs_dv,
@@ -109,7 +109,7 @@ plot_dvtime_dual <- function(data,
     show_caption = show_caption2,
     n_breaks = n_breaks,
     theme = theme
-  ))
+  )
 
   plot <- patchwork::wrap_plots(plot_dv1, plot_dv2) + patchwork::plot_layout(ncol = 1, nrow = 2)
   if(onelegend == TRUE) {plot <- plot + patchwork::plot_layout(guides = "collect")}

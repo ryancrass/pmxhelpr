@@ -83,9 +83,8 @@ plot_vpc_exactbins <- function(sim,
                                vpcstats = FALSE)
 {
 
-  #NSE Stratification and Replicate Variables
-  strat_var_str  <- capture_col(rlang::enquo(strat_var))
-  irep_name_str  <- rlang::as_name(rlang::ensym(irep_name))
+  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
 
   #Define Time and Output Variables
   time_vars <- init_time_vars(time_vars)
@@ -102,9 +101,9 @@ plot_vpc_exactbins <- function(sim,
   check_varsindf(sim, output_vars[["SIMDV"]], "sim", "output_vars")
   check_varsindf(sim, output_vars[["OBSDV"]], "sim", "output_vars")
   check_varsindf(sim, "MDV", "sim", "MDV")
-  check_varsindf(sim, strat_var_str, "sim", "strat_var")
-  check_varsindf(sim, irep_name_str, "sim", "irep_name")
+  if(!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
   if(!is.null(strat_var_str)) {check_factor(sim, strat_var_str, "strat_var")}
+  check_varsindf(sim, irep_name_str, "sim", "irep_name")
   if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
 
   #Rename Output and Time Variables to Standard Names
@@ -114,7 +113,7 @@ plot_vpc_exactbins <- function(sim,
   if(isTRUE(pcvpc)) {
     sim <- sim |>
       dplyr::filter(MDV == 0) |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", strat_var_str, "CMT")))) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", "CMT", strat_var_str)))) |>
       dplyr::mutate(DV = var_pc(OBSDV, PRED, lower_bound),
                     DVS = var_pc(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
@@ -129,16 +128,16 @@ plot_vpc_exactbins <- function(sim,
     dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
 
   ##Compute VPC Statistics
-  vpcstat <- rlang::inject(df_vpcstats(
+  vpcstat <- df_vpcstats(
     sim = sim,
     pi = pi,
     ci = ci,
     strat_var = !!strat_var_str,
-    sim_dv_var = DVS,
-    obs_dv_var = DV,
-    irep_name = !!irep_name_str,
+    sim_dv_var = "DVS",
+    obs_dv_var = "DV",
+    irep_name = irep_name_str,
     loq = loq
-  ))
+  )
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {
@@ -153,13 +152,13 @@ plot_vpc_exactbins <- function(sim,
   xbreaks <- breaks_time(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
-  plot <- rlang::inject(plot_vpc(
+  plot <- plot_vpc(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
-    strat_var = !!strat_var_str,
+    strat_var = strat_var_str,
     shown = show_vpc,
     vpc_theme = vpctheme,
     loq = loq
-  ))
+  )
 
   ##Overlay Observations if Requested
   if(isTRUE(show_vpc$obs_dv)){

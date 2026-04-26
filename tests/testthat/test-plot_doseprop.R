@@ -15,12 +15,12 @@ test_that("Error if argument `data` is not a `data.frame`", {
 
 test_that("Error if variable specified in argument `exp_var` is not in `data`", {
   expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), exp_var = "param"),
-               regexp = "argument `exp_var` must be variables in `data`")
+               regexp = "argument `exp_var` must be variable.*in `data`")
 })
 
 test_that("Error if variable specified in argument `dose_var` is not in `data`", {
   expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variables in `data`")
+               regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
 
@@ -136,12 +136,12 @@ test_that("Error if variables specified in argument `metrics` are not levels in 
 
 test_that("Error if variable specified in `metric_var` is not in `data`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "METRIC"),
-               regexp = "argument `metric_var` must be variables in `data`")
+               regexp = "argument `metric_var` must be variable.*in `data`")
 })
 
 test_that("Error if variable specified in `dose_var` is not in `data`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variables in `data`")
+               regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
 test_that("Error if argument `method` is not one of normal or tdist", {

@@ -67,14 +67,14 @@ test_that("Error if TIME variable specified in time_vars does not exist in `data
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 1,
                                    dv_var = "ODV", time_vars = c(TIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+               regexp = "argument `time_vars` must be variable.*in `data`")
 })
 
 test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
                                    time_vars = c(NTIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+               regexp = "argument `time_vars` must be variable.*in `data`")
 })
 
 test_that("No error if TIME and NTIME variables are specified as the same variable in time_vars", {
@@ -86,7 +86,7 @@ test_that("No error if TIME and NTIME variables are specified as the same variab
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "DV"),
-               regexp = "argument `dv_var` must be variables in `data`")
+               regexp = "argument `dv_var` must be variable.*in `data`")
 })
 
 test_that("Error if variables specified by num_vars do not exist in `data`", {
@@ -99,7 +99,7 @@ test_that("Error if variables specified by char_vars do not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
                                    char_vars = "test"),
-               regexp = "argument `char_vars` must be variables in `data`")
+               regexp = "argument `char_vars` must be variable.*in `data`")
 })
 
 test_that("Same seed produces identical output", {

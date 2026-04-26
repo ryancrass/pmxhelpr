@@ -2,10 +2,12 @@
 
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
-  expect_s3_class(plot_vpc_exactbins(sim = df_mrgsim_replicate(data=data_sad,model=model_mread_load("pkmodel"),
-                                                            replicates = 10,
-                                                            dv_var = "ODV")),
-               class = "ggplot")
+    sim <- df_mrgsim_replicate(data=data_sad,model=model_mread_load("pkmodel"),
+                        replicates = 10,
+                        dv_var = "ODV")
+    expect_s3_class(sim, class = "data.frame")
+    plot <- plot_vpc_exactbins(sim = sim)
+    expect_s3_class(plot, class = "ggplot")
 })
 
 test_that("Output plot contains a caption with number of replicates by default", {
@@ -47,7 +49,7 @@ test_that("Error if TIME variable specified in time_vars does not exist in `sim`
 
   expect_error(
     plot_vpc_exactbins(sim = testsim,time_vars = c(TIME = "ATFD")),
-    regexp = "must be variables in `sim`"
+    regexp = "must be variable.*in `sim`"
     )
 })
 
@@ -59,7 +61,7 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
 
   expect_error(
     plot_vpc_exactbins(sim = testsim,time_vars = c(NTIME = "NTFD")),
-    regexp = "must be variables in `sim`"
+    regexp = "must be variable.*in `sim`"
   )
 })
 
@@ -82,7 +84,7 @@ test_that("Error if PRED variable specified in output_vars does not exist in `si
 
   expect_error(
     plot_vpc_exactbins(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = TRUE),
-    regexp = "must be variables in `sim`"
+    regexp = "must be variable.*in `sim`"
   )
 })
 
@@ -105,7 +107,7 @@ test_that("Error if SIMDV variable specified in output_vars does not exist in `s
 
   expect_error(
     plot_vpc_exactbins(sim = testsim,output_vars = c(SIMDV = "DVSIM")),
-    regexp = "must be variables in `sim`"
+    regexp = "must be variable.*in `sim`"
   )
 })
 
@@ -117,7 +119,7 @@ test_that("Error if OBSDV variable specified in output_vars does not exist in `s
 
   expect_error(
     plot_vpc_exactbins(sim = testsim,output_vars = c(OBSDV = "DV")),
-    regexp = "must be variables in `sim`"
+    regexp = "must be variable.*in `sim`"
   )
 })
 
@@ -142,7 +144,7 @@ test_that("Error if variable specified by `strat_var` does not exist in `sim`", 
 
   expect_error(
     plot_vpc_exactbins(sim = testsim, strat_var = "FOOD_f"),
-    regexp = "argument `strat_var` must be variables in `sim`"
+    regexp = "argument `strat_var` must be variable.*in `sim`"
   )
 })
 
@@ -154,7 +156,7 @@ test_that("Error if variable specified by `irep_name` does not exist in `sim`", 
 
   expect_error(
     plot_vpc_exactbins(sim = testsim, irep_name = "IREP"),
-    regexp = "argument `irep_name` must be variables in `sim`"
+    regexp = "argument `irep_name` must be variable.*in `sim`"
   )
 })
 
@@ -184,12 +186,12 @@ test_that("plot_vpc accepts bare strat_var and matches string output", {
                                  replicates = 10,
                                  dv_var = "ODV",
                                  char_vars = "FOOD")
-  testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
-  vpcstat <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE)
-
-  p1 <- plot_vpc(vpcstat,strat_var = FOOD_f)
-  p2 <- plot_vpc(vpcstat,strat_var = "FOOD_f")
-  expect_identical(p1, p2)
+  d1 <- df_vpcstats(sim = testsim, strat_var = FOOD)
+  d2 <- df_vpcstats(sim = testsim, strat_var = "FOOD")
+  expect_identical(d1, d2)
+  p1 <- plot_vpc(d1, bin_var = NTIME, strat_var = FOOD)
+  p2 <- plot_vpc(d2, bin_var = "NTIME", strat_var = "FOOD")
+  expect_identical(ggplot2::ggplot_build(p1)$data, ggplot2::ggplot_build(p2)$data)
 })
 
 ##Test PC-VPC correctness

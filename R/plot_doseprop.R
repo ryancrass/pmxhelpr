@@ -22,8 +22,8 @@ mod_loglog <- function(data,
                        exp_var = PPORRES,
                        dose_var = DOSE) {
 
-  exp_var_str  <- rlang::as_name(rlang::ensym(exp_var))
-  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
+  exp_var_str  <- resolve_var(rlang::enquo(exp_var))
+  dose_var_str <- resolve_var(rlang::enquo(dose_var))
 
   check_df(data, "data")
   check_varsindf(data, exp_var_str, "data", "exp_var")
@@ -115,9 +115,9 @@ df_doseprop <- function(data,
                         ci = 0.90,
                         sigdigits=3) {
 
-  metric_var_str <- rlang::as_name(rlang::ensym(metric_var))
-  exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
-  dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
+  metric_var_str <- resolve_var(rlang::enquo(metric_var))
+  exp_var_str    <- resolve_var(rlang::enquo(exp_var))
+  dose_var_str   <- resolve_var(rlang::enquo(dose_var))
 
   check_df(data, "data")
   check_varsindf(data, metric_var_str, "data", "metric_var")
@@ -127,7 +127,7 @@ df_doseprop <- function(data,
 
   tab_list <- lapply(metrics, function(m) {
     dat_m <- dplyr::filter(data, .data[[metric_var_str]] == m)
-    fit   <- rlang::inject(mod_loglog(dat_m, exp_var = !!exp_var_str, dose_var = !!dose_var_str))
+    fit   <- mod_loglog(dat_m, exp_var = exp_var_str, dose_var = dose_var_str)
     tab   <- df_loglog(fit, method, ci, sigdigits)
     tab[[metric_var_str]] <- m
     tab
@@ -161,9 +161,9 @@ plot_doseprop <- function(data,
                           sigdigits=3,
                           se = TRUE) {
 
-  metric_var_str <- rlang::as_name(rlang::ensym(metric_var))
-  exp_var_str    <- rlang::as_name(rlang::ensym(exp_var))
-  dose_var_str   <- rlang::as_name(rlang::ensym(dose_var))
+  metric_var_str <- resolve_var(rlang::enquo(metric_var))
+  exp_var_str    <- resolve_var(rlang::enquo(exp_var))
+  dose_var_str   <- resolve_var(rlang::enquo(dose_var))
 
   check_df(data, "data")
   check_varsindf(data, metric_var_str, "data", "metric_var")
@@ -172,15 +172,15 @@ plot_doseprop <- function(data,
   check_loglog_args(method, ci, sigdigits)
 
   dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
-  tab <- rlang::inject(df_doseprop(data, metrics,
-                     metric_var = !!metric_var_str, exp_var = !!exp_var_str,
-                     dose_var = !!dose_var_str, method, ci, sigdigits)) |>
+  tab <- df_doseprop(data, metrics,
+                     metric_var = metric_var_str, exp_var = exp_var_str,
+                     dose_var = dose_var_str, method, ci, sigdigits) |>
     dplyr::mutate(label = paste0(.data[[metric_var_str]], " | ", PowerCI))
 
   plot_data <- dplyr::left_join(dat, tab, by = metric_var_str)
 
   plot <-
-  ggplot2::ggplot(data = plot_data, ggplot2::aes(x = !!rlang::sym(dose_var_str), y = !!rlang::sym(exp_var_str))) +
+  ggplot2::ggplot(data = plot_data, ggplot2::aes(x = .data[[dose_var_str]], y = .data[[exp_var_str]])) +
     ggplot2::geom_point() +
     ggplot2::geom_smooth(method = "lm", formula = y~x, se = se, level = ci) +
     ggplot2::labs(x = "Dose", y = "Exposure")+

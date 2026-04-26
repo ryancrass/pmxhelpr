@@ -21,7 +21,7 @@ df_nobsbin <- function(data,
                        bin_var = NTIME,
                        strat_vars = NULL){
 
-  bin_var_str <- rlang::as_name(rlang::ensym(bin_var))
+  bin_var_str <- resolve_var(rlang::enquo(bin_var))
 
   check_df(data, "data")
   check_varsindf(data, bin_var_str, "data", "bin_var")

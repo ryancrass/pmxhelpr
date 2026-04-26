@@ -53,8 +53,8 @@ df_mrgsim_replicate <- function(data,
                     seed = 123456789,
                     ...) {
 
-  dv_var_str    <- rlang::as_name(rlang::ensym(dv_var))
-  irep_name_str <- rlang::as_name(rlang::ensym(irep_name))
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var))
+  irep_name_str <- resolve_var(rlang::enquo(irep_name))
 
   ##Update Defaults to time_vars and output_vars
   time_vars <- init_time_vars(time_vars)
@@ -80,7 +80,7 @@ df_mrgsim_replicate <- function(data,
   #Handle Time Variables
   data <- rename_time_vars(data, time_vars)
 
-  data <- rlang::inject(df_addpred(data, model, output_var = !!output_vars[["IPRED"]]))
+  data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
 
   ##Run Simulation
   withr::with_seed(seed = seed,
@@ -96,7 +96,7 @@ df_mrgsim_replicate <- function(data,
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
-                         dplyr::mutate(!!irep_name_str := rep) |>
+                         dplyr::mutate("{irep_name_str}" := rep) |>
                          dplyr::rename(dplyr::any_of(c(PRED = output_vars[["PRED"]],
                                                        IPRED = output_vars[["IPRED"]],
                                                        SIMDV = output_vars[["DV"]]))) |>

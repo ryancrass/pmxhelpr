@@ -50,8 +50,8 @@ plot_popgof <- function(data,
                         theme = NULL){
 
 
-  grp_var_str  <- rlang::as_name(rlang::ensym(grp_var))
-  dose_var_str <- rlang::as_name(rlang::ensym(dose_var))
+  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str <- resolve_var(rlang::enquo(dose_var))
 
   ##Update Defaults to time_vars and output_vars
   time_vars <- init_time_vars(time_vars)
@@ -136,7 +136,7 @@ plot_popgof <- function(data,
                                                          alpha = plottheme$alpha_point_obs)
   #Connect Observed Data Points within Group
   if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, color = "OBS",
-                                                                    group = !!rlang::sym(grp_var_str)),
+                                                                    group = .data[[grp_var_str]]),
                                                        linewidth = plottheme$linewidth_obs,
                                                        linetype = plottheme$linetype_obs,
                                                        alpha = plottheme$alpha_line_obs)

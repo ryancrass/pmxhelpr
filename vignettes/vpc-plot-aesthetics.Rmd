@@ -69,7 +69,7 @@ The default elements shown in the plot are controlled by the `shown` argument in
 The default is as follows:
 
 ```{r vpc-plot-shown}
-vpc_show_defaults
+plot_vpc_shown()
 ```
 
 The components of the list correspond to the following vpc plot elements:

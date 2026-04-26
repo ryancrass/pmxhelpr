@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_vpc_exactbins.R
 \name{plot_vpc_theme}
 \alias{plot_vpc_theme}
-\title{Customized VPC theme with pmxhelpr default aesthetics}
+\title{VPC theme with pmxhelpr default aesthetics}
 \usage{
 plot_vpc_theme(update = NULL)
 }
@@ -14,7 +14,7 @@ Run \code{plot_vpc_theme()} with no arguments to view defaults.}
 a \code{list}with vpc theme specifiers
 }
 \description{
-Customized VPC theme with pmxhelpr default aesthetics
+VPC theme with pmxhelpr default aesthetics
 }
 \examples{
 plot_vpc_theme()

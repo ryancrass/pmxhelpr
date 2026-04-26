@@ -25,7 +25,7 @@ plot_vpc <- function(vpcstats,
   strat_var <- capture_col(rlang::enquo(strat_var))
 
   ##Set vpc aesthetics and theme
-  shown <- list_update(shown, vpc_show_defaults)
+  shown <- list_update(shown, plot_vpc_shown())
   vpc_theme <- list_update(vpc_theme, plot_vpc_theme())
 
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))

@@ -31,10 +31,10 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
   #aesthetics for legend based on settings in plot_vpc_theme
   new_vpc_theme_list <- plot_vpc_theme()
   attr(new_vpc_theme_list, "class") <- NULL
-  plist <- list_update(update,new_vpc_theme_list)
+  plist <- list_update(update, new_vpc_theme_list)
 
   #shown elements for legend based on settings in plot_vpc_exactbins
-  nlist <- list_update(shown, vpc_show_defaults)
+  nlist <- list_update(shown, plot_vpc_shown())
   lloq_lab <- as.character(lloq)
   obs <- "Obs"
   obs_cent <- "Obs Med"

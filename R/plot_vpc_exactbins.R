@@ -144,7 +144,7 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Set vpc aesthetics and theme
-  show_vpc <- list_update(shown, vpc_show_defaults)
+  show_vpc <- list_update(shown, plot_vpc_shown())
   vpctheme <- list_update(vpc_theme, plot_vpc_theme())
 
   #Determine breaks
@@ -198,7 +198,7 @@ plot_vpc_exactbins <- function(sim,
 
 
 
-#' Customized VPC theme with pmxhelpr default aesthetics
+#' VPC theme with pmxhelpr default aesthetics
 #'
 #' @param update list containing the plot elements to be updated.
 #'    Run `plot_vpc_theme()` with no arguments to view defaults.
@@ -209,3 +209,23 @@ plot_vpc_exactbins <- function(sim,
 #' plot_vpc_theme()
 
 plot_vpc_theme <- function(update = NULL) list_update(update, .vpc_defaults)
+
+
+
+
+
+#' Default VPC show layer settings
+#'
+#' @param update list containing the plot elements to be updated.
+#'    Run `plot_vpc_shown()` with no arguments to view defaults.
+#' @return a `list`with vpc shown specifiers
+#' @export plot_vpc_shown
+#'
+#' @examples
+#' plot_vpc_shown()
+
+plot_vpc_shown <- function(update = NULL) list_update(update, .vpc_shown_defaults)
+
+
+
+

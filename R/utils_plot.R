@@ -1,30 +1,4 @@
 
-#' Default VPC show layer settings
-#'
-#' @description A named list of logicals specifying which VPC plot layers to display by default.
-#'
-#' @format A named list with elements:
-#' \describe{
-#'   \item{obs_dv}{Show observed data points. Default `TRUE`.}
-#'   \item{obs_ci}{Show observed quantile lines. Default `TRUE`.}
-#'   \item{pi}{Show simulated prediction interval lines. Default `FALSE`.}
-#'   \item{pi_as_area}{Show simulated prediction interval as shaded area. Default `FALSE`.}
-#'   \item{pi_ci}{Show simulated quantile CI ribbons. Default `TRUE`.}
-#'   \item{obs_median}{Show observed median line. Default `TRUE`.}
-#'   \item{sim_median}{Show simulated median line. Default `FALSE`.}
-#'   \item{sim_median_ci}{Show simulated median CI ribbon. Default `TRUE`.}
-#' }
-#'
-#' @export
-#'
-#' @examples
-#' vpc_show_defaults
-vpc_show_defaults <- list(obs_dv = TRUE, obs_ci = TRUE,
-       pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
-       obs_median = TRUE, sim_median = FALSE, sim_median_ci = TRUE)
-
-
-
 # Full default theme lists for each plot type
 .dvtime_defaults <- list(
   linewidth_ref = 0.5,
@@ -116,6 +90,17 @@ vpc_show_defaults <- list(obs_dv = TRUE, obs_ci = TRUE,
   bin_separators_color = "#000000",
   loq_color = "#990000"
 )
+
+.vpc_shown_defaults <- list(
+  obs_dv = TRUE,
+  obs_ci = TRUE,
+  pi = FALSE,
+  pi_as_area = FALSE,
+  pi_ci = TRUE,
+  obs_median = TRUE,
+  sim_median = FALSE,
+  sim_median_ci = TRUE)
+
 
 # Internal helper: build aes for central tendency layers
 build_cent_aes <- function(y_var, color_aes = NULL) {

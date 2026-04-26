@@ -10,9 +10,9 @@
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'    Specifying this argument implies that the observed variable`OBSDV` is missing (`NA`)
 #'    and `MDV = 1` where < `loq` in `sim`.
-#'    When non-NULL and `pcvpc = FALSE`, all `MDV` values are set to 0 so that
-#'    all observations (including BLQ-flagged rows) are included in summary statistics.
-#'    Dashed horizontal line plotted.
+#'    For standard VPCs (`pcvpc = FALSE`), all `MDV` values are set to 0 so that
+#'    all observations (including BLQ) are included in summary statistics.
+#'    Dashed horizontal line plotted at `loq` by default (controlled via `vpc_theme`).
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
@@ -81,11 +81,11 @@ plot_vpc_exactbins <- function(sim,
                                vpcstats = FALSE)
 {
 
-  #Define String Constrats
+  #NSE Stratification and Replicate Variables
   strat_var_str  <- capture_col(rlang::enquo(strat_var))
   irep_name_str  <- rlang::as_name(rlang::ensym(irep_name))
 
-  #Update Lists
+  #Define Time and Output Variables
   time_vars <- init_time_vars(time_vars)
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",

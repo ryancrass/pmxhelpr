@@ -21,6 +21,7 @@ plot_vpc <- function(vpcstats,
                      vpc_theme = NULL,
                      loq = NULL) {
 
+  #NSE Binning and Stratification Variables
   bin_var   <- rlang::as_name(rlang::ensym(bin_var))
   strat_var <- capture_col(rlang::enquo(strat_var))
 
@@ -28,6 +29,7 @@ plot_vpc <- function(vpcstats,
   shown <- list_update(shown, plot_vpc_shown())
   vpc_theme <- list_update(vpc_theme, plot_vpc_theme())
 
+  ###Generate Base Plot
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
@@ -130,7 +132,7 @@ plot_vpc <- function(vpcstats,
       ggplot2::geom_hline(
         yintercept = loq,
         color = vpc_theme$loq_color,
-        linetype = "dashed"
+        linetype = vpc_theme$loq_linetype
       )
   }
 

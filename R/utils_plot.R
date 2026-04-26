@@ -88,7 +88,8 @@
   sim_median_linetype = "dashed",
   sim_median_size = 1,
   bin_separators_color = "#000000",
-  loq_color = "#990000"
+  loq_color = "#990000",
+  loq_linetype = "dashed"
 )
 
 .vpc_shown_defaults <- list(

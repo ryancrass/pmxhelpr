@@ -147,7 +147,7 @@ plot_vpc_exactbins <- function(sim,
   show_vpc <- list_update(shown, plot_vpc_shown())
   vpctheme <- list_update(vpc_theme, plot_vpc_theme())
 
-  #Determine breaks
+  #Determine Breaks
   xbreaks <- breaks_time(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
@@ -177,12 +177,10 @@ plot_vpc_exactbins <- function(sim,
       ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name_str]])))
   }
 
-  ##Add x-axis breaks
-  plot <- plot +
-    ggplot2::scale_x_continuous(breaks = xbreaks)
 
-  ##Apply theme panel elements and labels
+  ##Apply x-axis breaks, theme panel elements, and default labels
   plot <- plot +
+    ggplot2::scale_x_continuous(breaks = xbreaks) +
     ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white",
                                                    linewidth = 0.5,
                                                    color = "black"),

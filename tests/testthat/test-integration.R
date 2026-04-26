@@ -7,13 +7,16 @@ test_that("df_addn -> plot_dvtime: factor col_var from df_addn is accepted", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("df_addpred -> df_pcdv: prediction-corrected DV pipeline produces valid output", {
+test_that("df_addpred -> plot_vpc_exactbins: prediction-corrected DV pipeline produces valid output", {
   model <- model_mread_load("pkmodel")
   data_pred <- df_addpred(data_sad, model)
-  pcdv <- df_pcdv(data_pred, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
-  expect_s3_class(pcdv, "data.frame")
-  expect_true("PCDV" %in% colnames(pcdv))
-  expect_equal(nrow(pcdv), nrow(data_pred))
+  expect_s3_class(data_pred, "data.frame")
+  sim <- df_mrgsim_replicate(data = data_sad, model = model,
+                             replicates = 1, dv_var = "ODV")
+  expect_s3_class(sim, "data.frame")
+  expect_equal(nrow(data_pred), nrow(sim))
+  p <- plot_vpc_exactbins(sim = sim, pcvpc = TRUE)
+  expect_s3_class(p, "ggplot")
 })
 
 test_that("df_addn -> plot_dvconc: factor col_var works in dvconc with col_trend", {

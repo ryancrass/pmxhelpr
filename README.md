@@ -61,8 +61,9 @@ Functions in this package use the following naming conventions:
     VPC plot generated using `plot_vpc_exactbins`
 - Plot theme lists
   - `plot_dvconc_theme()`, `plot_dvtime_theme()`, `plot_popgof_theme()`,
-    and `plot_vpc_theme()` return a named `list` with elements of
-    modifiable elements of the plot theme
+    `plot_vpc_theme()`, and `plot_vpc_shown()` return a named `list`
+    with elements of modifiable elements of the plot theme or elements
+    shown.
 - Data sets
   - `data_sad` a dataset for a single ascending dose (SAD) study with
     parallel food effect cohort formatted for non-linear mixed effects

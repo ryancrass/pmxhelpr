@@ -53,10 +53,10 @@ Functions in this package use the following naming conventions:
   + `plot_vpclegend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
   
 * Plot theme lists
-  + `plot_dvconc_theme()`, `plot_dvtime_theme()`, `plot_popgof_theme()`, and `plot_vpc_theme()` return a named `list` with elements of modifiable elements of the plot theme
+  + `plot_dvconc_theme()`, `plot_dvtime_theme()`, `plot_popgof_theme()`, `plot_vpc_theme()`, and `plot_vpc_shown()` return a named `list` with elements of modifiable elements of the plot theme or  elements shown.
   
 * Data sets
-  + `data_sad` a dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling
+  + `data_sad` a  dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling
   + `data_sad_nca` a dataset containing PK parameters derived using non-compartmental analysis (NCA)
   + `data_sad_pkfit` a dataset consistent with `data_sad` including individual (IPRED) and population (PRED) PK model predictions
 

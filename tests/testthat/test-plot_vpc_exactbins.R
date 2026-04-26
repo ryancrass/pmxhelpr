@@ -165,14 +165,6 @@ test_that("df_nobsbin accepts bare names and matches string output", {
   expect_identical(n1, n2)
 })
 
-test_that("df_pcdv accepts bare names and matches string output", {
-  model <- model_mread_load(model = "pkmodel")
-  data_pred <- df_addpred(data_sad, model)
-  p1 <- df_pcdv(data_pred, bin_var = NTIME, dvpred_vars = c(DV = "ODV", PRED = "PRED"))
-  p2 <- df_pcdv(data_pred, bin_var = "NTIME", dvpred_vars = c(DV = "ODV", PRED = "PRED"))
-  expect_identical(p1, p2)
-})
-
 test_that("df_vpcstats accepts bare names and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),

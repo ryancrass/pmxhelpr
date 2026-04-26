@@ -17,7 +17,10 @@
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
+#' @param lower_bound Lower bound of the dependent variable for prediction correction. Default is `0`.
+#'
 #' @param shown Named list of logicals specifying which layers to include on the plot.
+#'    Defaults can be obtained by calling `plot_vpc_shown()` with no arguments.
 #'
 #'    Defaults are:
 #'    + Observed points: `obs_dv` = TRUE.
@@ -36,7 +39,6 @@
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param vpcstats Logical. If `TRUE`, return a list of computed VPC statistics instead of a plot. Default is `FALSE`.
 #'
-#' @inheritParams df_pcdv
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_dvtime
 #'

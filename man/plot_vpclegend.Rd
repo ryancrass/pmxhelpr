@@ -19,6 +19,7 @@ plot_vpclegend(
 \item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_exactbins]{plot_vpc_exactbins()}}. Default is c(0.05, 0.95).}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot.
+Defaults can be obtained by calling \code{plot_vpc_shown()} with no arguments.
 
 Defaults are:
 \itemize{

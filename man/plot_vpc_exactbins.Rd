@@ -41,9 +41,9 @@ Accepts bare names or strings. Currently, only a single stratifying variable is 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 Specifying this argument implies that the observed variable\code{OBSDV} is missing (\code{NA})
 and \code{MDV = 1} where < \code{loq} in \code{sim}.
-When non-NULL and \code{pcvpc = FALSE}, all \code{MDV} values are set to 0 so that
-all observations (including BLQ-flagged rows) are included in summary statistics.
-Dashed horizontal line plotted.}
+For standard VPCs (\code{pcvpc = FALSE}), all \code{MDV} values are set to 0 so that
+all observations (including BLQ) are included in summary statistics.
+Dashed horizontal line plotted at \code{loq} by default (controlled via \code{vpc_theme}).}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -56,6 +56,7 @@ but retains these observations in the observed data points.}
 \item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot.
+Defaults can be obtained by calling \code{plot_vpc_shown()} with no arguments.
 
 Defaults are:
 \itemize{

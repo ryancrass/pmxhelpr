@@ -156,9 +156,9 @@ print(pmxhelpr_theme_list)
 
 ## Adjusting Aesthetics
 
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing a named list of elements to update to the function `plot_vpc_theme()`. The named list object generated from this function can then be passed to the `theme` argument in `plot_vpc_exactbins`.
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing element overrides to `plot_vpc_theme()`. The theme object generated from this function can then be passed to the `vpc_theme` argument in `plot_vpc_exactbins`.
 
-Let's say we prefer a grey-blue color scheme. We can customize it by passing a named list to `plot_vpc_theme()`:
+Let's say we prefer a grey-blue color scheme. We can customize it by passing element constructors to `plot_vpc_theme()`:
 
 ```{r plot-vpc-customtheme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_customtheme <- plot_vpc_exactbins(
@@ -166,11 +166,11 @@ vpc_pc_customtheme <- plot_vpc_exactbins(
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
-  vpc_theme = plot_vpc_theme(update = list(obs_color = "#000000",
-                                       obs_median_color = "#000000",
-                                       obs_ci_color = "#000000",
-                                       sim_median_fill = "#3388cc",
-                                       sim_pi_fill = "#3388cc")),
+  vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),
+                            obs_median = pmx_vpc_line(color = "#000000"),
+                            obs_ci = pmx_vpc_line(color = "#000000"),
+                            sim_median = pmx_vpc_ribbon(fill = "#3388cc"),
+                            sim_pi = pmx_vpc_ribbon(fill = "#3388cc")),
   min_bin_count = 5
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
@@ -189,11 +189,11 @@ vpc_pc_xgrid <- plot_vpc_exactbins(
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   pcvpc = TRUE,
   min_bin_count = 5,
-  vpc_theme = plot_vpc_theme(update = list(obs_color = "#000000",
-                                       obs_median_color = "#000000",
-                                       obs_ci_color = "#000000",
-                                       sim_median_fill = "#3388cc",
-                                       sim_pi_fill = "#3388cc"))
+  vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),
+                            obs_median = pmx_vpc_line(color = "#000000"),
+                            obs_ci = pmx_vpc_line(color = "#000000"),
+                            sim_median = pmx_vpc_ribbon(fill = "#3388cc"),
+                            sim_pi = pmx_vpc_ribbon(fill = "#3388cc"))
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks") +

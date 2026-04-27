@@ -108,7 +108,7 @@ plot_vpc_exactbins <- function(sim,
 
   ##Set vpc aesthetics and theme
   show_vpc <- list_update(shown, plot_vpc_shown())
-  vpctheme <- list_update(vpc_theme, plot_vpc_theme())
+  vpctheme <- merge_theme(vpc_theme, plot_vpc_theme())
 
   #Determine Breaks
   xbreaks <- var_timebreaks(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
@@ -127,10 +127,10 @@ plot_vpc_exactbins <- function(sim,
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME),
                           data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs_shape,
-                          alpha = vpctheme$obs_alpha,
-                          size = vpctheme$obs_size,
-                          color = vpctheme$obs_color)
+                          shape = vpctheme$obs$shape,
+                          alpha = vpctheme$obs$alpha,
+                          size = vpctheme$obs$size,
+                          color = vpctheme$obs$color)
   }
 
 
@@ -159,21 +159,20 @@ plot_vpc_exactbins <- function(sim,
 
 
 
-#' VPC theme with pmxhelpr default aesthetics
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_vpc_theme()` with no arguments to view defaults.
-#' @return a `list`with vpc theme specifiers
-#' @export plot_vpc_theme
-#'
-#' @examples
-#' plot_vpc_theme()
-
-plot_vpc_theme <- function(update = NULL) list_update(update, .vpc_defaults)
 
 
 
 
+
+.vpc_shown_defaults <- list(
+  obs_dv = TRUE,
+  obs_ci = TRUE,
+  pi = FALSE,
+  pi_as_area = FALSE,
+  pi_ci = TRUE,
+  obs_median = TRUE,
+  sim_median = FALSE,
+  sim_median_ci = TRUE)
 
 #' Default VPC show layer settings
 #'

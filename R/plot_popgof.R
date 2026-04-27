@@ -10,9 +10,9 @@
 #'
 #' @inheritParams df_mrgsim_replicate
 #' @inheritParams plot_dvtime
-#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#' @param theme Theme object created by [plot_popgof_theme()].
 #'    Defaults can be viewed by running `plot_popgof_theme()` with no arguments.
-#'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
+#'    Default error bar width is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'
@@ -94,9 +94,9 @@ plot_popgof <- function(data,
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$linewidth_ref,
-                                                     linetype = plottheme$linetype_ref,
-                                                     alpha = plottheme$alpha_line_ref)
+                                                     linewidth = plottheme$ref$linewidth,
+                                                     linetype = plottheme$ref$linetype,
+                                                     alpha = plottheme$ref$alpha)
 
   blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = FALSE)
   plot <- blq$plot
@@ -106,7 +106,7 @@ plot_popgof <- function(data,
   plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = "OBS")
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers(plot, cent, "DV",    plottheme, width, color_aes = "DV",    line_prefix = "dv")
+  plot <- add_cent_layers(plot, cent, "DV",    plottheme, width, color_aes = "DV",    line_element = plottheme$dv_line)
   plot <- add_cent_layers(plot, cent, "IPRED", plottheme, width, color_aes = "IPRED", show_errorbars = FALSE)
   plot <- add_cent_layers(plot, cent, "PRED",  plottheme, width, color_aes = "PRED",  show_errorbars = FALSE)
 
@@ -123,16 +123,3 @@ plot_popgof <- function(data,
 }
 
 
-#' Customized population overlay goodness-of-fit (GOF) theme with pmxhelpr default aesthetics
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_popgof_theme()` with no arguments to view defaults.
-#' @return a named list `list`
-#' @export plot_popgof_theme
-#'
-#' @examples
-#' plot_popgof_theme()
-#' new_theme <- plot_popgof_theme(update = list(linewidth_ref = 1))
-
-
-plot_popgof_theme <- function(update = NULL) list_update(update, .popgof_defaults)

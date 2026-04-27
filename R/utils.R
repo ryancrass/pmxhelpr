@@ -123,14 +123,14 @@ prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
                           timeu, n_breaks, theme, theme_fn) {
   caption  <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
   xbreaks  <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
-  plottheme <- list_update(theme, theme_fn())
+  plottheme <- merge_theme(theme, theme_fn())
   width    <- errorbar_width(plottheme, data)
   list(caption = caption, xbreaks = xbreaks, plottheme = plottheme, width = width)
 }
 
 
 errorbar_width <- function(plottheme, data) {
-  if(is.numeric(plottheme$width_errorbar)) plottheme$width_errorbar
+  if(is.numeric(plottheme$errorbar$width)) plottheme$errorbar$width
   else max(data$NTIME, na.rm = TRUE) * 0.025
 }
 

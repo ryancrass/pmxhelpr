@@ -29,9 +29,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                         ...){
 
   #aesthetics for legend based on settings in plot_vpc_theme
-  new_vpc_theme_list <- plot_vpc_theme()
-  attr(new_vpc_theme_list, "class") <- NULL
-  plist <- list_update(update, new_vpc_theme_list)
+  plist <- merge_theme(update, plot_vpc_theme())
 
   #shown elements for legend based on settings in plot_vpc_exactbins
   nlist <- list_update(shown, plot_vpc_shown())
@@ -50,35 +48,35 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
 
   plot <- plot_blank +
     {if(nlist$obs_dv == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
-                                                  color = plist$obs_color,
-                                                  size = plist$obs_size, na.rm= TRUE)} +
+                                                  color = plist$obs$color,
+                                                  size = plist$obs$size, na.rm= TRUE)} +
     {if(!is.null(lloq)) ggplot2::geom_line(ggplot2::aes(linetype = lloq_lab),
-                                           color = plist$loq_color,
+                                           color = plist$loq$color,
                                            linewidth = 1, na.rm= TRUE)} +
     {if(nlist$obs_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
-                                                     color = plist$obs_median_color,
-                                                     linewidth = plist$obs_median_size, na.rm= TRUE)} +
+                                                     color = plist$obs_median$color,
+                                                     linewidth = plist$obs_median$size, na.rm= TRUE)} +
     {if(nlist$obs_ci == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
-                                                 color = plist$obs_ci_color,
-                                                 linewidth = plist$obs_median_size, na.rm= TRUE)} +
+                                                 color = plist$obs_ci$color,
+                                                 linewidth = plist$obs_median$size, na.rm= TRUE)} +
     {if(nlist$sim_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
-                                                     color = plist$sim_median_color,
-                                                     linewidth = plist$sim_median_size, na.rm= TRUE)} +
+                                                     color = plist$sim_median$color,
+                                                     linewidth = plist$sim_median$size, na.rm= TRUE)} +
     {if(nlist$pi == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
-                                             color = plist$sim_pi_color,
-                                             linewidth = plist$sim_pi_size, na.rm= TRUE)} +
+                                             color = plist$sim_pi$color,
+                                             linewidth = plist$sim_pi$size, na.rm= TRUE)} +
     {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                      fill = sim_cilab_cent),
-                                                        alpha = plist$sim_median_alpha, na.rm= TRUE)}+
+                                                        alpha = plist$sim_median$alpha, na.rm= TRUE)}+
     {if(nlist$pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                              fill = sim_cilab_pi),
-                                                alpha = plist$sim_pi_alpha, na.rm= TRUE)}+
+                                                alpha = plist$sim_pi$alpha, na.rm= TRUE)}+
     {if(nlist$pi_as_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                   fill = sim_pilab),
-                                                     alpha = plist$sim_pi_alpha, na.rm= TRUE)}+
+                                                     alpha = plist$sim_pi$alpha, na.rm= TRUE)}+
     {if(nlist$obs_dv == TRUE) ggplot2::scale_shape_manual(name = "Points",
                        breaks = obs,
-                       values = assign(obs,plist$obs_shape))}+
+                       values = assign(obs, plist$obs$shape))}+
     ggplot2::scale_linetype_manual(name = "Lines",
                           breaks = c(
                             {if(nlist$obs_median == TRUE) obs_cent},
@@ -88,10 +86,10 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                             {if(!is.null(lloq)) lloq_lab}
                             ),
                           values = c(
-                            {if(nlist$obs_median == TRUE) assign(obs_cent, plist$obs_median_linetype)},
-                            {if(nlist$obs_ci == TRUE) assign(obs_pilab, plist$obs_ci_linetype)},
-                            {if(nlist$sim_median == TRUE) assign(sim_cent, plist$sim_median_linetype)},
-                            {if(nlist$pi == TRUE) assign(sim_pilab, plist$sim_pi_linetype)},
+                            {if(nlist$obs_median == TRUE) assign(obs_cent, plist$obs_median$linetype)},
+                            {if(nlist$obs_ci == TRUE) assign(obs_pilab, plist$obs_ci$linetype)},
+                            {if(nlist$sim_median == TRUE) assign(sim_cent, plist$sim_median$linetype)},
+                            {if(nlist$pi == TRUE) assign(sim_pilab, plist$sim_pi$linetype)},
                             {if(!is.null(lloq)) assign(lloq_lab, "solid")}
                             )) +
     ggplot2::scale_fill_manual(name = "Intervals",
@@ -101,9 +99,9 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
                         {if(nlist$pi_as_area == TRUE) sim_pilab}
                         ),
                       values = c(
-                        {if(nlist$sim_median_ci == TRUE) assign(sim_cilab_cent, plist$sim_median_fill)},
-                        {if(nlist$pi_ci == TRUE)assign(sim_cilab_pi, plist$sim_pi_fill)},
-                        {if(nlist$pi_as_area == TRUE)assign(sim_pilab,plist$sim_pi_fill)}
+                        {if(nlist$sim_median_ci == TRUE) assign(sim_cilab_cent, plist$sim_median$fill)},
+                        {if(nlist$pi_ci == TRUE)assign(sim_cilab_pi, plist$sim_pi$fill)},
+                        {if(nlist$pi_as_area == TRUE)assign(sim_pilab, plist$sim_pi$fill)}
                         ))+
     ggplot2::theme_void()+
     ggplot2::theme(legend.position = "inside",

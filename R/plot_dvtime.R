@@ -49,9 +49,9 @@
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @inheritParams df_mrgsim_replicate
-#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#' @param theme Theme object created by [plot_dvtime_theme()].
 #'    Defaults can be viewed by running `plot_dvtime_theme()` with no arguments.
-#'    Default `width_errorbar` is 2.5% of maximum `NTIME`.
+#'    Default error bar width is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'
@@ -131,9 +131,9 @@ plot_dvtime <- function(data,
 
   #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$linewidth_ref,
-                                                     linetype = plottheme$linetype_ref,
-                                                     alpha = plottheme$alpha_line_ref)
+                                                     linewidth = plottheme$ref$linewidth,
+                                                     linetype = plottheme$ref$linetype,
+                                                     alpha = plottheme$ref$alpha)
 
   blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = TRUE)
   plot <- blq$plot
@@ -200,17 +200,4 @@ dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
 
 
-#' Customized Concentration-time theme with pmxhelpr default aesthetics
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_dvtime_theme()` with no arguments to view defaults.
-#' @return a named list `list`
-#' @export plot_dvtime_theme
-#'
-#' @examples
-#' plot_dvtime_theme()
-#' new_theme <- plot_dvtime_theme(update = list(linewidth_ref = 1))
-
-
-plot_dvtime_theme <- function(update = NULL) list_update(update, .dvtime_defaults)
 

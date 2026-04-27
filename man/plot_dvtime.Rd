@@ -100,9 +100,9 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
-\item{theme}{Named list of aesthetic parameters to be supplied to the plot.
+\item{theme}{Theme object created by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
-Default \code{width_errorbar} is 2.5\% of maximum \code{NTIME}.}
+Default error bar width is 2.5\% of maximum \code{NTIME}.}
 }
 \value{
 A \code{ggplot2} plot object

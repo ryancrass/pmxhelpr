@@ -59,7 +59,7 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
 
-\item{theme}{Named list of aesthetic parameters to be supplied to the plot.
+\item{theme}{Theme object created by \code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}}.
 Defaults can be viewed by running \code{plot_dvconc_theme()} with no arguments.}
 
 \item{...}{Additional arguments passed to \code{geom_smooth()}}

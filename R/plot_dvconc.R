@@ -12,7 +12,7 @@
 #' @param log_x Logical indicator for log10 transformation of the x-axis.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
-#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#' @param theme Theme object created by [plot_dvconc_theme()].
 #'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
 #' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
@@ -67,7 +67,7 @@ plot_dvconc <- function(data,
   caption <- dvconc_caption(cfb, loess, linear, se_loess, se_linear)
 
   #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvconc_theme())
+  plottheme <- merge_theme(theme, plot_dvconc_theme())
 
 
 ###Plot
@@ -88,59 +88,59 @@ plot_dvconc <- function(data,
 
   #Reference Lines: Y=cfb_base (cfb = TRUE)
   if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$linewidth_ref,
-                                                     linetype = plottheme$linetype_ref,
-                                                     alpha = plottheme$alpha_line_ref)
+                                                     linewidth = plottheme$ref$linewidth,
+                                                     linetype = plottheme$ref$linetype,
+                                                     alpha = plottheme$ref$alpha)
 
 
   #Plot Trend Lines
   if(col_trend == FALSE) {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_loess,
-                                                          linetype = plottheme$linetype_loess,
-                                                          color = plottheme$color_loess,
-                                                          fill = plottheme$color_se_loess,
-                                                          alpha = plottheme$alpha_se_loess,
+                                                          linewidth = plottheme$loess$linewidth,
+                                                          linetype = plottheme$loess$linetype,
+                                                          color = plottheme$loess$color,
+                                                          fill = plottheme$loess$se_color,
+                                                          alpha = plottheme$loess$se_alpha,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_linear,
-                                                           linetype = plottheme$linetype_linear,
-                                                           color = plottheme$color_linear,
-                                                           fill = plottheme$color_se_linear,
-                                                           alpha = plottheme$alpha_se_linear)
+                                                           linewidth = plottheme$linear$linewidth,
+                                                           linetype = plottheme$linear$linetype,
+                                                           color = plottheme$linear$color,
+                                                           fill = plottheme$linear$se_color,
+                                                           alpha = plottheme$linear$se_alpha)
   } else {
     if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                               color = .data[[col_var_str]],
                                                               fill = .data[[col_var_str]]),
                                                           method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_loess,
-                                                          linetype = plottheme$linetype_loess,
-                                                          alpha = plottheme$alpha_se_loess,
+                                                          linewidth = plottheme$loess$linewidth,
+                                                          linetype = plottheme$loess$linetype,
+                                                          alpha = plottheme$loess$se_alpha,
                                                           ...)
 
     if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
                                                                color = .data[[col_var_str]],
                                                                fill = .data[[col_var_str]]),
                                                                method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_linear,
-                                                           linetype = plottheme$linetype_linear,
-                                                           alpha = plottheme$alpha_se_linear)
+                                                           linewidth = plottheme$linear$linewidth,
+                                                           linetype = plottheme$linear$linetype,
+                                                           alpha = plottheme$linear$se_alpha)
   }
 
   #Add observations
   if(is.null(col_var_str)){
     plot <- plot +
       ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV),
-                          shape=plottheme$shape_point_obs,
-                          size=plottheme$size_point_obs,
-                          alpha = plottheme$alpha_point_obs)
+                          shape=plottheme$obs$shape,
+                          size=plottheme$obs$size,
+                          alpha = plottheme$obs$alpha)
   } else {
     plot <- plot +
       ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = .data[[col_var_str]]),
-                          shape=plottheme$shape_point_obs,
-                          size=plottheme$size_point_obs,
-                          alpha = plottheme$alpha_point_obs)
+                          shape=plottheme$obs$shape,
+                          size=plottheme$obs$size,
+                          alpha = plottheme$obs$alpha)
   }
 
 
@@ -197,17 +197,4 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
 
 
 
-#' Customized Response versus drug concentration theme with pmxhelpr default aesthetics
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_dvconc_theme()` with no arguments to view defaults.
-#' @return a named list `list`
-#' @export plot_dvconc_theme
-#'
-#' @examples
-#' plot_dvconc_theme()
-#' new_theme <- plot_dvconc_theme(update = list(linewidth_ref = 1))
-
-
-plot_dvconc_theme <- function(update = NULL) list_update(update, .dvconc_defaults)
 

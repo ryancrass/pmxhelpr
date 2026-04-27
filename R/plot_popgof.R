@@ -53,8 +53,7 @@ plot_popgof <- function(data,
   grp_var_str  <- resolve_var(rlang::enquo(grp_var))
   dose_var_str <- resolve_var(rlang::enquo(dose_var))
 
-  ##Update Defaults to time_vars and output_vars
-  time_vars <- init_time_vars(time_vars)
+  ##Update Defaults to output_vars
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
                                             DV = "DV"))
@@ -63,49 +62,24 @@ plot_popgof <- function(data,
                                                 DV = "blue",
                                                 OBS = "darkgrey"))
 
-  #Checks
-  check_df(data, "data")
-  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
-  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
-  check_varsindf(data, output_vars[["DV"]], "data", "output_vars")
-  check_varsindf(data, output_vars[["IPRED"]], "data", "output_vars")
-  check_varsindf(data, output_vars[["PRED"]], "data", "output_vars")
-  check_varsindf(data, "MDV", "data", "MDV")
-  check_timeu(timeu)
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str, "data", "grp_var")}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var_str, "data", "dose_var")}
-  check_loq_method(loq, loq_method, data)
-  if(cfb==TRUE)check_numeric(cfb_base, "cfb_base")
+  prep <- prep_dvtime_data(
+    data, time_vars,
+    output_vars = output_vars,
+    timeu = timeu, loq = loq, loq_method = loq_method,
+    dose_var_str = if (dosenorm) dose_var_str,
+    grp_dv = grp_dv, grp_var_str = grp_var_str,
+    dosenorm = dosenorm,
+    cfb = cfb, cfb_base = cfb_base
+  )
+  data <- prep$data
+  lloq <- prep$lloq
 
-  #Handle Output and Time Variables
-  data <- rename_time_vars(data, time_vars, output_vars)
-
-  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
-
-  ##BLQ Handling
-  data <- apply_blq(data, loq, loq_method, extra_vars = c("IPRED", "PRED"))
-
-  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ), NA_real_)
-
-  #Dose-normalize if requested
-  if(dosenorm == TRUE) {
-    data <- dplyr::mutate(data,
-                          DV    = var_dosenorm(DV, DOSE),
-                          IPRED = var_dosenorm(IPRED, DOSE),
-                          PRED  = var_dosenorm(PRED, DOSE))
-  }
-
-  #Determine Caption
-  caption <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
-
-  #Determine Breaks
-  xbreaks <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
-
-  #Determine aesthetics
-  plottheme <- list_update(theme, plot_popgof_theme())
-
-  #Determine Error Bar Cap Width
-  width <- errorbar_width(plottheme, data)
+  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv,
+                       timeu, n_breaks, theme, plot_popgof_theme)
+  caption   <- env$caption
+  xbreaks   <- env$xbreaks
+  plottheme <- env$plottheme
+  width     <- env$width
 
 
 ###Plot

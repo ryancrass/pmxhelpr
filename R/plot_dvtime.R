@@ -90,55 +90,26 @@ plot_dvtime <- function(data,
   dose_var_str <- resolve_var(rlang::enquo(dose_var))
   col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
-  time_vars <- init_time_vars(time_vars)
-
-  #Checks
-  check_df(data, "data")
-  check_varsindf(data, dv_var_str, "data", "dv_var")
-  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
-  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
-  check_varsindf(data, "MDV", "data", "MDV")
-  check_timeu(timeu)
-  check_varsindf(data, col_var_str, "data", "col_var")
-  if(grp_dv == TRUE) {check_varsindf(data, grp_var_str, "data", "grp_var")}
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
-  if(dosenorm == TRUE){check_varsindf(data, dose_var_str, "data", "dose_var")}
-  check_loq_method(loq, loq_method, data)
-  if(cfb==TRUE)check_numeric(cfb_base, "cfb_base")
-
-  ##Handle DV Variable
-  data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str)))
-
-  #Handle Time Variables
-  data <- rename_time_vars(data, time_vars)
-
-  if(dosenorm==TRUE) {data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))}
-
-  ##Coerce Color Variable to a Factor
-  if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
-
-  ##BLQ Handling
-  data <- apply_blq(data, loq, loq_method)
-
-  lloq <- ifelse("LOQ" %in% colnames(data), unique(data$LOQ[!is.na(data$LOQ)]), NA_real_)
+  prep <- prep_dvtime_data(
+    data, time_vars,
+    output_vars = c(DV = dv_var_str),
+    timeu = timeu, loq = loq, loq_method = loq_method,
+    dose_var_str = if (dosenorm) dose_var_str,
+    col_var_str = col_var_str,
+    grp_dv = grp_dv, grp_var_str = grp_var_str,
+    dosenorm = dosenorm,
+    cfb = cfb, cfb_base = cfb_base
+  )
+  data <- prep$data
+  lloq <- prep$lloq
   lloq_lab <- paste0(lloq)
 
-  #Dose-normalize if requested
-  if(dosenorm == TRUE) {
-    data <- dplyr::mutate(data, DV = var_dosenorm(DV, DOSE))
-  }
-
-  #Determine Caption
-  caption <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
-
-  #Determine Breaks
-  xbreaks <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
-
-  #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvtime_theme())
-
-  #Determine Error Bar Cap Width
-  width <- errorbar_width(plottheme, data)
+  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv,
+                       timeu, n_breaks, theme, plot_dvtime_theme)
+  caption   <- env$caption
+  xbreaks   <- env$xbreaks
+  plottheme <- env$plottheme
+  width     <- env$width
 
   #Remove EVID!=0
   data <- dplyr::filter(data, EVID==0)

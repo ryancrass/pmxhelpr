@@ -68,6 +68,67 @@ apply_blq <- function(data, loq, loq_method, extra_vars = NULL) {
   return(data)
 }
 
+prep_dvtime_data <- function(data, time_vars, output_vars = c(DV = "DV"),
+                            timeu = "hours", loq = NULL, loq_method = 0,
+                            dose_var_str = NULL, col_var_str = NULL,
+                            grp_dv = FALSE, grp_var_str = NULL,
+                            dosenorm = FALSE,
+                            cfb = FALSE, cfb_base = NULL) {
+
+  time_vars <- init_time_vars(time_vars)
+
+  check_df(data, "data")
+  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
+  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
+  for (i in seq_along(output_vars)) {
+    check_varsindf(data, output_vars[[i]], "data", names(output_vars)[[i]])
+  }
+  check_varsindf(data, "MDV", "data", "MDV")
+  check_timeu(timeu)
+  if (!is.null(col_var_str)) {
+    check_varsindf(data, col_var_str, "data", "col_var")
+    check_factor(data, col_var_str, "col_var")
+  }
+  if (isTRUE(grp_dv)) check_varsindf(data, grp_var_str, "data", "grp_var")
+  if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
+  check_loq_method(loq, loq_method, data)
+  if (isTRUE(cfb)) check_numeric(cfb_base, "cfb_base")
+
+  data <- rename_time_vars(data, time_vars, output_vars)
+
+  if (!is.null(dose_var_str) && dose_var_str != "DOSE") {
+    data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))
+  }
+
+  if (!is.null(col_var_str)) {
+    data[[col_var_str]] <- factor(data[[col_var_str]])
+  }
+
+  extra_vars <- setdiff(names(output_vars), "DV")
+  data <- apply_blq(data, loq, loq_method, extra_vars = extra_vars)
+
+  lloq <- if ("LOQ" %in% colnames(data)) unique(data$LOQ[!is.na(data$LOQ)]) else NA_real_
+
+  if (isTRUE(dosenorm)) {
+    for (v in names(output_vars)) {
+      data[[v]] <- var_dosenorm(data[[v]], data$DOSE)
+    }
+  }
+
+  list(data = data, lloq = lloq)
+}
+
+
+prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
+                          timeu, n_breaks, theme, theme_fn) {
+  caption  <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
+  xbreaks  <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+  plottheme <- list_update(theme, theme_fn())
+  width    <- errorbar_width(plottheme, data)
+  list(caption = caption, xbreaks = xbreaks, plottheme = plottheme, width = width)
+}
+
+
 errorbar_width <- function(plottheme, data) {
   if(is.numeric(plottheme$width_errorbar)) plottheme$width_errorbar
   else max(data$NTIME, na.rm = TRUE) * 0.025

@@ -16,22 +16,22 @@ test_that("Output with lloq specified is a `ggplot` object", {
 
 ##Test shown elements
 test_that("Output with obs_dv = FALSE is a `ggplot` object", {
-  p <- plot_vpclegend(shown = list(obs_dv = FALSE))
+  p <- plot_vpclegend(shown = plot_vpc_shown(obs_dv = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
 test_that("Output with sim_median = TRUE is a `ggplot` object", {
-  p <- plot_vpclegend(shown = list(sim_median = TRUE, sim_median_ci = FALSE))
+  p <- plot_vpclegend(shown = plot_vpc_shown(sim_median = TRUE, sim_median_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
 test_that("Output with pi = TRUE and pi_ci = FALSE is a `ggplot` object", {
-  p <- plot_vpclegend(shown = list(pi = TRUE, pi_ci = FALSE))
+  p <- plot_vpclegend(shown = plot_vpc_shown(pi = TRUE, pi_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
 test_that("Output with pi_as_area = TRUE is a `ggplot` object", {
-  p <- plot_vpclegend(shown = list(pi_as_area = TRUE, pi_ci = FALSE))
+  p <- plot_vpclegend(shown = plot_vpc_shown(pi_as_area = TRUE, pi_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 

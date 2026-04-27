@@ -368,3 +368,40 @@ plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
                            loq = loq, bin_sep = bin_sep)),
               defaults)
 }
+
+
+#' VPC layer visibility settings
+#'
+#' Constructor and factory for controlling which VPC layers are displayed.
+#' Call with no arguments to view defaults. Pass overrides to customize.
+#'
+#' @param obs_dv Show observed data points. Default is `TRUE`.
+#' @param obs_ci Show observed quantile lines. Default is `TRUE`.
+#' @param obs_median Show observed median line. Default is `TRUE`.
+#' @param sim_median Show simulated median line. Default is `FALSE`.
+#' @param sim_median_ci Show simulated median confidence interval. Default is `TRUE`.
+#' @param pi Show prediction interval lines. Default is `FALSE`.
+#' @param pi_ci Show prediction interval confidence intervals. Default is `TRUE`.
+#' @param pi_as_area Show prediction interval as shaded area. Default is `FALSE`.
+#'
+#' @return A named list of logicals
+#' @export
+#'
+#' @examples
+#' plot_vpc_shown()
+#' plot_vpc_shown(obs_dv = FALSE, pi = TRUE)
+plot_vpc_shown <- function(obs_dv = NULL, obs_ci = NULL, obs_median = NULL,
+                           sim_median = NULL, sim_median_ci = NULL,
+                           pi = NULL, pi_ci = NULL, pi_as_area = NULL) {
+  defaults <- list(
+    obs_dv = TRUE, obs_ci = TRUE, obs_median = TRUE,
+    sim_median = FALSE, sim_median_ci = TRUE,
+    pi = FALSE, pi_ci = TRUE, pi_as_area = FALSE
+  )
+  user <- compact(list(obs_dv = obs_dv, obs_ci = obs_ci, obs_median = obs_median,
+                       sim_median = sim_median, sim_median_ci = sim_median_ci,
+                       pi = pi, pi_ci = pi_ci, pi_as_area = pi_as_area))
+  out <- defaults
+  for (nm in names(user)) out[[nm]] <- user[[nm]]
+  out
+}

@@ -55,20 +55,8 @@ but retains these observations in the observed data points.}
 
 \item{lower_bound}{Lower bound for prediction correction formula.}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot.
-Defaults can be obtained by calling \code{plot_vpc_shown()} with no arguments.
-
-Defaults are:
-\itemize{
-\item Observed points: \code{obs_dv} = TRUE.
-\item Observed quantiles: \code{obs_ci} = TRUE
-\item Simulated inter-quantile range:\code{pi} = FALSE
-\item Simulated inter-quantile area: \code{pi_as_area} = FALSE
-\item Simulated Quantile CI: \code{pi_ci} = TRUE
-\item Observed Median: \code{obs_median} = TRUE
-\item Simulated Median: \code{sim_median} = FALSE
-\item Simulated Median CI: \code{sim_median_ci} = TRUE
-}}
+\item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
+Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{vpc_theme}{Named list of aesthetic parameters for the plot.
 Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}

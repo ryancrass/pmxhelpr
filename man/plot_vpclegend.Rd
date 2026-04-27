@@ -18,20 +18,8 @@ plot_vpclegend(
 
 \item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_exactbins]{plot_vpc_exactbins()}}. Default is c(0.05, 0.95).}
 
-\item{shown}{Named list of logicals specifying which layers to include on the plot.
-Defaults can be obtained by calling \code{plot_vpc_shown()} with no arguments.
-
-Defaults are:
-\itemize{
-\item Observed points: \code{obs_dv} = TRUE.
-\item Observed quantiles: \code{obs_ci} = TRUE
-\item Simulated inter-quantile range:\code{pi} = FALSE
-\item Simulated inter-quantile area: \code{pi_as_area} = FALSE
-\item Simulated Quantile CI: \code{pi_ci} = TRUE
-\item Observed Median: \code{obs_median} = TRUE
-\item Simulated Median: \code{sim_median} = FALSE
-\item Simulated Median CI: \code{sim_median_ci} = TRUE
-}}
+\item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
+Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{lloq}{label for lower limit of quantification in the plot legend.}
 
@@ -50,8 +38,8 @@ plot_vpclegend()
 plot_vpclegend(
 pi = c(0.025, 0.975),
 ci = c(0.025, 0.925),
- shown = list(obs_dv = FALSE, obs_ci = TRUE,
+ shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = TRUE,
  pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
  obs_median = TRUE,
- sim_median =FALSE, sim_median_ci = TRUE))
+ sim_median = FALSE, sim_median_ci = TRUE))
 }

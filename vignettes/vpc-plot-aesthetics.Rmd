@@ -99,7 +99,7 @@ vpc_pc_pi <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = list(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
+  shown = plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")
@@ -117,7 +117,7 @@ vpc_pc_noobs <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = list(obs_dv = FALSE)
+  shown = plot_vpc_shown(obs_dv = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")
@@ -135,7 +135,7 @@ vpc_pc_noobs_medonly <- plot_vpc_exactbins(
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = list(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
+  shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")

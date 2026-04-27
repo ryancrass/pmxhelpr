@@ -16,10 +16,10 @@
 #'plot_vpclegend(
 #'pi = c(0.025, 0.975),
 #'ci = c(0.025, 0.925),
-#'  shown = list(obs_dv = FALSE, obs_ci = TRUE,
+#'  shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = TRUE,
 #'  pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
 #'  obs_median = TRUE,
-#'  sim_median =FALSE, sim_median_ci = TRUE))
+#'  sim_median = FALSE, sim_median_ci = TRUE))
 
 plot_vpclegend <- function(ci = c(0.05, 0.95),
                         pi = c(0.05, 0.95),
@@ -32,7 +32,7 @@ plot_vpclegend <- function(ci = c(0.05, 0.95),
   plist <- merge_theme(update, plot_vpc_theme())
 
   #shown elements for legend based on settings in plot_vpc_exactbins
-  nlist <- list_update(shown, plot_vpc_shown())
+  nlist <- merge_element(shown, plot_vpc_shown())
   lloq_lab <- as.character(lloq)
   obs <- "Obs"
   obs_cent <- "Obs Med"

@@ -22,7 +22,7 @@ plot_vpc <- function(vpcstats,
                      loq = NULL) {
 
   ##Set vpc aesthetics and theme
-  shown <- list_update(shown, plot_vpc_shown())
+  shown <- merge_element(shown, plot_vpc_shown())
   vpc_theme <- merge_theme(vpc_theme, plot_vpc_theme())
 
   ###Generate Base Plot

@@ -18,18 +18,8 @@
 #'    but retains these observations in the observed data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #'
-#' @param shown Named list of logicals specifying which layers to include on the plot.
-#'    Defaults can be obtained by calling `plot_vpc_shown()` with no arguments.
-#'
-#'    Defaults are:
-#'    + Observed points: `obs_dv` = TRUE.
-#'    + Observed quantiles: `obs_ci` = TRUE
-#'    + Simulated inter-quantile range:`pi` = FALSE
-#'    + Simulated inter-quantile area: `pi_as_area` = FALSE
-#'    + Simulated Quantile CI: `pi_ci` = TRUE
-#'    + Observed Median: `obs_median` = TRUE
-#'    + Simulated Median: `sim_median` = FALSE
-#'    + Simulated Median CI: `sim_median_ci` = TRUE
+#' @param shown Layer visibility settings created by [plot_vpc_shown()].
+#'    Defaults can be viewed by running `plot_vpc_shown()` with no arguments.
 #'
 #' @param vpc_theme Named list of aesthetic parameters for the plot.
 #'    Defaults for `pmxhelpr` can be obtained by running `plot_vpc_theme` with no arguments.
@@ -107,7 +97,7 @@ plot_vpc_exactbins <- function(sim,
   }
 
   ##Set vpc aesthetics and theme
-  show_vpc <- list_update(shown, plot_vpc_shown())
+  show_vpc <- merge_element(shown, plot_vpc_shown())
   vpctheme <- merge_theme(vpc_theme, plot_vpc_theme())
 
   #Determine Breaks
@@ -164,27 +154,6 @@ plot_vpc_exactbins <- function(sim,
 
 
 
-.vpc_shown_defaults <- list(
-  obs_dv = TRUE,
-  obs_ci = TRUE,
-  pi = FALSE,
-  pi_as_area = FALSE,
-  pi_ci = TRUE,
-  obs_median = TRUE,
-  sim_median = FALSE,
-  sim_median_ci = TRUE)
-
-#' Default VPC show layer settings
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_vpc_shown()` with no arguments to view defaults.
-#' @return a `list`with vpc shown specifiers
-#' @export plot_vpc_shown
-#'
-#' @examples
-#' plot_vpc_shown()
-
-plot_vpc_shown <- function(update = NULL) list_update(update, .vpc_shown_defaults)
 
 
 

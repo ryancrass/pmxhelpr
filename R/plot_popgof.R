@@ -98,22 +98,12 @@ plot_popgof <- function(data,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)
 
-  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(yintercept = lloq,
-                                                                                  linewidth = plottheme$linewidth_ref,
-                                                                                  linetype = plottheme$linetype_ref,
-                                                                                  alpha = plottheme$alpha_line_ref)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = FALSE)
+  plot <- blq$plot
+  caption <- blq$caption
 
-  #Show Observed Data Points
-  if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(ggplot2::aes(color = "OBS"),
-                                                         size = plottheme$size_point_obs,
-                                                         shape = plottheme$shape_point_obs,
-                                                         alpha = plottheme$alpha_point_obs)
-  #Connect Observed Data Points within Group
-  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, color = "OBS",
-                                                                    group = .data[[grp_var_str]]),
-                                                       linewidth = plottheme$linewidth_obs,
-                                                       linetype = plottheme$linetype_obs,
-                                                       alpha = plottheme$alpha_line_obs)
+  #Show Observed Data Points / Connect within Group
+  plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = "OBS")
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers(plot, cent, "DV",    plottheme, width, color_aes = "DV",    line_prefix = "dv")

@@ -203,7 +203,100 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 }
 
 
+#' Add observed data point and spaghetti line layers to a plot
+#'
+#' Conditionally adds a \code{geom_point} layer for observed data and a
+#' \code{geom_line} layer connecting observations within groups.
+#'
+#' @param plot ggplot object
+#' @param obs_dv logical, whether to show observed data points
+#' @param grp_dv logical, whether to connect observations within groups
+#' @param grp_var_str character, column name for the grouping variable
+#' @param plottheme named list of theme aesthetics
+#' @param color_aes optional string for color aesthetic (e.g., "OBS" for popgof legend)
+#'
+#' @return modified ggplot object
+#' @keywords internal
+add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, plottheme,
+                           color_aes = NULL) {
 
+  if (isTRUE(obs_dv)) {
+    point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
+    plot <- plot + ggplot2::geom_point(
+      mapping = point_aes,
+      shape   = plottheme$shape_point_obs,
+      size    = plottheme$size_point_obs,
+      alpha   = plottheme$alpha_point_obs
+    )
+  }
+
+  if (isTRUE(grp_dv)) {
+    if (!is.null(color_aes)) {
+      line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
+                               group = .data[[grp_var_str]])
+    } else {
+      line_aes <- ggplot2::aes(x = TIME, y = DV,
+                               group = .data[[grp_var_str]])
+    }
+    plot <- plot + ggplot2::geom_line(
+      mapping   = line_aes,
+      linewidth = plottheme$linewidth_obs,
+      linetype  = plottheme$linetype_obs,
+      alpha     = plottheme$alpha_line_obs
+    )
+  }
+
+  plot
+}
+
+
+#' Add LOQ reference line and caption to a plot
+#'
+#' Conditionally adds an horizontal reference line at the LLOQ and appends
+#' BLQ imputation method text to the plot caption.
+#'
+#' @param plot ggplot object
+#' @param caption character, current caption string
+#' @param loq_method numeric, 0/1/2
+#' @param loq numeric, lower limit of quantification value
+#' @param dosenorm logical, whether dose normalization is active
+#' @param plottheme named list of theme aesthetics
+#' @param show_legend logical, whether to add LLOQ to the linetype legend
+#'
+#' @return A named list with elements `plot` (modified ggplot) and `caption` (modified string)
+#' @keywords internal
+add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
+                           show_legend = FALSE) {
+
+  if (!loq_method %in% c(1, 2) || isTRUE(dosenorm)) {
+    return(list(plot = plot, caption = caption))
+  }
+
+  if (isTRUE(show_legend)) {
+    loq_lab <- paste0(loq)
+    plot <- plot +
+      ggplot2::geom_hline(ggplot2::aes(yintercept = loq, linetype = loq_lab),
+                          linewidth = plottheme$linewidth_ref,
+                          alpha = plottheme$alpha_line_ref) +
+      ggplot2::scale_linetype_manual(
+        name = "LLOQ",
+        values = stats::setNames(c(plottheme$linetype_ref), loq_lab)) +
+      ggplot2::guides(color = ggplot2::guide_legend(order = 1),
+                      linetype = ggplot2::guide_legend(order = 2))
+  } else {
+    plot <- plot +
+      ggplot2::geom_hline(yintercept = loq,
+                          linewidth = plottheme$linewidth_ref,
+                          linetype = plottheme$linetype_ref,
+                          alpha = plottheme$alpha_line_ref)
+  }
+
+  blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",
+                     `2` = "All BLQ observations are imputed to 1/2 LLOQ")
+  caption <- paste0(caption, "\n", blq_captions[[as.character(loq_method)]])
+
+  list(plot = plot, caption = caption)
+}
 
 
 

@@ -102,7 +102,6 @@ plot_dvtime <- function(data,
   )
   data <- prep$data
   lloq <- prep$lloq
-  lloq_lab <- paste0(lloq)
 
   env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv,
                        timeu, n_breaks, theme, plot_dvtime_theme)
@@ -136,25 +135,12 @@ plot_dvtime <- function(data,
                                                      linetype = plottheme$linetype_ref,
                                                      alpha = plottheme$alpha_line_ref)
 
-  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::geom_hline(ggplot2::aes(yintercept = lloq,
-                                                                                               linetype = lloq_lab),
-                                                                                  linewidth = plottheme$linewidth_ref,
-                                                                                  alpha = plottheme$alpha_line_ref)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = TRUE)
+  plot <- blq$plot
+  caption <- blq$caption
 
-  if(loq_method %in% c(1,2) & dosenorm==FALSE) plot <- plot + ggplot2::scale_linetype_manual(name = "LLOQ",
-                                                                                             values = stats::setNames(c(plottheme$linetype_ref),
-                                                                                                                        lloq_lab))+
-    ggplot2::guides(color = ggplot2::guide_legend(order = 1), linetype = ggplot2::guide_legend(order = 2))
-
-  #Show Observed Data Points
-  if(obs_dv == TRUE) plot <- plot +  ggplot2::geom_point(shape=plottheme$shape_point_obs,
-                                                         size=plottheme$size_point_obs,
-                                                         alpha = plottheme$alpha_point_obs)
-  #Connect Observed Data Points within Group
-  if(grp_dv == TRUE) plot <- plot + ggplot2::geom_line(ggplot2::aes(x = TIME, y = DV, group = .data[[grp_var_str]]),
-                                                       linewidth = plottheme$linewidth_obs,
-                                                       linetype = plottheme$linetype_obs,
-                                                       alpha = plottheme$alpha_line_obs)
+  #Show Observed Data Points / Connect within Group
+  plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers(plot, cent, "DV", plottheme, width)
@@ -163,8 +149,6 @@ plot_dvtime <- function(data,
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
-  if(loq_method == 1) caption <- paste0(caption, "\n", "Post-dose BLQ observations are imputed to 1/2 LLOQ")
-  if(loq_method == 2) caption <- paste0(caption, "\n", "All BLQ observations are imputed to 1/2 LLOQ")
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)

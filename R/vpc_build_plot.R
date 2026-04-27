@@ -1,7 +1,7 @@
 #' Build a VPC ggplot from summary statistics
 #'
 #' @description
-#' `plot_build_vpccont()` constructs a ggplot2 VPC plot from pre-computed quantile
+#' `vpc_build_plot()` constructs a ggplot2 VPC plot from pre-computed quantile
 #'    summary statistics.
 #'
 #' @param vpcstats Data.frame of simulated quantile statistics from `df_vpcstats()`.
@@ -14,7 +14,7 @@
 #' @return A ggplot2 object.
 #' @keywords internal
 
-plot_build_vpccont <- function(vpcstats,
+vpc_build_plot <- function(vpcstats,
                      bin_var_str = "NTIME",
                      strat_var_str = NULL,
                      shown = NULL,

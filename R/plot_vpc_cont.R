@@ -106,7 +106,7 @@ plot_vpc_cont <- function(sim,
   xbreaks <- var_timebreaks(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
-  plot <- plot_build_vpccont(
+  plot <- vpc_build_plot(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
     strat_var_str = strat_var_str,
     shown = show_vpc,

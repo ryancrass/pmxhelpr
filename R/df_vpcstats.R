@@ -72,7 +72,7 @@ df_vpcstats <- function(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, 
       )
   }
 
-  dplyr::left_join(sim_quant, obs_quant)
+  dplyr::left_join(sim_quant, obs_quant, by = group_vars)
 }
 
 

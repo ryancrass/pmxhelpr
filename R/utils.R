@@ -119,21 +119,6 @@ prep_dvtime_data <- function(data, time_vars, output_vars = c(DV = "DV"),
 }
 
 
-prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
-                          timeu, n_breaks, theme, theme_fn) {
-  caption  <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
-  xbreaks  <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
-  plottheme <- merge_theme(theme, theme_fn())
-  width    <- errorbar_width(plottheme, data)
-  list(caption = caption, xbreaks = xbreaks, plottheme = plottheme, width = width)
-}
-
-
-errorbar_width <- function(plottheme, data) {
-  if(is.numeric(plottheme$errorbar$width)) plottheme$errorbar$width
-  else max(data$NTIME, na.rm = TRUE) * 0.025
-}
-
 list_update <- function(update=NULL, src){
 
   update_list_name <-deparse(substitute(update))
@@ -152,3 +137,60 @@ list_update <- function(update=NULL, src){
   return(out)
 }
 
+
+#' Determine dose-normalization
+#'
+#' @param dv_var Vector containing the dependent variable (DV)
+#' @param dose_var Vector containing dose
+#'
+#' @return A numeric vector of dose-normalized values of `dv_var`
+#' @keywords internal
+#' @examples
+#' data <- dplyr::mutate(data_sad, DNDV = pmxhelpr:::var_dosenorm(ODV, DOSE))
+
+var_dosenorm <- function(dv_var, dose_var) {
+  dv_var / dose_var
+}
+
+
+#' Determine prediction correction
+#'
+#' @param dv_var Vector containing the dependent variable (DV)
+#' @param pred_var Vector containing population predictions (PRED)
+#' @param lower_bound Lower bound for prediction correction formula.
+#'
+#' @return A numeric vector of prediction-corrected values of `dv_var`
+#' @keywords internal
+#' @examples
+#' pkmodel <- model_mread_load(model = "pkmodel")
+#' data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
+#' data <- dplyr::mutate(data, PCDV = pmxhelpr:::var_pc(ODV, PRED))
+#'
+var_pc <- function(dv_var, pred_var, lower_bound = 0) {
+  predbin <- stats::median(pred_var)
+  lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
+}
+
+
+#' Determine left-censoring for quantiles at the lower limit of quantification
+#'
+#' @param x Vector containing the variable to be censored
+#' @param p Quantile for computation
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay
+#'
+#' @return Replaces values below loq (including NA) with -Inf, then computes
+#   the quantile. Returns NA if the result is -Inf.
+#' @keywords internal
+#' @examples
+#' data <- data_sad |>
+#'   dplyr::group_by(CMT, NTIME, DOSE) |>
+#'   dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
+#'                    P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
+#'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
+
+var_loqcens <- function(x, p, loq) {
+  x[is.na(x)] <- -Inf
+  x[x < loq] <- -Inf
+  q <- stats::quantile(x, probs = p, na.rm = TRUE)
+  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
+}

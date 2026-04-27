@@ -64,7 +64,7 @@ plot_dvconc <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   #Determine Caption
-  caption <- dvconc_caption(cfb, loess, linear, se_loess, se_linear)
+  caption <- caption_dvconc(cfb, loess, linear, se_loess, se_linear)
 
   #Determine aesthetics
   plottheme <- merge_theme(theme, plot_dvconc_theme())
@@ -163,13 +163,13 @@ plot_dvconc <- function(data,
 #' @inheritParams plot_dvconc
 #'
 #' @return a `character` string containing the plot caption
-#' @export dvconc_caption
+#' @export caption_dvconc
 #' @keywords internal
 #'
 #' @examples
-#' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
+#' caption_dvconc(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
 
-dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
+caption_dvconc <- function(cfb, loess, linear, se_loess, se_linear){
 
   cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
 

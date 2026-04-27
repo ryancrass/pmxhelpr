@@ -90,7 +90,8 @@ plot_vpc_cont <- function(sim,
     dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
 
   ##Compute VPC Statistics
-  vpcstat <- df_vpcstats(sim, pi, ci, "NTIME", strat_var_str, irep_name_str, loq)
+  bin_var_str <- "NTIME"
+  vpcstat <- df_vpcstats(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq)
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {

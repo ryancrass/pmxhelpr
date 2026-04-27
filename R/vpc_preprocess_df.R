@@ -111,9 +111,11 @@ df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
   sim <- rename_time_vars(sim, time_vars, output_vars)
 
   if (isTRUE(pcvpc)) {
+    pc_group_vars <- c("NTIME", strat_var_str)
+    if ("CMT" %in% colnames(sim)) pc_group_vars <- c("NTIME", "CMT", strat_var_str)
     sim <- sim |>
       dplyr::filter(MDV == 0) |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(c("NTIME", "CMT", strat_var_str)))) |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
       dplyr::mutate(OBSDV = var_pc(OBSDV, PRED, lower_bound),
                     SIMDV = var_pc(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()

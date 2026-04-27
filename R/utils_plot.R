@@ -195,7 +195,7 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
 
 prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
                           timeu, n_breaks, theme, theme_fn) {
-  caption  <- dvtime_caption(cent, log_y, obs_dv, grp_dv)
+  caption  <- caption_dvtime(cent, log_y, obs_dv, grp_dv)
   xbreaks  <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
   plottheme <- merge_theme(theme, theme_fn())
   width    <- errorbar_width(plottheme, data)

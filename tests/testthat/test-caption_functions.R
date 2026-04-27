@@ -1,32 +1,32 @@
-#####dvtime_caption####
+#####caption_dvtime####
 
-test_that("dvtime_caption for cent = 'mean' contains 'mean'", {
-  cap <- dvtime_caption(cent = "mean")
+test_that("caption_dvtime for cent = 'mean' contains 'mean'", {
+  cap <- caption_dvtime(cent = "mean")
   expect_match(cap, "mean")
 })
 
-test_that("dvtime_caption for cent = 'median' contains 'median'", {
-  cap <- dvtime_caption(cent = "median")
+test_that("caption_dvtime for cent = 'median' contains 'median'", {
+  cap <- caption_dvtime(cent = "median")
   expect_match(cap, "median")
 })
 
-test_that("dvtime_caption for cent = 'mean' with log_y = TRUE contains 'geometric mean'", {
-  cap <- dvtime_caption(cent = "mean", log_y = TRUE)
+test_that("caption_dvtime for cent = 'mean' with log_y = TRUE contains 'geometric mean'", {
+  cap <- caption_dvtime(cent = "mean", log_y = TRUE)
   expect_match(cap, "geometric mean")
 })
 
-test_that("dvtime_caption for cent = 'none' omits 'Solid circles' prefix", {
-  cap <- dvtime_caption(cent = "none")
+test_that("caption_dvtime for cent = 'none' omits 'Solid circles' prefix", {
+  cap <- caption_dvtime(cent = "none")
   expect_no_match(cap, "Solid circles")
 })
 
-test_that("dvtime_caption for obs_dv = TRUE, grp_dv = FALSE contains 'Open circles are observations'", {
-  cap <- dvtime_caption(cent = "mean", obs_dv = TRUE, grp_dv = FALSE)
+test_that("caption_dvtime for obs_dv = TRUE, grp_dv = FALSE contains 'Open circles are observations'", {
+  cap <- caption_dvtime(cent = "mean", obs_dv = TRUE, grp_dv = FALSE)
   expect_match(cap, "Open circles are observations")
 })
 
-test_that("dvtime_caption for obs_dv = FALSE, grp_dv = TRUE contains 'lines connect observations'", {
-  cap <- dvtime_caption(cent = "mean", obs_dv = FALSE, grp_dv = TRUE)
+test_that("caption_dvtime for obs_dv = FALSE, grp_dv = TRUE contains 'lines connect observations'", {
+  cap <- caption_dvtime(cent = "mean", obs_dv = FALSE, grp_dv = TRUE)
   expect_match(cap, "lines connect observations within an individual")
 })
 
@@ -111,36 +111,36 @@ test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a nu
 })
 
 
-#####dvconc_caption####
+#####caption_dvconc####
 
 test_that("Caption for loess only returns correct text", {
-  cap <- dvconc_caption(cfb = FALSE, loess = TRUE, linear = FALSE,
+  cap <- caption_dvconc(cfb = FALSE, loess = TRUE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "LOESS fit overlaid")
   expect_no_match(cap, "Linear")
 })
 
 test_that("Caption for linear only returns correct text", {
-  cap <- dvconc_caption(cfb = FALSE, loess = FALSE, linear = TRUE,
+  cap <- caption_dvconc(cfb = FALSE, loess = FALSE, linear = TRUE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "Linear fit overlaid")
   expect_no_match(cap, "LOESS")
 })
 
 test_that("Caption for both loess and linear returns correct text", {
-  cap <- dvconc_caption(cfb = FALSE, loess = TRUE, linear = TRUE,
+  cap <- caption_dvconc(cfb = FALSE, loess = TRUE, linear = TRUE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "LOESS and linear fits overlaid")
 })
 
 test_that("Caption includes cfb reference line text when cfb = TRUE", {
-  cap <- dvconc_caption(cfb = TRUE, loess = FALSE, linear = FALSE,
+  cap <- caption_dvconc(cfb = TRUE, loess = FALSE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "null response")
 })
 
 test_that("Caption for no fits returns points only text", {
-  cap <- dvconc_caption(cfb = FALSE, loess = FALSE, linear = FALSE,
+  cap <- caption_dvconc(cfb = FALSE, loess = FALSE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "Points are observations")
   expect_no_match(cap, "overlaid")

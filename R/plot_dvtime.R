@@ -163,14 +163,14 @@ plot_dvtime <- function(data,
 #' @inheritParams plot_dvtime
 #'
 #' @return a `character` string containing the plot caption
-#' @export dvtime_caption
+#' @export caption_dvtime
 #' @keywords internal
 #'
 #' @examples
-#' dvtime_caption(cent = "mean")
-#' dvtime_caption(cent = "mean", log_y = TRUE)
+#' caption_dvtime(cent = "mean")
+#' caption_dvtime(cent = "mean", log_y = TRUE)
 
-dvtime_caption <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
+caption_dvtime <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 
   cent_labels <- list(
     mean           = c(linear = "mean",                    log = "geometric mean"),

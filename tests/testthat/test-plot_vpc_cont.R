@@ -1,4 +1,4 @@
-#####plot_vpc_exactbins####
+#####plot_vpc_cont####
 
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
@@ -6,7 +6,7 @@ test_that("Output is a `ggplot` plot object", {
                         replicates = 10,
                         dv_var = "ODV")
     expect_s3_class(sim, class = "data.frame")
-    plot <- plot_vpc_exactbins(sim = sim)
+    plot <- plot_vpc_cont(sim = sim)
     expect_s3_class(plot, class = "ggplot")
 })
 
@@ -17,7 +17,7 @@ test_that("Output plot contains a caption with number of replicates by default",
                                  dv_var = "ODV")
 
   expect_equal(
-    plot_vpc_exactbins(sim = testsim)$labels$caption,
+    plot_vpc_cont(sim = testsim)$labels$caption,
     "Replicates = 10"
   )
 })
@@ -29,7 +29,7 @@ test_that("Output plot does not contains a caption with number of replicates whe
                                  dv_var = "ODV")
 
   expect_no_match(
-    names(plot_vpc_exactbins(sim = testsim, show_rep = FALSE)$labels),
+    names(plot_vpc_cont(sim = testsim, show_rep = FALSE)$labels),
     regexp = "caption"
   )
 })
@@ -37,7 +37,7 @@ test_that("Output plot does not contains a caption with number of replicates whe
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `sim`", {
-  expect_error(plot_vpc_exactbins(sim = "simdata"),
+  expect_error(plot_vpc_cont(sim = "simdata"),
                regexp = "argument `sim` must be a `data.frame`")
 })
 
@@ -48,7 +48,7 @@ test_that("Error if TIME variable specified in time_vars does not exist in `sim`
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim,time_vars = c(TIME = "ATFD")),
+    plot_vpc_cont(sim = testsim,time_vars = c(TIME = "ATFD")),
     regexp = "must be variable.*in `sim`"
     )
 })
@@ -60,7 +60,7 @@ test_that("Error if NTIME variable specified in time_vars does not exist in `sim
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim,time_vars = c(NTIME = "NTFD")),
+    plot_vpc_cont(sim = testsim,time_vars = c(NTIME = "NTFD")),
     regexp = "must be variable.*in `sim`"
   )
 })
@@ -72,7 +72,7 @@ test_that("No error if TIME and NTIME specified as same variable in time_vars", 
                                  dv_var = "ODV")
 
   expect_no_error(
-    plot_vpc_exactbins(sim = testsim,time_vars = c(TIME = "NTIME", NTIME = "NTIME")),
+    plot_vpc_cont(sim = testsim,time_vars = c(TIME = "NTIME", NTIME = "NTIME")),
   )
 })
 
@@ -83,7 +83,7 @@ test_that("Error if PRED variable specified in output_vars does not exist in `si
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = TRUE),
+    plot_vpc_cont(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = TRUE),
     regexp = "must be variable.*in `sim`"
   )
 })
@@ -95,7 +95,7 @@ test_that("No error if PRED variable specified in output_vars does not exist in 
                                  dv_var = "ODV")
 
   expect_no_error(
-    plot_vpc_exactbins(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = FALSE),
+    plot_vpc_cont(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = FALSE),
   )
 })
 
@@ -106,7 +106,7 @@ test_that("Error if SIMDV variable specified in output_vars does not exist in `s
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim,output_vars = c(SIMDV = "DVSIM")),
+    plot_vpc_cont(sim = testsim,output_vars = c(SIMDV = "DVSIM")),
     regexp = "must be variable.*in `sim`"
   )
 })
@@ -118,7 +118,7 @@ test_that("Error if OBSDV variable specified in output_vars does not exist in `s
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim,output_vars = c(OBSDV = "DV")),
+    plot_vpc_cont(sim = testsim,output_vars = c(OBSDV = "DV")),
     regexp = "must be variable.*in `sim`"
   )
 })
@@ -130,7 +130,7 @@ test_that("Error if argument for `loq` is not class numeric", {
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim, loq = "1"),
+    plot_vpc_cont(sim = testsim, loq = "1"),
     regexp = "argument `loq` must be class `numeric`"
   )
 })
@@ -143,7 +143,7 @@ test_that("Error if variable specified by `strat_var` does not exist in `sim`", 
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim, strat_var = "FOOD_f"),
+    plot_vpc_cont(sim = testsim, strat_var = "FOOD_f"),
     regexp = "argument `strat_var` must be variable.*in `sim`"
   )
 })
@@ -155,7 +155,7 @@ test_that("Error if variable specified by `irep_name` does not exist in `sim`", 
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_exactbins(sim = testsim, irep_name = "IREP"),
+    plot_vpc_cont(sim = testsim, irep_name = "IREP"),
     regexp = "argument `irep_name` must be variable.*in `sim`"
   )
 })
@@ -167,26 +167,26 @@ test_that("df_nobsbin accepts bare names and matches string output", {
   expect_identical(n1, n2)
 })
 
-test_that("plot_vpc_exactbins accepts bare irep_name and matches string output", {
+test_that("plot_vpc_cont accepts bare irep_name and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  v1 <- plot_vpc_exactbins(sim = testsim, irep_name = SIM, vpcstats = TRUE)
-  v2 <- plot_vpc_exactbins(sim = testsim, irep_name = "SIM", vpcstats = TRUE)
+  v1 <- plot_vpc_cont(sim = testsim, irep_name = SIM, vpcstats = TRUE)
+  v2 <- plot_vpc_cont(sim = testsim, irep_name = "SIM", vpcstats = TRUE)
   expect_identical(v1, v2)
 })
 
-test_that("plot_vpc_exactbins accepts bare strat_var and matches string output", {
+test_that("plot_vpc_cont accepts bare strat_var and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
                                  char_vars = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
-  v1 <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE)
-  v2 <- plot_vpc_exactbins(sim = testsim, strat_var = "FOOD_f", vpcstats = TRUE)
+  v1 <- plot_vpc_cont(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE)
+  v2 <- plot_vpc_cont(sim = testsim, strat_var = "FOOD_f", vpcstats = TRUE)
   expect_identical(v1, v2)
 })
 
@@ -197,8 +197,8 @@ test_that("PC-VPC applies per-bin prediction correction, not global", {
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  stats_pc <- plot_vpc_exactbins(sim = testsim, pcvpc = TRUE, vpcstats = TRUE)
-  stats_nopc <- plot_vpc_exactbins(sim = testsim, pcvpc = FALSE, vpcstats = TRUE)
+  stats_pc <- plot_vpc_cont(sim = testsim, pcvpc = TRUE, vpcstats = TRUE)
+  stats_nopc <- plot_vpc_cont(sim = testsim, pcvpc = FALSE, vpcstats = TRUE)
 
   # PC and non-PC medians should differ
   expect_false(identical(stats_pc$q50_med, stats_nopc$q50_med))
@@ -211,7 +211,7 @@ test_that("vpcstats = TRUE returns a data.frame with expected columns", {
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  result <- plot_vpc_exactbins(sim = testsim, vpcstats = TRUE)
+  result <- plot_vpc_cont(sim = testsim, vpcstats = TRUE)
   expect_s3_class(result, "data.frame")
   expected_cols <- c("NTIME", "nbin", "q5_med", "q50_med", "q95_med",
                      "obs5", "obs50", "obs95")
@@ -227,7 +227,7 @@ test_that("Stratified VPC produces a faceted plot", {
                                  char_vars = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
 
-  p <- plot_vpc_exactbins(sim = testsim, strat_var = FOOD_f)
+  p <- plot_vpc_cont(sim = testsim, strat_var = FOOD_f)
   expect_s3_class(p, "ggplot")
   expect_true("FacetWrap" %in% class(p$facet))
 })
@@ -239,11 +239,11 @@ test_that("min_bin_count filters small bins from summary but returns a plot", {
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  stats_all <- plot_vpc_exactbins(sim = testsim, min_bin_count = 1, vpcstats = TRUE)
-  stats_filt <- plot_vpc_exactbins(sim = testsim, min_bin_count = 100, vpcstats = TRUE)
+  stats_all <- plot_vpc_cont(sim = testsim, min_bin_count = 1, vpcstats = TRUE)
+  stats_filt <- plot_vpc_cont(sim = testsim, min_bin_count = 100, vpcstats = TRUE)
 
   # Filtered stats should have fewer or equal rows
   # (stats themselves are not filtered, but the plot uses filtered data)
   # Verify plot still works with high min_bin_count
-  expect_no_error(plot_vpc_exactbins(sim = testsim, min_bin_count = 100))
+  expect_no_error(plot_vpc_cont(sim = testsim, min_bin_count = 100))
 })

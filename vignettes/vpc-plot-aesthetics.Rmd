@@ -14,9 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will review the functionality for updating aesthetic elements of VPC plots generated using `plot_vpc_exactbins()` with the `plot_vpc_theme()` function.
+This vignette will review the functionality for updating aesthetic elements of VPC plots generated using `plot_vpc_cont()` with the `plot_vpc_theme()` function.
 
-`plot_vpclegend()` is a helper plotting function that creates a legend for VPC plots. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
+`plot_vpc_legend()` is a helper plotting function that creates a legend for VPC plots. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
 
 Let's get started. First, we will load the required packages.
 
@@ -49,7 +49,7 @@ simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
 Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is only single dose administration in this dataset, thus we are able to pool across doses and food conditions with prediction-correction. We will set `min_bin_count = 5` to avoid the simulated intervals extending to the final timepoint with only a single observation.
 
 ```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc <- plot_vpc_exactbins(
+vpc_pc <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5
@@ -64,7 +64,7 @@ vpc_pc
 
 ## Default Elements
 
-The default elements shown in the plot are controlled by the `shown` argument in `plot_vpc_exactbins()`.
+The default elements shown in the plot are controlled by the `shown` argument in `plot_vpc_cont()`.
 
 The default is as follows:
 
@@ -93,7 +93,7 @@ Let's see how this can be down using `shown`!
 
 ```{r plot-vpc-pcvpc-90pi, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
-vpc_pc_pi <- plot_vpc_exactbins(
+vpc_pc_pi <- plot_vpc_cont(
   sim = simout,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -111,7 +111,7 @@ Now, let's say we want to remove the observed data points from the plot above to
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
-vpc_pc_noobs <- plot_vpc_exactbins(
+vpc_pc_noobs <- plot_vpc_cont(
   sim = simout,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -129,7 +129,7 @@ We could also take this one step further and only look at the median and the sim
 
 ```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
-vpc_pc_noobs_medonly <- plot_vpc_exactbins(
+vpc_pc_noobs_medonly <- plot_vpc_cont(
   sim = simout,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -156,12 +156,12 @@ print(pmxhelpr_theme_list)
 
 ## Adjusting Aesthetics
 
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing element overrides to `plot_vpc_theme()`. The theme object generated from this function can then be passed to the `vpc_theme` argument in `plot_vpc_exactbins`.
+Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing element overrides to `plot_vpc_theme()`. The theme object generated from this function can then be passed to the `vpc_theme` argument in `plot_vpc_cont`.
 
 Let's say we prefer a grey-blue color scheme. We can customize it by passing element constructors to `plot_vpc_theme()`:
 
 ```{r plot-vpc-customtheme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_customtheme <- plot_vpc_exactbins(
+vpc_pc_customtheme <- plot_vpc_cont(
   sim = simout,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
@@ -181,10 +181,10 @@ vpc_pc_customtheme
 
 ## Adding Layers
 
-Let's say we would like to visualize the major x-axis grid lines to help locate data corresponding to each sampling timepoint. Conveniently, `plot_vpc_exactbins` returns a `ggplot2` plot object, which we can modify by adding layers just like like any other `ggplot2` object.
+Let's say we would like to visualize the major x-axis grid lines to help locate data corresponding to each sampling timepoint. Conveniently, `plot_vpc_cont` returns a `ggplot2` plot object, which we can modify by adding layers just like like any other `ggplot2` object.
 
 ```{r plot-vpc-pcvpc-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_xgrid <- plot_vpc_exactbins(
+vpc_pc_xgrid <- plot_vpc_cont(
   sim = simout,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   pcvpc = TRUE,
@@ -208,10 +208,10 @@ vpc_pc_xgrid
 
 Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend.
 
-`pmxhelpr` provides a useful helper function for this purpose, `plot_vpclegend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpclegend()` without any arguments specified.
+`pmxhelpr` provides a useful helper function for this purpose, `plot_vpc_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpc_legend()` without any arguments specified.
 
 ```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_legend <- plot_vpclegend()
+vpc_pc_legend <- plot_vpc_legend()
 vpc_pc_legend
 ```
 
@@ -220,7 +220,7 @@ Now we have a `ggplot` object legend for our first plot!
 To generate one with updated aesthetics to match the custom theme, let's pass the named list to the `update` argument.
 
 ```{r vpc_pc_new_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_legend <- plot_vpclegend(update = list(obs_color = "#000000",
+vpc_pc_new_legend <- plot_vpc_legend(update = list(obs_color = "#000000",
                                                    obs_median_color = "#000000",
                                                    obs_ci_color = "#000000",
                                                    sim_median_fill = "#3388cc",

@@ -37,7 +37,7 @@ Functions in this package use the following naming conventions:
 * Wrapper functions: *ReturnObject*_*WrappedFunction*_*Purpose*
   + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object.
   + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`.
-  + `plot_vpc_exactbins()` generates a VPC plot using exact time bins returning a `ggplot` object.
+  + `plot_vpc_cont()` generates a VPC plot using exact time bins returning a `ggplot` object.
   
 * Helper functions: *ReturnObject*_*Purpose*
   + `df_addn` returns a `data.frame` with counts of the number of unique values of an ID variable per bin.
@@ -50,7 +50,7 @@ Functions in this package use the following naming conventions:
   + `plot_dvtime` returns a `ggplot` object with a dependent variable plotted versus time
   + `plot_doseprop` returns a `ggplot` object with log-log regression of exposure metrics versus dose
   + `plot_popgof` returns a `ggplot` object with observed, population-predicted, and individual-predicted values plotted versus time
-  + `plot_vpclegend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_exactbins`
+  + `plot_vpc_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_cont`
   
 * Plot theme lists
   + `plot_dvconc_theme()`, `plot_dvtime_theme()`, `plot_popgof_theme()`, `plot_vpc_theme()`, and `plot_vpc_shown()` return a named `list` with elements of modifiable elements of the plot theme or  elements shown.
@@ -169,7 +169,7 @@ glimpse(simout)
   #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
 
 
-plot_obj_food <- plot_vpc_exactbins(
+plot_obj_food <- plot_vpc_cont(
   sim = simout, 
   strat_var = "Food",
   pcvpc = TRUE
@@ -179,7 +179,7 @@ plot_obj_food <- plot_vpc_exactbins(
 plot_obj_food
 
 #Add Legend
-plot_obj_leg <- plot_vpclegend()
+plot_obj_leg <- plot_vpc_legend()
 plot_obj_leg
 
 plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))

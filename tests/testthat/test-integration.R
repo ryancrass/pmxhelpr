@@ -7,7 +7,7 @@ test_that("df_addn -> plot_dvtime: factor col_var from df_addn is accepted", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("df_addpred -> plot_vpc_exactbins: prediction-corrected DV pipeline produces valid output", {
+test_that("df_addpred -> plot_vpc_cont: prediction-corrected DV pipeline produces valid output", {
   model <- model_mread_load("pkmodel")
   data_pred <- df_addpred(data_sad, model)
   expect_s3_class(data_pred, "data.frame")
@@ -15,7 +15,7 @@ test_that("df_addpred -> plot_vpc_exactbins: prediction-corrected DV pipeline pr
                              replicates = 1, dv_var = "ODV")
   expect_s3_class(sim, "data.frame")
   expect_equal(nrow(data_pred), nrow(sim))
-  p <- plot_vpc_exactbins(sim = sim, pcvpc = TRUE)
+  p <- plot_vpc_cont(sim = sim, pcvpc = TRUE)
   expect_s3_class(p, "ggplot")
 })
 
@@ -27,11 +27,11 @@ test_that("df_addn -> plot_dvconc: factor col_var works in dvconc with col_trend
   expect_true("colour" %in% names(p$mapping))
 })
 
-test_that("df_mrgsim_replicate -> plot_vpc_exactbins: simulated data produces VPC plot", {
+test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces VPC plot", {
   model <- model_mread_load("pkmodel")
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
                              replicates = 5, dv_var = "ODV")
-  p <- plot_vpc_exactbins(sim = sim)
+  p <- plot_vpc_cont(sim = sim)
   expect_s3_class(p, "ggplot")
 })
 

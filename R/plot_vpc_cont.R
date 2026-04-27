@@ -1,7 +1,8 @@
-#' Plot a visual predictive check (VPC) with exact time bins
+#' Plot a visual predictive check (VPC) for continuous data with exact time bins
 #'
-#' @description  `plot_vpc_exactbins()` generates a VPC plot using exact time bins
+#' @description  `plot_vpc_cont()` generates a VPC plot using exact time bins
 #' and returns a `ggplot2` object.
+#' @aliases plot_vpc_exactbins
 #'
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
 #' @param strat_var Stratification variable.
@@ -33,7 +34,7 @@
 #' @inheritParams var_pc
 #'
 #' @return A list containing calculated VPC information (when `vpcdb=TRUE`), or a ggplot2 object (default)
-#' @export plot_vpc_exactbins
+#' @export plot_vpc_cont
 #'
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
@@ -44,13 +45,13 @@
 #' char_vars = c("USUBJID", "PART"),
 #' irep_name = SIM)
 #'
-#' vpc_plot <- plot_vpc_exactbins(
+#' vpc_plot <- plot_vpc_cont(
 #' sim = simout,
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
 #' ci = c(0.05, 0.95))
 
-plot_vpc_exactbins <- function(sim,
+plot_vpc_cont <- function(sim,
                                time_vars = c(TIME = "TIME",
                                              NTIME = "NTIME"),
                                output_vars = c(PRED = "PRED",
@@ -104,7 +105,7 @@ plot_vpc_exactbins <- function(sim,
   xbreaks <- var_timebreaks(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
-  plot <- plot_vpc(
+  plot <- plot_build_vpccont(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
     strat_var_str = strat_var_str,
     shown = show_vpc,
@@ -146,6 +147,9 @@ plot_vpc_exactbins <- function(sim,
 }
 
 
+#' @rdname plot_vpc_cont
+#' @export
+plot_vpc_exactbins <- plot_vpc_cont
 
 
 

@@ -332,7 +332,7 @@ plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NUL
 
 #' VPC plot theme
 #'
-#' Constructor and factory for `plot_vpc_exactbins` plot aesthetics.
+#' Constructor and factory for `plot_vpc_cont` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
 #' @param obs Observed data point aesthetics. See [pmx_vpc_point()].

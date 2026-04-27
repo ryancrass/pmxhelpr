@@ -14,11 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will review the functionality of `plot_vpc_exactbins()` for generating VPC plots using exact time bins from datasets containing a nominal time variable.
+This vignette will review the functionality of `plot_vpc_cont()` for generating VPC plots using exact time bins from datasets containing a nominal time variable.
 
 Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times).
 
-`plot_vpc_exactbins()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at the actual protocol-specified sampling times.
+`plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at the actual protocol-specified sampling times.
 
 First, we will load the required packages.
 
@@ -129,12 +129,12 @@ df_nobsbin(data_sad_pk, bin_var = "NTIME")
 
 ## VPC Plots with `pmxhelpr`
 
-`plot_vpc_exactbins()` uses the unique values of the nominal time variable (`NTIME`) directly as exact bins. This ensures that summary statistics are calculated at each protocol-specified sampling time, preserving the full resolution of the data.
+`plot_vpc_cont()` uses the unique values of the nominal time variable (`NTIME`) directly as exact bins. This ensures that summary statistics are calculated at each protocol-specified sampling time, preserving the full resolution of the data.
 
 Because we have multiple dose levels in the SAD portion of the study, as well as, a food effect cohort, prediction-correction will be used to plot all the data on a single plot using the argument `pcvpc = TRUE`.
 
 ```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact <- plot_vpc_exactbins(
+vpc_exact <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   time_vars = c(TIME = "TIME", NTIME = "NTIME"),
@@ -150,14 +150,14 @@ vpc_exact
 
 The difference in plotting the observed prediction-corrected data points by `"TIME"` versus `"NTIME"` is negligible for this example dataset, due to the high concordance between `"TIME"` and `"NTIME"` in this example Phase 1 study. However, this difference is often much larger for pooled analyses including later phase clinical studies where plotting the observed points versus actual time will result in a plot that is much more representative of the distribution of times in the model training dataset.
 
-`plot_vpc_exactbins()` also contains an argument built around `df_nobsbin()`. The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+`plot_vpc_cont()` also contains an argument built around `df_nobsbin()`. The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
 Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the `time_vars` and `output_vars` match the default values, so we do not need to specify these arguments and they can be removed. Furthermore, the `pi` and `ci` arguments we are specifying match the defaults and can be removed.
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
 ```{r plot-exact-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact_bin_gt10 <- plot_vpc_exactbins(
+vpc_exact_bin_gt10 <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 10
@@ -171,7 +171,7 @@ vpc_exact_bin_gt10
 We can also pass stratifying variables to the argument `strat_var` in order to facet our plots by relevant covariate conditions. Currently, only one variable can be passed to this argument.
 
 ```{r plot-exact-one-strata, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact_food <- plot_vpc_exactbins(
+vpc_exact_food <- plot_vpc_cont(
   sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))),
   strat_var = FOOD_f,
   pcvpc = TRUE,
@@ -183,4 +183,4 @@ vpc_exact_food <- plot_vpc_exactbins(
 vpc_exact_food
 ```
 
-Because `plot_vpc_exactbins()` returns a `ggplot2` object, the y-axis can be transformed to log10 scale by adding `scale_y_log10()` as a layer. This approach avoids any data transformation prior to calculating summary statistics, ensuring all quantile calculations are performed on the original scale.
+Because `plot_vpc_cont()` returns a `ggplot2` object, the y-axis can be transformed to log10 scale by adding `scale_y_log10()` as a layer. This approach avoids any data transformation prior to calculating summary statistics, ensuring all quantile calculations are performed on the original scale.

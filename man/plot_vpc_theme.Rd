@@ -33,7 +33,7 @@ plot_vpc_theme(
 A named list of theme elements
 }
 \description{
-Constructor and factory for \code{plot_vpc_exactbins} plot aesthetics.
+Constructor and factory for \code{plot_vpc_cont} plot aesthetics.
 Call with no arguments to view defaults. Pass element overrides to customize.
 }
 \examples{

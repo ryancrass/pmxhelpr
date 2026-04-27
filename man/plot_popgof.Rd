@@ -48,7 +48,7 @@ Defaults are:
 }}
 
 \item{timeu}{Character string specifying units for the time variable.
-Passed to \code{breaks_time} and assigned to default x-axis label.
+Passed to \code{var_timebreaks} and assigned to default x-axis label.
 Options include:
 \itemize{
 \item "hours" (default)

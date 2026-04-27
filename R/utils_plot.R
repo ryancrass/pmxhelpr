@@ -203,9 +203,26 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 }
 
 
-# Internal helper: quantile with left-censored (LLOQ) handling
-#   Replaces values below loq (including NA) with -Inf, then computes
+
+
+
+
+#' Determine left-censoring for quantiles at the lower limit of quantification
+#'
+#' @param x Vector containing the variable to be censored
+#' @param p Quantile for computation
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay
+#'
+#' @return Replaces values below loq (including NA) with -Inf, then computes
 #   the quantile. Returns NA if the result is -Inf.
+#' @keywords internal
+#' @examples
+#' data <- data_sad |>
+#'   dplyr::group_by(CMT, NTIME, DOSE) |>
+#'   dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
+#'                    P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
+#'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
+
 var_loqcens <- function(x, p, loq) {
   x[is.na(x)] <- -Inf
   x[x < loq] <- -Inf
@@ -213,20 +230,68 @@ var_loqcens <- function(x, p, loq) {
   if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
 }
 
-# Internal helper: vectorized dose normalization
+
+
+
+
+#' Determine dose-normalization
+#'
+#' @param dv_var Vector containing the dependent variable (DV)
+#' @param dose_var Vector containing dose
+#'
+#' @return A numeric vector of dose-normalized values of `dv_var`
+#' @keywords internal
+#' @examples
+#' data <- dplyr::mutate(data_sad, DNDV = pmxhelpr:::var_dosenorm(ODV, DOSE))
+
 var_dosenorm <- function(dv_var, dose_var) {
   dv_var / dose_var
 }
 
-# Internal helper: vectorized prediction correction
-  # Applies the standard PC-VPC formula to numeric vectors.
-  # Assumes the vectors are already scoped to a single bin/group.
+
+
+
+
+#' Determine prediction correction
+#'
+#' @param dv_var Vector containing the dependent variable (DV)
+#' @param pred_var Vector containing population predictions (PRED)
+#' @param lower_bound Lower bound for prediction correction formula.
+#'
+#' @return A numeric vector of prediction-corrected values of `dv_var`
+#' @keywords internal
+#' @examples
+#' pkmodel <- model_mread_load(model = "pkmodel")
+#' data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
+#' data <- dplyr::mutate(data, PCDV = pmxhelpr:::var_pc(ODV, PRED))
+#'
 var_pc <- function(dv_var, pred_var, lower_bound = 0) {
   predbin <- stats::median(pred_var)
   lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
 }
 
-# Internal helper: determine axis breaks for time variables
+
+
+
+
+#' Determine axis breaks automatically for time variables
+#'
+#' @param x Numeric vector of times from which to determine breaks
+#' @param unit Character string for time units.
+#'    Options include:
+#'    + "hours" (default), "hrs", "hour", "hr", "h"
+#'    + "days", "dys", "day", "dy", "d"
+#'    + "weeks", "wks", "week", "wk", "w"
+#'    + "months", "mons", "mos", "month", "mo", "m"
+#'
+#' @param n Ideal number of axis breaks requested (default = 8). Passed to `labeling::extended()`
+#'
+#' @return A numeric vector of breaks
+#' @keywords internal
+#' @examples
+#' ntimes <- sort(unique(data_sad$NTIME))
+#' breaks <- pmxhelpr:::var_timebreaks(ntimes)
+
 var_timebreaks <- function(x, unit = "hours", n = 8) {
   check_numeric(x, "x")
   check_timeu(unit)

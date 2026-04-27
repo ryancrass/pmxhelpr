@@ -6,8 +6,8 @@
 \usage{
 plot_vpc(
   vpcstats,
-  bin_var = NTIME,
-  strat_var = NULL,
+  bin_var_str = "NTIME",
+  strat_var_str = NULL,
   shown = NULL,
   vpc_theme = NULL,
   loq = NULL
@@ -16,9 +16,9 @@ plot_vpc(
 \arguments{
 \item{vpcstats}{Data.frame of simulated quantile statistics from \code{df_vpcstats()}.}
 
-\item{bin_var}{Binning variable name. Default is \code{NTIME}. Accepts bare names or strings.}
+\item{bin_var_str}{String. Binning variable name. Default is \code{"NTIME"}.}
 
-\item{strat_var}{Stratification variable name, or \code{NULL}. Accepts bare names or strings.}
+\item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 
 \item{shown}{Named list of logicals specifying which layers to include.}
 

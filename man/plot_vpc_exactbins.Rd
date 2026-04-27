@@ -53,7 +53,7 @@ but retains these observations in the observed data points.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 
-\item{lower_bound}{Lower bound of the dependent variable for prediction correction. Default is \code{0}.}
+\item{lower_bound}{Lower bound for prediction correction formula.}
 
 \item{shown}{Named list of logicals specifying which layers to include on the plot.
 Defaults can be obtained by calling \code{plot_vpc_shown()} with no arguments.
@@ -74,7 +74,7 @@ Defaults are:
 Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}
 
 \item{timeu}{Character string specifying units for the time variable.
-Passed to \code{breaks_time} and assigned to default x-axis label.
+Passed to \code{var_timebreaks} and assigned to default x-axis label.
 Options include:
 \itemize{
 \item "hours" (default)

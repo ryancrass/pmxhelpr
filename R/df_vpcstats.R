@@ -87,9 +87,8 @@ df_vpcstats <- function(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, 
 #' @param output_vars Named character vector for output column mapping.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param pcvpc Logical for prediction correction.
-#' @param lower_bound Lower bound for prediction correction formula.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'
+#' @inheritParams var_pc
 #' @return A preprocessed data.frame with standardized column names.
 #' @keywords internal
 

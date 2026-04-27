@@ -120,13 +120,6 @@ Many automatic binning algorithms are designed to determine optimal binning inte
 
 The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols specify the times of PK sampling.
 
-We can use the `df_nobsbin()` function to calculate and return a summary data.frame containing the unique exact bin times, count of non-missing observations (EVID=0 & MDV=0), and count of missing (EVID=0 & MDV=1) observations.
-
-```{r bins-exact}
-##Exact bins in the input data
-df_nobsbin(data_sad_pk, bin_var = "NTIME")
-```
-
 ## VPC Plots with `pmxhelpr`
 
 `plot_vpc_cont()` uses the unique values of the nominal time variable (`NTIME`) directly as exact bins. This ensures that summary statistics are calculated at each protocol-specified sampling time, preserving the full resolution of the data.
@@ -150,7 +143,7 @@ vpc_exact
 
 The difference in plotting the observed prediction-corrected data points by `"TIME"` versus `"NTIME"` is negligible for this example dataset, due to the high concordance between `"TIME"` and `"NTIME"` in this example Phase 1 study. However, this difference is often much larger for pooled analyses including later phase clinical studies where plotting the observed points versus actual time will result in a plot that is much more representative of the distribution of times in the model training dataset.
 
-`plot_vpc_cont()` also contains an argument built around `df_nobsbin()`. The argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+`plot_vpc_cont()` contains the argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
 Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the `time_vars` and `output_vars` match the default values, so we do not need to specify these arguments and they can be removed. Furthermore, the `pi` and `ci` arguments we are specifying match the defaults and can be removed.
 

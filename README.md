@@ -46,8 +46,6 @@ Functions in this package use the following naming conventions:
     log-log regression of a single exposure metric versus dose
   - `df_pcdv` returns a `data.frame` containing the prediction-corrected
     dependent variable.
-  - `df_nobsbin` returns a summary `data.frame` with counts of the
-    number of missing and non-missing observations per bin.
   - `mod_loglog` returns a `lm` object from a log-log regression of a
     single exposure metric versus dose
   - `plot_dvtime` returns a `ggplot` object with a dependent variable

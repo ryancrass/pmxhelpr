@@ -161,12 +161,6 @@ test_that("Error if variable specified by `irep_name` does not exist in `sim`", 
 })
 
 ##Test NSE Bare Names
-test_that("df_nobsbin accepts bare names and matches string output", {
-  n1 <- df_nobsbin(data_sad, bin_var = NTIME)
-  n2 <- df_nobsbin(data_sad, bin_var = "NTIME")
-  expect_identical(n1, n2)
-})
-
 test_that("plot_vpc_cont accepts bare irep_name and matches string output", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),

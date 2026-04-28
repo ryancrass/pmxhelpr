@@ -39,13 +39,13 @@ This dataset contains two additional variables relative to the observed dataset 
 + `PRED`: population model predicted values accounting only for fixed effects (THETAs)
 + `IPRED`: individual model predicted values accounting for fixed effects (THETAs) and level 1 (inter-individual) random effects (ETAs)
 
-Let's derive some additional variables and leverage the functionality of `df_addn` to create a new factor variable including a count of unique individuals in each unique dosing condition for plotting
+Let's derive some additional variables and leverage the functionality of `var_addn` to create a new factor variable including a count of unique individuals in each unique dosing condition for plotting
 
 ```{r data-plotdata}
 plot_data <- data_sad_pkfit %>% 
   mutate(FoodStatus = ifelse(FOOD == 0, "Fasted", "Fed"), 
          DoseGroup = paste0(DOSE, " mg ", FoodStatus)) %>% 
-  df_addn("DoseGroup")
+  mutate(DoseGroup = var_addn(DoseGroup, ID))
 
 unique(plot_data$DoseGroup)
 plot_data <- plot_data %>% 

@@ -1,8 +1,8 @@
 #####Integration Tests####
 ## Cross-function workflow tests
 
-test_that("df_addn -> plot_dvtime: factor col_var from df_addn is accepted", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+test_that("var_addn -> plot_dvtime: factor col_var from var_addn is accepted", {
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvtime(data, dv_var = "ODV", col_var = "Dose")
   expect_s3_class(p, "ggplot")
 })
@@ -19,8 +19,8 @@ test_that("df_addpred -> plot_vpc_cont: prediction-corrected DV pipeline produce
   expect_s3_class(p, "ggplot")
 })
 
-test_that("df_addn -> plot_dvconc: factor col_var works in dvconc with col_trend", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+test_that("var_addn -> plot_dvconc: factor col_var works in dvconc with col_trend", {
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
                    col_var = "Dose", col_trend = TRUE)
   expect_s3_class(p, "ggplot")

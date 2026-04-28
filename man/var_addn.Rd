@@ -2,16 +2,14 @@
 % Please edit documentation in R/utils.R
 \name{var_addn}
 \alias{var_addn}
-\title{Internal helper: Count distinct values of an ID variable per level of a Grouping variable}
+\title{Append counts of unique identifiers to group labels}
 \usage{
-var_addn(data, grp_var_str, id_var_str, sep = NULL)
+var_addn(grp_var, id_var, sep = NULL)
 }
 \arguments{
-\item{data}{data.frame containing \code{grp_var} and \code{id_var} variables}
+\item{grp_var}{Vector of grouping variable values.}
 
-\item{grp_var_str}{String specifying the grouping variable (\code{grp_var})}
-
-\item{id_var_str}{String specifying the unique identifier variable (\code{id_var})}
+\item{id_var}{Vector of identifier values to count distinct entries of.}
 
 \item{sep}{Optional separator to add between values of \code{grp_var} and appended counts.
 Default is NULL.}
@@ -20,11 +18,11 @@ Default is NULL.}
 A factor vector with group labels appended with subject counts (e.g., \code{"100 mg (n=6)"})
 }
 \description{
-Internal helper: Count distinct values of an ID variable per level of a Grouping variable
+\code{var_addn()} counts distinct values of \code{id_var} within each
+level of \code{grp_var} and returns a factor with labels like \code{"100 mg (n=6)"}.
 }
 \examples{
 data <- dplyr::filter(data_sad, CMT != 3)
-var <- pmxhelpr:::var_addn(data, grp_var_str = "DOSE", id_var_str = "ID", sep = "mg")
+var_addn(data$DOSE, data$ID, sep = "mg")
 
 }
-\keyword{internal}

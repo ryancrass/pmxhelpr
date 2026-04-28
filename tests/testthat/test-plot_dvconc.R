@@ -2,7 +2,7 @@
 
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   expect_s3_class(plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose"),
                class = "ggplot")
 })
@@ -42,14 +42,14 @@ test_that("Custom axis labels are applied", {
 
 ##Test col_trend
 test_that("Color aesthetic is mapped when col_trend = TRUE", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
                    col_var = "Dose", col_trend = TRUE)
   expect_true("colour" %in% names(p$mapping))
 })
 
 test_that("Color aesthetic is not mapped when col_trend = FALSE", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
                    col_var = "Dose", col_trend = FALSE)
   expect_false("colour" %in% names(p$mapping))
@@ -83,12 +83,12 @@ test_that("No reference line when cfb = FALSE", {
 
 ##Test NSE Bare Names
 test_that("plot_dvconc accepts bare names and produces ggplot", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   expect_s3_class(plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose), "ggplot")
 })
 
 test_that("plot_dvconc bare names match string output", {
-  data <- df_addn(dplyr::mutate(data_sad, Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p1 <- plot_dvconc(data, dv_var = ODV, idv_var = CONC)
   p2 <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC")
   expect_equal(p1$labels, p2$labels)

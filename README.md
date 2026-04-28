@@ -36,8 +36,8 @@ Functions in this package use the following naming conventions:
   - `plot_vpc_cont()` generates a VPC plot using exact time bins
     returning a `ggplot` object.
 - Helper functions: *ReturnObject*\_*Purpose*
-  - `df_addn` returns a `data.frame` with counts of the number of unique
-    values of an ID variable per bin.
+  - `var_addn` returns a factor vector with group labels appended with
+    counts of unique values of an ID variable.
   - `df_addpred` returns a `data.frame` with population model
     predictions (PRED) appended.
   - `df_doseprop` returns a `data.frame` containing parameters from
@@ -82,8 +82,7 @@ glimpse(data_sad)
 
 #Pre-process data for plotting
 data <- data_sad %>% 
-  mutate(Regimen = DOSE) %>% 
-  df_addn(grp_var = "Regimen", id_var = "ID", sep = "mg x1") %>% 
+  mutate(Regimen = var_addn(DOSE, ID, sep = "mg x1")) %>%
   mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
 
 #Plot drug concentration-time
@@ -131,8 +130,8 @@ library(withr)
 data <- data_sad_pkfit %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
          DoseGroup = paste0(DOSE, " mg ", Food)) %>% 
-  df_addn("DoseGroup") %>% 
-  df_addn("Food")
+  mutate(DoseGroup = var_addn(DoseGroup, ID),
+         Food = var_addn(Food, ID))
 unique(data$DoseGroup)
 unique(data$Food)
 
@@ -169,7 +168,7 @@ model <- model_mread_load("pkmodel")
 #Process Data
 data <- data_sad%>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
-  df_addn(grp_var = "Food", id_var = "ID")
+  mutate(Food = var_addn(Food, ID))
 
 #Simulated replicates of the dataset using mrgsim 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,

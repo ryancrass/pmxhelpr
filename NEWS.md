@@ -24,14 +24,14 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 
 * Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines
 * Add `plot_dvtime_dual` wrapper function for `plot_dvtime` to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.
-* Update `df_addn` to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., `forcats`)
+* Update `var_addn` (formerly `df_addn`) to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., `forcats`)
 * Update `plot_popgof_theme` to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.
 * Revise the `Exploratory Data Analysis` vignette to include new functionality and revised workflows with new functions.
 * Fix bug that was not scaling error bar caps for the x-axis range when `cent = "median_iqer` across functions
 
 # pmxhelpr 0.3.6
 
-* Add `df_addn` helper function to create and order factor labels including count of unique values to include counts in plot legends
+* Add `var_addn` (formerly `df_addn`) helper function to create and order factor labels including count of unique values to include counts in plot legends
 * Add `plot_popgof_theme` function to set and adjust default aesthetics for `plot_popgof`
 * Add LLOQ value and linetype to legend in `plot_dvtime`
 * Add caption indicating method of BLQ imputation to `plot_dvtime`

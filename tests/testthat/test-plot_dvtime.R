@@ -47,6 +47,6 @@ test_that("plot_dvtime bare names match string output aesthetics", {
 })
 
 test_that("plot_dvtime accepts bare col_var", {
-  data <- df_addn(dplyr::mutate(dplyr::filter(data_sad, CMT != 3), Dose = DOSE), grp_var = Dose, sep = "mg")
+  data <- dplyr::mutate(dplyr::filter(data_sad, CMT != 3), Dose = var_addn(DOSE, ID, sep = "mg"))
   expect_s3_class(plot_dvtime(data, dv_var = ODV, col_var = Dose), "ggplot")
 })

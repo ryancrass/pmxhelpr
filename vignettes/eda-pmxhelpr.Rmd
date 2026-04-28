@@ -74,13 +74,13 @@ length(ntimes)
 length(times)
 ```
 
-## df_addn
+## var_addn
 
 One should make sure to only pass the data of interest for visualization into any plotting function. Let's filter to only observations, and define some grouping variables with summative information for subsequent exploratory analysis.
 
-The helper function `df_addn` takes an input dataset `data` and returns a dataset with the variable specified in `grp_var` transformed to a factor including the count of unique values of the identifier variable specified in `id_var` (default `ID`). Both arguments use non-standard evaluation and can be passed as bare column names or strings, as shown below.
+The helper function `var_addn` takes vectors of grouping variable values (`grp_var`) and identifier values (`id_var`) and returns a factor vector with group labels appended with counts of unique identifiers (e.g., `"100 mg (n=6)"`). It can be used inside `mutate` to transform columns in place, as shown below.
 
-A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose. 
+A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose.
 
 ```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_data <- data_sad %>% 
@@ -88,8 +88,8 @@ plot_data <- data_sad %>%
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          `Dose and Food` = paste(DOSE, "mg", `Food Status`),
          Dose = DOSE) %>% 
-  df_addn(grp_var = Dose, sep = "mg") %>% 
-  df_addn(grp_var = `Dose and Food`)
+  mutate(Dose = var_addn(Dose, ID, sep = "mg"),
+         `Dose and Food` = var_addn(`Dose and Food`, ID))
 
 unique(plot_data$Dose)
 unique(plot_data$`Dose and Food`)
@@ -204,7 +204,7 @@ plot_dvtime(data = plot_data_24, dv_var = "ODV")
 
 ## Color Aesthetic and Central Tendency
 
-The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. Let's use a variable we defined earlier using `df_addn` to list unique study conditions.
+The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. Let's use a variable we defined earlier using `var_addn` to list unique study conditions.
 
 ```{r plot-dvtime-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE, col_var = `Dose and Food`)

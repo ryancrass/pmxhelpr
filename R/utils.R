@@ -286,23 +286,25 @@ var_loqcens <- function(x, p, loq) {
 
 
 
-#' Internal helper: Count distinct values of an ID variable per level of a Grouping variable
+#' Append counts of unique identifiers to group labels
 #'
-#' @param data data.frame containing `grp_var` and `id_var` variables
-#' @param grp_var_str String specifying the grouping variable (`grp_var`)
-#' @param id_var_str String specifying the unique identifier variable (`id_var`)
+#' @description `var_addn()` counts distinct values of `id_var` within each
+#'    level of `grp_var` and returns a factor with labels like `"100 mg (n=6)"`.
+#'
+#' @param grp_var Vector of grouping variable values.
+#' @param id_var Vector of identifier values to count distinct entries of.
 #' @param sep Optional separator to add between values of `grp_var` and appended counts.
 #'    Default is NULL.
 #'
 #' @return A factor vector with group labels appended with subject counts (e.g., `"100 mg (n=6)"`)
-#' @keywords internal
+#' @export var_addn
 #' @examples
 #' data <- dplyr::filter(data_sad, CMT != 3)
-#' var <- pmxhelpr:::var_addn(data, grp_var_str = "DOSE", id_var_str = "ID", sep = "mg")
+#' var_addn(data$DOSE, data$ID, sep = "mg")
 #'
-var_addn <- function(data, grp_var_str, id_var_str, sep = NULL) {
-  counts <- tapply(data[[id_var_str]], data[[grp_var_str]], dplyr::n_distinct)
-  n <- unname(counts[as.character(data[[grp_var_str]])])
-  parts <- if (is.null(sep)) paste(data[[grp_var_str]]) else paste(data[[grp_var_str]], sep)
+var_addn <- function(grp_var, id_var, sep = NULL) {
+  counts <- tapply(id_var, grp_var, dplyr::n_distinct)
+  n <- unname(counts[as.character(grp_var)])
+  parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)
   factor(paste(parts, paste0("(n=", n, ")")))
 }

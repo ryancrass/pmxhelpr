@@ -232,6 +232,7 @@ list_update <- function(update=NULL, src){
 #' @param dose_var Vector containing dose
 #'
 #' @return A numeric vector of dose-normalized values of `dv_var`
+#' @export var_dosenorm
 #' @examples
 #' data <- dplyr::mutate(data_sad, DNDV = var_dosenorm(ODV, DOSE))
 
@@ -247,6 +248,7 @@ var_dosenorm <- function(dv_var, dose_var) {
 #' @param lower_bound Lower bound for prediction correction formula.
 #'
 #' @return A numeric vector of prediction-corrected values of `dv_var`
+#' @export var_pc
 #' @examples
 #' pkmodel <- model_mread_load(model = "pkmodel")
 #' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)

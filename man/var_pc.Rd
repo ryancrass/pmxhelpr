@@ -21,7 +21,7 @@ Internal Helper: Apply prediction correction
 }
 \examples{
 pkmodel <- model_mread_load(model = "pkmodel")
-data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
+data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 data <- dplyr::mutate(data, PCDV = pmxhelpr:::var_pc(ODV, PRED))
 
 }

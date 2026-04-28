@@ -90,8 +90,8 @@ plot_vpc_cont <- function(sim,
     dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
 
   ##Compute VPC Statistics
-  bin_var_str <- "NTIME"
-  vpcstat <- df_vpcstats(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq)
+  bin_var <- "BIN_MID"
+  vpcstat <- df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {
@@ -103,11 +103,12 @@ plot_vpc_cont <- function(sim,
   vpctheme <- merge_theme(vpc_theme, plot_vpc_theme())
 
   #Determine Breaks
-  xbreaks <- var_timebreaks(x = unique(vpcstat$NTIME), unit = timeu, n = n_breaks)
+  xbreaks <- var_timebreaks(x = unique(vpcstat$BIN_MID), unit = timeu, n = n_breaks)
 
   ##Build VPC Plot
   plot <- vpc_build_plot(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
+    bin_var = bin_var,
     strat_var_str = strat_var_str,
     shown = show_vpc,
     vpc_theme = vpctheme,

@@ -1,7 +1,7 @@
 #' @importFrom rlang .data
 NULL
 
-utils::globalVariables(c("ID", "TIME", "NTIME", "MDV", "EVID",
+utils::globalVariables(c("ID", "TIME", "NTIME", "BIN_MID", "MDV", "EVID",
                          "PRED", "IPRED", "DV", "LLOQ", "DOSE",
                          "OBSDV", "SIMDV",
                          "x", "y", "nbin",

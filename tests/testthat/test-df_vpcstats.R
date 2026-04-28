@@ -15,7 +15,7 @@ run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
                                          SIMDV = "SIMDV", OBSDV = "OBSDV")) {
   sim <- pmxhelpr:::df_vpcpreprocess(sim, time_vars, output_vars, strat_var_str,
                                      pcvpc, lower_bound, loq)
-  pmxhelpr:::df_vpcstats(sim, pi, ci, "NTIME", strat_var_str, "SIM", loq)
+  pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM", loq)
 }
 
 ## Test Output
@@ -26,7 +26,7 @@ test_that("df_vpcstats returns a data.frame", {
 
 test_that("df_vpcstats returns expected columns", {
   result <- run_vpcstats(testsim_raw)
-  expected_cols <- c("NTIME", "nbin",
+  expected_cols <- c("BIN_MID", "nbin",
                      "q5_low", "q5_med", "q5_hi",
                      "q50_low", "q50_med", "q50_hi",
                      "q95_low", "q95_med", "q95_hi",

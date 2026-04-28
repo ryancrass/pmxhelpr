@@ -4,7 +4,7 @@
 \alias{df_vpcstats}
 \title{Compute VPC summary statistics from preprocessed simulation data}
 \usage{
-df_vpcstats(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq)
+df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 }
 \arguments{
 \item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV}, and \code{irep_name} columns.}
@@ -13,7 +13,7 @@ df_vpcstats(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq)
 
 \item{ci}{Numeric vector of length 2 specifying confidence interval quantiles.}
 
-\item{bin_var_str}{String. Binning variable name.}
+\item{bin_var}{String. Binning variable name.}
 
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 

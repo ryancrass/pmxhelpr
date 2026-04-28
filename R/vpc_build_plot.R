@@ -5,7 +5,7 @@
 #'    summary statistics.
 #'
 #' @param vpcstats Data.frame of simulated quantile statistics from `df_vpcstats()`.
-#' @param bin_var_str String. Binning variable name. Default is `"NTIME"`.
+#' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param shown Named list of logicals specifying which layers to include.
 #' @param vpc_theme Named list of aesthetic parameters (colors, sizes, etc.).
@@ -15,7 +15,7 @@
 #' @keywords internal
 
 vpc_build_plot <- function(vpcstats,
-                     bin_var_str = "NTIME",
+                     bin_var = "BIN_MID",
                      strat_var_str = NULL,
                      shown = NULL,
                      vpc_theme = NULL,
@@ -26,7 +26,7 @@ vpc_build_plot <- function(vpcstats,
   vpc_theme <- merge_theme(vpc_theme, plot_vpc_theme())
 
   ###Generate Base Plot
-  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var_str]]))
+  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
   if (isTRUE(shown$pi_as_area)) {
@@ -95,7 +95,7 @@ vpc_build_plot <- function(vpcstats,
   if (isTRUE(shown$obs_median)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var_str]], y = obs50),
+        ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
         color = vpc_theme$obs_median$color,
         linetype = vpc_theme$obs_median$linetype,
@@ -107,14 +107,14 @@ vpc_build_plot <- function(vpcstats,
   if (isTRUE(shown$obs_ci)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var_str]], y = obs5),
+        ggplot2::aes(x = .data[[bin_var]], y = obs5),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci$color,
         linetype = vpc_theme$obs_ci$linetype,
         linewidth = vpc_theme$obs_ci$size
       ) +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var_str]], y = obs95),
+        ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci$color,
         linetype = vpc_theme$obs_ci$linetype,

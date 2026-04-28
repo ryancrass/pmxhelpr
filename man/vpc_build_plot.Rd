@@ -6,7 +6,7 @@
 \usage{
 vpc_build_plot(
   vpcstats,
-  bin_var_str = "NTIME",
+  bin_var = "BIN_MID",
   strat_var_str = NULL,
   shown = NULL,
   vpc_theme = NULL,
@@ -16,7 +16,7 @@ vpc_build_plot(
 \arguments{
 \item{vpcstats}{Data.frame of simulated quantile statistics from \code{df_vpcstats()}.}
 
-\item{bin_var_str}{String. Binning variable name. Default is \code{"NTIME"}.}
+\item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 

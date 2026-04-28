@@ -7,7 +7,7 @@
 #' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`, and `irep_name` columns.
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
-#' @param bin_var_str String. Binning variable name.
+#' @param bin_var String. Binning variable name.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param irep_name_str String. Replicate identifier column name.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
@@ -15,10 +15,10 @@
 #' @return A data.frame with quantile summary columns.
 #' @keywords internal
 
-df_vpcstats <- function(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, loq) {
+df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq) {
 
-  group_vars <- c(bin_var_str)
-  if (!is.null(strat_var_str)) group_vars <- c(bin_var_str, strat_var_str)
+  group_vars <- c(bin_var)
+  if (!is.null(strat_var_str)) group_vars <- c(bin_var, strat_var_str)
 
   ## Stage 1: Per-replicate quantiles on simulated data
   stage1 <- sim |>
@@ -109,10 +109,11 @@ df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
   if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
 
   sim <- df_prep_timevars(sim, time_vars, output_vars)
+  sim <- dplyr::rename(sim, BIN_MID = NTIME)
 
   if (isTRUE(pcvpc)) {
-    pc_group_vars <- c("NTIME", strat_var_str)
-    if ("CMT" %in% colnames(sim)) pc_group_vars <- c("NTIME", "CMT", strat_var_str)
+    pc_group_vars <- c("BIN_MID", strat_var_str)
+    if ("CMT" %in% colnames(sim)) pc_group_vars <- c("BIN_MID", "CMT", strat_var_str)
     sim <- sim |>
       dplyr::filter(MDV == 0) |>
       dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>

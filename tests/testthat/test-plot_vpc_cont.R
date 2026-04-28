@@ -207,7 +207,7 @@ test_that("vpcstats = TRUE returns a data.frame with expected columns", {
 
   result <- plot_vpc_cont(sim = testsim, vpcstats = TRUE)
   expect_s3_class(result, "data.frame")
-  expected_cols <- c("NTIME", "nbin", "q5_med", "q50_med", "q95_med",
+  expected_cols <- c("BIN_MID", "nbin", "q5_med", "q50_med", "q95_med",
                      "obs5", "obs50", "obs95")
   expect_true(all(expected_cols %in% colnames(result)))
 })

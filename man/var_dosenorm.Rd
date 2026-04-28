@@ -18,6 +18,5 @@ A numeric vector of dose-normalized values of \code{dv_var}
 Internal Helper: Apply dose-normalization to a variable
 }
 \examples{
-data <- dplyr::mutate(data_sad, DNDV = pmxhelpr:::var_dosenorm(ODV, DOSE))
+data <- dplyr::mutate(data_sad, DNDV = var_dosenorm(ODV, DOSE))
 }
-\keyword{internal}

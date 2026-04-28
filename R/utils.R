@@ -232,9 +232,8 @@ list_update <- function(update=NULL, src){
 #' @param dose_var Vector containing dose
 #'
 #' @return A numeric vector of dose-normalized values of `dv_var`
-#' @keywords internal
 #' @examples
-#' data <- dplyr::mutate(data_sad, DNDV = pmxhelpr:::var_dosenorm(ODV, DOSE))
+#' data <- dplyr::mutate(data_sad, DNDV = var_dosenorm(ODV, DOSE))
 
 var_dosenorm <- function(dv_var, dose_var) {
   dv_var / dose_var
@@ -248,39 +247,14 @@ var_dosenorm <- function(dv_var, dose_var) {
 #' @param lower_bound Lower bound for prediction correction formula.
 #'
 #' @return A numeric vector of prediction-corrected values of `dv_var`
-#' @keywords internal
 #' @examples
 #' pkmodel <- model_mread_load(model = "pkmodel")
 #' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
-#' data <- dplyr::mutate(data, PCDV = pmxhelpr:::var_pc(ODV, PRED))
+#' data <- dplyr::mutate(data, PCDV = var_pc(ODV, PRED))
 #'
 var_pc <- function(dv_var, pred_var, lower_bound = 0) {
   predbin <- stats::median(pred_var)
   lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
-}
-
-
-#' Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification
-#'
-#' @param x Vector containing the variable to be censored
-#' @param p Quantile for computation
-#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay
-#'
-#' @return Replaces values below loq (including NA) with -Inf, then computes
-#   the quantile. Returns NA if the result is -Inf.
-#' @keywords internal
-#' @examples
-#' data <- data_sad |>
-#'   dplyr::group_by(CMT, NTIME, DOSE) |>
-#'   dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
-#'                    P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
-#'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
-
-var_loqcens <- function(x, p, loq) {
-  x[is.na(x)] <- -Inf
-  x[x < loq] <- -Inf
-  q <- stats::quantile(x, probs = p, na.rm = TRUE)
-  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
 }
 
 
@@ -307,4 +281,31 @@ var_addn <- function(grp_var, id_var, sep = NULL) {
   n <- unname(counts[as.character(grp_var)])
   parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)
   factor(paste(parts, paste0("(n=", n, ")")))
+}
+
+
+
+
+
+#' Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification
+#'
+#' @param x Vector containing the variable to be censored
+#' @param p Quantile for computation
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay
+#'
+#' @return Replaces values below loq (including NA) with -Inf, then computes
+#   the quantile. Returns NA if the result is -Inf.
+#' @keywords internal
+#' @examples
+#' data <- data_sad |>
+#'   dplyr::group_by(CMT, NTIME, DOSE) |>
+#'   dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
+#'                    P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
+#'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
+
+var_loqcens <- function(x, p, loq) {
+  x[is.na(x)] <- -Inf
+  x[x < loq] <- -Inf
+  q <- stats::quantile(x, probs = p, na.rm = TRUE)
+  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
 }

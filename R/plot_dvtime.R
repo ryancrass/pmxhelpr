@@ -90,7 +90,7 @@ plot_dvtime <- function(data,
   dose_var_str <- resolve_var(rlang::enquo(dose_var))
   col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
-  prep <- prep_dvtime_data(
+  prep <- df_prep_dvtime(
     data, time_vars,
     output_vars = c(DV = dv_var_str),
     timeu = timeu, loq = loq, loq_method = loq_method,

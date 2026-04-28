@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{var_dosenorm}
 \alias{var_dosenorm}
-\title{Determine dose-normalization}
+\title{Internal Helper: Apply dose-normalization to a variable}
 \usage{
 var_dosenorm(dv_var, dose_var)
 }
@@ -15,7 +15,7 @@ var_dosenorm(dv_var, dose_var)
 A numeric vector of dose-normalized values of \code{dv_var}
 }
 \description{
-Determine dose-normalization
+Internal Helper: Apply dose-normalization to a variable
 }
 \examples{
 data <- dplyr::mutate(data_sad, DNDV = pmxhelpr:::var_dosenorm(ODV, DOSE))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{var_pc}
 \alias{var_pc}
-\title{Determine prediction correction}
+\title{Internal Helper: Apply prediction correction}
 \usage{
 var_pc(dv_var, pred_var, lower_bound = 0)
 }
@@ -17,7 +17,7 @@ var_pc(dv_var, pred_var, lower_bound = 0)
 A numeric vector of prediction-corrected values of \code{dv_var}
 }
 \description{
-Determine prediction correction
+Internal Helper: Apply prediction correction
 }
 \examples{
 pkmodel <- model_mread_load(model = "pkmodel")

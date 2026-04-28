@@ -1,5 +1,15 @@
 
-# Internal helper: build aes for central tendency layers
+#' Internal helper: Build aesthetic mapping for central tendency layers
+#'
+#' @param y_var Character string specifying the y variable name (e.g., `"DV"`, `"IPRED"`).
+#' @param color_aes Optional character string for color aesthetic mapping (e.g., `"DV"` for popgof legend).
+#'
+#' @return A `ggplot2` aesthetic mapping object
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::build_cent_aes("DV")
+#' pmxhelpr:::build_cent_aes("IPRED", color_aes = "IPRED")
+#'
 build_cent_aes <- function(y_var, color_aes = NULL) {
   if (is.null(color_aes)) {
     ggplot2::aes(x = NTIME, y = .data[[y_var]])
@@ -8,16 +18,23 @@ build_cent_aes <- function(y_var, color_aes = NULL) {
   }
 }
 
-# Internal helper: add central tendency point, line, and errorbar layers to a plot
-#
-# @param plot ggplot object
-# @param cent character, one of "mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"
-# @param y_var character, the y variable name (e.g., "DV", "IPRED", "PRED")
-# @param plottheme named list of theme elements (must contain $cent and $errorbar)
-# @param width numeric, errorbar cap width
-# @param color_aes optional string for color aesthetic (e.g., "DV" for popgof legend)
-# @param line_element optional element for line aesthetics; defaults to plottheme$cent
-# @param show_errorbars logical, whether to add errorbar layers
+#' Internal helper: Add central tendency point, line, and error bar layers to a plot
+#'
+#' @param plot ggplot object to modify.
+#' @param cent Character string specifying the central tendency measure.
+#'    One of `"mean"`, `"mean_sdl"`, `"mean_sdl_upper"`, `"median"`, `"median_iqr"`, or `"none"`.
+#' @param y_var Character string specifying the y variable name (e.g., `"DV"`, `"IPRED"`, `"PRED"`).
+#' @param plottheme Named list of theme elements (must contain `$cent` and `$errorbar`).
+#' @param width Numeric error bar cap width.
+#' @param color_aes Optional character string for color aesthetic (e.g., `"DV"` for popgof legend).
+#' @param line_element Optional element object for line aesthetics. Defaults to `plottheme$cent`.
+#' @param show_errorbars Logical indicating whether to add error bar layers.
+#'
+#' @return A modified ggplot object with central tendency layers added
+#' @keywords internal
+#' @examples
+#' #
+#'
 add_cent_layers <- function(plot, cent, y_var, plottheme, width,
                             color_aes = NULL,
                             line_element = NULL,
@@ -193,6 +210,29 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
 }
 
 
+#' Internal helper: Prepare the plot environment for DV vs time family plots
+#'
+#' Generates caption text, x-axis breaks, merges theme overrides with defaults,
+#' and computes error bar width.
+#'
+#' @param data data.frame containing processed data with `NTIME` column.
+#' @param cent Character string specifying central tendency measure.
+#' @param log_y Logical indicating log-scale y-axis.
+#' @param obs_dv Logical indicating if observed data points are shown.
+#' @param grp_dv Logical indicating if observations are connected within groups.
+#' @param timeu Character string specifying time units.
+#' @param n_breaks Integer specifying the number of x-axis breaks.
+#' @param theme User-supplied theme overrides, or `NULL`.
+#' @param theme_fn Theme factory function (e.g., `plot_dvtime_theme`).
+#'
+#' @return A named list with elements `caption`, `xbreaks`, `plottheme`, and `width`.
+#' @keywords internal
+#' @examples
+#' data <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1,2)), DV = ODV)
+#' env <- pmxhelpr:::prep_plot_env(data, cent = "mean", log_y = FALSE,
+#'   obs_dv = TRUE, grp_dv = FALSE, timeu = "hours", n_breaks = 8,
+#'   theme = NULL, theme_fn = plot_dvtime_theme)
+#'
 prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
                           timeu, n_breaks, theme, theme_fn) {
   caption  <- caption_dvtime(cent, log_y, obs_dv, grp_dv)
@@ -203,6 +243,21 @@ prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
 }
 
 
+#' Internal helper: Compute error bar width
+#'
+#' Returns the user-specified error bar width from the theme, or defaults
+#' to 2.5 percent of the maximum `NTIME` value.
+#'
+#' @param plottheme Named list of theme elements containing `$errorbar$width`.
+#' @param data data.frame containing `NTIME` column.
+#'
+#' @return Numeric error bar width value
+#' @keywords internal
+#' @examples
+#' theme <- plot_dvtime_theme()
+#' data <- data.frame(NTIME = c(0, 1, 2, 4, 8, 24))
+#' pmxhelpr:::errorbar_width(theme, data)
+#'
 errorbar_width <- function(plottheme, data) {
   if(is.numeric(plottheme$errorbar$width)) plottheme$errorbar$width
   else max(data$NTIME, na.rm = TRUE) * 0.025

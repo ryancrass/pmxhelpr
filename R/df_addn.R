@@ -38,11 +38,3 @@ df_addn <- function(data,
 
   return(data)
 }
-
-# Internal helper: count distinct id_var per grp_var and return factor labels
-var_addn <- function(data, grp_var_str, id_var_str, sep = NULL) {
-  counts <- tapply(data[[id_var_str]], data[[grp_var_str]], dplyr::n_distinct)
-  n <- unname(counts[as.character(data[[grp_var_str]])])
-  parts <- if (is.null(sep)) paste(data[[grp_var_str]]) else paste(data[[grp_var_str]], sep)
-  factor(paste(parts, paste0("(n=", n, ")")))
-}

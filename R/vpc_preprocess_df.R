@@ -94,7 +94,7 @@ df_vpcstats <- function(sim, pi, ci, bin_var_str, strat_var_str, irep_name_str, 
 
 df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
                              pcvpc, lower_bound, loq) {
-  time_vars <- init_time_vars(time_vars)
+  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
   output_vars <- list_update(output_vars, c(PRED = "PRED", IPRED = "IPRED",
                                             SIMDV = "SIMDV", OBSDV = "OBSDV"))
 
@@ -108,7 +108,7 @@ df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
   if (!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
   if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
 
-  sim <- rename_time_vars(sim, time_vars, output_vars)
+  sim <- df_prep_timevars(sim, time_vars, output_vars)
 
   if (isTRUE(pcvpc)) {
     pc_group_vars <- c("NTIME", strat_var_str)

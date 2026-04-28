@@ -1,9 +1,30 @@
 
-# Internal helper: remove NULL entries from a list
+#' Internal helper: Remove NULL entries from a list
+#'
+#' @param x A named list potentially containing NULL values.
+#'
+#' @return A list with all NULL entries removed
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::compact(list(a = 1, b = NULL, c = 3))
+#'
 compact <- function(x) x[!vapply(x, is.null, logical(1))]
 
 
-# Internal helper: merge user element overrides into a complete default element
+#' Internal helper: Merge user element overrides into a complete default element
+#'
+#' Iterates over names in the user-supplied element and overwrites matching
+#' fields in the default. Warns on unrecognized field names.
+#'
+#' @param user User-supplied element with partial overrides, or `NULL`.
+#' @param default Complete default element.
+#'
+#' @return A merged element with the same class as `default`
+#' @keywords internal
+#' @examples
+#' defaults <- pmx_obs(shape = 1, size = 0.75, alpha = 0.5)
+#' pmxhelpr:::merge_element(pmx_obs(size = 2), defaults)
+#'
 merge_element <- function(user, default) {
   if (is.null(user)) return(default)
   out <- default
@@ -19,7 +40,20 @@ merge_element <- function(user, default) {
 }
 
 
-# Internal helper: merge user theme overrides into a complete default theme
+#' Internal helper: Merge user theme overrides into a complete default theme
+#'
+#' Iterates over groups in the user-supplied theme and merges each group
+#' element-by-element into the default theme using [merge_element()].
+#'
+#' @param user User-supplied theme with partial group overrides, or `NULL`.
+#' @param default Complete default theme.
+#'
+#' @return A merged theme list
+#' @keywords internal
+#' @examples
+#' defaults <- plot_dvtime_theme()
+#' pmxhelpr:::merge_theme(list(obs = pmx_obs(size = 2)), defaults)
+#'
 merge_theme <- function(user, default) {
   if (is.null(user)) return(default)
   out <- default

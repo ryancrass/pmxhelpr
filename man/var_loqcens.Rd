@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{var_loqcens}
 \alias{var_loqcens}
-\title{Determine left-censoring for quantiles at the lower limit of quantification}
+\title{Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification}
 \usage{
 var_loqcens(x, p, loq)
 }
@@ -17,7 +17,7 @@ var_loqcens(x, p, loq)
 Replaces values below loq (including NA) with -Inf, then computes
 }
 \description{
-Determine left-censoring for quantiles at the lower limit of quantification
+Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification
 }
 \examples{
 data <- data_sad |>

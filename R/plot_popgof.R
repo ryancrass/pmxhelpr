@@ -62,7 +62,7 @@ plot_popgof <- function(data,
                                                 DV = "blue",
                                                 OBS = "darkgrey"))
 
-  prep <- prep_dvtime_data(
+  prep <- df_prep_dvtime(
     data, time_vars,
     output_vars = output_vars,
     timeu = timeu, loq = loq, loq_method = loq_method,

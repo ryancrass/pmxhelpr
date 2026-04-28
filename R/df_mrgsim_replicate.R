@@ -57,7 +57,7 @@ df_mrgsim_replicate <- function(data,
   irep_name_str <- resolve_var(rlang::enquo(irep_name))
 
   ##Update Defaults to time_vars and output_vars
-  time_vars <- init_time_vars(time_vars)
+  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
   output_vars <- list_update(output_vars, c(PRED = "PRED",
                                             IPRED = "IPRED",
                                             DV = "DV"))
@@ -78,7 +78,7 @@ df_mrgsim_replicate <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
   #Handle Time Variables
-  data <- rename_time_vars(data, time_vars)
+  data <- df_prep_timevars(data, time_vars)
 
   data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
 

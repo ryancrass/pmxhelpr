@@ -7,8 +7,12 @@
 \usage{
 plot_vpc_cont(
   sim,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  time_var = TIME,
+  ntime_var = NTIME,
+  pred_var = PRED,
+  ipred_var = IPRED,
+  sim_dv_var = SIMDV,
+  obs_dv_var = OBSDV,
   strat_var = NULL,
   pcvpc = FALSE,
   loq = NULL,
@@ -27,8 +31,12 @@ plot_vpc_cont(
 
 plot_vpc_exactbins(
   sim,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
+  time_var = TIME,
+  ntime_var = NTIME,
+  pred_var = PRED,
+  ipred_var = IPRED,
+  sim_dv_var = SIMDV,
+  obs_dv_var = OBSDV,
   strat_var = NULL,
   pcvpc = FALSE,
   loq = NULL,
@@ -48,11 +56,23 @@ plot_vpc_exactbins(
 \arguments{
 \item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable in \code{sim}.
+Accepts bare names or strings. Default is \code{TIME}.}
 
-\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
+\item{ntime_var}{Column containing the nominal time variable in \code{sim}.
+Accepts bare names or strings. Default is \code{NTIME}.}
+
+\item{pred_var}{Column containing population predictions in \code{sim}.
+Accepts bare names or strings. Default is \code{PRED}.}
+
+\item{ipred_var}{Column containing individual predictions in \code{sim}.
+Accepts bare names or strings. Default is \code{IPRED}.}
+
+\item{sim_dv_var}{Column containing simulated DV in \code{sim}.
+Accepts bare names or strings. Default is \code{SIMDV}.}
+
+\item{obs_dv_var}{Column containing observed DV in \code{sim}.
+Accepts bare names or strings. Default is \code{OBSDV}.}
 
 \item{strat_var}{Stratification variable.
 Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
@@ -66,7 +86,7 @@ For standard VPCs (\code{pcvpc = FALSE}), all \code{MDV} values are set to 0 so 
 all observations (including BLQ) are included in summary statistics.
 Dashed horizontal line plotted at \code{loq} by default (controlled via \code{vpc_theme}).}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
+\item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations in exact bin for inclusion
 in binned plot layers. This argument drops small bins from summary statistic calculation

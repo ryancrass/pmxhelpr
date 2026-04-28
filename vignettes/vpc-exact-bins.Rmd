@@ -94,8 +94,6 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)
@@ -129,11 +127,7 @@ Because we have multiple dose levels in the SAD portion of the study, as well as
 ```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact <- plot_vpc_cont(
   sim = simout,
-  pcvpc = TRUE,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95)
+  pcvpc = TRUE
 ) +
   labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")
@@ -145,7 +139,7 @@ The difference in plotting the observed prediction-corrected data points by `"TI
 
 `plot_vpc_cont()` contains the argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
-Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the `time_vars` and `output_vars` match the default values, so we do not need to specify these arguments and they can be removed. Furthermore, the `pi` and `ci` arguments we are specifying match the defaults and can be removed.
+Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the column names match the defaults for `plot_vpc_cont` and do not need to be specified. The `pi` and `ci` arguments also match the defaults and can be removed.
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 

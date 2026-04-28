@@ -7,7 +7,8 @@
 plot_dvtime(
   data,
   dv_var = DV,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  time_var = TIME,
+  ntime_var = NTIME,
   timeu = "hours",
   col_var = NULL,
   grp_var = ID,
@@ -30,10 +31,13 @@ plot_dvtime(
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
+\item{dv_var}{Column containing the dependent variable. Accepts bare names or strings. Default is \code{DV}.}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
+
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{var_timebreaks} and assigned to default x-axis label.

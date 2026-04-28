@@ -39,8 +39,6 @@ model <- model_mread_load("pkmodel")
 
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                      dv_var = "ODV",
-                     time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)
@@ -95,8 +93,6 @@ Let's see how this can be down using `shown`!
 
 vpc_pc_pi <- plot_vpc_cont(
   sim = simout,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
@@ -113,8 +109,6 @@ Now, let's say we want to remove the observed data points from the plot above to
 
 vpc_pc_noobs <- plot_vpc_cont(
   sim = simout,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_dv = FALSE)
@@ -131,8 +125,6 @@ We could also take this one step further and only look at the median and the sim
 
 vpc_pc_noobs_medonly <- plot_vpc_cont(
   sim = simout,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
@@ -163,8 +155,6 @@ Let's say we prefer a grey-blue color scheme. We can customize it by passing ele
 ```{r plot-vpc-customtheme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_customtheme <- plot_vpc_cont(
   sim = simout,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   pcvpc = TRUE,
   vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),
                             obs_median = pmx_vpc_line(color = "#000000"),
@@ -186,7 +176,6 @@ Let's say we would like to visualize the major x-axis grid lines to help locate 
 ```{r plot-vpc-pcvpc-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_xgrid <- plot_vpc_cont(
   sim = simout,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
   pcvpc = TRUE,
   min_bin_count = 5,
   vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),

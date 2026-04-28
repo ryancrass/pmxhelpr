@@ -8,10 +8,16 @@
 #' @param model `mrgsolve` model object.
 #' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
 #' @param dv_var Column containing the DV variable in `data`. Accepts bare names or strings.
-#' @param time_vars Names of actual and nominal time variables. Must be named character vector.
-#'    Defaults is: c(`TIME`=`"TIME"`, `NTIME`=`"NTIME"`).
-#' @param output_vars Names of model outputs from `model`. Must be named character vector.
-#'    Defaults is: c(`PRED`= `"PRED"`, `IPRED` = `"IPRED"`, `DV`= `"DV"`).
+#' @param time_var Column containing the actual time variable.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable.
+#'    Accepts bare names or strings. Default is `NTIME`.
+#' @param pred_var Name of population prediction output from `model`.
+#'    Accepts bare names or strings. Default is `PRED`.
+#' @param ipred_var Name of individual prediction output from `model`.
+#'    Accepts bare names or strings. Default is `IPRED`.
+#' @param sim_dv_var Name of simulated DV output from `model`.
+#'    Accepts bare names or strings. Default is `DV`.
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `carry_out`
 #'    and return in output. Default is `NULL`. Note that `"CMT"`, `"EVID"`, `"MDV"`,
@@ -24,7 +30,7 @@
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
-#'    and the output variables in `output_vars`, `num_vars`, and `char_vars`.
+#'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus `num_vars` and `char_vars`.
 #'
 #' @importFrom rlang :=
 #' @export df_mrgsim_replicate
@@ -42,34 +48,34 @@ df_mrgsim_replicate <- function(data,
                     model,
                     replicates,
                     dv_var = DV,
-                    time_vars = c(TIME = "TIME",
-                                  NTIME = "NTIME"),
-                    output_vars = c(PRED = "PRED",
-                                    IPRED = "IPRED",
-                                    DV = "DV"),
+                    time_var = TIME,
+                    ntime_var = NTIME,
+                    pred_var = PRED,
+                    ipred_var = IPRED,
+                    sim_dv_var = DV,
                     num_vars = NULL,
                     char_vars = NULL,
                     irep_name = SIM,
                     seed = 123456789,
                     ...) {
 
-  dv_var_str    <- resolve_var(rlang::enquo(dv_var))
-  irep_name_str <- resolve_var(rlang::enquo(irep_name))
-
-  ##Update Defaults to time_vars and output_vars
-  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
-  output_vars <- list_update(output_vars, c(PRED = "PRED",
-                                            IPRED = "IPRED",
-                                            DV = "DV"))
+  dv_var_str     <- resolve_var(rlang::enquo(dv_var))
+  time_var_str   <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
+  pred_var_str   <- resolve_var(rlang::enquo(pred_var))
+  ipred_var_str  <- resolve_var(rlang::enquo(ipred_var))
+  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
+  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
 
   #Checks
   check_df(data, "data")
   check_mrgmod(model, "model")
-  check_mrgmod_outputvars(model, output_vars)
+  check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
   check_integer(replicates, "replicates")
   if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
   check_varsindf(data, dv_var_str, "data", "dv_var")
-  check_varsindf(data, time_vars, "data", "time_vars")
+  check_varsindf(data, time_var_str, "data", "time_var")
+  check_varsindf(data, ntime_var_str, "data", "ntime_var")
   check_varsindf(data, num_vars, "data", "num_vars")
   check_varsindf(data, char_vars, "data", "char_vars")
   check_integer(seed, "seed")
@@ -78,9 +84,9 @@ df_mrgsim_replicate <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
   #Handle Time Variables
-  data <- df_prep_timevars(data, time_vars)
+  data <- df_prep_timevars(data, time_var_str, ntime_var_str)
 
-  data <- df_mrgsim_addpred(data, model, output_var = output_vars[["IPRED"]])
+  data <- df_mrgsim_addpred(data, model, output_var = ipred_var_str)
 
   ##Run Simulation
   withr::with_seed(seed = seed,
@@ -89,17 +95,17 @@ df_mrgsim_replicate <- function(data,
                      seq(as.integer(replicates)),
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
-                                           carry_out = paste(unique(c(output_vars[["PRED"]], output_vars[["IPRED"]],
-                                                               output_vars[["DV"]], "OBSDV", "EVID", "MDV", "CMT",
+                                           carry_out = paste(unique(c(pred_var_str, ipred_var_str,
+                                                               sim_dv_var_str, "OBSDV", "EVID", "MDV", "CMT",
                                                                "TIME", "NTIME",
                                                                num_vars)),
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>
                          dplyr::mutate("{irep_name_str}" := rep) |>
-                         dplyr::rename(dplyr::any_of(c(PRED = output_vars[["PRED"]],
-                                                       IPRED = output_vars[["IPRED"]],
-                                                       SIMDV = output_vars[["DV"]]))) |>
+                         dplyr::rename(dplyr::any_of(c(PRED = pred_var_str,
+                                                       IPRED = ipred_var_str,
+                                                       SIMDV = sim_dv_var_str))) |>
                          dplyr::select(ID, TIME, NTIME,
                                        PRED, IPRED, SIMDV, OBSDV,
                                        dplyr::everything())} ,

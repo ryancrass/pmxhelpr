@@ -83,8 +83,12 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 #' prediction correction or BLQ handling.
 #'
 #' @param sim Simulated data from `df_mrgsim_replicate()` or equivalent.
-#' @param time_vars Named character vector for time column mapping.
-#' @param output_vars Named character vector for output column mapping.
+#' @param time_var_str String name of the actual time column in `sim`.
+#' @param ntime_var_str String name of the nominal time column in `sim`.
+#' @param pred_var_str String name of the population prediction column in `sim`.
+#' @param ipred_var_str String name of the individual prediction column in `sim`.
+#' @param sim_dv_var_str String name of the simulated DV column in `sim`.
+#' @param obs_dv_var_str String name of the observed DV column in `sim`.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param pcvpc Logical for prediction correction.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
@@ -92,23 +96,24 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 #' @return A preprocessed data.frame with standardized column names.
 #' @keywords internal
 
-df_vpcpreprocess <- function(sim, time_vars, output_vars, strat_var_str,
-                             pcvpc, lower_bound, loq) {
-  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
-  output_vars <- list_update(output_vars, c(PRED = "PRED", IPRED = "IPRED",
-                                            SIMDV = "SIMDV", OBSDV = "OBSDV"))
+df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
+                             pred_var_str, ipred_var_str,
+                             sim_dv_var_str, obs_dv_var_str,
+                             strat_var_str, pcvpc, lower_bound, loq) {
 
   check_df(sim, "sim")
-  check_varsindf(sim, time_vars[["TIME"]], "sim", "time_vars")
-  check_varsindf(sim, time_vars[["NTIME"]], "sim", "time_vars")
-  if (isTRUE(pcvpc)) check_varsindf(sim, output_vars[["PRED"]], "sim", "output_vars")
-  check_varsindf(sim, output_vars[["SIMDV"]], "sim", "output_vars")
-  check_varsindf(sim, output_vars[["OBSDV"]], "sim", "output_vars")
+  check_varsindf(sim, time_var_str, "sim", "time_var")
+  check_varsindf(sim, ntime_var_str, "sim", "ntime_var")
+  if (isTRUE(pcvpc)) check_varsindf(sim, pred_var_str, "sim", "pred_var")
+  check_varsindf(sim, sim_dv_var_str, "sim", "sim_dv_var")
+  check_varsindf(sim, obs_dv_var_str, "sim", "obs_dv_var")
   check_varsindf(sim, "MDV", "sim", "MDV")
   if (!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
   if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
 
-  sim <- df_prep_timevars(sim, time_vars, output_vars)
+  sim <- df_prep_timevars(sim, time_var_str, ntime_var_str)
+  sim <- dplyr::rename(sim, dplyr::any_of(c(PRED = pred_var_str, IPRED = ipred_var_str,
+                                             SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
   sim <- dplyr::rename(sim, BIN_MID = NTIME)
 
   if (isTRUE(pcvpc)) {

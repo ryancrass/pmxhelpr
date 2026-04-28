@@ -10,11 +10,13 @@ testsim_raw <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
 run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
                          lower_bound = 0, loq = NULL,
                          pi = c(0.05, 0.95), ci = c(0.05, 0.95),
-                         time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                         output_vars = c(PRED = "PRED", IPRED = "IPRED",
-                                         SIMDV = "SIMDV", OBSDV = "OBSDV")) {
-  sim <- pmxhelpr:::df_vpcpreprocess(sim, time_vars, output_vars, strat_var_str,
-                                     pcvpc, lower_bound, loq)
+                         time_var_str = "TIME", ntime_var_str = "NTIME",
+                         pred_var_str = "PRED", ipred_var_str = "IPRED",
+                         sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV") {
+  sim <- pmxhelpr:::df_vpcpreprocess(sim, time_var_str, ntime_var_str,
+                                     pred_var_str, ipred_var_str,
+                                     sim_dv_var_str, obs_dv_var_str,
+                                     strat_var_str, pcvpc, lower_bound, loq)
   pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM", loq)
 }
 
@@ -74,7 +76,7 @@ test_that("simulated quantile medians are ordered q5_med <= q50_med <= q95_med",
 
 test_that("df_vpcpreprocess validates column existence", {
   expect_error(
-    run_vpcstats(testsim_raw, time_vars = c(TIME = "NONEXIST")),
+    run_vpcstats(testsim_raw, time_var_str = "NONEXIST"),
     regexp = "must be variable.*in `sim`"
   )
 })

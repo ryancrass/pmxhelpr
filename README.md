@@ -140,11 +140,11 @@ data <- data %>%
 unique(data$DoseGroup)
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
-plot_popgof(data = data, output_vars = c(DV ="ODV"), dosenorm = TRUE, 
+plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE, 
             ylab = "Dose-normalized Conc. (ng/mL)") +
   facet_wrap(~Food)
 
-plot_popgof(data = data, output_vars = c(DV ="ODV"), 
+plot_popgof(data = data, dv_var = "ODV", 
             ylab = "Dose-normalized Conc. (ng/mL)", log_y = TRUE) +
   facet_wrap(~DoseGroup)
 ```

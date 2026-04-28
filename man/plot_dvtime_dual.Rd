@@ -11,7 +11,8 @@ plot_dvtime_dual(
   dvid_var = CMT,
   dvid_val1 = 2,
   dvid_val2 = 3,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
+  time_var = TIME,
+  ntime_var = NTIME,
   timeu = "hours",
   col_var = NULL,
   grp_var = ID,
@@ -50,8 +51,11 @@ Default is \code{DV}.}
 
 \item{dvid_val2}{Value of variable specified in \code{dvid_var} to identify observations for the bottom panel (DV2).}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
+
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{timeu}{Character string specifying units for the time variable.
 Passed to \code{var_timebreaks} and assigned to default x-axis label.

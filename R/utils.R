@@ -32,34 +32,32 @@ resolve_var <- function(quo, nullable = FALSE) {
 
 #' Internal helper: Standardize time variable names in a data.frame
 #'
-#' Merges user-supplied `time_vars` mapping with defaults, then renames
-#' columns in `data` to the standardized `TIME` and `NTIME` names.
-#' When both time variables map to the same source column, `NTIME` is
-#' renamed and `TIME` is created as a copy.
+#' Renames columns in `data` to the standardized `TIME` and `NTIME` names.
+#' When both time variables map to the same source column, the column is
+#' renamed to `NTIME` and `TIME` is created as a copy (or vice versa if the
+#' source is already named `TIME`).
 #'
 #' @param data Input data.frame.
-#' @param time_vars Named character vector mapping internal time variable names
-#'    to column names in `data`. Default is `c(TIME = "TIME", NTIME = "NTIME")`.
-#' @param other_vars Other named variables to include in renaming.
+#' @param time_var_str String name of the actual time column in `data`.
+#' @param ntime_var_str String name of the nominal time column in `data`.
 #'
 #' @return A data.frame with standardized `TIME` and `NTIME` columns
 #' @keywords internal
 #' @examples
 #' data <- dplyr::rename(data_sad, NTFD = NTIME)
 #' c("TIME", "NTIME") %in% colnames(data)
-#' data_std <- pmxhelpr:::df_prep_timevars(data, c(TIME = "TIME", NTIME = "NTFD"))
+#' data_std <- pmxhelpr:::df_prep_timevars(data, "TIME", "NTFD")
 #' c("TIME", "NTIME") %in% colnames(data_std)
 #'
-df_prep_timevars <- function(data, time_vars, other_vars = NULL) {
-  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
-  if(length(unique(c(time_vars[[1]], time_vars[[2]]))) == 2) {
-    data <- dplyr::rename(data, dplyr::any_of(c(time_vars, other_vars)))
+df_prep_timevars <- function(data, time_var_str, ntime_var_str) {
+  if (time_var_str == ntime_var_str) {
+    data <- dplyr::rename(data, dplyr::any_of(c(NTIME = ntime_var_str)))
+    if (!"TIME" %in% colnames(data)) data$TIME <- data$NTIME
   } else {
-    data <- data |>
-      dplyr::rename(dplyr::any_of(c(c(NTIME = time_vars[["NTIME"]]), other_vars))) |>
-      dplyr::mutate(TIME = NTIME)
+    data <- dplyr::rename(data, dplyr::any_of(c(TIME = time_var_str,
+                                                 NTIME = ntime_var_str)))
   }
-  return(data)
+  data
 }
 
 
@@ -123,10 +121,11 @@ df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
 #' applies BLQ imputation, and optionally applies dose normalization.
 #'
 #' @param data Input data.frame containing pharmacometric data.
-#' @param time_vars Named character vector mapping internal time variable names
-#'    to column names in `data`. Default is `c(TIME = "TIME", NTIME = "NTIME")`.
-#' @param output_vars Named character vector mapping internal output variable names
-#'    to column names in `data`. Default is `c(DV = "DV")`.
+#' @param time_var_str String name of the actual time column in `data`.
+#' @param ntime_var_str String name of the nominal time column in `data`.
+#' @param dv_var_str String name of the dependent variable column in `data`.
+#' @param pred_var_str String name of the population prediction column in `data`, or `NULL`.
+#' @param ipred_var_str String name of the individual prediction column in `data`, or `NULL`.
 #' @param timeu Character string specifying time units. Passed to validation.
 #' @param loq Numeric value of LLOQ, or `NULL`.
 #' @param loq_method Integer (0, 1, or 2) specifying BLQ handling method.
@@ -142,10 +141,12 @@ df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
 #' @keywords internal
 #' @examples
 #' data <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1,2)), DV = ODV)
-#' prep <- pmxhelpr:::df_prep_dvtime(data, time_vars = c(TIME = "TIME", NTIME = "NTIME"))
+#' prep <- pmxhelpr:::df_prep_dvtime(data, time_var_str = "TIME", ntime_var_str = "NTIME")
 #' head(prep$data)
 #'
-df_prep_dvtime <- function(data, time_vars, output_vars = c(DV = "DV"),
+df_prep_dvtime <- function(data, time_var_str = "TIME", ntime_var_str = "NTIME",
+                            dv_var_str = "DV",
+                            pred_var_str = NULL, ipred_var_str = NULL,
                             timeu = "hours", loq = NULL, loq_method = 0,
                             dose_var_str = NULL, col_var_str = NULL,
                             grp_dv = FALSE, grp_var_str = NULL,
@@ -153,12 +154,11 @@ df_prep_dvtime <- function(data, time_vars, output_vars = c(DV = "DV"),
                             cfb = FALSE, cfb_base = NULL) {
 
   check_df(data, "data")
-  time_vars <- list_update(time_vars, c(TIME = "TIME", NTIME = "NTIME"))
-  check_varsindf(data, time_vars[["TIME"]], "data", "time_vars")
-  check_varsindf(data, time_vars[["NTIME"]], "data", "time_vars")
-  for (i in seq_along(output_vars)) {
-    check_varsindf(data, output_vars[[i]], "data", names(output_vars)[[i]])
-  }
+  check_varsindf(data, time_var_str, "data", "time_var")
+  check_varsindf(data, ntime_var_str, "data", "ntime_var")
+  check_varsindf(data, dv_var_str, "data", "dv_var")
+  if (!is.null(pred_var_str)) check_varsindf(data, pred_var_str, "data", "pred_var")
+  if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var")
   check_varsindf(data, "MDV", "data", "MDV")
   check_timeu(timeu)
   if (!is.null(col_var_str)) {
@@ -170,7 +170,11 @@ df_prep_dvtime <- function(data, time_vars, output_vars = c(DV = "DV"),
   check_loq_method(loq, loq_method, data)
   if (isTRUE(cfb)) check_numeric(cfb_base, "cfb_base")
 
-  data <- df_prep_timevars(data, time_vars, output_vars)
+  data <- df_prep_timevars(data, time_var_str, ntime_var_str)
+  rename_vec <- c(DV = dv_var_str)
+  if (!is.null(pred_var_str)) rename_vec <- c(rename_vec, PRED = pred_var_str)
+  if (!is.null(ipred_var_str)) rename_vec <- c(rename_vec, IPRED = ipred_var_str)
+  data <- dplyr::rename(data, dplyr::any_of(rename_vec))
 
   if (!is.null(dose_var_str) && dose_var_str != "DOSE") {
     data <- dplyr::rename(data, dplyr::any_of(c(DOSE = dose_var_str)))
@@ -180,50 +184,22 @@ df_prep_dvtime <- function(data, time_vars, output_vars = c(DV = "DV"),
     data[[col_var_str]] <- factor(data[[col_var_str]])
   }
 
-  extra_vars <- setdiff(names(output_vars), "DV")
+  extra_vars <- c(if (!is.null(pred_var_str)) "PRED",
+                   if (!is.null(ipred_var_str)) "IPRED")
   data <- df_prep_blq(data, loq, loq_method, extra_vars = extra_vars)
 
   lloq <- if ("LOQ" %in% colnames(data)) unique(data$LOQ[!is.na(data$LOQ)]) else NA_real_
 
   if (isTRUE(dosenorm)) {
-    for (v in names(output_vars)) {
-      data[[v]] <- var_dosenorm(data[[v]], data$DOSE)
-    }
+    data$DV <- var_dosenorm(data$DV, data$DOSE)
+    if (!is.null(pred_var_str)) data$PRED <- var_dosenorm(data$PRED, data$DOSE)
+    if (!is.null(ipred_var_str)) data$IPRED <- var_dosenorm(data$IPRED, data$DOSE)
   }
 
   list(data = data, lloq = lloq)
 }
 
 
-#' Internal helper: Update elements of a list by name
-#'
-#' @param update Named list of values to update
-#'    Default is `NULL`
-#' @param src Named list of source values
-#'
-#' @return A named list
-#' @keywords internal
-#' @examples
-#' src_list <- c(a = 1, b = 2, c = 3, d = 4)
-#' new_list <- pmxhelpr:::list_update(c(a = 5), src_list)
-#'
-list_update <- function(update=NULL, src){
-
-  update_list_name <-deparse(substitute(update))
-
-  out <- src
-  if(!is.null(update) & length(names(update))>0){
-    for(i in seq(names(update))) {
-      current_name <- names(update)[i]
-      if(current_name %in% names(out)) {
-        out[[current_name]] <- update[[current_name]]
-      } else {
-        warning(paste0("`", current_name,"` is not a valid element of ", update_list_name))
-      }
-    }
-  }
-  return(out)
-}
 
 
 #' Internal Helper: Apply dose-normalization to a variable

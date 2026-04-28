@@ -29,7 +29,19 @@
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param vpcstats Logical. If `TRUE`, return a list of computed VPC statistics instead of a plot. Default is `FALSE`.
 #'
-#' @inheritParams df_mrgsim_replicate
+#' @param time_var Column containing the actual time variable in `sim`.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable in `sim`.
+#'    Accepts bare names or strings. Default is `NTIME`.
+#' @param pred_var Column containing population predictions in `sim`.
+#'    Accepts bare names or strings. Default is `PRED`.
+#' @param ipred_var Column containing individual predictions in `sim`.
+#'    Accepts bare names or strings. Default is `IPRED`.
+#' @param sim_dv_var Column containing simulated DV in `sim`.
+#'    Accepts bare names or strings. Default is `SIMDV`.
+#' @param obs_dv_var Column containing observed DV in `sim`.
+#'    Accepts bare names or strings. Default is `OBSDV`.
+#' @param irep_name Name of replicate variable in `sim`. Accepts bare names or strings. Default is `SIM`.
 #' @inheritParams plot_dvtime
 #' @inheritParams var_pc
 #'
@@ -52,12 +64,12 @@
 #' ci = c(0.05, 0.95))
 
 plot_vpc_cont <- function(sim,
-                               time_vars = c(TIME = "TIME",
-                                             NTIME = "NTIME"),
-                               output_vars = c(PRED = "PRED",
-                                               IPRED = "IPRED",
-                                               SIMDV = "SIMDV",
-                                               OBSDV = "OBSDV"),
+                               time_var = TIME,
+                               ntime_var = NTIME,
+                               pred_var = PRED,
+                               ipred_var = IPRED,
+                               sim_dv_var = SIMDV,
+                               obs_dv_var = OBSDV,
                                strat_var = NULL,
                                pcvpc = FALSE,
                                loq = NULL,
@@ -74,12 +86,20 @@ plot_vpc_cont <- function(sim,
                                vpcstats = FALSE)
 {
 
-  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
+  time_var_str    <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str   <- resolve_var(rlang::enquo(ntime_var))
+  pred_var_str    <- resolve_var(rlang::enquo(pred_var))
+  ipred_var_str   <- resolve_var(rlang::enquo(ipred_var))
+  sim_dv_var_str  <- resolve_var(rlang::enquo(sim_dv_var))
+  obs_dv_var_str  <- resolve_var(rlang::enquo(obs_dv_var))
+  strat_var_str   <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  irep_name_str   <- resolve_var(rlang::enquo(irep_name))
 
   #Preprocess: validate, rename, prediction-correct or BLQ-handle
-  sim <- df_vpcpreprocess(sim, time_vars, output_vars, strat_var_str,
-                          pcvpc, lower_bound, loq)
+  sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,
+                          pred_var_str, ipred_var_str,
+                          sim_dv_var_str, obs_dv_var_str,
+                          strat_var_str, pcvpc, lower_bound, loq)
 
   #Post-preprocess checks
   check_varsindf(sim, irep_name_str, "sim", "irep_name")

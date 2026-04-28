@@ -22,10 +22,10 @@ test_that("output data.frame contains replicates x nrow(dplyr::filter(data, EVID
                nrow(dplyr::filter(data_sad, EVID ==0 & CMT != 3))*10)
 })
 
-test_that("output data.frame contains variable SIMDV if non-default output_vars option specified for DV", {
+test_that("output data.frame contains variable SIMDV if non-default sim_dv_var specified", {
   expect_named(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 10,
-                                   dv_var = "ODV", output_vars = c(DV = "Y")) |> dplyr::select(SIMDV),
+                                   dv_var = "ODV", sim_dv_var = "Y") |> dplyr::select(SIMDV),
                "SIMDV")
 })
 
@@ -63,24 +63,24 @@ test_that("Error if incorrect class for arugmument `replicates`", {
                regexp = "argument `replicates` must be coercible to class `integer`")
 })
 
-test_that("Error if TIME variable specified in time_vars does not exist in `data`", {
+test_that("Error if time_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 1,
-                                   dv_var = "ODV", time_vars = c(TIME = "test")),
-               regexp = "argument `time_vars` must be variable.*in `data`")
+                                   dv_var = "ODV", time_var = "test"),
+               regexp = "argument `time_var` must be variable.*in `data`")
 })
 
-test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
+test_that("Error if ntime_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   time_vars = c(NTIME = "test")),
-               regexp = "argument `time_vars` must be variable.*in `data`")
+                                   ntime_var = "test"),
+               regexp = "argument `ntime_var` must be variable.*in `data`")
 })
 
-test_that("No error if TIME and NTIME variables are specified as the same variable in time_vars", {
+test_that("No error if time_var and ntime_var are specified as the same variable", {
   expect_no_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                       model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
+                                   time_var = "NTIME", ntime_var = "NTIME"))
 })
 
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {

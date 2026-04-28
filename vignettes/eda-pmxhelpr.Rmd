@@ -150,10 +150,10 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE)
 
 ## Adjusting Time Variables and Breaks
 
-The names of the actual and nominal time variables can be passed as a named character vector with default `time_vars=c(TIME=TIME", NTIME="NTIME")`. These elements of the argument may be specified one at a time, as in the example below showing all nominal values, or both together. The `time_vars` argument does *NOT* use non-standard evaluation and must passed as a named character vector.
+The names of the actual and nominal time variables can be specified with the `time_var` and `ntime_var` arguments, which accept bare names or strings. The defaults are `time_var = TIME` and `ntime_var = NTIME`. In the example below, both are set to `NTIME` to plot only nominal time values.
 
 ```{r plot-dvtime-nom, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data_pk, dv_var = ODV, time_vars = c(TIME = "NTIME"))
+plot_dvtime(plot_data_pk, dv_var = ODV, time_var = NTIME, ntime_var = NTIME)
 ```
  
 `plot_dvtime` uses an internal helper function (`var_timebreaks`) to automatically determine x-axis breaks based on the units of the time variable! Two arguments in `plot_dvtime` are passed to `var_timebreaks`:

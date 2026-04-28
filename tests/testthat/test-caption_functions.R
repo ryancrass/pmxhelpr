@@ -36,18 +36,18 @@ test_that("Error if incorrect class for arugmument `data`", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_vars = c(TIME = "ATFD")),
+test_that("Error if time_var does not exist in `data`", {
+  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_var = "ATFD"),
                regexp = "must be variable.*in `data`")
 })
 
-test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_vars = c(TIME = "NTFD")),
+test_that("Error if ntime_var does not exist in `data`", {
+  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", ntime_var = "NTFD"),
                regexp = "must be variable.*in `data`")
 })
 
-test_that("No Error if TIME and NTIME variables are specified as the same variable in time_vars", {
-  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
+test_that("No Error if time_var and ntime_var are specified as the same variable", {
+  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_var = "NTIME", ntime_var = "NTIME"))
 })
 
 test_that("Error if `col_var` does not exist in `data`", {

@@ -6,8 +6,12 @@
 \usage{
 df_vpcpreprocess(
   sim,
-  time_vars,
-  output_vars,
+  time_var_str,
+  ntime_var_str,
+  pred_var_str,
+  ipred_var_str,
+  sim_dv_var_str,
+  obs_dv_var_str,
   strat_var_str,
   pcvpc,
   lower_bound,
@@ -17,9 +21,17 @@ df_vpcpreprocess(
 \arguments{
 \item{sim}{Simulated data from \code{df_mrgsim_replicate()} or equivalent.}
 
-\item{time_vars}{Named character vector for time column mapping.}
+\item{time_var_str}{String name of the actual time column in \code{sim}.}
 
-\item{output_vars}{Named character vector for output column mapping.}
+\item{ntime_var_str}{String name of the nominal time column in \code{sim}.}
+
+\item{pred_var_str}{String name of the population prediction column in \code{sim}.}
+
+\item{ipred_var_str}{String name of the individual prediction column in \code{sim}.}
+
+\item{sim_dv_var_str}{String name of the simulated DV column in \code{sim}.}
+
+\item{obs_dv_var_str}{String name of the observed DV column in \code{sim}.}
 
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 

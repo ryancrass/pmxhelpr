@@ -4,29 +4,28 @@
 \alias{df_prep_timevars}
 \title{Internal helper: Standardize time variable names in a data.frame}
 \usage{
-df_prep_timevars(data, time_vars, other_vars = NULL)
+df_prep_timevars(data, time_var_str, ntime_var_str)
 }
 \arguments{
 \item{data}{Input data.frame.}
 
-\item{time_vars}{Named character vector mapping internal time variable names
-to column names in \code{data}. Default is \code{c(TIME = "TIME", NTIME = "NTIME")}.}
+\item{time_var_str}{String name of the actual time column in \code{data}.}
 
-\item{other_vars}{Other named variables to include in renaming.}
+\item{ntime_var_str}{String name of the nominal time column in \code{data}.}
 }
 \value{
 A data.frame with standardized \code{TIME} and \code{NTIME} columns
 }
 \description{
-Merges user-supplied \code{time_vars} mapping with defaults, then renames
-columns in \code{data} to the standardized \code{TIME} and \code{NTIME} names.
-When both time variables map to the same source column, \code{NTIME} is
-renamed and \code{TIME} is created as a copy.
+Renames columns in \code{data} to the standardized \code{TIME} and \code{NTIME} names.
+When both time variables map to the same source column, the column is
+renamed to \code{NTIME} and \code{TIME} is created as a copy (or vice versa if the
+source is already named \code{TIME}).
 }
 \examples{
 data <- dplyr::rename(data_sad, NTFD = NTIME)
 c("TIME", "NTIME") \%in\% colnames(data)
-data_std <- pmxhelpr:::df_prep_timevars(data, c(TIME = "TIME", NTIME = "NTFD"))
+data_std <- pmxhelpr:::df_prep_timevars(data, "TIME", "NTFD")
 c("TIME", "NTIME") \%in\% colnames(data_std)
 
 }

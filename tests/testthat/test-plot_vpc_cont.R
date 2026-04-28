@@ -41,84 +41,84 @@ test_that("Error if incorrect class for arugmument `sim`", {
                regexp = "argument `sim` must be a `data.frame`")
 })
 
-test_that("Error if TIME variable specified in time_vars does not exist in `sim`", {
+test_that("Error if time_var does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim,time_vars = c(TIME = "ATFD")),
+    plot_vpc_cont(sim = testsim, time_var = "ATFD"),
     regexp = "must be variable.*in `sim`"
     )
 })
 
-test_that("Error if NTIME variable specified in time_vars does not exist in `sim`", {
+test_that("Error if ntime_var does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim,time_vars = c(NTIME = "NTFD")),
+    plot_vpc_cont(sim = testsim, ntime_var = "NTFD"),
     regexp = "must be variable.*in `sim`"
   )
 })
 
-test_that("No error if TIME and NTIME specified as same variable in time_vars", {
+test_that("No error if time_var and ntime_var specified as same variable", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_no_error(
-    plot_vpc_cont(sim = testsim,time_vars = c(TIME = "NTIME", NTIME = "NTIME")),
+    plot_vpc_cont(sim = testsim, time_var = "NTIME", ntime_var = "NTIME"),
   )
 })
 
-test_that("Error if PRED variable specified in output_vars does not exist in `sim` and pcvpc = TRUE", {
+test_that("Error if pred_var does not exist in `sim` and pcvpc = TRUE", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = TRUE),
+    plot_vpc_cont(sim = testsim, pred_var = "CPRED", pcvpc = TRUE),
     regexp = "must be variable.*in `sim`"
   )
 })
 
-test_that("No error if PRED variable specified in output_vars does not exist in `sim` and pcvpc = FALSE", {
+test_that("No error if pred_var does not exist in `sim` and pcvpc = FALSE", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_no_error(
-    plot_vpc_cont(sim = testsim,output_vars = c(PRED = "CPRED"), pcvpc = FALSE),
+    plot_vpc_cont(sim = testsim, pred_var = "CPRED", pcvpc = FALSE),
   )
 })
 
-test_that("Error if SIMDV variable specified in output_vars does not exist in `sim`", {
+test_that("Error if sim_dv_var does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim,output_vars = c(SIMDV = "DVSIM")),
+    plot_vpc_cont(sim = testsim, sim_dv_var = "DVSIM"),
     regexp = "must be variable.*in `sim`"
   )
 })
 
-test_that("Error if OBSDV variable specified in output_vars does not exist in `sim`", {
+test_that("Error if obs_dv_var does not exist in `sim`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim,output_vars = c(OBSDV = "DV")),
+    plot_vpc_cont(sim = testsim, obs_dv_var = "DV"),
     regexp = "must be variable.*in `sim`"
   )
 })

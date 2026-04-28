@@ -6,8 +6,11 @@
 \usage{
 df_prep_dvtime(
   data,
-  time_vars,
-  output_vars = c(DV = "DV"),
+  time_var_str = "TIME",
+  ntime_var_str = "NTIME",
+  dv_var_str = "DV",
+  pred_var_str = NULL,
+  ipred_var_str = NULL,
   timeu = "hours",
   loq = NULL,
   loq_method = 0,
@@ -23,11 +26,15 @@ df_prep_dvtime(
 \arguments{
 \item{data}{Input data.frame containing pharmacometric data.}
 
-\item{time_vars}{Named character vector mapping internal time variable names
-to column names in \code{data}. Default is \code{c(TIME = "TIME", NTIME = "NTIME")}.}
+\item{time_var_str}{String name of the actual time column in \code{data}.}
 
-\item{output_vars}{Named character vector mapping internal output variable names
-to column names in \code{data}. Default is \code{c(DV = "DV")}.}
+\item{ntime_var_str}{String name of the nominal time column in \code{data}.}
+
+\item{dv_var_str}{String name of the dependent variable column in \code{data}.}
+
+\item{pred_var_str}{String name of the population prediction column in \code{data}, or \code{NULL}.}
+
+\item{ipred_var_str}{String name of the individual prediction column in \code{data}, or \code{NULL}.}
 
 \item{timeu}{Character string specifying time units. Passed to validation.}
 
@@ -58,7 +65,7 @@ applies BLQ imputation, and optionally applies dose normalization.
 }
 \examples{
 data <- dplyr::rename(dplyr::filter(data_sad, CMT \%in\% c(1,2)), DV = ODV)
-prep <- pmxhelpr:::df_prep_dvtime(data, time_vars = c(TIME = "TIME", NTIME = "NTIME"))
+prep <- pmxhelpr:::df_prep_dvtime(data, time_var_str = "TIME", ntime_var_str = "NTIME")
 head(prep$data)
 
 }

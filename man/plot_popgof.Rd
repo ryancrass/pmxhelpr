@@ -6,8 +6,11 @@
 \usage{
 plot_popgof(
   data,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
+  dv_var = DV,
+  pred_var = PRED,
+  ipred_var = IPRED,
+  time_var = TIME,
+  ntime_var = NTIME,
   output_colors = c(PRED = "red", IPRED = "green", DV = "blue", OBS = "darkgrey"),
   timeu = "hours",
   grp_var = ID,
@@ -28,14 +31,22 @@ plot_popgof(
 )
 }
 \arguments{
-\item{data}{Input dataset. Must contain required variables for \code{mrgsim_df()} other than those handled by
-other arguments.}
+\item{data}{Input dataset.}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{dv_var}{Column containing the dependent variable (DV).
+Accepts bare names or strings. Default is \code{DV}.}
 
-\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
+\item{pred_var}{Column containing population predictions (PRED).
+Accepts bare names or strings. Default is \code{PRED}.}
+
+\item{ipred_var}{Column containing individual predictions (IPRED).
+Accepts bare names or strings. Default is \code{IPRED}.}
+
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
+
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{output_colors}{Colors for model outputs. Must be named character vector.
 
@@ -121,6 +132,6 @@ A \code{ggplot2} plot object
 Plot population overlay goodness-of-fit (GOF) plots
 }
 \examples{
-plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
+plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE, ylab = "Dose-norm Conc.")
 
 }

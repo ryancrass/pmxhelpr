@@ -1,32 +1,5 @@
 #####utils - internal helper functions####
 
-#####list_update####
-
-test_that("list_update returns source unchanged when update = NULL", {
-  src <- list(a = 1, b = 2)
-  expect_equal(pmxhelpr:::list_update(NULL, src), src)
-})
-
-test_that("list_update overrides matching keys from update", {
-  src <- list(a = 1, b = 2)
-  result <- pmxhelpr:::list_update(list(a = 99), src)
-  expect_equal(result$a, 99)
-  expect_equal(result$b, 2)
-})
-
-test_that("list_update warns on non-matching keys in update", {
-  src <- list(a = 1, b = 2)
-  expect_warning(pmxhelpr:::list_update(list(fake = 1), src),
-                 regexp = "not a valid element")
-})
-
-test_that("list_update preserves keys not mentioned in update", {
-  src <- list(a = 1, b = 2, c = 3)
-  result <- pmxhelpr:::list_update(list(a = 10), src)
-  expect_equal(result$b, 2)
-  expect_equal(result$c, 3)
-})
-
 #####check_df####
 
 test_that("check_df does not error on valid data.frame", {
@@ -174,8 +147,7 @@ test_that("resolve_var resolves variable containing string", {
 test_that("df_prep_dvtime renames DV and returns list with data and lloq", {
   df <- data.frame(TIME = 1:3, NTIME = 1:3, ODV = c(10, 20, 30),
                    MDV = c(0, 0, 0), EVID = c(0, 0, 0))
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
-  result <- pmxhelpr:::df_prep_dvtime(df, tv, output_vars = c(DV = "ODV"))
+  result <- pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", dv_var_str = "ODV")
   expect_true(is.list(result))
   expect_true("DV" %in% colnames(result$data))
   expect_true(is.na(result$lloq))
@@ -185,8 +157,7 @@ test_that("df_prep_dvtime applies BLQ imputation", {
   df <- data.frame(TIME = c(0, 1, 2), NTIME = c(0, 1, 2),
                    DV = c(NA, NA, 5), MDV = c(1, 1, 0), EVID = c(0, 0, 0),
                    LLOQ = c(1, 1, 1))
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
-  result <- pmxhelpr:::df_prep_dvtime(df, tv, loq_method = 1)
+  result <- pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", loq_method = 1)
   expect_equal(result$data$DV[1], 0)
   expect_equal(result$data$DV[2], 0.5)
   expect_equal(result$data$DV[3], 5)
@@ -196,9 +167,8 @@ test_that("df_prep_dvtime applies BLQ imputation", {
 test_that("df_prep_dvtime applies dose normalization to all output vars", {
   df <- data.frame(TIME = 1:2, NTIME = 1:2, DV = c(10, 20), IPRED = c(12, 22),
                    MDV = c(0, 0), EVID = c(0, 0), DOSE = c(100, 100))
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
-  result <- pmxhelpr:::df_prep_dvtime(df, tv,
-                                        output_vars = c(DV = "DV", IPRED = "IPRED"),
+  result <- pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME",
+                                        ipred_var_str = "IPRED",
                                         dosenorm = TRUE)
   expect_equal(result$data$DV, c(0.1, 0.2))
   expect_equal(result$data$IPRED, c(0.12, 0.22))
@@ -207,34 +177,30 @@ test_that("df_prep_dvtime applies dose normalization to all output vars", {
 test_that("df_prep_dvtime coerces col_var to factor", {
   df <- data.frame(TIME = 1:2, NTIME = 1:2, DV = c(1, 2),
                    MDV = c(0, 0), EVID = c(0, 0), GRP = c("a", "b"))
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
-  result <- pmxhelpr:::df_prep_dvtime(df, tv, col_var_str = "GRP")
+  result <- pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", col_var_str = "GRP")
   expect_true(is.factor(result$data$GRP))
 })
 
-test_that("df_prep_dvtime errors on missing output variable", {
+test_that("df_prep_dvtime errors on missing dv_var", {
   df <- data.frame(TIME = 1, NTIME = 1, MDV = 0)
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
   expect_error(
-    pmxhelpr:::df_prep_dvtime(df, tv, output_vars = c(DV = "DV")),
+    pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME"),
     regexp = "must be variable"
   )
 })
 
 test_that("df_prep_dvtime errors on invalid timeu", {
   df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0)
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
   expect_error(
-    pmxhelpr:::df_prep_dvtime(df, tv, timeu = "years"),
+    pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", timeu = "years"),
     regexp = "argument timeu must be one of"
   )
 })
 
 test_that("df_prep_dvtime errors on missing dose_var when dosenorm = TRUE", {
   df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0)
-  tv <- c(TIME = "TIME", NTIME = "NTIME")
   expect_error(
-    pmxhelpr:::df_prep_dvtime(df, tv, dosenorm = TRUE, dose_var_str = "DOSE"),
+    pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", dosenorm = TRUE, dose_var_str = "DOSE"),
     regexp = "must be variable"
   )
 })

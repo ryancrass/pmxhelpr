@@ -8,7 +8,12 @@
 #'    + `DV`=`"blue"`.
 #'    + `OBS`=`"darkgrey"`
 #'
-#' @inheritParams df_mrgsim_replicate
+#' @param dv_var Column containing the dependent variable (DV).
+#'    Accepts bare names or strings. Default is `DV`.
+#' @param pred_var Column containing population predictions (PRED).
+#'    Accepts bare names or strings. Default is `PRED`.
+#' @param ipred_var Column containing individual predictions (IPRED).
+#'    Accepts bare names or strings. Default is `IPRED`.
 #' @inheritParams plot_dvtime
 #' @param theme Theme object created by [plot_popgof_theme()].
 #'    Defaults can be viewed by running `plot_popgof_theme()` with no arguments.
@@ -19,15 +24,15 @@
 #' @export plot_popgof
 #'
 #' @examples
-#'plot_popgof(data_sad_pkfit, output_vars = c(DV = "ODV"), dosenorm = TRUE, ylab = "Dose-norm Conc.")
+#'plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE, ylab = "Dose-norm Conc.")
 #'
 
 plot_popgof <- function(data,
-                        time_vars = c(TIME = "TIME",
-                                      NTIME = "NTIME"),
-                        output_vars = c(PRED = "PRED",
-                                        IPRED = "IPRED",
-                                        DV = "DV"),
+                        dv_var = DV,
+                        pred_var = PRED,
+                        ipred_var = IPRED,
+                        time_var = TIME,
+                        ntime_var = NTIME,
                         output_colors = c(PRED = "red",
                                           IPRED = "green",
                                           DV = "blue",
@@ -49,22 +54,24 @@ plot_popgof <- function(data,
                         n_breaks = 8,
                         theme = NULL){
 
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var))
+  pred_var_str  <- resolve_var(rlang::enquo(pred_var))
+  ipred_var_str <- resolve_var(rlang::enquo(ipred_var))
+  time_var_str  <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
+  grp_var_str   <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
-  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
-  dose_var_str <- resolve_var(rlang::enquo(dose_var))
-
-  ##Update Defaults to output_vars
-  output_vars <- list_update(output_vars, c(PRED = "PRED",
-                                            IPRED = "IPRED",
-                                            DV = "DV"))
-  output_colors <- list_update(output_colors, c(PRED = "red",
-                                                IPRED = "green",
-                                                DV = "blue",
-                                                OBS = "darkgrey"))
+  output_colors <- merge_element(output_colors, c(PRED = "red",
+                                                  IPRED = "green",
+                                                  DV = "blue",
+                                                  OBS = "darkgrey"))
 
   prep <- df_prep_dvtime(
-    data, time_vars,
-    output_vars = output_vars,
+    data, time_var_str, ntime_var_str,
+    dv_var_str = dv_var_str,
+    pred_var_str = pred_var_str,
+    ipred_var_str = ipred_var_str,
     timeu = timeu, loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     grp_dv = grp_dv, grp_var_str = grp_var_str,

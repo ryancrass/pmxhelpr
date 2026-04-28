@@ -1,6 +1,7 @@
 #' Plot a dependent variable versus time
 #'
 #' @param data Input dataset.
+#' @param dv_var Column containing the dependent variable. Accepts bare names or strings. Default is `DV`.
 #' @param timeu Character string specifying units for the time variable.
 #'    Passed to `var_timebreaks` and assigned to default x-axis label.
 #'    Options include:
@@ -48,7 +49,10 @@
 #' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
-#' @inheritParams df_mrgsim_replicate
+#' @param time_var Column containing the actual time variable.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable.
+#'    Accepts bare names or strings. Default is `NTIME`.
 #' @param theme Theme object created by [plot_dvtime_theme()].
 #'    Defaults can be viewed by running `plot_dvtime_theme()` with no arguments.
 #'    Default error bar width is 2.5% of maximum `NTIME`.
@@ -65,8 +69,8 @@
 
 plot_dvtime <- function(data,
                         dv_var = DV,
-                        time_vars = c(TIME = "TIME",
-                                      NTIME = "NTIME"),
+                        time_var = TIME,
+                        ntime_var = NTIME,
                         timeu = "hours",
                         col_var = NULL,
                         grp_var = ID,
@@ -85,14 +89,16 @@ plot_dvtime <- function(data,
                         n_breaks = 8,
                         theme = NULL){
 
-  dv_var_str   <- resolve_var(rlang::enquo(dv_var))
-  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
-  dose_var_str <- resolve_var(rlang::enquo(dose_var))
-  col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var))
+  time_var_str  <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
+  grp_var_str   <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var))
+  col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
   prep <- df_prep_dvtime(
-    data, time_vars,
-    output_vars = c(DV = dv_var_str),
+    data, time_var_str, ntime_var_str,
+    dv_var_str = dv_var_str,
     timeu = timeu, loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     col_var_str = col_var_str,
@@ -231,8 +237,8 @@ plot_dvtime_dual <- function(data,
                              dvid_var = CMT,
                              dvid_val1 = 2,
                              dvid_val2 = 3,
-                             time_vars = c(TIME = "TIME",
-                                           NTIME = "NTIME"),
+                             time_var = TIME,
+                             ntime_var = NTIME,
                              timeu = "hours",
                              col_var = NULL,
                              grp_var = ID,
@@ -255,12 +261,14 @@ plot_dvtime_dual <- function(data,
                              onelegend = TRUE,
                              theme = NULL){
 
-  dv_var1_str  <- resolve_var(rlang::enquo(dv_var1))
-  dv_var2_str  <- resolve_var(rlang::enquo(dv_var2))
-  dvid_var_str <- resolve_var(rlang::enquo(dvid_var))
-  grp_var_str  <- resolve_var(rlang::enquo(grp_var))
-  dose_var_str <- resolve_var(rlang::enquo(dose_var))
-  col_var_str  <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
+  dv_var1_str   <- resolve_var(rlang::enquo(dv_var1))
+  dv_var2_str   <- resolve_var(rlang::enquo(dv_var2))
+  dvid_var_str  <- resolve_var(rlang::enquo(dvid_var))
+  time_var_str  <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
+  grp_var_str   <- resolve_var(rlang::enquo(grp_var))
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var))
+  col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
   data_dv1 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val1)
   data_dv2 <- dplyr::filter(data, .data[[dvid_var_str]]==dvid_val2)
@@ -270,7 +278,8 @@ plot_dvtime_dual <- function(data,
   plot_dv1 <- pmxhelpr::plot_dvtime(
     data = data_dv1,
     dv_var = dv_var1_str,
-    time_vars = time_vars,
+    time_var = time_var_str,
+    ntime_var = ntime_var_str,
     timeu = timeu,
     col_var = col_var_str,
     grp_var = grp_var_str,
@@ -292,7 +301,8 @@ plot_dvtime_dual <- function(data,
   plot_dv2 <- pmxhelpr::plot_dvtime(
     data = data_dv2,
     dv_var = dv_var2_str,
-    time_vars = time_vars,
+    time_var = time_var_str,
+    ntime_var = ntime_var_str,
     timeu = timeu,
     col_var = col_var_str,
     grp_var = grp_var_str,

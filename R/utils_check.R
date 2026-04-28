@@ -20,10 +20,10 @@ check_mrgmod <- function(mod, name){
   }
 }
 
-check_mrgmod_outputvars <- function(mod, output_vars){
-  mod_output_vars <-mrgsolve::outvars(mod)$capture
-  output_warning <- paste0("mrg model must contain output variables specified in `output_vars`.")
-  if(!(output_vars[["DV"]] %in% mod_output_vars) & !(output_vars[["IPRED"]] %in% mod_output_vars)){
+check_mrgmod_outputvars <- function(mod, sim_dv_var_str, ipred_var_str){
+  mod_output_vars <- mrgsolve::outvars(mod)$capture
+  output_warning <- "mrg model must contain output variables specified in `sim_dv_var` or `ipred_var`."
+  if(!(sim_dv_var_str %in% mod_output_vars) & !(ipred_var_str %in% mod_output_vars)){
     rlang::abort(message = output_warning)
   }
 }

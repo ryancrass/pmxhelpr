@@ -9,8 +9,11 @@ df_mrgsim_replicate(
   model,
   replicates,
   dv_var = DV,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
+  time_var = TIME,
+  ntime_var = NTIME,
+  pred_var = PRED,
+  ipred_var = IPRED,
+  sim_dv_var = DV,
   num_vars = NULL,
   char_vars = NULL,
   irep_name = SIM,
@@ -28,11 +31,20 @@ other arguments.}
 
 \item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
 
-\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
+
+\item{pred_var}{Name of population prediction output from \code{model}.
+Accepts bare names or strings. Default is \code{PRED}.}
+
+\item{ipred_var}{Name of individual prediction output from \code{model}.
+Accepts bare names or strings. Default is \code{IPRED}.}
+
+\item{sim_dv_var}{Name of simulated DV output from \code{model}.
+Accepts bare names or strings. Default is \code{DV}.}
 
 \item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{carry_out}
@@ -51,7 +63,7 @@ and return in output.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
-and the output variables in \code{output_vars}, \code{num_vars}, and \code{char_vars}.
+and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus \code{num_vars} and \code{char_vars}.
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}

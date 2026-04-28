@@ -28,7 +28,7 @@ plot_dvconc(
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
+\item{dv_var}{Column containing the dependent variable. Accepts bare names or strings. Default is \code{DV}.}
 
 \item{idv_var}{Independent variable column. Accepts bare names or strings. Default is \code{CONC}.}
 

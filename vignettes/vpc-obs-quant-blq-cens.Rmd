@@ -153,8 +153,6 @@ model <- model_mread_load("pkmodel")
 data_sad_pk <- filter(data_sad, CMT %in% c(1,2))
 simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,replicates = 100,
                      dv_var = ODV,
-                     time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-                     output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
                      num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
                      char_vars = c("PART"),
                      obsonly = TRUE)
@@ -177,10 +175,6 @@ Let's plot using the default arguments to `plot_vpc_cont()`. The default behavio
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_drop <- plot_vpc_cont(
   sim = sim100,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
   strat_var = PART,
   min_bin_count = 4
 ) +
@@ -199,8 +193,6 @@ Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
 ```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_qobs_cens <- plot_vpc_cont(
   sim = sim100,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", SIMDV = "SIMDV", OBSDV = "OBSDV"),
   strat_var = PART,
   min_bin_count = 4,
   loq = 1

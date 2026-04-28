@@ -92,11 +92,8 @@ plot_popgof <- function(data,
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
                    panel.grid.major.x = ggplot2::element_blank())
 
-  #Reference Lines: Y=0 (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$ref$linewidth,
-                                                     linetype = plottheme$ref$linetype,
-                                                     alpha = plottheme$ref$alpha)
+  #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
+  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)
 
   blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = FALSE)
   plot <- blq$plot

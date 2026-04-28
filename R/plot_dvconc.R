@@ -87,10 +87,7 @@ plot_dvconc <- function(data,
                    panel.grid.major.x = ggplot2::element_blank())
 
   #Reference Lines: Y=cfb_base (cfb = TRUE)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$ref$linewidth,
-                                                     linetype = plottheme$ref$linetype,
-                                                     alpha = plottheme$ref$alpha)
+  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)
 
 
   #Plot Trend Lines

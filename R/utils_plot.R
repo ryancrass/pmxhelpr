@@ -195,6 +195,27 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
 }
 
 
+#' Internal helper: Add change-from-baseline reference line
+#'
+#' Conditionally adds a horizontal reference line at `cfb_base` when `cfb` is
+#' `TRUE`, using the `ref` element of the plot theme.
+#'
+#' @param plot ggplot object to modify
+#' @param cfb logical, whether the dependent variable is change from baseline
+#' @param cfb_base numeric, y-intercept for the reference line
+#' @param plottheme named list of theme aesthetics
+#'
+#' @return The (possibly modified) ggplot object
+#' @keywords internal
+add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
+  if (!isTRUE(cfb)) return(plot)
+  plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
+                             linewidth = plottheme$ref$linewidth,
+                             linetype = plottheme$ref$linetype,
+                             alpha = plottheme$ref$alpha)
+}
+
+
 #' Internal helper: Prepare the plot environment for DV vs time family plots
 #'
 #' Generates caption text, x-axis breaks, merges theme overrides with defaults,

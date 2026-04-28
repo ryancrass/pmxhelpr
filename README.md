@@ -38,7 +38,7 @@ Functions in this package use the following naming conventions:
 - Helper functions: *ReturnObject*\_*Purpose*
   - `var_addn` returns a factor vector with group labels appended with
     counts of unique values of an ID variable.
-  - `df_addpred` returns a `data.frame` with population model
+  - `df_mrgsim_addpred` returns a `data.frame` with population model
     predictions (PRED) appended.
   - `df_doseprop` returns a `data.frame` containing parameters from
     log-log regression of multiple exposure metrics versus dose

@@ -2,7 +2,7 @@
 
 export(caption_dvconc)
 export(caption_dvtime)
-export(df_addpred)
+export(df_mrgsim_addpred)
 export(df_doseprop)
 export(df_loglog)
 export(df_mrgsim_replicate)

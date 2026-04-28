@@ -80,7 +80,7 @@ df_mrgsim_replicate <- function(data,
   #Handle Time Variables
   data <- df_prep_timevars(data, time_vars)
 
-  data <- df_addpred(data, model, output_var = output_vars[["IPRED"]])
+  data <- df_mrgsim_addpred(data, model, output_var = output_vars[["IPRED"]])
 
   ##Run Simulation
   withr::with_seed(seed = seed,

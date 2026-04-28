@@ -251,7 +251,7 @@ var_dosenorm <- function(dv_var, dose_var) {
 #' @keywords internal
 #' @examples
 #' pkmodel <- model_mread_load(model = "pkmodel")
-#' data <- df_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
+#' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 #' data <- dplyr::mutate(data, PCDV = pmxhelpr:::var_pc(ODV, PRED))
 #'
 var_pc <- function(dv_var, pred_var, lower_bound = 0) {

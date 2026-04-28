@@ -7,9 +7,9 @@ test_that("var_addn -> plot_dvtime: factor col_var from var_addn is accepted", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("df_addpred -> plot_vpc_cont: prediction-corrected DV pipeline produces valid output", {
+test_that("df_mrgsim_addpred -> plot_vpc_cont: prediction-corrected DV pipeline produces valid output", {
   model <- model_mread_load("pkmodel")
-  data_pred <- df_addpred(data_sad, model)
+  data_pred <- df_mrgsim_addpred(data_sad, model)
   expect_s3_class(data_pred, "data.frame")
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
                              replicates = 1, dv_var = "ODV")

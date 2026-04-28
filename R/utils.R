@@ -66,7 +66,8 @@ df_prep_timevars <- function(data, time_var_str, ntime_var_str) {
 #' Internal helper: Apply BLQ censoring rules to data
 #'
 #' @param data data.frame containing data to censor
-#' @param extra_vars Other variables to include in censoring.
+#' @param pred_vars Character vector of prediction variable names (e.g., `"PRED"`, `"IPRED"`)
+#'    to apply threshold-based BLQ imputation. Default is `NULL`.
 #' @inheritParams plot_dvtime
 #'
 #' @return A data.frame with BLQ censoring applied
@@ -76,7 +77,7 @@ df_prep_timevars <- function(data, time_var_str, ntime_var_str) {
 #' data_loq1 <- pmxhelpr:::df_prep_blq(data, loq = 10, loq_method = 1)
 #' data_loq2 <- pmxhelpr:::df_prep_blq(data, loq = 10, loq_method = 2)
 #'
-df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
+df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
   if(!loq_method %in% c(1, 2)) return(data)
 
   data <- data |>
@@ -88,7 +89,7 @@ df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
                                            MDV == 0 ~ DV,
                                            TIME <= 0 ~ 0,
                                            TIME > 0 ~ 0.5 * LOQ))
-    for(v in extra_vars) {
+    for(v in pred_vars) {
       data <- data |>
         dplyr::mutate("{v}" := dplyr::case_when(
           EVID != 0 ~ NA_real_,
@@ -103,7 +104,7 @@ df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
       dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
                                            MDV == 0 ~ DV,
                                            MDV == 1 ~ 0.5 * LOQ))
-    for(v in extra_vars) {
+    for(v in pred_vars) {
       data <- data |>
         dplyr::mutate("{v}" := dplyr::case_when(
           EVID != 0 ~ NA_real_,
@@ -144,14 +145,22 @@ df_prep_blq <- function(data, loq, loq_method, extra_vars = NULL) {
 #' prep <- pmxhelpr:::df_prep_dvtime(data, time_var_str = "TIME", ntime_var_str = "NTIME")
 #' head(prep$data)
 #'
-df_prep_dvtime <- function(data, time_var_str = "TIME", ntime_var_str = "NTIME",
-                            dv_var_str = "DV",
-                            pred_var_str = NULL, ipred_var_str = NULL,
-                            timeu = "hours", loq = NULL, loq_method = 0,
-                            dose_var_str = NULL, col_var_str = NULL,
-                            grp_dv = FALSE, grp_var_str = NULL,
-                            dosenorm = FALSE,
-                            cfb = FALSE, cfb_base = NULL) {
+df_prep_dvtime <- function(data,
+                           time_var_str = "TIME",
+                           ntime_var_str = "NTIME",
+                           dv_var_str = "DV",
+                           pred_var_str = NULL,
+                           ipred_var_str = NULL,
+                           dose_var_str = NULL,
+                           col_var_str = NULL,
+                           grp_var_str = NULL,
+                           timeu = "hours",
+                           loq = NULL,
+                           loq_method = 0,
+                           grp_dv = FALSE,
+                           dosenorm = FALSE,
+                           cfb = FALSE,
+                           cfb_base = NULL) {
 
   check_df(data, "data")
   check_varsindf(data, time_var_str, "data", "time_var")
@@ -184,9 +193,9 @@ df_prep_dvtime <- function(data, time_var_str = "TIME", ntime_var_str = "NTIME",
     data[[col_var_str]] <- factor(data[[col_var_str]])
   }
 
-  extra_vars <- c(if (!is.null(pred_var_str)) "PRED",
-                   if (!is.null(ipred_var_str)) "IPRED")
-  data <- df_prep_blq(data, loq, loq_method, extra_vars = extra_vars)
+  pred_vars <- c(if (!is.null(pred_var_str)) "PRED",
+                  if (!is.null(ipred_var_str)) "IPRED")
+  data <- df_prep_blq(data, loq, loq_method, pred_vars = pred_vars)
 
   lloq <- if ("LOQ" %in% colnames(data)) unique(data$LOQ[!is.na(data$LOQ)]) else NA_real_
 
@@ -212,7 +221,8 @@ df_prep_dvtime <- function(data, time_var_str = "TIME", ntime_var_str = "NTIME",
 #' @examples
 #' data <- dplyr::mutate(data_sad, DNDV = var_dosenorm(ODV, DOSE))
 
-var_dosenorm <- function(dv_var, dose_var) {
+var_dosenorm <- function(dv_var,
+                         dose_var) {
   dv_var / dose_var
 }
 
@@ -230,7 +240,9 @@ var_dosenorm <- function(dv_var, dose_var) {
 #' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 #' data <- dplyr::mutate(data, PCDV = var_pc(ODV, PRED))
 #'
-var_pc <- function(dv_var, pred_var, lower_bound = 0) {
+var_pc <- function(dv_var,
+                   pred_var,
+                   lower_bound = 0) {
   predbin <- stats::median(pred_var)
   lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
 }
@@ -254,7 +266,9 @@ var_pc <- function(dv_var, pred_var, lower_bound = 0) {
 #' data <- dplyr::filter(data_sad, CMT != 3)
 #' var_addn(data$DOSE, data$ID, sep = "mg")
 #'
-var_addn <- function(grp_var, id_var, sep = NULL) {
+var_addn <- function(grp_var,
+                     id_var,
+                     sep = NULL) {
   counts <- tapply(id_var, grp_var, dplyr::n_distinct)
   n <- unname(counts[as.character(grp_var)])
   parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)

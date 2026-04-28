@@ -11,13 +11,13 @@ df_prep_dvtime(
   dv_var_str = "DV",
   pred_var_str = NULL,
   ipred_var_str = NULL,
+  dose_var_str = NULL,
+  col_var_str = NULL,
+  grp_var_str = NULL,
   timeu = "hours",
   loq = NULL,
   loq_method = 0,
-  dose_var_str = NULL,
-  col_var_str = NULL,
   grp_dv = FALSE,
-  grp_var_str = NULL,
   dosenorm = FALSE,
   cfb = FALSE,
   cfb_base = NULL
@@ -36,19 +36,19 @@ df_prep_dvtime(
 
 \item{ipred_var_str}{String name of the individual prediction column in \code{data}, or \code{NULL}.}
 
+\item{dose_var_str}{String specifying the dose column name, or \code{NULL}.}
+
+\item{col_var_str}{String specifying the color variable column name, or \code{NULL}.}
+
+\item{grp_var_str}{String specifying the group column name, or \code{NULL}.}
+
 \item{timeu}{Character string specifying time units. Passed to validation.}
 
 \item{loq}{Numeric value of LLOQ, or \code{NULL}.}
 
 \item{loq_method}{Integer (0, 1, or 2) specifying BLQ handling method.}
 
-\item{dose_var_str}{String specifying the dose column name, or \code{NULL}.}
-
-\item{col_var_str}{String specifying the color variable column name, or \code{NULL}.}
-
 \item{grp_dv}{Logical indicating if group variable should be validated.}
-
-\item{grp_var_str}{String specifying the group column name, or \code{NULL}.}
 
 \item{dosenorm}{Logical indicating if dose normalization should be applied.}
 

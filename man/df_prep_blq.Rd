@@ -4,7 +4,7 @@
 \alias{df_prep_blq}
 \title{Internal helper: Apply BLQ censoring rules to data}
 \usage{
-df_prep_blq(data, loq, loq_method, extra_vars = NULL)
+df_prep_blq(data, loq, loq_method, pred_vars = NULL)
 }
 \arguments{
 \item{data}{data.frame containing data to censor}
@@ -24,7 +24,8 @@ Options are:
    Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 }\if{html}{\out{</div>}}}
 
-\item{extra_vars}{Other variables to include in censoring.}
+\item{pred_vars}{Character vector of prediction variable names (e.g., \code{"PRED"}, \code{"IPRED"})
+to apply threshold-based BLQ imputation. Default is \code{NULL}.}
 }
 \value{
 A data.frame with BLQ censoring applied

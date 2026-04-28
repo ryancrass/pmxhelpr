@@ -1,23 +1,4 @@
 
-#' Internal helper: Build aesthetic mapping for central tendency layers
-#'
-#' @param y_var Character string specifying the y variable name (e.g., `"DV"`, `"IPRED"`).
-#' @param color_aes Optional character string for color aesthetic mapping (e.g., `"DV"` for popgof legend).
-#'
-#' @return A `ggplot2` aesthetic mapping object
-#' @keywords internal
-#' @examples
-#' pmxhelpr:::build_cent_aes("DV")
-#' pmxhelpr:::build_cent_aes("IPRED", color_aes = "IPRED")
-#'
-build_cent_aes <- function(y_var, color_aes = NULL) {
-  if (is.null(color_aes)) {
-    ggplot2::aes(x = NTIME, y = .data[[y_var]])
-  } else {
-    ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
-  }
-}
-
 #' Internal helper: Add central tendency point, line, and error bar layers to a plot
 #'
 #' @param plot ggplot object to modify.
@@ -42,7 +23,11 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 
   if (cent == "none") return(plot)
 
-  mapping <- build_cent_aes(y_var, color_aes)
+  mapping <- if (is.null(color_aes)) {
+    ggplot2::aes(x = NTIME, y = .data[[y_var]])
+  } else {
+    ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
+  }
 
   # Determine stat function
   is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")

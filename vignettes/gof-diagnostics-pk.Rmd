@@ -1,8 +1,8 @@
 ---
-title: "Standard Model Diagnostics"
+title: "Standard PopPK Overlay Goodness-of-Fit Diagnostics Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{standard-model-diagnostics}
+  %\VignetteIndexEntry{gof-diagnostics-pk}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

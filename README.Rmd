@@ -19,7 +19,9 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ryancrass/pmxhelpr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of pmxhelpr is to make pharmacometrics workflows more standardized, efficient, and reproducible. This package provides helper and wrapper functions for common steps in the pharmacometrics analysis workflow, such as exploratory data analysis, model development, model evaluation, and model application.
+The goal of pmxhelpr is to make pharmacometrics workflows more standardized, efficient, and reproducible. This package provides helper and wrapper functions for common steps in the modeling analysis workflow outside of model parameter estimation.
+
+These include such as exploratory data analysis, model evaluation, and model application.
 
 ## Installation
 
@@ -32,28 +34,47 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 ## Function Naming Conventions
 
-Functions in this package use the following naming conventions:
+Functions in this package includ the following:
 
-* Wrapper functions: *ReturnObject*_*WrappedFunction*_*Purpose*
+* Wrapper functions for `mrgsolve` functions: *ReturnObject*_*mrgsim*_*Purpose*
   + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object.
   + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`.
-  + `plot_vpc_cont()` generates a VPC plot using exact time bins returning a `ggplot` object.
+  + `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` to add population model predictions (PRED) returning a `data.frame`.
+
+* Longitudinal Exploritory Analysis Workflow: *ReturnObject*_*Purpose*
+  + `plot_dvtime()` returns a `ggplot` object with a continuous dependent variable plotted versus time (e.g., PK over time, PD over time)
+  + `plot_dvtime_dual()` returns a`ggplot` object with two separate continuous variables plotted versus time (e.g., PK and PD over time)
+  + `plot_dvconc()` returns a `ggplot` object with a continuous dependent variable plotted versus an independent continuous variable (e.g., PD vs PK)
+  + `plot_dvtime_theme()`, `plot_dvconc_theme()` return nested lists of modifiable default plot attributes for the `theme` arguments of `plot_dvtime` and `plot_dvconc`.
+
+ ""(caption_dvconc)
+""(caption_dvtime)
+
+* Dose Proporionality Workflow functions: *ReturnObject*_*Purpose*
+  + `mod_loglog()` returns a `lm` object from a log-log regression of a single exposure metric versus dose
+  + `df_loglog()` returns a `data.frame` containing parameters from a log-log regression of a single exposure metric versus dose
+  + `df_doseprop()` returns a `data.frame` containing parameters from log-log regression of multiple exposure metrics versus dose
+  + `plot_doseprop()` returns a `ggplot` object with log-log regression of exposure metrics versus dose
   
-* Helper functions: *ReturnObject*_*Purpose*
-  + `var_addn` returns a factor vector with group labels appended with counts of unique values of an ID variable.
-  + `df_mrgsim_addpred` returns a `data.frame` with population model predictions (PRED) appended.
-  + `df_doseprop` returns a `data.frame` containing parameters from log-log regression of multiple exposure metrics versus dose
-  + `df_loglog` returns a `data.frame` containing parameters from a log-log regression of a single exposure metric versus dose
-  + `df_pcdv` returns a `data.frame` containing the prediction-corrected dependent variable.
-  + `mod_loglog` returns a `lm` object from a log-log regression of a single exposure metric versus dose
-  + `plot_dvtime` returns a `ggplot` object with a dependent variable plotted versus time
-  + `plot_doseprop` returns a `ggplot` object with log-log regression of exposure metrics versus dose
-  + `plot_popgof` returns a `ggplot` object with observed, population-predicted, and individual-predicted values plotted versus time
+* VPC Workflow functions: *ReturnObject*_*Purpose*
+  + `df_mrgsim_replicate()` returns a `data.frame` of simulated replicates of an input dataset
+  + `plot_vpc_cont()` generates a `ggplot` VPC plot object from a simulated input dataset with exact time bins
   + `plot_vpc_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_cont`
+  + `plot_vpc_theme()` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_vpc_cont`
+  + `plot_vpc_shown()` returns a nested list of modifiable default plot attributes for the `shown` argument of `plot_vpc_cont`
   
-* Plot theme lists
-  + `plot_dvconc_theme()`, `plot_dvtime_theme()`, `plot_popgof_theme()`, `plot_vpc_theme()`, and `plot_vpc_shown()` return a named `list` with elements of modifiable elements of the plot theme or  elements shown.
+* Model Diagostic Workflow functions
+  + `plot_popgof` returns a `ggplot` object with observed, population-, and individual-predicted values overlaid with time
+  + `plot_popgof_theme` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_popgof`
   
+* Vectored Helper functions: *ReturnObject*_*Purpose*
+  + `var_addn` returns a factor vector of group labels with counts of unique values of an identifier variable.
+  + `var_pc` returns a numeric vector containing prediction-corrected values of a variable.
+  + `var_dosenorm` returns a numeric vector of a variable divided by dos
+  
+* Theme Element Helper functions: *pmx*_*Element*
+  + Elements that can be modified for each plot. Will be shown as optional addional documentation when calling plot-specific theme functions (q.g., `pmx_cent`, `pmx_vpc_line`, etc) 
+
 * Data sets
   + `data_sad` a  dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling
   + `data_sad_nca` a dataset containing PK parameters derived using non-compartmental analysis (NCA)
@@ -69,8 +90,10 @@ glimpse(data_sad)
 
 #Pre-process data for plotting
 data <- data_sad %>% 
-  mutate(Regimen = var_addn(DOSE, ID, sep = "mg x1")) %>%
-  mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
+         DoseFood = paste(DOSE,"mg x1", Food), 
+         Regimen = var_addn(DoseFood, ID, sep = "mg x1")) %>%
+  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1)) #Correctly order factor levels
 
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
@@ -113,15 +136,9 @@ library(withr)
 ##Pre-process Data for Plotting
 data <- data_sad_pkfit %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
-         DoseGroup = paste0(DOSE, " mg ", Food)) %>% 
-  mutate(DoseGroup = var_addn(DoseGroup, ID),
-         Food = var_addn(Food, ID))
-unique(data$DoseGroup)
-unique(data$Food)
-
-data <- data %>% 
-  mutate(DoseGroup = fct_relevel(DoseGroup, "50 mg Fasted (n=6)", after = 1))
-unique(data$DoseGroup)
+         DoseFood = paste(DOSE,"mg x1", Food), 
+         Regimen = var_addn(DoseFood, ID, sep = "mg x1")) %>%
+  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1)) #Correctly order factor levels
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
 plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE) +
@@ -129,8 +146,8 @@ plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE) +
   labs(y = "Dose-normalized Conc. (ng/mL)")
 
 plot_popgof(data = data, dv_var = "ODV", log_y = TRUE) +
-  facet_wrap(~DoseGroup) +
-  labs(y = "Dose-normalized Conc. (ng/mL)")
+  facet_wrap(~Regimen) +
+  labs(y = "Concentration (ng/mL)")
 ```
 
 ## Example Visual Predictive Check Analysis Workflow
@@ -149,7 +166,7 @@ library(withr)
 model <- model_mread_load("pkmodel")
 
 #Process Data
-data <- data_sad%>% 
+data <- data_sad %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
   mutate(Food = var_addn(Food, ID))
 

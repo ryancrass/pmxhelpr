@@ -208,13 +208,13 @@ pmx_vpc_point <- function(color = NULL, size = NULL, shape = NULL, alpha = NULL)
 #'
 #' @param color Line color. Default varies by line type.
 #' @param linetype Line type. Default varies by line type.
-#' @param size Line size. Default varies by line type.
+#' @param linewidth Line width. Default varies by line type.
 #'
 #' @return A `pmx_vpc_line` element object
 #' @export
-pmx_vpc_line <- function(color = NULL, linetype = NULL, size = NULL) {
+pmx_vpc_line <- function(color = NULL, linetype = NULL, linewidth = NULL) {
   structure(
-    compact(list(color = color, linetype = linetype, size = size)),
+    compact(list(color = color, linetype = linetype, linewidth = linewidth)),
     class = "pmx_vpc_line"
   )
 }
@@ -228,15 +228,15 @@ pmx_vpc_line <- function(color = NULL, linetype = NULL, size = NULL) {
 #' @param alpha Ribbon alpha. Default varies by ribbon type.
 #' @param color Ribbon border color. Default varies by ribbon type.
 #' @param linetype Ribbon border line type. Default varies by ribbon type.
-#' @param size Ribbon border size. Default varies by ribbon type.
+#' @param linewidth Ribbon border line width. Default varies by ribbon type.
 #'
 #' @return A `pmx_vpc_ribbon` element object
 #' @export
 pmx_vpc_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
-                           linetype = NULL, size = NULL) {
+                           linetype = NULL, linewidth = NULL) {
   structure(
     compact(list(fill = fill, alpha = alpha, color = color,
-                 linetype = linetype, size = size)),
+                 linetype = linetype, linewidth = linewidth)),
     class = "pmx_vpc_ribbon"
   )
 }
@@ -388,12 +388,12 @@ plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
                           loq = NULL, bin_sep = NULL) {
   defaults <- list(
     obs        = pmx_vpc_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
-    obs_median = pmx_vpc_line(color = "#FF0000", linetype = "solid", size = 1),
-    obs_ci     = pmx_vpc_line(color = "#0000FF", linetype = "dashed", size = 0.5),
+    obs_median = pmx_vpc_line(color = "#FF0000", linetype = "solid", linewidth = 1),
+    obs_ci     = pmx_vpc_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
     sim_pi     = pmx_vpc_ribbon(fill = "#0000FF", alpha = 0.15,
-                                color = "#000000", linetype = "dotted", size = 1),
+                                color = "#000000", linetype = "dotted", linewidth = 1),
     sim_median = pmx_vpc_ribbon(fill = "#FF0000", alpha = 0.3,
-                                color = "#000000", linetype = "dashed", size = 1),
+                                color = "#000000", linetype = "dashed", linewidth = 1),
     loq        = pmx_vpc_loq(color = "#990000", linetype = "dashed"),
     bin_sep    = pmx_vpc_bin_sep(color = "#000000")
   )

@@ -28,7 +28,8 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 ## Function Naming Conventions
 
-Primary workflow functions in this package include the following:
+Exploratory Data Analysis workflow functions in this package include the
+following:
 
 - Longitudinal PK and PK/PD Exploritory Analysis Workflow:
   *ReturnObject*\_*Purpose*
@@ -50,6 +51,10 @@ Primary workflow functions in this package include the following:
     `df_doseprop`
   - `mod_loglog()` returns a `lm` object from a log-log regression of a
     single exposure metric versus dose
+
+Model Evaluation workflow functions in this package include the
+following:
+
 - Overlay Model Diagostic Workflow functions: *ReturnObject*\_*Purpose*
   - `plot_popgof` returns a `ggplot` object with observed, population-,
     and individual-predicted values overlaid with time

@@ -60,13 +60,13 @@ vpc_build_plot <- function(vpcstats,
         ggplot2::aes(y = q5_med),
         color = vpc_theme$sim_pi$color,
         linetype = vpc_theme$sim_pi$linetype,
-        linewidth = vpc_theme$sim_pi$size
+        linewidth = vpc_theme$sim_pi$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(y = q95_med),
         color = vpc_theme$sim_pi$color,
         linetype = vpc_theme$sim_pi$linetype,
-        linewidth = vpc_theme$sim_pi$size
+        linewidth = vpc_theme$sim_pi$linewidth
       )
   }
 
@@ -87,7 +87,7 @@ vpc_build_plot <- function(vpcstats,
         ggplot2::aes(y = q50_med),
         color = vpc_theme$sim_median$color,
         linetype = vpc_theme$sim_median$linetype,
-        linewidth = vpc_theme$sim_median$size
+        linewidth = vpc_theme$sim_median$linewidth
       )
   }
 
@@ -99,7 +99,7 @@ vpc_build_plot <- function(vpcstats,
         inherit.aes = FALSE,
         color = vpc_theme$obs_median$color,
         linetype = vpc_theme$obs_median$linetype,
-        linewidth = vpc_theme$obs_median$size
+        linewidth = vpc_theme$obs_median$linewidth
       )
   }
 
@@ -111,14 +111,14 @@ vpc_build_plot <- function(vpcstats,
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci$color,
         linetype = vpc_theme$obs_ci$linetype,
-        linewidth = vpc_theme$obs_ci$size
+        linewidth = vpc_theme$obs_ci$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
         color = vpc_theme$obs_ci$color,
         linetype = vpc_theme$obs_ci$linetype,
-        linewidth = vpc_theme$obs_ci$size
+        linewidth = vpc_theme$obs_ci$linewidth
       )
   }
 

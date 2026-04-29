@@ -55,16 +55,16 @@ plot_vpc_legend <- function(ci = c(0.05, 0.95),
                                            linewidth = 1, na.rm= TRUE)} +
     {if(nlist$obs_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
                                                      color = plist$obs_median$color,
-                                                     linewidth = plist$obs_median$size, na.rm= TRUE)} +
+                                                     linewidth = plist$obs_median$linewidth, na.rm= TRUE)} +
     {if(nlist$obs_ci == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
                                                  color = plist$obs_ci$color,
-                                                 linewidth = plist$obs_median$size, na.rm= TRUE)} +
+                                                 linewidth = plist$obs_median$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
                                                      color = plist$sim_median$color,
-                                                     linewidth = plist$sim_median$size, na.rm= TRUE)} +
+                                                     linewidth = plist$sim_median$linewidth, na.rm= TRUE)} +
     {if(nlist$pi == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
                                              color = plist$sim_pi$color,
-                                             linewidth = plist$sim_pi$size, na.rm= TRUE)} +
+                                             linewidth = plist$sim_pi$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                      fill = sim_cilab_cent),
                                                         alpha = plist$sim_median$alpha, na.rm= TRUE)}+

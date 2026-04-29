@@ -88,7 +88,7 @@ plot_data_pd <- filter(plot_data, CMT == 3)
 ```
 
 
-# Population Concentration-time and Response-time Plots with `plot_dvtime_dual`
+# Population Response-time Plots
 
 Now let's take a look at the pharmacodynamic (PD) data! We can visualize the response-time profile using `plot_dvtime`, just as we did to visualize the concentration-time profile previously, by filtering our PK/PD dataset to the compartment with the biomarker observations (`CMT=3`).
 
@@ -97,7 +97,7 @@ plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
   labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
 ```
 
-We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
+We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`.
 
 ```{r plot-dvtime-pd-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = ODV,
@@ -106,7 +106,7 @@ plot_dvtime(data = plot_data_pd, dv_var = ODV,
   labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
 ```
 
-We can add a reference line to our plot using the `plot_dvtime` argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`. 
+When the response variable is expressed as change from baseline, the default `cfb_base = 0` provides the appropriate reference line.
 
 ```{r plot-dvtime-pd-ref0, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = CFB,
@@ -115,72 +115,37 @@ plot_dvtime(data = plot_data_pd, dv_var = CFB,
    labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
 ```
 
+## Combining PK and PD Panels
 
-## Overview of `plot_dvtime_dual`
+Simultaneous visualization of the time-course of drug concentration and response can be achieved by combining two `plot_dvtime` calls with the `patchwork` package. This approach provides full control over each panel's arguments independently.
 
-The wrapper function `plot_dvtime_dual` supports simultaneous visualization of the time-course of drug concentration and response. 
-This function uses the `patchwork` package to plot the PK and PD profiles in two vertically arranged panels. `plot_dvtime_dual` includes the following arguments to specify elements of the panels:
-  
-  + `dv_var1` and `dv_var2` arguments to specify the dependent variable (y-axis) to plot in the top (1) and bottom (2) panels. The default is `DV` .
-  + `dvid_var` argument to specify the variable that contains the identifiers for each dependent variable to be plotted. The default is `CMT`.
-  + `dvid_val1` and `dvid_val2` arguments to specify the values of the variable in `dvid_var` to identify the dependent variables to plot in the top (1) and bottom (2) panel. The defaults are `2` and `3`, respectively.
-  
-Both `dv_var1` and `dv_var2` arguments use non-standard evaluation and can be passed as bare column names or strings.
+```{r plot-dvtime-pkpd-panels, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV,
+                    col_var = `Dose and Food`, log_y = TRUE) +
+  labs(y = "Concentration (ng/mL)")
 
-```{r plot-dvtime-dual-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV,dv_var2 = ODV,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = `Dose and Food`) + 
-    labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
+p_pd <- plot_dvtime(data = plot_data_pd, dv_var = ODV,
+                    col_var = `Dose and Food`,
+                    cfb = TRUE, cfb_base = 100) +
+  labs(y = "Response (% of Baseline)")
+
+p_pk / p_pd + plot_layout(guides = "collect")
 ```
 
-The following arguments are available to specify y-axis labels and transformations:
+Each panel can be customized independently. For example, BLQ imputation and dose-normalization can be applied to the PK panel while the PD panel uses change from baseline with its own central tendency specification.
 
-  + `log_y1`: Logical specifying if the top panel y-axis should be transformed to a log scale. Default is `FALSE`.
-  + `log_y2`: Logical specifying if the bottom panel y-axis should be transformed to a log scale. Default is `FALSE`.
+```{r plot-dvtime-pkpd-custom, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV,
+                    col_var = Dose, log_y = TRUE,
+                    loq_method = 2, dosenorm = TRUE,
+                    show_caption = FALSE) +
+  labs(y = "Dose-norm. Conc. (ng/mL/mg)")
 
-```{r plot-dvtime-dual-col-y12, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = `Dose and Food`,
-                 log_y1 = TRUE)
-```
+p_pd <- plot_dvtime(data = plot_data_pd, dv_var = CFB,
+                    col_var = Dose, cfb = TRUE) +
+  labs(y = "Response (% Change from Baseline)")
 
-This wrapper function expects that the top panel will display drug concentration (PK) and the bottom panel will display response (PD). Thus, BLQ imputation and dose-normalization options specified using the standard arguments to `plot_dvtime` are only applied to the top panel.
-
-```{r plot-dvtime-dual-col-dosenorm-blq, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = `Dose and Food`, loq_method = 2, dosenorm = T,dose_var = DOSE,
-                 log_y1 = TRUE)
-```
-
-Similarly, since function expects that the bottom panel displays response (PD), a reference line at y=`cfb_base` is only added to the bottom panel when `cfb=TRUE`. 
-
-```{r plot-dvtime-dual-col-ref, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = ODV,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = Dose, cfb=TRUE, cfb_base = 100,
-                 log_y1 = TRUE)
-```
-
-The default value of `cfb_base` is `0`, which is the reference condition for when we express our response variable in units of change from baseline or percentage change from baseline. We can modify our plot to use change from baseline as the dependent variable for the PD panel but updating the variable passed to `dv_var2`.
-
-```{r plot-dvtime-dual-col-ref-cfb, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = Dose, cfb=TRUE,
-                 log_y1 = TRUE)
-```
-
-Finally, we can modify both of the captions separately using the logical arguments `show_caption1` and `show_caption2`. Their default values are `TRUE`. Since both panels of this plot have the same elements, we can turn the caption off in the top panel and print a single caption under the bottom panel to represent both panels in the plot.
-
-```{r plot-dvtime-dual-col-ref-cfb-nocap, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime_dual(plot_data, dv_var1 = ODV, dv_var2 = CFB,
-                 dvid_var = CMT, dvid_val1 = 2, dvid_val2 = 3,
-                 col_var = Dose, cfb=TRUE,
-                 log_y1 = TRUE,
-                 show_caption1 = FALSE, show_caption2 = TRUE)
+p_pk / p_pd + plot_layout(guides = "collect")
 ```
 
 

@@ -34,21 +34,12 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 ## Function Naming Conventions
 
-Functions in this package includ the following:
-
-* Wrapper functions for `mrgsolve` functions: *ReturnObject*_*mrgsim*_*Purpose*
-  + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object.
-  + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`.
-  + `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` to add population model predictions (PRED) returning a `data.frame`.
+Primary workflow functions in this package include the following:
 
 * Longitudinal Exploritory Analysis Workflow: *ReturnObject*_*Purpose*
-  + `plot_dvtime()` returns a `ggplot` object with a continuous dependent variable plotted versus time (e.g., PK over time, PD over time)
-  + `plot_dvtime_dual()` returns a`ggplot` object with two separate continuous variables plotted versus time (e.g., PK and PD over time)
+  + `plot_dvtime()` returns a `ggplot` object with a continuous dependent variable plotted versus time (e.g., PK or PD vs time)
   + `plot_dvconc()` returns a `ggplot` object with a continuous dependent variable plotted versus an independent continuous variable (e.g., PD vs PK)
   + `plot_dvtime_theme()`, `plot_dvconc_theme()` return nested lists of modifiable default plot attributes for the `theme` arguments of `plot_dvtime` and `plot_dvconc`.
-
- ""(caption_dvconc)
-""(caption_dvtime)
 
 * Dose Proporionality Workflow functions: *ReturnObject*_*Purpose*
   + `mod_loglog()` returns a `lm` object from a log-log regression of a single exposure metric versus dose
@@ -63,22 +54,26 @@ Functions in this package includ the following:
   + `plot_vpc_theme()` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_vpc_cont`
   + `plot_vpc_shown()` returns a nested list of modifiable default plot attributes for the `shown` argument of `plot_vpc_cont`
   
-* Model Diagostic Workflow functions
+* Model Diagostic Workflow functions: *ReturnObject*_*Purpose*
   + `plot_popgof` returns a `ggplot` object with observed, population-, and individual-predicted values overlaid with time
   + `plot_popgof_theme` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_popgof`
-  
-* Vectored Helper functions: *ReturnObject*_*Purpose*
-  + `var_addn` returns a factor vector of group labels with counts of unique values of an identifier variable.
-  + `var_pc` returns a numeric vector containing prediction-corrected values of a variable.
-  + `var_dosenorm` returns a numeric vector of a variable divided by dos
-  
-* Theme Element Helper functions: *pmx*_*Element*
-  + Elements that can be modified for each plot. Will be shown as optional addional documentation when calling plot-specific theme functions (q.g., `pmx_cent`, `pmx_vpc_line`, etc) 
 
 * Data sets
   + `data_sad` a  dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling
   + `data_sad_nca` a dataset containing PK parameters derived using non-compartmental analysis (NCA)
   + `data_sad_pkfit` a dataset consistent with `data_sad` including individual (IPRED) and population (PRED) PK model predictions
+
+Helper functions include the following:
+
+* Wrapper functions for `mrgsolve` functions: *ReturnObject*_*mrgsim*_*Purpose*
+  + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object.
+  + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`.
+  + `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` to add population model predictions (PRED) returning a `data.frame`.
+  
+* Vectored Helper functions: *ReturnObject*_*Purpose*
+  + `var_addn` returns a factor vector of group labels with counts of unique values of an identifier variable.
+  + `var_pc` returns a numeric vector containing prediction-corrected values of a variable.
+  + `var_dosenorm` returns a numeric vector of a variable divided by dos
 
 ## Example Exploratory Data Analysis Workflow
 
@@ -99,10 +94,6 @@ data <- data_sad %>%
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
             col_var = "Regimen", log_y = TRUE, obs_dv = FALSE) +
   labs(y = "Concentration (ng/mL)")
-
-#Plot drug concentration and biomarker response versus time
-plot_dvtime_dual(data = data, dv_var1 = "ODV", dv_var2 = "CFB", dvid_var = "CMT",
-            cent = "mean_sdl", col_var = "Regimen", log_y1 = TRUE)
 
 #Plot response versus concentration
 plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",

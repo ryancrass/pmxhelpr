@@ -4,14 +4,14 @@
 \alias{pmx_vpc_line}
 \title{VPC line aesthetics}
 \usage{
-pmx_vpc_line(color = NULL, linetype = NULL, size = NULL)
+pmx_vpc_line(color = NULL, linetype = NULL, linewidth = NULL)
 }
 \arguments{
 \item{color}{Line color. Default varies by line type.}
 
 \item{linetype}{Line type. Default varies by line type.}
 
-\item{size}{Line size. Default varies by line type.}
+\item{linewidth}{Line width. Default varies by line type.}
 }
 \value{
 A \code{pmx_vpc_line} element object

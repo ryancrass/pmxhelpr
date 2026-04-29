@@ -2,32 +2,9 @@
 % Please edit documentation in R/plot_vpc_cont.R
 \name{plot_vpc_cont}
 \alias{plot_vpc_cont}
-\alias{plot_vpc_exactbins}
 \title{Plot a visual predictive check (VPC) for continuous data with exact time bins}
 \usage{
 plot_vpc_cont(
-  sim,
-  time_var = TIME,
-  ntime_var = NTIME,
-  pred_var = PRED,
-  ipred_var = IPRED,
-  sim_dv_var = SIMDV,
-  obs_dv_var = OBSDV,
-  strat_var = NULL,
-  pcvpc = FALSE,
-  loq = NULL,
-  irep_name = SIM,
-  min_bin_count = 1,
-  show_rep = TRUE,
-  lower_bound = 0,
-  shown = NULL,
-  vpc_theme = NULL,
-  pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
-  vpcstats = FALSE
-)
-
-plot_vpc_exactbins(
   sim,
   time_var = TIME,
   ntime_var = NTIME,

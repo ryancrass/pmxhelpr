@@ -2,7 +2,6 @@
 #'
 #' @description  `plot_vpc_cont()` generates a VPC plot using exact time bins
 #' and returns a `ggplot2` object.
-#' @aliases plot_vpc_exactbins
 #'
 #' @param sim Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
 #' @param strat_var Stratification variable.
@@ -160,11 +159,6 @@ plot_vpc_cont <- function(sim,
 
   return(plot)
 }
-
-
-#' @rdname plot_vpc_cont
-#' @export
-plot_vpc_exactbins <- plot_vpc_cont
 
 
 

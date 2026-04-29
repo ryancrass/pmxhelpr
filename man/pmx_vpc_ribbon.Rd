@@ -9,7 +9,7 @@ pmx_vpc_ribbon(
   alpha = NULL,
   color = NULL,
   linetype = NULL,
-  size = NULL
+  linewidth = NULL
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ pmx_vpc_ribbon(
 
 \item{linetype}{Ribbon border line type. Default varies by ribbon type.}
 
-\item{size}{Ribbon border size. Default varies by ribbon type.}
+\item{linewidth}{Ribbon border line width. Default varies by ribbon type.}
 }
 \value{
 A \code{pmx_vpc_ribbon} element object

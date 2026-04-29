@@ -6,7 +6,7 @@ testsim_raw <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                    replicates = 10,
                                    dv_var = "ODV")
 
-## Helper: preprocess + compute stats (mirrors plot_vpc_exactbins flow)
+## Helper: preprocess + compute stats (mirrors plot_vpc_cont flow)
 run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
                          lower_bound = 0, loq = NULL,
                          pi = c(0.05, 0.95), ci = c(0.05, 0.95),

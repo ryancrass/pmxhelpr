@@ -21,10 +21,10 @@ Imports:
     rlang,
     stats,
     withr,
-    labeling,
-    patchwork
-Suggests: 
+    labeling
+Suggests:
     knitr,
+    patchwork,
     rmarkdown,
     testthat (>= 3.0.0),
     Hmisc,

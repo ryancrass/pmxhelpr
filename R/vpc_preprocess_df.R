@@ -1,19 +1,28 @@
 #' Compute VPC summary statistics from preprocessed simulation data
 #'
 #' @description
-#' Internal function. Computes two-stage quantile summary statistics for VPC plots
-#' from data already preprocessed by `df_vpcpreprocess()`.
+#' Computes two-stage quantile summary statistics for VPC plots.
+#' Can be called directly on preprocessed data or accessed via
+#' `plot_vpc_cont(vpcstats = TRUE)`, which handles preprocessing automatically.
 #'
-#' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`, and `irep_name` columns.
+#' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`,
+#'    `MDV`, and a replicate identifier column. Typically output from
+#'    `df_mrgsim_replicate()` after internal preprocessing by `plot_vpc_cont()`.
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
+#'    Default is `c(0.05, 0.95)`.
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
-#' @param bin_var String. Binning variable name.
-#' @param strat_var_str String or `NULL`. Stratification variable name.
-#' @param irep_name_str String. Replicate identifier column name.
+#'    Default is `c(0.05, 0.95)`.
+#' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
+#' @param strat_var_str String or `NULL`. Stratification variable name. Default is `NULL`.
+#' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
+#'    When specified, observed quantiles use censored quantile estimation.
 #'
-#' @return A data.frame with quantile summary columns.
-#' @keywords internal
+#' @return A `data.frame` with columns for simulated quantile CIs
+#'    (`q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
+#'    `q95_low`, `q95_med`, `q95_hi`) and observed quantiles
+#'    (`obs5`, `obs50`, `obs95`), joined by `bin_var`.
+#' @export df_vpcstats
 
 df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq) {
 

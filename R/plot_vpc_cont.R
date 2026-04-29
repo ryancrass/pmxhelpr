@@ -44,7 +44,8 @@
 #' @inheritParams plot_dvtime
 #' @inheritParams var_pc
 #'
-#' @return A list containing calculated VPC information (when `vpcdb=TRUE`), or a ggplot2 object (default)
+#' @return A `ggplot2` object (default), or a `data.frame` of VPC summary
+#'    statistics from [df_vpcstats()] when `vpcstats = TRUE`.
 #' @export plot_vpc_cont
 #'
 #' @examples

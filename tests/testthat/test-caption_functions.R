@@ -80,12 +80,12 @@ test_that("Error if argument `loq_method` is not one of 0, 1, 2", {
 
 test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 1", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 1, loq = "$"),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
+               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
 })
 
 test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 2", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 2, loq = "$"),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
+               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
 })
 
 test_that("No error if variable `LLOQ` exists in `data` and `loq` = NULL and `loq_method` != 0", {
@@ -94,12 +94,12 @@ test_that("No error if variable `LLOQ` exists in `data` and `loq` = NULL and `lo
 
 test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = 1", {
   expect_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq_method = 1),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
+               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
 })
 
 test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = `", {
   expect_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq_method = 2),
-               regexp = "If `loq_method` is 1 or 2, then a numeric variable `LLOQ` must be present in `data` \n or argument `loq` must specified and numeric or coercible to numeric")
+               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
 })
 
 test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 1", {

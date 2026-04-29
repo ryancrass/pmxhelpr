@@ -73,7 +73,7 @@ test_that("check_timeu does not error on valid time units", {
 
 test_that("check_timeu errors on invalid time unit", {
   expect_error(pmxhelpr:::check_timeu("years"),
-               regexp = "argument timeu must be one of")
+               regexp = "argument `timeu` must be one of")
 })
 
 #####check_loq_method####
@@ -89,7 +89,7 @@ test_that("check_loq_method errors when loq_method = NULL", {
 
 test_that("check_loq_method errors when loq_method = 1, loq = NULL, and no LLOQ column", {
   expect_error(pmxhelpr:::check_loq_method(NULL, 1, data.frame(x = 1)),
-               regexp = "numeric variable `LLOQ` must be present")
+               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present")
 })
 
 #####check_levelsinvar####

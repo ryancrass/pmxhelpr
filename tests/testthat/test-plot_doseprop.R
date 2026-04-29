@@ -47,7 +47,7 @@ test_that("Error if argument `method` not one of normal or tdist", {
   fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
 
   expect_error(df_loglog(fit, method = 1),
-               regexp = "argument `method` must be 'normal' or 'tdist'")
+               regexp = "argument `method` must be `normal` or `tdist`")
 })
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
@@ -146,7 +146,7 @@ test_that("Error if variable specified in `dose_var` is not in `data`", {
 
 test_that("Error if argument `method` is not one of normal or tdist", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
-               regexp = "argument `method` must be 'normal' or 'tdist'")
+               regexp = "argument `method` must be `normal` or `tdist`")
 })
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {

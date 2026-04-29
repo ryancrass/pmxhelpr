@@ -242,6 +242,66 @@ add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
 }
 
 
+#' Internal helper: Add a trend line layer to a DV-vs-concentration plot
+#'
+#' Adds a `geom_smooth` layer for the specified `method`. When `col_var_str`
+#' is non-NULL and `col_trend` is TRUE, the color and fill aesthetics are
+#' mapped to the grouping variable; otherwise, fixed colors from `plottheme`
+#' are used.
+#'
+#' @param plot ggplot object to modify
+#' @param method Character smoothing method (`"loess"` or `"lm"`)
+#' @param show Logical indicating whether to add this trend layer
+#' @param se Logical indicating whether to show the standard error ribbon
+#' @param plottheme Named list of theme aesthetics (must contain element named by `method`)
+#' @param col_var_str String name of the color variable, or `NULL`
+#' @param col_trend Logical indicating if trends should be colored by group
+#' @param ... Additional arguments passed to `geom_smooth` (e.g., `span`)
+#'
+#' @return The (possibly modified) ggplot object
+#' @keywords internal
+add_trend_layers <- function(plot, method, show, se, plottheme,
+                              col_var_str, col_trend, ...) {
+  if (!isTRUE(show)) return(plot)
+  theme_el <- plottheme[[method]]
+  if (isTRUE(col_trend) && !is.null(col_var_str)) {
+    plot + ggplot2::geom_smooth(
+      ggplot2::aes(color = .data[[col_var_str]], fill = .data[[col_var_str]]),
+      method = method, se = se,
+      linewidth = theme_el$linewidth, linetype = theme_el$linetype,
+      alpha = theme_el$se_alpha, ...)
+  } else {
+    plot + ggplot2::geom_smooth(
+      method = method, se = se,
+      linewidth = theme_el$linewidth, linetype = theme_el$linetype,
+      color = theme_el$color, fill = theme_el$se_color,
+      alpha = theme_el$se_alpha, ...)
+  }
+}
+
+
+#' Internal helper: Add observation point layer to a DV-vs-concentration plot
+#'
+#' @param plot ggplot object to modify
+#' @param plottheme Named list of theme aesthetics (must contain `$obs`)
+#' @param col_var_str String name of the color variable, or `NULL`
+#'
+#' @return The modified ggplot object
+#' @keywords internal
+add_obs_point_layer <- function(plot, plottheme, col_var_str) {
+  if (is.null(col_var_str)) {
+    plot + ggplot2::geom_point(shape = plottheme$obs$shape,
+                               size = plottheme$obs$size,
+                               alpha = plottheme$obs$alpha)
+  } else {
+    plot + ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]),
+                               shape = plottheme$obs$shape,
+                               size = plottheme$obs$size,
+                               alpha = plottheme$obs$alpha)
+  }
+}
+
+
 #' Internal helper: Prepare the plot environment for DV vs time family plots
 #'
 #' Generates caption text, merges theme overrides with defaults,

@@ -124,6 +124,14 @@ A \code{ggplot2} plot object
 \description{
 Wrapper function for plot_dvtime to plot two dependent variables paneled together
 }
+\details{
+The top panel (DV1) is intended for drug concentration (PK) and receives
+user-supplied \code{loq}, \code{loq_method}, and \code{dosenorm} settings. The bottom
+panel (DV2) is intended for response (PD) and forces \code{loq_method = 0}
+and \code{dosenorm = FALSE}, since BLQ imputation and dose normalization are
+not applicable to pharmacodynamic endpoints. The \code{cfb} reference line is
+only applied to the bottom panel.
+}
 \examples{
 data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvtime_dual(data, dv_var1 = ODV, dv_var2 = ODV, col_var = Dose)

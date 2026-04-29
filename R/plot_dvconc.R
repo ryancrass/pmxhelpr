@@ -67,7 +67,7 @@ plot_dvconc <- function(data,
 ###Plot
 
   #Initialize Plot
-  if(col_trend == FALSE) {
+  if(!isTRUE(col_trend)) {
     plot <- init_plot(data, "IDV", "DV")
   } else {
     plot <- init_plot(data, "IDV", "DV", col_var_str) +
@@ -79,61 +79,19 @@ plot_dvconc <- function(data,
 
 
   #Plot Trend Lines
-  if(col_trend == FALSE) {
-    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(method = "loess", se = se_loess,
-                                                          linewidth = plottheme$loess$linewidth,
-                                                          linetype = plottheme$loess$linetype,
-                                                          color = plottheme$loess$color,
-                                                          fill = plottheme$loess$se_color,
-                                                          alpha = plottheme$loess$se_alpha,
-                                                          ...)
-
-    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linear$linewidth,
-                                                           linetype = plottheme$linear$linetype,
-                                                           color = plottheme$linear$color,
-                                                           fill = plottheme$linear$se_color,
-                                                           alpha = plottheme$linear$se_alpha)
-  } else {
-    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                              color = .data[[col_var_str]],
-                                                              fill = .data[[col_var_str]]),
-                                                          method = "loess", se = se_loess,
-                                                          linewidth = plottheme$loess$linewidth,
-                                                          linetype = plottheme$loess$linetype,
-                                                          alpha = plottheme$loess$se_alpha,
-                                                          ...)
-
-    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                               color = .data[[col_var_str]],
-                                                               fill = .data[[col_var_str]]),
-                                                               method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linear$linewidth,
-                                                           linetype = plottheme$linear$linetype,
-                                                           alpha = plottheme$linear$se_alpha)
-  }
+  plot <- add_trend_layers(plot, "loess", loess, se_loess, plottheme,
+                           col_var_str, col_trend, ...)
+  plot <- add_trend_layers(plot, "lm", linear, se_linear, plottheme,
+                           col_var_str, col_trend)
 
   #Add observations
-  if(is.null(col_var_str)){
-    plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV),
-                          shape=plottheme$obs$shape,
-                          size=plottheme$obs$size,
-                          alpha = plottheme$obs$alpha)
-  } else {
-    plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = .data[[col_var_str]]),
-                          shape=plottheme$obs$shape,
-                          size=plottheme$obs$size,
-                          alpha = plottheme$obs$alpha)
-  }
-
+  plot <- add_obs_point_layer(plot, plottheme, col_var_str)
 
   #Log Transform
-  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
+  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
-  if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
 }

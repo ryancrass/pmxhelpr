@@ -125,10 +125,10 @@ plot_dvtime <- function(data,
   plot <- add_cent_layers(plot, cent, "DV", plottheme, width)
 
   #Log Transform
-  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
+  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
-  if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
 }
@@ -197,6 +197,14 @@ caption_dvtime <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
 #' @param show_caption2 Logical indicating if a caption should be show describing the data plotted for the bottom panel (DV2).
 #' @param onelegend Logical indicator if the plot legends should be collected into a single legend. Default is `FALSE`.
 #' @inheritParams plot_dvtime
+#'
+#' @details
+#' The top panel (DV1) is intended for drug concentration (PK) and receives
+#' user-supplied `loq`, `loq_method`, and `dosenorm` settings. The bottom
+#' panel (DV2) is intended for response (PD) and forces `loq_method = 0`
+#' and `dosenorm = FALSE`, since BLQ imputation and dose normalization are
+#' not applicable to pharmacodynamic endpoints. The `cfb` reference line is
+#' only applied to the bottom panel.
 #'
 #' @return A `ggplot2` plot object
 #'
@@ -288,6 +296,6 @@ plot_dvtime_dual <- function(data,
   )
 
   plot <- patchwork::wrap_plots(plot_dv1, plot_dv2) + patchwork::plot_layout(ncol = 1, nrow = 2)
-  if(onelegend == TRUE) {plot <- plot + patchwork::plot_layout(guides = "collect")}
+  if(isTRUE(onelegend)) {plot <- plot + patchwork::plot_layout(guides = "collect")}
   return(plot)
 }

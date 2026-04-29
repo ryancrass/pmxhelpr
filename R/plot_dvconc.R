@@ -7,9 +7,6 @@
 #' @param se_loess Logical indicating if the standard error should be shown for the loess fit. Default is `FALSE`
 #' @param linear Logical indicating if a linear regression fit should be shown. Default is `FALSE`.
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
-#' @param ylab Character string specifying the y-axis label: Default is `"Response"`.
-#' @param xlab Character string specifying the x-axis label: Default is `"Drug Concentration"`
-#' @param log_x Logical indicator for log10 transformation of the x-axis.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @param theme Theme object created by [plot_dvconc_theme()].
@@ -38,10 +35,7 @@ plot_dvconc <- function(data,
                         se_linear = FALSE,
                         cfb = FALSE,
                         cfb_base = 0,
-                        ylab = "Response",
-                        xlab = "Drug Concentration",
                         log_y = FALSE,
-                        log_x = FALSE,
                         show_caption = TRUE,
                         theme = NULL,
                         ...){
@@ -72,19 +66,13 @@ plot_dvconc <- function(data,
 
 ###Plot
 
-  #Initialize Plot Aesthetics
+  #Initialize Plot
   if(col_trend == FALSE) {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV))
+    plot <- init_plot(data, "IDV", "DV")
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV,
-                                               color = .data[[col_var_str]], group = .data[[col_var_str]]))
+    plot <- init_plot(data, "IDV", "DV", col_var_str) +
+      ggplot2::aes(group = .data[[col_var_str]])
   }
-
-  plot <- plot +
-    ggplot2::labs(x=xlab, y=ylab) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
 
   #Reference Lines: Y=cfb_base (cfb = TRUE)
   plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)
@@ -143,7 +131,6 @@ plot_dvconc <- function(data,
 
   #Log Transform
   if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
-  if(log_x == TRUE) plot <- plot + ggplot2::scale_x_log10(guide = "axis_logticks")
 
   #Caption
   if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)

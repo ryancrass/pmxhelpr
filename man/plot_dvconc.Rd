@@ -16,10 +16,7 @@ plot_dvconc(
   se_linear = FALSE,
   cfb = FALSE,
   cfb_base = 0,
-  ylab = "Response",
-  xlab = "Drug Concentration",
   log_y = FALSE,
-  log_x = FALSE,
   show_caption = TRUE,
   theme = NULL,
   ...
@@ -49,13 +46,7 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
-\item{ylab}{Character string specifying the y-axis label: Default is \code{"Response"}.}
-
-\item{xlab}{Character string specifying the x-axis label: Default is \code{"Drug Concentration"}}
-
 \item{log_y}{Logical indicator for log10 transformation of the y-axis.}
-
-\item{log_x}{Logical indicator for log10 transformation of the x-axis.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
 

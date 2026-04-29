@@ -13,7 +13,6 @@ plot_dvtime_dual(
   dvid_val2 = 3,
   time_var = TIME,
   ntime_var = NTIME,
-  timeu = "hours",
   col_var = NULL,
   grp_var = ID,
   dose_var = DOSE,
@@ -25,13 +24,10 @@ plot_dvtime_dual(
   dosenorm = FALSE,
   cfb = FALSE,
   cfb_base = 0,
-  ylab1 = "Concentration",
-  ylab2 = "Response",
   log_y1 = FALSE,
   log_y2 = FALSE,
   show_caption1 = TRUE,
   show_caption2 = TRUE,
-  n_breaks = 8,
   onelegend = TRUE,
   theme = NULL
 )
@@ -56,16 +52,6 @@ Accepts bare names or strings. Default is \code{TIME}.}
 
 \item{ntime_var}{Column containing the nominal time variable.
 Accepts bare names or strings. Default is \code{NTIME}.}
-
-\item{timeu}{Character string specifying units for the time variable.
-Passed to \code{var_timebreaks} and assigned to default x-axis label.
-Options include:
-\itemize{
-\item "hours" (default)
-\item "days"
-\item "weeks"
-\item "months"
-}}
 
 \item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
@@ -114,10 +100,6 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
-\item{ylab1}{Character string specifying the y-axis label for the top panel (DV1): Default is \code{"Concentration"}.}
-
-\item{ylab2}{Character string specifying the y-axis label for the bottom panel (DV2): Default is \code{"Response"}.}
-
 \item{log_y1}{Logical indicator for log10 transformation of the y-axis for the top panel (DV1). Default is \code{FALSE}.}
 
 \item{log_y2}{Logical indicator for log10 transformation of the y-axis for the bottom panel (DV2). Default is \code{FALSE}.}
@@ -126,13 +108,15 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{show_caption2}{Logical indicating if a caption should be show describing the data plotted for the bottom panel (DV2).}
 
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
-
 \item{onelegend}{Logical indicator if the plot legends should be collected into a single legend. Default is \code{FALSE}.}
 
 \item{theme}{Theme object created by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
 Default error bar width is 2.5\% of maximum \code{NTIME}.}
+
+\item{ylab1}{Character string specifying the y-axis label for the top panel (DV1): Default is \code{"Concentration"}.}
+
+\item{ylab2}{Character string specifying the y-axis label for the bottom panel (DV2): Default is \code{"Response"}.}
 }
 \value{
 A \code{ggplot2} plot object

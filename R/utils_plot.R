@@ -1,4 +1,30 @@
 
+#' Internal helper: Initialize a ggplot with standard theme
+#'
+#' Creates a ggplot object with the base theme (`theme_bw`) and removes minor
+#' grid lines and major x-axis grid lines.
+#'
+#' @param data data.frame to plot
+#' @param x_var String name of the x-axis variable
+#' @param y_var String name of the y-axis variable
+#' @param col_var_str String name of the color variable, or `NULL`
+#'
+#' @return A ggplot object with base theme applied
+#' @keywords internal
+init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
+  if (is.null(col_var_str)) {
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]]))
+  } else {
+    plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]],
+                                                color = .data[[col_var_str]]))
+  }
+  plot +
+    ggplot2::theme_bw() +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   panel.grid.major.x = ggplot2::element_blank())
+}
+
+
 #' Internal helper: Add central tendency point, line, and error bar layers to a plot
 #'
 #' @param plot ggplot object to modify.
@@ -218,7 +244,7 @@ add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
 
 #' Internal helper: Prepare the plot environment for DV vs time family plots
 #'
-#' Generates caption text, x-axis breaks, merges theme overrides with defaults,
+#' Generates caption text, merges theme overrides with defaults,
 #' and computes error bar width.
 #'
 #' @param data data.frame containing processed data with `NTIME` column.
@@ -226,26 +252,22 @@ add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
 #' @param log_y Logical indicating log-scale y-axis.
 #' @param obs_dv Logical indicating if observed data points are shown.
 #' @param grp_dv Logical indicating if observations are connected within groups.
-#' @param timeu Character string specifying time units.
-#' @param n_breaks Integer specifying the number of x-axis breaks.
 #' @param theme User-supplied theme overrides, or `NULL`.
 #' @param theme_fn Theme factory function (e.g., `plot_dvtime_theme`).
 #'
-#' @return A named list with elements `caption`, `xbreaks`, `plottheme`, and `width`.
+#' @return A named list with elements `caption`, `plottheme`, and `width`.
 #' @keywords internal
 #' @examples
 #' data <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1,2)), DV = ODV)
 #' env <- pmxhelpr:::prep_plot_env(data, cent = "mean", log_y = FALSE,
-#'   obs_dv = TRUE, grp_dv = FALSE, timeu = "hours", n_breaks = 8,
+#'   obs_dv = TRUE, grp_dv = FALSE,
 #'   theme = NULL, theme_fn = plot_dvtime_theme)
 #'
-prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv,
-                          timeu, n_breaks, theme, theme_fn) {
-  caption  <- caption_dvtime(cent, log_y, obs_dv, grp_dv)
-  xbreaks  <- var_timebreaks(x = sort(unique(data$NTIME)), unit = timeu, n = n_breaks)
+prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn) {
+  caption   <- caption_dvtime(cent, log_y, obs_dv, grp_dv)
   plottheme <- merge_theme(theme, theme_fn())
-  width    <- errorbar_width(plottheme, data)
-  list(caption = caption, xbreaks = xbreaks, plottheme = plottheme, width = width)
+  width     <- errorbar_width(plottheme, data)
+  list(caption = caption, plottheme = plottheme, width = width)
 }
 
 

@@ -12,7 +12,6 @@ plot_popgof(
   time_var = TIME,
   ntime_var = NTIME,
   output_colors = c(PRED = "red", IPRED = "green", DV = "blue", OBS = "darkgrey"),
-  timeu = "hours",
   grp_var = ID,
   dose_var = DOSE,
   loq = NULL,
@@ -23,10 +22,8 @@ plot_popgof(
   dosenorm = FALSE,
   cfb = FALSE,
   cfb_base = 0,
-  ylab = "Concentration",
   log_y = FALSE,
   show_caption = TRUE,
-  n_breaks = 8,
   theme = NULL
 )
 }
@@ -56,16 +53,6 @@ Defaults are:
 \item \code{IPRED}=\code{"green"},
 \item \code{DV}=\code{"blue"}.
 \item \code{OBS}=\code{"darkgrey"}
-}}
-
-\item{timeu}{Character string specifying units for the time variable.
-Passed to \code{var_timebreaks} and assigned to default x-axis label.
-Options include:
-\itemize{
-\item "hours" (default)
-\item "days"
-\item "weeks"
-\item "months"
 }}
 
 \item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
@@ -113,13 +100,10 @@ Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
 
 \item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
 
-\item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
-
-\item{log_y}{Logical indicator for log10 transformation of the y-axis.}
+\item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
+the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
 \item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
-
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
 \item{theme}{Theme object created by \code{\link[=plot_popgof_theme]{plot_popgof_theme()}}.
 Defaults can be viewed by running \code{plot_popgof_theme()} with no arguments.
@@ -132,6 +116,6 @@ A \code{ggplot2} plot object
 Plot population overlay goodness-of-fit (GOF) plots
 }
 \examples{
-plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE, ylab = "Dose-norm Conc.")
+plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 
 }

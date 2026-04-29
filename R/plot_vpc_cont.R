@@ -79,8 +79,6 @@ plot_vpc_cont <- function(sim,
                                lower_bound = 0,
                                shown = NULL,
                                vpc_theme = NULL,
-                               timeu = "hours",
-                               n_breaks = 8,
                                pi = c(0.05, 0.95),
                                ci = c(0.05, 0.95),
                                vpcstats = FALSE)
@@ -122,9 +120,6 @@ plot_vpc_cont <- function(sim,
   show_vpc <- merge_element(shown, plot_vpc_shown())
   vpctheme <- merge_theme(vpc_theme, plot_vpc_theme())
 
-  #Determine Breaks
-  xbreaks <- var_timebreaks(x = unique(vpcstat$BIN_MID), unit = timeu, n = n_breaks)
-
   ##Build VPC Plot
   plot <- vpc_build_plot(
     vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
@@ -154,15 +149,13 @@ plot_vpc_cont <- function(sim,
   }
 
 
-  ##Apply x-axis breaks, theme panel elements, and default labels
+  ##Apply theme panel elements
   plot <- plot +
-    ggplot2::scale_x_continuous(breaks = xbreaks) +
     ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white",
                                                    linewidth = 0.5,
                                                    color = "black"),
                    panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank()) +
-    ggplot2::labs(y = "Concentration", x = "Time")
+                   panel.grid.major.x = ggplot2::element_blank())
 
 
   return(plot)

@@ -22,8 +22,6 @@ plot_vpc_cont(
   lower_bound = 0,
   shown = NULL,
   vpc_theme = NULL,
-  timeu = "hours",
-  n_breaks = 8,
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
   vpcstats = FALSE
@@ -46,8 +44,6 @@ plot_vpc_exactbins(
   lower_bound = 0,
   shown = NULL,
   vpc_theme = NULL,
-  timeu = "hours",
-  n_breaks = 8,
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
   vpcstats = FALSE
@@ -101,18 +97,6 @@ Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{vpc_theme}{Named list of aesthetic parameters for the plot.
 Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}
-
-\item{timeu}{Character string specifying units for the time variable.
-Passed to \code{var_timebreaks} and assigned to default x-axis label.
-Options include:
-\itemize{
-\item "hours" (default)
-\item "days"
-\item "weeks"
-\item "months"
-}}
-
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 

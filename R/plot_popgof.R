@@ -24,7 +24,7 @@
 #' @export plot_popgof
 #'
 #' @examples
-#'plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE, ylab = "Dose-norm Conc.")
+#'plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 #'
 
 plot_popgof <- function(data,
@@ -37,7 +37,6 @@ plot_popgof <- function(data,
                                           IPRED = "green",
                                           DV = "blue",
                                           OBS = "darkgrey"),
-                        timeu = "hours",
                         grp_var = ID,
                         dose_var = DOSE,
                         loq = NULL,
@@ -48,10 +47,8 @@ plot_popgof <- function(data,
                         dosenorm = FALSE,
                         cfb = FALSE,
                         cfb_base = 0,
-                        ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
-                        n_breaks = 8,
                         theme = NULL){
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
@@ -72,7 +69,7 @@ plot_popgof <- function(data,
     dv_var_str = dv_var_str,
     pred_var_str = pred_var_str,
     ipred_var_str = ipred_var_str,
-    timeu = timeu, loq = loq, loq_method = loq_method,
+    loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     grp_dv = grp_dv, grp_var_str = grp_var_str,
     dosenorm = dosenorm,
@@ -81,23 +78,17 @@ plot_popgof <- function(data,
   data <- prep$data
   lloq <- prep$lloq
 
-  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv,
-                       timeu, n_breaks, theme, plot_popgof_theme)
+  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, plot_popgof_theme)
   caption   <- env$caption
-  xbreaks   <- env$xbreaks
   plottheme <- env$plottheme
   width     <- env$width
 
 
 ###Plot
 
-  #Initialize Plot Aesthetics
-  plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV)) +
-    ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab, color = "Legend") +
-    ggplot2::scale_x_continuous(breaks = xbreaks) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
+  #Initialize Plot
+  plot <- init_plot(data, "TIME", "DV") +
+    ggplot2::labs(color = "Legend")
 
   #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)

@@ -14,7 +14,6 @@ df_prep_dvtime(
   dose_var_str = NULL,
   col_var_str = NULL,
   grp_var_str = NULL,
-  timeu = "hours",
   loq = NULL,
   loq_method = 0,
   grp_dv = FALSE,
@@ -41,8 +40,6 @@ df_prep_dvtime(
 \item{col_var_str}{String specifying the color variable column name, or \code{NULL}.}
 
 \item{grp_var_str}{String specifying the group column name, or \code{NULL}.}
-
-\item{timeu}{Character string specifying time units. Passed to validation.}
 
 \item{loq}{Numeric value of LLOQ, or \code{NULL}.}
 

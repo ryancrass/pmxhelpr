@@ -33,9 +33,9 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
   )
 })
 
-test_that("Custom axis labels are applied", {
-  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
-                   ylab = "Custom Y", xlab = "Custom X")
+test_that("Custom axis labels are applied via ggplot2 labs", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC") +
+    ggplot2::labs(y = "Custom Y", x = "Custom X")
   expect_equal(p$labels$y, "Custom Y")
   expect_equal(p$labels$x, "Custom X")
 })
@@ -62,8 +62,9 @@ test_that("Log y-axis is applied when log_y = TRUE", {
   expect_true(any(grepl("ScaleContinuousPosition", scale_classes)))
 })
 
-test_that("Log x-axis is applied when log_x = TRUE", {
-  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", log_x = TRUE)
+test_that("Log x-axis is applied via ggplot2 scale", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC") +
+    ggplot2::scale_x_log10()
   scale_classes <- vapply(p$scales$scales, function(s) class(s)[1], character(1))
   expect_true(any(grepl("ScaleContinuousPosition", scale_classes)))
 })

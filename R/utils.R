@@ -127,7 +127,6 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #' @param dv_var_str String name of the dependent variable column in `data`.
 #' @param pred_var_str String name of the population prediction column in `data`, or `NULL`.
 #' @param ipred_var_str String name of the individual prediction column in `data`, or `NULL`.
-#' @param timeu Character string specifying time units. Passed to validation.
 #' @param loq Numeric value of LLOQ, or `NULL`.
 #' @param loq_method Integer (0, 1, or 2) specifying BLQ handling method.
 #' @param dose_var_str String specifying the dose column name, or `NULL`.
@@ -154,7 +153,6 @@ df_prep_dvtime <- function(data,
                            dose_var_str = NULL,
                            col_var_str = NULL,
                            grp_var_str = NULL,
-                           timeu = "hours",
                            loq = NULL,
                            loq_method = 0,
                            grp_dv = FALSE,
@@ -169,7 +167,6 @@ df_prep_dvtime <- function(data,
   if (!is.null(pred_var_str)) check_varsindf(data, pred_var_str, "data", "pred_var")
   if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var")
   check_varsindf(data, "MDV", "data", "MDV")
-  check_timeu(timeu)
   if (!is.null(col_var_str)) {
     check_varsindf(data, col_var_str, "data", "col_var")
     check_factor(data, col_var_str, "col_var")

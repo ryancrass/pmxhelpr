@@ -2,14 +2,6 @@
 #'
 #' @param data Input dataset.
 #' @param dv_var Column containing the dependent variable. Accepts bare names or strings. Default is `DV`.
-#' @param timeu Character string specifying units for the time variable.
-#'    Passed to `var_timebreaks` and assigned to default x-axis label.
-#'    Options include:
-#'    + "hours" (default)
-#'    + "days"
-#'    + "weeks"
-#'    + "months"
-#' @param n_breaks Number of breaks requested for x-axis. Default is 8.
 #' @param col_var Column to map to the color aesthetic. Accepts bare names or strings. Default is `NULL`.
 #' @param grp_var Column to map to the group aesthetic. Accepts bare names or strings. Default is `ID`.
 #' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
@@ -46,8 +38,8 @@
 #' @param cfb Logical indicating if dependent variable is a change from baseline.
 #'    Plots a reference line at y = cfb_baseline. Default is `FALSE`.
 #' @param cfb_base Value for y-intercept when cfb = `TRUE`. Default is 0.
-#' @param ylab Character string specifing the y-axis label: Default is `"Concentration"`.
-#' @param log_y Logical indicator for log10 transformation of the y-axis.
+#' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
+#'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
@@ -71,7 +63,6 @@ plot_dvtime <- function(data,
                         dv_var = DV,
                         time_var = TIME,
                         ntime_var = NTIME,
-                        timeu = "hours",
                         col_var = NULL,
                         grp_var = ID,
                         dose_var = DOSE,
@@ -83,10 +74,8 @@ plot_dvtime <- function(data,
                         dosenorm = FALSE,
                         cfb = FALSE,
                         cfb_base = 0,
-                        ylab = "Concentration",
                         log_y = FALSE,
                         show_caption = TRUE,
-                        n_breaks = 8,
                         theme = NULL){
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
@@ -99,7 +88,7 @@ plot_dvtime <- function(data,
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,
     dv_var_str = dv_var_str,
-    timeu = timeu, loq = loq, loq_method = loq_method,
+    loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     col_var_str = col_var_str,
     grp_dv = grp_dv, grp_var_str = grp_var_str,
@@ -109,10 +98,8 @@ plot_dvtime <- function(data,
   data <- prep$data
   lloq <- prep$lloq
 
-  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv,
-                       timeu, n_breaks, theme, plot_dvtime_theme)
+  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, plot_dvtime_theme)
   caption   <- env$caption
-  xbreaks   <- env$xbreaks
   plottheme <- env$plottheme
   width     <- env$width
 
@@ -121,19 +108,8 @@ plot_dvtime <- function(data,
 
 ###Plot
 
-  #Initialize Plot Aesthetics
-  if(is.null(col_var_str)) {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV))
-  } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x = TIME, y=DV, color = .data[[col_var_str]]))
-  }
-
-  plot <- plot +
-    ggplot2::labs(x=paste0("Time (", timeu, ")"), y=ylab) +
-    ggplot2::scale_x_continuous(breaks = xbreaks) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
+  #Initialize Plot
+  plot <- init_plot(data, "TIME", "DV", col_var_str)
 
   #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
   plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)
@@ -239,7 +215,6 @@ plot_dvtime_dual <- function(data,
                              dvid_val2 = 3,
                              time_var = TIME,
                              ntime_var = NTIME,
-                             timeu = "hours",
                              col_var = NULL,
                              grp_var = ID,
                              dose_var = DOSE,
@@ -251,13 +226,10 @@ plot_dvtime_dual <- function(data,
                              dosenorm = FALSE,
                              cfb = FALSE,
                              cfb_base=0,
-                             ylab1 = "Concentration",
-                             ylab2 = "Response",
                              log_y1 = FALSE,
                              log_y2 = FALSE,
                              show_caption1 = TRUE,
                              show_caption2 = TRUE,
-                             n_breaks = 8,
                              onelegend = TRUE,
                              theme = NULL){
 
@@ -280,7 +252,6 @@ plot_dvtime_dual <- function(data,
     dv_var = dv_var1_str,
     time_var = time_var_str,
     ntime_var = ntime_var_str,
-    timeu = timeu,
     col_var = col_var_str,
     grp_var = grp_var_str,
     dose_var = dose_var_str,
@@ -291,10 +262,8 @@ plot_dvtime_dual <- function(data,
     grp_dv = grp_dv,
     dosenorm = dosenorm,
     cfb = FALSE,
-    ylab = ylab1,
     log_y = log_y1,
     show_caption = show_caption1,
-    n_breaks = n_breaks,
     theme = theme
   )
 
@@ -303,7 +272,6 @@ plot_dvtime_dual <- function(data,
     dv_var = dv_var2_str,
     time_var = time_var_str,
     ntime_var = ntime_var_str,
-    timeu = timeu,
     col_var = col_var_str,
     grp_var = grp_var_str,
     dose_var = dose_var_str,
@@ -314,10 +282,8 @@ plot_dvtime_dual <- function(data,
     dosenorm = FALSE,
     cfb = cfb,
     cfb_base = cfb_base,
-    ylab = ylab2,
     log_y = log_y2,
     show_caption = show_caption2,
-    n_breaks = n_breaks,
     theme = theme
   )
 

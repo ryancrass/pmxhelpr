@@ -73,20 +73,18 @@ data <- data_sad %>%
   mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
 
 #Plot drug concentration-time
-plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl", 
-            col_var = "Regimen", ylab = "Concentration (ng/mL)", 
-            log_y = TRUE, obs_dv = FALSE)
+plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
+            col_var = "Regimen", log_y = TRUE, obs_dv = FALSE) +
+  labs(y = "Concentration (ng/mL)")
 
 #Plot drug concentration and biomarker response versus time
 plot_dvtime_dual(data = data, dv_var1 = "ODV", dv_var2 = "CFB", dvid_var = "CMT",
-            cent = "mean_sdl", col_var = "Regimen", 
-            ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change)", 
-            log_y1 = TRUE)
+            cent = "mean_sdl", col_var = "Regimen", log_y1 = TRUE)
 
 #Plot response versus concentration
-plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",  
-            col_var = "Regimen", ylab = "Response (% Change)", 
-            loess = TRUE, linear = TRUE)
+plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",
+            col_var = "Regimen", loess = TRUE, linear = TRUE) +
+  labs(y = "Response (% Change)")
 
 #Assess dose proportionality in the fasted state
 glimpse(data_sad_nca)
@@ -126,13 +124,13 @@ data <- data %>%
 unique(data$DoseGroup)
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
-plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE, 
-            ylab = "Dose-normalized Conc. (ng/mL)") +
-  facet_wrap(~Food)
+plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE) +
+  facet_wrap(~Food) +
+  labs(y = "Dose-normalized Conc. (ng/mL)")
 
-plot_popgof(data = data, dv_var = "ODV", 
-            ylab = "Dose-normalized Conc. (ng/mL)", log_y = TRUE) +
-  facet_wrap(~DoseGroup)
+plot_popgof(data = data, dv_var = "ODV", log_y = TRUE) +
+  facet_wrap(~DoseGroup) +
+  labs(y = "Dose-normalized Conc. (ng/mL)")
 ```
 
 ## Example Visual Predictive Check Analysis Workflow

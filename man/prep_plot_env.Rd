@@ -4,17 +4,7 @@
 \alias{prep_plot_env}
 \title{Internal helper: Prepare the plot environment for DV vs time family plots}
 \usage{
-prep_plot_env(
-  data,
-  cent,
-  log_y,
-  obs_dv,
-  grp_dv,
-  timeu,
-  n_breaks,
-  theme,
-  theme_fn
-)
+prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn)
 }
 \arguments{
 \item{data}{data.frame containing processed data with \code{NTIME} column.}
@@ -27,25 +17,21 @@ prep_plot_env(
 
 \item{grp_dv}{Logical indicating if observations are connected within groups.}
 
-\item{timeu}{Character string specifying time units.}
-
-\item{n_breaks}{Integer specifying the number of x-axis breaks.}
-
 \item{theme}{User-supplied theme overrides, or \code{NULL}.}
 
 \item{theme_fn}{Theme factory function (e.g., \code{plot_dvtime_theme}).}
 }
 \value{
-A named list with elements \code{caption}, \code{xbreaks}, \code{plottheme}, and \code{width}.
+A named list with elements \code{caption}, \code{plottheme}, and \code{width}.
 }
 \description{
-Generates caption text, x-axis breaks, merges theme overrides with defaults,
+Generates caption text, merges theme overrides with defaults,
 and computes error bar width.
 }
 \examples{
 data <- dplyr::rename(dplyr::filter(data_sad, CMT \%in\% c(1,2)), DV = ODV)
 env <- pmxhelpr:::prep_plot_env(data, cent = "mean", log_y = FALSE,
-  obs_dv = TRUE, grp_dv = FALSE, timeu = "hours", n_breaks = 8,
+  obs_dv = TRUE, grp_dv = FALSE,
   theme = NULL, theme_fn = plot_dvtime_theme)
 
 }

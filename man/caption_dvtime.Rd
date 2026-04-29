@@ -19,7 +19,8 @@ Options are:
 \item None: \code{"none"}
 }}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis.}
+\item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
+the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
 \item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
 

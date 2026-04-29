@@ -30,7 +30,8 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 Primary workflow functions in this package include the following:
 
-- Longitudinal Exploritory Analysis Workflow: *ReturnObject*\_*Purpose*
+- Longitudinal PK and PK/PD Exploritory Analysis Workflow:
+  *ReturnObject*\_*Purpose*
   - `plot_dvtime()` returns a `ggplot` object with a continuous
     dependent variable plotted versus time (e.g., PK or PD vs time)
   - `plot_dvconc()` returns a `ggplot` object with a continuous
@@ -40,14 +41,20 @@ Primary workflow functions in this package include the following:
     modifiable default plot attributes for the `theme` arguments of
     `plot_dvtime` and `plot_dvconc`.
 - Dose Proporionality Workflow functions: *ReturnObject*\_*Purpose*
-  - `mod_loglog()` returns a `lm` object from a log-log regression of a
-    single exposure metric versus dose
-  - `df_loglog()` returns a `data.frame` containing parameters from a
-    log-log regression of a single exposure metric versus dose
   - `df_doseprop()` returns a `data.frame` containing parameters from
     log-log regression of multiple exposure metrics versus dose
   - `plot_doseprop()` returns a `ggplot` object with log-log regression
-    of exposure metrics versus dose
+    of exposure metric(s) versus dose
+  - `df_loglog()` returns a `data.frame` containing parameters from a
+    log-log regression of a single exposure metric versus dose, used in
+    `df_doseprop`
+  - `mod_loglog()` returns a `lm` object from a log-log regression of a
+    single exposure metric versus dose
+- Overlay Model Diagostic Workflow functions: *ReturnObject*\_*Purpose*
+  - `plot_popgof` returns a `ggplot` object with observed, population-,
+    and individual-predicted values overlaid with time
+  - `plot_popgof_theme` returns a nested list of modifiable default plot
+    attributes for the `theme` argument of `plot_popgof`
 - VPC Workflow functions: *ReturnObject*\_*Purpose*
   - `df_mrgsim_replicate()` returns a `data.frame` of simulated
     replicates of an input dataset
@@ -59,21 +66,8 @@ Primary workflow functions in this package include the following:
     attributes for the `theme` argument of `plot_vpc_cont`
   - `plot_vpc_shown()` returns a nested list of modifiable default plot
     attributes for the `shown` argument of `plot_vpc_cont`
-- Model Diagostic Workflow functions: *ReturnObject*\_*Purpose*
-  - `plot_popgof` returns a `ggplot` object with observed, population-,
-    and individual-predicted values overlaid with time
-  - `plot_popgof_theme` returns a nested list of modifiable default plot
-    attributes for the `theme` argument of `plot_popgof`
-- Data sets
-  - `data_sad` a dataset for a single ascending dose (SAD) study with
-    parallel food effect cohort formatted for non-linear mixed effects
-    (NMLE) population PK and PK/PD modeling
-  - `data_sad_nca` a dataset containing PK parameters derived using
-    non-compartmental analysis (NCA)
-  - `data_sad_pkfit` a dataset consistent with `data_sad` including
-    individual (IPRED) and population (PRED) PK model predictions
 
-Helper functions include the following:
+Helper and Wrapper functions include the following:
 
 - Wrapper functions for `mrgsolve` functions:
   *ReturnObject*\_*mrgsim*\_*Purpose*
@@ -89,6 +83,16 @@ Helper functions include the following:
   - `var_pc` returns a numeric vector containing prediction-corrected
     values of a variable.
   - `var_dosenorm` returns a numeric vector of a variable divided by dos
+
+Internal Datasets to thsi package include:
+
+- `data_sad` a dataset for a single ascending dose (SAD) study with
+  parallel food effect cohort formatted for non-linear mixed effects
+  (NMLE) population PK and PK/PD modeling
+- `data_sad_nca` a dataset containing PK parameters derived using
+  non-compartmental analysis (NCA)
+- `data_sad_pkfit` a dataset consistent with `data_sad` including
+  individual (IPRED) and population (PRED) PK model predictions
 
 ## Example Exploratory Data Analysis Workflow
 

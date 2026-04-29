@@ -105,11 +105,8 @@ plot_dvconc <- function(data,
 #' @inheritParams plot_dvconc
 #'
 #' @return a `character` string containing the plot caption
-#' @export caption_dvconc
 #' @keywords internal
-#'
-#' @examples
-#' caption_dvconc(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
+#' @noRd
 
 caption_dvconc <- function(cfb, loess, linear, se_loess, se_linear){
 

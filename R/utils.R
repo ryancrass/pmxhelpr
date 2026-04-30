@@ -134,8 +134,7 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #' @param grp_dv Logical indicating if group variable should be validated.
 #' @param grp_var_str String specifying the group column name, or `NULL`.
 #' @param dosenorm Logical indicating if dose normalization should be applied.
-#' @param cfb Logical indicating if data is change from baseline.
-#' @param cfb_base Numeric baseline value when `cfb = TRUE`.
+#' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for none.
 #'
 #' @return A named list with elements `data` (processed data.frame) and `lloq` (numeric LLOQ value).
 #' @keywords internal
@@ -157,8 +156,7 @@ df_prep_dvtime <- function(data,
                            loq_method = 0,
                            grp_dv = FALSE,
                            dosenorm = FALSE,
-                           cfb = FALSE,
-                           cfb_base = NULL) {
+                           ref = NULL) {
 
   check_df(data, "data")
   check_varsindf(data, time_var_str, "data", "time_var")
@@ -174,7 +172,7 @@ df_prep_dvtime <- function(data,
   if (isTRUE(grp_dv)) check_varsindf(data, grp_var_str, "data", "grp_var")
   if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
   check_loq_method(loq, loq_method, data)
-  if (isTRUE(cfb)) check_numeric(cfb_base, "cfb_base")
+  if (!is.null(ref)) check_numeric(ref, "ref")
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   rename_vec <- c(DV = dv_var_str)

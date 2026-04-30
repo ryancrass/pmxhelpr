@@ -33,8 +33,7 @@ plot_dvconc <- function(data,
                         linear = FALSE,
                         se_loess = FALSE,
                         se_linear = FALSE,
-                        cfb = FALSE,
-                        cfb_base = 0,
+                        ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
                         theme = NULL,
@@ -58,7 +57,7 @@ plot_dvconc <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   #Determine Caption
-  caption <- caption_dvconc(cfb, loess, linear, se_loess, se_linear)
+  caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)
 
   #Determine aesthetics
   plottheme <- merge_theme(theme, plot_dvconc_theme())
@@ -74,8 +73,8 @@ plot_dvconc <- function(data,
       ggplot2::aes(group = .data[[col_var_str]])
   }
 
-  #Reference Lines: Y=cfb_base (cfb = TRUE)
-  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme$ref)
+  #Reference Line
+  plot <- add_ref_layers(plot, ref, plottheme$ref)
 
 
   #Plot Trend Lines
@@ -108,9 +107,9 @@ plot_dvconc <- function(data,
 #' @keywords internal
 #' @noRd
 
-caption_dvconc <- function(cfb, loess, linear, se_loess, se_linear){
+caption_dvconc <- function(ref, loess, linear, se_loess, se_linear){
 
-  cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
+  ref_lab <- if (!is.null(ref)) paste0("\n Reference line at y = ", ref) else ""
 
   fit_labels <- list(
     "FALSE.FALSE.FALSE.FALSE" = "",
@@ -127,9 +126,7 @@ caption_dvconc <- function(cfb, loess, linear, se_loess, se_linear){
   key <- paste(loess, linear, se_loess, se_linear, sep = ".")
   fit_lab <- fit_labels[[key]]
 
-  paste("Points are observations",
-        ifelse(cfb == TRUE, cfb_lab, ""),
-        fit_lab)
+  paste("Points are observations", ref_lab, fit_lab)
 }
 
 

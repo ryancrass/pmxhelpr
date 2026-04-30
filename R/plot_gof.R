@@ -43,8 +43,7 @@ plot_gof <- function(data,
                         obs_dv = TRUE,
                         grp_dv = FALSE,
                         dosenorm = FALSE,
-                        cfb = FALSE,
-                        cfb_base = 0,
+                        ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
                         theme = NULL){
@@ -66,7 +65,7 @@ plot_gof <- function(data,
     dose_var_str = if (dosenorm) dose_var_str,
     grp_dv = grp_dv, grp_var_str = grp_var_str,
     dosenorm = dosenorm,
-    cfb = cfb, cfb_base = cfb_base
+    ref = ref
   )
   data <- prep$data
   lloq <- prep$lloq
@@ -95,10 +94,10 @@ plot_gof <- function(data,
   plot <- init_plot(data, "TIME", "DV") +
     ggplot2::labs(color = "Legend")
 
-  #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme$ref)
+  #Reference Lines
+  plot <- add_ref_layers(plot, ref, plottheme$ref)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$ref, show_legend = FALSE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq, show_legend = FALSE)
   plot <- blq$plot
   caption <- blq$caption
 

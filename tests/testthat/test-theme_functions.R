@@ -36,7 +36,7 @@ test_that("plot_dvtime_theme pmx_style shortcut applies to point and line", {
 
 test_that("plot_dvtime_theme returns all expected keys", {
   theme <- plot_dvtime_theme()
-  expected <- c("obs_point", "obs_line", "cent_point", "cent_line", "errorbar", "ref")
+  expected <- c("obs_point", "obs_line", "cent_point", "cent_line", "errorbar", "ref", "loq")
   expect_setequal(names(theme), expected)
 })
 
@@ -48,6 +48,7 @@ test_that("plot_dvtime_theme elements have correct classes", {
   expect_s3_class(theme$cent_line, "pmx_line")
   expect_s3_class(theme$errorbar, "pmx_errorbar")
   expect_s3_class(theme$ref, "pmx_line")
+  expect_s3_class(theme$loq, "pmx_line")
 })
 
 #####plot_dvconc_theme####
@@ -136,7 +137,7 @@ test_that("plot_gof_theme returns all expected keys", {
   theme <- plot_gof_theme()
   expected <- c("obs_point", "obs_line", "dv_point", "dv_line",
                 "pred_point", "pred_line", "ipred_point", "ipred_line",
-                "errorbar", "ref")
+                "errorbar", "ref", "loq")
   expect_setequal(names(theme), expected)
 })
 
@@ -152,6 +153,7 @@ test_that("plot_gof_theme elements have correct classes", {
   expect_s3_class(theme$ipred_line, "pmx_line")
   expect_s3_class(theme$errorbar, "pmx_errorbar")
   expect_s3_class(theme$ref, "pmx_line")
+  expect_s3_class(theme$loq, "pmx_line")
 })
 
 #####plot_vpc_theme####

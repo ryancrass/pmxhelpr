@@ -35,9 +35,9 @@
 #'    Default is `FALSE`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
-#' @param cfb Logical indicating if dependent variable is a change from baseline.
-#'    Plots a reference line at y = cfb_baseline. Default is `FALSE`.
-#' @param cfb_base Value for y-intercept when cfb = `TRUE`. Default is 0.
+#' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
+#'    no reference line. For example, `ref = 0` draws a baseline reference for
+#'    change-from-baseline data.
 #' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
 #'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be show describing the data plotted
@@ -72,8 +72,7 @@ plot_dvtime <- function(data,
                         obs_dv = TRUE,
                         grp_dv = FALSE,
                         dosenorm = FALSE,
-                        cfb = FALSE,
-                        cfb_base = 0,
+                        ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
                         theme = NULL){
@@ -93,7 +92,7 @@ plot_dvtime <- function(data,
     col_var_str = col_var_str,
     grp_dv = grp_dv, grp_var_str = grp_var_str,
     dosenorm = dosenorm,
-    cfb = cfb, cfb_base = cfb_base
+    ref = ref
   )
   data <- prep$data
   lloq <- prep$lloq
@@ -111,10 +110,10 @@ plot_dvtime <- function(data,
   #Initialize Plot
   plot <- init_plot(data, "TIME", "DV", col_var_str)
 
-  #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme$ref)
+  #Reference Lines
+  plot <- add_ref_layers(plot, ref, plottheme$ref)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$ref, show_legend = TRUE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq, show_legend = TRUE)
   plot <- blq$plot
   caption <- blq$caption
 

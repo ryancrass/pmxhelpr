@@ -14,8 +14,7 @@ plot_dvconc(
   linear = FALSE,
   se_loess = FALSE,
   se_linear = FALSE,
-  cfb = FALSE,
-  cfb_base = 0,
+  ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
   theme = NULL,
@@ -41,10 +40,9 @@ plot_dvconc(
 
 \item{se_linear}{Logical indicating if the standard error should be shown for the linear fit. Default is \code{FALSE}}
 
-\item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
-
-\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
+\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for
+no reference line. For example, \code{ref = 0} draws a baseline reference for
+change-from-baseline data.}
 
 \item{log_y}{Logical indicator for log10 transformation of the y-axis.}
 

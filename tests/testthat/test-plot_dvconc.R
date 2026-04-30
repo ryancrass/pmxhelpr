@@ -69,15 +69,15 @@ test_that("Log x-axis is applied via ggplot2 scale", {
   expect_true(any(grepl("ScaleContinuousPosition", scale_classes)))
 })
 
-##Test cfb
-test_that("Reference line is added when cfb = TRUE", {
-  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", cfb = TRUE)
+##Test ref
+test_that("Reference line is added when ref is specified", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", ref = 0)
   layer_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
   expect_true("GeomHline" %in% layer_types)
 })
 
-test_that("No reference line when cfb = FALSE", {
-  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", cfb = FALSE)
+test_that("No reference line when ref is NULL", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", ref = NULL)
   layer_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
   expect_false("GeomHline" %in% layer_types)
 })

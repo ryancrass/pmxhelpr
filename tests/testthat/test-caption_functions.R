@@ -114,33 +114,33 @@ test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a nu
 #####caption_dvconc####
 
 test_that("Caption for loess only returns correct text", {
-  cap <- caption_dvconc(cfb = FALSE, loess = TRUE, linear = FALSE,
+  cap <- caption_dvconc(ref = NULL, loess = TRUE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "LOESS fit overlaid")
   expect_no_match(cap, "Linear")
 })
 
 test_that("Caption for linear only returns correct text", {
-  cap <- caption_dvconc(cfb = FALSE, loess = FALSE, linear = TRUE,
+  cap <- caption_dvconc(ref = NULL, loess = FALSE, linear = TRUE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "Linear fit overlaid")
   expect_no_match(cap, "LOESS")
 })
 
 test_that("Caption for both loess and linear returns correct text", {
-  cap <- caption_dvconc(cfb = FALSE, loess = TRUE, linear = TRUE,
+  cap <- caption_dvconc(ref = NULL, loess = TRUE, linear = TRUE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "LOESS and linear fits overlaid")
 })
 
-test_that("Caption includes cfb reference line text when cfb = TRUE", {
-  cap <- caption_dvconc(cfb = TRUE, loess = FALSE, linear = FALSE,
+test_that("Caption includes reference line text when ref is specified", {
+  cap <- caption_dvconc(ref = 0, loess = FALSE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
-  expect_match(cap, "null response")
+  expect_match(cap, "Reference line at y = 0")
 })
 
 test_that("Caption for no fits returns points only text", {
-  cap <- caption_dvconc(cfb = FALSE, loess = FALSE, linear = FALSE,
+  cap <- caption_dvconc(ref = NULL, loess = FALSE, linear = FALSE,
                         se_loess = FALSE, se_linear = FALSE)
   expect_match(cap, "Points are observations")
   expect_no_match(cap, "overlaid")

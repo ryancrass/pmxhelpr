@@ -18,8 +18,7 @@ df_prep_dvtime(
   loq_method = 0,
   grp_dv = FALSE,
   dosenorm = FALSE,
-  cfb = FALSE,
-  cfb_base = NULL
+  ref = NULL
 )
 }
 \arguments{
@@ -49,9 +48,7 @@ df_prep_dvtime(
 
 \item{dosenorm}{Logical indicating if dose normalization should be applied.}
 
-\item{cfb}{Logical indicating if data is change from baseline.}
-
-\item{cfb_base}{Numeric baseline value when \code{cfb = TRUE}.}
+\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for none.}
 }
 \value{
 A named list with elements \code{data} (processed data.frame) and \code{lloq} (numeric LLOQ value).

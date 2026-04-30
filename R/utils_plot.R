@@ -178,12 +178,12 @@ add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, point_el, line_el,
 #' @param loq_method numeric, 0/1/2
 #' @param loq numeric, lower limit of quantification value
 #' @param dosenorm logical, whether dose normalization is active
-#' @param ref_el A `pmx_line` element with reference line aesthetics.
+#' @param loq_el A `pmx_line` element with LOQ line aesthetics.
 #' @param show_legend logical, whether to add LLOQ to the linetype legend
 #'
 #' @return A named list with elements `plot` (modified ggplot) and `caption` (modified string)
 #' @keywords internal
-add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, ref_el,
+add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
                            show_legend = FALSE) {
 
   if (!loq_method %in% c(1, 2) || isTRUE(dosenorm)) {
@@ -194,19 +194,19 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, ref_el,
     loq_lab <- paste0(loq)
     plot <- plot +
       ggplot2::geom_hline(ggplot2::aes(yintercept = loq, linetype = loq_lab),
-                          linewidth = ref_el$linewidth,
-                          alpha = ref_el$alpha) +
+                          linewidth = loq_el$linewidth,
+                          alpha = loq_el$alpha) +
       ggplot2::scale_linetype_manual(
         name = "LLOQ",
-        values = stats::setNames(c(ref_el$linetype), loq_lab)) +
+        values = stats::setNames(c(loq_el$linetype), loq_lab)) +
       ggplot2::guides(color = ggplot2::guide_legend(order = 1),
                       linetype = ggplot2::guide_legend(order = 2))
   } else {
     plot <- plot +
       ggplot2::geom_hline(yintercept = loq,
-                          linewidth = ref_el$linewidth,
-                          linetype = ref_el$linetype,
-                          alpha = ref_el$alpha)
+                          linewidth = loq_el$linewidth,
+                          linetype = loq_el$linetype,
+                          alpha = loq_el$alpha)
   }
 
   blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",
@@ -217,21 +217,20 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, ref_el,
 }
 
 
-#' Internal helper: Add change-from-baseline reference line
+#' Internal helper: Add horizontal reference line
 #'
-#' Conditionally adds a horizontal reference line at `cfb_base` when `cfb` is
-#' `TRUE`, using the `ref` element of the plot theme.
+#' Conditionally adds a horizontal reference line at the specified y-intercept.
+#' Draws the line when `ref` is non-NULL.
 #'
 #' @param plot ggplot object to modify
-#' @param cfb logical, whether the dependent variable is change from baseline
-#' @param cfb_base numeric, y-intercept for the reference line
+#' @param ref Numeric y-intercept for the reference line, or `NULL` for no line.
 #' @param ref_el A `pmx_line` element with reference line aesthetics.
 #'
 #' @return The (possibly modified) ggplot object
 #' @keywords internal
-add_cfb_layers <- function(plot, cfb, cfb_base, ref_el) {
-  if (!isTRUE(cfb)) return(plot)
-  plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
+add_ref_layers <- function(plot, ref, ref_el) {
+  if (is.null(ref)) return(plot)
+  plot + ggplot2::geom_hline(yintercept = as.numeric(ref),
                              linewidth = ref_el$linewidth,
                              linetype = ref_el$linetype,
                              alpha = ref_el$alpha)

@@ -239,7 +239,8 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #' @param cent_point Central tendency point aesthetics. See [pmx_point()].
 #' @param cent_line Central tendency line aesthetics. See [pmx_line()].
 #' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
-#' @param ref Reference line aesthetics. See [pmx_line()].
+#' @param ref Reference line aesthetics (e.g., change-from-baseline). See [pmx_line()].
+#' @param loq LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
 #' @param cent Shortcut: apply shared aesthetics to both `cent_point` and `cent_line`.
@@ -254,7 +255,7 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #' plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
                               cent_point = NULL, cent_line = NULL,
-                              errorbar = NULL, ref = NULL,
+                              errorbar = NULL, ref = NULL, loq = NULL,
                               obs = NULL, cent = NULL) {
   defaults <- list(
     obs_point  = pmx_point(shape = 1, size = 0.75, alpha = 0.5),
@@ -262,12 +263,13 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
     cent_point = pmx_point(shape = 16, size = 1.25, alpha = 1),
     cent_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
     errorbar   = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
-    ref        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    ref        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    loq        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
-    errorbar = errorbar, ref = ref,
+    errorbar = errorbar, ref = ref, loq = loq,
     obs = obs, cent = cent
   ))
   merge_theme(user, defaults)
@@ -291,6 +293,7 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @param ipred_line IPRED central tendency line aesthetics. See [pmx_line()].
 #' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
 #' @param ref Reference line aesthetics. See [pmx_line()].
+#' @param loq LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
 #' @param dv Shortcut: apply shared aesthetics to both `dv_point` and `dv_line`.
@@ -311,7 +314,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
                               dv_point = NULL, dv_line = NULL,
                               pred_point = NULL, pred_line = NULL,
                               ipred_point = NULL, ipred_line = NULL,
-                              errorbar = NULL, ref = NULL,
+                              errorbar = NULL, ref = NULL, loq = NULL,
                               obs = NULL, dv = NULL,
                               pred = NULL, ipred = NULL) {
   defaults <- list(
@@ -324,14 +327,15 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
     ipred_point = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "green"),
     ipred_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
     errorbar    = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
-    ref         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    ref         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    loq         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     dv_point = dv_point, dv_line = dv_line,
     pred_point = pred_point, pred_line = pred_line,
     ipred_point = ipred_point, ipred_line = ipred_line,
-    errorbar = errorbar, ref = ref,
+    errorbar = errorbar, ref = ref, loq = loq,
     obs = obs, dv = dv, pred = pred, ipred = ipred
   ))
   merge_theme(user, defaults)

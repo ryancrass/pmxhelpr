@@ -15,6 +15,7 @@ plot_gof_theme(
   ipred_line = NULL,
   errorbar = NULL,
   ref = NULL,
+  loq = NULL,
   obs = NULL,
   dv = NULL,
   pred = NULL,
@@ -41,6 +42,8 @@ plot_gof_theme(
 \item{errorbar}{Error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
 
 \item{ref}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+
+\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{obs}{Shortcut: apply shared aesthetics to both \code{obs_point} and \code{obs_line}.
 See \code{\link[=pmx_style]{pmx_style()}}.}

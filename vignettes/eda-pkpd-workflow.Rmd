@@ -66,20 +66,20 @@ plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
 
 ## Specifying a Reference Value for Change Metrics
 
-A reference line can be added to by specifying the argument `cfb=TRUE`, which by default plots a reference line at y=0. The location of the reference line can be modified by specifying a y-intercept value using the argument`cfb_base`.
+A horizontal reference line can be added by specifying the `ref` argument with a numeric y-intercept value. For example, `ref = 100` adds a reference line at y = 100:
 
 ```{r plot-dvtime-pd-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = ODV,col_var = `Dose and Food`,
-            cfb = TRUE, cfb_base = 100) +
-  labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
+            ref = 100) +
+  labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
 ```
 
-When the response variable is expressed as change from baseline, the default `cfb_base = 0` provides the appropriate reference line.
+When the response variable is expressed as change from baseline, `ref = 0` provides the appropriate reference line:
 
 ```{r plot-dvtime-pd-ref0, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = CFB,col_var = `Dose and Food`,
-            cfb=TRUE) +
-   labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
+            ref = 0) +
+   labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
 ```
 
 ## Combining PK and PD Panels
@@ -92,7 +92,7 @@ p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`
   labs(x = "Time Since First Dose (hours)", y = "Concentration (ng/mL)")
 
 p_pd <- plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`,
-                    cfb = TRUE, cfb_base = 100) +
+                    ref = 100) +
   labs(x = "Time Since First Dose (hours)", y = "Response (% of Baseline)")
 
 p_pk / p_pd + plot_layout(guides = "collect")
@@ -132,11 +132,11 @@ plot_dvconc(data = plot_data_pd, dv_var = ODV, idv_var = CONC) +
 ```
 ## Specifying Change from Baseline
 
-Like `plot_dvtime`, we can specify a reference line using `cfb = TRUE`, which is plotted at `cfb_base` (default = 0).
+Like `plot_dvtime`, we can add a horizontal reference line by specifying `ref` with a numeric y-intercept.
 
 ```{r plot-dvconc-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
-            cfb = TRUE) +
+            ref = 0) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
@@ -146,7 +146,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
 
 ```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
-            cfb = TRUE,
+            ref = 0,
             col_var = `Dose and Food`, col_trend = FALSE) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
@@ -154,7 +154,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
 Trend lines stratified by the variable mapped to the color aesthetic are requested by setting `col_trend = TRUE`.
 
 ```{r plot-dvconc-col-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE,
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
            col_var = `Dose and Food`, col_trend = TRUE) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
@@ -177,7 +177,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,fb = TRUE,
 The confidence intervals of the trend lines are suppressed by default in order to facilitate visualization of the central tendency and spread of observed data points simultaneously. Confidence intervals can be added to the plot using the logical arguments `se_loess` and `se_linear`.
 
 ```{r plot-dvconc-loess-linear-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
             col_var = `Dose and Food`, col_trend = FALSE,
             loess = FALSE, linear = TRUE, se_loess = FALSE, se_linear = TRUE) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
@@ -186,7 +186,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE,
 Additional arguments can be passed to `geom_smooth(method = "loess")`, such as increasing the span of the smoothing fit.
 
 ```{r plot-dvconc-loess-span, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
             col_var = `Dose and Food`, col_trend = FALSE,
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
             span = 1) +
@@ -196,7 +196,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE,
 If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also map to the ribbons defining the CIs of the trend lines.
 
 ```{r plot-dvconc-col-trend-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
             col_var = `Dose and Food`, col_trend = TRUE,se_loess = TRUE) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
@@ -212,7 +212,7 @@ plot_dvconc_theme()
 These attributes can be updated by passing element overrides to `plot_dvconc_theme()`. Say we want to decrease the alpha of the linear and loess fit confidence intervals. This can be accomplished for an individual plot as follows:
 
 ```{r plot-dvtime-part-meansdl-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
             col_var = `Dose and Food`, col_trend = TRUE,se_loess = TRUE, 
             theme = plot_dvconc_theme(loess = pmx_trend(se_alpha = 0.1))) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
@@ -223,7 +223,7 @@ One could also globally set a new theme by calling `plot_dvconc_theme()` with ov
 ```{r plot-dvtime-part-meansdl-themeset, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 new_theme <- plot_dvconc_theme(loess = pmx_trend(se_alpha = 0.1))
 
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,cfb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
             col_var = `Dose and Food`, col_trend = TRUE,se_loess = TRUE, 
             theme = new_theme) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")

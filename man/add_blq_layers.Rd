@@ -10,7 +10,7 @@ add_blq_layers(
   loq_method,
   loq,
   dosenorm,
-  ref_el,
+  loq_el,
   show_legend = FALSE
 )
 }
@@ -25,7 +25,7 @@ add_blq_layers(
 
 \item{dosenorm}{logical, whether dose normalization is active}
 
-\item{ref_el}{A \code{pmx_line} element with reference line aesthetics.}
+\item{loq_el}{A \code{pmx_line} element with LOQ line aesthetics.}
 
 \item{show_legend}{logical, whether to add LLOQ to the linetype legend}
 }

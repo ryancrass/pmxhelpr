@@ -21,15 +21,17 @@ This is a major refactor of the package focused on simplifying function interfac
 * `dvconc_caption` and `dvtime_caption` are now internal helpers.
 
 ### Theme System Overhaul
-* Replace role-based element constructors (`pmx_layer`, `pmx_ref`, `pmx_vpc_point`, `pmx_vpc_line`, `pmx_vpc_ribbon`, `pmx_vpc_loq`, `pmx_vpc_bin_sep`) with geometry-based constructors: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
-* Theme factory keys now follow a `role_element` naming convention (e.g., `obs_point`, `cent_line`) instead of combined role objects.
-* `plot_dvtime_theme` keys changed from `obs`, `cent`, `ref`, `errorbar` to `obs_point`, `obs_line`, `cent_point`, `cent_line`, `ref`, `errorbar`.
-* `plot_gof_theme` keys changed from `OBS`, `DV`, `PRED`, `IPRED`, `ref`, `errorbar` to `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `ref`, `errorbar`.
-* `plot_vpc_theme` constructors changed from `pmx_vpc_point`, `pmx_vpc_line`, `pmx_vpc_ribbon` to `pmx_point`, `pmx_line`, `pmx_ribbon` (same theme keys).
+* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
+* Theme factory keys now follow a `role_element` naming convention (e.g., `obs_point`, `cent_line`) 
+* `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys:  `obs_point`, `obs_line`, `cent_point`, `cent_line`, `ref`, `loq`, `errorbar`.
+* `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `ref`, `loq`, `errorbar`.
+* `ref` and `loq` theme keys are now separate across `plot_dvtime_theme` and `plot_gof_theme`, allowing independent styling of general reference lines and LLOQ lines. The `loq` key is consistent with `plot_vpc_theme`.
+* `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq`, `bin_sep`
 
 ### Simplified Plot Function Arguments
 * Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
 * Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `plot_gof_theme()`.
+* Replace `cfb` (logical) and `cfb_base` (numeric) arguments with a single `ref` argument (`NULL` = no line, numeric = draw horizontal reference line at that value) in `plot_dvtime`, `plot_gof`, and `plot_dvconc`. For example, `cfb = TRUE, cfb_base = 0` becomes `ref = 0`.
 
 ## New Features
 
@@ -54,7 +56,7 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ## Internal Improvements
 * Standardize NSE handling across all exported functions via `resolve_var` helper.
-* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_cfb_layers`, `add_trend_layers`, `add_obs_point_layer`, `init_plot`, `prep_plot_env`.
+* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_ref_layers`, `add_trend_layers`, `add_obs_point_layer`, `init_plot`, `prep_plot_env`.
 * Standardize `TRUE`/`FALSE` evaluation and error messaging across all functions.
 * Centralize input validation in `utils_check.R`.
 * Update `size` to `linewidth` for line geom aesthetics throughout.

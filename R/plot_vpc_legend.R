@@ -51,7 +51,7 @@ plot_vpc_legend <- function(ci = c(0.05, 0.95),
                                                   color = plist$obs$color,
                                                   size = plist$obs$size, na.rm= TRUE)} +
     {if(!is.null(lloq)) ggplot2::geom_line(ggplot2::aes(linetype = lloq_lab),
-                                           color = plist$loq$color,
+                                           color = plist$loq_line$color,
                                            linewidth = 1, na.rm= TRUE)} +
     {if(nlist$obs_median == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
                                                      color = plist$obs_median$color,

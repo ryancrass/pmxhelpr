@@ -127,9 +127,9 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_hline(
         yintercept = loq,
-        color = vpc_theme$loq$color,
-        linetype = vpc_theme$loq$linetype,
-        linewidth = vpc_theme$loq$linewidth
+        color = vpc_theme$loq_line$color,
+        linetype = vpc_theme$loq_line$linetype,
+        linewidth = vpc_theme$loq_line$linewidth
       )
   }
 

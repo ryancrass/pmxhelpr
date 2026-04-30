@@ -40,10 +40,10 @@ test_that("merge_theme returns default when user is NULL", {
 
 test_that("merge_theme merges valid group overrides", {
   defaults <- plot_dvtime_theme()
-  user <- list(ref = pmx_line(linewidth = 99))
+  user <- list(ref_line = pmx_line(linewidth = 99))
   result <- pmxhelpr:::merge_theme(user, defaults)
-  expect_equal(result$ref$linewidth, 99)
-  expect_equal(result$ref$linetype, 2)
+  expect_equal(result$ref_line$linewidth, 99)
+  expect_equal(result$ref_line$linetype, 2)
 })
 
 test_that("merge_theme warns on invalid group name", {
@@ -122,11 +122,11 @@ test_that("apply_style preserves non-targeted elements", {
   defaults <- list(
     obs_point = pmx_point(shape = 1, size = 2, alpha = 0.5, color = "grey"),
     obs_line  = pmx_line(linewidth = 1, linetype = 1, alpha = 0.5, color = "grey"),
-    ref       = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    ref_line  = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
   style <- pmx_style(color = "blue")
   result <- pmxhelpr:::apply_style(style, "obs", defaults)
-  # ref unchanged
-  expect_equal(result$ref$linewidth, 0.5)
-  expect_equal(result$ref$linetype, 2)
+  # ref_line unchanged
+  expect_equal(result$ref_line$linewidth, 0.5)
+  expect_equal(result$ref_line$linetype, 2)
 })

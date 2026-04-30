@@ -13,9 +13,9 @@ plot_gof_theme(
   pred_line = NULL,
   ipred_point = NULL,
   ipred_line = NULL,
-  errorbar = NULL,
-  ref = NULL,
-  loq = NULL,
+  cent_errorbar = NULL,
+  ref_line = NULL,
+  loq_line = NULL,
   obs = NULL,
   dv = NULL,
   pred = NULL,
@@ -39,11 +39,11 @@ plot_gof_theme(
 
 \item{ipred_line}{IPRED central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{errorbar}{Error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
+\item{cent_errorbar}{Central tendency error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
 
-\item{ref}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{ref_line}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{loq_line}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{obs}{Shortcut: apply shared aesthetics to both \code{obs_point} and \code{obs_line}.
 See \code{\link[=pmx_style]{pmx_style()}}.}

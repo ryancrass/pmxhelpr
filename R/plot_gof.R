@@ -95,9 +95,9 @@ plot_gof <- function(data,
     ggplot2::labs(color = "Legend")
 
   #Reference Lines
-  plot <- add_ref_layers(plot, ref, plottheme$ref)
+  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq, show_legend = FALSE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = FALSE)
   plot <- blq$plot
   caption <- blq$caption
 
@@ -108,13 +108,13 @@ plot_gof <- function(data,
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers(plot, cent, "DV", plottheme$dv_point, plottheme$dv_line, plottheme$errorbar, width, color_aes = "DV")
+    plot <- add_cent_layers(plot, cent, "DV", plottheme$dv_point, plottheme$dv_line, plottheme$cent_errorbar, width, color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$ipred_point, plottheme$ipred_line, plottheme$errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$ipred_point, plottheme$ipred_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "PRED", plottheme$pred_point, plottheme$pred_line, plottheme$errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers(plot, cent, "PRED", plottheme$pred_point, plottheme$pred_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Log Transform

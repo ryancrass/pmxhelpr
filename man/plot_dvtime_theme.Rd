@@ -9,9 +9,9 @@ plot_dvtime_theme(
   obs_line = NULL,
   cent_point = NULL,
   cent_line = NULL,
-  errorbar = NULL,
-  ref = NULL,
-  loq = NULL,
+  cent_errorbar = NULL,
+  ref_line = NULL,
+  loq_line = NULL,
   obs = NULL,
   cent = NULL
 )
@@ -25,11 +25,11 @@ plot_dvtime_theme(
 
 \item{cent_line}{Central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{errorbar}{Error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
+\item{cent_errorbar}{Central tendency error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
 
-\item{ref}{Reference line aesthetics (e.g., change-from-baseline). See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{ref_line}{Reference line aesthetics (e.g., change-from-baseline). See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{loq_line}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{obs}{Shortcut: apply shared aesthetics to both \code{obs_point} and \code{obs_line}.
 See \code{\link[=pmx_style]{pmx_style()}}.}
@@ -48,6 +48,6 @@ aesthetics (e.g., color, alpha) for both point and line elements at once.
 }
 \examples{
 plot_dvtime_theme()
-plot_dvtime_theme(obs_point = pmx_point(size = 2), ref = pmx_line(linetype = 3))
+plot_dvtime_theme(obs_point = pmx_point(size = 2), ref_line = pmx_line(linetype = 3))
 plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 }

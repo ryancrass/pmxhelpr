@@ -111,9 +111,9 @@ plot_dvtime <- function(data,
   plot <- init_plot(data, "TIME", "DV", col_var_str)
 
   #Reference Lines
-  plot <- add_ref_layers(plot, ref, plottheme$ref)
+  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq, show_legend = TRUE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = TRUE)
   plot <- blq$plot
   caption <- blq$caption
 
@@ -121,7 +121,7 @@ plot_dvtime <- function(data,
   plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme$obs_point, plottheme$obs_line)
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$errorbar, width)
+  plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width)
 
   #Log Transform
   if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")

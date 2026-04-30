@@ -238,9 +238,9 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #' @param obs_line Observed data line aesthetics (spaghetti). See [pmx_line()].
 #' @param cent_point Central tendency point aesthetics. See [pmx_point()].
 #' @param cent_line Central tendency line aesthetics. See [pmx_line()].
-#' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
-#' @param ref Reference line aesthetics (e.g., change-from-baseline). See [pmx_line()].
-#' @param loq LOQ reference line aesthetics. See [pmx_line()].
+#' @param cent_errorbar Central tendency error bar aesthetics. See [pmx_errorbar()].
+#' @param ref_line Reference line aesthetics (e.g., change-from-baseline). See [pmx_line()].
+#' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
 #' @param cent Shortcut: apply shared aesthetics to both `cent_point` and `cent_line`.
@@ -251,25 +251,25 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #'
 #' @examples
 #' plot_dvtime_theme()
-#' plot_dvtime_theme(obs_point = pmx_point(size = 2), ref = pmx_line(linetype = 3))
+#' plot_dvtime_theme(obs_point = pmx_point(size = 2), ref_line = pmx_line(linetype = 3))
 #' plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
                               cent_point = NULL, cent_line = NULL,
-                              errorbar = NULL, ref = NULL, loq = NULL,
+                              cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
                               obs = NULL, cent = NULL) {
   defaults <- list(
-    obs_point  = pmx_point(shape = 1, size = 0.75, alpha = 0.5),
-    obs_line   = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.5),
-    cent_point = pmx_point(shape = 16, size = 1.25, alpha = 1),
-    cent_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
-    errorbar   = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
-    ref        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
-    loq        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5),
+    obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.5),
+    cent_point    = pmx_point(shape = 16, size = 1.25, alpha = 1),
+    cent_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
+    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
-    errorbar = errorbar, ref = ref, loq = loq,
+    cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
     obs = obs, cent = cent
   ))
   merge_theme(user, defaults)
@@ -291,9 +291,9 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @param pred_line PRED central tendency line aesthetics. See [pmx_line()].
 #' @param ipred_point IPRED central tendency point aesthetics. See [pmx_point()].
 #' @param ipred_line IPRED central tendency line aesthetics. See [pmx_line()].
-#' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
-#' @param ref Reference line aesthetics. See [pmx_line()].
-#' @param loq LOQ reference line aesthetics. See [pmx_line()].
+#' @param cent_errorbar Central tendency error bar aesthetics. See [pmx_errorbar()].
+#' @param ref_line Reference line aesthetics. See [pmx_line()].
+#' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
 #' @param dv Shortcut: apply shared aesthetics to both `dv_point` and `dv_line`.
@@ -314,28 +314,28 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
                               dv_point = NULL, dv_line = NULL,
                               pred_point = NULL, pred_line = NULL,
                               ipred_point = NULL, ipred_line = NULL,
-                              errorbar = NULL, ref = NULL, loq = NULL,
+                              cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
                               obs = NULL, dv = NULL,
                               pred = NULL, ipred = NULL) {
   defaults <- list(
-    obs_point   = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
-    obs_line    = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
-    dv_point    = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "blue"),
-    dv_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "blue"),
-    pred_point  = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "red"),
-    pred_line   = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "red"),
-    ipred_point = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "green"),
-    ipred_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
-    errorbar    = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
-    ref         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
-    loq         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
+    obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
+    dv_point      = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "blue"),
+    dv_line       = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "blue"),
+    pred_point    = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "red"),
+    pred_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "red"),
+    ipred_point   = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "green"),
+    ipred_line    = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
+    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     dv_point = dv_point, dv_line = dv_line,
     pred_point = pred_point, pred_line = pred_line,
     ipred_point = ipred_point, ipred_line = ipred_line,
-    errorbar = errorbar, ref = ref, loq = loq,
+    cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
     obs = obs, dv = dv, pred = pred, ipred = ipred
   ))
   merge_theme(user, defaults)
@@ -348,7 +348,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
 #' @param obs Observed data point aesthetics. See [pmx_point()].
-#' @param ref Reference line aesthetics. See [pmx_line()].
+#' @param ref_line Reference line aesthetics. See [pmx_line()].
 #' @param loess LOESS trend line aesthetics. See [pmx_trend()].
 #' @param linear Linear trend line aesthetics. See [pmx_trend()].
 #'
@@ -358,16 +358,16 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @examples
 #' plot_dvconc_theme()
 #' plot_dvconc_theme(loess = pmx_trend(color = "red"))
-plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NULL) {
+plot_dvconc_theme <- function(obs = NULL, ref_line = NULL, loess = NULL, linear = NULL) {
   defaults <- list(
-    obs    = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
-    ref    = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    obs      = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
+    ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loess  = pmx_trend(linewidth = 1, linetype = 1,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4),
     linear = pmx_trend(linewidth = 1, linetype = 2,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4)
   )
-  merge_theme(compact(list(obs = obs, ref = ref, loess = loess, linear = linear)),
+  merge_theme(compact(list(obs = obs, ref_line = ref_line, loess = loess, linear = linear)),
               defaults)
 }
 
@@ -382,8 +382,7 @@ plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NUL
 #' @param obs_ci Observed CI line aesthetics. See [pmx_line()].
 #' @param sim_pi Simulated prediction interval ribbon aesthetics. See [pmx_ribbon()].
 #' @param sim_median Simulated median ribbon aesthetics. See [pmx_ribbon()].
-#' @param loq LOQ reference line aesthetics. See [pmx_line()].
-#' @param bin_sep Bin separator aesthetics. See [pmx_line()].
+#' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #'
 #' @return A named list of theme elements
 #' @export
@@ -393,7 +392,7 @@ plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NUL
 #' plot_vpc_theme(obs = pmx_point(color = "#000000"))
 plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
                           sim_pi = NULL, sim_median = NULL,
-                          loq = NULL, bin_sep = NULL) {
+                          loq_line = NULL) {
   defaults <- list(
     obs        = pmx_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
     obs_median = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
@@ -402,12 +401,11 @@ plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
                             color = "#000000", linetype = "dotted", linewidth = 1),
     sim_median = pmx_ribbon(fill = "#FF0000", alpha = 0.3,
                             color = "#000000", linetype = "dashed", linewidth = 1),
-    loq        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5),
-    bin_sep    = pmx_line(color = "#000000")
+    loq_line   = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
   )
   merge_theme(compact(list(obs = obs, obs_median = obs_median, obs_ci = obs_ci,
                            sim_pi = sim_pi, sim_median = sim_median,
-                           loq = loq, bin_sep = bin_sep)),
+                           loq_line = loq_line)),
               defaults)
 }
 

@@ -74,7 +74,7 @@ plot_dvconc <- function(data,
   }
 
   #Reference Line
-  plot <- add_ref_layers(plot, ref, plottheme$ref)
+  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
 
 
   #Plot Trend Lines

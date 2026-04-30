@@ -333,7 +333,7 @@ prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn) {
 #' Returns the user-specified error bar width from the theme, or defaults
 #' to 2.5 percent of the maximum `NTIME` value.
 #'
-#' @param plottheme Named list of theme elements containing `$errorbar$width`.
+#' @param plottheme Named list of theme elements containing `$cent_errorbar$width`.
 #' @param data data.frame containing `NTIME` column.
 #'
 #' @return Numeric error bar width value
@@ -344,7 +344,7 @@ prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn) {
 #' pmxhelpr:::errorbar_width(theme, data)
 #'
 errorbar_width <- function(plottheme, data) {
-  if(is.numeric(plottheme$errorbar$width)) plottheme$errorbar$width
+  if(is.numeric(plottheme$cent_errorbar$width)) plottheme$cent_errorbar$width
   else max(data$NTIME, na.rm = TRUE) * 0.025
 }
 

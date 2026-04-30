@@ -10,8 +10,7 @@ plot_vpc_theme(
   obs_ci = NULL,
   sim_pi = NULL,
   sim_median = NULL,
-  loq = NULL,
-  bin_sep = NULL
+  loq_line = NULL
 )
 }
 \arguments{
@@ -25,9 +24,7 @@ plot_vpc_theme(
 
 \item{sim_median}{Simulated median ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
 
-\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
-
-\item{bin_sep}{Bin separator aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{loq_line}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 }
 \value{
 A named list of theme elements

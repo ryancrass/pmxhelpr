@@ -39,7 +39,7 @@ This design means every plot function uses the same workflow:
 plot_dvtime_theme()
 
 # Override specific fields — unspecified fields keep their defaults
-plot_dvtime(data, theme = plot_dvtime_theme(ref = pmx_line(linetype = 3)))
+plot_dvtime(data, theme = plot_dvtime_theme(ref_line = pmx_line(linetype = 3)))
 ```
 
 
@@ -85,7 +85,7 @@ Theme keys follow a `role_element` pattern where the **role** identifies the dat
 - `cent_line` — central tendency, line geom
 - `pred_point` — PRED predictions, point geom
 
-When a role uses only one geom type, the key is just the role name (e.g., `ref`, `obs`, `loess`).
+When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`). The exception is `obs` in `plot_dvconc_theme` and `plot_vpc_theme` where the role is unambiguous.
 
 ## Shared Elements Across Factories
 
@@ -93,8 +93,9 @@ Several element roles appear across multiple theme factories:
 
 | Element | Type | Used in |
 |---|---|---|
-| `ref` | `pmx_line` | `plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme` |
-| `errorbar` | `pmx_errorbar` | `plot_dvtime_theme`, `plot_gof_theme` |
+| `ref_line` | `pmx_line` | `plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme` |
+| `loq_line` | `pmx_line` | `plot_dvtime_theme`, `plot_gof_theme`, `plot_vpc_theme` |
+| `cent_errorbar` | `pmx_errorbar` | `plot_dvtime_theme`, `plot_gof_theme` |
 | `obs` / `obs_point` | `pmx_point` | all four theme factories |
 
 The same constructors and merge logic apply everywhere, so learning the system once covers all plot types.
@@ -141,8 +142,9 @@ plot_dvtime_theme()
 | `obs_line` | `pmx_line` | Spaghetti lines connecting observations |
 | `cent_point` | `pmx_point` | Central tendency points |
 | `cent_line` | `pmx_line` | Central tendency lines |
-| `errorbar` | `pmx_errorbar` | Error bars for central tendency |
-| `ref` | `pmx_line` | Reference lines (LLOQ, change-from-baseline) |
+| `cent_errorbar` | `pmx_errorbar` | Error bars for central tendency |
+| `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline) |
+| `loq_line` | `pmx_line` | LOQ reference line |
 
 Shortcuts: `obs`, `cent` accept `pmx_style()`.
 
@@ -158,8 +160,9 @@ plot_gof_theme()
 | `dv_point`, `dv_line` | `pmx_point`, `pmx_line` | DV central tendency (default: blue) |
 | `pred_point`, `pred_line` | `pmx_point`, `pmx_line` | PRED central tendency (default: red) |
 | `ipred_point`, `ipred_line` | `pmx_point`, `pmx_line` | IPRED central tendency (default: green) |
-| `errorbar` | `pmx_errorbar` | Error bars (shared) |
-| `ref` | `pmx_line` | Reference lines |
+| `cent_errorbar` | `pmx_errorbar` | Error bars (shared across variables) |
+| `ref_line` | `pmx_line` | Reference line |
+| `loq_line` | `pmx_line` | LOQ reference line |
 
 Shortcuts: `obs`, `dv`, `pred`, `ipred` accept `pmx_style()`.
 
@@ -174,7 +177,7 @@ plot_dvconc_theme()
 | Key | Type | Role |
 |---|---|---|
 | `obs` | `pmx_point` | Observed data points |
-| `ref` | `pmx_line` | Reference line |
+| `ref_line` | `pmx_line` | Reference line |
 | `loess` | `pmx_trend` | LOESS trend line |
 | `linear` | `pmx_trend` | Linear trend line |
 
@@ -191,8 +194,7 @@ plot_vpc_theme()
 | `obs_ci` | `pmx_line` | Observed CI lines |
 | `sim_pi` | `pmx_ribbon` | Simulated prediction interval ribbons |
 | `sim_median` | `pmx_ribbon` | Simulated median ribbon |
-| `loq` | `pmx_line` | LOQ reference line |
-| `bin_sep` | `pmx_line` | Bin separator line |
+| `loq_line` | `pmx_line` | LOQ reference line |
 
 
 # Examples
@@ -222,7 +224,7 @@ Pass element overrides directly in the `theme` argument. Only the fields you spe
 ```{r example-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, obs_dv = FALSE,
-            theme = plot_dvtime_theme(errorbar = pmx_errorbar(linewidth = 0.5),
+            theme = plot_dvtime_theme(cent_errorbar = pmx_errorbar(linewidth = 0.5),
                                      cent_point = pmx_point(size = 0.1))) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -233,7 +235,7 @@ plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
 Create a theme once and pass it to multiple plots:
 
 ```{r example-reuse, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-my_theme <- plot_dvtime_theme(errorbar = pmx_errorbar(linewidth = 0.5),
+my_theme <- plot_dvtime_theme(cent_errorbar = pmx_errorbar(linewidth = 0.5),
                               cent_point = pmx_point(size = 0.1))
 
 plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
@@ -261,7 +263,7 @@ The default error bar width is 2.5% of the maximum nominal time. Override with t
 ```{r example-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, obs_dv = FALSE,
-            theme = plot_dvtime_theme(errorbar = pmx_errorbar(width = 8))) +
+            theme = plot_dvtime_theme(cent_errorbar = pmx_errorbar(width = 8))) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```

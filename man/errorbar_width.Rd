@@ -7,7 +7,7 @@
 errorbar_width(plottheme, data)
 }
 \arguments{
-\item{plottheme}{Named list of theme elements containing \verb{$errorbar$width}.}
+\item{plottheme}{Named list of theme elements containing \verb{$cent_errorbar$width}.}
 
 \item{data}{data.frame containing \code{NTIME} column.}
 }

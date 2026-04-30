@@ -10,10 +10,10 @@ test_that("plot_dvtime_theme returns a named list with defaults", {
 })
 
 test_that("plot_dvtime_theme override merges correctly", {
-  theme <- plot_dvtime_theme(ref = pmx_line(linewidth = 99))
-  expect_equal(theme$ref$linewidth, 99)
-  # Other ref defaults preserved
-  expect_equal(theme$ref$linetype, 2)
+  theme <- plot_dvtime_theme(ref_line = pmx_line(linewidth = 99))
+  expect_equal(theme$ref_line$linewidth, 99)
+  # Other ref_line defaults preserved
+  expect_equal(theme$ref_line$linetype, 2)
 })
 
 test_that("plot_dvtime_theme errors on invalid element field", {
@@ -36,7 +36,7 @@ test_that("plot_dvtime_theme pmx_style shortcut applies to point and line", {
 
 test_that("plot_dvtime_theme returns all expected keys", {
   theme <- plot_dvtime_theme()
-  expected <- c("obs_point", "obs_line", "cent_point", "cent_line", "errorbar", "ref", "loq")
+  expected <- c("obs_point", "obs_line", "cent_point", "cent_line", "cent_errorbar", "ref_line", "loq_line")
   expect_setequal(names(theme), expected)
 })
 
@@ -46,9 +46,9 @@ test_that("plot_dvtime_theme elements have correct classes", {
   expect_s3_class(theme$obs_line, "pmx_line")
   expect_s3_class(theme$cent_point, "pmx_point")
   expect_s3_class(theme$cent_line, "pmx_line")
-  expect_s3_class(theme$errorbar, "pmx_errorbar")
-  expect_s3_class(theme$ref, "pmx_line")
-  expect_s3_class(theme$loq, "pmx_line")
+  expect_s3_class(theme$cent_errorbar, "pmx_errorbar")
+  expect_s3_class(theme$ref_line, "pmx_line")
+  expect_s3_class(theme$loq_line, "pmx_line")
 })
 
 #####plot_dvconc_theme####
@@ -76,14 +76,14 @@ test_that("plot_dvconc_theme default loess color is 'black'", {
 
 test_that("plot_dvconc_theme returns all expected keys", {
   theme <- plot_dvconc_theme()
-  expected <- c("obs", "ref", "loess", "linear")
+  expected <- c("obs", "ref_line", "loess", "linear")
   expect_setequal(names(theme), expected)
 })
 
 test_that("plot_dvconc_theme elements have correct classes", {
   theme <- plot_dvconc_theme()
   expect_s3_class(theme$obs, "pmx_point")
-  expect_s3_class(theme$ref, "pmx_line")
+  expect_s3_class(theme$ref_line, "pmx_line")
   expect_s3_class(theme$loess, "pmx_trend")
   expect_s3_class(theme$linear, "pmx_trend")
 })
@@ -137,7 +137,7 @@ test_that("plot_gof_theme returns all expected keys", {
   theme <- plot_gof_theme()
   expected <- c("obs_point", "obs_line", "dv_point", "dv_line",
                 "pred_point", "pred_line", "ipred_point", "ipred_line",
-                "errorbar", "ref", "loq")
+                "cent_errorbar", "ref_line", "loq_line")
   expect_setequal(names(theme), expected)
 })
 
@@ -151,9 +151,9 @@ test_that("plot_gof_theme elements have correct classes", {
   expect_s3_class(theme$pred_line, "pmx_line")
   expect_s3_class(theme$ipred_point, "pmx_point")
   expect_s3_class(theme$ipred_line, "pmx_line")
-  expect_s3_class(theme$errorbar, "pmx_errorbar")
-  expect_s3_class(theme$ref, "pmx_line")
-  expect_s3_class(theme$loq, "pmx_line")
+  expect_s3_class(theme$cent_errorbar, "pmx_errorbar")
+  expect_s3_class(theme$ref_line, "pmx_line")
+  expect_s3_class(theme$loq_line, "pmx_line")
 })
 
 #####plot_vpc_theme####
@@ -181,7 +181,7 @@ test_that("plot_vpc_theme default obs color is '#0000FF'", {
 
 test_that("plot_vpc_theme returns all expected keys", {
   theme <- plot_vpc_theme()
-  expected <- c("obs", "obs_median", "obs_ci", "sim_pi", "sim_median", "loq", "bin_sep")
+  expected <- c("obs", "obs_median", "obs_ci", "sim_pi", "sim_median", "loq_line")
   expect_setequal(names(theme), expected)
 })
 
@@ -192,6 +192,5 @@ test_that("plot_vpc_theme elements have correct classes", {
   expect_s3_class(theme$obs_ci, "pmx_line")
   expect_s3_class(theme$sim_pi, "pmx_ribbon")
   expect_s3_class(theme$sim_median, "pmx_ribbon")
-  expect_s3_class(theme$loq, "pmx_line")
-  expect_s3_class(theme$bin_sep, "pmx_line")
+  expect_s3_class(theme$loq_line, "pmx_line")
 })

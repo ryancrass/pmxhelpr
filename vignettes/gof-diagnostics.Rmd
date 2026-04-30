@@ -37,6 +37,11 @@ An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal p
 
 ```{r model-pk}
 model <- model_mread_load("pkmodel")
+```
+
+We can take a look at the model code using `mrgsolve::see`
+
+```{r model-see}
 mrgsolve::see(model)
 ```
 
@@ -75,7 +80,7 @@ plot_data <- data_sad_pkfit %>%
 
 ## Overview
 
- `pmxhelpr` includes a function for generating population overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof`.
+ `pmxhelpr` includes a function for generating overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof`.
  
  `plot_gof` inherits its data handling and aesthetic control arguments from `plot_dvtime`. The key additions are `pred_var`, `ipred_var`, `shown`, and `theme` (via `plot_gof_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
   
@@ -84,11 +89,11 @@ plot_data <- data_sad_pkfit %>%
 `plot_gof` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
 
 The defaults are as follows:
--  `dv_var`: Dependent variable. Default is `DV`.
--  `ipred_var`: Individual predictions. Default is `IPRED`.
--  `pred_var`: Population predictions. Default is `PRED`.
--  `time_var`: Actual time variable. Default is `TIME`.
--  `ntime_var`: Nominal time variable (must be an exact binning variable). Default is `NTIME`.
+-  `dv_var` = DV, observed dependent variable. 
+-  `ipred_var` = IPRED, individual predictions.
+-  `pred_var` = PRED, population predictions.
+-  `time_var` = TIME, actual time variable 
+-  `ntime_var` = NTIME, nominal time variable 
 
 These arguments accept non-standard evaluation and may be supplied as bare names or strings.
 
@@ -104,7 +109,7 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 The pooled analysis population includes multiple dose levels in a single plot, which is probably not optimal as a population PK model diagnostic. A better minimal plot representation of these data can be obtained by dose-normalizing and stratifying by study part to separate out the fast and food effect portions:
 
 ```{r plot-popgof-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE) +
+plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE, dose_var = DOSE) +
   facet_wrap(~`Food Status`) +
   labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)")
 ```
@@ -121,9 +126,15 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 
 ## Controlling Visible Output Variables
 
-The `shown` argument controls which output variables are displayed. It accepts a named logical vector with names `"OBS"`, `"DV"`, `"IPRED"`, and `"PRED"`. All default to `TRUE`. For example, `shown = c(IPRED = FALSE)` hides the IPRED layer.
+The `shown` argument controls which output variables are displayed. It accepts a named logical vector with names: `"OBS"`, `"DV"`, `"IPRED"`, and `"PRED"`. All default to `TRUE`. 
 
-The default colors and aesthetics for each variable are controlled via the `theme` argument and `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing output colors.
+Some analysts prefer to only overlay the "typical value" in these plots and exclude IPRED:
+
+```{r plot-gof-shown, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(data = plot_data, dv_var = "ODV", shown = c(IPRED = FALSE)) +
+  facet_wrap(~`Dose and Food`, scales = "free") +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+```
 
 The observed data points can also be removed with `obs_dv = FALSE`. Notice how different this plot appears when only visualizing central tendency!
 
@@ -166,10 +177,9 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
   + Updates the caption with the correct central tendency measure if `show_captions = TRUE`. 
   
 
-
 # Individual Concentration-time plots
 
-The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof`; however, we can also use `plot_gof` to generate subject-level visualizations with a little pre-processing of the input dataset. 
+The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof`; however, we can also use `plot_gof` to generate subject-level visualizations with a little pre-processing of the input dataset. The `shown` argument can be used to suppress the population prediction (PRED) in these plots evaluating fit at the individual level.
 
 We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`, `purrr::map()` functions, or other methods.
 
@@ -186,6 +196,7 @@ for(i in 1:n_ids){
                             dv_var = "ODV",
                             log_y = TRUE,
                             grp_dv = TRUE,
+                            shown = c(PRED = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +
   labs(title = paste0("ID = ", ids[i]), y = "Concentration (ng/mL)", x = "Time (hours)") +

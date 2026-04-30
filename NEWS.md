@@ -21,8 +21,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * `dvconc_caption` and `dvtime_caption` are now internal helpers.
 
 ### Theme System Overhaul
-* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: 
-    `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
+* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
 * Exploratory and Diagnostic Plot theme factory keys now follow a `role_element` naming convention  
   * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
   * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `cent_errorbar`, `ref_line`, `loq_line`.
@@ -66,8 +65,6 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ## Documentation
 * Restructure vignettes: separate PK EDA, PK/PD EDA, GOF diagnostics, VPC workflow, and plot aesthetics into dedicated vignettes with cross-links.
-* New [Plot Themes and Aesthetics](plot-aesthetics.html) vignette documenting the unified theme system.
-
 
 # pmxhelpr 0.4.0
 

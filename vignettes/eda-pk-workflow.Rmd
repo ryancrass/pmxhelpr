@@ -57,18 +57,17 @@ The dataset is formatted for population pharmacokinetic (PopPK) and pharmacokine
 Dose events are input based on `AMT`. The nominal (e.g. protocol assigned) dose associated with each observation is captured in `DOSE`.
 
 Plasma drug concentration and pharmacodynamic response observations are expressed in multiple units:  
-
   - `ODV`: original units of the dependent variable [`CMT=2` ng/mL, `CMT=3` % baseline activity]
-  - `LDV`: logarithm-transformed drug concentration [`CMT = 2` log(ng/mL), `CMT = 3` % baseline activity]
+  - `LDV`: log-transformed drug concentration [`CMT = 2` log(ng/mL), `CMT = 3` % baseline activity]
   - `CFB`: percentage change from baseline [`CMT=2` missing, `CMT=3` % change from baseline]
 
-The dataset also contains multiple variables for time:
+Time is expressed as actual time of dose input or observation and nominal time of observations:
 
   - `TIME`: Actual time since first dose administration [hours]
   - `NTIME`: Nominal time dose event or sample collection per protocol [hours]
   - `NDAY`: Nominal day on study [day]
 
-The actual time since first dose administration is assigned to the NONMEM reserved variable name for time (`TIME`), as this represents the most accurate description of the time order of the repeated-measures data. The nominal time variables are *exact binning variables*, which are useful for grouping data for exploratory data analysis or model evaluation.
+The nominal time variables are *exact binning variables*, which are useful for grouping data for exploratory data analysis or model evaluation.
 
 ```{r data-sad-ntime}
 ##Unique values of time variables
@@ -80,11 +79,11 @@ unique(data_sad$NTIME)
 
 Now let's pre-process these data for visualization. Often, it is useful to assign study design variables to the color aesthetic in plots to visualize data stratified by these study design elements. One way to extract even more information from the plots is to include the sample size within each level of the variable mapped to the color aesthetic. `pmxehelpr` provides a useful vectorized helper function for this purpose: `var_addn`
 
-The helper function `var_addn` takes two vectors variables specified: a grouping variable (`grp_var`) and an identifier variable (`id_var`). The function counts unique values of `id_var` per level of `grp_var` and returns a factor vector with group labels appended with counts of unique identifiers. It can be used inside `mutate` to transform columns in place. 
+The helper function `var_addn` takes two vector variables as arguments: a grouping variable (`grp_var`) and an identifier variable (`id_var`). The function counts unique values of `id_var` per level of `grp_var` and returns a factor vector with group labels appended with counts of unique identifiers. It can be used inside `mutate` to transform columns in place. 
 
-A string constant separator can be added between the values in `grp_var` and the count of `id_var` using `sep`. A common use is to specify the dose units when linking dose and count of unique individuals receiving that dose.
+A string constant separator can be added between the values in `grp_var` and the count of `id_var` using the optional `sep` argument. A common use is to specify the dose units when linking dose and count of unique individuals assigned to that dose level.
 
-Let's define some new variables and count unique subjects in each for use in plotting. Useful study design variables for stratifying plots include: dose (DOSE), food status (FOOD), and their interaction since subjects receive 100 mg under both fed and fasted conditions.
+Let's define some new variables and count unique subjects in each for use in plotting. Useful study design variables for stratifying plots include: dose (DOSE), food status (FOOD), and their interaction.
 
 ```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_data <- data_sad %>% 
@@ -99,7 +98,7 @@ unique(plot_data$Dose)
 unique(plot_data$`Food Status`)
 unique(plot_data$`Dose and Food`)
 ```
-Unfortunately, often our factors will not be ordered in ascending numerical order due ordering of strings. In this case, the 50 mg dose group is sorted at the end. We can use the `forcats` package in the `tidyverse` to quickly reorder our new variables
+Unfortunately, often our factors will not be ordered in ascending numerical order. In this case, the 50 mg dose group is sorted at the end. We can use the `forcats` package from the `tidyverse` to quickly reorder our new variables
 
 ```{r plot-data-reorder, message=FALSE, warning=FALSE}
 plot_data <- plot_data %>% 
@@ -110,7 +109,7 @@ unique(plot_data$Dose)
 unique(plot_data$`Dose and Food`)
 ```
 
-Additionally, let's filter down only to PK observations for this exploratory analysis, which is focused on assessing the informational content of the data and trends for population PK analysis.
+Finally, let's filter down only to PK observations for this exploratory analysis, which is focused on assessing the informational content of the data and trends for population PK analysis.
 
 ```{r plot-data-cmt, message=FALSE, warning=FALSE}
 plot_data_pk <- filter(plot_data, CMT == 2)
@@ -120,11 +119,12 @@ plot_data_pk <- filter(plot_data, CMT == 2)
 
 # Population Concentration-time Plots with `plot_dvtime`
 
+
 ## Overview
 
-Now let's visualize the concentration-time data! `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
+ `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime`
 
-Let's try passing in our PK dataset and see what happens!
+Let's try passing in our PK dataset with no other arguments.
 
 ```{r plot-dvtime-fail, fig.height=4, fig.width=6, error=TRUE, message=TRUE}
 plot_dvtime(plot_data_pk)
@@ -133,25 +133,21 @@ plot_dvtime(plot_data_pk)
 
 ## Specifying Dependent and Independent Variables 
 
-Hmm...that didn't work. `plot_dvtime` has 3 arguments that specify the dependent variable to be mapped to the y-axis `dv_var`, the independent variable to be mapped to the x-axis (`time_var`), and a binned version of the x-axis variable for calculation of central tendency statistics (`ntime_var`). The defaults are as follows:
+`plot_dvtime` has 3 arguments that specify the dependent variable to be mapped to the y-axis: 
 
-  - `dv_var` = DV
-  - `time_var` = TIME
-  - `ntime_var` = NTIME
+  - `dv_var` = DV (default), the dependent variable to be mapped to the y-axis
+  - `time_var` = TIME (default), the independent variable to be mapped to the x-axis
+  - `ntime_var` = NTIME (default), the exact bin version of the x-axis variable for calculation of summary statistics
   
-`plot_dvtime` supports non-standard evaluation and these arguments may be passed as bare names or strings.
-
-The `dv_var` specifies the dependent variable in the dataset with default of `DV`. This argument uses non-standard evaluation and can be passed as a bare column names or as a string. 
-
-Since `data_sad` has the dependent variable mapped to the name `ODV`, this name must be passed to the function.
+These arguments all support non-standard evaluation and these arguments may be passed as bare names or strings. Since `data_sad` has the dependent variable mapped to the name `ODV`, this name must be passed to the function.
 
 ```{r plot-dvtime-pass, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV)
 ```
 
-Now the function returns a plot! Conveniently, the time variables in `data_sad` had names aligned with the default argument; however, this may not always be the case. 
+Now the function returns a plot! Conveniently, the time variables in `data_sad` had names aligned with the default arguments; however, this may not always be the case. 
 
-The names of the actual and nominal time variables can be specified with the `time_var` and `ntime_var` arguments, which accept bare names or strings. The same variable name can be passed to each argument to handle the special case where only nominal times are known.
+The same variable name can be passed to both `time_var` and `ntime_var` arguments for the special case where only nominal times are known.
 
 ```{r plot-dvtime-nom, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, time_var = NTIME, ntime_var = NTIME)
@@ -211,7 +207,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-`plot_dvtime` returns a `ggplot` object which we can be further modified using native `ggplot` functions. Therefore, we can facet by PART by simply adding in another layer to our `ggplot` object. 
+`plot_dvtime` returns a `ggplot` object which we can be further modified using native `ggplot` functions. Therefore, we can facet by PART by simply adding in another layer to our `ggplot` object.
 
 ```{r plot-dvtime-part, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean",
@@ -253,7 +249,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
 
 ## Connecting Repeated Measures at the Individual Level
 
-Data points may be connected longitudinally within an individual by specifying as grouping variable `grp_var` (default is `ID`) which will be connected when `grp_dv = TRUE`. The grouping variable inherits the variable mapped to the colore aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"`or the median may be plotted by specifying `cent="median"`
+Data points may be connected longitudinally within an individual by specifying a grouping variable `grp_var` (default is `ID`) which will be connected when `grp_dv = TRUE`. The grouping variable inherits the variable mapped to the color aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"`or the median may be plotted by specifying `cent="median"`
 
 This argument supports non-standard evaluation, and may be based as bare names or strings.
 
@@ -288,6 +284,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
+
 The same plot is obtained by specifying `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -333,10 +330,6 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean"
   labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
-
-## Adjusting the Attributes for Points and Lines
-
-The default attributes of data points and lines are controlled by the `theme` argument via `plot_dvtime_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples.
 
 # Individual Concentration-time plots with `plot_dvtime`
 

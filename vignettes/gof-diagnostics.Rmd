@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will demonstrate `pmxhelpr` functions for generating standard overlay goodness-of-fit model diagnostics for evaluation of longitudinal non-linear mixed effects model fit.
 
-This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime` function, as described in the Exploratory Analyses of PK Data vignette. These elements will not be reviewed in detail in this vignette.
+This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
 First, we will load the required packages.
 
@@ -121,31 +121,9 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 
 ## Specifying Plot Elements and Assigning Colors
 
-There is *ONLY* one new argument to `plot_gof` that is not present in `plot_dvtime`: `output_colors`. This argument is a named vector of pre-defined plot element and color pairs:
+The default aesthetics for each output variable (OBS, DV, PRED, IPRED) are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing output colors.
 
-  - `PRED= "red"`
-  - `IPRED`=`"green"`,
-  - `DV`=`"blue"`.
-  - `OBS`=`"darkgrey"`
-
-The default plot theme elements are:
-
- - `pred` - summary statistics for central tendency in the population model predictions (`pred_var`)
- - `ipred` = summary statistics for central tendency in the individual model predictions (`ipred_var`)
- - `obs` = observed data points for the dependent variable (`dv_var`)
- - `dv` = summary statistics for central tendency (+/- variability) in the dependent variable (`dv_var`)
-
-`obs` and `dv` represent the same data and both map back to the variable in `data` specified in `dv_var`. They are differentiated only to allow visual distinction between individual observation concentration data and summary statistics of observed and model-predicted concentration data.
-
-If one wanted to clarify that all the data mapping back to the dataset variable specified in `dv_var` with color, then the default for `obs` color can be updated to blue to align with `dv` via the `theme` argument.
-
-```{r plot-popgof-dosegrp-blue, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = plot_data, dv_var = "ODV", theme = list(obs = pmx_style(color = "blue"))) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
-```
-
-Alternatively, the observed data points could be removed with only the summary metrics plotted. Notice how different this plot appears when only visualizing central tendency!
+The observed data points can be removed with only the summary metrics plotted using `obs_dv = FALSE`. Notice how different this plot appears when only visualizing central tendency!
 
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +

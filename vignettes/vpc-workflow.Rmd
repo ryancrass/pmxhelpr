@@ -453,41 +453,11 @@ Specifying `loq` is the preferred method for plotting VPC diagnostics with the `
 
 # Plot Aesthetics
 
-## Default Aesthetics
-
-Similarly, the default aesthetics for vpc plots in pmxhelpr use the classical red-blue-green brewer color schema. The defaults for `pmxhelpr` can be visualized by specifying the `plot_vpc_theme()` function with no arguments.
-
-```{r vpc-theme-pmxhelpr}
-pmxhelpr_theme_list <- plot_vpc_theme()
-print(pmxhelpr_theme_list)
-```
-
-## Adjusting Aesthetics
-
-Now, suppose we want to change the default aesthetics of the VPC plot, without changing what is being shown. This can be accomplished by passing element overrides to `plot_vpc_theme()`. The theme object generated from this function can then be passed to the `vpc_theme` argument in `plot_vpc_cont`.
-
-Let's say we prefer a grey-blue color scheme. We can customize it by passing element constructors to `plot_vpc_theme()`:
-
-```{r plot-vpc-customtheme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_customtheme <- plot_vpc_cont(
-  sim = simout,
-  pcvpc = TRUE,
-  vpc_theme = plot_vpc_theme(obs = pmx_point(color = "#000000"),
-                            obs_median = pmx_line(color = "#000000"),
-                            obs_ci = pmx_line(color = "#000000"),
-                            sim_median = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi = pmx_ribbon(fill = "#3388cc")),
-  min_bin_count = 5
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks")
-
-vpc_pc_customtheme
-```
+The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
 
 ## Adding Layers
 
-Let's say we would like to visualize the major x-axis grid lines to help locate data corresponding to each sampling timepoint. Conveniently, `plot_vpc_cont` returns a `ggplot2` plot object, which we can modify by adding layers just like like any other `ggplot2` object.
+`plot_vpc_cont` returns a `ggplot2` plot object, which can be modified by adding layers just like any other `ggplot2` object. For example, to add x-axis grid lines with a custom theme:
 
 ```{r plot-vpc-pcvpc-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_xgrid <- plot_vpc_cont(

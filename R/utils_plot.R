@@ -253,17 +253,19 @@ add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
 #' @param method Character smoothing method (`"loess"` or `"lm"`)
 #' @param show Logical indicating whether to add this trend layer
 #' @param se Logical indicating whether to show the standard error ribbon
-#' @param plottheme Named list of theme aesthetics (must contain element named by `method`)
+#' @param plottheme Named list of theme aesthetics (must contain element named by `theme_key`)
 #' @param col_var_str String name of the color variable, or `NULL`
 #' @param col_trend Logical indicating if trends should be colored by group
 #' @param ... Additional arguments passed to `geom_smooth` (e.g., `span`)
+#' @param theme_key Character key to look up in `plottheme`. Defaults to `method`.
 #'
 #' @return The (possibly modified) ggplot object
 #' @keywords internal
 add_trend_layers <- function(plot, method, show, se, plottheme,
-                              col_var_str, col_trend, ...) {
+                              col_var_str, col_trend, ...,
+                              theme_key = method) {
   if (!isTRUE(show)) return(plot)
-  theme_el <- plottheme[[method]]
+  theme_el <- plottheme[[theme_key]]
   if (isTRUE(col_trend) && !is.null(col_var_str)) {
     plot + ggplot2::geom_smooth(
       ggplot2::aes(color = .data[[col_var_str]], fill = .data[[col_var_str]]),

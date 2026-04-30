@@ -12,7 +12,8 @@ add_trend_layers(
   plottheme,
   col_var_str,
   col_trend,
-  ...
+  ...,
+  theme_key = method
 )
 }
 \arguments{
@@ -24,13 +25,15 @@ add_trend_layers(
 
 \item{se}{Logical indicating whether to show the standard error ribbon}
 
-\item{plottheme}{Named list of theme aesthetics (must contain element named by \code{method})}
+\item{plottheme}{Named list of theme aesthetics (must contain element named by \code{theme_key})}
 
 \item{col_var_str}{String name of the color variable, or \code{NULL}}
 
 \item{col_trend}{Logical indicating if trends should be colored by group}
 
 \item{...}{Additional arguments passed to \code{geom_smooth} (e.g., \code{span})}
+
+\item{theme_key}{Character key to look up in \code{plottheme}. Defaults to \code{method}.}
 }
 \value{
 The (possibly modified) ggplot object

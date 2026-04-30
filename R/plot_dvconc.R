@@ -82,7 +82,7 @@ plot_dvconc <- function(data,
   plot <- add_trend_layers(plot, "loess", loess, se_loess, plottheme,
                            col_var_str, col_trend, ...)
   plot <- add_trend_layers(plot, "lm", linear, se_linear, plottheme,
-                           col_var_str, col_trend)
+                           col_var_str, col_trend, theme_key = "linear")
 
   #Add observations
   plot <- add_obs_point_layer(plot, plottheme, col_var_str)

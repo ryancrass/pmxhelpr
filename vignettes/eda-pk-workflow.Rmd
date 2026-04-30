@@ -29,11 +29,11 @@ library(PKNCA, warn.conflicts = FALSE)
 
 # Data
 
-The example dataset used in this vignette is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort.
+The example dataset used in this vignette is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. 
 
 ## data_sad
 
-Dataset definitions can be viewed by calling `?data_sad`. We can take a quick look at the modeling-ready analysis dataset (`data_sad`)  using `glimpse()` from the `dplyr` package.
+Dataset definitions can be viewed by calling `?data_sad`. A quick summary of variables and types is printed below.
 
 ```{r data-sad-glimpse}
 glimpse(data_sad)
@@ -68,18 +68,14 @@ The dataset also contains multiple variables for time:
   - `NTIME`: Nominal time dose event or sample collection per protocol [hours]
   - `NDAY`: Nominal day on study [day]
 
-The actual time since first dose administration is assigned to the NONMEM reserved variable name for time (`TIME`), as this represents the most accurate description of the time order of the repeated-measures data. The nominal time variables are *exact binning variables*, which are useful for grouping data for exploratory data analysis or model evaluation....but more on that later.
+The actual time since first dose administration is assigned to the NONMEM reserved variable name for time (`TIME`), as this represents the most accurate description of the time order of the repeated-measures data. The nominal time variables are *exact binning variables*, which are useful for grouping data for exploratory data analysis or model evaluation.
 
 ```{r data-sad-ntime}
 ##Unique values of time variables
-times <- unique(data_sad$TIME)
-ntimes <- unique(data_sad$NTIME)
-ntimes
-
-##Comparison of number of unique values of NTIME and TIME
-length(ntimes)
-length(times)
+unique(data_sad$NDAY)
+unique(data_sad$NTIME)
 ```
+
 ## var_addn
 
 Now let's pre-process these data for visualization. Often, it is useful to assign study design variables to the color aesthetic in plots to visualize data stratified by these study design elements. One way to extract even more information from the plots is to include the sample size within each level of the variable mapped to the color aesthetic. `pmxehelpr` provides a useful vectorized helper function for this purpose: `var_addn`
@@ -135,7 +131,7 @@ plot_dvtime(plot_data_pk)
 ```
 
 
-## Dependent Variable 
+## Specifying Dependent and Independent Variables 
 
 Hmm...that didn't work. `plot_dvtime` has 3 arguments that specify the dependent variable to be mapped to the y-axis `dv_var`, the independent variable to be mapped to the x-axis (`time_var`), and a binned version of the x-axis variable for calculation of central tendency statistics (`ntime_var`). The defaults are as follows:
 
@@ -155,15 +151,13 @@ plot_dvtime(plot_data_pk, dv_var = ODV)
 
 Now the function returns a plot! Conveniently, the time variables in `data_sad` had names aligned with the default argument; however, this may not always be the case. 
 
-## Time Variables
-
 The names of the actual and nominal time variables can be specified with the `time_var` and `ntime_var` arguments, which accept bare names or strings. The same variable name can be passed to each argument to handle the special case where only nominal times are known.
 
 ```{r plot-dvtime-nom, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, time_var = NTIME, ntime_var = NTIME)
 ```
 
-## Caption
+## Suppressing the Caption
 
 A caption prints by default describing the plot elements. The caption can be suppressed by specifying `show_caption = FALSE`.
 
@@ -171,7 +165,7 @@ A caption prints by default describing the plot elements. The caption can be sup
 plot_dvtime(data = plot_data_pk, dv_var = ODV, show_caption = FALSE) 
 ```
 
-## Axis Scales, Breaks, and Labels
+## Setting Axis Scales, Breaks, and Labels
 
  `plot_dvtime` includes one argument (`log_y`), which performs a log10 transformation of the y-axis with some additional formatting benefits over manually adding the layer to the returned object with `scale_y_log10`.
 
@@ -192,7 +186,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-## Color Aesthetic
+## Specifying the Color Aesthetic
 
 The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. 
 
@@ -205,7 +199,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE,
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-## Central Tendency
+## Specifying the Central Tendency
 
 The argument `cent` specifies the method of calculating the central tendency (+/- variability) within levels of the variable passed to the `col_var`. The default is `cent = "mean"`; however, note that the calculation is performed *after* any transformations to the data and this option will return the geometric mean when `log_y=TRUE`. 
 
@@ -257,7 +251,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
   facet_wrap(~PART)
 ```
 
-## Individual (Spaghetti) Plots
+## Connecting Repeated Measures at the Individual Level
 
 Data points may be connected longitudinally within an individual by specifying as grouping variable `grp_var` (default is `ID`) which will be connected when `grp_dv = TRUE`. The grouping variable inherits the variable mapped to the colore aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"`or the median may be plotted by specifying `cent="median"`
 
@@ -306,7 +300,8 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
 
 A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputed as LLOQ/2. The numeric value of LLOQ is printed in the legend and a caption is added to indicate the imputation method for BLQ data.
 
-## Dose-normalization
+
+## Applying Dose-normalization
 
 `plot_dvtime` also has functionality to  generate dose-normalized concentration-time plots by specifying `dosenorm = TRUE`. 
 
@@ -315,7 +310,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean"
             log_y = TRUE,
             dosenorm = TRUE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
-  labs(y = "Dos-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
+  labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
 
@@ -381,7 +376,8 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
   facet_wrap(~PART)
 ```
 
-# Individual Concentration-time plots
+
+# Individual Concentration-time plots with `plot_dvtime`
 
 The previous section provides an overview of how to generate population concentration-time profiles by dose using `plot_dvtime`; however, we can also use `plot_dvtime` to generate subject-level visualizations with a little pre-processing of the input dataset.
 
@@ -425,7 +421,7 @@ lapply(1:n_pgs, function(n_pg) {
 
 
 
-# Dose-proportionality Assessment: Power Law Regression
+# Dose-proportionality Assessment with `df_doseprop` and `plot_doseprop`
 
 Another assessment that is commonly performed for pharmacokinetic data is dose proportionality (e.g., does exposure increase proportionally with dose). This is an important assessment prior to population PK modeling, as it informs whether non-linearity is an important consideration in model development. 
 

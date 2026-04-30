@@ -7,25 +7,33 @@
 df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 }
 \arguments{
-\item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV}, and \code{irep_name} columns.}
+\item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV},
+\code{MDV}, and a replicate identifier column. Typically output from
+\code{df_mrgsim_replicate()} after internal preprocessing by \code{plot_vpc_cont()}.}
 
-\item{pi}{Numeric vector of length 2 specifying prediction interval quantiles.}
+\item{pi}{Numeric vector of length 2 specifying prediction interval quantiles.
+Default is \code{c(0.05, 0.95)}.}
 
-\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles.}
+\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles.
+Default is \code{c(0.05, 0.95)}.}
 
-\item{bin_var}{String. Binning variable name.}
+\item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 
-\item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
+\item{strat_var_str}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
 
-\item{irep_name_str}{String. Replicate identifier column name.}
+\item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
+\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
+When specified, observed quantiles use censored quantile estimation.}
 }
 \value{
-A data.frame with quantile summary columns.
+A \code{data.frame} with columns for simulated quantile CIs
+(\code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med}, \code{q50_hi},
+\code{q95_low}, \code{q95_med}, \code{q95_hi}) and observed quantiles
+(\code{obs5}, \code{obs50}, \code{obs95}), joined by \code{bin_var}.
 }
 \description{
-Internal function. Computes two-stage quantile summary statistics for VPC plots
-from data already preprocessed by \code{df_vpcpreprocess()}.
+Computes two-stage quantile summary statistics for VPC plots.
+Can be called directly on preprocessed data or accessed via
+\code{plot_vpc_cont(vpcstats = TRUE)}, which handles preprocessing automatically.
 }
-\keyword{internal}

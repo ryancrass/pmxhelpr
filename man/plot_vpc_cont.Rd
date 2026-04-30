@@ -82,7 +82,8 @@ Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} wi
 \item{vpcstats}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
 }
 \value{
-A list containing calculated VPC information (when \code{vpcdb=TRUE}), or a ggplot2 object (default)
+A \code{ggplot2} object (default), or a \code{data.frame} of VPC summary
+statistics from \code{\link[=df_vpcstats]{df_vpcstats()}} when \code{vpcstats = TRUE}.
 }
 \description{
 \code{plot_vpc_cont()} generates a VPC plot using exact time bins

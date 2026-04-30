@@ -31,7 +31,9 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 #' @param cent Character string specifying the central tendency measure.
 #'    One of `"mean"`, `"mean_sdl"`, `"mean_sdl_upper"`, `"median"`, `"median_iqr"`, or `"none"`.
 #' @param y_var Character string specifying the y variable name (e.g., `"DV"`, `"IPRED"`, `"PRED"`).
-#' @param plottheme Named list of theme elements (must contain `$cent` and `$errorbar`).
+#' @param point_el A `pmx_point` element with point aesthetics.
+#' @param line_el A `pmx_line` element with line aesthetics.
+#' @param eb_el A `pmx_errorbar` element with error bar aesthetics.
 #' @param width Numeric error bar cap width.
 #' @param color_aes Optional character string for color aesthetic (e.g., `"DV"` for popgof legend).
 #' @param show_errorbars Logical indicating whether to add error bar layers.
@@ -41,7 +43,7 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 #' @examples
 #' #
 #'
-add_cent_layers <- function(plot, cent, y_var, plottheme, width,
+add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
                             color_aes = NULL,
                             show_errorbars = TRUE) {
 
@@ -60,28 +62,26 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
   # Central Tendency Points
   plot <- plot + ggplot2::stat_summary(mapping,
                                        fun = stat_fun, geom = "point",
-                                       size  = plottheme$cent$size,
-                                       shape = plottheme$cent$shape,
-                                       alpha = plottheme$cent$alpha)
+                                       size  = point_el$size,
+                                       shape = point_el$shape,
+                                       alpha = point_el$alpha)
 
   # Central Tendency Lines
   plot <- plot + ggplot2::stat_summary(mapping,
                                        fun = stat_fun, geom = "line",
-                                       linewidth = plottheme$cent$linewidth,
-                                       linetype  = plottheme$cent$linetype,
-                                       alpha     = plottheme$cent$line_alpha)
+                                       linewidth = line_el$linewidth,
+                                       linetype  = line_el$linetype,
+                                       alpha     = line_el$alpha)
 
   # Error Bars
   if (show_errorbars) {
-    eb <- plottheme$errorbar
-
     if (cent == "mean_sdl") {
       plot <- plot + ggplot2::stat_summary(mapping,
                                            fun.data = "mean_sdl",
                                            fun.args = list(mult = 1), geom = "errorbar",
-                                           linewidth = eb$linewidth,
-                                           linetype = eb$linetype,
-                                           alpha = eb$alpha,
+                                           linewidth = eb_el$linewidth,
+                                           linetype = eb_el$linetype,
+                                           alpha = eb_el$alpha,
                                            width = width)
     }
 
@@ -90,17 +90,17 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
                                            fun.max = function(x){mean(x) + stats::sd(x)},
                                            fun.min = function(x){NA_real_},
                                            geom = "errorbar",
-                                           linewidth = eb$linewidth,
-                                           linetype = eb$linetype,
-                                           alpha = eb$alpha,
+                                           linewidth = eb_el$linewidth,
+                                           linetype = eb_el$linetype,
+                                           alpha = eb_el$alpha,
                                            width = width) +
                     ggplot2::stat_summary(mapping,
                                          fun.max = function(x){mean(x) + stats::sd(x)},
                                          fun.min = function(x){mean(x)},
                                          geom = "linerange",
-                                         linewidth = eb$linewidth,
-                                         linetype = eb$linetype,
-                                         alpha = eb$alpha,
+                                         linewidth = eb_el$linewidth,
+                                         linetype = eb_el$linetype,
+                                         alpha = eb_el$alpha,
                                          show.legend = FALSE)
     }
 
@@ -109,9 +109,9 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
                                            fun.max = function(x){stats::quantile(x, 0.75)},
                                            fun.min = function(x){stats::quantile(x, 0.25)},
                                            geom = "errorbar",
-                                           linewidth = eb$linewidth,
-                                           linetype = eb$linetype,
-                                           alpha = eb$alpha,
+                                           linewidth = eb_el$linewidth,
+                                           linetype = eb_el$linetype,
+                                           alpha = eb_el$alpha,
                                            width = width)
     }
   }
@@ -129,21 +129,22 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
 #' @param obs_dv logical, whether to show observed data points
 #' @param grp_dv logical, whether to connect observations within groups
 #' @param grp_var_str character, column name for the grouping variable
-#' @param plottheme named list of theme aesthetics
+#' @param point_el A `pmx_point` element with point aesthetics.
+#' @param line_el A `pmx_line` element with line aesthetics.
 #' @param color_aes optional string for color aesthetic (e.g., "OBS" for popgof legend)
 #'
 #' @return modified ggplot object
 #' @keywords internal
-add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, plottheme,
+add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, point_el, line_el,
                            color_aes = NULL) {
 
   if (isTRUE(obs_dv)) {
     point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
     plot <- plot + ggplot2::geom_point(
       mapping = point_aes,
-      shape   = plottheme$obs$shape,
-      size    = plottheme$obs$size,
-      alpha   = plottheme$obs$alpha
+      shape   = point_el$shape,
+      size    = point_el$size,
+      alpha   = point_el$alpha
     )
   }
 
@@ -157,9 +158,9 @@ add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, plottheme,
     }
     plot <- plot + ggplot2::geom_line(
       mapping   = line_aes,
-      linewidth = plottheme$obs$linewidth,
-      linetype  = plottheme$obs$linetype,
-      alpha     = plottheme$obs$line_alpha
+      linewidth = line_el$linewidth,
+      linetype  = line_el$linetype,
+      alpha     = line_el$alpha
     )
   }
 
@@ -177,12 +178,12 @@ add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, plottheme,
 #' @param loq_method numeric, 0/1/2
 #' @param loq numeric, lower limit of quantification value
 #' @param dosenorm logical, whether dose normalization is active
-#' @param plottheme named list of theme aesthetics
+#' @param ref_el A `pmx_line` element with reference line aesthetics.
 #' @param show_legend logical, whether to add LLOQ to the linetype legend
 #'
 #' @return A named list with elements `plot` (modified ggplot) and `caption` (modified string)
 #' @keywords internal
-add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
+add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, ref_el,
                            show_legend = FALSE) {
 
   if (!loq_method %in% c(1, 2) || isTRUE(dosenorm)) {
@@ -193,19 +194,19 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
     loq_lab <- paste0(loq)
     plot <- plot +
       ggplot2::geom_hline(ggplot2::aes(yintercept = loq, linetype = loq_lab),
-                          linewidth = plottheme$ref$linewidth,
-                          alpha = plottheme$ref$alpha) +
+                          linewidth = ref_el$linewidth,
+                          alpha = ref_el$alpha) +
       ggplot2::scale_linetype_manual(
         name = "LLOQ",
-        values = stats::setNames(c(plottheme$ref$linetype), loq_lab)) +
+        values = stats::setNames(c(ref_el$linetype), loq_lab)) +
       ggplot2::guides(color = ggplot2::guide_legend(order = 1),
                       linetype = ggplot2::guide_legend(order = 2))
   } else {
     plot <- plot +
       ggplot2::geom_hline(yintercept = loq,
-                          linewidth = plottheme$ref$linewidth,
-                          linetype = plottheme$ref$linetype,
-                          alpha = plottheme$ref$alpha)
+                          linewidth = ref_el$linewidth,
+                          linetype = ref_el$linetype,
+                          alpha = ref_el$alpha)
   }
 
   blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",
@@ -224,16 +225,16 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, plottheme,
 #' @param plot ggplot object to modify
 #' @param cfb logical, whether the dependent variable is change from baseline
 #' @param cfb_base numeric, y-intercept for the reference line
-#' @param plottheme named list of theme aesthetics
+#' @param ref_el A `pmx_line` element with reference line aesthetics.
 #'
 #' @return The (possibly modified) ggplot object
 #' @keywords internal
-add_cfb_layers <- function(plot, cfb, cfb_base, plottheme) {
+add_cfb_layers <- function(plot, cfb, cfb_base, ref_el) {
   if (!isTRUE(cfb)) return(plot)
   plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                             linewidth = plottheme$ref$linewidth,
-                             linetype = plottheme$ref$linetype,
-                             alpha = plottheme$ref$alpha)
+                             linewidth = ref_el$linewidth,
+                             linetype = ref_el$linetype,
+                             alpha = ref_el$alpha)
 }
 
 
@@ -280,21 +281,21 @@ add_trend_layers <- function(plot, method, show, se, plottheme,
 #' Internal helper: Add observation point layer to a DV-vs-concentration plot
 #'
 #' @param plot ggplot object to modify
-#' @param plottheme Named list of theme aesthetics (must contain `$obs`)
+#' @param point_el A `pmx_point` element with point aesthetics.
 #' @param col_var_str String name of the color variable, or `NULL`
 #'
 #' @return The modified ggplot object
 #' @keywords internal
-add_obs_point_layer <- function(plot, plottheme, col_var_str) {
+add_obs_point_layer <- function(plot, point_el, col_var_str) {
   if (is.null(col_var_str)) {
-    plot + ggplot2::geom_point(shape = plottheme$obs$shape,
-                               size = plottheme$obs$size,
-                               alpha = plottheme$obs$alpha)
+    plot + ggplot2::geom_point(shape = point_el$shape,
+                               size = point_el$size,
+                               alpha = point_el$alpha)
   } else {
     plot + ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]),
-                               shape = plottheme$obs$shape,
-                               size = plottheme$obs$size,
-                               alpha = plottheme$obs$alpha)
+                               shape = point_el$shape,
+                               size = point_el$size,
+                               alpha = point_el$alpha)
   }
 }
 
@@ -309,7 +310,7 @@ add_obs_point_layer <- function(plot, plottheme, col_var_str) {
 #' @param log_y Logical indicating log-scale y-axis.
 #' @param obs_dv Logical indicating if observed data points are shown.
 #' @param grp_dv Logical indicating if observations are connected within groups.
-#' @param theme User-supplied theme overrides, or `NULL`.
+#' @param theme User-supplied theme overrides (named list), or `NULL`.
 #' @param theme_fn Theme factory function (e.g., `plot_dvtime_theme`).
 #'
 #' @return A named list with elements `caption`, `plottheme`, and `width`.

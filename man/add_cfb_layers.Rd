@@ -4,7 +4,7 @@
 \alias{add_cfb_layers}
 \title{Internal helper: Add change-from-baseline reference line}
 \usage{
-add_cfb_layers(plot, cfb, cfb_base, plottheme)
+add_cfb_layers(plot, cfb, cfb_base, ref_el)
 }
 \arguments{
 \item{plot}{ggplot object to modify}
@@ -13,7 +13,7 @@ add_cfb_layers(plot, cfb, cfb_base, plottheme)
 
 \item{cfb_base}{numeric, y-intercept for the reference line}
 
-\item{plottheme}{named list of theme aesthetics}
+\item{ref_el}{A \code{pmx_line} element with reference line aesthetics.}
 }
 \value{
 The (possibly modified) ggplot object

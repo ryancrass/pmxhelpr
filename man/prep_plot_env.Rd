@@ -17,7 +17,7 @@ prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn)
 
 \item{grp_dv}{Logical indicating if observations are connected within groups.}
 
-\item{theme}{User-supplied theme overrides, or \code{NULL}.}
+\item{theme}{User-supplied theme overrides (named list), or \code{NULL}.}
 
 \item{theme_fn}{Theme factory function (e.g., \code{plot_dvtime_theme}).}
 }

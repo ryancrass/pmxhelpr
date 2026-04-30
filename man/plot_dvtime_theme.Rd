@@ -4,16 +4,35 @@
 \alias{plot_dvtime_theme}
 \title{Concentration-time plot theme}
 \usage{
-plot_dvtime_theme(obs = NULL, ref = NULL, cent = NULL, errorbar = NULL)
+plot_dvtime_theme(
+  obs_point = NULL,
+  obs_line = NULL,
+  cent_point = NULL,
+  cent_line = NULL,
+  errorbar = NULL,
+  ref = NULL,
+  obs = NULL,
+  cent = NULL
+)
 }
 \arguments{
-\item{obs}{Observed data aesthetics. See \code{\link[=pmx_obs]{pmx_obs()}}.}
+\item{obs_point}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{ref}{Reference line aesthetics. See \code{\link[=pmx_ref]{pmx_ref()}}.}
+\item{obs_line}{Observed data line aesthetics (spaghetti). See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{cent}{Central tendency aesthetics. See \code{\link[=pmx_cent]{pmx_cent()}}.}
+\item{cent_point}{Central tendency point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
+
+\item{cent_line}{Central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{errorbar}{Error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
+
+\item{ref}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+
+\item{obs}{Shortcut: apply shared aesthetics to both \code{obs_point} and \code{obs_line}.
+See \code{\link[=pmx_style]{pmx_style()}}.}
+
+\item{cent}{Shortcut: apply shared aesthetics to both \code{cent_point} and \code{cent_line}.
+See \code{\link[=pmx_style]{pmx_style()}}.}
 }
 \value{
 A named list of theme elements
@@ -21,8 +40,11 @@ A named list of theme elements
 \description{
 Constructor and factory for \code{plot_dvtime} plot aesthetics.
 Call with no arguments to view defaults. Pass element overrides to customize.
+Use role-level shortcuts \code{obs} and \code{cent} with \code{\link[=pmx_style]{pmx_style()}} to set shared
+aesthetics (e.g., color, alpha) for both point and line elements at once.
 }
 \examples{
 plot_dvtime_theme()
-plot_dvtime_theme(obs = pmx_obs(size = 2), ref = pmx_ref(linetype = 3))
+plot_dvtime_theme(obs_point = pmx_point(size = 2), ref = pmx_line(linetype = 3))
+plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 }

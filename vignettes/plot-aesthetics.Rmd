@@ -1,0 +1,47 @@
+---
+title: "Plot Themes and Aesthetics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{plot-aesthetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r usethis, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will demonstrate `pmxhelpr` helper functions for updating plot aesthetics across `plot_dvtime`, `plot_dvconc`, `plot_gof`, and `plot_vpc_cont` functions reviewed in detail the other Vignettes for PK and PK/PD exploratory data analysis and VPC workflows.  
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+library(forcats, warn.conflicts = FALSE)
+library(Hmisc, warn.conflicts = FALSE)
+library(patchwork, warn.conflicts = FALSE)
+library(PKNCA, warn.conflicts = FALSE)
+```
+
+# Data
+
+The example dataset used in this vignette is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. 
+
+## data_sad
+
+Dataset definitions can be viewed by calling `?data_sad`. A quick summary of variables and types is printed below.
+
+```{r data-sad-glimpse}
+glimpse(data_sad)
+```
+
+The study design consists of two parts. 
+
+  + Part 1 was a sequential single ascending dose study covering a 10 to 400 mg dose range.
+  + Part 2 was a parallel 100 mg single dose food effect (FE) study. 
+  
+

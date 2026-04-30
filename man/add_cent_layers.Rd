@@ -8,7 +8,9 @@ add_cent_layers(
   plot,
   cent,
   y_var,
-  plottheme,
+  point_el,
+  line_el,
+  eb_el,
   width,
   color_aes = NULL,
   show_errorbars = TRUE
@@ -22,7 +24,11 @@ One of \code{"mean"}, \code{"mean_sdl"}, \code{"mean_sdl_upper"}, \code{"median"
 
 \item{y_var}{Character string specifying the y variable name (e.g., \code{"DV"}, \code{"IPRED"}, \code{"PRED"}).}
 
-\item{plottheme}{Named list of theme elements (must contain \verb{$cent} and \verb{$errorbar}).}
+\item{point_el}{A \code{pmx_point} element with point aesthetics.}
+
+\item{line_el}{A \code{pmx_line} element with line aesthetics.}
+
+\item{eb_el}{A \code{pmx_errorbar} element with error bar aesthetics.}
 
 \item{width}{Numeric error bar cap width.}
 

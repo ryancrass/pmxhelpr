@@ -15,19 +15,19 @@ plot_vpc_theme(
 )
 }
 \arguments{
-\item{obs}{Observed data point aesthetics. See \code{\link[=pmx_vpc_point]{pmx_vpc_point()}}.}
+\item{obs}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{obs_median}{Observed median line aesthetics. See \code{\link[=pmx_vpc_line]{pmx_vpc_line()}}.}
+\item{obs_median}{Observed median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{obs_ci}{Observed CI line aesthetics. See \code{\link[=pmx_vpc_line]{pmx_vpc_line()}}.}
+\item{obs_ci}{Observed CI line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{sim_pi}{Simulated prediction interval ribbon aesthetics. See \code{\link[=pmx_vpc_ribbon]{pmx_vpc_ribbon()}}.}
+\item{sim_pi}{Simulated prediction interval ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
 
-\item{sim_median}{Simulated median ribbon aesthetics. See \code{\link[=pmx_vpc_ribbon]{pmx_vpc_ribbon()}}.}
+\item{sim_median}{Simulated median ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
 
-\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_vpc_loq]{pmx_vpc_loq()}}.}
+\item{loq}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{bin_sep}{Bin separator aesthetics. See \code{\link[=pmx_vpc_bin_sep]{pmx_vpc_bin_sep()}}.}
+\item{bin_sep}{Bin separator aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 }
 \value{
 A named list of theme elements
@@ -38,5 +38,5 @@ Call with no arguments to view defaults. Pass element overrides to customize.
 }
 \examples{
 plot_vpc_theme()
-plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"))
+plot_vpc_theme(obs = pmx_point(color = "#000000"))
 }

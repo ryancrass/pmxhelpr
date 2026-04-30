@@ -19,8 +19,8 @@ Iterates over names in the user-supplied element and overwrites matching
 fields in the default. Warns on unrecognized field names.
 }
 \examples{
-defaults <- pmx_obs(shape = 1, size = 0.75, alpha = 0.5)
-pmxhelpr:::merge_element(pmx_obs(size = 2), defaults)
+defaults <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
+pmxhelpr:::merge_element(pmx_point(size = 2), defaults)
 
 }
 \keyword{internal}

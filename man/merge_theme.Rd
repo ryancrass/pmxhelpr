@@ -17,10 +17,13 @@ A merged theme list
 \description{
 Iterates over groups in the user-supplied theme and merges each group
 element-by-element into the default theme using \code{\link[=merge_element]{merge_element()}}.
+When a user-supplied entry is a \code{\link[=pmx_style]{pmx_style()}} object and the default theme
+contains matching \verb{_point} and \verb{_line} sub-keys, the style fields are
+applied to both sub-elements.
 }
 \examples{
 defaults <- plot_dvtime_theme()
-pmxhelpr:::merge_theme(list(obs = pmx_obs(size = 2)), defaults)
+pmxhelpr:::merge_theme(list(obs_point = pmx_point(size = 2)), defaults)
 
 }
 \keyword{internal}

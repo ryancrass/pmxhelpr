@@ -8,7 +8,7 @@
 * Rename `model` as `pkmodel` for consistency with `pdmodel`. 
 * Rename `pmxhelpr_vpc_theme` to `plot_vpc_theme` for  consistency with other plot theme functions
 * Change `dvconc_caption` and `dvtime_caption` to internal functions after simplifying
-* Added `cfb_base` argument to `plot_popgof` (was hardcoded as yintercept = 0)
+* Added `cfb_base` argument to `plot_gof` (was hardcoded as yintercept = 0)
 * Add helpers for central tendency handing, time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls
 * Expand test coverage and refactor existing tests to reduce redundancy
 * Fix bugs and typoes globally in package
@@ -29,14 +29,14 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 * Add `plot_dvconc` to generate plots of response variables versus drug concentration with LOESS and/or linear trendlines
 * Add `plot_dvtime_dual` wrapper function for `plot_dvtime` to plot two dependent variables versus time intended to support simultaneous visualization of PK and PD.
 * Update `var_addn` (formerly `df_addn`) to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., `forcats`)
-* Update `plot_popgof_theme` to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.
+* Update `plot_gof_theme` to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.
 * Revise the `Exploratory Data Analysis` vignette to include new functionality and revised workflows with new functions.
 * Fix bug that was not scaling error bar caps for the x-axis range when `cent = "median_iqer` across functions
 
 # pmxhelpr 0.3.6
 
 * Add `var_addn` (formerly `df_addn`) helper function to create and order factor labels including count of unique values to include counts in plot legends
-* Add `plot_popgof_theme` function to set and adjust default aesthetics for `plot_popgof`
+* Add `plot_gof_theme` function to set and adjust default aesthetics for `plot_gof`
 * Add LLOQ value and linetype to legend in `plot_dvtime`
 * Add caption indicating method of BLQ imputation to `plot_dvtime`
 * Fix bug in `df_pcdv` that was including missing values (MDV=1) in the median PRED calculation for nominal times with missing values, resulting in incorrect PRED-correction of observations in these bins ONLY. Simulated intervals and observed quantile lines were unaffected.
@@ -45,8 +45,8 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 # pmxhelpr 0.3.5
 
 * Add option to pass the same dataset variable to `time_var` and `ntime_var` for all functions
-* Add option to control default aesthetics (linewidth, linetype, size, shape, alpha) in `plot_dvtime` and `plot_popgof`
-* Fix bug in `plot_popgof` that was preventing upper error bars from inheriting the color mapped to "DV"
+* Add option to control default aesthetics (linewidth, linetype, size, shape, alpha) in `plot_dvtime` and `plot_gof`
+* Fix bug in `plot_gof` that was preventing upper error bars from inheriting the color mapped to "DV"
 
 # pmxhelpr 0.3.4
 
@@ -54,17 +54,17 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 
 # pmxhelpr 0.3.3
 
-* Fix bug in `plot_dvtime` and `plot_popgof` where variable for "DOSE" was being assessed when dosenorm = FALSE
+* Fix bug in `plot_dvtime` and `plot_gof` where variable for "DOSE" was being assessed when dosenorm = FALSE
 * Update `breaks_time` to accept abbreviations for time units
 
 # pmxhelpr 0.3.2
 
-* Add `cent = "mean_sdl_upper"` option to `plot_dvtime` and `plot_popgof` for plotting only the upper error bar
-* Add `barwidth` argument to `plot_dvtime` and `plot_popgof` to allow user to change error bar cap width. 
+* Add `cent = "mean_sdl_upper"` option to `plot_dvtime` and `plot_gof` for plotting only the upper error bar
+* Add `barwidth` argument to `plot_dvtime` and `plot_gof` to allow user to change error bar cap width. 
 
 # pmxhelpr 0.3.1
 
-* Add `plot_popgof` to generate population overlay goodness-of-fit plots
+* Add `plot_gof` to generate population overlay goodness-of-fit plots
 * Add `data_sad_pkfit` NONMEM PK model fit output dataset for `data_sad` based on `model`.
 * Fixed bug in `plot_dvtime` that was leading to plotting mean +/- 2*SD instead of mean +/- SD
 

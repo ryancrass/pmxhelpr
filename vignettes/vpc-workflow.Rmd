@@ -472,11 +472,11 @@ Let's say we prefer a grey-blue color scheme. We can customize it by passing ele
 vpc_pc_customtheme <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
-  vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),
-                            obs_median = pmx_vpc_line(color = "#000000"),
-                            obs_ci = pmx_vpc_line(color = "#000000"),
-                            sim_median = pmx_vpc_ribbon(fill = "#3388cc"),
-                            sim_pi = pmx_vpc_ribbon(fill = "#3388cc")),
+  vpc_theme = plot_vpc_theme(obs = pmx_point(color = "#000000"),
+                            obs_median = pmx_line(color = "#000000"),
+                            obs_ci = pmx_line(color = "#000000"),
+                            sim_median = pmx_ribbon(fill = "#3388cc"),
+                            sim_pi = pmx_ribbon(fill = "#3388cc")),
   min_bin_count = 5
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
@@ -494,11 +494,11 @@ vpc_pc_xgrid <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
-  vpc_theme = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"),
-                            obs_median = pmx_vpc_line(color = "#000000"),
-                            obs_ci = pmx_vpc_line(color = "#000000"),
-                            sim_median = pmx_vpc_ribbon(fill = "#3388cc"),
-                            sim_pi = pmx_vpc_ribbon(fill = "#3388cc"))
+  vpc_theme = plot_vpc_theme(obs = pmx_point(color = "#000000"),
+                            obs_median = pmx_line(color = "#000000"),
+                            obs_ci = pmx_line(color = "#000000"),
+                            sim_median = pmx_ribbon(fill = "#3388cc"),
+                            sim_pi = pmx_ribbon(fill = "#3388cc"))
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks") +

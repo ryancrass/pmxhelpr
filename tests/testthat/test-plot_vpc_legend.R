@@ -37,7 +37,7 @@ test_that("Output with pi_as_area = TRUE is a `ggplot` object", {
 
 ##Test theme update
 test_that("Custom theme update via update argument is accepted", {
-  p <- plot_vpc_legend(update = plot_vpc_theme(obs = pmx_vpc_point(color = "#000000")))
+  p <- plot_vpc_legend(update = plot_vpc_theme(obs = pmx_point(color = "#000000")))
   expect_s3_class(p, "ggplot")
 })
 

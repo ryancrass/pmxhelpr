@@ -348,7 +348,7 @@ These attributes can be updated by passing element overrides to `plot_dvtime_the
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl",log_y = TRUE,obs_dv = FALSE,
             theme = plot_dvtime_theme(errorbar = pmx_errorbar(linewidth = 0.5),
-                                     cent = pmx_cent(size = 0.1))) +
+                                     cent_point = pmx_point(size = 0.1))) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
@@ -357,7 +357,7 @@ One could also globally set a new theme by calling `plot_dvtime_theme()` with ov
 
 ```{r plot-dvtime-part-meansdl-themeset, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 new_theme <- plot_dvtime_theme(errorbar = pmx_errorbar(linewidth = 0.5),
-                              cent = pmx_cent(size = 0.1))
+                              cent_point = pmx_point(size = 0.1))
 
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl",log_y = TRUE, obs_dv = FALSE,

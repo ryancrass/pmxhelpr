@@ -56,10 +56,10 @@ Model Evaluation workflow functions in this package include the
 following:
 
 - Overlay Model Diagostic Workflow functions: *ReturnObject*\_*Purpose*
-  - `plot_popgof` returns a `ggplot` object with observed, population-,
-    and individual-predicted values overlaid with time
-  - `plot_popgof_theme` returns a nested list of modifiable default plot
-    attributes for the `theme` argument of `plot_popgof`
+  - `plot_gof` returns a `ggplot` object with observed, population-, and
+    individual-predicted values overlaid with time
+  - `plot_gof_theme` returns a nested list of modifiable default plot
+    attributes for the `theme` argument of `plot_gof`
 - VPC Workflow functions: *ReturnObject*\_*Purpose*
   - `df_mrgsim_replicate()` returns a `data.frame` of simulated
     replicates of an input dataset
@@ -158,11 +158,11 @@ data <- data_sad_pkfit %>%
   mutate(Regimen = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1)) #Correctly order factor levels
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
-plot_popgof(data = data, dv_var = "ODV", dosenorm = TRUE) +
+plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +
   facet_wrap(~Food) +
   labs(y = "Dose-normalized Conc. (ng/mL)")
 
-plot_popgof(data = data, dv_var = "ODV", log_y = TRUE) +
+plot_gof(data = data, dv_var = "ODV", log_y = TRUE) +
   facet_wrap(~Regimen) +
   labs(y = "Concentration (ng/mL)")
 ```

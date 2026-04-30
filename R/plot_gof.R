@@ -1,15 +1,10 @@
-.popgof_colors_default <- c(PRED = "red", IPRED = "green",
-                            DV = "blue", OBS = "darkgrey")
-
 #' Plot population overlay goodness-of-fit (GOF) plots
 #'
-#' @param output_colors Colors for model outputs. Must be named character vector.
-#'
-#'    Defaults are:
-#'    + `PRED= "red"`
-#'    + `IPRED`=`"green"`,
-#'    + `DV`=`"blue"`.
-#'    + `OBS`=`"darkgrey"`
+#' Creates a population overlay plot showing central tendency lines for
+#' observed (DV), population predicted (PRED), and individual predicted (IPRED)
+#' values. Colors and aesthetics for each variable are controlled through the
+#' `theme` argument via [plot_gof_theme()]. Use the `shown` argument to
+#' selectively hide variables.
 #'
 #' @param dv_var Column containing the dependent variable (DV).
 #'    Accepts bare names or strings. Default is `DV`.
@@ -17,25 +12,29 @@
 #'    Accepts bare names or strings. Default is `PRED`.
 #' @param ipred_var Column containing individual predictions (IPRED).
 #'    Accepts bare names or strings. Default is `IPRED`.
+#' @param shown Named logical vector controlling which outputs are visible.
+#'    Names must be one or more of `"OBS"`, `"DV"`, `"IPRED"`, `"PRED"`
+#'    (uppercase, matching legend labels).
+#'    All default to `TRUE`. Example: `shown = c(IPRED = FALSE)` hides IPRED.
 #' @inheritParams plot_dvtime
-#' @param theme Theme object created by [plot_popgof_theme()].
-#'    Defaults can be viewed by running `plot_popgof_theme()` with no arguments.
+#' @param theme Theme object created by [plot_gof_theme()].
+#'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
 #'    Default error bar width is 2.5% of maximum `NTIME`.
 #'
 #' @return A `ggplot2` plot object
 #'
-#' @export plot_popgof
+#' @export plot_gof
 #'
 #' @examples
-#'plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
+#'plot_gof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 #'
-plot_popgof <- function(data,
+plot_gof <- function(data,
                         dv_var = DV,
                         pred_var = PRED,
                         ipred_var = IPRED,
                         time_var = TIME,
                         ntime_var = NTIME,
-                        output_colors = .popgof_colors_default,
+                        shown = NULL,
                         grp_var = ID,
                         dose_var = DOSE,
                         loq = NULL,
@@ -58,8 +57,6 @@ plot_popgof <- function(data,
   grp_var_str   <- resolve_var(rlang::enquo(grp_var))
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
-  output_colors <- merge_element(output_colors, .popgof_colors_default)
-
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,
     dv_var_str = dv_var_str,
@@ -74,10 +71,22 @@ plot_popgof <- function(data,
   data <- prep$data
   lloq <- prep$lloq
 
-  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, plot_popgof_theme)
+  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, plot_gof_theme)
   caption   <- env$caption
   plottheme <- env$plottheme
   width     <- env$width
+
+  #Determine which variables to show
+  #Legend labels are uppercase; theme keys use lowercase with _point/_line suffixes
+  legend_labels <- c("OBS", "DV", "IPRED", "PRED")
+  show_defaults <- stats::setNames(rep(TRUE, length(legend_labels)), legend_labels)
+  shown <- merge_element(shown, show_defaults)
+  active <- legend_labels[shown[legend_labels] == TRUE]
+
+  #Derive output colors from theme (read from _point element)
+  output_colors <- vapply(active, function(k) {
+    plottheme[[paste0(tolower(k), "_point")]]$color
+  }, character(1))
 
 
 ###Plot
@@ -87,26 +96,26 @@ plot_popgof <- function(data,
     ggplot2::labs(color = "Legend")
 
   #Reference Lines: Y=cfb_base (cfb = TRUE) or Y=LLOQ (loq_method = 1,2)
-  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme)
+  plot <- add_cfb_layers(plot, cfb, cfb_base, plottheme$ref)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme, show_legend = FALSE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$ref, show_legend = FALSE)
   plot <- blq$plot
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  if ("OBS" %in% names(output_colors)) {
-    plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = "OBS")
+  if ("OBS" %in% active) {
+    plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)
-  if ("DV" %in% names(output_colors)) {
-    plot <- add_cent_layers(plot, cent, "DV", plottheme, width, color_aes = "DV")
+  if ("DV" %in% active) {
+    plot <- add_cent_layers(plot, cent, "DV", plottheme$dv_point, plottheme$dv_line, plottheme$errorbar, width, color_aes = "DV")
   }
-  if ("IPRED" %in% names(output_colors)) {
-    plot <- add_cent_layers(plot, cent, "IPRED", plottheme, width, color_aes = "IPRED", show_errorbars = FALSE)
+  if ("IPRED" %in% active) {
+    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$ipred_point, plottheme$ipred_line, plottheme$errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
   }
-  if ("PRED" %in% names(output_colors)) {
-    plot <- add_cent_layers(plot, cent, "PRED", plottheme, width, color_aes = "PRED", show_errorbars = FALSE)
+  if ("PRED" %in% active) {
+    plot <- add_cent_layers(plot, cent, "PRED", plottheme$pred_point, plottheme$pred_line, plottheme$errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Log Transform
@@ -121,5 +130,3 @@ plot_popgof <- function(data,
 
   return(plot)
 }
-
-

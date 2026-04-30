@@ -22,8 +22,8 @@ compact <- function(x) x[!vapply(x, is.null, logical(1))]
 #' @return A merged element with the same class as `default`
 #' @keywords internal
 #' @examples
-#' defaults <- pmx_obs(shape = 1, size = 0.75, alpha = 0.5)
-#' pmxhelpr:::merge_element(pmx_obs(size = 2), defaults)
+#' defaults <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
+#' pmxhelpr:::merge_element(pmx_point(size = 2), defaults)
 #'
 merge_element <- function(user, default) {
   if (is.null(user)) return(default)
@@ -44,6 +44,9 @@ merge_element <- function(user, default) {
 #'
 #' Iterates over groups in the user-supplied theme and merges each group
 #' element-by-element into the default theme using [merge_element()].
+#' When a user-supplied entry is a [pmx_style()] object and the default theme
+#' contains matching `_point` and `_line` sub-keys, the style fields are
+#' applied to both sub-elements.
 #'
 #' @param user User-supplied theme with partial group overrides, or `NULL`.
 #' @param default Complete default theme.
@@ -52,13 +55,15 @@ merge_element <- function(user, default) {
 #' @keywords internal
 #' @examples
 #' defaults <- plot_dvtime_theme()
-#' pmxhelpr:::merge_theme(list(obs = pmx_obs(size = 2)), defaults)
+#' pmxhelpr:::merge_theme(list(obs_point = pmx_point(size = 2)), defaults)
 #'
 merge_theme <- function(user, default) {
   if (is.null(user)) return(default)
   out <- default
   for (nm in names(user)) {
-    if (!nm %in% names(default)) {
+    if (inherits(user[[nm]], "pmx_style")) {
+      out <- apply_style(user[[nm]], nm, out)
+    } else if (!nm %in% names(default)) {
       warning(paste0("`", nm, "` is not a valid group in the theme"))
     } else {
       out[[nm]] <- merge_element(user[[nm]], default[[nm]])
@@ -68,62 +73,115 @@ merge_theme <- function(user, default) {
 }
 
 
-# --- Element Constructors: dvtime / popgof / dvconc family ---
+#' Internal helper: Expand a pmx_style into matching point and line sub-keys
+#'
+#' @param style A `pmx_style` object.
+#' @param prefix Character role prefix (e.g., `"obs"`, `"cent"`).
+#' @param defaults Named list of theme defaults.
+#'
+#' @return The modified defaults list with style fields applied.
+#' @keywords internal
+apply_style <- function(style, prefix, defaults) {
+  pt_key <- paste0(prefix, "_point")
+  ln_key <- paste0(prefix, "_line")
+  for (field in names(style)) {
+    if (pt_key %in% names(defaults) && field %in% names(defaults[[pt_key]])) {
+      defaults[[pt_key]][[field]] <- style[[field]]
+    }
+    if (ln_key %in% names(defaults) && field %in% names(defaults[[ln_key]])) {
+      defaults[[ln_key]][[field]] <- style[[field]]
+    }
+  }
+  defaults
+}
 
-#' Observed data point and line aesthetics
+
+# --- Element Constructors ---
+
+#' Point aesthetics
+#'
+#' Constructor for point layer aesthetics. Used for observed data points and
+#' central tendency points across all plot types.
 #'
 #' @param shape Point shape. Default varies by plot type.
 #' @param size Point size. Default varies by plot type.
 #' @param alpha Point alpha. Default varies by plot type.
-#' @param linewidth Spaghetti line width. Default varies by plot type.
-#' @param linetype Spaghetti line type. Default varies by plot type.
-#' @param line_alpha Spaghetti line alpha. Default varies by plot type.
+#' @param color Point color. Default varies by plot type.
 #'
-#' @return A `pmx_obs` element object
+#' @return A `pmx_point` element object
 #' @export
-pmx_obs <- function(shape = NULL, size = NULL, alpha = NULL,
-                    linewidth = NULL, linetype = NULL, line_alpha = NULL) {
+pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
   structure(
-    compact(list(shape = shape, size = size, alpha = alpha,
-                 linewidth = linewidth, linetype = linetype, line_alpha = line_alpha)),
-    class = "pmx_obs"
+    compact(list(shape = shape, size = size, alpha = alpha, color = color)),
+    class = "pmx_point"
   )
 }
 
 
-#' Reference line aesthetics
+#' Line aesthetics
+#'
+#' Constructor for line layer aesthetics. Used for trend lines, reference lines,
+#' spaghetti lines, and central tendency lines across all plot types.
 #'
 #' @param linewidth Line width. Default varies by plot type.
 #' @param linetype Line type. Default varies by plot type.
 #' @param alpha Line alpha. Default varies by plot type.
+#' @param color Line color. Default varies by plot type.
 #'
-#' @return A `pmx_ref` element object
+#' @return A `pmx_line` element object
 #' @export
-pmx_ref <- function(linewidth = NULL, linetype = NULL, alpha = NULL) {
+pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
+                     color = NULL) {
   structure(
-    compact(list(linewidth = linewidth, linetype = linetype, alpha = alpha)),
-    class = "pmx_ref"
+    compact(list(linewidth = linewidth, linetype = linetype,
+                 alpha = alpha, color = color)),
+    class = "pmx_line"
   )
 }
 
 
-#' Central tendency point and line aesthetics
+#' Ribbon aesthetics
 #'
-#' @param shape Point shape. Default varies by plot type.
-#' @param size Point size. Default varies by plot type.
-#' @param alpha Point alpha. Default varies by plot type.
-#' @param linewidth Line width. Default varies by plot type.
-#' @param linetype Line type. Default varies by plot type.
-#' @param line_alpha Line alpha. Default varies by plot type.
+#' Constructor for ribbon layer aesthetics. Used for simulated prediction
+#' interval and median CI ribbons in VPC plots.
 #'
-#' @return A `pmx_cent` element object
+#' @param fill Ribbon fill color. Default varies by ribbon type.
+#' @param alpha Ribbon alpha. Default varies by ribbon type.
+#' @param color Ribbon border color. Default varies by ribbon type.
+#' @param linetype Ribbon border line type. Default varies by ribbon type.
+#' @param linewidth Ribbon border line width. Default varies by ribbon type.
+#'
+#' @return A `pmx_ribbon` element object
 #' @export
-pmx_cent <- function(shape = NULL, size = NULL, alpha = NULL,
-                     linewidth = NULL, linetype = NULL, line_alpha = NULL) {
+pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
+                       linetype = NULL, linewidth = NULL) {
   structure(
-    compact(list(shape = shape, size = size, alpha = alpha,
-                 linewidth = linewidth, linetype = linetype, line_alpha = line_alpha)),
-    class = "pmx_cent"
+    compact(list(fill = fill, alpha = alpha, color = color,
+                 linetype = linetype, linewidth = linewidth)),
+    class = "pmx_ribbon"
+  )
+}
+
+
+#' Shared style for point and line layers
+#'
+#' Convenience constructor for setting aesthetics that apply to both point
+#' and line elements of a role. Pass to role-level theme arguments (e.g.,
+#' `obs`, `cent`, `dv`) to set shared properties without specifying each
+#' element individually.
+#'
+#' @param color Color applied to both point and line elements.
+#' @param alpha Alpha applied to both point and line elements.
+#'
+#' @return A `pmx_style` element object
+#' @export
+#'
+#' @examples
+#' plot_gof_theme(pred = pmx_style(color = "purple"))
+pmx_style <- function(color = NULL, alpha = NULL) {
+  structure(
+    compact(list(color = color, alpha = alpha)),
+    class = "pmx_style"
   )
 }
 
@@ -167,152 +225,116 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 }
 
 
-# --- Element Constructors: VPC family ---
-
-#' VPC observed data point aesthetics
-#'
-#' @param color Point color. Default is `"#0000FF"`.
-#' @param size Point size. Default is 1.
-#' @param shape Point shape. Default is 1.
-#' @param alpha Point alpha. Default is 0.7.
-#'
-#' @return A `pmx_vpc_point` element object
-#' @export
-pmx_vpc_point <- function(color = NULL, size = NULL, shape = NULL, alpha = NULL) {
-  structure(
-    compact(list(color = color, size = size, shape = shape, alpha = alpha)),
-    class = "pmx_vpc_point"
-  )
-}
-
-
-#' VPC line aesthetics
-#'
-#' Used for observed median and CI lines.
-#'
-#' @param color Line color. Default varies by line type.
-#' @param linetype Line type. Default varies by line type.
-#' @param linewidth Line width. Default varies by line type.
-#'
-#' @return A `pmx_vpc_line` element object
-#' @export
-pmx_vpc_line <- function(color = NULL, linetype = NULL, linewidth = NULL) {
-  structure(
-    compact(list(color = color, linetype = linetype, linewidth = linewidth)),
-    class = "pmx_vpc_line"
-  )
-}
-
-
-#' VPC ribbon aesthetics
-#'
-#' Used for simulated prediction interval and median CI ribbons.
-#'
-#' @param fill Ribbon fill color. Default varies by ribbon type.
-#' @param alpha Ribbon alpha. Default varies by ribbon type.
-#' @param color Ribbon border color. Default varies by ribbon type.
-#' @param linetype Ribbon border line type. Default varies by ribbon type.
-#' @param linewidth Ribbon border line width. Default varies by ribbon type.
-#'
-#' @return A `pmx_vpc_ribbon` element object
-#' @export
-pmx_vpc_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
-                           linetype = NULL, linewidth = NULL) {
-  structure(
-    compact(list(fill = fill, alpha = alpha, color = color,
-                 linetype = linetype, linewidth = linewidth)),
-    class = "pmx_vpc_ribbon"
-  )
-}
-
-
-#' VPC LOQ reference line aesthetics
-#'
-#' @param color Line color. Default is `"#990000"`.
-#' @param linetype Line type. Default is `"dashed"`.
-#'
-#' @return A `pmx_vpc_loq` element object
-#' @export
-pmx_vpc_loq <- function(color = NULL, linetype = NULL) {
-  structure(
-    compact(list(color = color, linetype = linetype)),
-    class = "pmx_vpc_loq"
-  )
-}
-
-
-#' VPC bin separator aesthetics
-#'
-#' @param color Line color. Default is `"#000000"`.
-#'
-#' @return A `pmx_vpc_bin_sep` element object
-#' @export
-pmx_vpc_bin_sep <- function(color = NULL) {
-  structure(
-    compact(list(color = color)),
-    class = "pmx_vpc_bin_sep"
-  )
-}
-
-
 # --- Theme Constructor-Factories ---
 
 #' Concentration-time plot theme
 #'
 #' Constructor and factory for `plot_dvtime` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
+#' Use role-level shortcuts `obs` and `cent` with [pmx_style()] to set shared
+#' aesthetics (e.g., color, alpha) for both point and line elements at once.
 #'
-#' @param obs Observed data aesthetics. See [pmx_obs()].
-#' @param ref Reference line aesthetics. See [pmx_ref()].
-#' @param cent Central tendency aesthetics. See [pmx_cent()].
+#' @param obs_point Observed data point aesthetics. See [pmx_point()].
+#' @param obs_line Observed data line aesthetics (spaghetti). See [pmx_line()].
+#' @param cent_point Central tendency point aesthetics. See [pmx_point()].
+#' @param cent_line Central tendency line aesthetics. See [pmx_line()].
 #' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
+#' @param ref Reference line aesthetics. See [pmx_line()].
+#' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
+#'   See [pmx_style()].
+#' @param cent Shortcut: apply shared aesthetics to both `cent_point` and `cent_line`.
+#'   See [pmx_style()].
 #'
 #' @return A named list of theme elements
 #' @export
 #'
 #' @examples
 #' plot_dvtime_theme()
-#' plot_dvtime_theme(obs = pmx_obs(size = 2), ref = pmx_ref(linetype = 3))
-plot_dvtime_theme <- function(obs = NULL, ref = NULL, cent = NULL, errorbar = NULL) {
+#' plot_dvtime_theme(obs_point = pmx_point(size = 2), ref = pmx_line(linetype = 3))
+#' plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
+plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
+                              cent_point = NULL, cent_line = NULL,
+                              errorbar = NULL, ref = NULL,
+                              obs = NULL, cent = NULL) {
   defaults <- list(
-    obs      = pmx_obs(shape = 1, size = 0.75, alpha = 0.5,
-                       linewidth = 0.5, linetype = 1, line_alpha = 0.5),
-    ref      = pmx_ref(linewidth = 0.5, linetype = 2, alpha = 1),
-    cent     = pmx_cent(shape = 16, size = 1.25, alpha = 1,
-                        linewidth = 0.75, linetype = 1, line_alpha = 1),
-    errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL)
+    obs_point  = pmx_point(shape = 1, size = 0.75, alpha = 0.5),
+    obs_line   = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.5),
+    cent_point = pmx_point(shape = 16, size = 1.25, alpha = 1),
+    cent_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
+    errorbar   = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    ref        = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
-  merge_theme(compact(list(obs = obs, ref = ref, cent = cent, errorbar = errorbar)),
-              defaults)
+  user <- compact(list(
+    obs_point = obs_point, obs_line = obs_line,
+    cent_point = cent_point, cent_line = cent_line,
+    errorbar = errorbar, ref = ref,
+    obs = obs, cent = cent
+  ))
+  merge_theme(user, defaults)
 }
 
 
 #' Population overlay GOF plot theme
 #'
-#' Constructor and factory for `plot_popgof` plot aesthetics.
+#' Constructor and factory for `plot_gof` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
+#' Use role-level shortcuts `obs`, `dv`, `pred`, `ipred` with [pmx_style()] to
+#' set shared aesthetics (e.g., color) for both point and line elements at once.
 #'
-#' @inheritParams plot_dvtime_theme
+#' @param obs_point Observed data point aesthetics. See [pmx_point()].
+#' @param obs_line Observed data line aesthetics. See [pmx_line()].
+#' @param dv_point DV central tendency point aesthetics. See [pmx_point()].
+#' @param dv_line DV central tendency line aesthetics. See [pmx_line()].
+#' @param pred_point PRED central tendency point aesthetics. See [pmx_point()].
+#' @param pred_line PRED central tendency line aesthetics. See [pmx_line()].
+#' @param ipred_point IPRED central tendency point aesthetics. See [pmx_point()].
+#' @param ipred_line IPRED central tendency line aesthetics. See [pmx_line()].
+#' @param errorbar Error bar aesthetics. See [pmx_errorbar()].
+#' @param ref Reference line aesthetics. See [pmx_line()].
+#' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
+#'   See [pmx_style()].
+#' @param dv Shortcut: apply shared aesthetics to both `dv_point` and `dv_line`.
+#'   See [pmx_style()].
+#' @param pred Shortcut: apply shared aesthetics to both `pred_point` and `pred_line`.
+#'   See [pmx_style()].
+#' @param ipred Shortcut: apply shared aesthetics to both `ipred_point` and `ipred_line`.
+#'   See [pmx_style()].
 #'
 #' @return A named list of theme elements
 #' @export
 #'
 #' @examples
-#' plot_popgof_theme()
-#' plot_popgof_theme(obs = pmx_obs(size = 2))
-plot_popgof_theme <- function(obs = NULL, ref = NULL, cent = NULL,
-                             errorbar = NULL) {
+#' plot_gof_theme()
+#' plot_gof_theme(pred = pmx_style(color = "purple"))
+#' plot_gof_theme(pred_point = pmx_point(size = 3))
+plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
+                              dv_point = NULL, dv_line = NULL,
+                              pred_point = NULL, pred_line = NULL,
+                              ipred_point = NULL, ipred_line = NULL,
+                              errorbar = NULL, ref = NULL,
+                              obs = NULL, dv = NULL,
+                              pred = NULL, ipred = NULL) {
   defaults <- list(
-    obs      = pmx_obs(shape = 1, size = 0.75, alpha = 0.5,
-                       linewidth = 0.5, linetype = 1, line_alpha = 0.75),
-    ref      = pmx_ref(linewidth = 0.5, linetype = 2, alpha = 1),
-    cent     = pmx_cent(shape = 1, size = 1.25, alpha = 1,
-                        linewidth = 0.75, linetype = 1, line_alpha = 1),
-    errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL)
+    obs_point   = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
+    obs_line    = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
+    dv_point    = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "blue"),
+    dv_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "blue"),
+    pred_point  = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "red"),
+    pred_line   = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "red"),
+    ipred_point = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "green"),
+    ipred_line  = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
+    errorbar    = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    ref         = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
-  merge_theme(compact(list(obs = obs, ref = ref, cent = cent,
-                           errorbar = errorbar)),
-              defaults)
+  user <- compact(list(
+    obs_point = obs_point, obs_line = obs_line,
+    dv_point = dv_point, dv_line = dv_line,
+    pred_point = pred_point, pred_line = pred_line,
+    ipred_point = ipred_point, ipred_line = ipred_line,
+    errorbar = errorbar, ref = ref,
+    obs = obs, dv = dv, pred = pred, ipred = ipred
+  ))
+  merge_theme(user, defaults)
 }
 
 
@@ -321,8 +343,8 @@ plot_popgof_theme <- function(obs = NULL, ref = NULL, cent = NULL,
 #' Constructor and factory for `plot_dvconc` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
-#' @param obs Observed data aesthetics. See [pmx_obs()].
-#' @param ref Reference line aesthetics. See [pmx_ref()].
+#' @param obs Observed data point aesthetics. See [pmx_point()].
+#' @param ref Reference line aesthetics. See [pmx_line()].
 #' @param loess LOESS trend line aesthetics. See [pmx_trend()].
 #' @param linear Linear trend line aesthetics. See [pmx_trend()].
 #'
@@ -334,8 +356,8 @@ plot_popgof_theme <- function(obs = NULL, ref = NULL, cent = NULL,
 #' plot_dvconc_theme(loess = pmx_trend(color = "red"))
 plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NULL) {
   defaults <- list(
-    obs    = pmx_obs(shape = 1, size = 1.25, alpha = 0.5),
-    ref    = pmx_ref(linewidth = 0.5, linetype = 2, alpha = 1),
+    obs    = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
+    ref    = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loess  = pmx_trend(linewidth = 1, linetype = 1,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4),
     linear = pmx_trend(linewidth = 1, linetype = 2,
@@ -351,33 +373,33 @@ plot_dvconc_theme <- function(obs = NULL, ref = NULL, loess = NULL, linear = NUL
 #' Constructor and factory for `plot_vpc_cont` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
-#' @param obs Observed data point aesthetics. See [pmx_vpc_point()].
-#' @param obs_median Observed median line aesthetics. See [pmx_vpc_line()].
-#' @param obs_ci Observed CI line aesthetics. See [pmx_vpc_line()].
-#' @param sim_pi Simulated prediction interval ribbon aesthetics. See [pmx_vpc_ribbon()].
-#' @param sim_median Simulated median ribbon aesthetics. See [pmx_vpc_ribbon()].
-#' @param loq LOQ reference line aesthetics. See [pmx_vpc_loq()].
-#' @param bin_sep Bin separator aesthetics. See [pmx_vpc_bin_sep()].
+#' @param obs Observed data point aesthetics. See [pmx_point()].
+#' @param obs_median Observed median line aesthetics. See [pmx_line()].
+#' @param obs_ci Observed CI line aesthetics. See [pmx_line()].
+#' @param sim_pi Simulated prediction interval ribbon aesthetics. See [pmx_ribbon()].
+#' @param sim_median Simulated median ribbon aesthetics. See [pmx_ribbon()].
+#' @param loq LOQ reference line aesthetics. See [pmx_line()].
+#' @param bin_sep Bin separator aesthetics. See [pmx_line()].
 #'
 #' @return A named list of theme elements
 #' @export
 #'
 #' @examples
 #' plot_vpc_theme()
-#' plot_vpc_theme(obs = pmx_vpc_point(color = "#000000"))
+#' plot_vpc_theme(obs = pmx_point(color = "#000000"))
 plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
                           sim_pi = NULL, sim_median = NULL,
                           loq = NULL, bin_sep = NULL) {
   defaults <- list(
-    obs        = pmx_vpc_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
-    obs_median = pmx_vpc_line(color = "#FF0000", linetype = "solid", linewidth = 1),
-    obs_ci     = pmx_vpc_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
-    sim_pi     = pmx_vpc_ribbon(fill = "#0000FF", alpha = 0.15,
-                                color = "#000000", linetype = "dotted", linewidth = 1),
-    sim_median = pmx_vpc_ribbon(fill = "#FF0000", alpha = 0.3,
-                                color = "#000000", linetype = "dashed", linewidth = 1),
-    loq        = pmx_vpc_loq(color = "#990000", linetype = "dashed"),
-    bin_sep    = pmx_vpc_bin_sep(color = "#000000")
+    obs        = pmx_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
+    obs_median = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
+    obs_ci     = pmx_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
+    sim_pi     = pmx_ribbon(fill = "#0000FF", alpha = 0.15,
+                            color = "#000000", linetype = "dotted", linewidth = 1),
+    sim_median = pmx_ribbon(fill = "#FF0000", alpha = 0.3,
+                            color = "#000000", linetype = "dashed", linewidth = 1),
+    loq        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5),
+    bin_sep    = pmx_line(color = "#000000")
   )
   merge_theme(compact(list(obs = obs, obs_median = obs_median, obs_ci = obs_ci,
                            sim_pi = sim_pi, sim_median = sim_median,

@@ -4,7 +4,15 @@
 \alias{add_obs_layers}
 \title{Add observed data point and spaghetti line layers to a plot}
 \usage{
-add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = NULL)
+add_obs_layers(
+  plot,
+  obs_dv,
+  grp_dv,
+  grp_var_str,
+  point_el,
+  line_el,
+  color_aes = NULL
+)
 }
 \arguments{
 \item{plot}{ggplot object}
@@ -15,7 +23,9 @@ add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = NULL)
 
 \item{grp_var_str}{character, column name for the grouping variable}
 
-\item{plottheme}{named list of theme aesthetics}
+\item{point_el}{A \code{pmx_point} element with point aesthetics.}
+
+\item{line_el}{A \code{pmx_line} element with line aesthetics.}
 
 \item{color_aes}{optional string for color aesthetic (e.g., "OBS" for popgof legend)}
 }

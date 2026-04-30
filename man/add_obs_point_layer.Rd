@@ -4,12 +4,12 @@
 \alias{add_obs_point_layer}
 \title{Internal helper: Add observation point layer to a DV-vs-concentration plot}
 \usage{
-add_obs_point_layer(plot, plottheme, col_var_str)
+add_obs_point_layer(plot, point_el, col_var_str)
 }
 \arguments{
 \item{plot}{ggplot object to modify}
 
-\item{plottheme}{Named list of theme aesthetics (must contain \verb{$obs})}
+\item{point_el}{A \code{pmx_point} element with point aesthetics.}
 
 \item{col_var_str}{String name of the color variable, or \code{NULL}}
 }

@@ -7,9 +7,9 @@
 plot_dvconc_theme(obs = NULL, ref = NULL, loess = NULL, linear = NULL)
 }
 \arguments{
-\item{obs}{Observed data aesthetics. See \code{\link[=pmx_obs]{pmx_obs()}}.}
+\item{obs}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{ref}{Reference line aesthetics. See \code{\link[=pmx_ref]{pmx_ref()}}.}
+\item{ref}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{loess}{LOESS trend line aesthetics. See \code{\link[=pmx_trend]{pmx_trend()}}.}
 

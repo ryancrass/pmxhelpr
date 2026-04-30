@@ -71,17 +71,17 @@ plot_data <- data_sad_pkfit %>%
 ```
 
 
-# Population Overlay Goodness of Fit Plots with `plot_popgof`
+# Population Overlay Goodness of Fit Plots with `plot_gof`
 
 ## Overview
 
- `pmxhelpr` includes a function for generating population overlay goodness-of-fit (GOF) plots for model evaluation: `plot_popgof`.
+ `pmxhelpr` includes a function for generating population overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof`.
  
- *NOTE* `plot_popgof` inherits dataset variable handling functionality and arguments from `df_mrgsim_replicate` and ports aesthetic controls from `plot_dvtime`.
+ *NOTE* `plot_gof` inherits dataset variable handling functionality and arguments from `df_mrgsim_replicate` and ports aesthetic controls from `plot_dvtime`.
   
 ## Specifying Dependent and Independent Variables 
 
-`plot_popgof` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
+`plot_gof` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
 
 The defaults are as follows:
 -  `dv_var`: Dependent variable. Default is `DV`.
@@ -95,7 +95,7 @@ These arguments accept non-standard evaluation and may be supplied as bare names
 The example dataset `data_sad_pkfit` only differs from these defaults in the variable name for the dependent variable, `"ODV"`. Thus, the most basic population GOF plot can be obtained with:
 
 ```{r plot-popgof, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV") + 
+plot_gof(data = plot_data, dv_var = "ODV") + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
@@ -104,7 +104,7 @@ plot_popgof(data = plot_data, dv_var = "ODV") +
 The pooled analysis population includes multiple dose levels in a single plot, which is probably not optimal as a population PK model diagnostic. A better minimal plot representation of these data can be obtained by dose-normalizing and stratifying by study part to separate out the fast and food effect portions:
 
 ```{r plot-popgof-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV", dosenorm = TRUE) +
+plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE) +
   facet_wrap(~`Food Status`) +
   labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)")
 ```
@@ -114,33 +114,33 @@ plot_popgof(data = plot_data, dv_var = "ODV", dosenorm = TRUE) +
 Although, generally population goodness-of-fit plots are stratified by study design (extrinsic) factors (e.g., Dose and Food Status) in order to assess the adequacy of model fit in each unique study condition.
 
 ```{r plot-popgof-dosegrp, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV") +
+plot_gof(data = plot_data, dv_var = "ODV") +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)")
 ```
 
 ## Specifying Plot Elements and Assigning Colors
 
-There is *ONLY* one new argument to `plot_popgof` that is not present in `plot_dvtime`: `output_colors`. This argument is a named vector of pre-defined plot element and color pairs:
+There is *ONLY* one new argument to `plot_gof` that is not present in `plot_dvtime`: `output_colors`. This argument is a named vector of pre-defined plot element and color pairs:
 
   - `PRED= "red"`
   - `IPRED`=`"green"`,
   - `DV`=`"blue"`.
   - `OBS`=`"darkgrey"`
 
-The default plot elements are:
+The default plot theme elements are:
 
- - `PRED` - summary statistics for central tendency in the population model predictions (`pred_var`)
- - `IPRED` = summary statistics for central tendency in the individual model predictions (`ipred_var`)
- - `OBS` = observed data points for the dependent variable (`dv_var`)
- - `DV` = summary statistics for central tendency (+/- variability) in the dependent variable (`dv_var`)
+ - `pred` - summary statistics for central tendency in the population model predictions (`pred_var`)
+ - `ipred` = summary statistics for central tendency in the individual model predictions (`ipred_var`)
+ - `obs` = observed data points for the dependent variable (`dv_var`)
+ - `dv` = summary statistics for central tendency (+/- variability) in the dependent variable (`dv_var`)
 
-`OBS` and `DV` represent the same data and both map back to the variable in `data` specified in `dv_var`. They are differentiated only to allow visual distinction between individual observation concentration data and summary statistics of observed and model-predicted concentration data.
+`obs` and `dv` represent the same data and both map back to the variable in `data` specified in `dv_var`. They are differentiated only to allow visual distinction between individual observation concentration data and summary statistics of observed and model-predicted concentration data.
 
-If one wanted to clarify that all the data mapping back to the dataset variable specified in `dv_var` with color, then the default for `output_colors["OBS"]` can be updated to to blue to align with `DV `.
+If one wanted to clarify that all the data mapping back to the dataset variable specified in `dv_var` with color, then the default for `obs` color can be updated to blue to align with `dv` via the `theme` argument.
 
 ```{r plot-popgof-dosegrp-blue, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV", output_colors = c(OBS = "blue")) +
+plot_gof(data = plot_data, dv_var = "ODV", theme = list(obs = pmx_style(color = "blue"))) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
@@ -148,7 +148,7 @@ plot_popgof(data = plot_data, dv_var = "ODV", output_colors = c(OBS = "blue")) +
 Alternatively, the observed data points could be removed with only the summary metrics plotted. Notice how different this plot appears when only visualizing central tendency!
 
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +
+plot_gof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
@@ -156,25 +156,25 @@ plot_popgof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +
 
 ## Specifying the Central Tendency
 
-`plot_popgof` inherits its central tendency handling functionality from `plot_dvtime`. Both functions use the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. The summary statistics calculated are specified by the `cent` argument. 
+`plot_gof` inherits its central tendency handling functionality from `plot_dvtime`. Both functions use the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. The summary statistics calculated are specified by the `cent` argument. 
   
-In `plot_popgof`, variability (SD, IQR) is plotted for the observed data (DV) and only the central tendency measures are calculated and returned for model predictions (PRED, IPRED).
+In `plot_gof`, variability (SD, IQR) is plotted for the observed data (DV) and only the central tendency measures are calculated and returned for model predictions (PRED, IPRED).
 
 An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned with `"mean"` is the *geometric mean*. 
 
 If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will delineate where arithmetic and geometric means are being returned. 
 
 ```{r plot-popgof-dosegrp-meansd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
+plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
             log_y = TRUE) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-The caption will *NOT* update if a new axis is added to the plot object outside of `plot_popgof` with `scale_y_log10`.
+The caption will *NOT* update if a new axis is added to the plot object outside of `plot_gof` with `scale_y_log10`.
 
 ```{r plot-popgof-dosegrp-logscale, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_popgof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
+plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") + 
   scale_y_log10()
@@ -189,7 +189,7 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
 
 # Individual Concentration-time plots
 
-The previous section provides an overview of how to generate population overlay GOF plots using `plot_popgof`; however, we can also use `plot_popgof` to generate subject-level visualizations with a little pre-processing of the input dataset. 
+The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof`; however, we can also use `plot_gof` to generate subject-level visualizations with a little pre-processing of the input dataset. 
 
 We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`, `purrr::map()` functions, or other methods.
 
@@ -202,7 +202,7 @@ n_pgs <- ceiling(n_ids/plots_per_pg) #Total number of pages needed
 
 plist<- list()
 for(i in 1:n_ids){
-  plist[[i]] <- plot_popgof(filter(plot_data, ID == ids[i]),
+  plist[[i]] <- plot_gof(filter(plot_data, ID == ids[i]),
                             dv_var = "ODV",
                             log_y = TRUE,
                             grp_dv = TRUE,

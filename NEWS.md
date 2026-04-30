@@ -21,13 +21,14 @@ This is a major refactor of the package focused on simplifying function interfac
 * `dvconc_caption` and `dvtime_caption` are now internal helpers.
 
 ### Theme System Overhaul
-* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
-* Theme factory keys now follow a `role_element` naming convention (e.g., `obs_point`, `cent_line`) 
-* `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys:  `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
-* `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `cent_errorbar`, `ref_line`, `loq_line`.
-* `ref_line` and `loq_line` theme keys are separate across all theme factories, allowing independent styling of general reference lines and LLOQ lines.
-* `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys: `obs`, `ref_line`, `loess`, `linear`.
-* `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq_line`. Removed unused `bin_sep` element.
+* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: 
+    `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
+* Exploratory and Diagnostic Plot theme factory keys now follow a `role_element` naming convention  
+  * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
+  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `cent_errorbar`, `ref_line`, `loq_line`.
+  * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys:`obs`, `ref_line`, `loess`, `linear`.
+* VPC plot theme factor keys now follow a `element_statistic` naming convention aligned with the `shown` argument
+  * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq_line`. 
 
 ### Simplified Plot Function Arguments
 * Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.

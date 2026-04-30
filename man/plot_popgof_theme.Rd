@@ -4,13 +4,7 @@
 \alias{plot_popgof_theme}
 \title{Population overlay GOF plot theme}
 \usage{
-plot_popgof_theme(
-  obs = NULL,
-  ref = NULL,
-  cent = NULL,
-  errorbar = NULL,
-  dv_line = NULL
-)
+plot_popgof_theme(obs = NULL, ref = NULL, cent = NULL, errorbar = NULL)
 }
 \arguments{
 \item{obs}{Observed data aesthetics. See \code{\link[=pmx_obs]{pmx_obs()}}.}
@@ -20,8 +14,6 @@ plot_popgof_theme(
 \item{cent}{Central tendency aesthetics. See \code{\link[=pmx_cent]{pmx_cent()}}.}
 
 \item{errorbar}{Error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
-
-\item{dv_line}{DV overlay line aesthetics. See \code{\link[=pmx_dv_line]{pmx_dv_line()}}.}
 }
 \value{
 A named list of theme elements

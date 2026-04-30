@@ -147,22 +147,6 @@ pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
 }
 
 
-#' DV overlay line aesthetics (popgof only)
-#'
-#' @param linewidth Line width. Default is 1.
-#' @param linetype Line type. Default is 1.
-#' @param line_alpha Line alpha. Default is 1.
-#'
-#' @return A `pmx_dv_line` element object
-#' @export
-pmx_dv_line <- function(linewidth = NULL, linetype = NULL, line_alpha = NULL) {
-  structure(
-    compact(list(linewidth = linewidth, linetype = linetype, line_alpha = line_alpha)),
-    class = "pmx_dv_line"
-  )
-}
-
-
 #' Trend line aesthetics (dvconc loess/linear)
 #'
 #' @param linewidth Line width. Default varies by trend type.
@@ -309,7 +293,6 @@ plot_dvtime_theme <- function(obs = NULL, ref = NULL, cent = NULL, errorbar = NU
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
 #' @inheritParams plot_dvtime_theme
-#' @param dv_line DV overlay line aesthetics. See [pmx_dv_line()].
 #'
 #' @return A named list of theme elements
 #' @export
@@ -318,18 +301,17 @@ plot_dvtime_theme <- function(obs = NULL, ref = NULL, cent = NULL, errorbar = NU
 #' plot_popgof_theme()
 #' plot_popgof_theme(obs = pmx_obs(size = 2))
 plot_popgof_theme <- function(obs = NULL, ref = NULL, cent = NULL,
-                             errorbar = NULL, dv_line = NULL) {
+                             errorbar = NULL) {
   defaults <- list(
     obs      = pmx_obs(shape = 1, size = 0.75, alpha = 0.5,
                        linewidth = 0.5, linetype = 1, line_alpha = 0.75),
     ref      = pmx_ref(linewidth = 0.5, linetype = 2, alpha = 1),
     cent     = pmx_cent(shape = 1, size = 1.25, alpha = 1,
                         linewidth = 0.75, linetype = 1, line_alpha = 1),
-    errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
-    dv_line  = pmx_dv_line(linewidth = 1, linetype = 1, line_alpha = 1)
+    errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL)
   )
   merge_theme(compact(list(obs = obs, ref = ref, cent = cent,
-                           errorbar = errorbar, dv_line = dv_line)),
+                           errorbar = errorbar)),
               defaults)
 }
 

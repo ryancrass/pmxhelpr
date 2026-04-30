@@ -34,7 +34,6 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 #' @param plottheme Named list of theme elements (must contain `$cent` and `$errorbar`).
 #' @param width Numeric error bar cap width.
 #' @param color_aes Optional character string for color aesthetic (e.g., `"DV"` for popgof legend).
-#' @param line_element Optional element object for line aesthetics. Defaults to `plottheme$cent`.
 #' @param show_errorbars Logical indicating whether to add error bar layers.
 #'
 #' @return A modified ggplot object with central tendency layers added
@@ -44,7 +43,6 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 #'
 add_cent_layers <- function(plot, cent, y_var, plottheme, width,
                             color_aes = NULL,
-                            line_element = NULL,
                             show_errorbars = TRUE) {
 
   if (cent == "none") return(plot)
@@ -59,9 +57,6 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
   is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
   stat_fun <- if (is_mean) "mean" else "median"
 
-  # Resolve line element
-  le <- if (!is.null(line_element)) line_element else plottheme$cent
-
   # Central Tendency Points
   plot <- plot + ggplot2::stat_summary(mapping,
                                        fun = stat_fun, geom = "point",
@@ -72,9 +67,9 @@ add_cent_layers <- function(plot, cent, y_var, plottheme, width,
   # Central Tendency Lines
   plot <- plot + ggplot2::stat_summary(mapping,
                                        fun = stat_fun, geom = "line",
-                                       linewidth = le$linewidth,
-                                       linetype  = le$linetype,
-                                       alpha     = le$line_alpha)
+                                       linewidth = plottheme$cent$linewidth,
+                                       linetype  = plottheme$cent$linetype,
+                                       alpha     = plottheme$cent$line_alpha)
 
   # Error Bars
   if (show_errorbars) {

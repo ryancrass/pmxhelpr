@@ -1,3 +1,6 @@
+.popgof_colors_default <- c(PRED = "red", IPRED = "green",
+                            DV = "blue", OBS = "darkgrey")
+
 #' Plot population overlay goodness-of-fit (GOF) plots
 #'
 #' @param output_colors Colors for model outputs. Must be named character vector.
@@ -26,17 +29,13 @@
 #' @examples
 #'plot_popgof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 #'
-
 plot_popgof <- function(data,
                         dv_var = DV,
                         pred_var = PRED,
                         ipred_var = IPRED,
                         time_var = TIME,
                         ntime_var = NTIME,
-                        output_colors = c(PRED = "red",
-                                          IPRED = "green",
-                                          DV = "blue",
-                                          OBS = "darkgrey"),
+                        output_colors = .popgof_colors_default,
                         grp_var = ID,
                         dose_var = DOSE,
                         loq = NULL,
@@ -59,10 +58,7 @@ plot_popgof <- function(data,
   grp_var_str   <- resolve_var(rlang::enquo(grp_var))
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
-  output_colors <- merge_element(output_colors, c(PRED = "red",
-                                                  IPRED = "green",
-                                                  DV = "blue",
-                                                  OBS = "darkgrey"))
+  output_colors <- merge_element(output_colors, .popgof_colors_default)
 
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,
@@ -98,19 +94,27 @@ plot_popgof <- function(data,
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = "OBS")
+  if ("OBS" %in% names(output_colors)) {
+    plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme, color_aes = "OBS")
+  }
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers(plot, cent, "DV",    plottheme, width, color_aes = "DV",    line_element = plottheme$dv_line)
-  plot <- add_cent_layers(plot, cent, "IPRED", plottheme, width, color_aes = "IPRED", show_errorbars = FALSE)
-  plot <- add_cent_layers(plot, cent, "PRED",  plottheme, width, color_aes = "PRED",  show_errorbars = FALSE)
+  if ("DV" %in% names(output_colors)) {
+    plot <- add_cent_layers(plot, cent, "DV", plottheme, width, color_aes = "DV")
+  }
+  if ("IPRED" %in% names(output_colors)) {
+    plot <- add_cent_layers(plot, cent, "IPRED", plottheme, width, color_aes = "IPRED", show_errorbars = FALSE)
+  }
+  if ("PRED" %in% names(output_colors)) {
+    plot <- add_cent_layers(plot, cent, "PRED", plottheme, width, color_aes = "PRED", show_errorbars = FALSE)
+  }
 
   #Log Transform
   if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Define Manual Legend
   plot <- plot +
-    ggplot2::scale_color_manual(values = output_colors, limits = c("OBS", "DV", "IPRED", "PRED"))
+    ggplot2::scale_color_manual(values = output_colors)
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)

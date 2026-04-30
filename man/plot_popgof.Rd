@@ -11,7 +11,7 @@ plot_popgof(
   ipred_var = IPRED,
   time_var = TIME,
   ntime_var = NTIME,
-  output_colors = c(PRED = "red", IPRED = "green", DV = "blue", OBS = "darkgrey"),
+  output_colors = .popgof_colors_default,
   grp_var = ID,
   dose_var = DOSE,
   loq = NULL,

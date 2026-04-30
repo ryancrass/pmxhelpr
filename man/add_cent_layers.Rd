@@ -11,7 +11,6 @@ add_cent_layers(
   plottheme,
   width,
   color_aes = NULL,
-  line_element = NULL,
   show_errorbars = TRUE
 )
 }
@@ -28,8 +27,6 @@ One of \code{"mean"}, \code{"mean_sdl"}, \code{"mean_sdl_upper"}, \code{"median"
 \item{width}{Numeric error bar cap width.}
 
 \item{color_aes}{Optional character string for color aesthetic (e.g., \code{"DV"} for popgof legend).}
-
-\item{line_element}{Optional element object for line aesthetics. Defaults to \code{plottheme$cent}.}
 
 \item{show_errorbars}{Logical indicating whether to add error bar layers.}
 }

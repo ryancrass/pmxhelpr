@@ -77,7 +77,7 @@ plot_data <- data_sad_pkfit %>%
 
  `pmxhelpr` includes a function for generating population overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof`.
  
- *NOTE* `plot_gof` inherits dataset variable handling functionality and arguments from `df_mrgsim_replicate` and ports aesthetic controls from `plot_dvtime`.
+ `plot_gof` inherits its data handling and aesthetic control arguments from `plot_dvtime`. The key additions are `pred_var`, `ipred_var`, `shown`, and `theme` (via `plot_gof_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
   
 ## Specifying Dependent and Independent Variables 
 
@@ -119,11 +119,13 @@ plot_gof(data = plot_data, dv_var = "ODV") +
   labs(y = "Concentration (ng/mL)")
 ```
 
-## Specifying Plot Elements and Assigning Colors
+## Controlling Visible Output Variables
 
-The default aesthetics for each output variable (OBS, DV, PRED, IPRED) are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing output colors.
+The `shown` argument controls which output variables are displayed. It accepts a named logical vector with names `"OBS"`, `"DV"`, `"IPRED"`, and `"PRED"`. All default to `TRUE`. For example, `shown = c(IPRED = FALSE)` hides the IPRED layer.
 
-The observed data points can be removed with only the summary metrics plotted using `obs_dv = FALSE`. Notice how different this plot appears when only visualizing central tendency!
+The default colors and aesthetics for each variable are controlled via the `theme` argument and `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing output colors.
+
+The observed data points can also be removed with `obs_dv = FALSE`. Notice how different this plot appears when only visualizing central tendency!
 
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +

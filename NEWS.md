@@ -1,3 +1,5 @@
+# pmxhelpr (development version)
+
 
 * Remove `plot_dvtime_dual`. Users can compose PK and PD panels directly with `plot_dvtime` + `patchwork`, which provides independent control of each panel's arguments.
 

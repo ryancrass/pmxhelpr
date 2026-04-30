@@ -1,7 +1,68 @@
 # pmxhelpr (development version)
 
+This is a major refactor of the package focused on simplifying function interfaces, standardizing naming conventions, and unifying the theme system across all plot families.
 
+## Breaking Changes
+
+### Removed Functions
 * Remove `plot_dvtime_dual`. Users can compose PK and PD panels directly with `plot_dvtime` + `patchwork`, which provides independent control of each panel's arguments.
+* Remove `df_addn`. Replaced by exported vectorized helper `var_addn`.
+* Remove `df_pcdv`. Replaced by exported vectorized helper `var_pc`.
+* Remove `df_nobsbin`. Bin count is now computed within `df_vpcstats`.
+
+### Renamed Functions
+* Rename `plot_popgof` / `plot_popgof_theme` to `plot_gof` / `plot_gof_theme`.
+* Rename `plot_vpc_exactbins` to `plot_vpc_cont`.
+* Rename `plot_vpclegend` to `plot_vpc_legend`.
+* Rename `df_addpred` to `df_mrgsim_addpred`.
+* Rename `breaks_time` to internal helper `var_timebreaks`.
+
+### Removed Exported Functions (now internal)
+* `dvconc_caption` and `dvtime_caption` are now internal helpers.
+
+### Theme System Overhaul
+* Replace role-based element constructors (`pmx_layer`, `pmx_ref`, `pmx_vpc_point`, `pmx_vpc_line`, `pmx_vpc_ribbon`, `pmx_vpc_loq`, `pmx_vpc_bin_sep`) with geometry-based constructors: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
+* Theme factory keys now follow a `role_element` naming convention (e.g., `obs_point`, `cent_line`) instead of combined role objects.
+* `plot_dvtime_theme` keys changed from `obs`, `cent`, `ref`, `errorbar` to `obs_point`, `obs_line`, `cent_point`, `cent_line`, `ref`, `errorbar`.
+* `plot_gof_theme` keys changed from `OBS`, `DV`, `PRED`, `IPRED`, `ref`, `errorbar` to `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `ref`, `errorbar`.
+* `plot_vpc_theme` constructors changed from `pmx_vpc_point`, `pmx_vpc_line`, `pmx_vpc_ribbon` to `pmx_point`, `pmx_line`, `pmx_ribbon` (same theme keys).
+
+### Simplified Plot Function Arguments
+* Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
+* Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `plot_gof_theme()`.
+
+## New Features
+
+### New Exported Functions
+* `var_addn`: Vectorized helper to create factor labels with counts of unique values.
+* `var_dosenorm`: Vectorized dose normalization helper.
+* `var_pc`: Vectorized prediction correction helper.
+* `df_vpcstats`: Exported VPC summary statistics function with integrated bin counting (replaces `df_nobsbin` dependency).
+* `plot_vpc_shown`: Constructor for VPC layer visibility settings.
+* `plot_vpc_legend`: Renamed from `plot_vpclegend` with updated interface.
+
+### Theme System
+* New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_gof_theme(pred = pmx_style(color = "purple"))`).
+* Theme factories support role-level shortcuts (`obs`, `cent`, `dv`, `pred`, `ipred`) alongside granular element-level overrides.
+* `merge_theme` correctly composes `pmx_style` shortcuts with element-level overrides (style applied first, explicit overrides win).
+
+### VPC Pipeline
+* VPC pipeline refactored to remove dependency on `vpc` package.
+* VPC pre-processing (variable renaming, prediction-correction) extracted into dedicated `vpc_preprocess_df` helper.
+* `df_vpcstats` accepts combined simulation output directly from `df_mrgsim_replicate`.
+* Add `loq` handling to VPC plots with observed quantile censoring.
+
+## Internal Improvements
+* Standardize NSE handling across all exported functions via `resolve_var` helper.
+* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_cfb_layers`, `add_trend_layers`, `add_obs_point_layer`, `init_plot`, `prep_plot_env`.
+* Standardize `TRUE`/`FALSE` evaluation and error messaging across all functions.
+* Centralize input validation in `utils_check.R`.
+* Update `size` to `linewidth` for line geom aesthetics throughout.
+* Expand test coverage from ~100 to 415+ tests.
+
+## Documentation
+* Restructure vignettes: separate PK EDA, PK/PD EDA, GOF diagnostics, VPC workflow, and plot aesthetics into dedicated vignettes with cross-links.
+* New [Plot Themes and Aesthetics](plot-aesthetics.html) vignette documenting the unified theme system.
 
 
 # pmxhelpr 0.4.0

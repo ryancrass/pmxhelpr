@@ -66,7 +66,7 @@ merge_theme <- function(user, default) {
     } else if (!nm %in% names(default)) {
       warning(paste0("`", nm, "` is not a valid group in the theme"))
     } else {
-      out[[nm]] <- merge_element(user[[nm]], default[[nm]])
+      out[[nm]] <- merge_element(user[[nm]], out[[nm]])
     }
   }
   out

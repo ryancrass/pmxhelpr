@@ -83,11 +83,11 @@ mrgsolve::see(model)
 
  `pmxhelpr` includes a function for generating overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof()`.
  
- `plot_gof()` esthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
+ `plot_gof()` esthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
   
 ## Specifying Dependent and Independent Variables 
 
-`plot_gof9)` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
+`plot_gof()` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
 
 The defaults are as follows:
 -  `dv_var` = DV, observed dependent variable. 
@@ -203,7 +203,7 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
   
 ## Adjusting the Plot Theme with `plot_gof_theme()`
 
-The default aesthetics for VPC plots are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+The default aesthetics for VPC plots are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
 
 ```{r theme}
 plot_gof_theme()

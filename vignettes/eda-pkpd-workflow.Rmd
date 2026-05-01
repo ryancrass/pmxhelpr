@@ -47,7 +47,7 @@ plot_data <- data_sad %>%
          `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 ```
 
-This time, let's filter doww to generate separate PK and PD observation datasets for this exploratory analysis.
+This time, let's filter down to generate separate PK and PD observation datasets for this exploratory analysis.
 
 ```{r plot-data-cmt, message=FALSE, warning=FALSE}
 plot_data_pk <- filter(plot_data, CMT == 2)
@@ -61,7 +61,7 @@ Longitudinal pharmacodynamic response data can be visualized over time using `pl
 
 ```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
-  labs(y = "Response (% of Baseline)", x = "Time Since First Douse (hours)")
+  labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
 ```
 
 ## Specifying a Reference Value for Change Metrics
@@ -171,7 +171,7 @@ There are two trend line types supported by `plot_dvconc()`
 The central tendency trend lines visualized are controlled by logical arguments `loess` and `linear`. The default is `loess = TRUE` and `linear = FALSE`
 
 ```{r plot-dvconc-col-trend-loess-linear, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,fb = TRUE, 
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC, ref = 0, 
             col_var = `Dose and Food`, col_trend = FALSE, loess = TRUE, linear = TRUE) +
    labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
@@ -205,7 +205,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 
 ## Adjusting the Plot Theme with `plot_dvconc_theme()`
 
-The default aesthetics for VPC plots are controlled via `plot_dvconc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+The default aesthetics for Response-Concentration plots are controlled via `plot_dvconc_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing Response-Concentration aesthetics.
 
 ```{r theme}
 plot_dvconc_theme()

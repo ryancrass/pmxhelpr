@@ -105,7 +105,7 @@ Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-m
 
 The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols specify the times of PK sampling. `plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at visualized at the protocol-specified sampling times.
 
- `plot_vpc_cont()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
+ `plot_vpc_cont()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
 
 
 ## Running the simulation with `df_mrgsim_replicate()`
@@ -470,7 +470,7 @@ We could also take this one step further and only look at the median and the sim
 
 ### Adjusting the Plot Theme with `plot_vpc_theme()`
 
-The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
 
 ```{r vpc-theme}
 plot_vpc_theme()

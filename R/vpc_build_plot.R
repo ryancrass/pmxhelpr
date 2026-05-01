@@ -8,7 +8,7 @@
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param shown Named list of logicals specifying which layers to include.
-#' @param vpc_theme Named list of aesthetic parameters (colors, sizes, etc.).
+#' @param theme Named list of aesthetic parameters (colors, sizes, etc.).
 #' @param loq Numeric value for LLOQ reference line or `NULL`.
 #'
 #' @return A ggplot2 object.
@@ -18,12 +18,12 @@ vpc_build_plot <- function(vpcstats,
                      bin_var = "BIN_MID",
                      strat_var_str = NULL,
                      shown = NULL,
-                     vpc_theme = NULL,
+                     vpctheme = NULL,
                      loq = NULL) {
 
   ##Set vpc aesthetics and theme
   shown <- merge_element(shown, plot_vpc_shown())
-  vpc_theme <- merge_theme(vpc_theme, plot_vpc_theme())
+  vpctheme <- merge_theme(vpctheme, plot_vpc_theme())
 
   ###Generate Base Plot
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
@@ -33,8 +33,8 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_med, ymax = q95_med),
-        fill = vpc_theme$sim_pi$fill,
-        alpha = vpc_theme$sim_pi$alpha
+        fill = vpctheme$sim_pi$fill,
+        alpha = vpctheme$sim_pi$alpha
       )
   }
 
@@ -43,13 +43,13 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_low, ymax = q5_hi),
-        fill = vpc_theme$sim_pi$fill,
-        alpha = vpc_theme$sim_pi$alpha
+        fill = vpctheme$sim_pi$fill,
+        alpha = vpctheme$sim_pi$alpha
       ) +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q95_low, ymax = q95_hi),
-        fill = vpc_theme$sim_pi$fill,
-        alpha = vpc_theme$sim_pi$alpha
+        fill = vpctheme$sim_pi$fill,
+        alpha = vpctheme$sim_pi$alpha
       )
   }
 
@@ -58,15 +58,15 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q5_med),
-        color = vpc_theme$sim_pi$color,
-        linetype = vpc_theme$sim_pi$linetype,
-        linewidth = vpc_theme$sim_pi$linewidth
+        color = vpctheme$sim_pi$color,
+        linetype = vpctheme$sim_pi$linetype,
+        linewidth = vpctheme$sim_pi$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(y = q95_med),
-        color = vpc_theme$sim_pi$color,
-        linetype = vpc_theme$sim_pi$linetype,
-        linewidth = vpc_theme$sim_pi$linewidth
+        color = vpctheme$sim_pi$color,
+        linetype = vpctheme$sim_pi$linetype,
+        linewidth = vpctheme$sim_pi$linewidth
       )
   }
 
@@ -75,8 +75,8 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q50_low, ymax = q50_hi),
-        fill = vpc_theme$sim_median$fill,
-        alpha = vpc_theme$sim_median$alpha
+        fill = vpctheme$sim_median$fill,
+        alpha = vpctheme$sim_median$alpha
       )
   }
 
@@ -85,9 +85,9 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q50_med),
-        color = vpc_theme$sim_median$color,
-        linetype = vpc_theme$sim_median$linetype,
-        linewidth = vpc_theme$sim_median$linewidth
+        color = vpctheme$sim_median$color,
+        linetype = vpctheme$sim_median$linetype,
+        linewidth = vpctheme$sim_median$linewidth
       )
   }
 
@@ -97,9 +97,9 @@ vpc_build_plot <- function(vpcstats,
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
-        color = vpc_theme$obs_median$color,
-        linetype = vpc_theme$obs_median$linetype,
-        linewidth = vpc_theme$obs_median$linewidth
+        color = vpctheme$obs_median$color,
+        linetype = vpctheme$obs_median$linetype,
+        linewidth = vpctheme$obs_median$linewidth
       )
   }
 
@@ -109,16 +109,16 @@ vpc_build_plot <- function(vpcstats,
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs5),
         inherit.aes = FALSE,
-        color = vpc_theme$obs_ci$color,
-        linetype = vpc_theme$obs_ci$linetype,
-        linewidth = vpc_theme$obs_ci$linewidth
+        color = vpctheme$obs_ci$color,
+        linetype = vpctheme$obs_ci$linetype,
+        linewidth = vpctheme$obs_ci$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
-        color = vpc_theme$obs_ci$color,
-        linetype = vpc_theme$obs_ci$linetype,
-        linewidth = vpc_theme$obs_ci$linewidth
+        color = vpctheme$obs_ci$color,
+        linetype = vpctheme$obs_ci$linetype,
+        linewidth = vpctheme$obs_ci$linewidth
       )
   }
 
@@ -127,9 +127,9 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_hline(
         yintercept = loq,
-        color = vpc_theme$loq_line$color,
-        linetype = vpc_theme$loq_line$linetype,
-        linewidth = vpc_theme$loq_line$linewidth
+        color = vpctheme$loq_line$color,
+        linetype = vpctheme$loq_line$linetype,
+        linewidth = vpctheme$loq_line$linewidth
       )
   }
 

@@ -15,7 +15,7 @@
 #'    and `MDV = 1` where < `loq` in `sim`.
 #'    For standard VPCs (`pcvpc = FALSE`), all `MDV` values are set to 0 so that
 #'    all observations (including BLQ) are included in summary statistics.
-#'    Dashed horizontal line plotted at `loq` by default (controlled via `vpc_theme`).
+#'    Dashed horizontal line plotted at `loq` by default (controlled via `theme`).
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
 #'    but retains these observations in the observed data points.
@@ -24,8 +24,8 @@
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
 #'    Defaults can be viewed by running `plot_vpc_shown()` with no arguments.
 #'
-#' @param vpc_theme Named list of aesthetic parameters for the plot.
-#'    Defaults for `pmxhelpr` can be obtained by running `plot_vpc_theme` with no arguments.
+#' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
+#'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
@@ -81,7 +81,7 @@ plot_vpc_cont <- function(sim,
                                show_rep = TRUE,
                                lower_bound = 0,
                                shown = NULL,
-                               vpc_theme = NULL,
+                               theme = NULL,
                                pi = c(0.05, 0.95),
                                ci = c(0.05, 0.95),
                                vpcstats = FALSE)
@@ -130,7 +130,7 @@ plot_vpc_cont <- function(sim,
 
   ##Set vpc aesthetics and theme
   show_vpc <- merge_element(shown, plot_vpc_shown())
-  vpctheme <- merge_theme(vpc_theme, plot_vpc_theme())
+  vpctheme <- merge_theme(theme, plot_vpc_theme())
 
   ##Build VPC Plot
   plot <- vpc_build_plot(
@@ -138,7 +138,7 @@ plot_vpc_cont <- function(sim,
     bin_var = bin_var,
     strat_var_str = strat_var_str,
     shown = show_vpc,
-    vpc_theme = vpctheme,
+    vpctheme = vpctheme,
     loq = loq
   )
 

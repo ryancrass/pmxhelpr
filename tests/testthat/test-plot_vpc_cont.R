@@ -241,3 +241,48 @@ test_that("min_bin_count filters small bins from summary but returns a plot", {
   # Verify plot still works with high min_bin_count
   expect_no_error(plot_vpc_cont(sim = testsim, min_bin_count = 100))
 })
+
+##Test pcvpc blocks loq
+test_that("pcvpc = TRUE nullifies loq so no LLOQ reference line is drawn", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV")
+
+  # With pcvpc = TRUE, explicit loq should be ignored
+  stats_pc <- plot_vpc_cont(sim = testsim, pcvpc = TRUE, loq = 10, vpcstats = TRUE)
+  stats_nopc <- plot_vpc_cont(sim = testsim, pcvpc = FALSE, loq = 10, vpcstats = TRUE)
+
+  # pcvpc stats should NOT use censored quantiles (no NA from var_loqcens)
+  # while non-pcvpc with loq should use censored estimation
+  expect_false(identical(stats_pc, stats_nopc))
+})
+
+##Test LLOQ inheritance from sim column
+test_that("loq is inherited from LLOQ column in sim when not explicitly provided", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"))
+
+  # With LLOQ column present and loq = NULL, should auto-inherit
+  stats_inherit <- plot_vpc_cont(sim = testsim, vpcstats = TRUE)
+  # Explicit loq matching LLOQ value should give same result
+  lloq_val <- unique(testsim$LLOQ[testsim$SIM == 1 & !is.na(testsim$LLOQ)])
+  stats_explicit <- plot_vpc_cont(sim = testsim, loq = lloq_val, vpcstats = TRUE)
+  expect_identical(stats_inherit, stats_explicit)
+})
+
+test_that("explicit loq overrides LLOQ column in sim", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"))
+
+  stats_inherit <- plot_vpc_cont(sim = testsim, vpcstats = TRUE)
+  stats_override <- plot_vpc_cont(sim = testsim, loq = 999, vpcstats = TRUE)
+  # Different loq values should produce different censored quantiles
+  expect_false(identical(stats_inherit, stats_override))
+})

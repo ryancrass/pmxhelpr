@@ -24,14 +24,15 @@ This is a major refactor of the package focused on simplifying function interfac
 * Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
 * Exploratory and Diagnostic Plot theme factory keys now follow a `role_element` naming convention  
   * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
-  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`, `cent_errorbar`, `ref_line`, `loq_line`.
+  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`, `colors`.
   * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys:`obs`, `ref_line`, `loess`, `linear`.
 * VPC plot theme factor keys now follow a `element_statistic` naming convention aligned with the `shown` argument
   * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq_line`. 
 
 ### Simplified Plot Function Arguments
 * Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
-* Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `plot_gof_theme()`.
+* Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `pmx_color()` in `plot_gof_theme()`.
+* Consolidate `plot_gof_theme` per-overlay keys (`dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`) into shared `cent_point`/`cent_line` with a `pmx_color()` element for overlay colors.
 * Replace `cfb` (logical) and `cfb_base` (numeric) arguments with a single `ref` argument (`NULL` = no line, numeric = draw horizontal reference line at that value) in `plot_dvtime`, `plot_gof`, and `plot_dvconc`. For example, `cfb = TRUE, cfb_base = 0` becomes `ref = 0`.
 
 ## New Features
@@ -45,8 +46,10 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_vpc_legend`: Renamed from `plot_vpclegend` with updated interface.
 
 ### Theme System
-* New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_gof_theme(pred = pmx_style(color = "purple"))`).
-* Theme factories support role-level shortcuts (`obs`, `cent`, `dv`, `pred`, `ipred`) alongside granular element-level overrides.
+* New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(colors = pmx_color(pred = "purple"))`).
+* New `plot_gof_shown` constructor for GOF layer visibility settings, paralleling `plot_vpc_shown` (e.g., `plot_gof_shown(PRED = FALSE)`).
+* New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`).
+* Theme factories support role-level shortcuts (`obs`, `cent`) alongside granular element-level overrides.
 * `merge_theme` correctly composes `pmx_style` shortcuts with element-level overrides (style applied first, explicit overrides win).
 
 ### VPC Pipeline
@@ -54,6 +57,8 @@ This is a major refactor of the package focused on simplifying function interfac
 * VPC pre-processing (variable renaming, prediction-correction) extracted into dedicated `vpc_preprocess_df` helper.
 * `df_vpcstats` accepts combined simulation output directly from `df_mrgsim_replicate`.
 * Add `loq` handling to VPC plots with observed quantile censoring.
+* `plot_vpc_cont` inherits `loq` from `LLOQ` column in `sim` when not explicitly provided.
+* `plot_vpc_cont` ignores `loq` when `pcvpc = TRUE` (LLOQ not meaningful on prediction-corrected scale).
 
 ## Internal Improvements
 * Standardize NSE handling across all exported functions via `resolve_var` helper.

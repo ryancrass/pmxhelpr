@@ -20,7 +20,7 @@ plot_vpc_cont(
   show_rep = TRUE,
   lower_bound = 0,
   shown = NULL,
-  vpc_theme = NULL,
+  theme = NULL,
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
   vpcstats = FALSE
@@ -60,7 +60,7 @@ Specifying this argument implies that the observed variable \code{OBSDV} is miss
 and \code{MDV = 1} where < \code{loq} in \code{sim}.
 For standard VPCs (\code{pcvpc = FALSE}), all \code{MDV} values are set to 0 so that
 all observations (including BLQ) are included in summary statistics.
-Dashed horizontal line plotted at \code{loq} by default (controlled via \code{vpc_theme}).}
+Dashed horizontal line plotted at \code{loq} by default (controlled via \code{theme}).}
 
 \item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -75,8 +75,8 @@ but retains these observations in the observed data points.}
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
-\item{vpc_theme}{Named list of aesthetic parameters for the plot.
-Defaults for \code{pmxhelpr} can be obtained by running \code{plot_vpc_theme} with no arguments.}
+\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
+Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 

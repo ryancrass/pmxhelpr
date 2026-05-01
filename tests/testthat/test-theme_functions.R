@@ -186,3 +186,35 @@ test_that("plot_vpc_theme elements have correct classes", {
   expect_s3_class(theme$sim_median, "pmx_ribbon")
   expect_s3_class(theme$loq_line, "pmx_line")
 })
+
+#####plot_gof_shown####
+
+test_that("plot_gof_shown returns all TRUE defaults", {
+  s <- plot_gof_shown()
+  expect_type(s, "list")
+  expect_true(s$OBS)
+  expect_true(s$DV)
+  expect_true(s$PRED)
+  expect_true(s$IPRED)
+})
+
+test_that("plot_gof_shown partial override preserves other defaults", {
+  s <- plot_gof_shown(PRED = FALSE)
+  expect_false(s$PRED)
+  expect_true(s$OBS)
+  expect_true(s$DV)
+  expect_true(s$IPRED)
+})
+
+test_that("plot_gof_shown returns expected keys", {
+  s <- plot_gof_shown()
+  expect_setequal(names(s), c("OBS", "DV", "PRED", "IPRED"))
+})
+
+#####plot_gof_theme cent shortcut####
+
+test_that("plot_gof_theme cent shortcut applies alpha to point and line", {
+  theme <- plot_gof_theme(cent = pmx_style(alpha = 0.5))
+  expect_equal(theme$cent_point$alpha, 0.5)
+  expect_equal(theme$cent_line$alpha, 0.5)
+})

@@ -298,8 +298,9 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #'
 #' Constructor and factory for `plot_gof` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
-#' Use the `obs` shortcut with [pmx_style()] to set shared aesthetics for both
-#' `obs_point` and `obs_line` at once. Override overlay colors with [pmx_color()].
+#' Use role-level shortcuts `obs` and `cent` with [pmx_style()] to set shared
+#' aesthetics for both point and line elements at once.
+#' Override overlay colors with [pmx_color()].
 #'
 #' @param obs_point Observed data point aesthetics. See [pmx_point()].
 #' @param obs_line Observed data line aesthetics. See [pmx_line()].
@@ -312,6 +313,8 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
+#' @param cent Shortcut: apply shared aesthetics to both `cent_point` and `cent_line`.
+#'   See [pmx_style()].
 #' @param colors Overlay color mapping for DV, PRED, and IPRED. See [pmx_color()].
 #'
 #' @return A named list of theme elements
@@ -320,11 +323,11 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @examples
 #' plot_gof_theme()
 #' plot_gof_theme(colors = pmx_color(pred = "purple"))
-#' plot_gof_theme(cent_point = pmx_point(alpha = 1))
+#' plot_gof_theme(cent = pmx_style(alpha = 0.8))
 plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
                            cent_point = NULL, cent_line = NULL,
                            cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
-                           obs = NULL, colors = NULL) {
+                           obs = NULL, cent = NULL, colors = NULL) {
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
@@ -339,7 +342,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
     cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
-    obs = obs, colors = colors
+    obs = obs, cent = cent, colors = colors
   ))
   merge_theme(user, defaults)
 }

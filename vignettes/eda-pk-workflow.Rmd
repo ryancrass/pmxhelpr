@@ -334,7 +334,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean"
   facet_wrap(~PART)
 ```
 
-### Adjusting the Plot Theme with `plot_dvtime_theme()`
+## Adjusting the Plot Theme with `plot_dvtime_theme()`
 
 The default aesthetics for VPC plots are controlled via `plot_dvtime_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
 

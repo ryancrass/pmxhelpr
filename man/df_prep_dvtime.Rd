@@ -13,10 +13,10 @@ df_prep_dvtime(
   ipred_var_str = NULL,
   dose_var_str = NULL,
   col_var_str = NULL,
-  grp_var_str = NULL,
+  id_var_str = NULL,
   loq = NULL,
   loq_method = 0,
-  grp_dv = FALSE,
+  id_line = FALSE,
   dosenorm = FALSE,
   ref = NULL
 )
@@ -38,13 +38,13 @@ df_prep_dvtime(
 
 \item{col_var_str}{String specifying the color variable column name, or \code{NULL}.}
 
-\item{grp_var_str}{String specifying the group column name, or \code{NULL}.}
+\item{id_var_str}{String specifying the group column name, or \code{NULL}.}
 
 \item{loq}{Numeric value of LLOQ, or \code{NULL}.}
 
 \item{loq_method}{Integer (0, 1, or 2) specifying BLQ handling method.}
 
-\item{grp_dv}{Logical indicating if group variable should be validated.}
+\item{id_line}{Logical indicating if group variable should be validated.}
 
 \item{dosenorm}{Logical indicating if dose normalization should be applied.}
 

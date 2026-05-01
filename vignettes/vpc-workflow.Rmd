@@ -495,7 +495,7 @@ vpc2 <- plot_vpc_cont(
   sim = sim100,
   strat_var = PART,
   loq = 1,
-  vpc_theme = vpc_new_theme
+  theme = vpc_new_theme
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+

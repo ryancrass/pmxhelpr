@@ -20,14 +20,10 @@ test_that("caption_dvtime for cent = 'none' omits 'Solid circles' prefix", {
   expect_no_match(cap, "Solid circles")
 })
 
-test_that("caption_dvtime for obs_dv = TRUE, grp_dv = FALSE contains 'Open circles are observations'", {
-  cap <- caption_dvtime(cent = "mean", obs_dv = TRUE, grp_dv = FALSE)
-  expect_match(cap, "Open circles are observations")
-})
-
-test_that("caption_dvtime for obs_dv = FALSE, grp_dv = TRUE contains 'lines connect observations'", {
-  cap <- caption_dvtime(cent = "mean", obs_dv = FALSE, grp_dv = TRUE)
-  expect_match(cap, "lines connect observations within an individual")
+test_that("caption_dvtime describes central tendency only", {
+  cap <- caption_dvtime(cent = "mean")
+  expect_match(cap, "mean")
+  expect_no_match(cap, "observations")
 })
 
 ##Test Argument Handling
@@ -55,13 +51,13 @@ test_that("Error if `col_var` does not exist in `data`", {
                regexp = "argument `col_var` must be variable.*in `data`")
 })
 
-test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", grp_var = "SUBJID", grp_dv = TRUE),
-               regexp = "argument `grp_var` must be variable.*in `data`")
+test_that("Error if `id_var` does not exist in `data` and `id_line` == TRUE", {
+  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID", id_line = TRUE),
+               regexp = "argument `id_var` must be variable.*in `data`")
 })
 
-test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE", {
-  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", grp_var = "SUBJID", grp_dv = FALSE))
+test_that("No error if `id_var` does not exist in `data` and `id_line` == FALSE", {
+  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID", id_line = FALSE))
 })
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {

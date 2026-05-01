@@ -138,7 +138,7 @@ plot_vpc_cont <- function(sim,
     bin_var = bin_var,
     strat_var_str = strat_var_str,
     shown = show_vpc,
-    vpctheme = vpctheme,
+    theme = vpctheme,
     loq = loq
   )
 

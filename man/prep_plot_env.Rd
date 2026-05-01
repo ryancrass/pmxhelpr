@@ -4,7 +4,7 @@
 \alias{prep_plot_env}
 \title{Internal helper: Prepare the plot environment for DV vs time family plots}
 \usage{
-prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn)
+prep_plot_env(data, cent, log_y, theme, theme_fn)
 }
 \arguments{
 \item{data}{data.frame containing processed data with \code{NTIME} column.}
@@ -12,10 +12,6 @@ prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn)
 \item{cent}{Character string specifying central tendency measure.}
 
 \item{log_y}{Logical indicating log-scale y-axis.}
-
-\item{obs_dv}{Logical indicating if observed data points are shown.}
-
-\item{grp_dv}{Logical indicating if observations are connected within groups.}
 
 \item{theme}{User-supplied theme overrides (named list), or \code{NULL}.}
 
@@ -31,7 +27,6 @@ and computes error bar width.
 \examples{
 data <- dplyr::rename(dplyr::filter(data_sad, CMT \%in\% c(1,2)), DV = ODV)
 env <- pmxhelpr:::prep_plot_env(data, cent = "mean", log_y = FALSE,
-  obs_dv = TRUE, grp_dv = FALSE,
   theme = NULL, theme_fn = plot_dvtime_theme)
 
 }

@@ -23,7 +23,7 @@ test_that("Output plot maps variable DV to the y aesthetic", {
 test_that("Output plot contains a caption when argument `show_caption` = TRUE", {
   expect_equal(
     plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")$labels$caption,
-    "Solid circles and thick lines are the mean\nOpen circles are observations"
+    "Solid circles and thick lines are the mean"
   )
 })
 

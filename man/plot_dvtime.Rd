@@ -10,13 +10,12 @@ plot_dvtime(
   time_var = TIME,
   ntime_var = NTIME,
   col_var = NULL,
-  grp_var = ID,
+  id_var = ID,
   dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
-  obs_dv = TRUE,
-  grp_dv = FALSE,
+  id_line = FALSE,
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,
@@ -37,7 +36,7 @@ Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
-\item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
+\item{id_var}{Column to map to the group aesthetic for spaghetti lines. Accepts bare names or strings. Default is \code{ID}.}
 
 \item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
 Accepts bare names or strings. Default is \code{DOSE}.}
@@ -69,9 +68,7 @@ Options are:
 \item None: \code{"none"}
 }}
 
-\item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
-
-\item{grp_dv}{Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
+\item{id_line}{Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
 Default is \code{FALSE}.}
 
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},

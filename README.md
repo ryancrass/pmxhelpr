@@ -139,7 +139,8 @@ data <- data_sad %>%
 
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
-            col_var = "Regimen", log_y = TRUE, obs_dv = FALSE) +
+            col_var = "Regimen", log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
   labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration

@@ -217,11 +217,12 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
   facet_wrap(~PART)
 ```
 
-The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be removed by specifying `obs_dv = FALSE`.
+The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be hidden by setting `obs_point = pmx_point(alpha = 0)` in the theme.
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "mean_sdl",log_y = TRUE, obs_dv = FALSE) +
+            cent = "mean_sdl",log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -231,7 +232,8 @@ For data with high variability visualized on a linear y-axis, the error bars may
 
 ```{r plot-dvtime_part-meansdl-upper, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "mean_sdl_upper",obs_dv = FALSE) +
+            cent = "mean_sdl_upper",
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -241,7 +243,8 @@ For small samples or non-normally (or log-normally) distributed data, the median
 
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "median_iqr",log_y = TRUE, obs_dv = FALSE) +
+            cent = "median_iqr",log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -249,13 +252,13 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
 
 ## Connecting Repeated Measures at the Individual Level
 
-Data points may be connected longitudinally within an individual by specifying a grouping variable `grp_var` (default is `ID`) which will be connected when `grp_dv = TRUE`. The grouping variable inherits the variable mapped to the color aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"`or the median may be plotted by specifying `cent="median"`
+Data points may be connected longitudinally within an individual by specifying `id_line = TRUE`. The grouping variable defaults to `ID` and can be changed with `id_var`. The grouping variable inherits the variable mapped to the color aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"` or the median may be plotted by specifying `cent="median"`.
 
 This argument supports non-standard evaluation, and may be based as bare names or strings.
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "median",
-            log_y = TRUE,grp_dv = TRUE) +
+            log_y = TRUE,id_line = TRUE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -343,13 +346,14 @@ Say we want to update the errorbar cap width to be more visible in our prior geo
 
 ```{r new-theme}
 dvtime_new_theme <- plot_dvtime_theme(
+  obs_point = pmx_point(alpha = 0),
   cent_errorbar  = pmx_errorbar(width = 10)
 )
 ```
 
 ```{r plot-dvtime-blq-dn-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "mean_sdl",log_y = TRUE, obs_dv = FALSE, 
+            cent = "mean_sdl",log_y = TRUE,
             theme = dvtime_new_theme) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
@@ -364,7 +368,7 @@ We can specify `cent = "none"` to remove the central tendency layer when plottin
 
 ```{r plot-dvtime-blq2-indonly, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "none",log_y = TRUE, grp_dv = TRUE,
+            cent = "none",log_y = TRUE, id_line = TRUE,
             loq_method = 2, loq = 1) +
   labs(y = "Concentration (ng/mL)") +
   facet_wrap(~PART)
@@ -383,7 +387,7 @@ for(i in 1:n_ids){
   plist[[i]] <- plot_dvtime(filter(plot_data_pk, ID == ids[i]),
                                dv_var = ODV, cent = "none",
             log_y = TRUE,
-            grp_dv = TRUE,
+            id_line = TRUE,
             loq_method = 2, loq = 1, show_caption = FALSE) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)+

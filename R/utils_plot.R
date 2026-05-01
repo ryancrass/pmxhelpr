@@ -122,39 +122,37 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 
 #' Add observed data point and spaghetti line layers to a plot
 #'
-#' Conditionally adds a \code{geom_point} layer for observed data and a
-#' \code{geom_line} layer connecting observations within groups.
+#' Adds a \code{geom_point} layer for observed data (visibility controlled by
+#' theme alpha) and optionally a \code{geom_line} layer connecting observations
+#' within groups.
 #'
 #' @param plot ggplot object
-#' @param obs_dv logical, whether to show observed data points
-#' @param grp_dv logical, whether to connect observations within groups
-#' @param grp_var_str character, column name for the grouping variable
+#' @param id_line logical, whether to connect observations within groups
+#' @param id_var_str character, column name for the grouping variable
 #' @param point_el A `pmx_point` element with point aesthetics.
 #' @param line_el A `pmx_line` element with line aesthetics.
 #' @param color_aes optional string for color aesthetic (e.g., "OBS" for popgof legend)
 #'
 #' @return modified ggplot object
 #' @keywords internal
-add_obs_layers <- function(plot, obs_dv, grp_dv, grp_var_str, point_el, line_el,
+add_obs_layers <- function(plot, id_line, id_var_str, point_el, line_el,
                            color_aes = NULL) {
 
-  if (isTRUE(obs_dv)) {
-    point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
-    plot <- plot + ggplot2::geom_point(
-      mapping = point_aes,
-      shape   = point_el$shape,
-      size    = point_el$size,
-      alpha   = point_el$alpha
-    )
-  }
+  point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
+  plot <- plot + ggplot2::geom_point(
+    mapping = point_aes,
+    shape   = point_el$shape,
+    size    = point_el$size,
+    alpha   = point_el$alpha
+  )
 
-  if (isTRUE(grp_dv)) {
+  if (isTRUE(id_line)) {
     if (!is.null(color_aes)) {
       line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
-                               group = .data[[grp_var_str]])
+                               group = .data[[id_var_str]])
     } else {
       line_aes <- ggplot2::aes(x = TIME, y = DV,
-                               group = .data[[grp_var_str]])
+                               group = .data[[id_var_str]])
     }
     plot <- plot + ggplot2::geom_line(
       mapping   = line_aes,
@@ -307,8 +305,6 @@ add_obs_point_layer <- function(plot, point_el, col_var_str) {
 #' @param data data.frame containing processed data with `NTIME` column.
 #' @param cent Character string specifying central tendency measure.
 #' @param log_y Logical indicating log-scale y-axis.
-#' @param obs_dv Logical indicating if observed data points are shown.
-#' @param grp_dv Logical indicating if observations are connected within groups.
 #' @param theme User-supplied theme overrides (named list), or `NULL`.
 #' @param theme_fn Theme factory function (e.g., `plot_dvtime_theme`).
 #'
@@ -317,11 +313,10 @@ add_obs_point_layer <- function(plot, point_el, col_var_str) {
 #' @examples
 #' data <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1,2)), DV = ODV)
 #' env <- pmxhelpr:::prep_plot_env(data, cent = "mean", log_y = FALSE,
-#'   obs_dv = TRUE, grp_dv = FALSE,
 #'   theme = NULL, theme_fn = plot_dvtime_theme)
 #'
-prep_plot_env <- function(data, cent, log_y, obs_dv, grp_dv, theme, theme_fn) {
-  caption   <- caption_dvtime(cent, log_y, obs_dv, grp_dv)
+prep_plot_env <- function(data, cent, log_y, theme, theme_fn) {
+  caption   <- caption_dvtime(cent, log_y)
   plottheme <- merge_theme(theme, theme_fn())
   width     <- errorbar_width(plottheme, data)
   list(caption = caption, plottheme = plottheme, width = width)

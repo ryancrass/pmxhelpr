@@ -9,7 +9,7 @@ vpc_build_plot(
   bin_var = "BIN_MID",
   strat_var_str = NULL,
   shown = NULL,
-  vpctheme = NULL,
+  theme = NULL,
   loq = NULL
 )
 }
@@ -22,9 +22,9 @@ vpc_build_plot(
 
 \item{shown}{Named list of logicals specifying which layers to include.}
 
-\item{loq}{Numeric value for LLOQ reference line or \code{NULL}.}
-
 \item{theme}{Named list of aesthetic parameters (colors, sizes, etc.).}
+
+\item{loq}{Numeric value for LLOQ reference line or \code{NULL}.}
 }
 \value{
 A ggplot2 object.

@@ -244,7 +244,7 @@ for(i in 1:n_ids){
   plist[[i]] <- plot_gof(filter(plot_data, ID == ids[i]),
                             dv_var = "ODV",
                             log_y = TRUE,
-                            grp_dv = TRUE,
+                            id_line = TRUE,
                             shown = plot_gof_shown(PRED = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +

@@ -23,7 +23,7 @@ test_that("Output plot maps variable DV to the y aesthetic", {
 test_that("Output plot contains a caption when argument `show_caption` = TRUE", {
   expect_equal(
     plot_gof(data_sad_pkfit, dv_var = "ODV")$labels$caption,
-    "Solid circles and thick lines are the mean\nOpen circles are observations"
+    "Solid circles and thick lines are the mean"
   )
 })
 
@@ -33,14 +33,6 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
     "caption"
   )
 })
-
-#test_that("Output plot maps variable specified in `grp_var` to the group aesthetic", {
-#  expect_equal(
-#    plot_gof(data_sad_pkfit, dv_var = "ODV", grp_dv = TRUE)$labels$group,
-#    "ID"
-#  )
-#})
-
 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
@@ -63,13 +55,13 @@ test_that("No error if time_var and ntime_var specified as the same variable", {
                            time_var = "NTIME", ntime_var = "NTIME"))
 })
 
-test_that("Error if `grp_var` does not exist in `data` and `grp_dv'` == TRUE", {
-  expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", grp_var = "SUBJID", grp_dv = TRUE),
-               regexp = "argument `grp_var` must be variable.*in `data`")
+test_that("Error if `id_var` does not exist in `data` and `id_line` == TRUE", {
+  expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID", id_line = TRUE),
+               regexp = "argument `id_var` must be variable.*in `data`")
 })
 
-test_that("No error if `grp_var` does not exist in `data` and `grp_dv'` == FALSE", {
-  expect_no_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", grp_var = "SUBJID", grp_dv = FALSE))
+test_that("No error if `id_var` does not exist in `data` and `id_line` == FALSE", {
+  expect_no_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID", id_line = FALSE))
 })
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {
@@ -89,7 +81,7 @@ test_that("Error if dv_var does not exist in `data`", {
 ##Test NSE Bare Names
 test_that("plot_gof accepts bare names", {
   expect_s3_class(plot_gof(data_sad_pkfit, dv_var = "ODV",
-                               grp_var = ID, dose_var = DOSE, dosenorm = TRUE),
+                               id_var = ID, dose_var = DOSE, dosenorm = TRUE),
                   "ggplot")
 })
 

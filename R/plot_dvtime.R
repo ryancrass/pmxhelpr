@@ -3,7 +3,7 @@
 #' @param data Input dataset.
 #' @param dv_var Column containing the dependent variable. Accepts bare names or strings. Default is `DV`.
 #' @param col_var Column to map to the color aesthetic. Accepts bare names or strings. Default is `NULL`.
-#' @param grp_var Column to map to the group aesthetic. Accepts bare names or strings. Default is `ID`.
+#' @param id_var Column to map to the group aesthetic for spaghetti lines. Accepts bare names or strings. Default is `ID`.
 #' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
 #'   Accepts bare names or strings. Default is `DOSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
@@ -30,8 +30,7 @@
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #'
-#' @param obs_dv Logical indicating if observed data points should be shown. Default is `TRUE`.
-#' @param grp_dv Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
+#' @param id_line Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
 #'    Default is `FALSE`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
@@ -64,13 +63,12 @@ plot_dvtime <- function(data,
                         time_var = TIME,
                         ntime_var = NTIME,
                         col_var = NULL,
-                        grp_var = ID,
+                        id_var = ID,
                         dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
-                        obs_dv = TRUE,
-                        grp_dv = FALSE,
+                        id_line = FALSE,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
@@ -80,7 +78,7 @@ plot_dvtime <- function(data,
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   time_var_str  <- resolve_var(rlang::enquo(time_var))
   ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
-  grp_var_str   <- resolve_var(rlang::enquo(grp_var))
+  id_var_str    <- resolve_var(rlang::enquo(id_var))
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
   col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
@@ -90,14 +88,14 @@ plot_dvtime <- function(data,
     loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     col_var_str = col_var_str,
-    grp_dv = grp_dv, grp_var_str = grp_var_str,
+    id_line = id_line, id_var_str = id_var_str,
     dosenorm = dosenorm,
     ref = ref
   )
   data <- prep$data
   lloq <- prep$lloq
 
-  env <- prep_plot_env(data, cent, log_y, obs_dv, grp_dv, theme, plot_dvtime_theme)
+  env <- prep_plot_env(data, cent, log_y, theme, plot_dvtime_theme)
   caption   <- env$caption
   plottheme <- env$plottheme
   width     <- env$width
@@ -118,7 +116,7 @@ plot_dvtime <- function(data,
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers(plot, obs_dv, grp_dv, grp_var_str, plottheme$obs_point, plottheme$obs_line)
+  plot <- add_obs_layers(plot, id_line, id_var_str, plottheme$obs_point, plottheme$obs_line)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width)
@@ -144,7 +142,7 @@ plot_dvtime <- function(data,
 #' @keywords internal
 #' @noRd
 
-caption_dvtime <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
+caption_dvtime <- function(cent, log_y = FALSE){
 
   cent_labels <- list(
     mean           = c(linear = "mean",                    log = "geometric mean"),
@@ -155,19 +153,11 @@ caption_dvtime <- function(cent, log_y = FALSE, obs_dv = TRUE, grp_dv = FALSE){
     none           = c(linear = "",                        log = "")
   )
 
-  obs_labels <- list(
-    "TRUE.FALSE"  = "Open circles are observations",
-    "FALSE.TRUE"  = "Thin lines connect observations within an individual",
-    "TRUE.TRUE"   = "Thin lines connect observations (open circles) within an individual",
-    "FALSE.FALSE" = ""
-  )
-
   scale <- if(log_y) "log" else "linear"
-  cap1 <- cent_labels[[cent]][[scale]]
-  cap2 <- obs_labels[[paste(obs_dv, grp_dv, sep = ".")]]
+  cap <- cent_labels[[cent]][[scale]]
 
-  if(cent == "none") cap2
-  else paste0("Solid circles and thick lines are the ", cap1, "\n", cap2)
+  if(cent == "none") ""
+  else paste0("Solid circles and thick lines are the ", cap)
 }
 
 

@@ -202,7 +202,6 @@ test_that("df_prep_dvtime errors on missing dose_var when dosenorm = TRUE", {
 test_that("prep_plot_env returns list with expected elements", {
   df <- data.frame(NTIME = c(0, 1, 2, 4, 8))
   result <- pmxhelpr:::prep_plot_env(df, cent = "mean", log_y = FALSE,
-                                     obs_dv = TRUE, grp_dv = FALSE,
                                      theme = NULL,
                                      theme_fn = pmxhelpr::plot_dvtime_theme)
   expect_true(is.list(result))

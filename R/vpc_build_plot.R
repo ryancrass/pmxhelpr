@@ -18,12 +18,12 @@ vpc_build_plot <- function(vpcstats,
                      bin_var = "BIN_MID",
                      strat_var_str = NULL,
                      shown = NULL,
-                     vpctheme = NULL,
+                     theme = NULL,
                      loq = NULL) {
 
   ##Set vpc aesthetics and theme
   shown <- merge_element(shown, plot_vpc_shown())
-  vpctheme <- merge_theme(vpctheme, plot_vpc_theme())
+  vpctheme <- merge_theme(theme, plot_vpc_theme())
 
   ###Generate Base Plot
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))

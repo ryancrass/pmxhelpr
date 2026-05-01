@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will demonstrate `pmxhelpr` functions for exploratory data analysis of longitudinal dose-concentration-response data to inform population PK/PD modeling analysis. This includes package functions to visualize response over time and response versus concentration.
 
-This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
+This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -33,7 +33,7 @@ library(PKNCA, warn.conflicts = FALSE)
 
 The example dataset used in this vignette (`data_sad`) is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort.
 
-As in [Exploratory Analyses of PK Data](eda-pk-workflow.html), we will define some new variables to pass to the color aesthetic that include counts of unique individuals per level of the grouping variable with `var_addn`.
+As in [Exploratory Analyses of PK Data](eda-pk-workflow.html), we will define some new variables to pass to the color aesthetic that include counts of unique individuals per level of the grouping variable with `var_addn()`.
 
 ```{r plot-data, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_data <- data_sad %>% 
@@ -55,9 +55,9 @@ plot_data_pd <- filter(plot_data, CMT == 3)
 ```
 
 
-# Population Response-time Plots with `plot_dvtime`
+# Population Response-time Plots with `plot_dvtime()`
 
-Longitudinal pharmacodynamic response data can be visualized over time using `plot_dvtime`. This function is designed to visualize a dependent variable versus time and can be used for PK and/or PD data!
+Longitudinal pharmacodynamic response data can be visualized over time using `plot_dvtime()`. This function is designed to visualize a dependent variable versus time and can be used for PK and/or PD data!
 
 ```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
@@ -84,7 +84,7 @@ plot_dvtime(data = plot_data_pd, dv_var = CFB,col_var = `Dose and Food`,
 
 ## Combining PK and PD Panels
 
-Simultaneous visualization of the time-course of drug concentration and response can be achieved by combining two `plot_dvtime` calls with the `patchwork` package. This approach provides full control over the content and aesthetics of each panel.
+Simultaneous visualization of the time-course of drug concentration and response can be achieved by combining two `plot_dvtime()` calls with the `patchwork` package. This approach provides full control over the content and aesthetics of each panel.
 
 ```{r plot-dvtime-pkpd-panels, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
@@ -112,17 +112,17 @@ p_pd <- plot_dvtime(data = plot_data_pd, dv_var = CFB,
 p_pk / p_pd + plot_layout(guides = "collect")
 ```
 
-# Population Response-Concentration Plots with `plot_dvconc`
+# Population Response-Concentration Plots with `plot_dvconc()`
 
 ## Overview
 
- `plot_dvconc` is a plotting function intended to help with visualization of the relationship between a dependent variable for response and drug concentration.
+ `plot_dvconc()` is a plotting function intended to help with visualization of the relationship between a dependent variable for response and drug concentration.
  
-  `plot_dvconc` inherits its data handling and aesthetic control arguments from `plot_dvtime`. The key additions are `loess` and `linear` (via `plot_dvconc_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
+  `plot_dvconc()` inherits its data handling and aesthetic control arguments from `plot_dvtime()`. The key additions are `loess` and `linear` (via `plot_dvconc_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
  
 ## Specifying Depenent and Independent Variables
 
-`plot_dvconc` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`), The defaults are as follows:
+`plot_dvconc()` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`), The defaults are as follows:
 
   - `dv_var` = DV, character string specifying the dependent variable to map to the y-axis. 
   - `idv_var`= CONC, character string specifying the dependent variable to map to the x-axis.
@@ -136,7 +136,7 @@ plot_dvconc(data = plot_data_pd, dv_var = ODV, idv_var = CONC) +
 
 ## Specifying Change from Baseline
 
-Like `plot_dvtime`, we can add a horizontal reference line by specifying `ref` with a numeric y-intercept.
+Like `plot_dvtime()`, we can add a horizontal reference line by specifying `ref` with a numeric y-intercept.
 
 ```{r plot-dvconc-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
@@ -146,7 +146,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
 
 ## Specifying the Color Aesthetic
 
-`plot_dvconc` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data  without stratifying the trend lines by the variable mapped to the color aesthetic. The `col_var` argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+`plot_dvconc()` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data  without stratifying the trend lines by the variable mapped to the color aesthetic. The `col_var` argument uses non-standard evaluation and can be passed as a bare column name or as a string.
 
 ```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
@@ -165,7 +165,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 
 ## Specifying the Central Tendency
 
-There are two trend line types supported by `plot_dvconc`
+There are two trend line types supported by `plot_dvconc()`
 
   - locally estimated scatter plot smoothing (LOESS) fit
   - linear regression. 

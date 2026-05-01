@@ -26,11 +26,11 @@ library(patchwork, warn.conflicts = FALSE)
 
 # Overview
 
-Every `pmxhelpr` plot function (`plot_dvtime`, `plot_dvconc`, `plot_gof`, `plot_vpc_cont`) accepts a `theme` argument that controls the appearance of points, lines, ribbons, error bars, and reference lines. The theme system has two layers:
+Every `pmxhelpr` plot function (`plot_dvtime()`, `plot_dvconc()`, `plot_gof()`, `plot_vpc_cont()`) accepts a `theme` argument that controls the appearance of points, lines, ribbons, error bars, and reference lines. The theme system has two layers:
 
-1. **Element constructors** (`pmx_point`, `pmx_line`, etc.) define *what* to style. Each constructor maps directly to a `ggplot2` geom and only accepts aesthetics relevant to that geom.
+1. **Element constructors** (`pmx_point()`, `pmx_line()`, etc.) define *what* to style. Each constructor maps directly to a `ggplot2` geom and only accepts aesthetics relevant to that geom.
 
-2. **Theme factories** (`plot_dvtime_theme`, `plot_gof_theme`, etc.) define *where* those elements go. Each factory returns a named list of default element objects, one per visual layer in the plot. User overrides are merged field-by-field into these defaults.
+2. **Theme factories** (`plot_dvtime_theme()`, `plot_gof_theme()`, etc.) define *where* those elements go. Each factory returns a named list of default element objects, one per visual layer in the plot. User overrides are merged field-by-field into these defaults.
 
 This design means every plot function uses the same workflow:
 
@@ -85,7 +85,7 @@ Theme keys follow a `role_element` pattern where the **role** identifies the dat
 - `cent_line` — central tendency, line geom
 - `pred_point` — PRED predictions, point geom
 
-When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`). The exception is `obs` in `plot_dvconc_theme` and `plot_vpc_theme` where the role is unambiguous.
+When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`). The exception is `obs` in `plot_dvconc_theme()` and `plot_vpc_theme()` where the role is unambiguous.
 
 ## Shared Elements Across Factories
 
@@ -112,7 +112,7 @@ plot_dvtime_theme(obs_point = pmx_point(alpha = 0.3),
 plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 ```
 
-`pmx_style()` accepts `color` and `alpha` — the two fields shared by both `pmx_point` and `pmx_line`.
+`pmx_style()` accepts `color` and `alpha` — the two fields shared by both `pmx_point()` and `pmx_line()`.
 
 When both a style shortcut and an explicit element override are provided, the style is applied first, then the element override wins for any conflicting fields:
 

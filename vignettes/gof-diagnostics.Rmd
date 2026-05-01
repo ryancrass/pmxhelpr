@@ -16,9 +16,7 @@ knitr::opts_chunk$set(
 
 This vignette will demonstrate `pmxhelpr` functions for generating standard overlay goodness-of-fit model diagnostics for evaluation of longitudinal non-linear mixed effects model fit.
 
-This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
-
-First, we will load the required packages.
+This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -31,19 +29,6 @@ library(patchwork, warn.conflicts = FALSE)
 ```
 
 
-# PK Model
-
-An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This can be loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
-
-```{r model-pk}
-model <- model_mread_load("pkmodel")
-```
-
-We can take a look at the model code using `mrgsolve::see`
-
-```{r model-see}
-mrgsolve::see(model)
-```
 
 # Data 
 
@@ -62,7 +47,7 @@ This dataset contains two additional variables representing model predictions:
 + `PRED`: population model predicted values accounting only for fixed effects (THETAs)
 + `IPRED`: individual model predicted values accounting for fixed effects (THETAs) and level 1 (inter-individual) random effects (ETAs)
 
-Let's derive some additional variables and leverage the functionality of `var_addn` to create a new factor variable including a count of unique individuals in each unique dosing condition for plotting
+Let's derive some additional variables and leverage the functionality of `var_addn()` to create a new factor variable including a count of unique individuals in each unique dosing condition for plotting
 
 ```{r data-plotdata}
 plot_data <- data_sad_pkfit %>% 
@@ -76,17 +61,34 @@ plot_data <- data_sad_pkfit %>%
 ```
 
 
-# Population Overlay Goodness of Fit Plots with `plot_gof`
+
+# PK Model
+
+An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This can be loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread()`.
+
+```{r model-pk}
+model <- model_mread_load("pkmodel")
+```
+
+We can take a look at the model code using `mrgsolve::see()`
+
+```{r model-see}
+mrgsolve::see(model)
+```
+
+
+
+# Population Overlay Goodness of Fit Plots with `plot_gof()`
 
 ## Overview
 
- `pmxhelpr` includes a function for generating overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof`.
+ `pmxhelpr` includes a function for generating overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof()`.
  
- `plot_gof` inherits its data handling and aesthetic control arguments from `plot_dvtime`. The key additions are `pred_var`, `ipred_var`, `shown`, and `theme` (via `plot_gof_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
+ `plot_gof()` esthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
   
 ## Specifying Dependent and Independent Variables 
 
-`plot_gof` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
+`plot_gof9)` has 3 arguments that specify the dependent variables to be mapped to the y-axis (`dv_var`, `ipred_var`, `pred_var`) and 2 arguments for the independent time variables to be mapped to the x-axis (`time_var`, `ntime_var`). `ntime_var` is an exact binned version of the x-axis variable for calculation of central tendency statistics. 
 
 The defaults are as follows:
 -  `dv_var` = DV, observed dependent variable. 
@@ -147,11 +149,11 @@ plot_gof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +
 
 ## Specifying the Central Tendency
 
-`plot_gof` inherits its central tendency handling functionality from `plot_dvtime`. Both functions use the `stat_summary` function from `ggplot2` to calculate and plot the central tendency measures and error bars. The summary statistics calculated are specified by the `cent` argument. 
+`plot_gof()` inherits its central tendency handling functionality from `plot_dvtime()`. Both functions use the `stat_summary()` function from `ggplot2` to calculate and plot the central tendency measures and error bars. The summary statistics calculated are specified by the `cent` argument. 
   
-In `plot_gof`, variability (SD, IQR) is plotted for the observed data (DV) and only the central tendency measures are calculated and returned for model predictions (PRED, IPRED).
+In `plot_gof()`, variability (SD, IQR) is plotted for the observed data (DV) and only the central tendency measures are calculated and returned for model predictions (PRED, IPRED).
 
-An often overlooked feature of `stat_summary`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned with `"mean"` is the *geometric mean*. 
+An often overlooked feature of `stat_summary()`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned with `"mean"` is the *geometric mean*. 
 
 If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will delineate where arithmetic and geometric means are being returned. 
 
@@ -162,7 +164,7 @@ plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-The caption will *NOT* update if a new axis is added to the plot object outside of `plot_gof` with `scale_y_log10`.
+The caption will *NOT* update if a new axis is added to the plot object outside of `plot_gof()` with `scale_y_log10()`.
 
 ```{r plot-popgof-dosegrp-logscale, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
@@ -179,9 +181,9 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
 
 # Individual Concentration-time plots
 
-The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof`; however, we can also use `plot_gof` to generate subject-level visualizations with a little pre-processing of the input dataset. The `shown` argument can be used to suppress the population prediction (PRED) in these plots evaluating fit at the individual level.
+The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof()`; however, we can also use `plot_gof()` to generate subject-level visualizations with a little pre-processing of the input dataset. The `shown` argument can be used to suppress the population prediction (PRED) in these plots evaluating fit at the individual level.
 
-We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply`, `purrr::map()` functions, or other methods.
+We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply()`, `purrr::map()` functions, or other methods.
 
 ```{r plot-indgofplots, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 

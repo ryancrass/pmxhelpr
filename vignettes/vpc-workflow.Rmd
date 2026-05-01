@@ -14,13 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will review the functionality of `plot_vpc_cont()` for generating VPC plots using exact time bins from datasets containing a nominal time variable.
-
-Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times).
-
-`plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at the actual protocol-specified sampling times.
-
-First, we will load the required packages.
+This vignette will demonstrate `pmxhelpr` functions for simulation-based visual predictive check (VPC) and prediction-corrected visual predictive check (pcVPC) evaluation of models fit to concentration-time data.  
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -32,17 +26,19 @@ library(withr, warn.conflicts =  FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
-# Analysis Dataset
 
-Next let's explore the input dataset, `data_sad`. This dataset was generated via simulation from `pkmodel`, an `mrgsolve` model internal to the pmxhelpr package.
 
-We can take a quick look at the dataset using `glimpse()` from the dplyr package. Documentation for the dataset can also be viewed using the R help functionality, just as one would for a function, with `?data_sad()`
+# Data 
+
+The example dataset used in this vignette (`data_sad`) is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
+
+## data_sad
+
+Dataset definitions can be viewed by calling `?data_sad`. A quick summary of variables and types is printed below.
 
 ```{r data-glimpse}
 glimpse(data_sad)
 ```
-
-This dataset is  formatted for modeling. It contains NONMEM reserved variables (e.g., ID, TIME, AMT, EVID, MDV), as well as, dependent variables of drug concentration in original units (ODV) and natural logarithm transformed units (LDV). In addition to the numeric variables, there are two character variables: USUBJID and PART.
 
 PART specifies the two study cohorts:
 
@@ -67,22 +63,43 @@ unique(data_sad$NTIME)
 length(unique(data_sad$NTIME))
 length(unique(data_sad$TIME))
 ```
+
+
+
 # PK Model
 
-Luckily for us, someone has already fit a PK model to these data! Let's load `pkmodel` by calling `model_mread_load()` and take a look at it with the `see()` function from the `mrgsolve` package.
+An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This can be loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
 
-```{r model_mread_load}
+```{r model-pk}
 model <- model_mread_load("pkmodel")
-see(model)
 ```
 
-Unluckily for us, no one has validated this PK model! Therefore, we need to generate some Visual Predictive Checks (VPCs).
+We can take a look at the model code using `mrgsolve::see`
 
-# VPC Plot Workflow
+```{r model-see}
+mrgsolve::see(model)
+```
 
-## Running the simulation
 
-We will use `df_mrgsim_replicate()` to run the simulation for the VPC. `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
+
+# VPC Workflow with `plot_vpc_cont()`
+
+## Overview
+
+ `pmxhelpr` includes a function for generating VPC and pcVPC plots for model evaluation: `plot_vpc_cont()`.
+
+Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times).
+
+`plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at visualized at the protocol-specified sampling times.
+
+ `plot_vpc_cont()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
+
+
+## Running the simulation with `df_mrgsim_replicate()`
+
+`pmxhelpr` includes a function for running multiple replicates of a data set via simulation: `df_mrgsim_replicate()`
+
+ `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
 We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). This argument uses non-standard evaluation and can be passed as a bare column name or as a string.
 
@@ -140,7 +157,7 @@ The difference in plotting the observed prediction-corrected data points by `"TI
 
 `plot_vpc_cont()` contains the argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
-Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate`, the column names match the defaults for `plot_vpc_cont` and do not need to be specified. The `pi` and `ci` arguments also match the defaults and can be removed.
+Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate()`, the column names match the defaults for `plot_vpc_cont()` and do not need to be specified. The `pi` and `ci` arguments also match the defaults and can be removed.
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
@@ -281,7 +298,7 @@ Let's get started. First, we will load the required packages.
 
 # Analysis Dataset
 
-First, let's prepare the observed data for plotting. We will filter to PK observations and create a `Dose (mg)` variable using `var_addn` to include sample size counts per dose group.
+First, let's prepare the observed data for plotting. We will filter to PK observations and create a `Dose (mg)` variable using `var_addn()` to include sample size counts per dose group.
 
 ```{r plot-data-blq}
 plot_data <- data_sad %>%
@@ -297,7 +314,7 @@ plot_dvtime(plot_data, dv_var = ODV, col_var = `Dose (mg)`, log_y = TRUE) +
   labs(y = "Concentration (ng/mL)")
 ```
 
-The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase. To further assess the potential impact of BLQ censoring, we will set the `loq_method = 2` in `plot_dvtime`, which imputes BLQ data to 1/2 x LLOQ. Imputing  concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
+The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase. To further assess the potential impact of BLQ censoring, we will set the `loq_method = 2` in `plot_dvtime()`, which imputes BLQ data to 1/2 x LLOQ. Imputing  concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
 
 ```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data, dv_var =  ODV, col_var = `Dose (mg)`, loq_method = 2,
@@ -449,6 +466,22 @@ Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input
 Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`).
 
 
+# Accessing VPC Summary Statistics
+
+By default, `plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics used to build the plot, set `vpcstats = TRUE`. This returns a `data.frame` containing the observed and simulated quantiles, confidence intervals, and bin information.
+
+```{r vpc-stats, message=FALSE, warning=FALSE}
+stats <- plot_vpc_cont(
+  sim = simout,
+  pcvpc = TRUE,
+  min_bin_count = 5,
+  vpcstats = TRUE
+)
+
+head(stats)
+```
+
+This is useful for tabulating VPC diagnostics or creating custom visualizations outside the default `plot_vpc_cont()` output.
 
 
 # Plot Aesthetics
@@ -457,7 +490,7 @@ The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See 
 
 ## Adding Layers
 
-`plot_vpc_cont` returns a `ggplot2` plot object, which can be modified by adding layers just like any other `ggplot2` object. For example, to add x-axis grid lines with a custom theme:
+`plot_vpc_cont()` returns a `ggplot2` plot object, which can be modified by adding layers just like any other `ggplot2` object. For example, to add x-axis grid lines with a custom theme:
 
 ```{r plot-vpc-pcvpc-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_pc_xgrid <- plot_vpc_cont(

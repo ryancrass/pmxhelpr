@@ -34,52 +34,70 @@ devtools::install_github("ryancrass/pmxhelpr")
 
 ## Function Naming Conventions
 
-Exploratory Data Analysis workflow functions in this package include the following:
+Exported functions follow a `ReturnType_Purpose` naming convention where the prefix indicates what the function returns:
 
-* Longitudinal PK and PK/PD Exploritory Analysis Workflow: *ReturnObject*_*Purpose*
-  + `plot_dvtime()` returns a `ggplot` object with a continuous dependent variable plotted versus time (e.g., PK or PD vs time)
-  + `plot_dvconc()` returns a `ggplot` object with a continuous dependent variable plotted versus an independent continuous variable (e.g., PD vs PK)
-  + `plot_dvtime_theme()`, `plot_dvconc_theme()` return nested lists of modifiable default plot attributes for the `theme` arguments of `plot_dvtime` and `plot_dvconc`.
+- `plot_*` — returns a `ggplot` object
+- `df_*` — returns a `data.frame`
+- `mod_*` — returns a model object
+- `var_*` — returns a vector (vectorized helpers for use inside `mutate`)
+- `pmx_*` — returns a theme element constructor (for use with `*_theme` factories)
 
-* Dose Proporionality Workflow functions: *ReturnObject*_*Purpose*
-  + `df_doseprop()` returns a `data.frame` containing parameters from log-log regression of multiple exposure metrics versus dose
-  + `plot_doseprop()` returns a `ggplot` object with log-log regression of exposure metric(s) versus dose
-  + `df_loglog()` returns a `data.frame` containing parameters from a log-log regression of a single exposure metric versus dose, used in `df_doseprop` 
-  + `mod_loglog()` returns a `lm` object from a log-log regression of a single exposure metric versus dose
+### Exploratory Data Analysis
 
+* Longitudinal PK and PK/PD Analysis:
+  + `plot_dvtime()` — dependent variable versus time (e.g., concentration-time profiles)
+  + `plot_dvconc()` — dependent variable versus a continuous independent variable (e.g., response vs concentration)
 
-Model Evaluation workflow functions in this package include the following:
+* Dose Proportionality:
+  + `df_doseprop()` — log-log regression parameters for multiple exposure metrics versus dose
+  + `plot_doseprop()` — log-log regression plots of exposure metric(s) versus dose
+  + `df_loglog()` — log-log regression parameters for a single exposure metric
+  + `mod_loglog()` — `lm` object from a single log-log regression
 
-* Overlay Model Diagostic Workflow functions: *ReturnObject*_*Purpose*
-  + `plot_gof` returns a `ggplot` object with observed, population-, and individual-predicted values overlaid with time
-  + `plot_gof_theme` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_gof`
+### Model Evaluation
 
-* VPC Workflow functions: *ReturnObject*_*Purpose*
-  + `df_mrgsim_replicate()` returns a `data.frame` of simulated replicates of an input dataset
-  + `plot_vpc_cont()` generates a `ggplot` VPC plot object from a simulated input dataset with exact time bins
-  + `plot_vpc_legend` returns a `ggplot` object containing a legend for a VPC plot generated using `plot_vpc_cont`
-  + `plot_vpc_theme()` returns a nested list of modifiable default plot attributes for the `theme` argument of `plot_vpc_cont`
-  + `plot_vpc_shown()` returns a nested list of modifiable default plot attributes for the `shown` argument of `plot_vpc_cont`
-  
-  
-Helper and Wrapper functions include the following:
+* Overlay Goodness-of-Fit Diagnostics:
+  + `plot_gof()` — observed, population-, and individual-predicted values overlaid versus time
 
-* Wrapper functions for `mrgsolve` functions: *ReturnObject*_*mrgsim*_*Purpose*
-  + `model_mread_load()` wraps `mrgsolve::mread_cache()` to read internal package model files returning an `mrgmod` object.
-  + `df_mrgsim_replicate()` wraps `mrgsolve::mrgsim()` to replicate the input data returning a `data.frame`.
-  + `df_mrgsim_addpred()` wraps `mrgsolve::mrgsim()` to add population model predictions (PRED) returning a `data.frame`.
-  
-* Vectored Helper functions: *ReturnObject*_*Purpose*
-  + `var_addn` returns a factor vector of group labels with counts of unique values of an identifier variable.
-  + `var_pc` returns a numeric vector containing prediction-corrected values of a variable.
-  + `var_dosenorm` returns a numeric vector of a variable divided by dos
-  
+* Visual Predictive Check (VPC):
+  + `df_mrgsim_replicate()` — simulated replicates of an input dataset via `mrgsolve`
+  + `df_vpcstats()` — VPC summary statistics (observed/simulated quantiles and confidence intervals)
+  + `plot_vpc_cont()` — VPC plot from simulated data with exact time bins
+  + `plot_vpc_legend()` — legend for a VPC plot
 
-Internal Datasets to thsi package include:
+### Theme System
 
-  + `data_sad` a  dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling
-  + `data_sad_nca` a dataset containing PK parameters derived using non-compartmental analysis (NCA)
-  + `data_sad_pkfit` a dataset consistent with `data_sad` including individual (IPRED) and population (PRED) PK model predictions
+Plot aesthetics are controlled through theme factories and element constructors. Each plot function has a corresponding `*_theme()` factory:
+
+  + `plot_dvtime_theme()`, `plot_dvconc_theme()`, `plot_gof_theme()`, `plot_vpc_theme()` — return named lists of default element objects for the `theme` argument of their corresponding plot function
+  + `plot_vpc_shown()` — controls which VPC layers are visible via the `shown` argument
+
+Element constructors create typed objects that map to `ggplot2` geom aesthetics:
+
+  + `pmx_point()` — point aesthetics (shape, size, alpha, color)
+  + `pmx_line()` — line aesthetics (linewidth, linetype, alpha, color)
+  + `pmx_ribbon()` — ribbon aesthetics (fill, alpha, color, linetype, linewidth)
+  + `pmx_errorbar()` — error bar aesthetics (linewidth, linetype, alpha, width)
+  + `pmx_trend()` — trend line aesthetics (linewidth, linetype, color, se_color, se_alpha)
+  + `pmx_style()` — convenience shortcut to set shared aesthetics (color, alpha) on both point and line elements of a role
+
+### Vectorized Helpers
+
+  + `var_addn()` — factor labels with counts of unique identifiers per group
+  + `var_pc()` — prediction-corrected values
+  + `var_dosenorm()` — dose-normalized values
+
+### `mrgsolve` Wrappers
+
+  + `model_mread_load()` — reads internal package model files returning an `mrgmod` object
+  + `df_mrgsim_replicate()` — replicates input data via simulation returning a `data.frame`
+  + `df_mrgsim_addpred()` — adds population model predictions (PRED) to a dataset
+
+### Internal Datasets
+
+  + `data_sad` — single ascending dose (SAD) study with parallel food effect cohort formatted for NLME modeling
+  + `data_sad_nca` — PK parameters derived using non-compartmental analysis (NCA)
+  + `data_sad_pkfit` — `data_sad` with individual (IPRED) and population (PRED) PK model predictions
 
 
 ## Example Exploratory Data Analysis Workflow
@@ -119,7 +137,7 @@ table
 plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 ```
 
-## Example Population Overly Goodness-of-fit Plot Workflow
+## Example Population Overlay Goodness-of-Fit Plot Workflow
 
 This is a basic example which illustrates a simple model diagnostic workflow using pmxhelpr:
 

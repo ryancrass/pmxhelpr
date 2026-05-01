@@ -93,7 +93,15 @@ We can take a look at the model code using `mrgsolve::see`
 mrgsolve::see(model)
 ```
 
+We can use this PK model to add population predictions (`"PRED"`) to our dataset with the function `df_mrgsim_addpred()`, which wraps `mrgsolve::mrgsim_df` with `mrgsolv::zero_re` to return an input dataset with population predictions appended. This function is called automatically within `df_mrgsim_replicate()` in the VPC Workflow; therefore, it does not need to be separately called for the VPC purpose.
 
+This function takes `data.frame` and `mrgmod` objects as input and an optional argument to specify the model variable to capture as `"PRED"` with random effects zeroed. The default is `"IPRED"`.
+
+```{r df-mrgsim-addpred}
+data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, output_var = "IPRED")
+
+colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk)]
+```
 
 # VPC Workflow
 

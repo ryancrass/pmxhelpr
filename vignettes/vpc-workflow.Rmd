@@ -482,14 +482,41 @@ vpc_pc_noobs_medonly <- plot_vpc_cont(
 vpc_pc_noobs_medonly
 ```
 
-### Adjusting the Plot Theme
+### Adjusting the Plot Theme with `plot_vpc_theme()`
 
 The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
 
-```{r vpc-them}
-
+```{r vpc-theme}
+plot_vpc_theme()
 ```
 
+We can define an alternative theme using a blue / grey color schema using this function and the constructor helpers.
+
+```{r vpc-new-theme}
+vpc_new_theme <- plot_vpc_theme(
+  obs = pmx_point(color = "#000000"),
+  obs_median = pmx_line(color = "#000000"),
+  obs_ci = pmx_line(color = "#000000"),
+  sim_median = pmx_ribbon(fill = "#3388cc"),
+  sim_pi = pmx_ribbon(fill = "#3388cc")
+)
+```
+
+Regenerating our BLQ quantile censored plot stratified by part with the new theme yields the following plot
+
+```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+vpc_blq_obs_cens2 <- plot_vpc_cont(
+  sim = sim100,
+  strat_var = PART,
+  loq = 1,
+  vpc_theme = vpc_new_theme
+) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc_blq_obs_cens2
+```
 ### Accessing VPC Summary Statistics
 
 By default, `plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics used to build the plot, set `vpcstats = TRUE`. This returns a `data.frame` containing the observed and simulated quantiles, confidence intervals, and bin information.
@@ -535,7 +562,7 @@ vpc_blq_obs_cens_wleg <- vpc_blq_obs_cens + vpc_legend + plot_layout(heights = c
 vpc_blq_obs_cens_wleg
 ```
 
-### Updating the Legend with `shown`
+### Updating the Legend Elements
 
 The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont` and `plot_vpc_legend`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`
 
@@ -550,3 +577,18 @@ vpc_legend_medonly2 <- plot_vpc_legend(shown = shown_elements)
 vpc_legend_medonly2
 ```
 
+### Updating the Legend Theme
+
+The legend can also be updated with the updated VPC plot theme elements. This is easiest to do by setting a new theme object, which we did previously when we created `vpc_new_theme` with `plot_vpc_theme()`. We can use this same theme list object to generat the VPC plot with `plot_vpc_cont()` and the VPC legend with `plot_vpc_legend()`.
+
+```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_new_legend <- plot_vpc_legend(update = vpc_new_theme)
+vpc_new_legend
+```
+
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
+
+```{r plot-vpc-pcvpc-w-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_blq_obs_cens_wleg2 <- vpc_blq_obs_cens2 + vpc_new_legend + plot_layout(heights = c(2.5,1))
+vpc_blq_obs_cens_wleg2
+```

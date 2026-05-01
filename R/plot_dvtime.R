@@ -116,7 +116,7 @@ plot_dvtime <- function(data,
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line)
+  plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, col_var_str)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width)

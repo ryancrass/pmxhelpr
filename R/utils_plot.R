@@ -124,20 +124,25 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 #'
 #' Adds a \code{geom_point} layer for observed data (visibility controlled by
 #' theme alpha) and optionally a \code{geom_line} layer connecting observations
-#' within groups when `id_var_str` is specified.
+#' within groups when `id_var_str` is specified. Color is mapped to a data
+#' column when `col_var_str` is provided.
 #'
 #' @param plot ggplot object
 #' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
 #' @param point_el A `pmx_point` element with point aesthetics.
 #' @param line_el A `pmx_line` element with line aesthetics.
-#' @param color_aes optional string for color aesthetic (e.g., "OBS" for popgof legend)
+#' @param col_var_str optional string column name for color aesthetic, or `NULL`
 #'
 #' @return modified ggplot object
 #' @keywords internal
 add_obs_layers <- function(plot, id_var_str, point_el, line_el,
-                           color_aes = NULL) {
+                           col_var_str = NULL) {
 
-  point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
+  point_aes <- if (!is.null(col_var_str)) {
+    ggplot2::aes(color = .data[[col_var_str]])
+  } else {
+    NULL
+  }
   plot <- plot + ggplot2::geom_point(
     mapping = point_aes,
     shape   = point_el$shape,
@@ -146,13 +151,50 @@ add_obs_layers <- function(plot, id_var_str, point_el, line_el,
   )
 
   if (!is.null(id_var_str)) {
-    if (!is.null(color_aes)) {
-      line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
+    if (!is.null(col_var_str)) {
+      line_aes <- ggplot2::aes(x = TIME, y = DV,
+                               color = .data[[col_var_str]],
                                group = .data[[id_var_str]])
     } else {
       line_aes <- ggplot2::aes(x = TIME, y = DV,
                                group = .data[[id_var_str]])
     }
+    plot <- plot + ggplot2::geom_line(
+      mapping   = line_aes,
+      linewidth = line_el$linewidth,
+      linetype  = line_el$linetype,
+      alpha     = line_el$alpha
+    )
+  }
+
+  plot
+}
+
+#' Add observed data layers for GOF plots with manual legend
+#'
+#' Like [add_obs_layers()] but maps color to a fixed string label for use
+#' with \code{scale_color_manual()} in GOF overlay plots.
+#'
+#' @param plot ggplot object
+#' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
+#' @param point_el A `pmx_point` element with point aesthetics.
+#' @param line_el A `pmx_line` element with line aesthetics.
+#' @param color_aes string label for color aesthetic (e.g., "OBS")
+#'
+#' @return modified ggplot object
+#' @keywords internal
+add_obs_layers_manual <- function(plot, id_var_str, point_el, line_el, color_aes) {
+
+  plot <- plot + ggplot2::geom_point(
+    mapping = ggplot2::aes(color = color_aes),
+    shape   = point_el$shape,
+    size    = point_el$size,
+    alpha   = point_el$alpha
+  )
+
+  if (!is.null(id_var_str)) {
+    line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
+                             group = .data[[id_var_str]])
     plot <- plot + ggplot2::geom_line(
       mapping   = line_aes,
       linewidth = line_el$linewidth,
@@ -274,26 +316,6 @@ add_trend_layers <- function(plot, method, show, se, plottheme,
 }
 
 
-#' Internal helper: Add observation point layer to a DV-vs-concentration plot
-#'
-#' @param plot ggplot object to modify
-#' @param point_el A `pmx_point` element with point aesthetics.
-#' @param col_var_str String name of the color variable, or `NULL`
-#'
-#' @return The modified ggplot object
-#' @keywords internal
-add_obs_point_layer <- function(plot, point_el, col_var_str) {
-  if (is.null(col_var_str)) {
-    plot + ggplot2::geom_point(shape = point_el$shape,
-                               size = point_el$size,
-                               alpha = point_el$alpha)
-  } else {
-    plot + ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]),
-                               shape = point_el$shape,
-                               size = point_el$size,
-                               alpha = point_el$alpha)
-  }
-}
 
 
 #' Internal helper: Prepare the plot environment for DV vs time family plots

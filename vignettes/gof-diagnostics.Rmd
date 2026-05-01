@@ -135,10 +135,10 @@ plot_gof_shown()
 
 The components of the list correspond to the following plot elements:
 
-- Observed points/lines: `OBS`
-- DV central tendency: `DV`
-- PRED central tendency: `PRED`
-- IPRED central tendency: `IPRED`
+- Observed points/lines: `obs`
+- DV central tendency: `dv`
+- PRED central tendency: `pred`
+- IPRED central tendency: `ipred`
 
 One or more elements to be updated from the defaults above can be passed via `plot_gof_shown()` to the `shown` argument. Any elements not specified will inherit the defaults.
 
@@ -146,16 +146,16 @@ Some analysts prefer to only overlay the "typical value" in these plots and excl
 
 ```{r plot-gof-shown, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV",
-         shown = plot_gof_shown(IPRED = FALSE)) +
+         shown = plot_gof_shown(ipred = FALSE)) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-The observed data points can also be removed with `OBS = FALSE`. Notice how different this plot appears when only visualizing central tendency!
+The observed data points can also be removed with `obs = FALSE`. Notice how different this plot appears when only visualizing central tendency!
 
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV",
-         shown = plot_gof_shown(OBS = FALSE)) +
+         shown = plot_gof_shown(obs = FALSE)) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
@@ -163,7 +163,7 @@ plot_gof(data = plot_data, dv_var = "ODV",
 The `shown` object can be stored and reused across multiple `plot_gof()` calls to maintain consistent visibility settings throughout a workflow:
 
 ```{r gof-shown-reuse, eval=FALSE}
-my_shown <- plot_gof_shown(IPRED = FALSE)
+my_shown <- plot_gof_shown(ipred = FALSE)
 plot_gof(data1, shown = my_shown)
 plot_gof(data2, shown = my_shown)
 ```
@@ -245,7 +245,7 @@ for(i in 1:n_ids){
                             dv_var = "ODV",
                             log_y = TRUE,
                             id_var = ID,
-                            shown = plot_gof_shown(PRED = FALSE),
+                            shown = plot_gof_shown(pred = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +
   labs(title = paste0("ID = ", ids[i]), y = "Concentration (ng/mL)", x = "Time (hours)") +

@@ -5,24 +5,33 @@
 \title{VPC plot theme}
 \usage{
 plot_vpc_theme(
-  obs = NULL,
-  obs_median = NULL,
-  obs_ci = NULL,
-  sim_pi = NULL,
-  sim_median = NULL,
+  obs_point = NULL,
+  obs_med_line = NULL,
+  obs_pi_line = NULL,
+  sim_pi_line = NULL,
+  sim_pi_ci = NULL,
+  sim_pi_area = NULL,
+  sim_median_line = NULL,
+  sim_median_ci = NULL,
   loq_line = NULL
 )
 }
 \arguments{
-\item{obs}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
+\item{obs_point}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{obs_median}{Observed median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{obs_med_line}{Observed median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{obs_ci}{Observed CI line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{obs_pi_line}{Observed quantile line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{sim_pi}{Simulated prediction interval ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
+\item{sim_pi_line}{Simulated prediction interval line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{sim_median}{Simulated median ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
+\item{sim_pi_ci}{Simulated prediction interval CI ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
+
+\item{sim_pi_area}{Simulated prediction interval area ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
+
+\item{sim_median_line}{Simulated median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+
+\item{sim_median_ci}{Simulated median CI ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
 
 \item{loq_line}{LOQ reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 }
@@ -32,8 +41,9 @@ A named list of theme elements
 \description{
 Constructor and factory for \code{plot_vpc_cont} plot aesthetics.
 Call with no arguments to view defaults. Pass element overrides to customize.
+Each theme key maps 1:1 with a \code{\link[=plot_vpc_shown]{plot_vpc_shown()}} visibility toggle.
 }
 \examples{
 plot_vpc_theme()
-plot_vpc_theme(obs = pmx_point(color = "#000000"))
+plot_vpc_theme(obs_point = pmx_point(color = "#000000"))
 }

@@ -73,8 +73,8 @@ plot_gof <- function(data,
 
   #Determine which variables to show
   shown <- merge_element(shown, plot_gof_shown())
-  legend_labels <- c("OBS", "DV", "IPRED", "PRED")
-  active <- legend_labels[shown[legend_labels] == TRUE]
+  shown_names <- names(shown)[unlist(shown)]
+  active <- toupper(shown_names)
 
   #Derive output colors from theme
   color_map <- c(OBS = plottheme$obs_point$color,
@@ -99,7 +99,7 @@ plot_gof <- function(data,
 
   #Show Observed Data Points / Connect within Group
   if ("OBS" %in% active) {
-    plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
+    plot <- add_obs_layers_manual(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)

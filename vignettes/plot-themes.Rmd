@@ -85,7 +85,7 @@ Theme keys follow a `role_element` pattern where the **role** identifies the dat
 - `cent_line` — central tendency, line geom
 - `ref_line` — reference line, line geom
 
-When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`). The exception is `obs` in `plot_dvconc_theme()` and `plot_vpc_theme()` where the role is unambiguous.
+When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`).
 
 ## Shared Elements Across Factories
 
@@ -173,7 +173,7 @@ plot_dvconc_theme()
 
 | Key | Type | Role |
 |---|---|---|
-| `obs` | `pmx_point` | Observed data points |
+| `obs_point` | `pmx_point` | Observed data points |
 | `ref_line` | `pmx_line` | Reference line |
 | `loess` | `pmx_trend` | LOESS trend line |
 | `linear` | `pmx_trend` | Linear trend line |
@@ -186,11 +186,14 @@ plot_vpc_theme()
 
 | Key | Type | Role |
 |---|---|---|
-| `obs` | `pmx_point` | Observed data points |
-| `obs_median` | `pmx_line` | Observed median line |
-| `obs_ci` | `pmx_line` | Observed CI lines |
-| `sim_pi` | `pmx_ribbon` | Simulated prediction interval ribbons |
-| `sim_median` | `pmx_ribbon` | Simulated median ribbon |
+| `obs_point` | `pmx_point` | Observed data points |
+| `obs_med_line` | `pmx_line` | Observed median line |
+| `obs_pi_line` | `pmx_line` | Observed quantile lines |
+| `sim_pi_line` | `pmx_line` | Simulated prediction interval lines |
+| `sim_pi_ci` | `pmx_ribbon` | Simulated PI confidence interval ribbons |
+| `sim_pi_area` | `pmx_ribbon` | Simulated PI area ribbon |
+| `sim_median_line` | `pmx_line` | Simulated median line |
+| `sim_median_ci` | `pmx_ribbon` | Simulated median CI ribbon |
 | `loq_line` | `pmx_line` | LOQ reference line |
 
 
@@ -280,11 +283,11 @@ simout <- df_mrgsim_replicate(data_sad, model, replicates = 200, dv_var = "ODV")
 plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
-  theme = plot_vpc_theme(obs = pmx_point(color = "#000000"),
-                            obs_median = pmx_line(color = "#000000"),
-                            obs_ci = pmx_line(color = "#000000"),
-                            sim_median = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi = pmx_ribbon(fill = "#3388cc")),
+  theme = plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
+                            obs_med_line = pmx_line(color = "#000000"),
+                            obs_pi_line = pmx_line(color = "#000000"),
+                            sim_median_ci = pmx_ribbon(fill = "#3388cc"),
+                            sim_pi_ci = pmx_ribbon(fill = "#3388cc")),
   min_bin_count = 5
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +

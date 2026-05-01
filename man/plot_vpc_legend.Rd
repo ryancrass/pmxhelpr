@@ -38,8 +38,8 @@ plot_vpc_legend()
 plot_vpc_legend(
 pi = c(0.025, 0.975),
 ci = c(0.025, 0.925),
- shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = TRUE,
- pi = FALSE, pi_as_area = FALSE, pi_ci = TRUE,
- obs_median = TRUE,
- sim_median = FALSE, sim_median_ci = TRUE))
+ shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = TRUE,
+ sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
+ obs_med_line = TRUE,
+ sim_median_line = FALSE, sim_median_ci = TRUE))
 }

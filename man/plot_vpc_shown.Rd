@@ -5,32 +5,32 @@
 \title{VPC layer visibility settings}
 \usage{
 plot_vpc_shown(
-  obs_dv = NULL,
-  obs_ci = NULL,
-  obs_median = NULL,
-  sim_median = NULL,
-  sim_median_ci = NULL,
-  pi = NULL,
-  pi_ci = NULL,
-  pi_as_area = NULL
+  obs_point = NULL,
+  obs_pi_line = NULL,
+  obs_med_line = NULL,
+  sim_pi_line = NULL,
+  sim_pi_ci = NULL,
+  sim_pi_area = NULL,
+  sim_median_line = NULL,
+  sim_median_ci = NULL
 )
 }
 \arguments{
-\item{obs_dv}{Show observed data points. Default is \code{TRUE}.}
+\item{obs_point}{Show observed data points. Default is \code{TRUE}.}
 
-\item{obs_ci}{Show observed quantile lines. Default is \code{TRUE}.}
+\item{obs_pi_line}{Show observed quantile lines. Default is \code{TRUE}.}
 
-\item{obs_median}{Show observed median line. Default is \code{TRUE}.}
+\item{obs_med_line}{Show observed median line. Default is \code{TRUE}.}
 
-\item{sim_median}{Show simulated median line. Default is \code{FALSE}.}
+\item{sim_pi_line}{Show simulated prediction interval lines. Default is \code{FALSE}.}
 
-\item{sim_median_ci}{Show simulated median confidence interval. Default is \code{TRUE}.}
+\item{sim_pi_ci}{Show simulated prediction interval CI ribbons. Default is \code{TRUE}.}
 
-\item{pi}{Show prediction interval lines. Default is \code{FALSE}.}
+\item{sim_pi_area}{Show simulated prediction interval as shaded area. Default is \code{FALSE}.}
 
-\item{pi_ci}{Show prediction interval confidence intervals. Default is \code{TRUE}.}
+\item{sim_median_line}{Show simulated median line. Default is \code{FALSE}.}
 
-\item{pi_as_area}{Show prediction interval as shaded area. Default is \code{FALSE}.}
+\item{sim_median_ci}{Show simulated median CI ribbon. Default is \code{TRUE}.}
 }
 \value{
 A named list of logicals
@@ -38,8 +38,9 @@ A named list of logicals
 \description{
 Constructor and factory for controlling which VPC layers are displayed.
 Call with no arguments to view defaults. Pass overrides to customize.
+Each element maps 1:1 with a \code{\link[=plot_vpc_theme]{plot_vpc_theme()}} aesthetic key.
 }
 \examples{
 plot_vpc_shown()
-plot_vpc_shown(obs_dv = FALSE, pi = TRUE)
+plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 }

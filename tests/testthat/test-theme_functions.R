@@ -76,13 +76,13 @@ test_that("plot_dvconc_theme default loess color is 'black'", {
 
 test_that("plot_dvconc_theme returns all expected keys", {
   theme <- plot_dvconc_theme()
-  expected <- c("obs", "ref_line", "loess", "linear")
+  expected <- c("obs_point", "ref_line", "loess", "linear")
   expect_setequal(names(theme), expected)
 })
 
 test_that("plot_dvconc_theme elements have correct classes", {
   theme <- plot_dvconc_theme()
-  expect_s3_class(theme$obs, "pmx_point")
+  expect_s3_class(theme$obs_point, "pmx_point")
   expect_s3_class(theme$ref_line, "pmx_line")
   expect_s3_class(theme$loess, "pmx_trend")
   expect_s3_class(theme$linear, "pmx_trend")
@@ -153,37 +153,42 @@ test_that("plot_gof_theme elements have correct classes", {
 test_that("plot_vpc_theme returns a named list with defaults", {
   theme <- plot_vpc_theme()
   expect_type(theme, "list")
-  expect_true("obs" %in% names(theme))
-  expect_true("sim_median" %in% names(theme))
+  expect_true("obs_point" %in% names(theme))
+  expect_true("sim_median_line" %in% names(theme))
 })
 
 test_that("plot_vpc_theme override merges correctly", {
-  theme <- plot_vpc_theme(obs = pmx_point(color = "#000000"))
-  expect_equal(theme$obs$color, "#000000")
+  theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"))
+  expect_equal(theme$obs_point$color, "#000000")
 })
 
 test_that("plot_vpc_theme errors on invalid element field", {
-  expect_error(plot_vpc_theme(obs = pmx_point(fake_key = 1)),
+  expect_error(plot_vpc_theme(obs_point = pmx_point(fake_key = 1)),
                regexp = "unused argument")
 })
 
-test_that("plot_vpc_theme default obs color is '#0000FF'", {
-  expect_equal(plot_vpc_theme()$obs$color, "#0000FF")
+test_that("plot_vpc_theme default obs_point color is '#0000FF'", {
+  expect_equal(plot_vpc_theme()$obs_point$color, "#0000FF")
 })
 
 test_that("plot_vpc_theme returns all expected keys", {
   theme <- plot_vpc_theme()
-  expected <- c("obs", "obs_median", "obs_ci", "sim_pi", "sim_median", "loq_line")
+  expected <- c("obs_point", "obs_med_line", "obs_pi_line",
+                "sim_pi_line", "sim_pi_ci", "sim_pi_area",
+                "sim_median_line", "sim_median_ci", "loq_line")
   expect_setequal(names(theme), expected)
 })
 
 test_that("plot_vpc_theme elements have correct classes", {
   theme <- plot_vpc_theme()
-  expect_s3_class(theme$obs, "pmx_point")
-  expect_s3_class(theme$obs_median, "pmx_line")
-  expect_s3_class(theme$obs_ci, "pmx_line")
-  expect_s3_class(theme$sim_pi, "pmx_ribbon")
-  expect_s3_class(theme$sim_median, "pmx_ribbon")
+  expect_s3_class(theme$obs_point, "pmx_point")
+  expect_s3_class(theme$obs_med_line, "pmx_line")
+  expect_s3_class(theme$obs_pi_line, "pmx_line")
+  expect_s3_class(theme$sim_pi_line, "pmx_line")
+  expect_s3_class(theme$sim_pi_ci, "pmx_ribbon")
+  expect_s3_class(theme$sim_pi_area, "pmx_ribbon")
+  expect_s3_class(theme$sim_median_line, "pmx_line")
+  expect_s3_class(theme$sim_median_ci, "pmx_ribbon")
   expect_s3_class(theme$loq_line, "pmx_line")
 })
 
@@ -192,23 +197,23 @@ test_that("plot_vpc_theme elements have correct classes", {
 test_that("plot_gof_shown returns all TRUE defaults", {
   s <- plot_gof_shown()
   expect_type(s, "list")
-  expect_true(s$OBS)
-  expect_true(s$DV)
-  expect_true(s$PRED)
-  expect_true(s$IPRED)
+  expect_true(s$obs)
+  expect_true(s$dv)
+  expect_true(s$pred)
+  expect_true(s$ipred)
 })
 
 test_that("plot_gof_shown partial override preserves other defaults", {
-  s <- plot_gof_shown(PRED = FALSE)
-  expect_false(s$PRED)
-  expect_true(s$OBS)
-  expect_true(s$DV)
-  expect_true(s$IPRED)
+  s <- plot_gof_shown(pred = FALSE)
+  expect_false(s$pred)
+  expect_true(s$obs)
+  expect_true(s$dv)
+  expect_true(s$ipred)
 })
 
 test_that("plot_gof_shown returns expected keys", {
   s <- plot_gof_shown()
-  expect_setequal(names(s), c("OBS", "DV", "PRED", "IPRED"))
+  expect_setequal(names(s), c("obs", "dv", "pred", "ipred"))
 })
 
 #####plot_gof_theme cent shortcut####

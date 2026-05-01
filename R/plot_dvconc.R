@@ -84,7 +84,7 @@ plot_dvconc <- function(data,
                            col_var_str, col_trend, theme_key = "linear")
 
   #Add observations
-  plot <- add_obs_point_layer(plot, plottheme$obs, col_var_str)
+  plot <- add_obs_layers(plot, id_var_str = NULL, plottheme$obs_point, line_el = NULL, col_var_str)
 
   #Log Transform
   if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")

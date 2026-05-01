@@ -4,7 +4,7 @@
 \alias{add_obs_layers}
 \title{Add observed data point and spaghetti line layers to a plot}
 \usage{
-add_obs_layers(plot, id_var_str, point_el, line_el, color_aes = NULL)
+add_obs_layers(plot, id_var_str, point_el, line_el, col_var_str = NULL)
 }
 \arguments{
 \item{plot}{ggplot object}
@@ -15,7 +15,7 @@ add_obs_layers(plot, id_var_str, point_el, line_el, color_aes = NULL)
 
 \item{line_el}{A \code{pmx_line} element with line aesthetics.}
 
-\item{color_aes}{optional string for color aesthetic (e.g., "OBS" for popgof legend)}
+\item{col_var_str}{optional string column name for color aesthetic, or \code{NULL}}
 }
 \value{
 modified ggplot object
@@ -23,6 +23,7 @@ modified ggplot object
 \description{
 Adds a \code{geom_point} layer for observed data (visibility controlled by
 theme alpha) and optionally a \code{geom_line} layer connecting observations
-within groups when \code{id_var_str} is specified.
+within groups when \code{id_var_str} is specified. Color is mapped to a data
+column when \code{col_var_str} is provided.
 }
 \keyword{internal}

@@ -15,29 +15,29 @@ test_that("Output with lloq specified is a `ggplot` object", {
 })
 
 ##Test shown elements
-test_that("Output with obs_dv = FALSE is a `ggplot` object", {
-  p <- plot_vpc_legend(shown = plot_vpc_shown(obs_dv = FALSE))
+test_that("Output with obs_point = FALSE is a `ggplot` object", {
+  p <- plot_vpc_legend(shown = plot_vpc_shown(obs_point = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
-test_that("Output with sim_median = TRUE is a `ggplot` object", {
-  p <- plot_vpc_legend(shown = plot_vpc_shown(sim_median = TRUE, sim_median_ci = FALSE))
+test_that("Output with sim_median_line = TRUE is a `ggplot` object", {
+  p <- plot_vpc_legend(shown = plot_vpc_shown(sim_median_line = TRUE, sim_median_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
-test_that("Output with pi = TRUE and pi_ci = FALSE is a `ggplot` object", {
-  p <- plot_vpc_legend(shown = plot_vpc_shown(pi = TRUE, pi_ci = FALSE))
+test_that("Output with sim_pi_line = TRUE and sim_pi_ci = FALSE is a `ggplot` object", {
+  p <- plot_vpc_legend(shown = plot_vpc_shown(sim_pi_line = TRUE, sim_pi_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
-test_that("Output with pi_as_area = TRUE is a `ggplot` object", {
-  p <- plot_vpc_legend(shown = plot_vpc_shown(pi_as_area = TRUE, pi_ci = FALSE))
+test_that("Output with sim_pi_area = TRUE is a `ggplot` object", {
+  p <- plot_vpc_legend(shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE))
   expect_s3_class(p, "ggplot")
 })
 
 ##Test theme update
 test_that("Custom theme update via update argument is accepted", {
-  p <- plot_vpc_legend(update = plot_vpc_theme(obs = pmx_point(color = "#000000")))
+  p <- plot_vpc_legend(update = plot_vpc_theme(obs_point = pmx_point(color = "#000000")))
   expect_s3_class(p, "ggplot")
 })
 

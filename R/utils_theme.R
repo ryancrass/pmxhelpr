@@ -353,7 +353,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' Constructor and factory for `plot_dvconc` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #'
-#' @param obs Observed data point aesthetics. See [pmx_point()].
+#' @param obs_point Observed data point aesthetics. See [pmx_point()].
 #' @param ref_line Reference line aesthetics. See [pmx_line()].
 #' @param loess LOESS trend line aesthetics. See [pmx_trend()].
 #' @param linear Linear trend line aesthetics. See [pmx_trend()].
@@ -364,16 +364,16 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @examples
 #' plot_dvconc_theme()
 #' plot_dvconc_theme(loess = pmx_trend(color = "red"))
-plot_dvconc_theme <- function(obs = NULL, ref_line = NULL, loess = NULL, linear = NULL) {
+plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL, linear = NULL) {
   defaults <- list(
-    obs      = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
+    obs_point = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
     ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loess  = pmx_trend(linewidth = 1, linetype = 1,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4),
     linear = pmx_trend(linewidth = 1, linetype = 2,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4)
   )
-  merge_theme(compact(list(obs = obs, ref_line = ref_line, loess = loess, linear = linear)),
+  merge_theme(compact(list(obs_point = obs_point, ref_line = ref_line, loess = loess, linear = linear)),
               defaults)
 }
 
@@ -382,12 +382,16 @@ plot_dvconc_theme <- function(obs = NULL, ref_line = NULL, loess = NULL, linear 
 #'
 #' Constructor and factory for `plot_vpc_cont` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
+#' Each theme key maps 1:1 with a [plot_vpc_shown()] visibility toggle.
 #'
-#' @param obs Observed data point aesthetics. See [pmx_point()].
-#' @param obs_median Observed median line aesthetics. See [pmx_line()].
-#' @param obs_ci Observed CI line aesthetics. See [pmx_line()].
-#' @param sim_pi Simulated prediction interval ribbon aesthetics. See [pmx_ribbon()].
-#' @param sim_median Simulated median ribbon aesthetics. See [pmx_ribbon()].
+#' @param obs_point Observed data point aesthetics. See [pmx_point()].
+#' @param obs_med_line Observed median line aesthetics. See [pmx_line()].
+#' @param obs_pi_line Observed quantile line aesthetics. See [pmx_line()].
+#' @param sim_pi_line Simulated prediction interval line aesthetics. See [pmx_line()].
+#' @param sim_pi_ci Simulated prediction interval CI ribbon aesthetics. See [pmx_ribbon()].
+#' @param sim_pi_area Simulated prediction interval area ribbon aesthetics. See [pmx_ribbon()].
+#' @param sim_median_line Simulated median line aesthetics. See [pmx_line()].
+#' @param sim_median_ci Simulated median CI ribbon aesthetics. See [pmx_ribbon()].
 #' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #'
 #' @return A named list of theme elements
@@ -395,22 +399,26 @@ plot_dvconc_theme <- function(obs = NULL, ref_line = NULL, loess = NULL, linear 
 #'
 #' @examples
 #' plot_vpc_theme()
-#' plot_vpc_theme(obs = pmx_point(color = "#000000"))
-plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
-                          sim_pi = NULL, sim_median = NULL,
-                          loq_line = NULL) {
+#' plot_vpc_theme(obs_point = pmx_point(color = "#000000"))
+plot_vpc_theme <- function(obs_point = NULL, obs_med_line = NULL, obs_pi_line = NULL,
+                           sim_pi_line = NULL, sim_pi_ci = NULL, sim_pi_area = NULL,
+                           sim_median_line = NULL, sim_median_ci = NULL,
+                           loq_line = NULL) {
   defaults <- list(
-    obs        = pmx_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
-    obs_median = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
-    obs_ci     = pmx_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
-    sim_pi     = pmx_ribbon(fill = "#0000FF", alpha = 0.15,
-                            color = "#000000", linetype = "dotted", linewidth = 1),
-    sim_median = pmx_ribbon(fill = "#FF0000", alpha = 0.3,
-                            color = "#000000", linetype = "dashed", linewidth = 1),
-    loq_line   = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
+    obs_point      = pmx_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
+    obs_med_line    = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
+    obs_pi_line     = pmx_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
+    sim_pi_line     = pmx_line(color = "#000000", linetype = "dotted", linewidth = 1),
+    sim_pi_ci       = pmx_ribbon(fill = "#0000FF", alpha = 0.15),
+    sim_pi_area     = pmx_ribbon(fill = "#0000FF", alpha = 0.15),
+    sim_median_line = pmx_line(color = "#000000", linetype = "dashed", linewidth = 1),
+    sim_median_ci   = pmx_ribbon(fill = "#FF0000", alpha = 0.3),
+    loq_line        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
   )
-  merge_theme(compact(list(obs = obs, obs_median = obs_median, obs_ci = obs_ci,
-                           sim_pi = sim_pi, sim_median = sim_median,
+  merge_theme(compact(list(obs_point = obs_point, obs_med_line = obs_med_line,
+                           obs_pi_line = obs_pi_line, sim_pi_line = sim_pi_line,
+                           sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
+                           sim_median_line = sim_median_line, sim_median_ci = sim_median_ci,
                            loq_line = loq_line)),
               defaults)
 }
@@ -421,20 +429,20 @@ plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
 #' Constructor and factory for controlling which GOF overlay layers are displayed.
 #' Call with no arguments to view defaults. Pass overrides to customize.
 #'
-#' @param OBS Show observed data points/lines. Default is `TRUE`.
-#' @param DV Show DV central tendency. Default is `TRUE`.
-#' @param PRED Show PRED central tendency. Default is `TRUE`.
-#' @param IPRED Show IPRED central tendency. Default is `TRUE`.
+#' @param obs Show observed data points/lines. Default is `TRUE`.
+#' @param dv Show DV central tendency. Default is `TRUE`.
+#' @param pred Show PRED central tendency. Default is `TRUE`.
+#' @param ipred Show IPRED central tendency. Default is `TRUE`.
 #'
 #' @return A named list of logicals
 #' @export
 #'
 #' @examples
 #' plot_gof_shown()
-#' plot_gof_shown(PRED = FALSE)
-plot_gof_shown <- function(OBS = NULL, DV = NULL, PRED = NULL, IPRED = NULL) {
-  defaults <- list(OBS = TRUE, DV = TRUE, PRED = TRUE, IPRED = TRUE)
-  user <- compact(list(OBS = OBS, DV = DV, PRED = PRED, IPRED = IPRED))
+#' plot_gof_shown(pred = FALSE)
+plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
+  defaults <- list(obs = TRUE, dv = TRUE, pred = TRUE, ipred = TRUE)
+  user <- compact(list(obs = obs, dv = dv, pred = pred, ipred = ipred))
   out <- defaults
   for (nm in names(user)) out[[nm]] <- user[[nm]]
   out
@@ -445,33 +453,35 @@ plot_gof_shown <- function(OBS = NULL, DV = NULL, PRED = NULL, IPRED = NULL) {
 #'
 #' Constructor and factory for controlling which VPC layers are displayed.
 #' Call with no arguments to view defaults. Pass overrides to customize.
+#' Each element maps 1:1 with a [plot_vpc_theme()] aesthetic key.
 #'
-#' @param obs_dv Show observed data points. Default is `TRUE`.
-#' @param obs_ci Show observed quantile lines. Default is `TRUE`.
-#' @param obs_median Show observed median line. Default is `TRUE`.
-#' @param sim_median Show simulated median line. Default is `FALSE`.
-#' @param sim_median_ci Show simulated median confidence interval. Default is `TRUE`.
-#' @param pi Show prediction interval lines. Default is `FALSE`.
-#' @param pi_ci Show prediction interval confidence intervals. Default is `TRUE`.
-#' @param pi_as_area Show prediction interval as shaded area. Default is `FALSE`.
+#' @param obs_point Show observed data points. Default is `TRUE`.
+#' @param obs_pi_line Show observed quantile lines. Default is `TRUE`.
+#' @param obs_med_line Show observed median line. Default is `TRUE`.
+#' @param sim_pi_line Show simulated prediction interval lines. Default is `FALSE`.
+#' @param sim_pi_ci Show simulated prediction interval CI ribbons. Default is `TRUE`.
+#' @param sim_pi_area Show simulated prediction interval as shaded area. Default is `FALSE`.
+#' @param sim_median_line Show simulated median line. Default is `FALSE`.
+#' @param sim_median_ci Show simulated median CI ribbon. Default is `TRUE`.
 #'
 #' @return A named list of logicals
 #' @export
 #'
 #' @examples
 #' plot_vpc_shown()
-#' plot_vpc_shown(obs_dv = FALSE, pi = TRUE)
-plot_vpc_shown <- function(obs_dv = NULL, obs_ci = NULL, obs_median = NULL,
-                           sim_median = NULL, sim_median_ci = NULL,
-                           pi = NULL, pi_ci = NULL, pi_as_area = NULL) {
+#' plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
+plot_vpc_shown <- function(obs_point = NULL, obs_pi_line = NULL, obs_med_line = NULL,
+                           sim_pi_line = NULL, sim_pi_ci = NULL, sim_pi_area = NULL,
+                           sim_median_line = NULL, sim_median_ci = NULL) {
   defaults <- list(
-    obs_dv = TRUE, obs_ci = TRUE, obs_median = TRUE,
-    sim_median = FALSE, sim_median_ci = TRUE,
-    pi = FALSE, pi_ci = TRUE, pi_as_area = FALSE
+    obs_point = TRUE, obs_pi_line = TRUE, obs_med_line = TRUE,
+    sim_pi_line = FALSE, sim_pi_ci = TRUE, sim_pi_area = FALSE,
+    sim_median_line = FALSE, sim_median_ci = TRUE
   )
-  user <- compact(list(obs_dv = obs_dv, obs_ci = obs_ci, obs_median = obs_median,
-                       sim_median = sim_median, sim_median_ci = sim_median_ci,
-                       pi = pi, pi_ci = pi_ci, pi_as_area = pi_as_area))
+  user <- compact(list(obs_point = obs_point, obs_pi_line = obs_pi_line,
+                       obs_med_line = obs_med_line, sim_pi_line = sim_pi_line,
+                       sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
+                       sim_median_line = sim_median_line, sim_median_ci = sim_median_ci))
   out <- defaults
   for (nm in names(user)) out[[nm]] <- user[[nm]]
   out

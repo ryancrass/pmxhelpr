@@ -143,14 +143,14 @@ plot_vpc_cont <- function(sim,
   )
 
   ##Overlay Observations if Requested
-  if(isTRUE(show_vpc$obs_dv)){
+  if(isTRUE(show_vpc$obs_point)){
     plot <- plot+
       ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME),
                           data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs$shape,
-                          alpha = vpctheme$obs$alpha,
-                          size = vpctheme$obs$size,
-                          color = vpctheme$obs$color)
+                          shape = vpctheme$obs_point$shape,
+                          alpha = vpctheme$obs_point$alpha,
+                          size = vpctheme$obs_point$size,
+                          color = vpctheme$obs_point$color)
   }
 
 

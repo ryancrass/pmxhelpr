@@ -415,14 +415,14 @@ plot_vpc_shown()
 
 The components of the list correspond to the following vpc plot elements:
 
--   Observed points: `obs_dv`
--   Observed quantiles: `obs_ci`
--   Simulated inter-quantile range: `pi`
--   Simulated inter-quantile area: `pi_as_area`
--   Simulated Quantile CI: `pi_ci`
--   Observed Median: `obs_median`
--   Simulated Median: `sim_median`
--   Simulated Median CI: `sim_median_ci`
+-   Observed points: `obs_point`
+-   Observed quantile lines: `obs_pi_line`
+-   Observed median line: `obs_med_line`
+-   Simulated prediction interval lines: `sim_pi_line`
+-   Simulated prediction interval CI: `sim_pi_ci`
+-   Simulated prediction interval area: `sim_pi_area`
+-   Simulated median line: `sim_median_line`
+-   Simulated median CI: `sim_median_ci`
 
 One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults.
 
@@ -433,7 +433,7 @@ plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
+  shown = plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, sim_median_ci = FALSE, sim_median_line = TRUE, sim_pi_area = TRUE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
@@ -447,7 +447,7 @@ Now, let's say we want to remove the observed data points from the plot above to
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = plot_vpc_shown(obs_dv = FALSE)
+  shown = plot_vpc_shown(obs_point = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
@@ -461,7 +461,7 @@ We could also take this one step further and only look at the median and the sim
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
-  shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
+  shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = FALSE, sim_pi_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
@@ -480,11 +480,11 @@ We can define an alternative theme using a blue / grey color schema using this f
 
 ```{r vpc-new-theme}
 vpc_new_theme <- plot_vpc_theme(
-  obs = pmx_point(color = "#000000"),
-  obs_median = pmx_line(color = "#000000"),
-  obs_ci = pmx_line(color = "#000000"),
-  sim_median = pmx_ribbon(fill = "#3388cc"),
-  sim_pi = pmx_ribbon(fill = "#3388cc")
+  obs_point = pmx_point(color = "#000000"),
+  obs_med_line = pmx_line(color = "#000000"),
+  obs_pi_line = pmx_line(color = "#000000"),
+  sim_median_ci = pmx_ribbon(fill = "#3388cc"),
+  sim_pi_ci = pmx_ribbon(fill = "#3388cc")
 )
 ```
 
@@ -554,11 +554,11 @@ vpc_wleg
 The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont` and `plot_vpc_legend`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`
 
 ```{r vpc-legend-medonly}
-plot_vpc_legend(shown = c(obs_ci = FALSE, pi_ci = FALSE))
+plot_vpc_legend(shown = plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE))
 ```
 
 ```{r vpc-legend-shown-medonly}
-shown_elements <- plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE)
+shown_elements <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE)
 plot_vpc_legend(shown = shown_elements)
 ```
 

@@ -29,44 +29,44 @@ vpc_build_plot <- function(vpcstats,
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
 
   ## Simulated prediction interval as area
-  if (isTRUE(shown$pi_as_area)) {
+  if (isTRUE(shown$sim_pi_area)) {
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_med, ymax = q95_med),
-        fill = vpctheme$sim_pi$fill,
-        alpha = vpctheme$sim_pi$alpha
+        fill = vpctheme$sim_pi_area$fill,
+        alpha = vpctheme$sim_pi_area$alpha
       )
   }
 
   ## Simulated prediction interval CI ribbons
-  if (isTRUE(shown$pi_ci)) {
+  if (isTRUE(shown$sim_pi_ci)) {
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q5_low, ymax = q5_hi),
-        fill = vpctheme$sim_pi$fill,
-        alpha = vpctheme$sim_pi$alpha
+        fill = vpctheme$sim_pi_ci$fill,
+        alpha = vpctheme$sim_pi_ci$alpha
       ) +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q95_low, ymax = q95_hi),
-        fill = vpctheme$sim_pi$fill,
-        alpha = vpctheme$sim_pi$alpha
+        fill = vpctheme$sim_pi_ci$fill,
+        alpha = vpctheme$sim_pi_ci$alpha
       )
   }
 
   ## Simulated prediction interval lines
-  if (isTRUE(shown$pi)) {
+  if (isTRUE(shown$sim_pi_line)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q5_med),
-        color = vpctheme$sim_pi$color,
-        linetype = vpctheme$sim_pi$linetype,
-        linewidth = vpctheme$sim_pi$linewidth
+        color = vpctheme$sim_pi_line$color,
+        linetype = vpctheme$sim_pi_line$linetype,
+        linewidth = vpctheme$sim_pi_line$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(y = q95_med),
-        color = vpctheme$sim_pi$color,
-        linetype = vpctheme$sim_pi$linetype,
-        linewidth = vpctheme$sim_pi$linewidth
+        color = vpctheme$sim_pi_line$color,
+        linetype = vpctheme$sim_pi_line$linetype,
+        linewidth = vpctheme$sim_pi_line$linewidth
       )
   }
 
@@ -75,50 +75,50 @@ vpc_build_plot <- function(vpcstats,
     plot <- plot +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = q50_low, ymax = q50_hi),
-        fill = vpctheme$sim_median$fill,
-        alpha = vpctheme$sim_median$alpha
+        fill = vpctheme$sim_median_ci$fill,
+        alpha = vpctheme$sim_median_ci$alpha
       )
   }
 
   ## Simulated median line
-  if (isTRUE(shown$sim_median)) {
+  if (isTRUE(shown$sim_median_line)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = q50_med),
-        color = vpctheme$sim_median$color,
-        linetype = vpctheme$sim_median$linetype,
-        linewidth = vpctheme$sim_median$linewidth
+        color = vpctheme$sim_median_line$color,
+        linetype = vpctheme$sim_median_line$linetype,
+        linewidth = vpctheme$sim_median_line$linewidth
       )
   }
 
   ## Observed median line
-  if (isTRUE(shown$obs_median)) {
+  if (isTRUE(shown$obs_med_line)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
-        color = vpctheme$obs_median$color,
-        linetype = vpctheme$obs_median$linetype,
-        linewidth = vpctheme$obs_median$linewidth
+        color = vpctheme$obs_med_line$color,
+        linetype = vpctheme$obs_med_line$linetype,
+        linewidth = vpctheme$obs_med_line$linewidth
       )
   }
 
   ## Observed CI lines (lower and upper quantiles)
-  if (isTRUE(shown$obs_ci)) {
+  if (isTRUE(shown$obs_pi_line)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs5),
         inherit.aes = FALSE,
-        color = vpctheme$obs_ci$color,
-        linetype = vpctheme$obs_ci$linetype,
-        linewidth = vpctheme$obs_ci$linewidth
+        color = vpctheme$obs_pi_line$color,
+        linetype = vpctheme$obs_pi_line$linetype,
+        linewidth = vpctheme$obs_pi_line$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs95),
         inherit.aes = FALSE,
-        color = vpctheme$obs_ci$color,
-        linetype = vpctheme$obs_ci$linetype,
-        linewidth = vpctheme$obs_ci$linewidth
+        color = vpctheme$obs_pi_line$color,
+        linetype = vpctheme$obs_pi_line$linetype,
+        linewidth = vpctheme$obs_pi_line$linewidth
       )
   }
 

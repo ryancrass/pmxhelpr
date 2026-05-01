@@ -4,16 +4,16 @@
 \alias{plot_gof_shown}
 \title{GOF layer visibility settings}
 \usage{
-plot_gof_shown(OBS = NULL, DV = NULL, PRED = NULL, IPRED = NULL)
+plot_gof_shown(obs = NULL, dv = NULL, pred = NULL, ipred = NULL)
 }
 \arguments{
-\item{OBS}{Show observed data points/lines. Default is \code{TRUE}.}
+\item{obs}{Show observed data points/lines. Default is \code{TRUE}.}
 
-\item{DV}{Show DV central tendency. Default is \code{TRUE}.}
+\item{dv}{Show DV central tendency. Default is \code{TRUE}.}
 
-\item{PRED}{Show PRED central tendency. Default is \code{TRUE}.}
+\item{pred}{Show PRED central tendency. Default is \code{TRUE}.}
 
-\item{IPRED}{Show IPRED central tendency. Default is \code{TRUE}.}
+\item{ipred}{Show IPRED central tendency. Default is \code{TRUE}.}
 }
 \value{
 A named list of logicals
@@ -24,5 +24,5 @@ Call with no arguments to view defaults. Pass overrides to customize.
 }
 \examples{
 plot_gof_shown()
-plot_gof_shown(PRED = FALSE)
+plot_gof_shown(pred = FALSE)
 }

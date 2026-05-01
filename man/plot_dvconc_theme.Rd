@@ -4,10 +4,15 @@
 \alias{plot_dvconc_theme}
 \title{Response versus concentration plot theme}
 \usage{
-plot_dvconc_theme(obs = NULL, ref_line = NULL, loess = NULL, linear = NULL)
+plot_dvconc_theme(
+  obs_point = NULL,
+  ref_line = NULL,
+  loess = NULL,
+  linear = NULL
+)
 }
 \arguments{
-\item{obs}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
+\item{obs_point}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
 \item{ref_line}{Reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 

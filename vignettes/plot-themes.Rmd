@@ -2,7 +2,7 @@
 title: "Plot Themes and Aesthetics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{plot-aesthetics}
+  %\VignetteIndexEntry{plot-themes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

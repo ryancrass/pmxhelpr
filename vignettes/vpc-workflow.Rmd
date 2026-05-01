@@ -152,7 +152,7 @@ The simulation has appended some key variables with standardized names that will
   
 These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change argument form `sim_dv_var`, as the variables are renamed to VPC workflow standards on output
 
-```{r df_mrgsim_replicate}
+```{r df_mrgsim_replicate-y}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
@@ -205,7 +205,7 @@ colnames(simout)
 
 The unique seed can be set using the `seed` argument. The default is `1234567889`.
 
-```{r }```{r df_mrgsim_replicate-seed}
+```{r df_mrgsim_replicate-seed}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
@@ -384,7 +384,7 @@ Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
 
 `loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. When specified, observed quantiles are computed using censored quantile estimation, where values below the LLOQ (including missing values) are treated as left-censored. If the quantile of the observed data falls below the LLOQ, it is returned as `NA`.
 
-```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+```{r plot-vpc-blq-obs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_obs_cens <- plot_vpc_cont(
   sim = sim100,
   strat_var = PART,
@@ -394,7 +394,7 @@ vpc_blq_obs_cens <- plot_vpc_cont(
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc_blq_qobs_cens
+vpc_blq_obs_cens
 ```
 
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
@@ -482,6 +482,13 @@ vpc_pc_noobs_medonly <- plot_vpc_cont(
 vpc_pc_noobs_medonly
 ```
 
+### Adjusting the Plot Theme
+
+The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+
+```{r vpc-them}
+
+```
 
 ### Accessing VPC Summary Statistics
 
@@ -543,6 +550,3 @@ vpc_legend_medonly2 <- plot_vpc_legend(shown = shown_elements)
 vpc_legend_medonly2
 ```
 
-# Plot Aesthetics
-
-The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.

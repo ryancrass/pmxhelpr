@@ -177,6 +177,33 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
   + Includes log tick marks on the y-axis 
   + Updates the caption with the correct central tendency measure if `show_captions = TRUE`. 
   
+  
+## Adjusting the Plot Theme with `plot_gof_theme()`
+
+The default aesthetics for VPC plots are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+
+```{r theme}
+plot_gof_theme()
+```
+
+Say we want to update the width of the observed data trend line and add points at the binned values for the central tendency lines. The points are suppressed by default `alpha=0`. We can accomplish these theme changes by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
+
+```{r new-theme}
+gof_new_theme <- plot_gof_theme(
+  cent_errorbar = pmx_errorbar(width = 10),
+  pred_point = pmx_point(shape = 16, alpha = 1),
+  ipred_point = pmx_point(shape = 16, alpha = 1),
+  dv_point = pmx_point(shape = 16, alpha = 1)
+)
+```
+
+```{r plot-popgof-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
+            log_y = TRUE, theme = gof_new_theme) +
+  facet_wrap(~`Dose and Food`, scales = "free") +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+```
+
 
 # Individual Concentration-time plots
 

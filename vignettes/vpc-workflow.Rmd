@@ -20,6 +20,7 @@ This vignette will demonstrate `pmxhelpr` functions for simulation-based visual 
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
+library(forcats, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
 library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)

@@ -53,7 +53,10 @@ Accepts bare names or strings. Currently, only a single stratifying variable is 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Specifying this argument implies that the observed variable\code{OBSDV} is missing (\code{NA})
+If \code{NULL} (default) and an \code{LLOQ} column is present in \code{sim}, the unique LLOQ value
+is inherited from that column automatically.
+Ignored when \code{pcvpc = TRUE} (LLOQ is not meaningful on the prediction-corrected scale).
+Specifying this argument implies that the observed variable \code{OBSDV} is missing (\code{NA})
 and \code{MDV = 1} where < \code{loq} in \code{sim}.
 For standard VPCs (\code{pcvpc = FALSE}), all \code{MDV} values are set to 0 so that
 all observations (including BLQ) are included in summary statistics.

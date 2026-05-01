@@ -197,11 +197,10 @@ pmx_style <- function(color = NULL, alpha = NULL) {
 #' @export
 pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
                          alpha = NULL, width = NULL) {
-  structure(
-    compact(list(linewidth = linewidth, linetype = linetype,
-                 alpha = alpha, width = width)),
-    class = "pmx_errorbar"
-  )
+  out <- compact(list(linewidth = linewidth, linetype = linetype,
+                      alpha = alpha))
+  out["width"] <- list(width)
+  structure(out, class = "pmx_errorbar")
 }
 
 
@@ -262,7 +261,7 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.5),
     cent_point    = pmx_point(shape = 16, size = 1.25, alpha = 1),
     cent_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
-    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
@@ -320,13 +319,13 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
-    dv_point      = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "blue"),
+    dv_point      = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "blue"),
     dv_line       = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "blue"),
-    pred_point    = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "red"),
+    pred_point    = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "red"),
     pred_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "red"),
-    ipred_point   = pmx_point(shape = 1, size = 1.25, alpha = 1, color = "green"),
+    ipred_point   = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "green"),
     ipred_line    = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
-    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1, width = NULL),
+    cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )

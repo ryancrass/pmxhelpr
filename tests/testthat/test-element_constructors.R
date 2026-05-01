@@ -135,10 +135,12 @@ test_that("pmx_errorbar sets all fields", {
   expect_equal(el$width, 1.5)
 })
 
-test_that("pmx_errorbar with no args returns empty named structure", {
+test_that("pmx_errorbar with no args returns structure with width slot", {
   el <- pmx_errorbar()
   expect_s3_class(el, "pmx_errorbar")
-  expect_length(el, 0)
+  expect_length(el, 1)
+  expect_true("width" %in% names(el))
+  expect_null(el$width)
 })
 
 test_that("pmx_errorbar rejects unknown arguments", {

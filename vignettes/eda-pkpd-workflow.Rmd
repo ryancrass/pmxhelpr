@@ -118,8 +118,6 @@ p_pk / p_pd + plot_layout(guides = "collect")
 
  `plot_dvconc()` is a plotting function intended to help with visualization of the relationship between a dependent variable for response and drug concentration.
  
-  `plot_dvconc()` inherits its data handling and aesthetic control arguments from `plot_dvtime()`. The key additions are `loess` and `linear` (via `plot_dvconc_theme()`). See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
- 
 ## Specifying Depenent and Independent Variables
 
 `plot_dvconc()` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`), The defaults are as follows:
@@ -205,7 +203,29 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 ```
 
 
+## Adjusting the Plot Theme with `plot_dvconc_theme()`
 
+The default aesthetics for VPC plots are controlled via `plot_dvconc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+
+```{r theme}
+plot_dvconc_theme()
+```
+
+Say we want to update the color of the trend line and standard error. This can be done by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
+
+```{r new-theme}
+dvconc_new_theme <- plot_dvconc_theme(
+  loess = pmx_trend(color = "darkred", se_color = "darkred")
+)
+```
+
+```{r plot-dvconc-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
+            theme = dvconc_new_theme) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
 
 
 

@@ -64,6 +64,18 @@ length(unique(data_sad$NTIME))
 length(unique(data_sad$TIME))
 ```
 
+Let's define some variables that may be useful in plotting and filter down to PK relevant records.
+
+```{r data-factors, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+data_sad_pk <- data_sad %>% 
+  filter(CMT %in% c(1,2)) %>% 
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
+  mutate(`Food Status` = var_addn(`Food Status`, ID),
+         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
+  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+```
+
 
 
 # PK Model
@@ -82,140 +94,321 @@ mrgsolve::see(model)
 
 
 
-# VPC Workflow with `plot_vpc_cont()`
+# VPC Workflow
 
 ## Overview
 
  `pmxhelpr` includes a function for generating VPC and pcVPC plots for model evaluation: `plot_vpc_cont()`.
 
-Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times).
+Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times). Additionally, when a dataset contains an exact binning variable, these algorithms may not reproduce the exact bins. For example, absorption phase timepoints that are close together may be grouped into a single bin, obscuring important pharmacokinetic details.
 
-`plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at visualized at the protocol-specified sampling times.
+The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols specify the times of PK sampling. `plot_vpc_cont()` uses the unique values of the nominal time variable directly as exact bins, ensuring that summary statistics are calculated at visualized at the protocol-specified sampling times.
 
  `plot_vpc_cont()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on customizing plot appearance.
 
 
 ## Running the simulation with `df_mrgsim_replicate()`
 
+### Overview
+
 `pmxhelpr` includes a function for running multiple replicates of a data set via simulation: `df_mrgsim_replicate()`
 
  `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
-We can pass `data_sad` and `model` from the previous steps to the `data` and `model` arguments, respectively, and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). This argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+There are 3 required arguments to `df_mrgsim_replicate()`
 
-We would like to recover the numerical variables `"DOSE"` and `"FOOD"` and the character variable `"PART"` from the input dataset, as we may need these study conditions to stratify our VPC plots. We will request `"BLQ"` and `"LLOQ"` for potential assessment of impact of censoring in the VPCs, as well as, the NONMEM reserved variables `"CMT"`, `"EVID"`, and `"MDV"`. Finally, we will add the argument `obsonly = TRUE`, which is passed to `mrgsim()`, to remove dose records from the simulation output and reduce file size.
+  - `data`, data.frame modeling analysis dataset
+  - `model`, `mrgmod` model object
+  - `replicates`, numeric number of replicates to perform.
+  
+The are optional arguments specifying key dataset variables to be input into the simulation or captured in output. These include: 
+
+  - `dv_var` = DV, dependent variable
+  - `time_var` = TIME, actual time variable
+  - `ntime_var` = NTIME, nominal time variable
+  - `pred_var` = PRED, population prediction variable (fixed effects only)
+  - `ipred_var` = IPRED, individual prediction variable (fixed + level 1 random effects)
+  - `sim_dv_var` = DV, dependent variable captured in the simulated output (fixed + level 1 and 2 random effects)
+  
+These argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+
+We can pass `data_sad_pk` and `model`  and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). 
 
 ```{r df_mrgsim_replicate}
-data_sad_pk <- filter(data_sad, CMT %in% c(1,2))
-
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV,
-                     num_vars = c("CMT", "BLQ", "LLOQ", "EVID", "MDV", "DOSE", "FOOD"),
-                     char_vars = c("PART"),
-                     obsonly = TRUE)
+                     dv_var = ODV)
 
 glimpse(simout)
-
 max(simout$SIM)
 ```
 
-The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times.
-
-Glimpsing the output reveals the following model outputs:
-
+The simulation has appended some key variables with standardized names that will allow us to take advantage of default arguments in later pipeline functions:
   - `PRED` (population prediction)
   - `IPRED` (individual prediction)
   - `SIMDV` (simulated dependent variable)
   - `OBSDV` (observed dependent variable).
+  
+These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change argument form `sim_dv_var`, as the variables are renamed to VPC workflow standards on output
 
-## Why Exact Bins?
+```{r df_mrgsim_replicate}
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     sim_dv_var = Y)
 
-Many automatic binning algorithms are designed to determine optimal binning intervals from the data. However, when a dataset contains an exact binning variable (such as nominal time), these algorithms may not reproduce the exact bins. For example, absorption phase timepoints that are close together may be grouped into a single bin, obscuring important pharmacokinetic details.
+glimpse(simout)
+```
 
-The presence of exact bins in the data is a common scenario in pharmacometrics, as Clinical Study Protocols specify the times of PK sampling.
+### Changing the Replicate Counter
 
-## VPC Plots with `pmxhelpr`
+The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times. The variable name output for the count of replicates can be specified using the `irep_name` argument.
 
-`plot_vpc_cont()` uses the unique values of the nominal time variable (`NTIME`) directly as exact bins. This ensures that summary statistics are calculated at each protocol-specified sampling time, preserving the full resolution of the data.
+This argument uses non-standard evaluation and can be supplied as a bare name or string
 
-Because we have multiple dose levels in the SAD portion of the study, as well as, a food effect cohort, prediction-correction will be used to plot all the data on a single plot using the argument `pcvpc = TRUE`.
+```{r df_mrgsim_replicate-irep}
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     irep_name = IREP)
 
-```{r plot-exact, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact <- plot_vpc_cont(
+max(simout$IREP)
+```
+
+
+### Capturing Additional Variables
+  
+The user may want to recover additional variables from the input dataset that may be needed to stratify or pre-process the simulation output for VPC plots. 
+
+`df_mrgsim_replicate` includes two arguments for this:
+
+  - `num_vars` character vector of variable names passed to `carry_out` argument of `mrgsim_df()`. 
+  - `char_vars` character vector of variable names passed to `recover` argument of `mrgsim_df()`
+  
+*NOTE* CMT, EVID, MDV, TIME, and NTIME are allways carried out automatically and returned
+
+```{r df_mrgsim_replicate-capture}
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
+                     char_vars = c("PART", "DoseFood"))
+
+colnames(simout)
+```
+
+### Setting the seed
+
+The unique seed can be set using the `seed` argument. The default is `1234567889`.
+
+```{r }```{r df_mrgsim_replicate-seed}
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     seed = 42)
+
+glimpse(simout)
+```
+
+### Additional arguments passed to `mrgsim_df()`
+
+Additional arguments can be passed to `mrgsim_df()` via the elipses `...`. One argument that may sometimes be useful is `obsonly = TRUE`. This argument removes dose records from the simulation output and reduce file size.
+
+```{r df_mrgsim_replicate-obsonly}
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
+                     char_vars = c("PART", "DoseFood"))
+
+nrow(simout)
+
+simout <- df_mrgsim_replicate(data = data_sad_pk,
+                     model = model,
+                     replicates = 100,
+                     dv_var = ODV, 
+                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
+                     char_vars = c("PART", "DoseFood"), 
+                     obsonly = TRUE)
+
+nrow(simout)
+```
+
+
+## VPC Plots with `plot_vpc_cont()`
+
+`pmxhelpr` contains a function to produce VPC and pcVPC plots for models fit to longitudinal, continuous repeated measures data: `plot_vpc_cont()` 
+
+This function is designed around the concept of actual and nominal time variables, with the latter used to bin data together to calculate and display summary statistics across simulation replicates.
+
+`plot_vpc_cont` has 1 required argument: `sim`, the input simulated dataset for the VPC procedure.
+
+```{r plot-vpc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc <- plot_vpc_cont(
+  sim = simout,
+) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc
+```
+
+
+### Prediction-correction
+
+Because this study includes multiple dose levels, it is not appropriate to visualize the data together in a single VPC plot. One must either: 1) Facet by dose, 2) prediction-correct 
+
+```{r plot-vpc-pc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE
 ) +
-  labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
+  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc_exact
+vpc
 ```
 
-The difference in plotting the observed prediction-corrected data points by `"TIME"` versus `"NTIME"` is negligible for this example dataset, due to the high concordance between `"TIME"` and `"NTIME"` in this example Phase 1 study. However, this difference is often much larger for pooled analyses including later phase clinical studies where plotting the observed points versus actual time will result in a plot that is much more representative of the distribution of times in the model training dataset.
+### Stratifying plots
 
-`plot_vpc_cont()` contains the argument `min_bin_count` (default = 1) filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+The other option to prediction-correction is to stratify by confounding factors. Dose is generally the minimum stratification for a VPC plot. The variable for stratification *MUST* be passed to the argument `strat_var` and not added later only as a `facet_wrap`/`facet_grid` call to the returned object.
 
-Additionally, because our plot input dataset `simout` was generated using `df_mrgsim_replicate()`, the column names match the defaults for `plot_vpc_cont()` and do not need to be specified. The `pi` and `ci` arguments also match the defaults and can be removed.
+Let's take a look at our prediction-corrected VPC stratified by Food Status.
+
+```{r plot-vpc-pc-food, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc <- plot_vpc_cont(
+  sim = mutate(simout,FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
+  pcvpc = TRUE,
+  strat_var = FoodStatus
+) +
+  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc
+```
+
+Now let's look at a regular VPC stratified by the interaction of dose and food status
+
+```{r plot-vpc-dosefood, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc <- plot_vpc_cont(
+  sim = simout,
+  strat_var = DoseFood
+) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc
+```
+
+*NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
+
+```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc <- plot_vpc_cont(
+  sim = simout
+) +
+  facet_wrap(~DoseFood)+
+  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc
+```
+
+### Dropping small sample bins
+
+There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count` (default = 1), which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
-```{r plot-exact-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_exact_bin_gt10 <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 10
 ) +
   labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
 vpc_exact_bin_gt10
 ```
 
-We can also pass stratifying variables to the argument `strat_var` in order to facet our plots by relevant covariate conditions. Currently, only one variable can be passed to this argument.
+### BLQ handling
 
-```{r plot-exact-one-strata, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact_food <- plot_vpc_cont(
-  sim = mutate(simout, FOOD_f = factor(FOOD, levels = c(0,1), labels = c("Fasted", "Fed"))),
-  strat_var = FOOD_f,
-  pcvpc = TRUE,
-  min_bin_count = 4
-) +
-  labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks")
+BLQ data are often ignored in population PK modeling (i.e., set as missing; M1 method) in population. This is unlikely to introduce appreciable bias in model parameter estimation, provided the absolute frequency of BLQ data is low (e.g., <10-20%) and the pattern of BLQ censoring is in line with the expectations by dose and time.
 
-vpc_exact_food
+However, the handling of BLQ data in VPCs may impact the interpretation of these graphical model diagnostics.
+
+Let's generate some VPC plots to demonstrate the impact of different approaches to BLQ handling to the visual assessment of the adequacy of model fit and the true underlying PK profile. We will continue using the `simout` object generated above.
+
+Let's start by focusing on evaluating the model fit of the 100 mg dose level we have been exploring across Part1-SAD and Part2-FE.
+
+```{r sim-input}
+sim100 <- simout %>%
+  filter(DOSE == 100)
 ```
 
-Because `plot_vpc_cont()` returns a `ggplot2` object, the y-axis can be transformed to log10 scale by adding `scale_y_log10()` as a layer. This approach avoids any data transformation prior to calculating summary statistics, ensuring all quantile calculations are performed on the original scale.
+There are two potential approaches processing and plotting the VPC:
 
+  1. `Exclude BLQ`: remove missing observations (`MDV=1`) in the observed input data before passing to the simulation (e.g., filter out `MDV=1 and EVID=0`)
+  2. `Censor Observed Quantiles`: simulate all timepoints and set quantiles of the observed data to `NA`, if the sample representing that quantile of the observed is BLQ (`MDV=1`) in the bin.
 
+Let's plot using the default arguments to `plot_vpc_cont()`. The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
 
-
-This section will review the functionality for updating aesthetic elements of VPC plots generated using `plot_vpc_cont()` with the `plot_vpc_theme()` function.
-
-`plot_vpc_legend()` is a helper plotting function that creates a legend for VPC plots. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
-
-We will continue using the `simout` object generated above.
-
-Now let's plot all data together in a prediction-corrected VPC (pcVPC). There is only single dose administration in this dataset, thus we are able to pool across doses and food conditions with prediction-correction. We will set `min_bin_count = 5` to avoid the simulated intervals extending to the final timepoint with only a single observation.
-
-```{r plot-vpc-pcvpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc <- plot_vpc_cont(
-  sim = simout,
+```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+vpc_blq_drop <- plot_vpc_cont(
+  sim = filter(sim100, MDV==0),
   pcvpc = TRUE,
-  min_bin_count = 5
+  strat_var = PART
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc_pc
+vpc_blq_drop
 ```
 
-# Plot Elements
+The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (i.e., plotting `"ODV"`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is due to the decreasing sample size with time due to exclusion of timepoints where `MDV=1`.
 
-## Default Elements
+Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
+
+`loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. When specified, observed quantiles are computed using censored quantile estimation, where values below the LLOQ (including missing values) are treated as left-censored. If the quantile of the observed data falls below the LLOQ, it is returned as `NA`.
+
+```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+vpc_blq_obs_cens <- plot_vpc_cont(
+  sim = sim100,
+  strat_var = PART,
+  loq = 1
+) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+
+vpc_blq_qobs_cens
+```
+
+Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
+
+Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input dataset for the plot (`sim`) when `EVID=0`. The function sets the `MDV` variable in `sim` to zero (0) so that all timepoints are included.
+
+  - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`.
+  - In the calculation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
+
+Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. 
+
+Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`).
+
+### Adjusting the elements displayed
 
 The default elements shown in the plot are controlled by the `shown` argument in `plot_vpc_cont()`.
 
@@ -238,11 +431,7 @@ The components of the list correspond to the following vpc plot elements:
 
 One or more elements to be updated from the defaults above can be passed as a list to the argument `shown`. Any elements not specified in `shown` will inherit the defaults.
 
-## Adjusting Elements
-
-For example, we may want to visualize the 90% prediction interval (i.e., 5th to 95th percentiles) derived from the simulation, rather than the confidence intervals of the 5th and 95th percentiles independently. In this case, we want to also see how close the simulated median falls relative to the observed median.
-
-Let's see how this can be down using `shown`!
+For example, the 90% prediction interval (i.e., 5th to 95th percentiles) can be visualized in place of CIs of each of the 5th and 95th percentiles with the observed and simulated medians shown as follows:
 
 ```{r plot-vpc-pcvpc-90pi, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
@@ -253,12 +442,13 @@ vpc_pc_pi <- plot_vpc_cont(
   shown = plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE, sim_median_ci = FALSE, sim_median = TRUE, pi_as_area = TRUE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_pi
 ```
 
-Now, let's say we want to remove the observed data points from the plot above to better visualize the observed quantile lines relative to their corresponding simulated confidence intervals. We can do this as follows.
+Now, let's say we want to remove the observed data points from the plot above to better visualize the observed quantile lines relative to their corresponding simulated confidence intervals. This can be accomplished with `shown`.
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 
@@ -269,6 +459,7 @@ vpc_pc_noobs <- plot_vpc_cont(
   shown = plot_vpc_shown(obs_dv = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_noobs
@@ -285,265 +476,73 @@ vpc_pc_noobs_medonly <- plot_vpc_cont(
   shown = plot_vpc_shown(obs_dv = FALSE, obs_ci = FALSE, pi_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
 vpc_pc_noobs_medonly
 ```
 
 
-# BLQ Censoring
-This vignette will review the functionality in `plot_vpc_cont()` for appropriate handling of data censored below the lower limit of quantification (LLOQ) using the `loq` argument.
-
-Let's get started. First, we will load the required packages.
-
-# Analysis Dataset
-
-First, let's prepare the observed data for plotting. We will filter to PK observations and create a `Dose (mg)` variable using `var_addn()` to include sample size counts per dose group.
-
-```{r plot-data-blq}
-plot_data <- data_sad %>%
-  filter(CMT == 2) %>%
-  mutate(`Dose (mg)` = var_addn(DOSE, ID, sep = "mg"))
-```
-
-Now let's plot the data using `ODV` colored by `Dose (mg)` and faceted by `PART`.
-
-```{r plot-conc-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var = ODV, col_var = `Dose (mg)`, log_y = TRUE) +
-  facet_wrap(~PART) +
-  labs(y = "Concentration (ng/mL)")
-```
-
-The concentration-time profiles increase with dose with some potential impact of censoring at the LLOQ in the late terminal phase. To further assess the potential impact of BLQ censoring, we will set the `loq_method = 2` in `plot_dvtime()`, which imputes BLQ data to 1/2 x LLOQ. Imputing  concentrations below the lower limit of quantification as 1/2 x LLOQ normalizes the late terminal phase of the concentration-time profile. This suggests that the artifact in the late terminal phase is due to censoring of observations below the LLOQ, which impacts lower doses more than higher doses.
-
-```{r plot-conc-time-blq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-plot_dvtime(plot_data, dv_var =  ODV, col_var = `Dose (mg)`, loq_method = 2,
-            log_y = TRUE) +
-  facet_wrap(~PART) +
-  labs(y = "Concentration (ng/mL)")
-```
-
-Indeed, while pharmacokinetic data are generally treated as continuous log-normally distributed data, in reality the distribution is truncated by the lower limit of quantification of the assays used in bioanalysis.
-
-Therefore, whenever evaluating concentration-time plots, we should keep in mind the assay limitations and their potential impact on visual trends. To examine this further, let's visualize the two different concentrations variables in the `plot_data` object for a single dose:
-
- - `ODV`: Original dependent variable based on the source data. Data below the LLOQ are censored and set to missing `NA`.
- - `DV`: Derived dependent variable with data below the LLOQ set to `0.5 x LLOQ`.
-
-We will focus in on the 100 mg dose, which is included in both Part1-SAD and Part2-FE, and appears to display some of the most visual artifact potentially due to censoring at the LLOQ.
-
-```{r plot-conc-blq-imp-100, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-plot_data100 <- plot_data %>%
-  filter(DOSE == 100) %>%
-  mutate(DV = ifelse(BLQ == 0, ODV, LLOQ/2))
-
-ggplot(aes(x = TIME, y = ODV), data = plot_data100)+
-  geom_point(shape = 1, alpha = 0.5)+
-  stat_summary(fun = "mean", geom = "point",
-               aes(x = NTIME, y = ODV, col = "DV (>LLOQ)"), inherit.aes = FALSE) +
-  stat_summary(fun = "mean", geom = "line",
-               aes(x = NTIME, y = ODV, col = "DV (>LLOQ)"), inherit.aes = FALSE) +
-  stat_summary(fun = "mean", geom = "point",
-               aes(x = NTIME, y = DV, col = "DV (>0.5LLOQ)"), inherit.aes = FALSE) +
-  stat_summary(fun = "mean", geom = "line",
-               aes(x = NTIME, y = DV, col = "DV (>0.5LLOQ)"), inherit.aes = FALSE) +
-  geom_hline(yintercept = unique(plot_data$LLOQ), linetype = "dashed")+
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")+
-  scale_color_manual(name = "Data Handling",
-                     breaks = c("DV (>LLOQ)", "DV (>0.5LLOQ)"),
-                     values = c("DV (>LLOQ)" = "#440154FF", "DV (>0.5LLOQ)" = "#21908CFF"))+
-  facet_wrap(~PART)+
-  labs(y = "Concentration (ng/mL)", x = "Time Since Dose Administration (hours)")+
-  theme_bw() +
-  theme(panel.grid.minor.y = element_blank(),
-        panel.grid.major.x = element_blank())
-```
-
-We can see in these plots that the central tendency of the late terminal phase is influenced by censoring at the LLOQ. This leads to visual artifact, which may sometimes appear like another log-linear slope. The exact pattern of impact will depend on the dose intensity, the assay sensitivity, and the study sampling schema.
-
-The relative impact of the unobserved portion of the distribution of concentration can be further visualized as histograms faceted by nominal sampling time. These distributions are pooled across both Part 1-SAD and Part 2-FE for the 100 mg in these histograms.
-
-```{r plot-hist-conc-blq, fig.height=4, fig.width=9, message=FALSE, warning=FALSE}
-ggplot(aes(x = DV), data = filter(plot_data100, NTIME %in% seq(24,144,24), DOSE == 100))+
-  geom_histogram()+
-  geom_vline(xintercept = unique(plot_data$LLOQ), linetype = "dashed", color = "red")+
-  scale_x_log10()+
-  facet_wrap(~NTIME)+
-  labs(y = "Density", x = "Concentration (ng/mL)")+
-  theme_bw()+
-  theme(panel.grid.minor = element_blank())
-```
-
-If the study protocol had only included sampling through 72 hours, then the impact of censoring at the assay LLOQ would have been negligible for a single 100 mg dose, regardless of food condition. However, a large portion of the distribution of concentrations is BLQ at later timepoints the one week duration of sampling.
-
-It is expected that the frequency of censored data at the LLOQ will increase with increasing time from dose administration. Additionally, it is expect that the frequency of of censored data below the LLOQ will decrease with increasing dose intensity.
-
-We can visualize this by summarizing the fraction of samples that are missing due to assay sensitivity (`MDV=1`) by timepoint, dose, and study part.
-
-```{r plot-line-freq-blq-dose-time, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-plot_data_sumblq <- plot_data %>%
-  group_by(DOSE, `Dose (mg)`,NTIME, PART) %>%
-  dplyr::summarize(`Fraction BLQ`= mean(MDV)) %>%
-  ungroup()
-
-ggplot(aes(x = NTIME, y = `Fraction BLQ`, col = `Dose (mg)`), data = plot_data_sumblq)+
-  geom_line()+
-  scale_x_continuous(breaks = seq(0,168,24))+
-  facet_wrap(~PART)+
-  labs(y = "Fraction of Samples BLQ", x = "Nominal Time Since Dose Administration (hours)")+
-  theme_bw() +
-  theme(panel.grid.minor = element_blank())
-
-```
-
-In summary, the observed patterns of BLQ data were in the example dataset are anticipated for an early phase clinical study.
-
-  - increasing frequency of BLQ data with increasing time
-  - decreasing frequency of BLQ data with increasing dose
-
-BLQ data are often ignored (i.e., set as missing; M1 method) in population PK model development. This is unlikely to introduce appreciable bias in model parameter estimation, provided the absolute frequency of BLQ data is low (e.g., <10-20%) and the pattern of BLQ censoring is in line with the expectations by dose and time.
-
-However, just as BLQ censoring introduced some artifact to the exploratory plots of concentration over time, the handling of BLQ data in VPCs may impact the interpretation of these graphical model diagnostics.
-
-
-
-# VPC Plots Accounting for BLQ Censoring
-
-Let's generate some VPC plots to demonstrate the impact of different approaches to BLQ handling to the visual assessment of the adequacy of model fit and the true underlying PK profile. We will continue using the `simout` object generated above.
-
-Let's start by focusing on evaluating the model fit of the 100 mg dose level we have been exploring across Part1-SAD and Part2-FE.
-
-```{r sim-input}
-sim100 <- simout %>%
-  filter(DOSE == 100)
-```
-
-There are two potential approaches processing and plotting the VPC:
-
-  1. `Exclude BLQ`: remove missing observations (`MDV=1`) in both the observed and simulated data
-  2. `Censor Observed Quantiles`: set quantiles of the observed data to `NA`, if the sample representing that quantile of the observed is BLQ (`MDV=1`) in the bin.
-
-Let's plot using the default arguments to `plot_vpc_cont()`. The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
-
-```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-vpc_blq_drop <- plot_vpc_cont(
-  sim = sim100,
-  strat_var = PART,
-  min_bin_count = 4
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks")
-
-vpc_blq_drop
-```
-
-The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (i.e., plotting `"ODV"`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is due to the decreasing sample size with time due to exclusion of timepoints where `MDV=1`.
-
-Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
-
-`loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. When specified, observed quantiles are computed using censored quantile estimation, where values below the LLOQ (including missing values) are treated as left-censored. If the quantile of the observed data falls below the LLOQ, it is returned as `NA`.
-
-```{r plot-vpc-blq-qobs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-vpc_blq_qobs_cens <- plot_vpc_cont(
-  sim = sim100,
-  strat_var = PART,
-  min_bin_count = 4,
-  loq = 1
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks")
-
-vpc_blq_qobs_cens
-```
-Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
-
-Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input dataset for the plot (`sim`) when `EVID=0`. The function sets the `MDV` variable in `sim` to zero (0) so that all timepoints are included.
-
-  - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`.
-  - In the calculation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
-
-Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`).
-
-
-# Accessing VPC Summary Statistics
+### Accessing VPC Summary Statistics
 
 By default, `plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics used to build the plot, set `vpcstats = TRUE`. This returns a `data.frame` containing the observed and simulated quantiles, confidence intervals, and bin information.
 
 ```{r vpc-stats, message=FALSE, warning=FALSE}
 stats <- plot_vpc_cont(
   sim = simout,
-  pcvpc = TRUE,
-  min_bin_count = 5,
+  strat_var = DoseFood,
   vpcstats = TRUE
 )
 
 head(stats)
 ```
 
-This is useful for tabulating VPC diagnostics or creating custom visualizations outside the default `plot_vpc_cont()` output.
 
+### Modifying Axes and Labels
+
+Because `plot_vpc_cont()` returns a `ggplot2` object, the y-axis can be transformed to log10 scale by adding `scale_y_log10()` as a layer. This approach avoids any data transformation prior to calculating summary statistics, ensuring all quantile calculations are performed on the original scale.
+
+Similarly, the axis labels can be controlled with `labs` and the x-axis breaks can be set to more reasonable values for time units using `scale_x_continuous()`.
+
+
+
+## VPC Plot Legends with `plot_vpc_legend()`
+
+This section will review the functionality for generating legends for VPC plots with `plot_vpc_legend()`
+
+`plot_vpc_legend()` is a helper plotting function that creates a legend for VPC plots. These legends can then be merged with the VPC plot into a single plot object using the `patchwork` package.
+
+### Defaults Legend
+
+To obtain a legend for a plot using default aesthetics, simply run `plot_vpc_legend()` without any arguments specified.
+
+```{r vpc-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_legend <- plot_vpc_legend()
+vpc_legend
+```
+
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
+
+```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_blq_obs_cens_wleg <- vpc_blq_obs_cens + vpc_legend + plot_layout(heights = c(2.5,1))
+vpc_blq_obs_cens_wleg
+```
+
+### Updating the Legend with `shown`
+
+The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont` and `plot_vpc_legend`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`
+
+```{r vpc-legend-medonly}
+vpc_legend_medonly1 <- plot_vpc_legend(shown = c(obs_ci = FALSE, pi_ci = FALSE))
+vpc_legend_medonly1
+```
+
+```{r vpc-legend-shown-medonly}
+shown_elements <- plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE)
+vpc_legend_medonly2 <- plot_vpc_legend(shown = shown_elements)
+vpc_legend_medonly2
+```
 
 # Plot Aesthetics
 
 The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-aesthetics.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
-
-## Adding Layers
-
-`plot_vpc_cont()` returns a `ggplot2` plot object, which can be modified by adding layers just like any other `ggplot2` object. For example, to add x-axis grid lines with a custom theme:
-
-```{r plot-vpc-pcvpc-xgrid, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_xgrid <- plot_vpc_cont(
-  sim = simout,
-  pcvpc = TRUE,
-  min_bin_count = 5,
-  vpc_theme = plot_vpc_theme(obs = pmx_point(color = "#000000"),
-                            obs_median = pmx_line(color = "#000000"),
-                            obs_ci = pmx_line(color = "#000000"),
-                            sim_median = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi = pmx_ribbon(fill = "#3388cc"))
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks") +
-  theme(panel.grid.major.x = element_line())
-
-vpc_pc_xgrid
-```
-
-# VPC Plot Legends
-
-## Defaults Legend
-
-Okay, now we have gotten the plot aesthetics where we want them; however, there is one other element we may like to include in the figure to make it more easily interpreted in isolation - a legend.
-
-`pmxhelpr` provides a useful helper function for this purpose, `plot_vpc_legend()`. To obtain a legend for a plot using default aesthetics, simply run `plot_vpc_legend()` without any arguments specified.
-
-```{r vpc_pc_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_legend <- plot_vpc_legend()
-vpc_pc_legend
-```
-
-Now we have a `ggplot` object legend for our first plot!
-
-To generate one with updated aesthetics to match the custom theme, let's pass the named list to the `update` argument.
-
-```{r vpc_pc_new_legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_legend <- plot_vpc_legend(update = list(obs_color = "#000000",
-                                                   obs_median_color = "#000000",
-                                                   obs_ci_color = "#000000",
-                                                   sim_median_fill = "#3388cc",
-                                                   sim_pi_fill = "#3388cc"))
-vpc_pc_new_legend
-```
-
-Okay, now that we have our legend plot objects, let's combine them with the VPC plot objects into a single plot object with the `patchwork` package.
-
-```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_wleg <- vpc_pc + vpc_pc_legend + plot_layout(heights = c(2.5,1))
-vpc_pc_wleg
-```
-
-```{r plot-vpc-pcvpc-customtheme-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_pc_new_wleg <- vpc_pc_xgrid + vpc_pc_new_legend + plot_layout(heights = c(2.5,1))
-vpc_pc_new_wleg
-```

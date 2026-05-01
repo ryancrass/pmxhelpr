@@ -53,10 +53,9 @@ Let's derive some additional variables and leverage the functionality of `var_ad
 plot_data <- data_sad_pkfit %>% 
   filter(EVID == 0) %>% 
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
-         `Dose and Food` = paste(DOSE, "mg", `Food Status`)) %>% 
-  mutate(DoseFood = `Dose and Food`,
-         `Food Status` = var_addn(`Food Status`, ID),
-         `Dose and Food` = var_addn(`Dose and Food`, ID)) %>% 
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
+  mutate(`Food Status` = var_addn(`Food Status`, ID),
+         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
   mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 ```
 

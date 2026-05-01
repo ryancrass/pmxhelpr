@@ -135,8 +135,7 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
                     SIMDV = var_pc(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
   } else {
-    sim <- sim |>
-      dplyr::mutate(MDV = ifelse(!is.null(loq), 0, MDV))
+    if (!is.null(loq)) sim <- sim |> dplyr::mutate(MDV = 0)
   }
 
   sim

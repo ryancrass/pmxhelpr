@@ -138,33 +138,42 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 add_obs_layers <- function(plot, id_var_str, point_el, line_el,
                            col_var_str = NULL) {
 
-  point_aes <- if (!is.null(col_var_str)) {
-    ggplot2::aes(color = .data[[col_var_str]])
+  if (!is.null(col_var_str)) {
+    plot <- plot + ggplot2::geom_point(
+      mapping = ggplot2::aes(color = .data[[col_var_str]]),
+      shape   = point_el$shape,
+      size    = point_el$size,
+      alpha   = point_el$alpha
+    )
   } else {
-    NULL
+    plot <- plot + ggplot2::geom_point(
+      shape = point_el$shape,
+      size  = point_el$size,
+      alpha = point_el$alpha,
+      color = point_el$color
+    )
   }
-  plot <- plot + ggplot2::geom_point(
-    mapping = point_aes,
-    shape   = point_el$shape,
-    size    = point_el$size,
-    alpha   = point_el$alpha
-  )
 
   if (!is.null(id_var_str)) {
     if (!is.null(col_var_str)) {
-      line_aes <- ggplot2::aes(x = TIME, y = DV,
-                               color = .data[[col_var_str]],
-                               group = .data[[id_var_str]])
+      plot <- plot + ggplot2::geom_line(
+        mapping   = ggplot2::aes(x = TIME, y = DV,
+                                 color = .data[[col_var_str]],
+                                 group = .data[[id_var_str]]),
+        linewidth = line_el$linewidth,
+        linetype  = line_el$linetype,
+        alpha     = line_el$alpha
+      )
     } else {
-      line_aes <- ggplot2::aes(x = TIME, y = DV,
-                               group = .data[[id_var_str]])
+      plot <- plot + ggplot2::geom_line(
+        mapping   = ggplot2::aes(x = TIME, y = DV,
+                                 group = .data[[id_var_str]]),
+        linewidth = line_el$linewidth,
+        linetype  = line_el$linetype,
+        alpha     = line_el$alpha,
+        color     = line_el$color
+      )
     }
-    plot <- plot + ggplot2::geom_line(
-      mapping   = line_aes,
-      linewidth = line_el$linewidth,
-      linetype  = line_el$linetype,
-      alpha     = line_el$alpha
-    )
   }
 
   plot

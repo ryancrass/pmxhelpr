@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will demonstrate `pmxhelpr` functions for exploratory data analysis of dose-concentration-time data to inform population PK modeling analysis. This includes package functions to visualize concentration-time data and to assess dose-proportionality of exposure. 
+This vignette will demonstrate `pmxhelpr` functions for exploratory data analysis of dose-concentration-time data to inform population PK modeling analysis. This includes package functions to visualize concentration-time data and to assess dose-proportionality of exposure.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)

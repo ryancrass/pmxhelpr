@@ -27,16 +27,34 @@ compact <- function(x) x[!vapply(x, is.null, logical(1))]
 #'
 merge_element <- function(user, default) {
   if (is.null(user)) return(default)
+  cls <- class(default)[1]
+  valid <- element_fields(cls)
+  if (length(valid) == 0) valid <- names(default)
   out <- default
   for (nm in names(user)) {
-    if (!nm %in% names(default)) {
-      warning(paste0("`", nm, "` is not a valid field of ", class(default)[1]))
+    if (!nm %in% valid) {
+      warning(paste0("`", nm, "` is not a valid field of ", cls))
     } else {
       out[[nm]] <- user[[nm]]
     }
   }
   class(out) <- class(default)
   out
+}
+
+#' Valid fields for each element class
+#' @keywords internal
+element_fields <- function(cls) {
+  switch(cls,
+    pmx_point    = c("shape", "size", "alpha", "color"),
+    pmx_line     = c("linewidth", "linetype", "alpha", "color"),
+    pmx_ribbon   = c("fill", "alpha", "color", "linetype", "linewidth"),
+    pmx_errorbar = c("linewidth", "linetype", "alpha", "width"),
+    pmx_trend    = c("linewidth", "linetype", "color", "se_color", "se_alpha"),
+    pmx_style    = c("color", "alpha"),
+    pmx_color    = c("dv", "pred", "ipred"),
+    character(0)
+  )
 }
 
 
@@ -84,11 +102,13 @@ merge_theme <- function(user, default) {
 apply_style <- function(style, prefix, defaults) {
   pt_key <- paste0(prefix, "_point")
   ln_key <- paste0(prefix, "_line")
+  pt_fields <- c("shape", "size", "alpha", "color")
+  ln_fields <- c("linewidth", "linetype", "alpha", "color")
   for (field in names(style)) {
-    if (pt_key %in% names(defaults) && field %in% names(defaults[[pt_key]])) {
+    if (pt_key %in% names(defaults) && field %in% pt_fields) {
       defaults[[pt_key]][[field]] <- style[[field]]
     }
-    if (ln_key %in% names(defaults) && field %in% names(defaults[[ln_key]])) {
+    if (ln_key %in% names(defaults) && field %in% ln_fields) {
       defaults[[ln_key]][[field]] <- style[[field]]
     }
   }

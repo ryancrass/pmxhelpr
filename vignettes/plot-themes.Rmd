@@ -14,6 +14,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot elements with package plotting functions including `plot_dvtime()`/`plot_dvcon(c))` and `plot_gof()`/`plot_vpc_cont`. This vignette will introduce the theory and naming conventions behind the theme factor functions for each plot and individual element constructors.
+
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
@@ -23,6 +25,57 @@ library(forcats, warn.conflicts = FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
+
+
+
+# Data and Model Objects
+
+The example datasets used in this vignette are based around the `data_sad` dataset internal to `pmxhelpr`. This dataset is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort and is formatted in a analysis-ready format for non-linear mixed effects (NLME) Population PK or PK/PD modeling. `data_sad_pkfit` is a modeified version of `data_sad`, which includes additional PK model predictions appended.
+
+This vignette will assume familiarity with these internal datasets from other vignettes. These elements will not be reviewed in detail in this vignette, which is focused only on theme aesthetic controls across plotting functions.
+
+## data_sad
+
+Dataset definitions can be viewed by calling `?data_sad`. A quick summary of variables and types is printed below.
+
+PART specifies the two study cohorts:
+
+  - Single Ascending Dose (SAD)
+  - Food Effect (FE).
+
+```{r data-part}
+unique(data_sad$PART)
+```
+
+Let's define some variables that may be useful in plotting and filter down to PK or PD relevant records.
+
+```{r data-factors, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+data <- data_sad %>% 
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
+  mutate(`Food Status` = var_addn(`Food Status`, ID),
+         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
+  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+
+gof_data <- data_sad_pkfit %>%
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
+  mutate(`Food Status` = var_addn(`Food Status`, ID),
+         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
+  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+
+data_pk <- filter(data, CMT %in% c(1,2))
+data_pd <- filter(data, CMT %in% c(1,3))
+gof_data_pk <- filter(gof_data, CMT %in% c(1,2))
+```
+
+An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This is loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
+
+```{r model-pk}
+model <- model_mread_load("pkmodel")
+```
+
+
 
 # Overview
 
@@ -34,28 +87,32 @@ Every `pmxhelpr` plot function (`plot_dvtime()`, `plot_dvconc()`, `plot_gof()`, 
 
 This design means every plot function uses the same workflow:
 
-```r
+```{r workflow-example, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 # View defaults
 plot_dvtime_theme()
+plot_dvtime(data_pk, dv_var = ODV, theme = plot_dvtime_theme())
 
 # Override specific fields — unspecified fields keep their defaults
-plot_dvtime(data, theme = plot_dvtime_theme(ref_line = pmx_line(linetype = 3)))
+new_dvtime_theme <- plot_dvtime_theme(cent_line = pmx_line(linetype = "dashed"))
+plot_dvtime(data_pk, dv_var = ODV, theme = new_dvtime_theme)
 ```
 
 
 # Element Constructors
 
-Each constructor creates a named list with a class tag. Only non-NULL fields are stored, so partial overrides are lightweight:
+Each constructor creates a named list with a class tag. Only non-NULL fields are stored, so partial overrides are easy to define by only passing the elements to overide.
 
-```{r constructor-example}
+```{r constructor-ex1}
 # Full element with all fields
 pmx_point(shape = 16, size = 1.25, alpha = 1, color = "blue")
+```
 
+```{r constructor-ex2}
 # Partial override — only the fields you want to change
 pmx_point(size = 2)
 ```
 
-When a user-supplied element is merged into a default, each specified field replaces the corresponding default. Unspecified fields are preserved:
+When a user-supplied element is merged into a default, each specified field replaces the corresponding default. Unspecified fields are preserved. This occurs without user input in the plot theme constructor factory functions.
 
 ```{r merge-example}
 default <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
@@ -63,19 +120,31 @@ override <- pmx_point(size = 2)
 pmxhelpr:::merge_element(override, default)
 ```
 
-The available constructors are:
+The available element constructors are as follows:
 
-| Constructor | Controls | Fields |
-|---|---|---|
-| `pmx_point()` | Point layers (`geom_point`, `stat_summary`) | `shape`, `size`, `alpha`, `color` |
-| `pmx_line()` | Line layers (`geom_line`, `geom_hline`) | `linewidth`, `linetype`, `alpha`, `color` |
-| `pmx_ribbon()` | Ribbon layers (`geom_ribbon`) | `fill`, `alpha`, `color`, `linetype`, `linewidth` |
-| `pmx_errorbar()` | Error bar layers (`geom_errorbar`) | `linewidth`, `linetype`, `alpha`, `width` |
-| `pmx_trend()` | Trend lines (`geom_smooth`) | `linewidth`, `linetype`, `color`, `se_color`, `se_alpha` |
-| `pmx_style()` | Convenience shortcut (see below) | `color`, `alpha` |
+  + `pmx_point()`
+    + `ggplot` layers:`geom_point`, `stat_summary`
+    + function fields: `shape`, `size`, `alpha`, `color`
+  + `pmx_line()`
+    + `ggplot` layers:`geom_line`, `geom_hline`
+    + function fields: `shape`, `size`, `alpha`, `color`
+  + `pmx_ribbon()`
+    + `ggplot` layers:`geom_ribbon`
+    + function fields: `fill`, `alpha`, `color`, `linetype`, `linewidth`
+  + `pmx_errorbar()`
+    + `ggplot` layers:`geom_errorbar`,
+    + function fields: `linewidth`, `linetype`, `alpha`, `width` 
+  + `pmx_trend()`
+    + `ggplot` layers:`geom_smooth`,
+    + function fields: `linewidth`, `linetype`, `color`, `se_color`, `se_alpha`
+  + `pmx_style()`
+    + Convenience shortcut function
+    + function fields:  `alpha`, `color`
+
 
 
 # Theme Factories
+
 
 ## Naming Convention
 
@@ -91,12 +160,18 @@ When a role uses only one geom type, the key uses the role plus the element suff
 
 Several element roles appear across multiple theme factories:
 
-| Element | Type | Used in |
-|---|---|---|
-| `ref_line` | `pmx_line` | `plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme` |
-| `loq_line` | `pmx_line` | `plot_dvtime_theme`, `plot_gof_theme`, `plot_vpc_theme` |
-| `cent_errorbar` | `pmx_errorbar` | `plot_dvtime_theme`, `plot_gof_theme` |
-| `obs` / `obs_point` | `pmx_point` | all four theme factories |
+  + Element Key: `ref_line`
+      + Element Constructor: `pmx_line`
+      + Used in: `plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme`
+  + Element Key: `loq_line`
+      + Element Constructor: `pmx_line`
+      + Used in: `plot_dvtime_theme`, `plot_gof_theme`, `plot_vpc_theme`
+  + Element Key: `cent_errorbar`
+      + Element Constructor: `pmx_errorbar`
+      + Used in: `plot_dvtime_theme`, `plot_gof_theme`
+  + Element Key: `obs_point`
+      + Element Constructor: `pmx_point`
+      + Used in: `plot_dvtime_theme`, `plot_dvconc` `plot_gof_theme`, `plot_dvconc_theme`
 
 The same constructors and merge logic apply everywhere, so learning the system once covers all plot types.
 
@@ -128,101 +203,89 @@ theme$obs_line   # alpha = 0.3, linewidth = 0.5 (default)
 ```
 
 
-## Per-Function Defaults
+## Defaults in Theme Factories
 
-### `plot_dvtime_theme()`
+### Defaults for `plot_dvtime()` in `plot_dvtime_theme()`
 
 ```{r dvtime-defaults}
 plot_dvtime_theme()
 ```
 
-| Key | Type | Role |
-|---|---|---|
-| `obs_point` | `pmx_point` | Observed data scatter |
-| `obs_line` | `pmx_line` | Spaghetti lines connecting observations |
-| `cent_point` | `pmx_point` | Central tendency points |
-| `cent_line` | `pmx_line` | Central tendency lines |
-| `cent_errorbar` | `pmx_errorbar` | Error bars for central tendency |
-| `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline) |
-| `loq_line` | `pmx_line` | LOQ reference line |
+The relationship between element key, element constructor, and purpose is defined below:
 
-Shortcuts: `obs`, `cent` accept `pmx_style()`.
+  + `obs_point` | `pmx_point` | Observed data points 
+  + `obs_line` | `pmx_line` | Individual spaghetti lines connecting observations
+  + `cent_point` | `pmx_point` | Central tendency points
+  + `cent_line` | `pmx_line` | Central tendency lines 
+  + `cent_errorbar` | `pmx_errorbar` | Error bars for central tendency 
+  + `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline) 
+  + `loq_line` | `pmx_line` | LOQ reference line
 
-### `plot_gof_theme()`
+Shortcuts: `obs` = `obs_point`/`obs_line`, `cent` = `cent_point`/`cent_line` accept `pmx_style()`.
+
+### Defaults for `plot_gof()` in `plot_gof_theme()`
 
 ```{r gof-defaults}
 plot_gof_theme()
 ```
 
-| Key | Type | Role |
-|---|---|---|
-| `obs_point`, `obs_line` | `pmx_point`, `pmx_line` | Observed data (default: darkgrey) |
-| `cent_point`, `cent_line` | `pmx_point`, `pmx_line` | Shared central tendency aesthetics for DV, PRED, IPRED |
-| `cent_errorbar` | `pmx_errorbar` | Error bars (shared across variables) |
-| `colors` | `pmx_color` | Overlay color mapping: `dv`, `pred`, `ipred` (defaults: blue, red, green) |
-| `ref_line` | `pmx_line` | Reference line |
-| `loq_line` | `pmx_line` | LOQ reference line |
+The relationship between element key, element constructor, and purpose is defined below:
 
-Shortcuts: `obs` accepts `pmx_style()`. Overlay colors are controlled via `colors = pmx_color(pred = "purple")`.
+ + `obs_point` | `pmx_point` | Observed data points (default: darkgrey)
+ + `obs_line` | `pmx_line` | Individual spaghetti lines connecting observations (default: darkgrey)
+ + `cent_point` | `pmx_point` | Shared central tendency points for DV, PRED, IPRED |
+ + ``cent_line` | `pmx_line` | Shared central tendency lines for DV, PRED, IPRED |
+ + `cent_errorbar` | `pmx_errorbar` | Shared central tendency error bars 
+ + `ref_line` | `pmx_line` | Reference line
+ + `loq_line` | `pmx_line` | LOQ reference line
+ + `colors` | `pmx_color` | Overlay color mapping `dv`, `pred`, `ipred` (defaults: blue, red, green)
 
-### `plot_dvconc_theme()`
+Shortcuts: `obs` = `obs_point`/`obs_line`, `cent` = `cent_point`/`cent_line` accept `pmx_style()`. Overlay colors are controlled via `colors = pmx_color()`.
+
+### Defaults for `plot_dvconc` in `plot_dvconc_theme()`
 
 ```{r dvconc-defaults}
 plot_dvconc_theme()
 ```
 
-| Key | Type | Role |
-|---|---|---|
-| `obs_point` | `pmx_point` | Observed data points |
-| `ref_line` | `pmx_line` | Reference line |
-| `loess` | `pmx_trend` | LOESS trend line |
-| `linear` | `pmx_trend` | Linear trend line |
+The relationship between element key, element constructor, and purpose is defined below:
 
-### `plot_vpc_theme()`
+  + `obs_point` | `pmx_point` | Observed data points 
+  + `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline) 
+  + `loess` | `pmx_trend` | LOESS trend line and confidence interval
+  + `linear` | `pmx_trend` | Linear trend line and confidence interval
+  
+Shortcuts using `pmx_style()` are not relevant for this function.
+
+### Defaults for `plot_vpc_cont` in `plot_vpc_theme()`
 
 ```{r vpc-defaults}
 plot_vpc_theme()
 ```
 
-| Key | Type | Role |
-|---|---|---|
-| `obs_point` | `pmx_point` | Observed data points |
-| `obs_med_line` | `pmx_line` | Observed median line |
-| `obs_pi_line` | `pmx_line` | Observed quantile lines |
-| `sim_pi_line` | `pmx_line` | Simulated prediction interval lines |
-| `sim_pi_ci` | `pmx_ribbon` | Simulated PI confidence interval ribbons |
-| `sim_pi_area` | `pmx_ribbon` | Simulated PI area ribbon |
-| `sim_median_line` | `pmx_line` | Simulated median line |
-| `sim_median_ci` | `pmx_ribbon` | Simulated median CI ribbon |
-| `loq_line` | `pmx_line` | LOQ reference line |
+The relationship between element key, element constructor, and purpose is defined below:
+  + `obs_point` | `pmx_point` | Observed data points
+  + `obs_med_line` | `pmx_line` | Observed median line
+  + `obs_pi_line` | `pmx_line` | Observed quantile lines
+  + `sim_pi_line` | `pmx_line` | Simulated prediction interval lines
+  + `sim_pi_ci` | `pmx_ribbon` | Simulated PI confidence interval ribbons
+  + `sim_pi_area` | `pmx_ribbon` | Simulated PI area ribbon 
+  + `sim_median_line` | `pmx_line` | Simulated median line
+  + `sim_median_ci` | `pmx_ribbon` | Simulated median CI ribbon
+  + `loq_line` | `pmx_line` | LOQ reference line |
 
+Shortcuts using `pmx_style()` are not relevant for this function.
 
 # Examples
 
 The following examples demonstrate common customization patterns. Each pattern applies to any plot function — only the theme factory and element keys change.
-
-```{r example-data, message=FALSE, warning=FALSE}
-plot_data <- data_sad %>%
-  filter(CMT == 2) %>%
-  mutate(`Dose and Food` = var_addn(
-    paste(DOSE, "mg", ifelse(FOOD == 0, "Fasted", "Fed")), ID)) %>%
-  mutate(`Dose and Food` = fct_relevel(`Dose and Food`,
-                                        "50 mg Fasted (n=6)", after = 1))
-
-gof_data <- data_sad_pkfit %>%
-  filter(EVID == 0) %>%
-  mutate(`Dose and Food` = var_addn(
-    paste(DOSE, "mg", ifelse(FOOD == 0, "Fasted", "Fed")), ID)) %>%
-  mutate(`Dose and Food` = fct_relevel(`Dose and Food`,
-                                        "50 mg Fasted (n=6)", after = 1))
-```
 
 ## Inline Override
 
 Pass element overrides directly in the `theme` argument. Only the fields you specify are changed:
 
 ```{r example-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE,
             theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
                                      cent_errorbar = pmx_errorbar(linewidth = 0.5),
@@ -237,9 +300,10 @@ Create a theme once and pass it to multiple plots:
 
 ```{r example-reuse, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 my_theme <- plot_dvtime_theme(cent_errorbar = pmx_errorbar(linewidth = 0.5),
-                              cent_point = pmx_point(size = 0.1))
+                              cent_point = pmx_point(size = 0.1), 
+                              obs_point = pmx_point(alpha = 0))
 
-plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE,
             theme = my_theme) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
@@ -248,12 +312,12 @@ plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
 
 ## Color Customization with `pmx_style()`
 
-Use `pmx_style()` to change the color of both point and line elements for a role in one call:
+Use `pmx_style()` to change the color of both point and line elements for a role in one call. This example uses it to both change the spaghetti individual line colors and to remove the central tendency fit.
 
 ```{r example-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = gof_data, dv_var = "ODV",
-         theme = list(obs = pmx_style(color = "blue"))) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
+plot_dvtime(data = data_pk, dv_var = ODV, id_var = ID,
+            theme = plot_dvtime_theme(obs = pmx_style(color = "blue"),
+                                      cent = pmx_style(alpha = 0)))+
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
@@ -261,34 +325,99 @@ plot_gof(data = gof_data, dv_var = "ODV",
 
 The default error bar width is 2.5% of the maximum nominal time. Override with the `width` field:
 
-```{r example-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data, dv_var = ODV, col_var = `Dose and Food`,
+```{r example-eb-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE,
             theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
-                                     cent_errorbar = pmx_errorbar(width = 8))) +
+                                     cent_errorbar = pmx_errorbar(width = 10))) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
+
+## Trend Line Customization with `pmx_trend()`
+
+`pmx_trend()` controls both the trend line and its standard error ribbon. The `color`, `linewidth`, and `linetype` fields style the line itself, while `se_color` and `se_alpha` style the confidence ribbon shown when `se_loess = TRUE` or `se_linear = TRUE`.
+
+An example override of the line color and SE ribbon appearances is provided below.
+
+```{r example-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = TRUE, se_loess = TRUE,
+            theme = plot_dvconc_theme(
+              loess = pmx_trend(color = "steelblue", linetype = 1,
+                                se_color = "steelblue", se_alpha = 0.2))) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+Both trend elements can be customized independently. Here the LOESS line is styled as a solid blue line and the linear fit as a dashed red line.
+
+```{r example-trend-both, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = TRUE, linear = TRUE,
+            se_loess = TRUE, se_linear = TRUE,
+            theme = plot_dvconc_theme(
+              loess  = pmx_trend(color = "steelblue", se_color = "steelblue", se_alpha = 0.15),
+              linear = pmx_trend(color = "firebrick", linetype = 2,
+                                 se_color = "firebrick", se_alpha = 0.15))) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+## Role-Level Shortcuts in Action
+
+The `obs` and `cent` shortcuts in `plot_dvtime_theme()` and `plot_gof_theme()` apply `pmx_style()` across all elements for a role. This is useful when you want to fade or recolor an entire layer without repeating yourself.
+
+Hide observed data to emphasize central tendency:
+
+```{r example-obs-shortcut, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
+            cent = "mean_sdl", log_y = TRUE,
+            theme = plot_dvtime_theme(obs = pmx_style(alpha = 0))) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
+```
+
+Fade central tendency to emphasize individual observations:
+
+```{r example-cent-shortcut, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
+            id_var = ID, cent = "mean", log_y = TRUE,
+            theme = plot_dvtime_theme(cent = pmx_style(alpha = 0.3))) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
+```
+
+Combine both shortcuts to shift emphasis — fade observations and recolor the central tendency:
+
+```{r example-both-shortcuts, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(data = gof_data_pk, dv_var = "ODV",
+         cent = "mean_sdl",
+         theme = plot_gof_theme(obs = pmx_style(alpha = 0.2),
+                                cent = pmx_style(alpha = 1))) +
+  facet_wrap(~`Dose and Food`, scales = "free") +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+```
+
 
 ## Custom VPC Color Scheme
 
 Override multiple elements to apply a cohesive color scheme:
 
 ```{r vpc-sim-data, message=FALSE, warning=FALSE, include=FALSE}
-model <- model_mread_load("pkmodel")
-simout <- df_mrgsim_replicate(data_sad, model, replicates = 200, dv_var = "ODV")
+simout <- df_mrgsim_replicate(data_pk, model, replicates = 100, dv_var = "ODV")
 ```
 
 ```{r example-vpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-plot_vpc_cont(
-  sim = simout,
-  pcvpc = TRUE,
-  theme = plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
+new_vpc_theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
                             obs_med_line = pmx_line(color = "#000000"),
                             obs_pi_line = pmx_line(color = "#000000"),
                             sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi_ci = pmx_ribbon(fill = "#3388cc")),
-  min_bin_count = 5
+                            sim_pi_ci = pmx_ribbon(fill = "#3388cc"))
+plot_vpc_cont(
+  sim = simout,
+  pcvpc = TRUE,
+  theme = new_vpc_theme
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")

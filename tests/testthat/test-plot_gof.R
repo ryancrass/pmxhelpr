@@ -55,13 +55,13 @@ test_that("No error if time_var and ntime_var specified as the same variable", {
                            time_var = "NTIME", ntime_var = "NTIME"))
 })
 
-test_that("Error if `id_var` does not exist in `data` and `id_line` == TRUE", {
-  expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID", id_line = TRUE),
+test_that("Error if `id_var` does not exist in `data`", {
+  expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID"),
                regexp = "argument `id_var` must be variable.*in `data`")
 })
 
-test_that("No error if `id_var` does not exist in `data` and `id_line` == FALSE", {
-  expect_no_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID", id_line = FALSE))
+test_that("No error when `id_var` is NULL (default)", {
+  expect_no_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV"))
 })
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {

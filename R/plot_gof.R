@@ -33,12 +33,11 @@ plot_gof <- function(data,
                         time_var = TIME,
                         ntime_var = NTIME,
                         shown = NULL,
-                        id_var = ID,
+                        id_var = NULL,
                         dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
-                        id_line = FALSE,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
@@ -50,7 +49,7 @@ plot_gof <- function(data,
   ipred_var_str <- resolve_var(rlang::enquo(ipred_var))
   time_var_str  <- resolve_var(rlang::enquo(time_var))
   ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
-  id_var_str    <- resolve_var(rlang::enquo(id_var))
+  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
   prep <- df_prep_dvtime(
@@ -60,7 +59,7 @@ plot_gof <- function(data,
     ipred_var_str = ipred_var_str,
     loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
-    id_line = id_line, id_var_str = id_var_str,
+    id_var_str = id_var_str,
     dosenorm = dosenorm,
     ref = ref
   )
@@ -100,7 +99,7 @@ plot_gof <- function(data,
 
   #Show Observed Data Points / Connect within Group
   if ("OBS" %in% active) {
-    plot <- add_obs_layers(plot, id_line, id_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
+    plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)

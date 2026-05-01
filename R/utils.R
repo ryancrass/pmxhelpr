@@ -131,8 +131,7 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #' @param loq_method Integer (0, 1, or 2) specifying BLQ handling method.
 #' @param dose_var_str String specifying the dose column name, or `NULL`.
 #' @param col_var_str String specifying the color variable column name, or `NULL`.
-#' @param id_line Logical indicating if group variable should be validated.
-#' @param id_var_str String specifying the group column name, or `NULL`.
+#' @param id_var_str String specifying the group column name for spaghetti lines, or `NULL`.
 #' @param dosenorm Logical indicating if dose normalization should be applied.
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for none.
 #'
@@ -154,7 +153,6 @@ df_prep_dvtime <- function(data,
                            id_var_str = NULL,
                            loq = NULL,
                            loq_method = 0,
-                           id_line = FALSE,
                            dosenorm = FALSE,
                            ref = NULL) {
 
@@ -169,7 +167,7 @@ df_prep_dvtime <- function(data,
     check_varsindf(data, col_var_str, "data", "col_var")
     check_factor(data, col_var_str, "col_var")
   }
-  if (isTRUE(id_line)) check_varsindf(data, id_var_str, "data", "id_var")
+  if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var")
   if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
   check_loq_method(loq, loq_method, data)
   if (!is.null(ref)) check_numeric(ref, "ref")

@@ -51,13 +51,13 @@ test_that("Error if `col_var` does not exist in `data`", {
                regexp = "argument `col_var` must be variable.*in `data`")
 })
 
-test_that("Error if `id_var` does not exist in `data` and `id_line` == TRUE", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID", id_line = TRUE),
+test_that("Error if `id_var` does not exist in `data`", {
+  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID"),
                regexp = "argument `id_var` must be variable.*in `data`")
 })
 
-test_that("No error if `id_var` does not exist in `data` and `id_line` == FALSE", {
-  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID", id_line = FALSE))
+test_that("No error when `id_var` is NULL (default)", {
+  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV"))
 })
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {

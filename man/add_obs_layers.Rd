@@ -4,14 +4,12 @@
 \alias{add_obs_layers}
 \title{Add observed data point and spaghetti line layers to a plot}
 \usage{
-add_obs_layers(plot, id_line, id_var_str, point_el, line_el, color_aes = NULL)
+add_obs_layers(plot, id_var_str, point_el, line_el, color_aes = NULL)
 }
 \arguments{
 \item{plot}{ggplot object}
 
-\item{id_line}{logical, whether to connect observations within groups}
-
-\item{id_var_str}{character, column name for the grouping variable}
+\item{id_var_str}{character column name for spaghetti line grouping, or \code{NULL} for no lines}
 
 \item{point_el}{A \code{pmx_point} element with point aesthetics.}
 
@@ -25,6 +23,6 @@ modified ggplot object
 \description{
 Adds a \code{geom_point} layer for observed data (visibility controlled by
 theme alpha) and optionally a \code{geom_line} layer connecting observations
-within groups.
+within groups when \code{id_var_str} is specified.
 }
 \keyword{internal}

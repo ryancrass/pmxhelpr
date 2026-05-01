@@ -3,7 +3,10 @@
 #' @param data Input dataset.
 #' @param dv_var Column containing the dependent variable. Accepts bare names or strings. Default is `DV`.
 #' @param col_var Column to map to the color aesthetic. Accepts bare names or strings. Default is `NULL`.
-#' @param id_var Column to map to the group aesthetic for spaghetti lines. Accepts bare names or strings. Default is `ID`.
+#' @param id_var Column to group observations for spaghetti lines.
+#'    Accepts bare names or strings. Default is `NULL` (no spaghetti lines).
+#'    Specifying a column (e.g., `id_var = ID`) enables spaghetti lines connecting
+#'    observations within each level of the variable.
 #' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
 #'   Accepts bare names or strings. Default is `DOSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
@@ -30,8 +33,6 @@
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #'
-#' @param id_line Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
-#'    Default is `FALSE`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
@@ -63,12 +64,11 @@ plot_dvtime <- function(data,
                         time_var = TIME,
                         ntime_var = NTIME,
                         col_var = NULL,
-                        id_var = ID,
+                        id_var = NULL,
                         dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
                         cent = "mean",
-                        id_line = FALSE,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
@@ -78,7 +78,7 @@ plot_dvtime <- function(data,
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   time_var_str  <- resolve_var(rlang::enquo(time_var))
   ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
-  id_var_str    <- resolve_var(rlang::enquo(id_var))
+  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
   col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
@@ -88,7 +88,7 @@ plot_dvtime <- function(data,
     loq = loq, loq_method = loq_method,
     dose_var_str = if (dosenorm) dose_var_str,
     col_var_str = col_var_str,
-    id_line = id_line, id_var_str = id_var_str,
+    id_var_str = id_var_str,
     dosenorm = dosenorm,
     ref = ref
   )
@@ -116,7 +116,7 @@ plot_dvtime <- function(data,
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers(plot, id_line, id_var_str, plottheme$obs_point, plottheme$obs_line)
+  plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width)

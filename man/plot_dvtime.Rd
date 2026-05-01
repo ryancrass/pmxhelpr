@@ -10,12 +10,11 @@ plot_dvtime(
   time_var = TIME,
   ntime_var = NTIME,
   col_var = NULL,
-  id_var = ID,
+  id_var = NULL,
   dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
   cent = "mean",
-  id_line = FALSE,
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,
@@ -36,7 +35,10 @@ Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
-\item{id_var}{Column to map to the group aesthetic for spaghetti lines. Accepts bare names or strings. Default is \code{ID}.}
+\item{id_var}{Column to group observations for spaghetti lines.
+Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).
+Specifying a column (e.g., \code{id_var = ID}) enables spaghetti lines connecting
+observations within each level of the variable.}
 
 \item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
 Accepts bare names or strings. Default is \code{DOSE}.}
@@ -67,9 +69,6 @@ Options are:
 \item Median +/- Interquartile Range: \code{median_iqr}
 \item None: \code{"none"}
 }}
-
-\item{id_line}{Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
-Default is \code{FALSE}.}
 
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
 Requires variable specified in \code{dose_var} to be present in \code{data}}

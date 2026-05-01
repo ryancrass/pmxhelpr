@@ -124,18 +124,17 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 #'
 #' Adds a \code{geom_point} layer for observed data (visibility controlled by
 #' theme alpha) and optionally a \code{geom_line} layer connecting observations
-#' within groups.
+#' within groups when `id_var_str` is specified.
 #'
 #' @param plot ggplot object
-#' @param id_line logical, whether to connect observations within groups
-#' @param id_var_str character, column name for the grouping variable
+#' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
 #' @param point_el A `pmx_point` element with point aesthetics.
 #' @param line_el A `pmx_line` element with line aesthetics.
 #' @param color_aes optional string for color aesthetic (e.g., "OBS" for popgof legend)
 #'
 #' @return modified ggplot object
 #' @keywords internal
-add_obs_layers <- function(plot, id_line, id_var_str, point_el, line_el,
+add_obs_layers <- function(plot, id_var_str, point_el, line_el,
                            color_aes = NULL) {
 
   point_aes <- if (!is.null(color_aes)) ggplot2::aes(color = color_aes) else NULL
@@ -146,7 +145,7 @@ add_obs_layers <- function(plot, id_line, id_var_str, point_el, line_el,
     alpha   = point_el$alpha
   )
 
-  if (isTRUE(id_line)) {
+  if (!is.null(id_var_str)) {
     if (!is.null(color_aes)) {
       line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
                                group = .data[[id_var_str]])

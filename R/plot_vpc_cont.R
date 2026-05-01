@@ -8,7 +8,10 @@
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'    Specifying this argument implies that the observed variable`OBSDV` is missing (`NA`)
+#'    If `NULL` (default) and an `LLOQ` column is present in `sim`, the unique LLOQ value
+#'    is inherited from that column automatically.
+#'    Ignored when `pcvpc = TRUE` (LLOQ is not meaningful on the prediction-corrected scale).
+#'    Specifying this argument implies that the observed variable `OBSDV` is missing (`NA`)
 #'    and `MDV = 1` where < `loq` in `sim`.
 #'    For standard VPCs (`pcvpc = FALSE`), all `MDV` values are set to 0 so that
 #'    all observations (including BLQ) are included in summary statistics.
@@ -92,6 +95,15 @@ plot_vpc_cont <- function(sim,
   obs_dv_var_str  <- resolve_var(rlang::enquo(obs_dv_var))
   strat_var_str   <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
   irep_name_str   <- resolve_var(rlang::enquo(irep_name))
+
+  #Inherit LLOQ from sim column if not explicitly provided
+  if (is.null(loq) && "LLOQ" %in% colnames(sim)) {
+    lloq_vals <- unique(sim$LLOQ[sim[[irep_name_str]] == 1 & !is.na(sim$LLOQ)])
+    if (length(lloq_vals) == 1L) loq <- lloq_vals
+  }
+
+  #Block loq handling when prediction-corrected — LLOQ is on the original scale
+  if (isTRUE(pcvpc)) loq <- NULL
 
   #Preprocess: validate, rename, prediction-correct or BLQ-handle
   sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,

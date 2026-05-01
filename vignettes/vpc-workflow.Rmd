@@ -250,32 +250,33 @@ This function is designed around the concept of actual and nominal time variable
 `plot_vpc_cont` has 1 required argument: `sim`, the input simulated dataset for the VPC procedure.
 
 ```{r plot-vpc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout,
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc
 ```
 
+A decent, if slightly misleading, plot! Simulated 90% (`ci` = c(0.05, 0.95)) confidence intervals print at the median (50th) and  5th and 95th percentiles (`pi` = c(0.05, 0.95)) and corresponding quantiles of the observed are shown as lines with observed data points overlaid.
+
+`plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset `sim`. This behavior is suppressed when prediction-correction is applied with `pcvpc = TRUE`.
 
 ### Prediction-correction
 
 Because this study includes multiple dose levels, it is not appropriate to visualize the data together in a single VPC plot. One must either: 1) Facet by dose, 2) prediction-correct 
 
 ```{r plot-vpc-pc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE
 ) +
   labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc
 ```
+
+Note that the overlay of the LLOQ is now suppressed with prediction-correction.
 
 ### Stratifying plots
 
@@ -284,7 +285,7 @@ The other option to prediction-correction is to stratify by confounding factors.
 Let's take a look at our prediction-corrected VPC stratified by Food Status.
 
 ```{r plot-vpc-pc-food, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc <- plot_vpc_cont(
+plot_vpc_cont(
   sim = mutate(simout,FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
   pcvpc = TRUE,
   strat_var = FoodStatus
@@ -293,35 +294,30 @@ vpc <- plot_vpc_cont(
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc
 ```
 
 Now let's look at a regular VPC stratified by the interaction of dose and food status
 
 ```{r plot-vpc-dosefood, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout,
   strat_var = DoseFood
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc
 ```
 
 *NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
 
 ```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout
 ) +
   facet_wrap(~DoseFood)+
   labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc
 ```
 
 ### Dropping small sample bins
@@ -331,7 +327,7 @@ There may be nominal time bins that contain only a small number of observations 
 When setting`min_bin_count = 10`, summary statistics are not plotted for the final two timepoint containing only fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
 ```{r plot-vpc-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-vpc_exact_bin_gt10 <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 10
@@ -339,8 +335,6 @@ vpc_exact_bin_gt10 <- plot_vpc_cont(
   labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc_exact_bin_gt10
 ```
 
 ### BLQ handling
@@ -385,7 +379,7 @@ Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
 `loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. When specified, observed quantiles are computed using censored quantile estimation, where values below the LLOQ (including missing values) are treated as left-censored. If the quantile of the observed data falls below the LLOQ, it is returned as `NA`.
 
 ```{r plot-vpc-blq-obs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-vpc_blq_obs_cens <- plot_vpc_cont(
+vpc <- plot_vpc_cont(
   sim = sim100,
   strat_var = PART,
   loq = 1
@@ -394,7 +388,7 @@ vpc_blq_obs_cens <- plot_vpc_cont(
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc_blq_obs_cens
+vpc
 ```
 
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
@@ -434,8 +428,7 @@ One or more elements to be updated from the defaults above can be passed as a li
 For example, the 90% prediction interval (i.e., 5th to 95th percentiles) can be visualized in place of CIs of each of the 5th and 95th percentiles with the observed and simulated medians shown as follows:
 
 ```{r plot-vpc-pcvpc-90pi, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-
-vpc_pc_pi <- plot_vpc_cont(
+plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
@@ -444,15 +437,12 @@ vpc_pc_pi <- plot_vpc_cont(
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc_pc_pi
 ```
 
 Now, let's say we want to remove the observed data points from the plot above to better visualize the observed quantile lines relative to their corresponding simulated confidence intervals. This can be accomplished with `shown`.
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-
-vpc_pc_noobs <- plot_vpc_cont(
+ plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
@@ -461,15 +451,12 @@ vpc_pc_noobs <- plot_vpc_cont(
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc_pc_noobs
 ```
 
 We could also take this one step further and only look at the median and the simulated confidence interval of the median, to closely interrogate central tendency. This is common for VPC strata which have few observations, leading to inadequate sample size to discriminate between the confidence intervals of the median and the extremes. This is common scenario when evaluating VPC plots stratified by individual study arms in early phase trials.
 
 ```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-
-vpc_pc_noobs_medonly <- plot_vpc_cont(
+ plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
@@ -478,8 +465,6 @@ vpc_pc_noobs_medonly <- plot_vpc_cont(
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
-
-vpc_pc_noobs_medonly
 ```
 
 ### Adjusting the Plot Theme with `plot_vpc_theme()`
@@ -505,7 +490,7 @@ vpc_new_theme <- plot_vpc_theme(
 Regenerating our BLQ quantile censored plot stratified by part with the new theme yields the following plot
 
 ```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-vpc_blq_obs_cens2 <- plot_vpc_cont(
+vpc2 <- plot_vpc_cont(
   sim = sim100,
   strat_var = PART,
   loq = 1,
@@ -515,8 +500,9 @@ vpc_blq_obs_cens2 <- plot_vpc_cont(
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 
-vpc_blq_obs_cens2
+vpc2
 ```
+
 ### Accessing VPC Summary Statistics
 
 By default, `plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics used to build the plot, set `vpcstats = TRUE`. This returns a `data.frame` containing the observed and simulated quantiles, confidence intervals, and bin information.
@@ -558,8 +544,8 @@ vpc_legend
 The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
 
 ```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_blq_obs_cens_wleg <- vpc_blq_obs_cens + vpc_legend + plot_layout(heights = c(2.5,1))
-vpc_blq_obs_cens_wleg
+vpc_wleg <- vpc + vpc_legend + plot_layout(heights = c(2.5,1))
+vpc_wleg
 ```
 
 ### Updating the Legend Elements
@@ -567,14 +553,12 @@ vpc_blq_obs_cens_wleg
 The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont` and `plot_vpc_legend`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`
 
 ```{r vpc-legend-medonly}
-vpc_legend_medonly1 <- plot_vpc_legend(shown = c(obs_ci = FALSE, pi_ci = FALSE))
-vpc_legend_medonly1
+plot_vpc_legend(shown = c(obs_ci = FALSE, pi_ci = FALSE))
 ```
 
 ```{r vpc-legend-shown-medonly}
 shown_elements <- plot_vpc_shown(obs_ci = FALSE, pi_ci = FALSE)
-vpc_legend_medonly2 <- plot_vpc_legend(shown = shown_elements)
-vpc_legend_medonly2
+plot_vpc_legend(shown = shown_elements)
 ```
 
 ### Updating the Legend Theme
@@ -589,6 +573,6 @@ vpc_new_legend
 The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
 
 ```{r plot-vpc-pcvpc-w-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_blq_obs_cens_wleg2 <- vpc_blq_obs_cens2 + vpc_new_legend + plot_layout(heights = c(2.5,1))
-vpc_blq_obs_cens_wleg2
+vpc_wleg2 <- vpc2 + vpc_new_legend + plot_layout(heights = c(2.5,1))
+vpc_wleg2
 ```

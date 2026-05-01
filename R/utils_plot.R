@@ -25,17 +25,43 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 }
 
 
-#' Internal helper: Add central tendency point, line, and error bar layers to a plot
+#' Internal helper: Build a ggplot2 layer with conditional color
+#'
+#' Wraps `do.call()` and includes `color` in the argument list only when
+#' color is not mapped via aes and a non-NULL value is provided.
+#'
+#' @param layer_fn The geom/stat function (e.g., `ggplot2::geom_point`)
+#' @param args Named list of arguments to pass
+#' @param color Fixed color value, or `NULL`
+#' @param color_mapped Logical: is color already mapped via aes?
+#'
+#' @return A ggplot2 layer object
+#' @keywords internal
+build_layer <- function(layer_fn, args, color = NULL, color_mapped = FALSE) {
+  if (!isTRUE(color_mapped) && !is.null(color)) {
+    args$color <- color
+  }
+  do.call(layer_fn, args)
+}
+
+
+#' Internal helper: Add central tendency point, line, and error bar layers
+#'
+#' For use by plot functions where color is either fixed (from theme) or
+#' inherited from a global `col_var` aesthetic. For GOF overlay plots that
+#' map color to fixed string labels, use [add_cent_layers_manual()] instead.
 #'
 #' @param plot ggplot object to modify.
 #' @param cent Character string specifying the central tendency measure.
 #'    One of `"mean"`, `"mean_sdl"`, `"mean_sdl_upper"`, `"median"`, `"median_iqr"`, or `"none"`.
-#' @param y_var Character string specifying the y variable name (e.g., `"DV"`, `"IPRED"`, `"PRED"`).
+#' @param y_var Character string specifying the y variable name (e.g., `"DV"`).
 #' @param point_el A `pmx_point` element with point aesthetics.
 #' @param line_el A `pmx_line` element with line aesthetics.
 #' @param eb_el A `pmx_errorbar` element with error bar aesthetics.
 #' @param width Numeric error bar cap width.
-#' @param color_aes Optional character string for color aesthetic (e.g., `"DV"` for popgof legend).
+#' @param color_mapped Logical indicating whether color is mapped via
+#'    a global aesthetic (e.g., `col_var`). When `TRUE`, fixed theme colors
+#'    are suppressed to allow inheritance.
 #' @param show_errorbars Logical indicating whether to add error bar layers.
 #'
 #' @return A modified ggplot object with central tendency layers added
@@ -44,75 +70,126 @@ init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
 #' #
 #'
 add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
-                            color_aes = NULL,
-                            show_errorbars = TRUE) {
+                            color_mapped = FALSE, show_errorbars = TRUE) {
 
   if (cent == "none") return(plot)
 
-  mapping <- if (is.null(color_aes)) {
-    ggplot2::aes(x = NTIME, y = .data[[y_var]])
-  } else {
-    ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
+  mapping <- ggplot2::aes(x = NTIME, y = .data[[y_var]])
+
+  is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
+  stat_fun <- if (is_mean) "mean" else "median"
+
+  # Central Tendency Points
+  plot <- plot + build_layer(ggplot2::stat_summary,
+    args = list(mapping = mapping, fun = stat_fun, geom = "point",
+                size = point_el$size, shape = point_el$shape, alpha = point_el$alpha),
+    color = point_el$color, color_mapped = color_mapped)
+
+  # Central Tendency Lines
+  plot <- plot + build_layer(ggplot2::stat_summary,
+    args = list(mapping = mapping, fun = stat_fun, geom = "line",
+                linewidth = line_el$linewidth, linetype = line_el$linetype,
+                alpha = line_el$alpha),
+    color = line_el$color, color_mapped = color_mapped)
+
+  # Error Bars
+  if (show_errorbars) {
+    eb_args <- list(mapping = mapping, geom = "errorbar",
+                    linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+                    alpha = eb_el$alpha, width = width)
+
+    if (cent == "mean_sdl") {
+      plot <- plot + build_layer(ggplot2::stat_summary,
+        args = c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_args),
+        color = eb_el$color, color_mapped = color_mapped)
+    }
+
+    if (cent == "mean_sdl_upper") {
+      plot <- plot + build_layer(ggplot2::stat_summary,
+        args = c(list(fun.max = function(x){mean(x) + stats::sd(x)},
+                      fun.min = function(x){NA_real_}), eb_args),
+        color = eb_el$color, color_mapped = color_mapped)
+      plot <- plot + build_layer(ggplot2::stat_summary,
+        args = list(mapping = mapping, geom = "linerange",
+                    fun.max = function(x){mean(x) + stats::sd(x)},
+                    fun.min = function(x){mean(x)},
+                    linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+                    alpha = eb_el$alpha, show.legend = FALSE),
+        color = eb_el$color, color_mapped = color_mapped)
+    }
+
+    if (cent == "median_iqr") {
+      plot <- plot + build_layer(ggplot2::stat_summary,
+        args = c(list(fun.max = function(x){stats::quantile(x, 0.75)},
+                      fun.min = function(x){stats::quantile(x, 0.25)}), eb_args),
+        color = eb_el$color, color_mapped = color_mapped)
+    }
   }
 
-  # Determine stat function
+  return(plot)
+}
+
+
+#' Add central tendency layers for GOF overlay plots
+#'
+#' Like [add_cent_layers()] but maps color to a fixed string label for use
+#' with \code{scale_color_manual()} in GOF overlay plots. Color is always
+#' mapped via aes; fixed theme colors are never applied.
+#'
+#' @inheritParams add_cent_layers
+#' @param color_aes String label for color aesthetic (e.g., `"DV"`, `"PRED"`).
+#'
+#' @return A modified ggplot object with central tendency layers added
+#' @keywords internal
+add_cent_layers_manual <- function(plot, cent, y_var, point_el, line_el, eb_el,
+                                   width, color_aes, show_errorbars = TRUE) {
+
+  if (cent == "none") return(plot)
+
+  mapping <- ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
+
   is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
   stat_fun <- if (is_mean) "mean" else "median"
 
   # Central Tendency Points
   plot <- plot + ggplot2::stat_summary(mapping,
-                                       fun = stat_fun, geom = "point",
-                                       size  = point_el$size,
-                                       shape = point_el$shape,
-                                       alpha = point_el$alpha)
+    fun = stat_fun, geom = "point",
+    size = point_el$size, shape = point_el$shape, alpha = point_el$alpha)
 
   # Central Tendency Lines
   plot <- plot + ggplot2::stat_summary(mapping,
-                                       fun = stat_fun, geom = "line",
-                                       linewidth = line_el$linewidth,
-                                       linetype  = line_el$linetype,
-                                       alpha     = line_el$alpha)
+    fun = stat_fun, geom = "line",
+    linewidth = line_el$linewidth, linetype = line_el$linetype,
+    alpha = line_el$alpha)
 
   # Error Bars
   if (show_errorbars) {
     if (cent == "mean_sdl") {
       plot <- plot + ggplot2::stat_summary(mapping,
-                                           fun.data = "mean_sdl",
-                                           fun.args = list(mult = 1), geom = "errorbar",
-                                           linewidth = eb_el$linewidth,
-                                           linetype = eb_el$linetype,
-                                           alpha = eb_el$alpha,
-                                           width = width)
+        fun.data = "mean_sdl", fun.args = list(mult = 1), geom = "errorbar",
+        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+        alpha = eb_el$alpha, width = width)
     }
 
     if (cent == "mean_sdl_upper") {
       plot <- plot + ggplot2::stat_summary(mapping,
-                                           fun.max = function(x){mean(x) + stats::sd(x)},
-                                           fun.min = function(x){NA_real_},
-                                           geom = "errorbar",
-                                           linewidth = eb_el$linewidth,
-                                           linetype = eb_el$linetype,
-                                           alpha = eb_el$alpha,
-                                           width = width) +
-                    ggplot2::stat_summary(mapping,
-                                         fun.max = function(x){mean(x) + stats::sd(x)},
-                                         fun.min = function(x){mean(x)},
-                                         geom = "linerange",
-                                         linewidth = eb_el$linewidth,
-                                         linetype = eb_el$linetype,
-                                         alpha = eb_el$alpha,
-                                         show.legend = FALSE)
+        fun.max = function(x){mean(x) + stats::sd(x)},
+        fun.min = function(x){NA_real_}, geom = "errorbar",
+        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+        alpha = eb_el$alpha, width = width)
+      plot <- plot + ggplot2::stat_summary(mapping,
+        fun.max = function(x){mean(x) + stats::sd(x)},
+        fun.min = function(x){mean(x)}, geom = "linerange",
+        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+        alpha = eb_el$alpha, show.legend = FALSE)
     }
 
     if (cent == "median_iqr") {
       plot <- plot + ggplot2::stat_summary(mapping,
-                                           fun.max = function(x){stats::quantile(x, 0.75)},
-                                           fun.min = function(x){stats::quantile(x, 0.25)},
-                                           geom = "errorbar",
-                                           linewidth = eb_el$linewidth,
-                                           linetype = eb_el$linetype,
-                                           alpha = eb_el$alpha,
-                                           width = width)
+        fun.max = function(x){stats::quantile(x, 0.75)},
+        fun.min = function(x){stats::quantile(x, 0.25)}, geom = "errorbar",
+        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
+        alpha = eb_el$alpha, width = width)
     }
   }
 
@@ -138,42 +215,27 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 add_obs_layers <- function(plot, id_var_str, point_el, line_el,
                            col_var_str = NULL) {
 
-  if (!is.null(col_var_str)) {
-    plot <- plot + ggplot2::geom_point(
-      mapping = ggplot2::aes(color = .data[[col_var_str]]),
-      shape   = point_el$shape,
-      size    = point_el$size,
-      alpha   = point_el$alpha
-    )
-  } else {
-    plot <- plot + ggplot2::geom_point(
-      shape = point_el$shape,
-      size  = point_el$size,
-      alpha = point_el$alpha,
-      color = point_el$color
-    )
-  }
+  color_mapped <- !is.null(col_var_str)
+  point_mapping <- if (color_mapped) ggplot2::aes(color = .data[[col_var_str]]) else NULL
+
+  plot <- plot + build_layer(ggplot2::geom_point,
+    args = compact(list(mapping = point_mapping,
+                        shape = point_el$shape, size = point_el$size,
+                        alpha = point_el$alpha)),
+    color = point_el$color, color_mapped = color_mapped)
 
   if (!is.null(id_var_str)) {
-    if (!is.null(col_var_str)) {
-      plot <- plot + ggplot2::geom_line(
-        mapping   = ggplot2::aes(x = TIME, y = DV,
-                                 color = .data[[col_var_str]],
-                                 group = .data[[id_var_str]]),
-        linewidth = line_el$linewidth,
-        linetype  = line_el$linetype,
-        alpha     = line_el$alpha
-      )
+    line_mapping <- if (color_mapped) {
+      ggplot2::aes(x = TIME, y = DV, color = .data[[col_var_str]],
+                   group = .data[[id_var_str]])
     } else {
-      plot <- plot + ggplot2::geom_line(
-        mapping   = ggplot2::aes(x = TIME, y = DV,
-                                 group = .data[[id_var_str]]),
-        linewidth = line_el$linewidth,
-        linetype  = line_el$linetype,
-        alpha     = line_el$alpha,
-        color     = line_el$color
-      )
+      ggplot2::aes(x = TIME, y = DV, group = .data[[id_var_str]])
     }
+    plot <- plot + build_layer(ggplot2::geom_line,
+      args = list(mapping = line_mapping,
+                  linewidth = line_el$linewidth, linetype = line_el$linetype,
+                  alpha = line_el$alpha),
+      color = line_el$color, color_mapped = color_mapped)
   }
 
   plot
@@ -241,9 +303,10 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
   if (isTRUE(show_legend)) {
     loq_lab <- paste0(loq)
     plot <- plot +
-      ggplot2::geom_hline(ggplot2::aes(yintercept = loq, linetype = loq_lab),
-                          linewidth = loq_el$linewidth,
-                          alpha = loq_el$alpha) +
+      build_layer(ggplot2::geom_hline,
+        args = list(mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
+                    linewidth = loq_el$linewidth, alpha = loq_el$alpha),
+        color = loq_el$color) +
       ggplot2::scale_linetype_manual(
         name = "LLOQ",
         values = stats::setNames(c(loq_el$linetype), loq_lab)) +
@@ -251,10 +314,10 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
                       linetype = ggplot2::guide_legend(order = 2))
   } else {
     plot <- plot +
-      ggplot2::geom_hline(yintercept = loq,
-                          linewidth = loq_el$linewidth,
-                          linetype = loq_el$linetype,
-                          alpha = loq_el$alpha)
+      build_layer(ggplot2::geom_hline,
+        args = list(yintercept = loq, linewidth = loq_el$linewidth,
+                    linetype = loq_el$linetype, alpha = loq_el$alpha),
+        color = loq_el$color)
   }
 
   blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",
@@ -278,10 +341,10 @@ add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
 #' @keywords internal
 add_ref_layers <- function(plot, ref, ref_el) {
   if (is.null(ref)) return(plot)
-  plot + ggplot2::geom_hline(yintercept = as.numeric(ref),
-                             linewidth = ref_el$linewidth,
-                             linetype = ref_el$linetype,
-                             alpha = ref_el$alpha)
+  plot + build_layer(ggplot2::geom_hline,
+    args = list(yintercept = as.numeric(ref), linewidth = ref_el$linewidth,
+                linetype = ref_el$linetype, alpha = ref_el$alpha),
+    color = ref_el$color)
 }
 
 

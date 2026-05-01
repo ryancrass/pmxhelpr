@@ -119,7 +119,7 @@ plot_dvtime <- function(data,
   plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, col_var_str)
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width)
+  plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_mapped = !is.null(col_var_str))
 
   #Log Transform
   if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")

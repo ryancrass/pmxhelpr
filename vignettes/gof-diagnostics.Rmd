@@ -159,13 +159,18 @@ plot_gof(data = plot_data, dv_var = "ODV",
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
-
 The `shown` object can be stored and reused across multiple `plot_gof()` calls to maintain consistent visibility settings throughout a workflow:
 
 ```{r gof-shown-reuse, eval=FALSE}
 my_shown <- plot_gof_shown(ipred = FALSE)
-plot_gof(data1, shown = my_shown)
-plot_gof(data2, shown = my_shown)
+
+plot_gof(filter(plot_data, FOOD == 0), dv_var = ODV, shown = my_shown) +
+  facet_wrap(~`Dose and Food`, scales = "free") +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+
+plot_gof(filter(plot_data, FOOD == 1), dv_var = ODV, shown = my_shown) +
+  facet_wrap(~`Dose and Food`, scales = "free") +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
 

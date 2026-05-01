@@ -278,48 +278,65 @@ Shortcuts using `pmx_style()` are not relevant for this function.
 
 # Examples
 
-The following examples demonstrate common customization patterns. Each pattern applies to any plot function — only the theme factory and element keys change.
+The following examples demonstrate common customization patterns. Each pattern applies to any plot function — only the theme factory and element keys change. These examples will endeavor to cover common use cases for default theme overrides. 
 
-## Inline Override
+## Make Theme Overrides Inline
 
-Pass element overrides directly in the `theme` argument. Only the fields you specify are changed:
+Pass element overrides directly in the `theme` argument. Only the fields you specify are changed. This example removes points for observations and central tendency means to emphasize the error bars
 
 ```{r example-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE,
             theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
-                                     cent_errorbar = pmx_errorbar(linewidth = 0.5),
-                                     cent_point = pmx_point(size = 0.1))) +
+                                     cent_point = pmx_point(size = 0))) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
 
-## Reusable Theme Object
+## Make Theme Overrides with a Reusable Theme Object
 
-Create a theme once and pass it to multiple plots:
+A more common approach to modifying theme elements is to create a reusable theme object that can be passed to a series of plots. The example below produces the same plot output as the inline example above, but can be recycled to additional plots.
 
 ```{r example-reuse, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-my_theme <- plot_dvtime_theme(cent_errorbar = pmx_errorbar(linewidth = 0.5),
-                              cent_point = pmx_point(size = 0.1), 
+my_theme <- plot_dvtime_theme(cent_point = pmx_point(size = 0), 
                               obs_point = pmx_point(alpha = 0))
 
 plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE,
             theme = my_theme) +
+  scale_x_continuous(breaks = seq(0, 168, 24))+
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
 
-## Color Customization with `pmx_style()`
+## Remove Individual Data Points
 
-Use `pmx_style()` to change the color of both point and line elements for a role in one call. This example uses it to both change the spaghetti individual line colors and to remove the central tendency fit.
+A common use case for the `theme` argument is to set to `alpha = 0` for data points to remove them from the plot. This example removes points for observations and central tendency means to emphasize the error bars
 
-```{r example-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = data_pk, dv_var = ODV, id_var = ID,
-            theme = plot_dvtime_theme(obs = pmx_style(color = "blue"),
-                                      cent = pmx_style(alpha = 0)))+
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+```{r example-no-pts, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = PART,
+            cent = "mean_sdl", dosenorm = TRUE, log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
+                                     cent_point = pmx_point(size = 0))) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
 ```
+
+## Modifying color / alpha for points / lines simultaneously with `pmx_style()`
+
+Use `pmx_style()` to change the color of both point and line elements for a role in one call. This example uses it to change the color and alpha of the individual spaghetti line colors and the color and alpha of the central tendency line.
+
+This is useful when you want to fade or recolor an entire layer without repeating yourself.
+
+```{r example-style1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, id_var = ID,
+            theme = plot_dvtime_theme(obs = pmx_style(color = "grey", alpha = 0.3), 
+                                      cent = pmx_style(color = "darkred", alpha = 1)), 
+            log_y = TRUE) +
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") 
+```
+
 
 ## Error Bar Width
 
@@ -342,8 +359,7 @@ An example override of the line color and SE ribbon appearances is provided belo
 
 ```{r example-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
-            col_var = `Dose and Food`, col_trend = FALSE,
-            loess = TRUE, se_loess = TRUE,
+            loess = TRUE, se_loess = TRUE, ref = 0,
             theme = plot_dvconc_theme(
               loess = pmx_trend(color = "steelblue", linetype = 1,
                                 se_color = "steelblue", se_alpha = 0.2))) +
@@ -354,7 +370,7 @@ Both trend elements can be customized independently. Here the LOESS line is styl
 
 ```{r example-trend-both, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
-            col_var = `Dose and Food`, col_trend = FALSE,
+            ref = 0,
             loess = TRUE, linear = TRUE,
             se_loess = TRUE, se_linear = TRUE,
             theme = plot_dvconc_theme(
@@ -362,41 +378,6 @@ plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
               linear = pmx_trend(color = "firebrick", linetype = 2,
                                  se_color = "firebrick", se_alpha = 0.15))) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
-```
-
-## Role-Level Shortcuts in Action
-
-The `obs` and `cent` shortcuts in `plot_dvtime_theme()` and `plot_gof_theme()` apply `pmx_style()` across all elements for a role. This is useful when you want to fade or recolor an entire layer without repeating yourself.
-
-Hide observed data to emphasize central tendency:
-
-```{r example-obs-shortcut, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl", log_y = TRUE,
-            theme = plot_dvtime_theme(obs = pmx_style(alpha = 0))) +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
-  facet_wrap(~PART)
-```
-
-Fade central tendency to emphasize individual observations:
-
-```{r example-cent-shortcut, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            id_var = ID, cent = "mean", log_y = TRUE,
-            theme = plot_dvtime_theme(cent = pmx_style(alpha = 0.3))) +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
-  facet_wrap(~PART)
-```
-
-Combine both shortcuts to shift emphasis — fade observations and recolor the central tendency:
-
-```{r example-both-shortcuts, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = gof_data_pk, dv_var = "ODV",
-         cent = "mean_sdl",
-         theme = plot_gof_theme(obs = pmx_style(alpha = 0.2),
-                                cent = pmx_style(alpha = 1))) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
 
@@ -413,11 +394,14 @@ new_vpc_theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
                             obs_med_line = pmx_line(color = "#000000"),
                             obs_pi_line = pmx_line(color = "#000000"),
                             sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi_ci = pmx_ribbon(fill = "#3388cc"))
+                            sim_pi_ci = pmx_ribbon(fill = "#3388cc"), 
+                            sim_pi_area = pmx_ribbon(fill = "#3388cc"))
 plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
-  theme = new_vpc_theme
+  theme = new_vpc_theme,
+  shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE, obs_pi_line = FALSE, 
+                         sim_median_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")

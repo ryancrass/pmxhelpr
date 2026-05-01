@@ -4,7 +4,13 @@
 \alias{pmx_errorbar}
 \title{Error bar aesthetics}
 \usage{
-pmx_errorbar(linewidth = NULL, linetype = NULL, alpha = NULL, width = NULL)
+pmx_errorbar(
+  linewidth = NULL,
+  linetype = NULL,
+  alpha = NULL,
+  color = NULL,
+  width = NULL
+)
 }
 \arguments{
 \item{linewidth}{Error bar line width. Default varies by plot type.}
@@ -12,6 +18,8 @@ pmx_errorbar(linewidth = NULL, linetype = NULL, alpha = NULL, width = NULL)
 \item{linetype}{Error bar line type. Default varies by plot type.}
 
 \item{alpha}{Error bar alpha. Default varies by plot type.}
+
+\item{color}{Error bar color. Default is \code{NULL} (inherits from ggplot2 default).}
 
 \item{width}{Error bar cap width. Default is 2.5 percent of maximum \code{NTIME}.}
 }

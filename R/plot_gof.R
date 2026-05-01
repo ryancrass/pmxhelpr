@@ -104,13 +104,13 @@ plot_gof <- function(data,
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "DV")
+    plot <- add_cent_layers_manual(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_manual(plot, cent, "IPRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "PRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_manual(plot, cent, "PRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Log Transform

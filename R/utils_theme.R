@@ -49,7 +49,7 @@ element_fields <- function(cls) {
     pmx_point    = c("shape", "size", "alpha", "color"),
     pmx_line     = c("linewidth", "linetype", "alpha", "color"),
     pmx_ribbon   = c("fill", "alpha", "color", "linetype", "linewidth"),
-    pmx_errorbar = c("linewidth", "linetype", "alpha", "width"),
+    pmx_errorbar = c("linewidth", "linetype", "alpha", "color", "width"),
     pmx_trend    = c("linewidth", "linetype", "color", "se_color", "se_alpha"),
     pmx_style    = c("color", "alpha"),
     pmx_color    = c("dv", "pred", "ipred"),
@@ -102,14 +102,19 @@ merge_theme <- function(user, default) {
 apply_style <- function(style, prefix, defaults) {
   pt_key <- paste0(prefix, "_point")
   ln_key <- paste0(prefix, "_line")
+  eb_key <- paste0(prefix, "_errorbar")
   pt_fields <- c("shape", "size", "alpha", "color")
   ln_fields <- c("linewidth", "linetype", "alpha", "color")
+  eb_fields <- c("linewidth", "linetype", "alpha", "color")
   for (field in names(style)) {
     if (pt_key %in% names(defaults) && field %in% pt_fields) {
       defaults[[pt_key]][[field]] <- style[[field]]
     }
     if (ln_key %in% names(defaults) && field %in% ln_fields) {
       defaults[[ln_key]][[field]] <- style[[field]]
+    }
+    if (eb_key %in% names(defaults) && field %in% eb_fields) {
+      defaults[[eb_key]][[field]] <- style[[field]]
     }
   }
   defaults
@@ -211,14 +216,15 @@ pmx_style <- function(color = NULL, alpha = NULL) {
 #' @param linewidth Error bar line width. Default varies by plot type.
 #' @param linetype Error bar line type. Default varies by plot type.
 #' @param alpha Error bar alpha. Default varies by plot type.
+#' @param color Error bar color. Default is `NULL` (inherits from ggplot2 default).
 #' @param width Error bar cap width. Default is 2.5 percent of maximum `NTIME`.
 #'
 #' @return A `pmx_errorbar` element object
 #' @export
 pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
-                         alpha = NULL, width = NULL) {
+                         alpha = NULL, color = NULL, width = NULL) {
   out <- compact(list(linewidth = linewidth, linetype = linetype,
-                      alpha = alpha))
+                      alpha = alpha, color = color))
   out["width"] <- list(width)
   structure(out, class = "pmx_errorbar")
 }
@@ -298,7 +304,7 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.5),
-    cent_point    = pmx_point(shape = 16, size = 1.25, alpha = 1),
+    cent_point    = pmx_point(shape = 16, size = 1.25, alpha = 0),
     cent_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
     cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
@@ -351,7 +357,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
-    cent_point    = pmx_point(shape = 1, size = 1.25, alpha = 0),
+    cent_point    = pmx_point(shape = 16, size = 1.25, alpha = 0),
     cent_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
     cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),

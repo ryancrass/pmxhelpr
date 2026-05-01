@@ -143,8 +143,9 @@ test_that("pmx_errorbar with no args returns structure with width slot", {
   expect_null(el$width)
 })
 
-test_that("pmx_errorbar rejects unknown arguments", {
-  expect_error(pmx_errorbar(color = "red"), regexp = "unused argument")
+test_that("pmx_errorbar accepts color argument", {
+  el <- pmx_errorbar(color = "red")
+  expect_equal(el$color, "red")
 })
 
 #####pmx_trend####

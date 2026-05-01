@@ -191,9 +191,7 @@ Say we want to update the width of the observed data trend line and add points a
 ```{r new-theme}
 gof_new_theme <- plot_gof_theme(
   cent_errorbar = pmx_errorbar(width = 10),
-  pred_point = pmx_point(shape = 16, alpha = 1),
-  ipred_point = pmx_point(shape = 16, alpha = 1),
-  dv_point = pmx_point(shape = 16, alpha = 1)
+  cent_point = pmx_point(shape = 16, alpha = 1)
 )
 ```
 

@@ -92,6 +92,7 @@ aesthetics:
   width)
 - `pmx_trend()` — trend line aesthetics (linewidth, linetype, color,
   se_color, se_alpha)
+- `pmx_color()` — GOF overlay color mapping (dv, pred, ipred)
 - `pmx_style()` — convenience shortcut to set shared aesthetics (color,
   alpha) on both point and line elements of a role
 

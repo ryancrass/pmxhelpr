@@ -167,7 +167,7 @@ pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
 #'
 #' Convenience constructor for setting aesthetics that apply to both point
 #' and line elements of a role. Pass to role-level theme arguments (e.g.,
-#' `obs`, `cent`, `dv`) to set shared properties without specifying each
+#' `obs`, `cent`) to set shared properties without specifying each
 #' element individually.
 #'
 #' @param color Color applied to both point and line elements.
@@ -177,7 +177,7 @@ pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
 #' @export
 #'
 #' @examples
-#' plot_gof_theme(pred = pmx_style(color = "purple"))
+#' plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 pmx_style <- function(color = NULL, alpha = NULL) {
   structure(
     compact(list(color = color, alpha = alpha)),
@@ -220,6 +220,25 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
     compact(list(linewidth = linewidth, linetype = linetype, color = color,
                  se_color = se_color, se_alpha = se_alpha)),
     class = "pmx_trend"
+  )
+}
+
+
+#' GOF overlay color aesthetics
+#'
+#' Creates a color element for [plot_gof_theme()] controlling the manual
+#' color scale for DV, PRED, and IPRED overlay lines.
+#'
+#' @param dv Color for DV central tendency. Default `"blue"`.
+#' @param pred Color for PRED central tendency. Default `"red"`.
+#' @param ipred Color for IPRED central tendency. Default `"green"`.
+#'
+#' @return A `pmx_color` element object
+#' @export
+pmx_color <- function(dv = NULL, pred = NULL, ipred = NULL) {
+  structure(
+    compact(list(dv = dv, pred = pred, ipred = ipred)),
+    class = "pmx_color"
   )
 }
 
@@ -279,63 +298,48 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #'
 #' Constructor and factory for `plot_gof` plot aesthetics.
 #' Call with no arguments to view defaults. Pass element overrides to customize.
-#' Use role-level shortcuts `obs`, `dv`, `pred`, `ipred` with [pmx_style()] to
-#' set shared aesthetics (e.g., color) for both point and line elements at once.
+#' Use the `obs` shortcut with [pmx_style()] to set shared aesthetics for both
+#' `obs_point` and `obs_line` at once. Override overlay colors with [pmx_color()].
 #'
 #' @param obs_point Observed data point aesthetics. See [pmx_point()].
 #' @param obs_line Observed data line aesthetics. See [pmx_line()].
-#' @param dv_point DV central tendency point aesthetics. See [pmx_point()].
-#' @param dv_line DV central tendency line aesthetics. See [pmx_line()].
-#' @param pred_point PRED central tendency point aesthetics. See [pmx_point()].
-#' @param pred_line PRED central tendency line aesthetics. See [pmx_line()].
-#' @param ipred_point IPRED central tendency point aesthetics. See [pmx_point()].
-#' @param ipred_line IPRED central tendency line aesthetics. See [pmx_line()].
+#' @param cent_point Shared central tendency point aesthetics for DV, PRED, and IPRED.
+#'   See [pmx_point()].
+#' @param cent_line Shared central tendency line aesthetics for DV, PRED, and IPRED.
+#'   See [pmx_line()].
 #' @param cent_errorbar Central tendency error bar aesthetics. See [pmx_errorbar()].
 #' @param ref_line Reference line aesthetics. See [pmx_line()].
 #' @param loq_line LOQ reference line aesthetics. See [pmx_line()].
 #' @param obs Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
 #'   See [pmx_style()].
-#' @param dv Shortcut: apply shared aesthetics to both `dv_point` and `dv_line`.
-#'   See [pmx_style()].
-#' @param pred Shortcut: apply shared aesthetics to both `pred_point` and `pred_line`.
-#'   See [pmx_style()].
-#' @param ipred Shortcut: apply shared aesthetics to both `ipred_point` and `ipred_line`.
-#'   See [pmx_style()].
+#' @param colors Overlay color mapping for DV, PRED, and IPRED. See [pmx_color()].
 #'
 #' @return A named list of theme elements
 #' @export
 #'
 #' @examples
 #' plot_gof_theme()
-#' plot_gof_theme(pred = pmx_style(color = "purple"))
-#' plot_gof_theme(pred_point = pmx_point(size = 3))
+#' plot_gof_theme(colors = pmx_color(pred = "purple"))
+#' plot_gof_theme(cent_point = pmx_point(alpha = 1))
 plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
-                              dv_point = NULL, dv_line = NULL,
-                              pred_point = NULL, pred_line = NULL,
-                              ipred_point = NULL, ipred_line = NULL,
-                              cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
-                              obs = NULL, dv = NULL,
-                              pred = NULL, ipred = NULL) {
+                           cent_point = NULL, cent_line = NULL,
+                           cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
+                           obs = NULL, colors = NULL) {
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
-    dv_point      = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "blue"),
-    dv_line       = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "blue"),
-    pred_point    = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "red"),
-    pred_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "red"),
-    ipred_point   = pmx_point(shape = 1, size = 1.25, alpha = 0, color = "green"),
-    ipred_line    = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1, color = "green"),
+    cent_point    = pmx_point(shape = 1, size = 1.25, alpha = 0),
+    cent_line     = pmx_line(linewidth = 0.75, linetype = 1, alpha = 1),
     cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
-    loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
+    loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
+    colors        = pmx_color(dv = "blue", pred = "red", ipred = "green")
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
-    dv_point = dv_point, dv_line = dv_line,
-    pred_point = pred_point, pred_line = pred_line,
-    ipred_point = ipred_point, ipred_line = ipred_line,
+    cent_point = cent_point, cent_line = cent_line,
     cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
-    obs = obs, dv = dv, pred = pred, ipred = ipred
+    obs = obs, colors = colors
   ))
   merge_theme(user, defaults)
 }

@@ -69,19 +69,12 @@ test_that("merge_theme routes pmx_style to apply_style", {
   expect_equal(result$obs_line$linewidth, 1)
 })
 
-test_that("merge_theme applies element overrides after pmx_style", {
-  defaults <- plot_gof_theme()
-  # Style sets color for both, then element override changes just point size
-  user <- list(
-    pred = pmx_style(color = "purple"),
-    pred_point = pmx_point(size = 5)
-  )
-  result <- pmxhelpr:::merge_theme(user, defaults)
-  # Style color applied to both
-  expect_equal(result$pred_point$color, "purple")
-  expect_equal(result$pred_line$color, "purple")
-  # Element override applied on top
-  expect_equal(result$pred_point$size, 5)
+test_that("merge_theme applies pmx_color overrides in plot_gof_theme", {
+  theme <- plot_gof_theme(colors = pmx_color(pred = "purple"))
+  expect_equal(theme$colors$pred, "purple")
+  # Other colors preserved
+  expect_equal(theme$colors$dv, "blue")
+  expect_equal(theme$colors$ipred, "green")
 })
 
 #####apply_style####

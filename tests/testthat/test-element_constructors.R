@@ -174,3 +174,34 @@ test_that("pmx_trend with no args returns empty named structure", {
 test_that("pmx_trend rejects unknown arguments", {
   expect_error(pmx_trend(shape = 1), regexp = "unused argument")
 })
+
+#####pmx_color####
+
+test_that("pmx_color returns correct class", {
+  el <- pmx_color(dv = "blue", pred = "red", ipred = "green")
+  expect_s3_class(el, "pmx_color")
+})
+
+test_that("pmx_color sets all fields", {
+  el <- pmx_color(dv = "blue", pred = "red", ipred = "green")
+  expect_equal(el$dv, "blue")
+  expect_equal(el$pred, "red")
+  expect_equal(el$ipred, "green")
+})
+
+test_that("pmx_color with no args returns empty named structure", {
+  el <- pmx_color()
+  expect_s3_class(el, "pmx_color")
+  expect_length(el, 0)
+})
+
+test_that("pmx_color partial override", {
+  el <- pmx_color(pred = "purple")
+  expect_equal(el$pred, "purple")
+  expect_null(el$dv)
+  expect_null(el$ipred)
+})
+
+test_that("pmx_color rejects unknown arguments", {
+  expect_error(pmx_color(obs = "black"), regexp = "unused argument")
+})

@@ -7,19 +7,13 @@
 plot_gof_theme(
   obs_point = NULL,
   obs_line = NULL,
-  dv_point = NULL,
-  dv_line = NULL,
-  pred_point = NULL,
-  pred_line = NULL,
-  ipred_point = NULL,
-  ipred_line = NULL,
+  cent_point = NULL,
+  cent_line = NULL,
   cent_errorbar = NULL,
   ref_line = NULL,
   loq_line = NULL,
   obs = NULL,
-  dv = NULL,
-  pred = NULL,
-  ipred = NULL
+  colors = NULL
 )
 }
 \arguments{
@@ -27,17 +21,11 @@ plot_gof_theme(
 
 \item{obs_line}{Observed data line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
-\item{dv_point}{DV central tendency point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
+\item{cent_point}{Shared central tendency point aesthetics for DV, PRED, and IPRED.
+See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{dv_line}{DV central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
-
-\item{pred_point}{PRED central tendency point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
-
-\item{pred_line}{PRED central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
-
-\item{ipred_point}{IPRED central tendency point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
-
-\item{ipred_line}{IPRED central tendency line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{cent_line}{Shared central tendency line aesthetics for DV, PRED, and IPRED.
+See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{cent_errorbar}{Central tendency error bar aesthetics. See \code{\link[=pmx_errorbar]{pmx_errorbar()}}.}
 
@@ -48,14 +36,7 @@ plot_gof_theme(
 \item{obs}{Shortcut: apply shared aesthetics to both \code{obs_point} and \code{obs_line}.
 See \code{\link[=pmx_style]{pmx_style()}}.}
 
-\item{dv}{Shortcut: apply shared aesthetics to both \code{dv_point} and \code{dv_line}.
-See \code{\link[=pmx_style]{pmx_style()}}.}
-
-\item{pred}{Shortcut: apply shared aesthetics to both \code{pred_point} and \code{pred_line}.
-See \code{\link[=pmx_style]{pmx_style()}}.}
-
-\item{ipred}{Shortcut: apply shared aesthetics to both \code{ipred_point} and \code{ipred_line}.
-See \code{\link[=pmx_style]{pmx_style()}}.}
+\item{colors}{Overlay color mapping for DV, PRED, and IPRED. See \code{\link[=pmx_color]{pmx_color()}}.}
 }
 \value{
 A named list of theme elements
@@ -63,11 +44,11 @@ A named list of theme elements
 \description{
 Constructor and factory for \code{plot_gof} plot aesthetics.
 Call with no arguments to view defaults. Pass element overrides to customize.
-Use role-level shortcuts \code{obs}, \code{dv}, \code{pred}, \code{ipred} with \code{\link[=pmx_style]{pmx_style()}} to
-set shared aesthetics (e.g., color) for both point and line elements at once.
+Use the \code{obs} shortcut with \code{\link[=pmx_style]{pmx_style()}} to set shared aesthetics for both
+\code{obs_point} and \code{obs_line} at once. Override overlay colors with \code{\link[=pmx_color]{pmx_color()}}.
 }
 \examples{
 plot_gof_theme()
-plot_gof_theme(pred = pmx_style(color = "purple"))
-plot_gof_theme(pred_point = pmx_point(size = 3))
+plot_gof_theme(colors = pmx_color(pred = "purple"))
+plot_gof_theme(cent_point = pmx_point(alpha = 1))
 }

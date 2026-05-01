@@ -82,10 +82,12 @@ plot_gof <- function(data,
   shown <- merge_element(shown, show_defaults)
   active <- legend_labels[shown[legend_labels] == TRUE]
 
-  #Derive output colors from theme (read from _point element)
-  output_colors <- vapply(active, function(k) {
-    plottheme[[paste0(tolower(k), "_point")]]$color
-  }, character(1))
+  #Derive output colors from theme
+  color_map <- c(OBS = plottheme$obs_point$color,
+                 DV = plottheme$colors$dv,
+                 IPRED = plottheme$colors$ipred,
+                 PRED = plottheme$colors$pred)
+  output_colors <- color_map[active]
 
 
 ###Plot
@@ -108,13 +110,13 @@ plot_gof <- function(data,
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers(plot, cent, "DV", plottheme$dv_point, plottheme$dv_line, plottheme$cent_errorbar, width, color_aes = "DV")
+    plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$ipred_point, plottheme$ipred_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers(plot, cent, "IPRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers(plot, cent, "PRED", plottheme$pred_point, plottheme$pred_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers(plot, cent, "PRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Log Transform

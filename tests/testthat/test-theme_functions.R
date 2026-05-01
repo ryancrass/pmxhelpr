@@ -94,18 +94,18 @@ test_that("plot_gof_theme returns a named list with defaults", {
   theme <- plot_gof_theme()
   expect_type(theme, "list")
   expect_true("obs_point" %in% names(theme))
-  expect_true("dv_point" %in% names(theme))
-  expect_true("pred_line" %in% names(theme))
-  expect_true("ipred_point" %in% names(theme))
+  expect_true("cent_point" %in% names(theme))
+  expect_true("cent_line" %in% names(theme))
+  expect_true("colors" %in% names(theme))
 })
 
 test_that("plot_gof_theme override merges correctly", {
-  theme <- plot_gof_theme(dv_line = pmx_line(linewidth = 5))
-  expect_equal(theme$dv_line$linewidth, 5)
+  theme <- plot_gof_theme(cent_line = pmx_line(linewidth = 5))
+  expect_equal(theme$cent_line$linewidth, 5)
 })
 
 test_that("plot_gof_theme errors on invalid element field", {
-  expect_error(plot_gof_theme(dv_point = pmx_point(fake_key = 1)),
+  expect_error(plot_gof_theme(cent_point = pmx_point(fake_key = 1)),
                regexp = "unused argument")
 })
 
@@ -115,29 +115,24 @@ test_that("plot_gof_theme default obs_point alpha is 0.5", {
 
 test_that("plot_gof_theme default colors match expected", {
   theme <- plot_gof_theme()
-  expect_equal(theme$dv_point$color, "blue")
-  expect_equal(theme$pred_point$color, "red")
-  expect_equal(theme$ipred_point$color, "green")
+  expect_equal(theme$colors$dv, "blue")
+  expect_equal(theme$colors$pred, "red")
+  expect_equal(theme$colors$ipred, "green")
   expect_equal(theme$obs_point$color, "darkgrey")
-  # Line colors match point colors
-  expect_equal(theme$dv_line$color, "blue")
-  expect_equal(theme$pred_line$color, "red")
 })
 
-test_that("plot_gof_theme pmx_style shortcut applies color to point and line", {
-  theme <- plot_gof_theme(pred = pmx_style(color = "purple"))
-  expect_equal(theme$pred_point$color, "purple")
-  expect_equal(theme$pred_line$color, "purple")
-  # Other defaults preserved
-  expect_equal(theme$pred_point$size, 1.25)
-  expect_equal(theme$pred_line$linewidth, 0.75)
+test_that("plot_gof_theme pmx_color override merges correctly", {
+  theme <- plot_gof_theme(colors = pmx_color(pred = "purple"))
+  expect_equal(theme$colors$pred, "purple")
+  # Other colors preserved
+  expect_equal(theme$colors$dv, "blue")
+  expect_equal(theme$colors$ipred, "green")
 })
 
 test_that("plot_gof_theme returns all expected keys", {
   theme <- plot_gof_theme()
-  expected <- c("obs_point", "obs_line", "dv_point", "dv_line",
-                "pred_point", "pred_line", "ipred_point", "ipred_line",
-                "cent_errorbar", "ref_line", "loq_line")
+  expected <- c("obs_point", "obs_line", "cent_point", "cent_line",
+                "cent_errorbar", "ref_line", "loq_line", "colors")
   expect_setequal(names(theme), expected)
 })
 
@@ -145,15 +140,12 @@ test_that("plot_gof_theme elements have correct classes", {
   theme <- plot_gof_theme()
   expect_s3_class(theme$obs_point, "pmx_point")
   expect_s3_class(theme$obs_line, "pmx_line")
-  expect_s3_class(theme$dv_point, "pmx_point")
-  expect_s3_class(theme$dv_line, "pmx_line")
-  expect_s3_class(theme$pred_point, "pmx_point")
-  expect_s3_class(theme$pred_line, "pmx_line")
-  expect_s3_class(theme$ipred_point, "pmx_point")
-  expect_s3_class(theme$ipred_line, "pmx_line")
+  expect_s3_class(theme$cent_point, "pmx_point")
+  expect_s3_class(theme$cent_line, "pmx_line")
   expect_s3_class(theme$cent_errorbar, "pmx_errorbar")
   expect_s3_class(theme$ref_line, "pmx_line")
   expect_s3_class(theme$loq_line, "pmx_line")
+  expect_s3_class(theme$colors, "pmx_color")
 })
 
 #####plot_vpc_theme####

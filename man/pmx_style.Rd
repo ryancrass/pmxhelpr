@@ -17,9 +17,9 @@ A \code{pmx_style} element object
 \description{
 Convenience constructor for setting aesthetics that apply to both point
 and line elements of a role. Pass to role-level theme arguments (e.g.,
-\code{obs}, \code{cent}, \code{dv}) to set shared properties without specifying each
+\code{obs}, \code{cent}) to set shared properties without specifying each
 element individually.
 }
 \examples{
-plot_gof_theme(pred = pmx_style(color = "purple"))
+plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 }

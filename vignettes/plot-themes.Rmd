@@ -83,7 +83,7 @@ Theme keys follow a `role_element` pattern where the **role** identifies the dat
 
 - `obs_point` — observed data, point geom
 - `cent_line` — central tendency, line geom
-- `pred_point` — PRED predictions, point geom
+- `ref_line` — reference line, line geom
 
 When a role uses only one geom type, the key uses the role plus the element suffix (e.g., `ref_line`, `loq_line`). The exception is `obs` in `plot_dvconc_theme()` and `plot_vpc_theme()` where the role is unambiguous.
 
@@ -117,14 +117,14 @@ plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 When both a style shortcut and an explicit element override are provided, the style is applied first, then the element override wins for any conflicting fields:
 
 ```{r style-precedence}
-# Style sets color to purple on both point and line,
+# Style sets alpha on both point and line,
 # then the explicit override changes just the point size
-theme <- plot_gof_theme(
-  pred = pmx_style(color = "purple"),
-  pred_point = pmx_point(size = 3)
+theme <- plot_dvtime_theme(
+  obs = pmx_style(alpha = 0.3),
+  obs_point = pmx_point(size = 3)
 )
-theme$pred_point  # color = "purple", size = 3
-theme$pred_line   # color = "purple", linewidth = 0.75 (default)
+theme$obs_point  # alpha = 0.3, size = 3
+theme$obs_line   # alpha = 0.3, linewidth = 0.5 (default)
 ```
 
 
@@ -157,16 +157,13 @@ plot_gof_theme()
 | Key | Type | Role |
 |---|---|---|
 | `obs_point`, `obs_line` | `pmx_point`, `pmx_line` | Observed data (default: darkgrey) |
-| `dv_point`, `dv_line` | `pmx_point`, `pmx_line` | DV central tendency (default: blue) |
-| `pred_point`, `pred_line` | `pmx_point`, `pmx_line` | PRED central tendency (default: red) |
-| `ipred_point`, `ipred_line` | `pmx_point`, `pmx_line` | IPRED central tendency (default: green) |
+| `cent_point`, `cent_line` | `pmx_point`, `pmx_line` | Shared central tendency aesthetics for DV, PRED, IPRED |
 | `cent_errorbar` | `pmx_errorbar` | Error bars (shared across variables) |
+| `colors` | `pmx_color` | Overlay color mapping: `dv`, `pred`, `ipred` (defaults: blue, red, green) |
 | `ref_line` | `pmx_line` | Reference line |
 | `loq_line` | `pmx_line` | LOQ reference line |
 
-Shortcuts: `obs`, `dv`, `pred`, `ipred` accept `pmx_style()`.
-
-`obs` and `dv` represent the same underlying data (`dv_var`). They are differentiated to allow visual distinction between individual observations and summary statistics.
+Shortcuts: `obs` accepts `pmx_style()`. Overlay colors are controlled via `colors = pmx_color(pred = "purple")`.
 
 ### `plot_dvconc_theme()`
 

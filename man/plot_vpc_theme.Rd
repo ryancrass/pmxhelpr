@@ -6,7 +6,7 @@
 \usage{
 plot_vpc_theme(
   obs_point = NULL,
-  obs_med_line = NULL,
+  obs_median_line = NULL,
   obs_pi_line = NULL,
   sim_pi_line = NULL,
   sim_pi_ci = NULL,
@@ -19,7 +19,7 @@ plot_vpc_theme(
 \arguments{
 \item{obs_point}{Observed data point aesthetics. See \code{\link[=pmx_point]{pmx_point()}}.}
 
-\item{obs_med_line}{Observed median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
+\item{obs_median_line}{Observed median line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{obs_pi_line}{Observed quantile line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 

@@ -92,14 +92,14 @@ vpc_build_plot <- function(vpcstats,
   }
 
   ## Observed median line
-  if (isTRUE(shown$obs_med_line)) {
+  if (isTRUE(shown$obs_median_line)) {
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = obs50),
         inherit.aes = FALSE,
-        color = vpctheme$obs_med_line$color,
-        linetype = vpctheme$obs_med_line$linetype,
-        linewidth = vpctheme$obs_med_line$linewidth
+        color = vpctheme$obs_median_line$color,
+        linetype = vpctheme$obs_median_line$linetype,
+        linewidth = vpctheme$obs_median_line$linewidth
       )
   }
 

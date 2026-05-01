@@ -40,6 +40,6 @@ pi = c(0.025, 0.975),
 ci = c(0.025, 0.925),
  shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = TRUE,
  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
- obs_med_line = TRUE,
+ obs_median_line = TRUE,
  sim_median_line = FALSE, sim_median_ci = TRUE))
 }

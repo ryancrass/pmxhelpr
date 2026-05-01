@@ -234,7 +234,7 @@ The relationship between element key, element constructor, and purpose is define
  + `obs_point` | `pmx_point` | Observed data points (default: darkgrey)
  + `obs_line` | `pmx_line` | Individual spaghetti lines connecting observations (default: darkgrey)
  + `cent_point` | `pmx_point` | Shared central tendency points for DV, PRED, IPRED |
- + ``cent_line` | `pmx_line` | Shared central tendency lines for DV, PRED, IPRED |
+ + `cent_line` | `pmx_line` | Shared central tendency lines for DV, PRED, IPRED |
  + `cent_errorbar` | `pmx_errorbar` | Shared central tendency error bars 
  + `ref_line` | `pmx_line` | Reference line
  + `loq_line` | `pmx_line` | LOQ reference line
@@ -265,7 +265,7 @@ plot_vpc_theme()
 
 The relationship between element key, element constructor, and purpose is defined below:
   + `obs_point` | `pmx_point` | Observed data points
-  + `obs_med_line` | `pmx_line` | Observed median line
+  + `obs_median_line` | `pmx_line` | Observed median line
   + `obs_pi_line` | `pmx_line` | Observed quantile lines
   + `sim_pi_line` | `pmx_line` | Simulated prediction interval lines
   + `sim_pi_ci` | `pmx_ribbon` | Simulated PI confidence interval ribbons
@@ -381,26 +381,34 @@ plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
 ```
 
 
-## Custom VPC Color Scheme
+## Custom VPC Color Scheme with `plot_vpc_theme()`
 
-Override multiple elements to apply a cohesive color scheme:
+For VPC workflows, it is almost always preferred to set alternative theme objects that can be recycled into different VPC plot strata. 
+
+The example below sets a new VPC theme using a blue / black color schema.
+
+```{r new-vpc-theme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+new_vpc_theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
+                                obs_median_line = pmx_line(color = "#000000"),
+                                obs_pi_line = pmx_line(color = "#000000"),
+                                sim_median_ci = pmx_ribbon(fill = "#3388cc"),
+                                sim_pi_ci = pmx_ribbon(fill = "#3388cc"), 
+                                sim_pi_area = pmx_ribbon(fill = "#3388cc"))
+```
+
 
 ```{r vpc-sim-data, message=FALSE, warning=FALSE, include=FALSE}
 simout <- df_mrgsim_replicate(data_pk, model, replicates = 100, dv_var = "ODV")
 ```
 
 ```{r example-vpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-new_vpc_theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
-                            obs_med_line = pmx_line(color = "#000000"),
-                            obs_pi_line = pmx_line(color = "#000000"),
-                            sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-                            sim_pi_ci = pmx_ribbon(fill = "#3388cc"), 
-                            sim_pi_area = pmx_ribbon(fill = "#3388cc"))
 plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   theme = new_vpc_theme,
-  shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE, obs_pi_line = FALSE, 
+  min_bin_count = 4,
+  shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE, 
+                         obs_median_line = TRUE, obs_pi_line = FALSE, 
                          sim_median_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +

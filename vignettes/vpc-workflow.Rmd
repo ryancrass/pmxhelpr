@@ -425,7 +425,7 @@ The components of the list correspond to the following vpc plot elements:
 
 -   Observed points: `obs_point`
 -   Observed quantile lines: `obs_pi_line`
--   Observed median line: `obs_med_line`
+-   Observed median line: `obs_median_line`
 -   Simulated prediction interval lines: `sim_pi_line`
 -   Simulated prediction interval CI: `sim_pi_ci`
 -   Simulated prediction interval area: `sim_pi_area`
@@ -489,7 +489,7 @@ We can define an alternative theme using a blue / grey color schema using this f
 ```{r vpc-new-theme}
 vpc_new_theme <- plot_vpc_theme(
   obs_point = pmx_point(color = "#000000"),
-  obs_med_line = pmx_line(color = "#000000"),
+  obs_median_line = pmx_line(color = "#000000"),
   obs_pi_line = pmx_line(color = "#000000"),
   sim_median_ci = pmx_ribbon(fill = "#3388cc"),
   sim_pi_ci = pmx_ribbon(fill = "#3388cc")

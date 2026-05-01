@@ -18,7 +18,7 @@
 #'ci = c(0.025, 0.925),
 #'  shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = TRUE,
 #'  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
-#'  obs_med_line = TRUE,
+#'  obs_median_line = TRUE,
 #'  sim_median_line = FALSE, sim_median_ci = TRUE))
 
 plot_vpc_legend <- function(ci = c(0.05, 0.95),
@@ -53,9 +53,9 @@ plot_vpc_legend <- function(ci = c(0.05, 0.95),
     {if(!is.null(lloq)) ggplot2::geom_line(ggplot2::aes(linetype = lloq_lab),
                                            color = plist$loq_line$color,
                                            linewidth = 1, na.rm= TRUE)} +
-    {if(nlist$obs_med_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
-                                                     color = plist$obs_med_line$color,
-                                                     linewidth = plist$obs_med_line$linewidth, na.rm= TRUE)} +
+    {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
+                                                     color = plist$obs_median_line$color,
+                                                     linewidth = plist$obs_median_line$linewidth, na.rm= TRUE)} +
     {if(nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
                                                  color = plist$obs_pi_line$color,
                                                  linewidth = plist$obs_pi_line$linewidth, na.rm= TRUE)} +
@@ -79,14 +79,14 @@ plot_vpc_legend <- function(ci = c(0.05, 0.95),
                        values = assign(obs, plist$obs_point$shape))}+
     ggplot2::scale_linetype_manual(name = "Lines",
                           breaks = c(
-                            {if(nlist$obs_med_line == TRUE) obs_cent},
+                            {if(nlist$obs_median_line == TRUE) obs_cent},
                             {if(nlist$obs_pi_line == TRUE) obs_pilab},
                             {if(nlist$sim_median_line == TRUE) sim_cent},
                             {if(nlist$sim_pi_line == TRUE) sim_pilab},
                             {if(!is.null(lloq)) lloq_lab}
                             ),
                           values = c(
-                            {if(nlist$obs_med_line == TRUE) assign(obs_cent, plist$obs_med_line$linetype)},
+                            {if(nlist$obs_median_line == TRUE) assign(obs_cent, plist$obs_median_line$linetype)},
                             {if(nlist$obs_pi_line == TRUE) assign(obs_pilab, plist$obs_pi_line$linetype)},
                             {if(nlist$sim_median_line == TRUE) assign(sim_cent, plist$sim_median_line$linetype)},
                             {if(nlist$sim_pi_line == TRUE) assign(sim_pilab, plist$sim_pi_line$linetype)},

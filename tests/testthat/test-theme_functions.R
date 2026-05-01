@@ -173,7 +173,7 @@ test_that("plot_vpc_theme default obs_point color is '#0000FF'", {
 
 test_that("plot_vpc_theme returns all expected keys", {
   theme <- plot_vpc_theme()
-  expected <- c("obs_point", "obs_med_line", "obs_pi_line",
+  expected <- c("obs_point", "obs_median_line", "obs_pi_line",
                 "sim_pi_line", "sim_pi_ci", "sim_pi_area",
                 "sim_median_line", "sim_median_ci", "loq_line")
   expect_setequal(names(theme), expected)
@@ -182,7 +182,7 @@ test_that("plot_vpc_theme returns all expected keys", {
 test_that("plot_vpc_theme elements have correct classes", {
   theme <- plot_vpc_theme()
   expect_s3_class(theme$obs_point, "pmx_point")
-  expect_s3_class(theme$obs_med_line, "pmx_line")
+  expect_s3_class(theme$obs_median_line, "pmx_line")
   expect_s3_class(theme$obs_pi_line, "pmx_line")
   expect_s3_class(theme$sim_pi_line, "pmx_line")
   expect_s3_class(theme$sim_pi_ci, "pmx_ribbon")

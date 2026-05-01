@@ -7,7 +7,7 @@
 plot_vpc_shown(
   obs_point = NULL,
   obs_pi_line = NULL,
-  obs_med_line = NULL,
+  obs_median_line = NULL,
   sim_pi_line = NULL,
   sim_pi_ci = NULL,
   sim_pi_area = NULL,
@@ -20,7 +20,7 @@ plot_vpc_shown(
 
 \item{obs_pi_line}{Show observed quantile lines. Default is \code{TRUE}.}
 
-\item{obs_med_line}{Show observed median line. Default is \code{TRUE}.}
+\item{obs_median_line}{Show observed median line. Default is \code{TRUE}.}
 
 \item{sim_pi_line}{Show simulated prediction interval lines. Default is \code{FALSE}.}
 

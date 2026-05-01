@@ -411,7 +411,7 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL, l
 #' Each theme key maps 1:1 with a [plot_vpc_shown()] visibility toggle.
 #'
 #' @param obs_point Observed data point aesthetics. See [pmx_point()].
-#' @param obs_med_line Observed median line aesthetics. See [pmx_line()].
+#' @param obs_median_line Observed median line aesthetics. See [pmx_line()].
 #' @param obs_pi_line Observed quantile line aesthetics. See [pmx_line()].
 #' @param sim_pi_line Simulated prediction interval line aesthetics. See [pmx_line()].
 #' @param sim_pi_ci Simulated prediction interval CI ribbon aesthetics. See [pmx_ribbon()].
@@ -426,13 +426,13 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL, l
 #' @examples
 #' plot_vpc_theme()
 #' plot_vpc_theme(obs_point = pmx_point(color = "#000000"))
-plot_vpc_theme <- function(obs_point = NULL, obs_med_line = NULL, obs_pi_line = NULL,
+plot_vpc_theme <- function(obs_point = NULL, obs_median_line = NULL, obs_pi_line = NULL,
                            sim_pi_line = NULL, sim_pi_ci = NULL, sim_pi_area = NULL,
                            sim_median_line = NULL, sim_median_ci = NULL,
                            loq_line = NULL) {
   defaults <- list(
     obs_point      = pmx_point(color = "#0000FF", size = 1, shape = 1, alpha = 0.7),
-    obs_med_line    = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
+    obs_median_line    = pmx_line(color = "#FF0000", linetype = "solid", linewidth = 1),
     obs_pi_line     = pmx_line(color = "#0000FF", linetype = "dashed", linewidth = 0.5),
     sim_pi_line     = pmx_line(color = "#000000", linetype = "dotted", linewidth = 1),
     sim_pi_ci       = pmx_ribbon(fill = "#0000FF", alpha = 0.15),
@@ -441,7 +441,7 @@ plot_vpc_theme <- function(obs_point = NULL, obs_med_line = NULL, obs_pi_line = 
     sim_median_ci   = pmx_ribbon(fill = "#FF0000", alpha = 0.3),
     loq_line        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
   )
-  merge_theme(compact(list(obs_point = obs_point, obs_med_line = obs_med_line,
+  merge_theme(compact(list(obs_point = obs_point, obs_median_line = obs_median_line,
                            obs_pi_line = obs_pi_line, sim_pi_line = sim_pi_line,
                            sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
                            sim_median_line = sim_median_line, sim_median_ci = sim_median_ci,
@@ -483,7 +483,7 @@ plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
 #'
 #' @param obs_point Show observed data points. Default is `TRUE`.
 #' @param obs_pi_line Show observed quantile lines. Default is `TRUE`.
-#' @param obs_med_line Show observed median line. Default is `TRUE`.
+#' @param obs_median_line Show observed median line. Default is `TRUE`.
 #' @param sim_pi_line Show simulated prediction interval lines. Default is `FALSE`.
 #' @param sim_pi_ci Show simulated prediction interval CI ribbons. Default is `TRUE`.
 #' @param sim_pi_area Show simulated prediction interval as shaded area. Default is `FALSE`.
@@ -496,16 +496,16 @@ plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
 #' @examples
 #' plot_vpc_shown()
 #' plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
-plot_vpc_shown <- function(obs_point = NULL, obs_pi_line = NULL, obs_med_line = NULL,
+plot_vpc_shown <- function(obs_point = NULL, obs_pi_line = NULL, obs_median_line = NULL,
                            sim_pi_line = NULL, sim_pi_ci = NULL, sim_pi_area = NULL,
                            sim_median_line = NULL, sim_median_ci = NULL) {
   defaults <- list(
-    obs_point = TRUE, obs_pi_line = TRUE, obs_med_line = TRUE,
+    obs_point = TRUE, obs_pi_line = TRUE, obs_median_line = TRUE,
     sim_pi_line = FALSE, sim_pi_ci = TRUE, sim_pi_area = FALSE,
     sim_median_line = FALSE, sim_median_ci = TRUE
   )
   user <- compact(list(obs_point = obs_point, obs_pi_line = obs_pi_line,
-                       obs_med_line = obs_med_line, sim_pi_line = sim_pi_line,
+                       obs_median_line = obs_median_line, sim_pi_line = sim_pi_line,
                        sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
                        sim_median_line = sim_median_line, sim_median_ci = sim_median_ci))
   out <- defaults

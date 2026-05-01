@@ -413,6 +413,31 @@ plot_vpc_theme <- function(obs = NULL, obs_median = NULL, obs_ci = NULL,
 }
 
 
+#' GOF layer visibility settings
+#'
+#' Constructor and factory for controlling which GOF overlay layers are displayed.
+#' Call with no arguments to view defaults. Pass overrides to customize.
+#'
+#' @param OBS Show observed data points/lines. Default is `TRUE`.
+#' @param DV Show DV central tendency. Default is `TRUE`.
+#' @param PRED Show PRED central tendency. Default is `TRUE`.
+#' @param IPRED Show IPRED central tendency. Default is `TRUE`.
+#'
+#' @return A named list of logicals
+#' @export
+#'
+#' @examples
+#' plot_gof_shown()
+#' plot_gof_shown(PRED = FALSE)
+plot_gof_shown <- function(OBS = NULL, DV = NULL, PRED = NULL, IPRED = NULL) {
+  defaults <- list(OBS = TRUE, DV = TRUE, PRED = TRUE, IPRED = TRUE)
+  user <- compact(list(OBS = OBS, DV = DV, PRED = PRED, IPRED = IPRED))
+  out <- defaults
+  for (nm in names(user)) out[[nm]] <- user[[nm]]
+  out
+}
+
+
 #' VPC layer visibility settings
 #'
 #' Constructor and factory for controlling which VPC layers are displayed.

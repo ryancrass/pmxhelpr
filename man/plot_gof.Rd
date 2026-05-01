@@ -44,10 +44,8 @@ Accepts bare names or strings. Default is \code{TIME}.}
 \item{ntime_var}{Column containing the nominal time variable.
 Accepts bare names or strings. Default is \code{NTIME}.}
 
-\item{shown}{Named logical vector controlling which outputs are visible.
-Names must be one or more of \code{"OBS"}, \code{"DV"}, \code{"IPRED"}, \code{"PRED"}
-(uppercase, matching legend labels).
-All default to \code{TRUE}. Example: \code{shown = c(IPRED = FALSE)} hides IPRED.}
+\item{shown}{Layer visibility settings created by \code{\link[=plot_gof_shown]{plot_gof_shown()}}.
+Defaults can be viewed by running \code{plot_gof_shown()} with no arguments.}
 
 \item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
 

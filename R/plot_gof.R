@@ -12,10 +12,8 @@
 #'    Accepts bare names or strings. Default is `PRED`.
 #' @param ipred_var Column containing individual predictions (IPRED).
 #'    Accepts bare names or strings. Default is `IPRED`.
-#' @param shown Named logical vector controlling which outputs are visible.
-#'    Names must be one or more of `"OBS"`, `"DV"`, `"IPRED"`, `"PRED"`
-#'    (uppercase, matching legend labels).
-#'    All default to `TRUE`. Example: `shown = c(IPRED = FALSE)` hides IPRED.
+#' @param shown Layer visibility settings created by [plot_gof_shown()].
+#'    Defaults can be viewed by running `plot_gof_shown()` with no arguments.
 #' @inheritParams plot_dvtime
 #' @param theme Theme object created by [plot_gof_theme()].
 #'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
@@ -76,10 +74,8 @@ plot_gof <- function(data,
   width     <- env$width
 
   #Determine which variables to show
-  #Legend labels are uppercase; theme keys use lowercase with _point/_line suffixes
+  shown <- merge_element(shown, plot_gof_shown())
   legend_labels <- c("OBS", "DV", "IPRED", "PRED")
-  show_defaults <- stats::setNames(rep(TRUE, length(legend_labels)), legend_labels)
-  shown <- merge_element(shown, show_defaults)
   active <- legend_labels[shown[legend_labels] == TRUE]
 
   #Derive output colors from theme

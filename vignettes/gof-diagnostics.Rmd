@@ -127,22 +127,45 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 
 ## Controlling Visible Output Variables
 
-The `shown` argument controls which output variables are displayed. It accepts a named logical vector with names: `"OBS"`, `"DV"`, `"IPRED"`, and `"PRED"`. All default to `TRUE`. 
+The `shown` argument controls which output variables are displayed. The defaults can be viewed by running `plot_gof_shown()` with no arguments:
+
+```{r gof-shown-defaults}
+plot_gof_shown()
+```
+
+The components of the list correspond to the following plot elements:
+
+- Observed points/lines: `OBS`
+- DV central tendency: `DV`
+- PRED central tendency: `PRED`
+- IPRED central tendency: `IPRED`
+
+One or more elements to be updated from the defaults above can be passed via `plot_gof_shown()` to the `shown` argument. Any elements not specified will inherit the defaults.
 
 Some analysts prefer to only overlay the "typical value" in these plots and exclude IPRED:
 
 ```{r plot-gof-shown, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = plot_data, dv_var = "ODV", shown = c(IPRED = FALSE)) +
+plot_gof(data = plot_data, dv_var = "ODV",
+         shown = plot_gof_shown(IPRED = FALSE)) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
-The observed data points can also be removed with `obs_dv = FALSE`. Notice how different this plot appears when only visualizing central tendency!
+The observed data points can also be removed with `OBS = FALSE`. Notice how different this plot appears when only visualizing central tendency!
 
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = plot_data, dv_var = "ODV", obs_dv = FALSE) +
+plot_gof(data = plot_data, dv_var = "ODV",
+         shown = plot_gof_shown(OBS = FALSE)) +
   facet_wrap(~`Dose and Food`, scales = "free") +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+```
+
+The `shown` object can be stored and reused across multiple `plot_gof()` calls to maintain consistent visibility settings throughout a workflow:
+
+```{r gof-shown-reuse, eval=FALSE}
+my_shown <- plot_gof_shown(IPRED = FALSE)
+plot_gof(data1, shown = my_shown)
+plot_gof(data2, shown = my_shown)
 ```
 
 
@@ -205,7 +228,7 @@ plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
 
 # Individual Concentration-time plots
 
-The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof()`; however, we can also use `plot_gof()` to generate subject-level visualizations with a little pre-processing of the input dataset. The `shown` argument can be used to suppress the population prediction (PRED) in these plots evaluating fit at the individual level.
+The previous section provides an overview of how to generate population overlay GOF plots using `plot_gof()`; however, we can also use `plot_gof()` to generate subject-level visualizations with a little pre-processing of the input dataset. The `shown` argument via `plot_gof_shown()` can be used to suppress the population prediction (PRED) in these plots evaluating fit at the individual level.
 
 We can plot an individual subject by filtering the input dataset. This could be extended to generate plots for all individuals using `for` loops, `lapply()`, `purrr::map()` functions, or other methods.
 
@@ -222,7 +245,7 @@ for(i in 1:n_ids){
                             dv_var = "ODV",
                             log_y = TRUE,
                             grp_dv = TRUE,
-                            shown = c(PRED = FALSE),
+                            shown = plot_gof_shown(PRED = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +
   labs(title = paste0("ID = ", ids[i]), y = "Concentration (ng/mL)", x = "Time (hours)") +

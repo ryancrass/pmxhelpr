@@ -74,6 +74,18 @@ test_that("var_dosenorm errors on mismatched lengths", {
                regexp = "must have the same length")
 })
 
+test_that("var_dosenorm warns and returns NA when dose_var contains zeros", {
+  expect_warning(out <- var_dosenorm(c(10, 20, 30), c(100, 0, 300)),
+                 regexp = "zero value")
+  expect_true(is.na(out[2]))
+  expect_equal(out[c(1, 3)], c(0.1, 0.1))
+})
+
+test_that("var_dosenorm preserves NA in dose_var without warning", {
+  expect_no_warning(out <- var_dosenorm(c(10, 20, 30), c(100, NA, 300)))
+  expect_true(is.na(out[2]))
+})
+
 
 ##### var_predcorr ####
 
@@ -133,4 +145,51 @@ test_that("var_predcorr errors on non-numeric dv_var", {
 test_that("var_predcorr errors on mismatched lengths", {
   expect_error(var_predcorr(c(1, 2), c(1, 2, 3)),
                regexp = "must have the same length")
+})
+
+test_that("var_predcorr warns and returns all-NA when pred_var is all NA", {
+  expect_warning(out <- var_predcorr(c(5, 10, 15), c(NA_real_, NA_real_, NA_real_)),
+                 regexp = "all NA")
+  expect_true(all(is.na(out)))
+  expect_length(out, 3)
+})
+
+test_that("var_predcorr handles partial NA in pred_var without warning", {
+  expect_no_warning(out <- var_predcorr(c(5, 10, 15), c(8, NA, 12)))
+  expect_true(is.na(out[2]))
+})
+
+
+##### var_loqcens ####
+
+test_that("var_loqcens computes left-censored quantile", {
+  out <- pmxhelpr:::var_loqcens(c(1, 2, 5, 10), p = 0.5, loq = 3)
+  expect_true(is.numeric(out))
+})
+
+test_that("var_loqcens returns NA when full censored region exceeds requested quantile", {
+  expect_true(is.na(pmxhelpr:::var_loqcens(c(1, 2), p = 0.5, loq = 100)))
+})
+
+test_that("var_loqcens errors on non-numeric loq", {
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2), p = 0.5, loq = "a"),
+               regexp = "`loq` must be numeric")
+})
+
+test_that("var_loqcens errors on loq with bad length", {
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2, 3), p = 0.5, loq = c(1, 2)),
+               regexp = "length 1 or the same length")
+})
+
+test_that("var_loqcens errors on p outside [0,1]", {
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2), p = 1.5, loq = 1),
+               regexp = "`p` must be a single numeric value")
+})
+
+test_that("var_loqcens accepts vector loq matching length(x)", {
+  expect_no_error(pmxhelpr:::var_loqcens(c(1, 2, 5), p = 0.5, loq = c(0.5, 0.5, 0.5)))
+})
+
+test_that("var_loqcens does not error when loq is all NA (no-op censoring)", {
+  expect_no_error(pmxhelpr:::var_loqcens(c(1, 2, 5), p = 0.5, loq = NA_real_))
 })

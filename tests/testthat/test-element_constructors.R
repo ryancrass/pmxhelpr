@@ -206,3 +206,55 @@ test_that("pmx_color partial override", {
 test_that("pmx_color rejects unknown arguments", {
   expect_error(pmx_color(obs = "black"), regexp = "unused argument")
 })
+
+#####pmx_* input validation####
+
+test_that("pmx_point rejects invalid color", {
+  expect_error(pmx_point(color = "saalmon"),
+               regexp = "must be a valid color name or hex string")
+})
+
+test_that("pmx_point accepts size = 0 (hide-layer idiom)", {
+  expect_no_error(pmx_point(size = 0))
+})
+
+test_that("pmx_point rejects negative size", {
+  expect_error(pmx_point(size = -1), regexp = "non-negative numeric")
+})
+
+test_that("pmx_point rejects out-of-range shape", {
+  expect_error(pmx_point(shape = 99), regexp = "integer in 0:25")
+})
+
+test_that("pmx_line rejects invalid color and negative linewidth", {
+  expect_error(pmx_line(color = "garbage"),
+               regexp = "must be a valid color name or hex string")
+  expect_error(pmx_line(linewidth = -1), regexp = "non-negative numeric")
+})
+
+test_that("pmx_ribbon rejects invalid fill, color, and negative linewidth", {
+  expect_error(pmx_ribbon(fill = "saalmon"),
+               regexp = "must be a valid color name or hex string")
+  expect_error(pmx_ribbon(color = "garbage"),
+               regexp = "must be a valid color name or hex string")
+  expect_error(pmx_ribbon(linewidth = -0.5), regexp = "non-negative numeric")
+})
+
+test_that("pmx_errorbar rejects negative width", {
+  expect_error(pmx_errorbar(width = -1), regexp = "non-negative numeric")
+})
+
+test_that("pmx_trend rejects invalid se_color", {
+  expect_error(pmx_trend(se_color = "saalmon"),
+               regexp = "must be a valid color name or hex string")
+})
+
+test_that("pmx_color rejects invalid color in any field", {
+  expect_error(pmx_color(dv = "blue", pred = "garbage", ipred = "green"),
+               regexp = "must be a valid color name")
+})
+
+test_that("pmx_style rejects invalid color", {
+  expect_error(pmx_style(color = "saalmon"),
+               regexp = "must be a valid color name or hex string")
+})

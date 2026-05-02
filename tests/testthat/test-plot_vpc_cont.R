@@ -286,3 +286,29 @@ test_that("explicit loq overrides LLOQ column in sim", {
   # Different loq values should produce different censored quantiles
   expect_false(identical(stats_inherit, stats_override))
 })
+
+##### Test edge-case warnings #####
+
+test_that("plot_vpc_cont warns when LLOQ column has multiple unique values", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"))
+  # Inject a second non-NA LLOQ value
+  testsim$LLOQ[testsim$NTIME == max(testsim$NTIME, na.rm = TRUE)] <- 2
+  expect_warning(plot_vpc_cont(sim = testsim, vpcstats = TRUE),
+                 regexp = "multiple unique values")
+})
+
+test_that("plot_vpc_cont warns when strat_var contains NA values", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 5,
+                                 dv_var = "ODV",
+                                 char_vars = "FOOD")
+  testsim$FOOD_f <- factor(testsim$FOOD)
+  testsim$FOOD_f[1:5] <- NA
+  expect_warning(plot_vpc_cont(sim = testsim, strat_var = FOOD_f, vpcstats = TRUE),
+                 regexp = "NA values")
+})

@@ -110,5 +110,5 @@ vpc_plot <- plot_vpc_cont(
 sim = simout,
 pcvpc = TRUE,
 pi = c(0.05, 0.95),
-ci = c(0.05, 0.95))
+ci = 0.90)
 }

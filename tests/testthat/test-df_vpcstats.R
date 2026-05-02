@@ -98,3 +98,32 @@ test_that("pcvpc = TRUE with loq sets BLQ values to NA before prediction correct
   expect_s3_class(stats_pc_loq, "data.frame")
   expect_false(identical(stats_pc_loq$q50_med, stats_pc$q50_med))
 })
+
+##### Test pi / ci validation #####
+
+test_that("df_vpcstats errors on pi outside [0,1]", {
+  expect_error(run_vpcstats(testsim_raw, pi = c(-0.1, 0.95)),
+               regexp = "in \\[0, 1\\]")
+})
+
+test_that("df_vpcstats errors on reversed pi", {
+  expect_error(run_vpcstats(testsim_raw, pi = c(0.95, 0.05)),
+               regexp = "must be ordered")
+})
+
+test_that("df_vpcstats errors on pi of length != 2", {
+  expect_error(run_vpcstats(testsim_raw, pi = 0.5),
+               regexp = "length-2 numeric")
+})
+
+test_that("df_vpcstats errors on ci outside [0,1]", {
+  expect_error(run_vpcstats(testsim_raw, ci = c(0, 1.5)),
+               regexp = "in \\[0, 1\\]")
+})
+
+test_that("plot_vpc_cont errors on scalar ci at boundary", {
+  expect_error(plot_vpc_cont(sim = testsim_raw, ci = 1, vpcstats = TRUE),
+               regexp = "must be a single numeric value in \\(0, 1\\)")
+  expect_error(plot_vpc_cont(sim = testsim_raw, ci = 0, vpcstats = TRUE),
+               regexp = "must be a single numeric value in \\(0, 1\\)")
+})

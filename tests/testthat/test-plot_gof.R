@@ -85,3 +85,9 @@ test_that("plot_gof accepts bare names", {
                   "ggplot")
 })
 
+test_that("plot_gof warns when shown has no active elements", {
+  shown <- plot_gof_shown(obs = FALSE, dv = FALSE, pred = FALSE, ipred = FALSE)
+  expect_warning(plot_gof(data_sad_pkfit, dv_var = "ODV", shown = shown),
+                 regexp = "no overlay layers")
+})
+

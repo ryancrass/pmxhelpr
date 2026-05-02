@@ -136,6 +136,9 @@ apply_style <- function(style, prefix, defaults) {
 #' @return A `pmx_point` element object
 #' @export
 pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
+  check_shape(shape, "shape")
+  check_size(size, "size")
+  check_color(color, "color")
   structure(
     compact(list(shape = shape, size = size, alpha = alpha, color = color)),
     class = "pmx_point"
@@ -157,6 +160,8 @@ pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
 #' @export
 pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
                      color = NULL) {
+  check_size(linewidth, "linewidth")
+  check_color(color, "color")
   structure(
     compact(list(linewidth = linewidth, linetype = linetype,
                  alpha = alpha, color = color)),
@@ -180,6 +185,9 @@ pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
 #' @export
 pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
                        linetype = NULL, linewidth = NULL) {
+  check_color(fill, "fill")
+  check_color(color, "color")
+  check_size(linewidth, "linewidth")
   structure(
     compact(list(fill = fill, alpha = alpha, color = color,
                  linetype = linetype, linewidth = linewidth)),
@@ -204,6 +212,7 @@ pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
 #' @examples
 #' plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 pmx_style <- function(color = NULL, alpha = NULL) {
+  check_color(color, "color")
   structure(
     compact(list(color = color, alpha = alpha)),
     class = "pmx_style"
@@ -223,6 +232,9 @@ pmx_style <- function(color = NULL, alpha = NULL) {
 #' @export
 pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
                          alpha = NULL, color = NULL, width = NULL) {
+  check_size(linewidth, "linewidth")
+  check_color(color, "color")
+  check_size(width, "width")
   out <- compact(list(linewidth = linewidth, linetype = linetype,
                       alpha = alpha, color = color))
   out["width"] <- list(width)
@@ -242,6 +254,9 @@ pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
 #' @export
 pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
                       se_color = NULL, se_alpha = NULL) {
+  check_size(linewidth, "linewidth")
+  check_color(color, "color")
+  check_color(se_color, "se_color")
   structure(
     compact(list(linewidth = linewidth, linetype = linetype, color = color,
                  se_color = se_color, se_alpha = se_alpha)),
@@ -262,6 +277,9 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #' @return A `pmx_color` element object
 #' @export
 pmx_color <- function(dv = NULL, pred = NULL, ipred = NULL) {
+  check_color(dv, "dv")
+  check_color(pred, "pred")
+  check_color(ipred, "ipred")
   structure(
     compact(list(dv = dv, pred = pred, ipred = ipred)),
     class = "pmx_color"

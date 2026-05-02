@@ -123,3 +123,33 @@ test_that("apply_style preserves non-targeted elements", {
   expect_equal(result$ref_line$linewidth, 0.5)
   expect_equal(result$ref_line$linetype, 2)
 })
+
+#####errorbar_width####
+
+test_that("errorbar_width returns user-supplied width when set", {
+  theme <- list(cent_errorbar = list(width = 1.25))
+  expect_equal(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(0, 1))), 1.25)
+})
+
+test_that("errorbar_width derives 2.5% of max NTIME when width is NULL", {
+  theme <- list(cent_errorbar = list(width = NULL))
+  expect_equal(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(0, 1, 8))), 0.2)
+})
+
+test_that("errorbar_width errors on empty data with no override", {
+  theme <- list(cent_errorbar = list(width = NULL))
+  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = numeric(0))),
+               regexp = "empty or all NA")
+})
+
+test_that("errorbar_width errors on all-NA NTIME with no override", {
+  theme <- list(cent_errorbar = list(width = NULL))
+  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(NA_real_, NA_real_))),
+               regexp = "empty or all NA")
+})
+
+test_that("errorbar_width errors when NTIME column is missing", {
+  theme <- list(cent_errorbar = list(width = NULL))
+  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(OTHER = 1)),
+               regexp = "empty or all NA")
+})

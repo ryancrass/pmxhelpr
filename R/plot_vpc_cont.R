@@ -68,7 +68,7 @@
 #' sim = simout,
 #' pcvpc = TRUE,
 #' pi = c(0.05, 0.95),
-#' ci = c(0.05, 0.95))
+#' ci = 0.90)
 
 plot_vpc_cont <- function(sim,
                                time_var = TIME,
@@ -91,6 +91,9 @@ plot_vpc_cont <- function(sim,
                                vpcstats = FALSE)
 {
 
+  check_quantile_pair(pi, "pi")
+  check_quantile_scalar(ci, "ci")
+
   time_var_str    <- resolve_var(rlang::enquo(time_var))
   ntime_var_str   <- resolve_var(rlang::enquo(ntime_var))
   pred_var_str    <- resolve_var(rlang::enquo(pred_var))
@@ -106,6 +109,18 @@ plot_vpc_cont <- function(sim,
     if (length(lloq_vals) == 1L) {
       loq <- lloq_vals
       message("Inheriting `loq = ", loq, "` from `LLOQ` column in `sim`.")
+    } else if (length(lloq_vals) > 1L) {
+      rlang::warn(paste0("`LLOQ` column in `sim` has multiple unique values (",
+                         paste(lloq_vals, collapse = ", "),
+                         "); not inherited. Pass `loq` explicitly to enable BLQ handling."))
+    }
+  }
+
+  #Warn if strat_var has NA values (would produce NA facet)
+  if (!is.null(strat_var_str) && strat_var_str %in% colnames(sim)) {
+    if (any(is.na(sim[[strat_var_str]]))) {
+      rlang::warn(paste0("`strat_var` ('", strat_var_str,
+                         "') contains NA values; faceting will produce an `NA` facet"))
     }
   }
 

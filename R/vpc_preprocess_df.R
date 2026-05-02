@@ -26,6 +26,9 @@
 
 df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq) {
 
+  check_quantile_pair(pi, "pi")
+  check_quantile_pair(ci, "ci")
+
   group_vars <- c(bin_var)
   if (!is.null(strat_var_str)) group_vars <- c(bin_var, strat_var_str)
 

@@ -79,6 +79,9 @@ plot_gof <- function(data,
   shown <- merge_element(shown, plot_gof_shown())
   shown_names <- names(shown)[unlist(shown)]
   active <- toupper(shown_names)
+  if (length(active) == 0L) {
+    rlang::warn("`shown` has no active elements; the resulting GOF plot will have no overlay layers")
+  }
 
   #Derive output colors from theme
   color_map <- c(OBS = plottheme$obs_point$color,

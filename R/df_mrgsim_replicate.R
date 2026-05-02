@@ -70,6 +70,7 @@ df_mrgsim_replicate <- function(data,
 
   #Checks
   check_df(data, "data")
+  if (nrow(data) == 0L) rlang::abort("argument `data` must have at least one row")
   check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
   check_integer(replicates, "replicates")

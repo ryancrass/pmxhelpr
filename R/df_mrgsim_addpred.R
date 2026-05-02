@@ -26,8 +26,13 @@ df_mrgsim_addpred <- function(data,
   output_var_str <- resolve_var(rlang::enquo(output_var))
 
   check_df(data, "data")
+  if (nrow(data) == 0L) rlang::abort("argument `data` must have at least one row")
   check_mrgmod(model, "model")
   check_capture(model, output_var_str, "model", "output_var")
+
+  if ("PRED" %in% colnames(data)) {
+    rlang::warn("`data` already contains a `PRED` column; it will be overwritten")
+  }
 
   data$PRED <- mrgsolve::mrgsim_df(x = mrgsolve::zero_re(model, ...),
                                    data = data, carry_out = output_var_str)[,output_var_str]

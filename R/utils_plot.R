@@ -432,8 +432,11 @@ prep_plot_env <- function(data, cent, log_y, theme, theme_fn) {
 #' pmxhelpr:::errorbar_width(theme, data)
 #'
 errorbar_width <- function(plottheme, data) {
-  if(is.numeric(plottheme$cent_errorbar$width)) plottheme$cent_errorbar$width
-  else max(data$NTIME, na.rm = TRUE) * 0.025
+  if(is.numeric(plottheme$cent_errorbar$width)) return(plottheme$cent_errorbar$width)
+  if (!"NTIME" %in% colnames(data) || nrow(data) == 0L || all(is.na(data$NTIME))) {
+    rlang::abort("cannot compute default errorbar width: `NTIME` is empty or all NA. Set `width` via `pmx_errorbar(width = ...)`.")
+  }
+  max(data$NTIME, na.rm = TRUE) * 0.025
 }
 
 
@@ -461,6 +464,9 @@ var_timebreaks <- function(x, unit = "hours", n = 8) {
   check_integer(n, "n")
 
   x <- as.numeric(x)
+  if (length(x) == 0L || all(is.na(x))) {
+    rlang::abort("argument `x` must contain at least one non-NA numeric value")
+  }
   rng <- range(x, na.rm = TRUE)
 
   if (unit %in% c("hours", "hrs", "hour", "hr", "h")) {

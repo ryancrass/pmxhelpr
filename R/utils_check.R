@@ -57,8 +57,11 @@ check_integer <- function(var, name){
 }
 
 check_varsindf <- function(data, vars, data_name, name){
-  if(length(setdiff(vars, colnames(data))) >= 1){
-    rlang::abort(message = paste0("argument `", name, "` must be variable(s) in `", data_name, "`"))
+  missing <- setdiff(vars, colnames(data))
+  if(length(missing) >= 1){
+    rlang::abort(message = paste0("argument `", name, "` must be variable(s) in `", data_name,
+                                  "` (not found: ",
+                                  paste0("'", missing, "'", collapse = ", "), ")"))
   }
 }
 
@@ -106,6 +109,56 @@ check_timeu <- function(var){
 check_lm <- function(fit, name){
   if(!"lm" %in% class(fit)){
     rlang::abort(message = paste0("argument `", name, "` must be class `lm`"))
+  }
+}
+
+check_quantile_pair <- function(x, name) {
+  if (!is.numeric(x) || length(x) != 2L || any(is.na(x))) {
+    rlang::abort(paste0("argument `", name, "` must be a length-2 numeric vector with no NAs"))
+  }
+  if (any(x < 0) || any(x > 1)) {
+    rlang::abort(paste0("argument `", name, "` values must be in [0, 1]"))
+  }
+  if (x[1] >= x[2]) {
+    rlang::abort(paste0("argument `", name, "` must be ordered: ", name, "[1] < ", name, "[2]"))
+  }
+}
+
+check_quantile_scalar <- function(x, name) {
+  if (!is.numeric(x) || length(x) != 1L || is.na(x) || x <= 0 || x >= 1) {
+    rlang::abort(paste0("argument `", name, "` must be a single numeric value in (0, 1)"))
+  }
+}
+
+check_color <- function(x, name) {
+  if (is.null(x)) return(invisible())
+  ok <- tryCatch({
+    grDevices::col2rgb(x)
+    TRUE
+  }, error = function(e) FALSE)
+  if (!ok) {
+    rlang::abort(paste0("argument `", name, "` must be a valid color name or hex string (got ",
+                        paste0("'", x, "'", collapse = ", "), ")"))
+  }
+}
+
+check_size <- function(x, name) {
+  if (is.null(x)) return(invisible())
+  if (!is.numeric(x) || any(is.na(x)) || any(x < 0)) {
+    rlang::abort(paste0("argument `", name, "` must be a non-negative numeric value"))
+  }
+}
+
+check_shape <- function(x, name) {
+  if (is.null(x)) return(invisible())
+  if (is.numeric(x)) {
+    if (any(is.na(x)) || any(x != as.integer(x)) || any(x < 0) || any(x > 25)) {
+      rlang::abort(paste0("argument `", name, "` must be an integer in 0:25 or a character"))
+    }
+    return(invisible())
+  }
+  if (!is.character(x)) {
+    rlang::abort(paste0("argument `", name, "` must be an integer in 0:25 or a character"))
   }
 }
 

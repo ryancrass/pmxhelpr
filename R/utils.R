@@ -170,7 +170,7 @@ df_prep_dvtime <- function(data,
   if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var")
   if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
   loq_method <- check_loq_method(loq, loq_method, data)
-  if (!is.null(ref)) check_numeric(ref, "ref")
+  if (!is.null(ref)) check_numeric_strict(ref, "ref")
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   rename_vec <- c(DV = dv_var_str)
@@ -219,6 +219,12 @@ var_dosenorm <- function(dv_var,
   if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
   if (!is.numeric(dose_var)) rlang::abort("`dose_var` must be numeric")
   if (length(dv_var) != length(dose_var)) rlang::abort("`dv_var` and `dose_var` must have the same length")
+  zero_doses <- !is.na(dose_var) & dose_var == 0
+  if (any(zero_doses)) {
+    rlang::warn(paste0("`dose_var` contains ", sum(zero_doses),
+                       " zero value(s); returning NA for those positions"))
+    dose_var[zero_doses] <- NA_real_
+  }
   dv_var / dose_var
 }
 
@@ -242,7 +248,11 @@ var_predcorr <- function(dv_var,
   if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
   if (!is.numeric(pred_var)) rlang::abort("`pred_var` must be numeric")
   if (length(dv_var) != length(pred_var)) rlang::abort("`dv_var` and `pred_var` must have the same length")
-  predbin <- stats::median(pred_var)
+  if (all(is.na(pred_var))) {
+    rlang::warn("`pred_var` is all NA; returning NA for prediction-corrected values")
+    return(rep(NA_real_, length(dv_var)))
+  }
+  predbin <- stats::median(pred_var, na.rm = TRUE)
   denom <- pred_var - lower_bound
   denom[denom == 0] <- NA_real_
   lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / denom)
@@ -298,6 +308,13 @@ var_addn <- function(grp_var,
 #'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
 
 var_loqcens <- function(x, p, loq) {
+  if (!is.numeric(loq)) rlang::abort("`loq` must be numeric")
+  if (length(loq) != 1L && length(loq) != length(x)) {
+    rlang::abort("`loq` must be length 1 or the same length as `x`")
+  }
+  if (!is.numeric(p) || length(p) != 1L || is.na(p) || p < 0 || p > 1) {
+    rlang::abort("`p` must be a single numeric value in [0, 1]")
+  }
   x[is.na(x)] <- -Inf
   x[x < loq] <- -Inf
   q <- stats::quantile(x, probs = p, na.rm = TRUE)

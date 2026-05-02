@@ -55,6 +55,18 @@ test_that("check_varsindf errors when variable does not exist", {
                regexp = "must be variable")
 })
 
+test_that("check_varsindf names the missing column(s) in the error", {
+  expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "TFD", "data", "time_var"),
+               regexp = "not found: 'TFD'")
+})
+
+test_that("check_varsindf lists all missing columns when multiple are absent", {
+  expect_error(
+    pmxhelpr:::check_varsindf(data.frame(x = 1), c("WT", "AGE", "SEX"), "data", "num_vars"),
+    regexp = "'WT'.*'AGE'.*'SEX'"
+  )
+})
+
 #####check_factor####
 
 test_that("check_factor does not error on factor-coercible column", {
@@ -221,3 +233,94 @@ test_that("prep_plot_env returns list with expected elements", {
   expect_true(is.list(result$plottheme))
   expect_true(is.numeric(result$width))
 })
+
+#####check_color####
+
+test_that("check_color accepts valid color names and hex strings", {
+  expect_no_error(pmxhelpr:::check_color("red", "color"))
+  expect_no_error(pmxhelpr:::check_color("#FF0000", "color"))
+})
+
+test_that("check_color accepts NULL", {
+  expect_no_error(pmxhelpr:::check_color(NULL, "color"))
+})
+
+test_that("check_color errors on invalid color name", {
+  expect_error(pmxhelpr:::check_color("saalmon", "color"),
+               regexp = "must be a valid color name or hex string")
+})
+
+#####check_size####
+
+test_that("check_size accepts non-negative numeric and NULL", {
+  expect_no_error(pmxhelpr:::check_size(1.5, "size"))
+  expect_no_error(pmxhelpr:::check_size(0, "size"))   # zero is the "hide layer" idiom
+  expect_no_error(pmxhelpr:::check_size(NULL, "size"))
+})
+
+test_that("check_size errors on negative or NA", {
+  expect_error(pmxhelpr:::check_size(-1, "size"), regexp = "non-negative numeric")
+  expect_error(pmxhelpr:::check_size(NA_real_, "size"), regexp = "non-negative numeric")
+})
+
+#####check_shape####
+
+test_that("check_shape accepts integer in 0:25, character, and NULL", {
+  expect_no_error(pmxhelpr:::check_shape(16, "shape"))
+  expect_no_error(pmxhelpr:::check_shape("circle", "shape"))
+  expect_no_error(pmxhelpr:::check_shape(NULL, "shape"))
+})
+
+test_that("check_shape errors on out-of-range integer", {
+  expect_error(pmxhelpr:::check_shape(99, "shape"), regexp = "integer in 0:25")
+  expect_error(pmxhelpr:::check_shape(-1, "shape"), regexp = "integer in 0:25")
+})
+
+test_that("check_shape errors on logical input", {
+  expect_error(pmxhelpr:::check_shape(TRUE, "shape"), regexp = "integer in 0:25 or a character")
+})
+
+#####check_quantile_pair####
+
+test_that("check_quantile_pair accepts ordered length-2 numeric in [0,1]", {
+  expect_no_error(pmxhelpr:::check_quantile_pair(c(0.05, 0.95), "pi"))
+})
+
+test_that("check_quantile_pair errors on length != 2", {
+  expect_error(pmxhelpr:::check_quantile_pair(0.5, "pi"), regexp = "length-2 numeric")
+  expect_error(pmxhelpr:::check_quantile_pair(c(0.1, 0.5, 0.9), "pi"), regexp = "length-2 numeric")
+})
+
+test_that("check_quantile_pair errors on values outside [0,1]", {
+  expect_error(pmxhelpr:::check_quantile_pair(c(-0.1, 0.5), "pi"), regexp = "in \\[0, 1\\]")
+  expect_error(pmxhelpr:::check_quantile_pair(c(0.1, 1.5), "pi"), regexp = "in \\[0, 1\\]")
+})
+
+test_that("check_quantile_pair errors on reversed pair", {
+  expect_error(pmxhelpr:::check_quantile_pair(c(0.95, 0.05), "pi"),
+               regexp = "must be ordered")
+})
+
+test_that("check_quantile_pair errors on NA", {
+  expect_error(pmxhelpr:::check_quantile_pair(c(0.05, NA), "pi"),
+               regexp = "no NAs")
+})
+
+#####check_quantile_scalar####
+
+test_that("check_quantile_scalar accepts scalar in (0,1)", {
+  expect_no_error(pmxhelpr:::check_quantile_scalar(0.9, "ci"))
+})
+
+test_that("check_quantile_scalar rejects boundary values", {
+  expect_error(pmxhelpr:::check_quantile_scalar(0, "ci"),
+               regexp = "in \\(0, 1\\)")
+  expect_error(pmxhelpr:::check_quantile_scalar(1, "ci"),
+               regexp = "in \\(0, 1\\)")
+})
+
+test_that("check_quantile_scalar rejects vector input", {
+  expect_error(pmxhelpr:::check_quantile_scalar(c(0.5, 0.95), "ci"),
+               regexp = "single numeric")
+})
+

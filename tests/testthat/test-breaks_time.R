@@ -31,3 +31,14 @@ test_that("Error if arugmument `n` is not coercible to an integer", {
   expect_error(pmxhelpr:::var_timebreaks(unique(data_sad$NTIME), n = "$"),
                regexp = "argument `n` must be coercible to class `integer`")
 })
+
+test_that("Error on empty x vector", {
+  expect_error(pmxhelpr:::var_timebreaks(numeric(0)),
+               regexp = "must contain at least one non-NA numeric value")
+})
+
+test_that("Error on all-NA x vector", {
+  # check_numeric rejects all-NA before var_timebreaks's own guard
+  expect_error(pmxhelpr:::var_timebreaks(c(NA_real_, NA_real_)),
+               regexp = "must be coercible to class `numeric`")
+})

@@ -130,4 +130,13 @@ test_that("df_mrgsim_replicate accepts bare names", {
   expect_true("SIM" %in% colnames(s1))
 })
 
+test_that("df_mrgsim_replicate errors on zero-row data", {
+  data <- dplyr::filter(data_sad, CMT != 3)[0, ]
+  expect_error(
+    df_mrgsim_replicate(data = data, model = model_mread_load("pkmodel"),
+                        replicates = 2, dv_var = "ODV"),
+    regexp = "must have at least one row"
+  )
+})
+
 

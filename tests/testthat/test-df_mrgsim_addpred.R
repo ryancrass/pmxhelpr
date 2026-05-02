@@ -43,3 +43,20 @@ test_that("df_mrgsim_addpred accepts bare names and matches string output", {
   d2 <- df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model, output_var = "IPRED")
   expect_identical(d1, d2)
 })
+
+test_that("df_mrgsim_addpred warns when input data already contains a PRED column", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  data$PRED <- 0
+  expect_warning(
+    df_mrgsim_addpred(data = data, model = model_mread_load("pkmodel")),
+    regexp = "already contains a `PRED` column"
+  )
+})
+
+test_that("df_mrgsim_addpred errors on zero-row data", {
+  data <- dplyr::filter(data_sad, CMT != 3)[0, ]
+  expect_error(
+    df_mrgsim_addpred(data = data, model = model_mread_load("pkmodel")),
+    regexp = "must have at least one row"
+  )
+})

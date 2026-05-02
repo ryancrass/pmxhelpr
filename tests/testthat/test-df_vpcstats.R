@@ -8,7 +8,7 @@ testsim_raw <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
 
 ## Helper: preprocess + compute stats (mirrors plot_vpc_cont flow)
 run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
-                         lower_bound = 0, loq = NULL,
+                         lower_bound = 0, loq = NULL, mode = "auto",
                          pi = c(0.05, 0.95), ci = c(0.05, 0.95),
                          time_var_str = "TIME", ntime_var_str = "NTIME",
                          pred_var_str = "PRED", ipred_var_str = "IPRED",
@@ -16,7 +16,8 @@ run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
   sim <- pmxhelpr:::df_vpcpreprocess(sim, time_var_str, ntime_var_str,
                                      pred_var_str, ipred_var_str,
                                      sim_dv_var_str, obs_dv_var_str,
-                                     strat_var_str, pcvpc, lower_bound, loq)
+                                     strat_var_str, pcvpc, lower_bound, loq,
+                                     mode = mode)
   pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM",
                          loq = loq, pcvpc = pcvpc)
 }
@@ -189,6 +190,47 @@ test_that("std VPC obs5 shifts when loq censors a fraction of obs", {
   censored_bins <- is.infinite(with_loq$obs5) & with_loq$obs5 < 0
   expect_true(any(censored_bins))
   expect_false(identical(base$obs5, with_loq$obs5))
+})
+
+##### Test mode argument (rank vs drop) #####
+
+test_that("var_predcorr passes -Inf through unchanged (rank-mode invariant)", {
+  out <- pmxhelpr::var_predcorr(c(-Inf, 5, 10), c(2, 3, 4), lower_bound = 0)
+  expect_true(is.infinite(out[1]) && out[1] < 0)
+  expect_true(all(is.finite(out[-1])))
+})
+
+test_that("std VPC mode='drop' shifts obs5 upward vs default rank mode", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  rank_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "rank")
+  drop_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "drop")
+  ## In rank, BLQ-heavy bins return -Inf at obs5; in drop, those bins return
+  ## a finite quantile (the lowest quantifiable obs). At least one bin must
+  ## differ in finiteness.
+  rank_inf <- is.infinite(rank_stats$obs5) & rank_stats$obs5 < 0
+  drop_finite <- is.finite(drop_stats$obs5)
+  expect_true(any(rank_inf & drop_finite))
+})
+
+test_that("pcVPC mode='rank' produces -Inf at low PI for fully-censored bins", {
+  rank_stats <- run_vpcstats(testsim_raw, pcvpc = TRUE, loq = 1e6,
+                              mode = "rank")
+  ## With loq=1e6, every obs is BLQ; rank mode should propagate -Inf through
+  ## PC and into obs5 via low-rank quantile.
+  expect_true(any(is.infinite(rank_stats$obs5) & rank_stats$obs5 < 0))
+})
+
+test_that("mode='auto' resolves to current historical defaults", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  ## Std VPC: auto == rank
+  expect_identical(run_vpcstats(testsim_raw, loq = loq_val, mode = "auto"),
+                   run_vpcstats(testsim_raw, loq = loq_val, mode = "rank"))
+  ## pcVPC: auto == drop
+  expect_identical(
+    run_vpcstats(testsim_raw, pcvpc = TRUE, loq = loq_val, mode = "auto"),
+    run_vpcstats(testsim_raw, pcvpc = TRUE, loq = loq_val, mode = "drop"))
 })
 
 ## Test quantile ordering

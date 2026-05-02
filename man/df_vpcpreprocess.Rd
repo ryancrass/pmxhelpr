@@ -15,7 +15,8 @@ df_vpcpreprocess(
   strat_var_str,
   pcvpc,
   lower_bound,
-  loq
+  loq,
+  mode = c("auto", "rank", "drop")
 )
 }
 \arguments{
@@ -40,11 +41,20 @@ df_vpcpreprocess(
 \item{lower_bound}{Lower bound for prediction correction formula.}
 
 \item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
+
+\item{mode}{One of \code{"auto"} (default), \code{"rank"}, or \code{"drop"}. Selects how
+BLQ-encoded values are carried into downstream quantile aggregation.
+\code{"rank"} preserves \code{-Inf} encoding (BLQ ranks at the low end of the
+sorted vector — fully-censored bins return \code{-Inf} quantiles, masked to
+\code{NA} before plotting). \code{"drop"} converts \code{-Inf} to \code{NA} so BLQ rows are
+excluded from quantile computation entirely. \code{"auto"} resolves to
+\code{"rank"} for std VPC and \code{"drop"} for pcVPC, matching historical
+pmxhelpr behavior.}
 }
 \value{
-A preprocessed data.frame with standardized column names. In std-VPC
-mode, OBSDV may contain \code{-Inf} for BLQ rows; in pcVPC mode, BLQ rows in
-OBSDV/SIMDV are encoded as \code{NA_real_}.
+A preprocessed data.frame with standardized column names. OBSDV
+(and SIMDV in pcVPC + \code{loq}) carries \code{-Inf} for BLQ rows in \code{"rank"}
+mode and \code{NA_real_} in \code{"drop"} mode.
 }
 \description{
 Internal function. Validates columns, renames to standard names, drops
@@ -57,9 +67,11 @@ BLQ encoding rules:
 \code{\link[=var_loqcens]{var_loqcens()}}.
 \item SIMDV (pcVPC only, when \code{loq} is provided): positions where
 \code{SIMDV < loq} are encoded as \code{-Inf} via \code{\link[=var_loqcens]{var_loqcens()}}.
-\item For pcVPC, encoded \code{-Inf} values are converted to \code{NA_real_} via
-\code{\link[=var_infna]{var_infna()}} before \code{\link[=var_predcorr]{var_predcorr()}} is applied so that BLQ rows
-are excluded from the median-of-PRED denominator and from quantiles.
+\item For drop-mode quantile semantics, encoded \code{-Inf} values are
+converted to \code{NA_real_} via \code{\link[=var_infna]{var_infna()}} before downstream
+consumers (\code{\link[=var_predcorr]{var_predcorr()}} in pcVPC; quantile aggregation in
+\code{\link[=df_vpcstats]{df_vpcstats()}}). For rank-mode, the \code{-Inf} encoding is preserved
+and ranks at the low end of \code{\link[stats:quantile]{stats::quantile()}}.
 }
 }
 \keyword{internal}

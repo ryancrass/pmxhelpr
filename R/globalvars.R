@@ -12,6 +12,6 @@ utils::globalVariables(c("ID", "TIME", "NTIME", "BIN_MID", "MDV", "EVID",
                          "q95_low", "q95_med", "q95_hi",
                          "obs5", "obs50", "obs95",
                          "CI", "LCL", "Power", "PowerCI", "UCL",
-                         "IDV", "DV1", "DV2", "N",
+                         "IDV",
                          "PPTESTCD", "PPORRES", "SIM", "CONC",
                          "CMT"))

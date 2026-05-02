@@ -123,9 +123,11 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str,
 #'     [`var_loqcens()`].
 #'   \item SIMDV (pcVPC only, when `loq` is provided): positions where
 #'     `SIMDV < loq` are encoded as `-Inf` via [`var_loqcens()`].
-#'   \item For pcVPC, encoded `-Inf` values are converted to `NA_real_` via
-#'     [`var_infna()`] before [`var_predcorr()`] is applied so that BLQ rows
-#'     are excluded from the median-of-PRED denominator and from quantiles.
+#'   \item For drop-mode quantile semantics, encoded `-Inf` values are
+#'     converted to `NA_real_` via [`var_infna()`] before downstream
+#'     consumers ([`var_predcorr()`] in pcVPC; quantile aggregation in
+#'     [`df_vpcstats()`]). For rank-mode, the `-Inf` encoding is preserved
+#'     and ranks at the low end of [`stats::quantile()`].
 #' }
 #'
 #' @param sim Simulated data from `df_mrgsim_replicate()` or equivalent.
@@ -138,16 +140,28 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str,
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param pcvpc Logical for prediction correction.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
+#' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Selects how
+#'    BLQ-encoded values are carried into downstream quantile aggregation.
+#'    `"rank"` preserves `-Inf` encoding (BLQ ranks at the low end of the
+#'    sorted vector — fully-censored bins return `-Inf` quantiles, masked to
+#'    `NA` before plotting). `"drop"` converts `-Inf` to `NA` so BLQ rows are
+#'    excluded from quantile computation entirely. `"auto"` resolves to
+#'    `"rank"` for std VPC and `"drop"` for pcVPC, matching historical
+#'    pmxhelpr behavior.
 #' @inheritParams var_predcorr
-#' @return A preprocessed data.frame with standardized column names. In std-VPC
-#'    mode, OBSDV may contain `-Inf` for BLQ rows; in pcVPC mode, BLQ rows in
-#'    OBSDV/SIMDV are encoded as `NA_real_`.
+#' @return A preprocessed data.frame with standardized column names. OBSDV
+#'    (and SIMDV in pcVPC + `loq`) carries `-Inf` for BLQ rows in `"rank"`
+#'    mode and `NA_real_` in `"drop"` mode.
 #' @keywords internal
 
 df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
                              pred_var_str, ipred_var_str,
                              sim_dv_var_str, obs_dv_var_str,
-                             strat_var_str, pcvpc, lower_bound, loq) {
+                             strat_var_str, pcvpc, lower_bound, loq,
+                             mode = c("auto", "rank", "drop")) {
+
+  mode <- match.arg(mode)
+  if (mode == "auto") mode <- if (isTRUE(pcvpc)) "drop" else "rank"
 
   check_df(sim, "sim")
   check_varsindf(sim, time_var_str, "sim", "time_var")
@@ -174,10 +188,14 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
     ## Encode SIMDV BLQ rows as -Inf when loq is provided
     if (!is.null(loq)) sim$SIMDV <- var_loqcens(sim$SIMDV, loq = loq)
 
-    ## Convert -Inf to NA so prediction correction excludes BLQ from median(PRED)
-    ## via na.rm and propagates NA through the corrected values.
-    sim$OBSDV <- var_infna(sim$OBSDV)
-    sim$SIMDV <- var_infna(sim$SIMDV)
+    if (mode == "drop") {
+      ## Convert -Inf to NA so PC excludes BLQ from median(PRED) via na.rm and
+      ## NA propagates through corrected values; quantile drops them. In
+      ## "rank" mode, -Inf passes through `var_predcorr` (the formula yields
+      ## -Inf when y = -Inf and PRED is finite) and ranks low at quantile time.
+      sim$OBSDV <- var_infna(sim$OBSDV)
+      sim$SIMDV <- var_infna(sim$SIMDV)
+    }
 
     pc_group_vars <- c("BIN_MID", strat_var_str)
     if ("CMT" %in% colnames(sim)) pc_group_vars <- c("BIN_MID", "CMT", strat_var_str)
@@ -186,6 +204,10 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
       dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
                     SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
+  } else if (mode == "drop") {
+    ## Std VPC drop mode: convert OBSDV -Inf to NA so BLQ rows are dropped
+    ## from quantile via na.rm. SIMDV is uncensored in std VPC, no change.
+    sim$OBSDV <- var_infna(sim$OBSDV)
   }
 
   sim

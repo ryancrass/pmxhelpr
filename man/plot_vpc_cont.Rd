@@ -19,6 +19,7 @@ plot_vpc_cont(
   min_bin_count = 1,
   show_rep = TRUE,
   lower_bound = 0,
+  mode = c("auto", "rank", "drop"),
   shown = NULL,
   theme = NULL,
   pi = c(0.05, 0.95),
@@ -79,6 +80,14 @@ data points.}
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 
 \item{lower_bound}{Lower bound for prediction correction formula.}
+
+\item{mode}{One of \code{"auto"} (default), \code{"rank"}, or \code{"drop"}. Controls how
+BLQ-encoded values are carried through quantile aggregation. In \code{"rank"}
+mode, BLQ rows ranks low at \code{stats::quantile}; fully-censored quantiles
+return \code{-Inf} and are masked to \code{NA} before plotting. In \code{"drop"} mode,
+BLQ rows are excluded from quantile computation. \code{"auto"} resolves to
+\code{"rank"} for std VPC and \code{"drop"} for pcVPC, matching the package's
+historical behavior.}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}

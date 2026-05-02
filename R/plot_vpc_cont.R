@@ -27,6 +27,13 @@
 #'    summary statistic plotting but retains the underlying observations as
 #'    data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
+#' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Controls how
+#'    BLQ-encoded values are carried through quantile aggregation. In `"rank"`
+#'    mode, BLQ rows ranks low at `stats::quantile`; fully-censored quantiles
+#'    return `-Inf` and are masked to `NA` before plotting. In `"drop"` mode,
+#'    BLQ rows are excluded from quantile computation. `"auto"` resolves to
+#'    `"rank"` for std VPC and `"drop"` for pcVPC, matching the package's
+#'    historical behavior.
 #'
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
 #'    Defaults can be viewed by running `plot_vpc_shown()` with no arguments.
@@ -87,12 +94,14 @@ plot_vpc_cont <- function(sim,
                                min_bin_count=1,
                                show_rep = TRUE,
                                lower_bound = 0,
+                               mode = c("auto", "rank", "drop"),
                                shown = NULL,
                                theme = NULL,
                                pi = c(0.05, 0.95),
                                ci = 0.90,
                                vpcstats = FALSE)
 {
+  mode <- match.arg(mode)
 
   check_quantile_pair(pi, "pi")
   check_quantile_scalar(ci, "ci")
@@ -133,7 +142,8 @@ plot_vpc_cont <- function(sim,
   sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,
                           pred_var_str, ipred_var_str,
                           sim_dv_var_str, obs_dv_var_str,
-                          strat_var_str, pcvpc, lower_bound, loq)
+                          strat_var_str, pcvpc, lower_bound, loq,
+                          mode = mode)
 
   check_varsindf(sim, irep_name_str, "sim", "irep_name")
 
@@ -150,19 +160,17 @@ plot_vpc_cont <- function(sim,
   vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str,
                          loq = loq_for_stats, pcvpc = pcvpc)
 
-  ##In std VPC mode, OBSDV and obs* quantile columns may carry -Inf BLQ
-  ##encoding from `var_loqcens`. Convert to NA before plotting/return so
-  ##ggplot drops them silently. pcVPC encodes BLQ as NA in preprocess, so
-  ##no conversion is needed in that branch.
-  if (!isTRUE(pcvpc)) {
-    vpcstat <- vpcstat |>
-      dplyr::mutate(dplyr::across(c("q5_low", "q5_med", "q5_hi",
-                                     "q50_low", "q50_med", "q50_hi",
-                                     "q95_low", "q95_med", "q95_hi",
-                                     "obs5", "obs50", "obs95"),
-                                   var_infna))
-    sim <- dplyr::mutate(sim, OBSDV = var_infna(OBSDV))
-  }
+  ##Mask any `-Inf` quantile outputs (rank-mode artifact for fully-censored
+  ##bins) and any `-Inf` OBSDV values (rank-mode rows surviving to the
+  ##overlay) to NA so ggplot drops them silently. No-op when preprocess
+  ##already converted to NA via drop mode.
+  vpcstat <- vpcstat |>
+    dplyr::mutate(dplyr::across(c("q5_low", "q5_med", "q5_hi",
+                                   "q50_low", "q50_med", "q50_hi",
+                                   "q95_low", "q95_med", "q95_hi",
+                                   "obs5", "obs50", "obs95"),
+                                 var_infna))
+  sim <- dplyr::mutate(sim, OBSDV = var_infna(OBSDV))
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {

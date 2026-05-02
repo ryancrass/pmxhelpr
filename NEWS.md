@@ -24,7 +24,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
 * Exploratory and Diagnostic Plot theme factory keys now follow a `role_element` naming convention  
   * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
-  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`, `colors`.
+  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `cent_color`, `ref_line`, `loq_line`.
   * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys:`obs`, `ref_line`, `loess`, `linear`.
 * VPC plot theme factor keys now follow a `element_statistic` naming convention aligned with the `shown` argument
   * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq_line`. 

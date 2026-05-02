@@ -96,7 +96,7 @@ test_that("plot_gof_theme returns a named list with defaults", {
   expect_true("obs_point" %in% names(theme))
   expect_true("cent_point" %in% names(theme))
   expect_true("cent_line" %in% names(theme))
-  expect_true("colors" %in% names(theme))
+  expect_true("cent_color" %in% names(theme))
 })
 
 test_that("plot_gof_theme override merges correctly", {
@@ -113,26 +113,26 @@ test_that("plot_gof_theme default obs_point alpha is 0.5", {
   expect_equal(plot_gof_theme()$obs_point$alpha, 0.5)
 })
 
-test_that("plot_gof_theme default colors match expected", {
+test_that("plot_gof_theme default cent_color match expected", {
   theme <- plot_gof_theme()
-  expect_equal(theme$colors$dv, "blue")
-  expect_equal(theme$colors$pred, "red")
-  expect_equal(theme$colors$ipred, "green")
+  expect_equal(theme$cent_color$dv, "blue")
+  expect_equal(theme$cent_color$pred, "red")
+  expect_equal(theme$cent_color$ipred, "green")
   expect_equal(theme$obs_point$color, "darkgrey")
 })
 
 test_that("plot_gof_theme pmx_color override merges correctly", {
-  theme <- plot_gof_theme(colors = pmx_color(pred = "purple"))
-  expect_equal(theme$colors$pred, "purple")
+  theme <- plot_gof_theme(cent_color = pmx_color(pred = "purple"))
+  expect_equal(theme$cent_color$pred, "purple")
   # Other colors preserved
-  expect_equal(theme$colors$dv, "blue")
-  expect_equal(theme$colors$ipred, "green")
+  expect_equal(theme$cent_color$dv, "blue")
+  expect_equal(theme$cent_color$ipred, "green")
 })
 
 test_that("plot_gof_theme returns all expected keys", {
   theme <- plot_gof_theme()
   expected <- c("obs_point", "obs_line", "cent_point", "cent_line",
-                "cent_errorbar", "ref_line", "loq_line", "colors")
+                "cent_errorbar", "ref_line", "loq_line", "cent_color")
   expect_setequal(names(theme), expected)
 })
 
@@ -145,7 +145,7 @@ test_that("plot_gof_theme elements have correct classes", {
   expect_s3_class(theme$cent_errorbar, "pmx_errorbar")
   expect_s3_class(theme$ref_line, "pmx_line")
   expect_s3_class(theme$loq_line, "pmx_line")
-  expect_s3_class(theme$colors, "pmx_color")
+  expect_s3_class(theme$cent_color, "pmx_color")
 })
 
 #####plot_vpc_theme####

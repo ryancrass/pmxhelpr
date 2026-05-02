@@ -326,7 +326,7 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #' Call with no arguments to view defaults. Pass element overrides to customize.
 #' Use role-level shortcuts `obs` and `cent` with [pmx_style()] to set shared
 #' aesthetics for both point and line elements at once.
-#' Override overlay colors with [pmx_color()].
+#' Override overlay colors with `cent_color = pmx_color()`.
 #'
 #' @param obs_point Observed data point aesthetics. See [pmx_point()].
 #' @param obs_line Observed data line aesthetics. See [pmx_line()].
@@ -341,19 +341,19 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
 #'   See [pmx_style()].
 #' @param cent Shortcut: apply shared aesthetics to both `cent_point` and `cent_line`.
 #'   See [pmx_style()].
-#' @param colors Overlay color mapping for DV, PRED, and IPRED. See [pmx_color()].
+#' @param cent_color Overlay color mapping for DV, PRED, and IPRED. See [pmx_color()].
 #'
 #' @return A named list of theme elements
 #' @export
 #'
 #' @examples
 #' plot_gof_theme()
-#' plot_gof_theme(colors = pmx_color(pred = "purple"))
+#' plot_gof_theme(cent_color = pmx_color(pred = "purple"))
 #' plot_gof_theme(cent = pmx_style(alpha = 0.8))
 plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
                            cent_point = NULL, cent_line = NULL,
                            cent_errorbar = NULL, ref_line = NULL, loq_line = NULL,
-                           obs = NULL, cent = NULL, colors = NULL) {
+                           obs = NULL, cent = NULL, cent_color = NULL) {
   defaults <- list(
     obs_point     = pmx_point(shape = 1, size = 0.75, alpha = 0.5, color = "darkgrey"),
     obs_line      = pmx_line(linewidth = 0.5, linetype = 1, alpha = 0.75, color = "darkgrey"),
@@ -362,13 +362,13 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
     cent_errorbar = pmx_errorbar(linewidth = 0.75, linetype = 1, alpha = 1),
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
-    colors        = pmx_color(dv = "blue", pred = "red", ipred = "green")
+    cent_color    = pmx_color(dv = "blue", pred = "red", ipred = "green")
   )
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
     cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
-    obs = obs, cent = cent, colors = colors
+    obs = obs, cent = cent, cent_color = cent_color
   ))
   merge_theme(user, defaults)
 }

@@ -66,7 +66,7 @@ gof_data <- data_sad_pkfit %>%
 
 data_pk <- filter(data, CMT %in% c(1,2))
 data_pd <- filter(data, CMT %in% c(1,3))
-gof_data_pk <- filter(gof_data, CMT %in% c(1,2))
+data_pkfit <- filter(gof_data, CMT %in% c(1,2))
 ```
 
 An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This is loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
@@ -238,9 +238,9 @@ The relationship between element key, element constructor, and purpose is define
  + `cent_errorbar` | `pmx_errorbar` | Shared central tendency error bars 
  + `ref_line` | `pmx_line` | Reference line
  + `loq_line` | `pmx_line` | LOQ reference line
- + `colors` | `pmx_color` | Overlay color mapping `dv`, `pred`, `ipred` (defaults: blue, red, green)
+ + `cent_color` | `pmx_color` | Overlay color mapping `dv`, `pred`, `ipred` (defaults: blue, red, green)
 
-Shortcuts: `obs` = `obs_point`/`obs_line`, `cent` = `cent_point`/`cent_line` accept `pmx_style()`. Overlay colors are controlled via `colors = pmx_color()`.
+Shortcuts: `obs` = `obs_point`/`obs_line`, `cent` = `cent_point`/`cent_line` accept `pmx_style()`. Overlay colors are controlled via `cent_color = pmx_color()`.
 
 ### Defaults for `plot_dvconc` in `plot_dvconc_theme()`
 
@@ -338,7 +338,7 @@ plot_dvtime(data = data_pk, dv_var = ODV, id_var = ID,
 ```
 
 
-## Error Bar Width
+## Modifying Error Bar Width
 
 The default error bar width is 2.5% of the maximum nominal time. Override with the `width` field:
 
@@ -380,8 +380,21 @@ plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
+## Customize Colors for Central Tendency using `plot_gof_theme()`
 
-## Custom VPC Color Scheme with `plot_vpc_theme()`
+The `cent_color` key in `plot_gof_theme()` can be used to change the colors of central tendency lines for PRED, IPRED, and DV. The example below sets the observed data and observed data mean line to black and the IPRED mean line to red with the PRED line suppressed.
+
+```{r example-gof-color, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(data = data_pkfit, dv_var = ODV, log_y = TRUE,
+         theme = plot_gof_theme(obs_point = pmx_point(color = "black"), 
+                                cent_color = pmx_color(dv = "black", ipred = "red")), 
+         shown = plot_gof_shown(pred = FALSE)) +
+  scale_x_continuous(breaks = seq(0, 168, 24))+
+  labs(x = "Time Since First Dose (hours)", y = "Drug Concentration (ng/mL)") + 
+  facet_wrap(~DoseFood)
+```
+
+## Customize VPC Color Scheme with `plot_vpc_theme()`
 
 For VPC workflows, it is almost always preferred to set alternative theme objects that can be recycled into different VPC plot strata. 
 

@@ -14,7 +14,7 @@ plot_gof_theme(
   loq_line = NULL,
   obs = NULL,
   cent = NULL,
-  colors = NULL
+  cent_color = NULL
 )
 }
 \arguments{
@@ -40,7 +40,7 @@ See \code{\link[=pmx_style]{pmx_style()}}.}
 \item{cent}{Shortcut: apply shared aesthetics to both \code{cent_point} and \code{cent_line}.
 See \code{\link[=pmx_style]{pmx_style()}}.}
 
-\item{colors}{Overlay color mapping for DV, PRED, and IPRED. See \code{\link[=pmx_color]{pmx_color()}}.}
+\item{cent_color}{Overlay color mapping for DV, PRED, and IPRED. See \code{\link[=pmx_color]{pmx_color()}}.}
 }
 \value{
 A named list of theme elements
@@ -50,10 +50,10 @@ Constructor and factory for \code{plot_gof} plot aesthetics.
 Call with no arguments to view defaults. Pass element overrides to customize.
 Use role-level shortcuts \code{obs} and \code{cent} with \code{\link[=pmx_style]{pmx_style()}} to set shared
 aesthetics for both point and line elements at once.
-Override overlay colors with \code{\link[=pmx_color]{pmx_color()}}.
+Override overlay colors with \code{cent_color = pmx_color()}.
 }
 \examples{
 plot_gof_theme()
-plot_gof_theme(colors = pmx_color(pred = "purple"))
+plot_gof_theme(cent_color = pmx_color(pred = "purple"))
 plot_gof_theme(cent = pmx_style(alpha = 0.8))
 }

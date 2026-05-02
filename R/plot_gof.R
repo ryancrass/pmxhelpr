@@ -78,9 +78,9 @@ plot_gof <- function(data,
 
   #Derive output colors from theme
   color_map <- c(OBS = plottheme$obs_point$color,
-                 DV = plottheme$colors$dv,
-                 IPRED = plottheme$colors$ipred,
-                 PRED = plottheme$colors$pred)
+                 DV = plottheme$cent_color$dv,
+                 IPRED = plottheme$cent_color$ipred,
+                 PRED = plottheme$cent_color$pred)
   output_colors <- color_map[active]
 
 

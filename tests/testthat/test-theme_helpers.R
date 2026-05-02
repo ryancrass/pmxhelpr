@@ -70,11 +70,11 @@ test_that("merge_theme routes pmx_style to apply_style", {
 })
 
 test_that("merge_theme applies pmx_color overrides in plot_gof_theme", {
-  theme <- plot_gof_theme(colors = pmx_color(pred = "purple"))
-  expect_equal(theme$colors$pred, "purple")
+  theme <- plot_gof_theme(cent_color = pmx_color(pred = "purple"))
+  expect_equal(theme$cent_color$pred, "purple")
   # Other colors preserved
-  expect_equal(theme$colors$dv, "blue")
-  expect_equal(theme$colors$ipred, "green")
+  expect_equal(theme$cent_color$dv, "blue")
+  expect_equal(theme$cent_color$ipred, "green")
 })
 
 #####apply_style####

@@ -38,7 +38,9 @@ test_that("df_vpcstats returns expected columns", {
 
 test_that("df_vpcstats returns one row per unique bin value", {
   result <- run_vpcstats(testsim_raw)
-  expect_equal(nrow(result), length(unique(testsim_raw$NTIME)))
+  obs_bins <- unique(testsim_raw$NTIME[testsim_raw$MDV == 0 & testsim_raw$EVID == 0 &
+                                         !is.na(testsim_raw$NTIME)])
+  expect_equal(nrow(result), length(obs_bins))
 })
 
 ## Test Stratification
@@ -53,8 +55,10 @@ test_that("df_vpcstats with strat_var returns rows for each bin x stratum", {
 
   result <- run_vpcstats(testsim_strat, strat_var_str = "FOOD_f")
   expect_true("FOOD_f" %in% colnames(result))
+  obs_rows <- testsim_strat$MDV == 0 & testsim_strat$EVID == 0 &
+    !is.na(testsim_strat$NTIME)
   expect_equal(nrow(result),
-               nrow(unique(testsim_strat[, c("NTIME", "FOOD_f")])))
+               nrow(unique(testsim_strat[obs_rows, c("NTIME", "FOOD_f")])))
 })
 
 ## Test LLOQ handling
@@ -85,4 +89,12 @@ test_that("pcvpc = TRUE produces different medians than pcvpc = FALSE", {
   stats_no_pc <- run_vpcstats(testsim_raw, pcvpc = FALSE)
   stats_pc    <- run_vpcstats(testsim_raw, pcvpc = TRUE)
   expect_false(identical(stats_no_pc$q50_med, stats_pc$q50_med))
+})
+
+test_that("pcvpc = TRUE with loq sets BLQ values to NA before prediction correction", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV, 0.25, na.rm = TRUE)
+  stats_pc_loq <- run_vpcstats(testsim_raw, pcvpc = TRUE, loq = loq_val)
+  stats_pc     <- run_vpcstats(testsim_raw, pcvpc = TRUE)
+  expect_s3_class(stats_pc_loq, "data.frame")
+  expect_false(identical(stats_pc_loq$q50_med, stats_pc$q50_med))
 })

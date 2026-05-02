@@ -237,7 +237,9 @@ var_pc <- function(dv_var,
                    pred_var,
                    lower_bound = 0) {
   predbin <- stats::median(pred_var)
-  lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / (pred_var - lower_bound))
+  denom <- pred_var - lower_bound
+  denom[denom == 0] <- NA_real_
+  lower_bound + (dv_var - lower_bound) * ((predbin - lower_bound) / denom)
 }
 
 

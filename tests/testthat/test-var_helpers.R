@@ -100,3 +100,12 @@ test_that("NA in dv propagates to output", {
   expect_true(is.na(out[2]))
   expect_false(is.na(out[1]))
 })
+
+test_that("pred equal to lower_bound returns NA instead of Inf", {
+  dv <- c(5, 10, 15)
+  pred <- c(8, 0, 10)
+  out <- var_pc(dv, pred)
+  expect_true(is.na(out[2]))
+  expect_false(is.na(out[1]))
+  expect_false(is.na(out[3]))
+})

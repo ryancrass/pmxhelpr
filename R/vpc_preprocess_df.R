@@ -117,6 +117,7 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
   check_varsindf(sim, sim_dv_var_str, "sim", "sim_dv_var")
   check_varsindf(sim, obs_dv_var_str, "sim", "obs_dv_var")
   check_varsindf(sim, "MDV", "sim", "MDV")
+  check_varsindf(sim, "EVID", "sim", "EVID")
   if (!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
   if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
 
@@ -125,17 +126,29 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
                                              SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
   sim <- dplyr::rename(sim, BIN_MID = NTIME)
 
+  if(is.null(loq)) {
+    sim <- sim |>
+      dplyr::filter(MDV == 0)
+  }
+
   if (isTRUE(pcvpc)) {
     pc_group_vars <- c("BIN_MID", strat_var_str)
     if ("CMT" %in% colnames(sim)) pc_group_vars <- c("BIN_MID", "CMT", strat_var_str)
+    if (!is.null(loq)) {
+      sim <- sim |>
+        dplyr::mutate(OBSDV = ifelse(OBSDV < loq, NA_real_, OBSDV),
+                      SIMDV = ifelse(SIMDV < loq, NA_real_, SIMDV))
+    }
     sim <- sim |>
-      dplyr::filter(MDV == 0) |>
+      dplyr::filter(EVID == 0) |>
       dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
       dplyr::mutate(OBSDV = var_pc(OBSDV, PRED, lower_bound),
                     SIMDV = var_pc(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
   } else {
-    if (!is.null(loq)) sim <- sim |> dplyr::mutate(MDV = 0L)
+    sim <- sim |>
+      dplyr::mutate(MDV = 0L) |>
+      dplyr::filter(EVID == 0)
   }
 
   sim

@@ -8,13 +8,17 @@
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'    If `NULL` (default) and an `LLOQ` column is present in `sim`, the unique LLOQ value
-#'    is inherited from that column automatically.
-#'    Ignored when `pcvpc = TRUE` (LLOQ is not meaningful on the prediction-corrected scale).
-#'    Specifying this argument implies that the observed variable `OBSDV` is missing (`NA`)
-#'    and `MDV = 1` where < `loq` in `sim`.
-#'    For standard VPCs (`pcvpc = FALSE`), all `MDV` values are set to 0 so that
-#'    all observations (including BLQ) are included in summary statistics.
+#'    For standard VPCs (`pcvpc = FALSE`)
+#'
+#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `MDV` values are set to 0
+#'      so that all observations (including BLQ) are processed when and censoring is performed at the quantile level.
+#'      Filter to `EVID==0` so that doses are dropped.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, the dataset is filtered to `MDV==0` since `loq` is unknown.
+#'
+#'    For prediction-corrected VPCs (`pcvpc = TRUE`)
+#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `SIMDV` and `OBSDV` values < loq are set to
+#'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, filter to `MDV==0` since `loq` is unknown.
 #'    Dashed horizontal line plotted at `loq` by default (controlled via `theme`).
 #' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
 #'    in binned plot layers. This argument drops small bins from summary statistic calculation
@@ -102,14 +106,14 @@ plot_vpc_cont <- function(sim,
     if (length(lloq_vals) == 1L) loq <- lloq_vals
   }
 
-  #Block loq handling when prediction-corrected — LLOQ is on the original scale
-  if (isTRUE(pcvpc)) loq <- NULL
-
   #Preprocess: validate, rename, prediction-correct or BLQ-handle
   sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,
                           pred_var_str, ipred_var_str,
                           sim_dv_var_str, obs_dv_var_str,
                           strat_var_str, pcvpc, lower_bound, loq)
+
+  #Block loq handling when prediction-corrected — LLOQ is on the original scale
+  if (isTRUE(pcvpc)) loq <- NULL
 
   #Post-preprocess checks
   check_varsindf(sim, irep_name_str, "sim", "irep_name")

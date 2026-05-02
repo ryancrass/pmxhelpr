@@ -77,6 +77,7 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ## Documentation
 * Restructure vignettes: separate PK EDA, PK/PD EDA, GOF diagnostics, VPC workflow, and plot aesthetics into dedicated vignettes with cross-links.
+* Move all narrative vignettes to the pkgdown site (`https://ryancrass.github.io/pmxhelpr/articles/`). The package no longer ships built vignettes in `inst/doc/`, which keeps the installed package small. Content is unchanged.
 
 # pmxhelpr 0.4.0
 

@@ -23,6 +23,16 @@ The goal of pmxhelpr is to make pharmacometrics workflows more standardized, eff
 
 These include such as exploratory data analysis, model evaluation, and model application.
 
+## Documentation
+
+Full narrative documentation, including worked examples for every plotting workflow, lives on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/). Start with the articles:
+
+- [Exploratory Analyses of PK Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-workflow.html)
+- [Exploratory Analyses of PK/PD Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pkpd-workflow.html)
+- [Goodness-of-Fit Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
+- [Visual Predictive Check Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
+- [Plot Themes and Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
+
 ## Installation
 
 You can install the development version of pmxhelpr from [GitHub](https://github.com/) with:

@@ -14,7 +14,7 @@ plot_dvtime(
   dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
-  cent = "mean",
+  cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,

@@ -61,13 +61,19 @@ check_varsindf <- function(data, vars, data_name, name){
   if(length(missing) >= 1){
     rlang::abort(message = paste0("argument `", name, "` must be variable(s) in `", data_name,
                                   "` (not found: ",
-                                  paste0("'", missing, "'", collapse = ", "), ")"))
+                                  paste0("'", missing, "'", collapse = ", "), ").",
+                                  "\nAvailable columns: ", paste(colnames(data), collapse = ", ")))
   }
 }
 
 check_levelsinvar <- function(data, var, levels, name, levels_name){
-  if(any(!levels %in% data[[var]])){
-    rlang::abort(message = paste0("argument `", levels_name, "` must be levels in variable `", name, "`"))
+  missing <- setdiff(levels, data[[var]])
+  if(length(missing) >= 1){
+    available <- unique(data[[var]])
+    rlang::abort(message = paste0("argument `", levels_name, "` must be levels in variable `", name,
+                                  "` (not found: ",
+                                  paste0("'", missing, "'", collapse = ", "), ").",
+                                  "\nAvailable levels: ", paste(available, collapse = ", ")))
   }
 }
 

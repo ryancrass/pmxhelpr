@@ -37,7 +37,12 @@
 #'    before plotting.
 #' @export df_vpcstats
 
-df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str,
+df_vpcstats <- function(sim,
+                        pi = c(0.05, 0.95),
+                        ci = c(0.05, 0.95),
+                        bin_var = "BIN_MID",
+                        strat_var_str = NULL,
+                        irep_name_str = "SIM",
                         loq = NULL, pcvpc = FALSE) {
 
   check_quantile_pair(pi, "pi")

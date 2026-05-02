@@ -6,6 +6,11 @@ test_that("Output is a `ggplot` plot object", {
                class = "ggplot")
 })
 
+test_that("plot_dvtime rejects invalid `cent`", {
+  expect_error(plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", cent = "wat"),
+               regexp = "should be one of")
+})
+
 test_that("Output plot maps variable TIME to the x aesthetic", {
   expect_equal(
     rlang::quo_name(plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")$mapping$x),

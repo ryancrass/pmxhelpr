@@ -123,6 +123,7 @@ df_doseprop <- function(data,
   check_varsindf(data, metric_var_str, "data", "metric_var")
   check_varsindf(data, exp_var_str, "data", "exp_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
+  check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
   tab_list <- lapply(metrics, function(m) {

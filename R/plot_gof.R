@@ -37,12 +37,15 @@ plot_gof <- function(data,
                         dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
-                        cent = "mean",
+                        cent = c("mean", "mean_sdl", "mean_sdl_upper",
+                                 "median", "median_iqr", "none"),
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
                         theme = NULL){
+
+  cent <- match.arg(cent)
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   pred_var_str  <- resolve_var(rlang::enquo(pred_var))

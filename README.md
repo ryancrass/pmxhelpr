@@ -121,6 +121,13 @@ aesthetics:
 - `data_sad_pkfit` — `data_sad` with individual (IPRED) and population
   (PRED) PK model predictions
 
+**Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
+(original DV) to note that it has not been transformed, rather than
+`DV`, because they preserve raw observed values for BLQ-aware workflows.
+Functions like `plot_dvtime()` default `dv_var = DV` to match the
+standard NMTRAN convention; when running examples on the bundled data,
+pass `dv_var = "ODV"` (as every example below does).
+
 ## Example Exploratory Data Analysis Workflow
 
 This is a basic example which illustrates a simple exploratory data
@@ -131,11 +138,11 @@ analysis workflow using pmxhelpr:
 glimpse(data_sad)
 
 #Pre-process data for plotting
-data <- data_sad %>% 
-  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
-         DoseFood = paste(DOSE,"mg x1", Food), 
-         Regimen = var_addn(DoseFood, ID, sep = "mg x1")) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1)) #Correctly order factor levels
+data <- data_sad %>%
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
+         DoseFood = paste(DOSE,"mg x1", Food),
+         Regimen = var_addn(DoseFood, ID)) %>%
+  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1)) #Correctly order factor levels
 
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
@@ -153,7 +160,7 @@ glimpse(data_sad_nca)
 data_sad_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
 
 #Tabulated dose-proportionality
-table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+table <- df_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 table
 
 #Visualize dose-proportionality
@@ -174,11 +181,11 @@ library(patchwork)
 library(withr)
 
 ##Pre-process Data for Plotting
-data <- data_sad_pkfit %>% 
-  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
-         DoseFood = paste(DOSE,"mg x1", Food), 
-         Regimen = var_addn(DoseFood, ID, sep = "mg x1")) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1)) #Correctly order factor levels
+data <- data_sad_pkfit %>%
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
+         DoseFood = paste(DOSE,"mg x1", Food),
+         Regimen = var_addn(DoseFood, ID)) %>%
+  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1)) #Correctly order factor levels
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
 plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +
@@ -211,7 +218,9 @@ data <- data_sad %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
   mutate(Food = var_addn(Food, ID))
 
-#Simulated replicates of the dataset using mrgsim 
+#Simulated replicates of the dataset using mrgsim
+  #The input `dv_var` is preserved in the output as `OBSDV` (observed) and the
+  #simulated values are written to `SIMDV` --- these are the columns `plot_vpc_cont()` reads.
 simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
                               dv_var = "ODV",
                               num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),

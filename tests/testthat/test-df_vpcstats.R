@@ -17,7 +17,8 @@ run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
                                      pred_var_str, ipred_var_str,
                                      sim_dv_var_str, obs_dv_var_str,
                                      strat_var_str, pcvpc, lower_bound, loq)
-  pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM")
+  pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM",
+                         loq = loq, pcvpc = pcvpc)
 }
 
 ## Test Output
@@ -26,49 +27,101 @@ test_that("df_vpcstats returns a data.frame", {
   expect_s3_class(result, "data.frame")
 })
 
-test_that("df_vpcstats returns expected columns", {
+test_that("df_vpcstats returns expected columns without loq", {
   result <- run_vpcstats(testsim_raw)
-  expected_cols <- c("BIN_MID", "nbin", "nobs", "nmiss",
+  expected_cols <- c("BIN_MID", "nbin", "nobsblq", "obs_prop_blq",
                      "q5_low", "q5_med", "q5_hi",
                      "q50_low", "q50_med", "q50_hi",
                      "q95_low", "q95_med", "q95_hi",
                      "obs5", "obs50", "obs95")
   expect_true(all(expected_cols %in% colnames(result)))
+  ## sim_prop_blq_* gated on loq presence
+  expect_false(any(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
+                    %in% colnames(result)))
 })
 
-test_that("df_vpcstats: nobs + nmiss == nbin always", {
+test_that("df_vpcstats appends sim_prop_blq_* when loq is supplied", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result <- run_vpcstats(testsim_raw, loq = loq_val)
+  expect_true(all(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
+                   %in% colnames(result)))
+})
+
+test_that("df_vpcstats: obs_prop_blq == nobsblq / nbin and nobsblq <= nbin", {
   result_default <- run_vpcstats(testsim_raw)
-  expect_equal(result_default$nobs + result_default$nmiss, result_default$nbin)
+  expect_equal(result_default$obs_prop_blq, result_default$nobsblq / result_default$nbin)
+  expect_true(all(result_default$nobsblq <= result_default$nbin))
 
   loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
                               0.25, na.rm = TRUE)
   result_loq <- run_vpcstats(testsim_raw, loq = loq_val)
-  expect_equal(result_loq$nobs + result_loq$nmiss, result_loq$nbin)
+  expect_equal(result_loq$obs_prop_blq, result_loq$nobsblq / result_loq$nbin)
+  expect_true(all(result_loq$nobsblq <= result_loq$nbin))
 })
 
-test_that("df_vpcstats: loq increases nmiss (more rows below threshold flagged)", {
+test_that("df_vpcstats: loq increases nobsblq (more obs below threshold flagged)", {
   loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
                               0.25, na.rm = TRUE)
   result_default <- run_vpcstats(testsim_raw)
   result_loq <- run_vpcstats(testsim_raw, loq = loq_val)
-  ## Same bins, same nbin; loq strictly raises nmiss in at least some bins.
   expect_equal(result_loq$nbin, result_default$nbin)
-  expect_true(any(result_loq$nmiss > result_default$nmiss))
+  expect_true(any(result_loq$nobsblq > result_default$nobsblq))
 })
 
-test_that("min_bin_count gates on nobs (quantifiable obs), not total record count", {
+test_that("df_vpcstats: sim_prop_blq_low <= sim_prop_blq_med <= sim_prop_blq_hi", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result <- run_vpcstats(testsim_raw, loq = loq_val)
+  expect_true(all(result$sim_prop_blq_low <= result$sim_prop_blq_med, na.rm = TRUE))
+  expect_true(all(result$sim_prop_blq_med <= result$sim_prop_blq_hi, na.rm = TRUE))
+})
+
+test_that("std VPC sim_prop_blq is driven by SIMDV < loq comparison", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result <- run_vpcstats(testsim_raw, loq = loq_val)
+  ## Reference uses the same expression as the implementation (handles any
+  ## NA SIMDV the same way) so this validates the two-stage aggregation
+  ## rather than the formula choice. Std-VPC mode means no SIMDV encoding
+  ## was applied in preprocess, so SIMDV here is the raw simulation output.
+  ref <- testsim_raw |>
+    dplyr::filter(EVID == 0) |>
+    dplyr::group_by(NTIME, SIM) |>
+    dplyr::summarise(p = mean((SIMDV < loq_val) | is.na(SIMDV)),
+                     .groups = "drop") |>
+    dplyr::group_by(NTIME) |>
+    dplyr::summarise(p_med = stats::quantile(p, 0.5, na.rm = TRUE),
+                     .groups = "drop")
+  expect_equal(result$sim_prop_blq_med, ref$p_med, ignore_attr = TRUE)
+})
+
+test_that("pcVPC sim_prop_blq is driven by is.na(SIMDV) post-PC", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result <- run_vpcstats(testsim_raw, pcvpc = TRUE, loq = loq_val)
+  ## In pcVPC, BLQ rows were masked to NA before var_predcorr, so post-PC
+  ## SIMDV at those rows is NA. The is.na branch carries the count.
+  pre <- pmxhelpr:::df_vpcpreprocess(testsim_raw, "TIME", "NTIME", "PRED",
+                                     "IPRED", "SIMDV", "OBSDV", NULL,
+                                     pcvpc = TRUE, lower_bound = 0,
+                                     loq = loq_val)
+  ref <- pre |>
+    dplyr::group_by(BIN_MID, SIM) |>
+    dplyr::summarise(p = mean(is.na(SIMDV)), .groups = "drop") |>
+    dplyr::group_by(BIN_MID) |>
+    dplyr::summarise(p_med = stats::quantile(p, 0.5, na.rm = TRUE), .groups = "drop")
+  expect_equal(result$sim_prop_blq_med, ref$p_med, ignore_attr = TRUE)
+})
+
+test_that("min_bin_count gates on (nbin - nobsblq), not total record count", {
   loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
                               0.25, na.rm = TRUE)
   result <- plot_vpc_cont(sim = testsim_raw, loq = loq_val, vpcstats = TRUE)
-  ## Pick a threshold that is below max(nbin) but above max(nobs) in some bin
-  threshold <- max(result$nobs) + 1L
-  ## Quantile-summary frame still contains all bins; the gate is applied at
-  ## the plot-build call. Verify the gate by inspecting the plot's data.
+  threshold <- max(result$nbin - result$nobsblq) + 1L
   p <- plot_vpc_cont(sim = testsim_raw, loq = loq_val,
                      min_bin_count = threshold)
   built <- ggplot2::ggplot_build(p)
-  ## All ribbon/line layers should now have zero rows since no bin meets
-  ## the nobs threshold.
   ribbon_layers <- vapply(built$data,
                           function(d) "ymin" %in% colnames(d) && nrow(d) > 0,
                           logical(1))

@@ -4,7 +4,16 @@
 \alias{df_vpcstats}
 \title{Compute VPC summary statistics from preprocessed simulation data}
 \usage{
-df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str)
+df_vpcstats(
+  sim,
+  pi,
+  ci,
+  bin_var,
+  strat_var_str,
+  irep_name_str,
+  loq = NULL,
+  pcvpc = FALSE
+)
 }
 \arguments{
 \item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV},
@@ -24,14 +33,27 @@ Default is \code{c(0.05, 0.95)}.}
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
 
 \item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
+
+\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
+When supplied, the result includes simulated BLQ proportion CIs
+(\code{sim_prop_blq_low}, \code{sim_prop_blq_med}, \code{sim_prop_blq_hi}).}
+
+\item{pcvpc}{Logical. \code{TRUE} if \code{sim} came from prediction-corrected
+preprocessing (\code{SIMDV} is on the PC scale and BLQ rows are \code{NA}),
+\code{FALSE} for std VPC (\code{SIMDV} is raw). Selects the BLQ-detection
+expression for \code{sim_prop_blq}: \code{is.na(SIMDV)} in pcVPC mode (raw \verb{<loq}
+is meaningless on the PC scale), \code{(SIMDV < loq) | is.na(SIMDV)} in std
+VPC mode. Default is \code{FALSE}.}
 }
 \value{
-A \code{data.frame} with bin counts (\code{nbin} total records, \code{nobs}
-quantifiable observations, \code{nmiss} BLQ-encoded records), simulated
-quantile CIs (\code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med}, \code{q50_hi},
-\code{q95_low}, \code{q95_med}, \code{q95_hi}), and observed quantiles (\code{obs5}, \code{obs50},
-\code{obs95}), joined by \code{bin_var}. Quantile values may be \code{-Inf} for fully
-BLQ-censored bins; callers should apply \code{\link[=var_infna]{var_infna()}} before plotting.
+A \code{data.frame} with bin counts (\code{nbin} total records, \code{nobsblq}
+BLQ-encoded observations), the observed BLQ proportion (\code{obs_prop_blq}),
+simulated quantile CIs (\code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med},
+\code{q50_hi}, \code{q95_low}, \code{q95_med}, \code{q95_hi}), and observed quantiles
+(\code{obs5}, \code{obs50}, \code{obs95}), joined by \code{bin_var}. When \code{loq} is supplied,
+\code{sim_prop_blq_low/med/hi} columns are appended. Quantile values may be
+\code{-Inf} for fully BLQ-censored bins; callers should apply \code{\link[=var_infna]{var_infna()}}
+before plotting.
 }
 \description{
 Computes two-stage quantile summary statistics for VPC plots.

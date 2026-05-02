@@ -69,11 +69,12 @@ Dashed horizontal line plotted at \code{loq} by default (controlled via \code{th
 
 \item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
 
-\item{min_bin_count}{Minimum number of quantifiable observations (the
-\code{nobs} column in the summary statistics frame) per exact bin required for
-inclusion in binned plot layers. BLQ-encoded records (\code{nmiss}) do not
-count toward this threshold. This argument drops small bins from summary
-statistic plotting but retains the underlying observations as data points.}
+\item{min_bin_count}{Minimum number of quantifiable observations
+(\code{nbin - nobsblq} in the summary statistics frame) per exact bin required
+for inclusion in binned plot layers. BLQ-encoded records (\code{nobsblq}) do
+not count toward this threshold. This argument drops small bins from
+summary statistic plotting but retains the underlying observations as
+data points.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 

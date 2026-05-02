@@ -20,11 +20,12 @@
 #'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
 #'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, filter to `MDV==0` since `loq` is unknown.
 #'    Dashed horizontal line plotted at `loq` by default (controlled via `theme`).
-#' @param min_bin_count Minimum number of quantifiable observations (the
-#'    `nobs` column in the summary statistics frame) per exact bin required for
-#'    inclusion in binned plot layers. BLQ-encoded records (`nmiss`) do not
-#'    count toward this threshold. This argument drops small bins from summary
-#'    statistic plotting but retains the underlying observations as data points.
+#' @param min_bin_count Minimum number of quantifiable observations
+#'    (`nbin - nobsblq` in the summary statistics frame) per exact bin required
+#'    for inclusion in binned plot layers. BLQ-encoded records (`nobsblq`) do
+#'    not count toward this threshold. This argument drops small bins from
+#'    summary statistic plotting but retains the underlying observations as
+#'    data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #'
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
@@ -136,16 +137,18 @@ plot_vpc_cont <- function(sim,
 
   check_varsindf(sim, irep_name_str, "sim", "irep_name")
 
-  #After preprocess, `loq` is used only as the y-position of the LLOQ reference
-  #line in the built plot. In pcVPC mode the y-axis is on the prediction-corrected
-  #scale where a single LLOQ value no longer maps to a single y position, so
-  #suppress the line.
+  #Preserve the user-supplied loq for BLQ-fraction computation in df_vpcstats.
+  #The local `loq` is then nullified in pcVPC mode since it is used downstream
+  #only as the y-position of the LLOQ reference line, which is meaningless on
+  #the prediction-corrected scale.
+  loq_for_stats <- loq
   if (isTRUE(pcvpc)) loq <- NULL
 
   ##Compute VPC Statistics
   bin_var <- "BIN_MID"
   ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str)
+  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str,
+                         loq = loq_for_stats, pcvpc = pcvpc)
 
   ##In std VPC mode, OBSDV and obs* quantile columns may carry -Inf BLQ
   ##encoding from `var_loqcens`. Convert to NA before plotting/return so
@@ -176,7 +179,7 @@ plot_vpc_cont <- function(sim,
 
   ##Build VPC Plot
   plot <- vpc_build_plot(
-    vpcstats = dplyr::filter(vpcstat, nobs >= min_bin_count),
+    vpcstats = dplyr::filter(vpcstat, (nbin - nobsblq) >= min_bin_count),
     bin_var = bin_var,
     strat_var_str = strat_var_str,
     shown = show_vpc,

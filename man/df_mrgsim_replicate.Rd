@@ -46,15 +46,15 @@ Accepts bare names or strings. Default is \code{IPRED}.}
 \item{sim_dv_var}{Name of simulated DV output from \code{model}.
 Accepts bare names or strings. Default is \code{DV}.}
 
-\item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
-Must be a character vector of variable names from the simulation output to \code{carry_out}
-and return in output. Default is \code{NULL}.
-Note that \code{"OBSDV"}, \code{"SIMDV"} \code{"IPRED"},\code{"PRED"},\code{"TIME"},\code{"NTIME"} are carried automatically.
-Note that \code{"CMT"}, \code{"EVID"}, \code{"MDV"} are carried automatically when present.}
+\item{num_vars}{Numeric variables in \code{data} to carry into output.
+Default is \code{NULL}, which auto-carries all numeric columns of \code{data}
+not already in the always-carried set (\code{EVID}, \code{MDV}, \code{CMT},
+\code{TIME}, \code{NTIME}, \code{ID}, \code{OBSDV}, \code{PRED}, \code{IPRED}, \code{SIMDV}).
+Pass an explicit character vector to carry exactly that list.}
 
-\item{char_vars}{Character variables in \code{data} or simulation output to recover.
-Must be a character vector of variable names from the simulation output to \code{recover}
-and return in output.}
+\item{char_vars}{Character variables in \code{data} to recover into output.
+Default is \code{NULL}, which auto-recovers all character columns of \code{data}.
+Pass an explicit character vector to recover exactly that list.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
@@ -64,7 +64,8 @@ and return in output.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
-and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus \code{num_vars} and \code{char_vars}.
+and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus the columns selected by
+\code{num_vars} / \code{char_vars} (auto-carried by default; see those parameters).
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}

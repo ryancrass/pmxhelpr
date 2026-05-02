@@ -157,7 +157,8 @@ plot_vpc_cont <- function(sim,
   ##Compute VPC Statistics
   bin_var <- "BIN_MID"
   ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str,
+  vpcstat <- df_vpcstats(sim, pi = pi, ci = ci_bounds, bin_var = bin_var,
+                         strat_var = strat_var_str, irep_name = irep_name_str,
                          loq = loq_for_stats, pcvpc = pcvpc)
 
   ##Mask any `-Inf` quantile outputs (rank-mode artifact for fully-censored

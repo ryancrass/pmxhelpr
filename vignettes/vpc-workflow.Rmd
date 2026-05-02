@@ -188,23 +188,23 @@ max(simout$IREP)
 ```
 
 
-### Capturing Additional Variables
-  
-The user may want to recover additional variables from the input dataset that may be needed to stratify or pre-process the simulation output for VPC plots. 
+### Restricting Carried-Forward Variables
 
-`df_mrgsim_replicate` includes two arguments for this:
+By default, `df_mrgsim_replicate` auto-carries every numeric and character column of `data` into the output, in addition to the always-carried set (`CMT`, `EVID`, `MDV`, `TIME`, `NTIME`, `ID`, plus the model output / DV columns). This means downstream functions like `plot_vpc_cont()` find columns such as `LLOQ`, `BLQ`, and stratification variables without further configuration.
 
-  - `num_vars` character vector of variable names passed to `carry_out` argument of `mrgsim_df()`. 
-  - `char_vars` character vector of variable names passed to `recover` argument of `mrgsim_df()`
-  
-*NOTE* CMT, EVID, MDV, TIME, and NTIME are allways carried out automatically and returned
+If you want a leaner output containing only specific columns, pass `num_vars` / `char_vars` as character vectors:
+
+  - `num_vars` --- numeric variable names passed to the `carry_out` argument of `mrgsim_df()`.
+  - `char_vars` --- character variable names passed to the `recover` argument of `mrgsim_df()`.
+
+When either is non-`NULL`, that side becomes the explicit list (only those columns are carried). Passing `NULL` (the default) restores auto-carry for that side.
 
 ```{r df_mrgsim_replicate-capture}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
+                     dv_var = ODV,
+                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      char_vars = c("PART", "DoseFood"))
 
 colnames(simout)

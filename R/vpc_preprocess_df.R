@@ -15,8 +15,8 @@
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
 #'    Default is `c(0.05, 0.95)`.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
-#' @param strat_var_str String or `NULL`. Stratification variable name. Default is `NULL`.
-#' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
+#' @param strat_var String or `NULL`. Stratification variable name. Default is `NULL`.
+#' @param irep_name String. Replicate identifier column name. Default is `"SIM"`.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
 #'    When supplied, the result includes simulated BLQ proportion CIs
 #'    (`sim_prop_blq_low`, `sim_prop_blq_med`, `sim_prop_blq_hi`).
@@ -41,15 +41,15 @@ df_vpcstats <- function(sim,
                         pi = c(0.05, 0.95),
                         ci = c(0.05, 0.95),
                         bin_var = "BIN_MID",
-                        strat_var_str = NULL,
-                        irep_name_str = "SIM",
+                        strat_var = NULL,
+                        irep_name = "SIM",
                         loq = NULL, pcvpc = FALSE) {
 
   check_quantile_pair(pi, "pi")
   check_quantile_pair(ci, "ci")
 
   group_vars <- c(bin_var)
-  if (!is.null(strat_var_str)) group_vars <- c(bin_var, strat_var_str)
+  if (!is.null(strat_var)) group_vars <- c(bin_var, strat_var)
 
   ## Stage 1: Per-replicate quantiles on simulated data.
   ## nbin counts all records; nobsblq counts BLQ-encoded observations
@@ -61,7 +61,7 @@ df_vpcstats <- function(sim,
   ## threshold, so we trust the `is.na` encoding (BLQ rows were masked to
   ## NA before var_predcorr ran).
   stage1 <- sim |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name_str)))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
     dplyr::summarise(
       nbin    = dplyr::n(),
       nobsblq = sum(!is.finite(.data[["OBSDV"]])),
@@ -101,7 +101,7 @@ df_vpcstats <- function(sim,
 
   ## Observed quantiles from first replicate
   obs_quant <- sim |>
-    dplyr::filter(.data[[irep_name_str]] == 1) |>
+    dplyr::filter(.data[[irep_name]] == 1) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
       obs_prop_blq = sum(!is.finite(.data[["OBSDV"]])) / dplyr::n(),

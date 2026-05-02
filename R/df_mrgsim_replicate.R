@@ -18,20 +18,21 @@
 #'    Accepts bare names or strings. Default is `IPRED`.
 #' @param sim_dv_var Name of simulated DV output from `model`.
 #'    Accepts bare names or strings. Default is `DV`.
-#' @param num_vars Numeric variables in `data` or simulation output to recover.
-#'    Must be a character vector of variable names from the simulation output to `carry_out`
-#'    and return in output. Default is `NULL`.
-#'    Note that `"OBSDV"`, `"SIMDV"` `"IPRED"`,`"PRED"`,`"TIME"`,`"NTIME"` are carried automatically.
-#'    Note that `"CMT"`, `"EVID"`, `"MDV"` are carried automatically when present.
-#' @param char_vars Character variables in `data` or simulation output to recover.
-#'    Must be a character vector of variable names from the simulation output to `recover`
-#'    and return in output.
+#' @param num_vars Numeric variables in `data` to carry into output.
+#'    Default is `NULL`, which auto-carries all numeric columns of `data`
+#'    not already in the always-carried set (`EVID`, `MDV`, `CMT`,
+#'    `TIME`, `NTIME`, `ID`, `OBSDV`, `PRED`, `IPRED`, `SIMDV`).
+#'    Pass an explicit character vector to carry exactly that list.
+#' @param char_vars Character variables in `data` to recover into output.
+#'    Default is `NULL`, which auto-recovers all character columns of `data`.
+#'    Pass an explicit character vector to recover exactly that list.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
-#'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus `num_vars` and `char_vars`.
+#'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus the columns selected by
+#'    `num_vars` / `char_vars` (auto-carried by default; see those parameters).
 #'
 #' @importFrom rlang :=
 #' @export df_mrgsim_replicate
@@ -93,6 +94,17 @@ df_mrgsim_replicate <- function(data,
   #Variables to Return
   default_vars <- c("EVID", "MDV", "CMT")
   out_vars <- c(pred_var_str, ipred_var_str,sim_dv_var_str, "OBSDV", "TIME", "NTIME")
+
+  #Auto-carry input columns when the user did not enumerate them explicitly.
+  #`data` here has been renamed (dv_var -> OBSDV) and time-prepped, so its
+  #column names align with what mrgsolve will emit.
+  auto_pool <- setdiff(colnames(data), c(default_vars, out_vars, "ID"))
+  if (is.null(num_vars)) {
+    num_vars <- auto_pool[vapply(data[auto_pool], is.numeric, logical(1))]
+  }
+  if (is.null(char_vars)) {
+    char_vars <- auto_pool[vapply(data[auto_pool], is.character, logical(1))]
+  }
 
   ##Run Simulation
   withr::with_seed(seed = seed,

@@ -221,10 +221,10 @@ data <- data_sad %>%
 #Simulated replicates of the dataset using mrgsim
   #The input `dv_var` is preserved in the output as `OBSDV` (observed) and the
   #simulated values are written to `SIMDV` --- these are the columns `plot_vpc_cont()` reads.
-simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
-                              dv_var = "ODV",
-                              num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                              char_vars = c("USUBJID", "PART", "Food"))
+  #All other numeric/character columns of `data` are auto-carried; pass
+  #`num_vars` / `char_vars` only when you want to restrict to an explicit subset.
+simout <- df_mrgsim_replicate(data = data, model = model, replicates = 100,
+                              dv_var = "ODV")
 glimpse(simout)
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)

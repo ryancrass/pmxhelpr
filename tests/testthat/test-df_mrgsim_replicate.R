@@ -43,6 +43,27 @@ test_that("output data.frame contains variable requested with argument `irep_nam
                "IREP")
 })
 
+test_that("df_mrgsim_replicate auto-carries input columns when num_vars/char_vars are NULL", {
+  out <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                             model = model_mread_load("pkmodel"),
+                             replicates = 2, dv_var = "ODV")
+  # Numeric columns from input data should appear automatically
+  expect_true(all(c("LLOQ", "DOSE", "FOOD", "WTBL", "BLQ") %in% colnames(out)))
+  # Character columns from input data should appear automatically
+  expect_true(all(c("USUBJID", "PART") %in% colnames(out)))
+})
+
+test_that("df_mrgsim_replicate explicit num_vars overrides auto-carry (does not auto-add)", {
+  out <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                             model = model_mread_load("pkmodel"),
+                             replicates = 2, dv_var = "ODV",
+                             num_vars = c("WTBL"))
+  expect_true("WTBL" %in% colnames(out))
+  # Other numeric input columns should NOT be carried when num_vars is explicit
+  expect_false("DOSE" %in% colnames(out))
+  expect_false("LLOQ" %in% colnames(out))
+})
+
 
 ## Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {

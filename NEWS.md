@@ -17,6 +17,12 @@ This is a major refactor of the package focused on simplifying function interfac
 * Rename `df_addpred` to `df_mrgsim_addpred`.
 * Rename `breaks_time` to internal helper `var_timebreaks`.
 
+### Renamed Arguments
+* `df_vpcstats()` --- renamed parameters `strat_var_str` &rarr; `strat_var` and `irep_name_str` &rarr; `irep_name` for consistency with `plot_vpc_cont()`. No deprecation aliases; the function was first exported in this release cycle, so impact is minimal. Update direct callers accordingly.
+
+### Behavior Changes
+* `df_mrgsim_replicate()` --- when `num_vars` / `char_vars` are `NULL` (default), all numeric/character columns of `data` are now auto-carried to the output. Previously only `EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, and the model output columns were carried; users had to enumerate everything else by hand, and forgetting a column (e.g., `LLOQ`) caused downstream `plot_vpc_cont()` to silently degrade. Explicit lists in `num_vars` / `char_vars` continue to override (carry exactly that list), so existing code with explicit lists is unaffected.
+
 ### Removed Exported Functions
 * `dvconc_caption` and `dvtime_caption` removed.
 

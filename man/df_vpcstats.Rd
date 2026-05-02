@@ -9,8 +9,8 @@ df_vpcstats(
   pi = c(0.05, 0.95),
   ci = c(0.05, 0.95),
   bin_var = "BIN_MID",
-  strat_var_str = NULL,
-  irep_name_str = "SIM",
+  strat_var = NULL,
+  irep_name = "SIM",
   loq = NULL,
   pcvpc = FALSE
 )
@@ -30,9 +30,9 @@ Default is \code{c(0.05, 0.95)}.}
 
 \item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 
-\item{strat_var_str}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
+\item{strat_var}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
 
-\item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
+\item{irep_name}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
 \item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
 When supplied, the result includes simulated BLQ proportion CIs

@@ -40,7 +40,7 @@
 #'    change-from-baseline data.
 #' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
 #'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
-#' @param show_caption Logical indicating if a caption should be show describing the data plotted
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.

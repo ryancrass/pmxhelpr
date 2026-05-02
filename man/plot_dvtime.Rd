@@ -80,7 +80,7 @@ change-from-baseline data.}
 \item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
-\item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
+\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
 
 \item{theme}{Theme object created by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.

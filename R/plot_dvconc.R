@@ -8,7 +8,7 @@
 #' @param linear Logical indicating if a linear regression fit should be shown. Default is `FALSE`.
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
-#' @param show_caption Logical indicating if a caption should be show describing the data plotted
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted
 #' @param theme Theme object created by [plot_dvconc_theme()].
 #'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
 #' @param ... Additional arguments passed to `geom_smooth()`

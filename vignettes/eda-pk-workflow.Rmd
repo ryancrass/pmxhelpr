@@ -77,7 +77,7 @@ unique(data_sad$NTIME)
 
 ## var_addn
 
-Now let's pre-process these data for visualization. Often, it is useful to assign study design variables to the color aesthetic in plots to visualize data stratified by these study design elements. One way to extract even more information from the plots is to include the sample size within each level of the variable mapped to the color aesthetic. `pmxehelpr` provides a useful vectorized helper function for this purpose: `var_addn()`
+Now let's pre-process these data for visualization. Often, it is useful to assign study design variables to the color aesthetic in plots to visualize data stratified by these study design elements. One way to extract even more information from the plots is to include the sample size within each level of the variable mapped to the color aesthetic. `pmxhelpr` provides a useful vectorized helper function for this purpose: `var_addn()`
 
 The helper function `var_addn()` takes two vector variables as arguments: a grouping variable (`grp_var`) and an identifier variable (`id_var`). The function counts unique values of `id_var` per level of `grp_var` and returns a factor vector with group labels appended with counts of unique identifiers. It can be used inside `mutate()` to transform columns in place. 
 
@@ -239,7 +239,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
   facet_wrap(~PART)
 ```
 
-For small samples or non-normally (or log-normally) distributed data, the median and inter-quartile range IQR) error bars may be requested by specifying  `cent = "median_iqr"`.
+For small samples or non-normally (or log-normally) distributed data, the median and inter-quartile range (IQR) error bars may be requested by specifying  `cent = "median_iqr"`.
 
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
@@ -254,7 +254,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
 
 Data points may be connected longitudinally within an individual by specifying `id_var` (e.g., `id_var = ID`). The grouping variable inherits the variable mapped to the color aesthetic with `col_var`. The central tendency may be removed by specifying `cent ="none"` or the median may be plotted by specifying `cent="median"`.
 
-This argument supports non-standard evaluation, and may be based as bare names or strings.
+This argument supports non-standard evaluation, and may be passed as bare names or strings.
 
 ```{r plot-dvtime-part-ind, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "median",
@@ -266,7 +266,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
 
 ## Handling of BLQ Data
 
-. `plot_dvtime()` includes functionality automatically handle imputation of PK data censored due to assay limitations. This requires specification of two arguments: `loq` and `loq_method`.
+`plot_dvtime()` includes functionality to automatically handle imputation of PK data censored due to assay limitations. This requires specification of two arguments: `loq` and `loq_method`.
 
 The `loq_method` argument specifies how BLQ imputation should be performed. Options are:
 
@@ -274,9 +274,9 @@ The `loq_method` argument specifies how BLQ imputation should be performed. Opti
   + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
       Useful for plotting concentration-time data with some data BLQ on a linear scale
   + `2` : Impute all BLQ data at to 1/2 x `loq`. 
-      Useful for plotting concentraiton-time data with some data BLQ on a log scale
+      Useful for plotting concentration-time data with some data BLQ on a log scale
   
-The `loq` argument species the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset.
+The `loq` argument specifies the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset.
 
 Because `LLOQ` is a variable in `plot_data`, the `loq` argument does not need to be specified.
 

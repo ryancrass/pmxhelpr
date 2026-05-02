@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot elements with package plotting functions including `plot_dvtime()`/`plot_dvcon(c))` and `plot_gof()`/`plot_vpc_cont`. This vignette will introduce the theory and naming conventions behind the theme factor functions for each plot and individual element constructors.
+This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot elements with package plotting functions including `plot_dvtime()`/`plot_dvconc()` and `plot_gof()`/`plot_vpc_cont()`. This vignette will introduce the theory and naming conventions behind the theme factor functions for each plot and individual element constructors.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -30,7 +30,7 @@ library(patchwork, warn.conflicts = FALSE)
 
 # Data and Model Objects
 
-The example datasets used in this vignette are based around the `data_sad` dataset internal to `pmxhelpr`. This dataset is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort and is formatted in a analysis-ready format for non-linear mixed effects (NLME) Population PK or PK/PD modeling. `data_sad_pkfit` is a modeified version of `data_sad`, which includes additional PK model predictions appended.
+The example datasets used in this vignette are based around the `data_sad` dataset internal to `pmxhelpr`. This dataset is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort and is formatted in a analysis-ready format for non-linear mixed effects (NLME) Population PK or PK/PD modeling. `data_sad_pkfit` is a modified version of `data_sad`, which includes additional PK model predictions appended.
 
 This vignette will assume familiarity with these internal datasets from other vignettes. These elements will not be reviewed in detail in this vignette, which is focused only on theme aesthetic controls across plotting functions.
 

@@ -80,7 +80,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * Added `cfb_base` argument to `plot_gof` (was hardcoded as yintercept = 0)
 * Add helpers for central tendency handing, time variable handling, BLQ imputation, and error bar width setting to remove repetition in function calls
 * Expand test coverage and refactor existing tests to reduce redundancy
-* Fix bugs and typoes globally in package
+* Fix bugs and typos globally in package
 
 # pmxhelpr 0.3.9
 
@@ -100,7 +100,7 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 * Update `var_addn` (formerly `df_addn`) to offload factor ordering from the function to simply output. Handling can be done outside the function with alternative packages optimized for dealing with factor variables (e.g., `forcats`)
 * Update `plot_gof_theme` to include separate line theme elements for individual observed lines (e.g., spaghetti plots) and central tendency of the observed.
 * Revise the `Exploratory Data Analysis` vignette to include new functionality and revised workflows with new functions.
-* Fix bug that was not scaling error bar caps for the x-axis range when `cent = "median_iqer` across functions
+* Fix bug that was not scaling error bar caps for the x-axis range when `cent = "median_iqr"` across functions
 
 # pmxhelpr 0.3.6
 
@@ -140,7 +140,7 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 # pmxhelpr 0.3.0
 
 * Added new functionality for dose-proportionality assessment with `df_doseprop` and `plot_doseprop`, including helpers `mod_loglog` and `df_loglog` to perform and tabulate power law (log-log) regression of exposure versus dose
-* Added new internal package dataset `data_sad_nca` for use with dose-proportinality assessment functions
+* Added new internal package dataset `data_sad_nca` for use with dose-proportionality assessment functions
 * Added helper function `dvtime_caption` to generate the caption for `plot_dvtime`
 * Added helper function `pmxhelpr_vpc_theme` to capture default VPC plot aesthetics `
 * Revised vignettes to describe workflow with new default aesthetics
@@ -223,4 +223,4 @@ to strings (e.g., dv_var = "DV") across all exported functions that take column 
 * `df_mrgsim_replicate` mrgsim wrapper function to run a simulation that replicates the input dataset multiple times, intended for application to generating Visual Predictive Check (VPC) simulation-based model diagnostics.
 * `plot_vpc_exactbins` vpc wrapper function to using an exact time binning variable in the input dataset (e.g. nominal time) with plotting of observed data points using actual time.
 
-* `VPC Plots with Exact Bins` vignette demostrating use case for `plot_vpc_exactbins()` and workflow leveraging `df_mrgsim_replicate`.
+* `VPC Plots with Exact Bins` vignette demonstrating use case for `plot_vpc_exactbins()` and workflow leveraging `df_mrgsim_replicate`.

@@ -17,11 +17,8 @@ This is a major refactor of the package focused on simplifying function interfac
 * Rename `df_addpred` to `df_mrgsim_addpred`.
 * Rename `breaks_time` to internal helper `var_timebreaks`.
 
-### Renamed Arguments
-* `df_vpcstats()` --- renamed parameters `strat_var_str` &rarr; `strat_var` and `irep_name_str` &rarr; `irep_name` for consistency with `plot_vpc_cont()`. No deprecation aliases; the function was first exported in this release cycle, so impact is minimal. Update direct callers accordingly.
-
 ### Behavior Changes
-* `df_mrgsim_replicate()` --- when `num_vars` / `char_vars` are `NULL` (default), all numeric/character columns of `data` are now auto-carried to the output. Previously only `EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, and the model output columns were carried; users had to enumerate everything else by hand, and forgetting a column (e.g., `LLOQ`) caused downstream `plot_vpc_cont()` to silently degrade. Explicit lists in `num_vars` / `char_vars` continue to override (carry exactly that list), so existing code with explicit lists is unaffected.
+* `df_mrgsim_replicate()` when `num_vars` / `char_vars` are `NULL` (default), all numeric/character columns of `data` are now auto-carried to the output. Previously only `EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, and the model output columns were carried. Explicit lists in `num_vars` / `char_vars` continue to override to carry exactly that list, so existing code with explicit lists is unaffected.
 
 ### Removed Exported Functions
 * `dvconc_caption` and `dvtime_caption` removed.
@@ -67,7 +64,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_vpc_cont` ignores `loq` when `pcvpc = TRUE` (LLOQ not meaningful on prediction-corrected scale).
 * Unified BLQ pipeline: all censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting / `vpcstats = TRUE` return. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
 * `var_loqcens` rewritten as a vector encoder (`var_loqcens(x, loq, mdv)`) returning `-Inf` at BLQ positions; previously computed a censored quantile.
-* `df_vpcstats` now reports per-bin `nbin`, `nobsblq` (renamed from `nmiss`), and `obs_prop_blq`; the `nobs` column is removed. When `loq` is supplied, the result also includes `sim_prop_blq_low`, `sim_prop_blq_med`, and `sim_prop_blq_hi` — a CI ribbon for the simulated fraction below LOQ across replicates, enabling tidyvpc-style BLQ-fraction comparison. The `min_bin_count` filter in `plot_vpc_cont` now gates on `nbin - nobsblq` (quantifiable observations).
+* `df_vpcstats` now reports per-bin `nbin`, `nobsblq` (renamed from `nmiss`), and `obs_prop_blq`; the `nobs` column is removed. When `loq` is supplied, the result also includes `sim_prop_blq_low`, `sim_prop_blq_med`, and `sim_prop_blq_hi`. The `min_bin_count` filter in `plot_vpc_cont` now gates on `nbin - nobsblq` (quantifiable observations).
 * `plot_vpc_cont` and `df_vpcpreprocess` accept a new `mode` argument (`"auto"` (default), `"rank"`, or `"drop"`) that controls how BLQ-encoded values flow into quantile aggregation. `"rank"` keeps `-Inf` encoding so BLQ rows rank low at `stats::quantile`; fully-censored bins return `-Inf` and are masked to `NA` before plotting. `"drop"` converts BLQ to `NA` so those rows are excluded from quantile computation entirely. `"auto"` resolves to `"rank"` for std VPC and `"drop"` for pcVPC, matching prior package behavior — no numerical change for existing users.
 
 ## Internal Improvements

@@ -291,32 +291,61 @@ var_addn <- function(grp_var,
 
 
 
-#' Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification
+#' Internal Helper: Encode below-the-limit-of-quantification (BLQ) values as -Inf
 #'
-#' @param x Vector containing the variable to be censored
-#' @param p Quantile for computation
-#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay
+#' @description
+#' Vectorized helper used in VPC pre-processing. Replaces BLQ-flagged positions
+#' of `x` with `-Inf`. A position is BLQ when any of the following hold:
+#' `is.na(x)`, `!is.null(loq) && x < loq`, or `!is.null(mdv) && mdv == 1`.
+#' Returns the modified vector — quantile computation is performed downstream.
 #'
-#' @return Replaces values below loq (including NA) with -Inf, then computes
-#   the quantile. Returns NA if the result is -Inf.
+#' @param x Numeric vector to encode.
+#' @param loq Numeric scalar or vector of length `length(x)` giving the lower
+#'    limit of quantification, or `NULL` (no `< loq` trigger).
+#' @param mdv Integer/logical vector of length `length(x)` flagging missing-DV
+#'    rows (NONMEM convention `MDV == 1`), or `NULL` (no MDV trigger).
+#'
+#' @return Numeric vector the same length as `x`, with BLQ positions set to `-Inf`.
 #' @keywords internal
 #' @examples
-#' data <- data_sad |>
-#'   dplyr::group_by(CMT, NTIME, DOSE) |>
-#'   dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
-#'                    P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
-#'                    P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
+#' pmxhelpr:::var_loqcens(c(1, 2, 5, NA, 10), loq = 3, mdv = c(0, 0, 0, 0, 1))
+#' pmxhelpr:::var_loqcens(c(1, 2, 5), loq = NULL, mdv = c(0, 1, 0))
 
-var_loqcens <- function(x, p, loq) {
-  if (!is.numeric(loq)) rlang::abort("`loq` must be numeric")
-  if (length(loq) != 1L && length(loq) != length(x)) {
-    rlang::abort("`loq` must be length 1 or the same length as `x`")
+var_loqcens <- function(x, loq = NULL, mdv = NULL) {
+  if (!is.numeric(x)) rlang::abort("`x` must be numeric")
+  if (!is.null(loq)) {
+    if (!is.numeric(loq)) rlang::abort("`loq` must be numeric")
+    if (length(loq) != 1L && length(loq) != length(x)) {
+      rlang::abort("`loq` must be length 1 or the same length as `x`")
+    }
   }
-  if (!is.numeric(p) || length(p) != 1L || is.na(p) || p < 0 || p > 1) {
-    rlang::abort("`p` must be a single numeric value in [0, 1]")
+  if (!is.null(mdv) && length(mdv) != length(x)) {
+    rlang::abort("`mdv` must be the same length as `x`")
   }
-  x[is.na(x)] <- -Inf
-  x[x < loq] <- -Inf
-  q <- stats::quantile(x, probs = p, na.rm = TRUE)
-  if (is.infinite(q) && q < 0) NA_real_ else as.numeric(q)
+  blq <- is.na(x)
+  if (!is.null(loq)) blq <- blq | (x < loq)
+  if (!is.null(mdv)) blq <- blq | (mdv == 1L)
+  blq[is.na(blq)] <- FALSE
+  x[blq] <- -Inf
+  x
+}
+
+
+#' Internal Helper: Replace -Inf with NA_real_
+#'
+#' @description
+#' Vectorized helper that converts `-Inf` entries (and only `-Inf`, not `+Inf`)
+#' to `NA_real_`. Used to clean BLQ-encoded values in VPC summary statistics
+#' and observation frames before plotting.
+#'
+#' @param x Numeric vector.
+#' @return Numeric vector the same length as `x`, with `-Inf` replaced by `NA_real_`.
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::var_infna(c(1, -Inf, 3, NA))
+
+var_infna <- function(x) {
+  if (!is.numeric(x)) rlang::abort("`x` must be numeric")
+  x[is.infinite(x) & x < 0] <- NA_real_
+  x
 }

@@ -17,7 +17,7 @@ run_vpcstats <- function(sim, strat_var_str = NULL, pcvpc = FALSE,
                                      pred_var_str, ipred_var_str,
                                      sim_dv_var_str, obs_dv_var_str,
                                      strat_var_str, pcvpc, lower_bound, loq)
-  pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM", loq)
+  pmxhelpr:::df_vpcstats(sim, pi, ci, "BIN_MID", strat_var_str, "SIM")
 }
 
 ## Test Output
@@ -38,7 +38,7 @@ test_that("df_vpcstats returns expected columns", {
 
 test_that("df_vpcstats returns one row per unique bin value", {
   result <- run_vpcstats(testsim_raw)
-  obs_bins <- unique(testsim_raw$NTIME[testsim_raw$MDV == 0 & testsim_raw$EVID == 0 &
+  obs_bins <- unique(testsim_raw$NTIME[testsim_raw$EVID == 0 &
                                          !is.na(testsim_raw$NTIME)])
   expect_equal(nrow(result), length(obs_bins))
 })
@@ -55,18 +55,48 @@ test_that("df_vpcstats with strat_var returns rows for each bin x stratum", {
 
   result <- run_vpcstats(testsim_strat, strat_var_str = "FOOD_f")
   expect_true("FOOD_f" %in% colnames(result))
-  obs_rows <- testsim_strat$MDV == 0 & testsim_strat$EVID == 0 &
-    !is.na(testsim_strat$NTIME)
+  obs_rows <- testsim_strat$EVID == 0 & !is.na(testsim_strat$NTIME)
   expect_equal(nrow(result),
                nrow(unique(testsim_strat[obs_rows, c("NTIME", "FOOD_f")])))
 })
 
 ## Test LLOQ handling
-test_that("df_vpcstats with loq returns NA for observed quantiles below threshold", {
+test_that("df_vpcstats with loq returns -Inf for observed quantiles when all obs censored", {
+  ## Internal contract: df_vpcstats preserves -Inf BLQ encoding from preprocess.
+  ## plot_vpc_cont applies var_infna before returning vpcstats=TRUE output.
   result <- run_vpcstats(testsim_raw, loq = 1e6)
+  expect_true(all(is.infinite(result$obs5) & result$obs5 < 0))
+  expect_true(all(is.infinite(result$obs50) & result$obs50 < 0))
+  expect_true(all(is.infinite(result$obs95) & result$obs95 < 0))
+})
+
+test_that("plot_vpc_cont(vpcstats=TRUE) converts fully-censored obs quantiles to NA", {
+  result <- plot_vpc_cont(sim = testsim_raw, loq = 1e6, vpcstats = TRUE)
   expect_true(all(is.na(result$obs5)))
   expect_true(all(is.na(result$obs50)))
   expect_true(all(is.na(result$obs95)))
+})
+
+## Std VPC + loq does NOT touch SIMDV; sim quantiles unchanged across loq settings.
+test_that("std VPC sim quantiles are unaffected by loq", {
+  base <- run_vpcstats(testsim_raw)
+  with_loq <- run_vpcstats(testsim_raw,
+                            loq = stats::quantile(testsim_raw$OBSDV, 0.25, na.rm = TRUE))
+  expect_equal(base$q5_med,  with_loq$q5_med)
+  expect_equal(base$q50_med, with_loq$q50_med)
+  expect_equal(base$q95_med, with_loq$q95_med)
+})
+
+## Std VPC + loq materially shifts the lower obs quantile (BLQ ranks at -Inf).
+test_that("std VPC obs5 shifts when loq censors a fraction of obs", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  base <- run_vpcstats(testsim_raw)
+  with_loq <- run_vpcstats(testsim_raw, loq = loq_val)
+  ## obs5 in censored bins should be -Inf (rank-based) where base is finite
+  censored_bins <- is.infinite(with_loq$obs5) & with_loq$obs5 < 0
+  expect_true(any(censored_bins))
+  expect_false(identical(base$obs5, with_loq$obs5))
 })
 
 ## Test quantile ordering

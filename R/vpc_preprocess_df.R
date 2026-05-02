@@ -8,6 +8,8 @@
 #' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`,
 #'    `MDV`, and a replicate identifier column. Typically output from
 #'    `df_mrgsim_replicate()` after internal preprocessing by `plot_vpc_cont()`.
+#'    BLQ encoding (`-Inf` or `NA`) is expected to be applied upstream by
+#'    `df_vpcpreprocess()`.
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
 #'    Default is `c(0.05, 0.95)`.
 #' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
@@ -15,16 +17,16 @@
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #' @param strat_var_str String or `NULL`. Stratification variable name. Default is `NULL`.
 #' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
-#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    When specified, observed quantiles use censored quantile estimation.
 #'
 #' @return A `data.frame` with columns for simulated quantile CIs
 #'    (`q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
 #'    `q95_low`, `q95_med`, `q95_hi`) and observed quantiles
-#'    (`obs5`, `obs50`, `obs95`), joined by `bin_var`.
+#'    (`obs5`, `obs50`, `obs95`), joined by `bin_var`. Quantile values may be
+#'    `-Inf` for fully BLQ-censored bins; callers should apply [`var_infna()`]
+#'    before plotting.
 #' @export df_vpcstats
 
-df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq) {
+df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str) {
 
   check_quantile_pair(pi, "pi")
   check_quantile_pair(ci, "ci")
@@ -61,28 +63,15 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
     )
 
   ## Observed quantiles from first replicate
-  obs <- sim |>
-    dplyr::filter(.data[[irep_name_str]] == 1)
-
-  if (is.null(loq)) {
-    obs_quant <- obs |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-      dplyr::summarise(
-        obs5  = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
-        obs50 = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
-        obs95 = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
-        .groups = "drop"
-      )
-  } else {
-    obs_quant <- obs |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-      dplyr::summarise(
-        obs5  = var_loqcens(.data[["OBSDV"]], p = pi[1], loq = loq),
-        obs50 = var_loqcens(.data[["OBSDV"]], p = 0.5,   loq = loq),
-        obs95 = var_loqcens(.data[["OBSDV"]], p = pi[2], loq = loq),
-        .groups = "drop"
-      )
-  }
+  obs_quant <- sim |>
+    dplyr::filter(.data[[irep_name_str]] == 1) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
+    dplyr::summarise(
+      obs5  = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
+      obs50 = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
+      obs95 = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
+      .groups = "drop"
+    )
 
   dplyr::left_join(sim_quant, obs_quant, by = group_vars)
 }
@@ -91,8 +80,20 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 #' Preprocess simulation data for VPC statistics
 #'
 #' @description
-#' Internal function. Validates columns, renames to standard names, and applies
-#' prediction correction or BLQ handling.
+#' Internal function. Validates columns, renames to standard names, drops
+#' dose rows, applies BLQ encoding, and (for pcVPC) prediction correction.
+#'
+#' BLQ encoding rules:
+#' \itemize{
+#'   \item OBSDV (both modes): positions where `MDV == 1`, `is.na(OBSDV)`, or
+#'     (when `loq` is provided) `OBSDV < loq` are encoded as `-Inf` via
+#'     [`var_loqcens()`].
+#'   \item SIMDV (pcVPC only, when `loq` is provided): positions where
+#'     `SIMDV < loq` are encoded as `-Inf` via [`var_loqcens()`].
+#'   \item For pcVPC, encoded `-Inf` values are converted to `NA_real_` via
+#'     [`var_infna()`] before [`var_predcorr()`] is applied so that BLQ rows
+#'     are excluded from the median-of-PRED denominator and from quantiles.
+#' }
 #'
 #' @param sim Simulated data from `df_mrgsim_replicate()` or equivalent.
 #' @param time_var_str String name of the actual time column in `sim`.
@@ -105,7 +106,9 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 #' @param pcvpc Logical for prediction correction.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
 #' @inheritParams var_predcorr
-#' @return A preprocessed data.frame with standardized column names.
+#' @return A preprocessed data.frame with standardized column names. In std-VPC
+#'    mode, OBSDV may contain `-Inf` for BLQ rows; in pcVPC mode, BLQ rows in
+#'    OBSDV/SIMDV are encoded as `NA_real_`.
 #' @keywords internal
 
 df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
@@ -129,29 +132,27 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
                                              SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
   sim <- dplyr::rename(sim, BIN_MID = NTIME)
 
-  if(is.null(loq)) {
-    sim <- sim |>
-      dplyr::filter(MDV == 0)
-  }
+  sim <- dplyr::filter(sim, EVID == 0)
+
+  ## Encode OBSDV BLQ rows as -Inf in both modes
+  sim$OBSDV <- var_loqcens(sim$OBSDV, loq = loq, mdv = sim$MDV)
 
   if (isTRUE(pcvpc)) {
+    ## Encode SIMDV BLQ rows as -Inf when loq is provided
+    if (!is.null(loq)) sim$SIMDV <- var_loqcens(sim$SIMDV, loq = loq)
+
+    ## Convert -Inf to NA so prediction correction excludes BLQ from median(PRED)
+    ## via na.rm and propagates NA through the corrected values.
+    sim$OBSDV <- var_infna(sim$OBSDV)
+    sim$SIMDV <- var_infna(sim$SIMDV)
+
     pc_group_vars <- c("BIN_MID", strat_var_str)
     if ("CMT" %in% colnames(sim)) pc_group_vars <- c("BIN_MID", "CMT", strat_var_str)
-    if (!is.null(loq)) {
-      sim <- sim |>
-        dplyr::mutate(OBSDV = ifelse(OBSDV < loq, NA_real_, OBSDV),
-                      SIMDV = ifelse(SIMDV < loq, NA_real_, SIMDV))
-    }
     sim <- sim |>
-      dplyr::filter(EVID == 0) |>
       dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
       dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
                     SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
-  } else {
-    sim <- sim |>
-      dplyr::mutate(MDV = 0L) |>
-      dplyr::filter(EVID == 0)
   }
 
   sim

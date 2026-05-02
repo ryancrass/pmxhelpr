@@ -4,12 +4,14 @@
 \alias{df_vpcstats}
 \title{Compute VPC summary statistics from preprocessed simulation data}
 \usage{
-df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
+df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str)
 }
 \arguments{
 \item{sim}{Preprocessed simulation data containing \code{SIMDV}, \code{OBSDV},
 \code{MDV}, and a replicate identifier column. Typically output from
-\code{df_mrgsim_replicate()} after internal preprocessing by \code{plot_vpc_cont()}.}
+\code{df_mrgsim_replicate()} after internal preprocessing by \code{plot_vpc_cont()}.
+BLQ encoding (\code{-Inf} or \code{NA}) is expected to be applied upstream by
+\code{df_vpcpreprocess()}.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles.
 Default is \code{c(0.05, 0.95)}.}
@@ -22,15 +24,14 @@ Default is \code{c(0.05, 0.95)}.}
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
 
 \item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
-
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
-When specified, observed quantiles use censored quantile estimation.}
 }
 \value{
 A \code{data.frame} with columns for simulated quantile CIs
 (\code{q5_low}, \code{q5_med}, \code{q5_hi}, \code{q50_low}, \code{q50_med}, \code{q50_hi},
 \code{q95_low}, \code{q95_med}, \code{q95_hi}) and observed quantiles
-(\code{obs5}, \code{obs50}, \code{obs95}), joined by \code{bin_var}.
+(\code{obs5}, \code{obs50}, \code{obs95}), joined by \code{bin_var}. Quantile values may be
+\code{-Inf} for fully BLQ-censored bins; callers should apply \code{\link[=var_infna]{var_infna()}}
+before plotting.
 }
 \description{
 Computes two-stage quantile summary statistics for VPC plots.

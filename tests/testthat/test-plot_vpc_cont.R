@@ -253,8 +253,9 @@ test_that("pcvpc = TRUE nullifies loq so no LLOQ reference line is drawn", {
   stats_pc <- plot_vpc_cont(sim = testsim, pcvpc = TRUE, loq = 10, vpcstats = TRUE)
   stats_nopc <- plot_vpc_cont(sim = testsim, pcvpc = FALSE, loq = 10, vpcstats = TRUE)
 
-  # pcvpc stats should NOT use censored quantiles (no NA from var_loqcens)
-  # while non-pcvpc with loq should use censored estimation
+  # pcVPC applies prediction correction and pre-PC NA encoding for BLQ;
+  # std VPC leaves SIMDV raw and -Inf-encodes OBSDV. The two pipelines
+  # produce different summary statistics.
   expect_false(identical(stats_pc, stats_nopc))
 })
 

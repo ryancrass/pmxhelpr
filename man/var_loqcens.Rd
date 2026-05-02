@@ -2,28 +2,30 @@
 % Please edit documentation in R/utils.R
 \name{var_loqcens}
 \alias{var_loqcens}
-\title{Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification}
+\title{Internal Helper: Encode below-the-limit-of-quantification (BLQ) values as -Inf}
 \usage{
-var_loqcens(x, p, loq)
+var_loqcens(x, loq = NULL, mdv = NULL)
 }
 \arguments{
-\item{x}{Vector containing the variable to be censored}
+\item{x}{Numeric vector to encode.}
 
-\item{p}{Quantile for computation}
+\item{loq}{Numeric scalar or vector of length \code{length(x)} giving the lower
+limit of quantification, or \code{NULL} (no \verb{< loq} trigger).}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay}
+\item{mdv}{Integer/logical vector of length \code{length(x)} flagging missing-DV
+rows (NONMEM convention \code{MDV == 1}), or \code{NULL} (no MDV trigger).}
 }
 \value{
-Replaces values below loq (including NA) with -Inf, then computes
+Numeric vector the same length as \code{x}, with BLQ positions set to \code{-Inf}.
 }
 \description{
-Internal Helper: Determine left-censoring for quantiles at the lower limit of quantification
+Vectorized helper used in VPC pre-processing. Replaces BLQ-flagged positions
+of \code{x} with \code{-Inf}. A position is BLQ when any of the following hold:
+\code{is.na(x)}, \code{!is.null(loq) && x < loq}, or \code{!is.null(mdv) && mdv == 1}.
+Returns the modified vector — quantile computation is performed downstream.
 }
 \examples{
-data <- data_sad |>
-  dplyr::group_by(CMT, NTIME, DOSE) |>
-  dplyr::summarize(P05 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ),
-                   P50 = pmxhelpr:::var_loqcens(ODV, 0.5, loq = LLOQ),
-                   P95 = pmxhelpr:::var_loqcens(ODV, 0.05, loq = LLOQ), .groups = "drop")
+pmxhelpr:::var_loqcens(c(1, 2, 5, NA, 10), loq = 3, mdv = c(0, 0, 0, 0, 1))
+pmxhelpr:::var_loqcens(c(1, 2, 5), loq = NULL, mdv = c(0, 1, 0))
 }
 \keyword{internal}

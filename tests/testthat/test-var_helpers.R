@@ -162,34 +162,64 @@ test_that("var_predcorr handles partial NA in pred_var without warning", {
 
 ##### var_loqcens ####
 
-test_that("var_loqcens computes left-censored quantile", {
-  out <- pmxhelpr:::var_loqcens(c(1, 2, 5, 10), p = 0.5, loq = 3)
-  expect_true(is.numeric(out))
+test_that("var_loqcens encodes values below loq as -Inf", {
+  out <- pmxhelpr:::var_loqcens(c(1, 2, 5, 10), loq = 3)
+  expect_equal(out, c(-Inf, -Inf, 5, 10))
 })
 
-test_that("var_loqcens returns NA when full censored region exceeds requested quantile", {
-  expect_true(is.na(pmxhelpr:::var_loqcens(c(1, 2), p = 0.5, loq = 100)))
+test_that("var_loqcens encodes is.na positions as -Inf with no loq or mdv", {
+  out <- pmxhelpr:::var_loqcens(c(1, NA, 5))
+  expect_equal(out, c(1, -Inf, 5))
+})
+
+test_that("var_loqcens encodes mdv == 1 positions as -Inf", {
+  out <- pmxhelpr:::var_loqcens(c(1, 2, 5), mdv = c(0, 1, 0))
+  expect_equal(out, c(1, -Inf, 5))
+})
+
+test_that("var_loqcens combines loq, mdv, and is.na triggers", {
+  out <- pmxhelpr:::var_loqcens(c(1, 2, NA, 10), loq = 3, mdv = c(0, 0, 0, 1))
+  expect_equal(out, c(-Inf, -Inf, -Inf, -Inf))
+})
+
+test_that("var_loqcens errors on non-numeric x", {
+  expect_error(pmxhelpr:::var_loqcens(c("a", "b"), loq = 1),
+               regexp = "`x` must be numeric")
 })
 
 test_that("var_loqcens errors on non-numeric loq", {
-  expect_error(pmxhelpr:::var_loqcens(c(1, 2), p = 0.5, loq = "a"),
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2), loq = "a"),
                regexp = "`loq` must be numeric")
 })
 
 test_that("var_loqcens errors on loq with bad length", {
-  expect_error(pmxhelpr:::var_loqcens(c(1, 2, 3), p = 0.5, loq = c(1, 2)),
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2, 3), loq = c(1, 2)),
                regexp = "length 1 or the same length")
 })
 
-test_that("var_loqcens errors on p outside [0,1]", {
-  expect_error(pmxhelpr:::var_loqcens(c(1, 2), p = 1.5, loq = 1),
-               regexp = "`p` must be a single numeric value")
+test_that("var_loqcens errors on mdv with mismatched length", {
+  expect_error(pmxhelpr:::var_loqcens(c(1, 2, 3), mdv = c(0, 1)),
+               regexp = "must be the same length")
 })
 
 test_that("var_loqcens accepts vector loq matching length(x)", {
-  expect_no_error(pmxhelpr:::var_loqcens(c(1, 2, 5), p = 0.5, loq = c(0.5, 0.5, 0.5)))
+  out <- pmxhelpr:::var_loqcens(c(1, 2, 5), loq = c(0.5, 3, 0.5))
+  expect_equal(out, c(1, -Inf, 5))
 })
 
-test_that("var_loqcens does not error when loq is all NA (no-op censoring)", {
-  expect_no_error(pmxhelpr:::var_loqcens(c(1, 2, 5), p = 0.5, loq = NA_real_))
+test_that("var_loqcens with all-NA loq is a no-op for the loq trigger", {
+  expect_equal(pmxhelpr:::var_loqcens(c(1, 2, 5), loq = NA_real_),
+               c(1, 2, 5))
+})
+
+##### var_infna ####
+
+test_that("var_infna replaces -Inf with NA_real_ and leaves +Inf alone", {
+  out <- pmxhelpr:::var_infna(c(1, -Inf, 3, Inf, NA))
+  expect_equal(out, c(1, NA_real_, 3, Inf, NA_real_))
+})
+
+test_that("var_infna errors on non-numeric x", {
+  expect_error(pmxhelpr:::var_infna(c("a", "b")),
+               regexp = "`x` must be numeric")
 })

@@ -42,10 +42,24 @@ df_vpcpreprocess(
 \item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
 }
 \value{
-A preprocessed data.frame with standardized column names.
+A preprocessed data.frame with standardized column names. In std-VPC
+mode, OBSDV may contain \code{-Inf} for BLQ rows; in pcVPC mode, BLQ rows in
+OBSDV/SIMDV are encoded as \code{NA_real_}.
 }
 \description{
-Internal function. Validates columns, renames to standard names, and applies
-prediction correction or BLQ handling.
+Internal function. Validates columns, renames to standard names, drops
+dose rows, applies BLQ encoding, and (for pcVPC) prediction correction.
+
+BLQ encoding rules:
+\itemize{
+\item OBSDV (both modes): positions where \code{MDV == 1}, \code{is.na(OBSDV)}, or
+(when \code{loq} is provided) \code{OBSDV < loq} are encoded as \code{-Inf} via
+\code{\link[=var_loqcens]{var_loqcens()}}.
+\item SIMDV (pcVPC only, when \code{loq} is provided): positions where
+\code{SIMDV < loq} are encoded as \code{-Inf} via \code{\link[=var_loqcens]{var_loqcens()}}.
+\item For pcVPC, encoded \code{-Inf} values are converted to \code{NA_real_} via
+\code{\link[=var_infna]{var_infna()}} before \code{\link[=var_predcorr]{var_predcorr()}} is applied so that BLQ rows
+are excluded from the median-of-PRED denominator and from quantiles.
+}
 }
 \keyword{internal}

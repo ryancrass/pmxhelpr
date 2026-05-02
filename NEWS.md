@@ -59,6 +59,8 @@ This is a major refactor of the package focused on simplifying function interfac
 * Add `loq` handling to VPC plots with observed quantile censoring.
 * `plot_vpc_cont` inherits `loq` from `LLOQ` column in `sim` when not explicitly provided.
 * `plot_vpc_cont` ignores `loq` when `pcvpc = TRUE` (LLOQ not meaningful on prediction-corrected scale).
+* Unified BLQ pipeline: all censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting / `vpcstats = TRUE` return. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
+* `var_loqcens` rewritten as a vector encoder (`var_loqcens(x, loq, mdv)`) returning `-Inf` at BLQ positions; previously computed a censored quantile.
 
 ## Internal Improvements
 * Standardize NSE handling across all exported functions via `resolve_var` helper.

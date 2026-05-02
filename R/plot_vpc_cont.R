@@ -124,32 +124,49 @@ plot_vpc_cont <- function(sim,
     }
   }
 
-  #Preprocess: validate, rename, prediction-correct or BLQ-handle
+  if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
+
+  #Preprocess: validate, rename, BLQ-encode, optionally prediction-correct
   sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,
                           pred_var_str, ipred_var_str,
                           sim_dv_var_str, obs_dv_var_str,
                           strat_var_str, pcvpc, lower_bound, loq)
 
-  #Block loq handling when prediction-corrected — LLOQ is on the original scale
-  if (isTRUE(pcvpc)) loq <- NULL
-
-  #Post-preprocess checks
   check_varsindf(sim, irep_name_str, "sim", "irep_name")
-  if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
 
-  #Isolate observed data for plot overlay
-  obs <- sim |>
-    dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
+  #After preprocess, `loq` is used only as the y-position of the LLOQ reference
+  #line in the built plot. In pcVPC mode the y-axis is on the prediction-corrected
+  #scale where a single LLOQ value no longer maps to a single y position, so
+  #suppress the line.
+  if (isTRUE(pcvpc)) loq <- NULL
 
   ##Compute VPC Statistics
   bin_var <- "BIN_MID"
   ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str, loq)
+  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str)
+
+  ##In std VPC mode, OBSDV and obs* quantile columns may carry -Inf BLQ
+  ##encoding from `var_loqcens`. Convert to NA before plotting/return so
+  ##ggplot drops them silently. pcVPC encodes BLQ as NA in preprocess, so
+  ##no conversion is needed in that branch.
+  if (!isTRUE(pcvpc)) {
+    vpcstat <- vpcstat |>
+      dplyr::mutate(dplyr::across(c("q5_low", "q5_med", "q5_hi",
+                                     "q50_low", "q50_med", "q50_hi",
+                                     "q95_low", "q95_med", "q95_hi",
+                                     "obs5", "obs50", "obs95"),
+                                   var_infna))
+    sim <- dplyr::mutate(sim, OBSDV = var_infna(OBSDV))
+  }
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {
     return(vpcstat)
   }
+
+  #Isolate observed data for plot overlay
+  obs <- sim |>
+    dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
 
   ##Set vpc aesthetics and theme
   show_vpc <- merge_element(shown, plot_vpc_shown())

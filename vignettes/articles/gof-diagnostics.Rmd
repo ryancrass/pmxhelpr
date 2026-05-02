@@ -10,7 +10,10 @@ vignette: >
 ```{r usethis, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.retina = 1,
+  dpi = 96,
+  out.width = "100%"
 )
 ```
 

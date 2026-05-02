@@ -20,8 +20,9 @@
 #'    Accepts bare names or strings. Default is `DV`.
 #' @param num_vars Numeric variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `carry_out`
-#'    and return in output. Default is `NULL`. Note that `"CMT"`, `"EVID"`, `"MDV"`,
-#'    `"TIME"`, and `"NTIME"` are always carried automatically.
+#'    and return in output. Default is `NULL`.
+#'    Note that `"OBSDV"`, `"SIMDV"` `"IPRED"`,`"PRED"`,`"TIME"`,`"NTIME"` are carried automatically.
+#'    Note that `"CMT"`, `"EVID"`, `"MDV"` are carried automatically when present.
 #' @param char_vars Character variables in `data` or simulation output to recover.
 #'    Must be a character vector of variable names from the simulation output to `recover`
 #'    and return in output.
@@ -88,6 +89,10 @@ df_mrgsim_replicate <- function(data,
 
   data <- df_mrgsim_addpred(data, model, output_var = ipred_var_str)
 
+  #Variables to Return
+  default_vars <- c("EVID", "MDV", "CMT")
+  out_vars <- c(pred_var_str, ipred_var_str,sim_dv_var_str, "OBSDV", "TIME", "NTIME")
+
   ##Run Simulation
   withr::with_seed(seed = seed,
 
@@ -95,10 +100,9 @@ df_mrgsim_replicate <- function(data,
                      seq(as.integer(replicates)),
                      function(rep, data, model) {
                        mrgsolve::mrgsim_df(x = model, data = data,
-                                           carry_out = paste(unique(c(pred_var_str, ipred_var_str,
-                                                               sim_dv_var_str, "OBSDV", "EVID", "MDV", "CMT",
-                                                               "TIME", "NTIME",
-                                                               num_vars)),
+                                           carry_out = paste(unique(c(default_vars,
+                                                                      out_vars,
+                                                                      num_vars)),
                                                              collapse = ","),
                                            recover = paste(char_vars,collapse = ","),
                                            ...) |>

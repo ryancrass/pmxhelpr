@@ -48,8 +48,9 @@ Accepts bare names or strings. Default is \code{DV}.}
 
 \item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{carry_out}
-and return in output. Default is \code{NULL}. Note that \code{"CMT"}, \code{"EVID"}, \code{"MDV"},
-\code{"TIME"}, and \code{"NTIME"} are always carried automatically.}
+and return in output. Default is \code{NULL}.
+Note that \code{"OBSDV"}, \code{"SIMDV"} \code{"IPRED"},\code{"PRED"},\code{"TIME"},\code{"NTIME"} are carried automatically.
+Note that \code{"CMT"}, \code{"EVID"}, \code{"MDV"} are carried automatically when present.}
 
 \item{char_vars}{Character variables in \code{data} or simulation output to recover.
 Must be a character vector of variable names from the simulation output to \code{recover}

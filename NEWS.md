@@ -17,17 +17,17 @@ This is a major refactor of the package focused on simplifying function interfac
 * Rename `df_addpred` to `df_mrgsim_addpred`.
 * Rename `breaks_time` to internal helper `var_timebreaks`.
 
-### Removed Exported Functions (now internal)
-* `dvconc_caption` and `dvtime_caption` are now internal helpers.
+### Removed Exported Functions
+* `dvconc_caption` and `dvtime_caption` removed.
 
 ### Theme System Overhaul
 * Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
 * Exploratory and Diagnostic Plot theme factory keys now follow a `role_element` naming convention  
   * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
   * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `cent_color`, `ref_line`, `loq_line`.
-  * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys:`obs`, `ref_line`, `loess`, `linear`.
-* VPC plot theme factor keys now follow a `element_statistic` naming convention aligned with the `shown` argument
-  * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs`, `obs_median`, `obs_ci`, `sim_pi`, `sim_median`, `loq_line`. 
+  * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys: `obs_point`, `ref_line`, `loess`, `linear`.
+* VPC plot theme factory keys now follow an `element_statistic` naming convention aligned with the `shown` argument
+  * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs_point`, `obs_median_line`, `obs_pi_line`, `sim_pi_line`, `sim_pi_ci`, `sim_pi_area`, `sim_median_line`, `sim_median_ci`, `loq_line`. 
 
 ### Simplified Plot Function Arguments
 * Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
@@ -46,15 +46,15 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_vpc_legend`: Renamed from `plot_vpclegend` with updated interface.
 
 ### Theme System
-* New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(colors = pmx_color(pred = "purple"))`).
-* New `plot_gof_shown` constructor for GOF layer visibility settings, paralleling `plot_vpc_shown` (e.g., `plot_gof_shown(PRED = FALSE)`).
+* New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`).
+* New `plot_gof_shown` constructor for GOF layer visibility settings, paralleling `plot_vpc_shown` (e.g., `plot_gof_shown(pred = FALSE)`).
 * New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`).
 * Theme factories support role-level shortcuts (`obs`, `cent`) alongside granular element-level overrides.
 * `merge_theme` correctly composes `pmx_style` shortcuts with element-level overrides (style applied first, explicit overrides win).
 
 ### VPC Pipeline
 * VPC pipeline refactored to remove dependency on `vpc` package.
-* VPC pre-processing (variable renaming, prediction-correction) extracted into dedicated `vpc_preprocess_df` helper.
+* VPC pre-processing (variable renaming, prediction-correction) handled internally within `df_vpcstats`.
 * `df_vpcstats` accepts combined simulation output directly from `df_mrgsim_replicate`.
 * Add `loq` handling to VPC plots with observed quantile censoring.
 * `plot_vpc_cont` inherits `loq` from `LLOQ` column in `sim` when not explicitly provided.
@@ -62,7 +62,7 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ## Internal Improvements
 * Standardize NSE handling across all exported functions via `resolve_var` helper.
-* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_ref_layers`, `add_trend_layers`, `add_obs_point_layer`, `init_plot`, `prep_plot_env`.
+* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_ref_layers`, `add_trend_layers`, `init_plot`, `prep_plot_env`.
 * Standardize `TRUE`/`FALSE` evaluation and error messaging across all functions.
 * Centralize input validation in `utils_check.R`.
 * Update `size` to `linewidth` for line geom aesthetics throughout.

@@ -4,7 +4,7 @@ NULL
 utils::globalVariables(c("ID", "TIME", "NTIME", "BIN_MID", "MDV", "EVID",
                          "PRED", "IPRED", "DV", "LLOQ", "DOSE",
                          "OBSDV", "SIMDV",
-                         "x", "y", "nbin",
+                         "x", "y", "nbin", "nmiss", "nobs",
                          "q_lo", "q50", "q_hi",
                          "q5_low", "q5_med", "q5_hi",
                          "q50_low", "q50_med", "q50_hi",

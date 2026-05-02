@@ -319,6 +319,8 @@ plot_vpc_cont(
 
 *NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
 
+Simulated intervals in below plots are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification.
+
 ```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
   sim = simout

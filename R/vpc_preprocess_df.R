@@ -18,12 +18,12 @@
 #' @param strat_var_str String or `NULL`. Stratification variable name. Default is `NULL`.
 #' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
 #'
-#' @return A `data.frame` with columns for simulated quantile CIs
-#'    (`q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
-#'    `q95_low`, `q95_med`, `q95_hi`) and observed quantiles
-#'    (`obs5`, `obs50`, `obs95`), joined by `bin_var`. Quantile values may be
-#'    `-Inf` for fully BLQ-censored bins; callers should apply [`var_infna()`]
-#'    before plotting.
+#' @return A `data.frame` with bin counts (`nbin` total records, `nobs`
+#'    quantifiable observations, `nmiss` BLQ-encoded records), simulated
+#'    quantile CIs (`q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`, `q50_hi`,
+#'    `q95_low`, `q95_med`, `q95_hi`), and observed quantiles (`obs5`, `obs50`,
+#'    `obs95`), joined by `bin_var`. Quantile values may be `-Inf` for fully
+#'    BLQ-censored bins; callers should apply [`var_infna()`] before plotting.
 #' @export df_vpcstats
 
 df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str) {
@@ -35,13 +35,18 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str) {
   if (!is.null(strat_var_str)) group_vars <- c(bin_var, strat_var_str)
 
   ## Stage 1: Per-replicate quantiles on simulated data
+  ## nbin is the total record count in the bin; nobs is the count of
+  ## quantifiable observations (finite OBSDV after BLQ encoding); nmiss is
+  ## the BLQ count. min_bin_count filtering downstream gates on nobs.
   stage1 <- sim |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name_str)))) |>
     dplyr::summarise(
-      nbin = dplyr::n(),
-      q_lo = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
-      q50  = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
-      q_hi = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
+      nbin  = dplyr::n(),
+      nobs  = sum(is.finite(.data[["OBSDV"]])),
+      nmiss = sum(!is.finite(.data[["OBSDV"]])),
+      q_lo  = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
+      q50   = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
+      q_hi  = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
       .groups = "drop"
     )
 
@@ -50,6 +55,8 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str) {
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
       nbin    = dplyr::first(nbin),
+      nobs    = dplyr::first(nobs),
+      nmiss   = dplyr::first(nmiss),
       q5_low  = stats::quantile(q_lo, probs = ci[1], na.rm = TRUE),
       q5_med  = stats::quantile(q_lo, probs = 0.5,   na.rm = TRUE),
       q5_hi   = stats::quantile(q_lo, probs = ci[2], na.rm = TRUE),

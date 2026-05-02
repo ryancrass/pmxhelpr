@@ -20,9 +20,11 @@
 #'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
 #'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, filter to `MDV==0` since `loq` is unknown.
 #'    Dashed horizontal line plotted at `loq` by default (controlled via `theme`).
-#' @param min_bin_count Minimum number of quantifiable observations in exact bin for inclusion
-#'    in binned plot layers. This argument drops small bins from summary statistic calculation
-#'    but retains these observations in the observed data points.
+#' @param min_bin_count Minimum number of quantifiable observations (the
+#'    `nobs` column in the summary statistics frame) per exact bin required for
+#'    inclusion in binned plot layers. BLQ-encoded records (`nmiss`) do not
+#'    count toward this threshold. This argument drops small bins from summary
+#'    statistic plotting but retains the underlying observations as data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #'
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
@@ -174,7 +176,7 @@ plot_vpc_cont <- function(sim,
 
   ##Build VPC Plot
   plot <- vpc_build_plot(
-    vpcstats = dplyr::filter(vpcstat, nbin >= min_bin_count),
+    vpcstats = dplyr::filter(vpcstat, nobs >= min_bin_count),
     bin_var = bin_var,
     strat_var_str = strat_var_str,
     shown = show_vpc,

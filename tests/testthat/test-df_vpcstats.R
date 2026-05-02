@@ -28,12 +28,51 @@ test_that("df_vpcstats returns a data.frame", {
 
 test_that("df_vpcstats returns expected columns", {
   result <- run_vpcstats(testsim_raw)
-  expected_cols <- c("BIN_MID", "nbin",
+  expected_cols <- c("BIN_MID", "nbin", "nobs", "nmiss",
                      "q5_low", "q5_med", "q5_hi",
                      "q50_low", "q50_med", "q50_hi",
                      "q95_low", "q95_med", "q95_hi",
                      "obs5", "obs50", "obs95")
   expect_true(all(expected_cols %in% colnames(result)))
+})
+
+test_that("df_vpcstats: nobs + nmiss == nbin always", {
+  result_default <- run_vpcstats(testsim_raw)
+  expect_equal(result_default$nobs + result_default$nmiss, result_default$nbin)
+
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result_loq <- run_vpcstats(testsim_raw, loq = loq_val)
+  expect_equal(result_loq$nobs + result_loq$nmiss, result_loq$nbin)
+})
+
+test_that("df_vpcstats: loq increases nmiss (more rows below threshold flagged)", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result_default <- run_vpcstats(testsim_raw)
+  result_loq <- run_vpcstats(testsim_raw, loq = loq_val)
+  ## Same bins, same nbin; loq strictly raises nmiss in at least some bins.
+  expect_equal(result_loq$nbin, result_default$nbin)
+  expect_true(any(result_loq$nmiss > result_default$nmiss))
+})
+
+test_that("min_bin_count gates on nobs (quantifiable obs), not total record count", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  result <- plot_vpc_cont(sim = testsim_raw, loq = loq_val, vpcstats = TRUE)
+  ## Pick a threshold that is below max(nbin) but above max(nobs) in some bin
+  threshold <- max(result$nobs) + 1L
+  ## Quantile-summary frame still contains all bins; the gate is applied at
+  ## the plot-build call. Verify the gate by inspecting the plot's data.
+  p <- plot_vpc_cont(sim = testsim_raw, loq = loq_val,
+                     min_bin_count = threshold)
+  built <- ggplot2::ggplot_build(p)
+  ## All ribbon/line layers should now have zero rows since no bin meets
+  ## the nobs threshold.
+  ribbon_layers <- vapply(built$data,
+                          function(d) "ymin" %in% colnames(d) && nrow(d) > 0,
+                          logical(1))
+  expect_false(any(ribbon_layers))
 })
 
 test_that("df_vpcstats returns one row per unique bin value", {

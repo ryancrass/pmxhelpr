@@ -32,6 +32,11 @@ test_that("Factor labels without sep do not contain extra separator", {
   expect_false(any(grepl("mg", labels)))
 })
 
+test_that("var_addn errors on mismatched lengths", {
+  expect_error(var_addn(c(1, 2), c(1, 2, 3)),
+               regexp = "must have the same length")
+})
+
 
 ##### var_dosenorm ####
 
@@ -59,13 +64,23 @@ test_that("NA in dv propagates to output", {
   expect_equal(var_dosenorm(c(10, NA, 30), c(100, 200, 300)), c(0.1, NA, 0.1))
 })
 
+test_that("var_dosenorm errors on non-numeric dv_var", {
+  expect_error(var_dosenorm(c("a", "b"), c(1, 2)),
+               regexp = "`dv_var` must be numeric")
+})
 
-##### var_pc ####
+test_that("var_dosenorm errors on mismatched lengths", {
+  expect_error(var_dosenorm(c(1, 2), c(1, 2, 3)),
+               regexp = "must have the same length")
+})
+
+
+##### var_predcorr ####
 
 test_that("Output is numeric with same length as input", {
   dv <- c(5, 10, 15, 20)
   pred <- c(8, 12, 10, 14)
-  out <- var_pc(dv, pred)
+  out <- var_predcorr(dv, pred)
   expect_true(is.numeric(out))
   expect_equal(length(out), length(dv))
 })
@@ -75,7 +90,7 @@ test_that("Prediction correction uses median of pred as reference", {
   pred <- c(8, 12, 10, 14)
   predbin <- stats::median(pred)
   expected <- 0 + (dv - 0) * ((predbin - 0) / (pred - 0))
-  expect_equal(var_pc(dv, pred), expected)
+  expect_equal(var_predcorr(dv, pred), expected)
 })
 
 test_that("lower_bound shifts the correction formula", {
@@ -84,19 +99,19 @@ test_that("lower_bound shifts the correction formula", {
   lb <- 2
   predbin <- stats::median(pred)
   expected <- lb + (dv - lb) * ((predbin - lb) / (pred - lb))
-  expect_equal(var_pc(dv, pred, lower_bound = lb), expected)
+  expect_equal(var_predcorr(dv, pred, lower_bound = lb), expected)
 })
 
 test_that("Constant pred returns original dv values", {
   dv <- c(5, 10, 15)
   pred <- c(10, 10, 10)
-  expect_equal(var_pc(dv, pred), dv)
+  expect_equal(var_predcorr(dv, pred), dv)
 })
 
 test_that("NA in dv propagates to output", {
   dv <- c(5, NA, 15)
   pred <- c(8, 12, 10)
-  out <- var_pc(dv, pred)
+  out <- var_predcorr(dv, pred)
   expect_true(is.na(out[2]))
   expect_false(is.na(out[1]))
 })
@@ -104,8 +119,18 @@ test_that("NA in dv propagates to output", {
 test_that("pred equal to lower_bound returns NA instead of Inf", {
   dv <- c(5, 10, 15)
   pred <- c(8, 0, 10)
-  out <- var_pc(dv, pred)
+  out <- var_predcorr(dv, pred)
   expect_true(is.na(out[2]))
   expect_false(is.na(out[1]))
   expect_false(is.na(out[3]))
+})
+
+test_that("var_predcorr errors on non-numeric dv_var", {
+  expect_error(var_predcorr(c("a", "b"), c(1, 2)),
+               regexp = "`dv_var` must be numeric")
+})
+
+test_that("var_predcorr errors on mismatched lengths", {
+  expect_error(var_predcorr(c(1, 2), c(1, 2, 3)),
+               regexp = "must have the same length")
 })

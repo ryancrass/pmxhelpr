@@ -84,12 +84,23 @@ test_that("check_loq_method does not error when loq_method = 0", {
 
 test_that("check_loq_method errors when loq_method = NULL", {
   expect_error(pmxhelpr:::check_loq_method(NULL, NULL, data.frame()),
-               regexp = "argument `loq_method` must be 0, 1, or 2")
+               regexp = "argument `loq_method` must be")
 })
 
 test_that("check_loq_method errors when loq_method = 1, loq = NULL, and no LLOQ column", {
   expect_error(pmxhelpr:::check_loq_method(NULL, 1, data.frame(x = 1)),
                regexp = "argument `loq` must be numeric or variable `LLOQ` must be present")
+})
+
+test_that("check_loq_method resolves string aliases to numeric", {
+  expect_equal(pmxhelpr:::check_loq_method(NULL, "none", data.frame()), 0)
+  expect_equal(pmxhelpr:::check_loq_method(1, "postdose", data.frame(LLOQ = 1)), 1)
+  expect_equal(pmxhelpr:::check_loq_method(1, "all", data.frame(LLOQ = 1)), 2)
+})
+
+test_that("check_loq_method errors on invalid string", {
+  expect_error(pmxhelpr:::check_loq_method(NULL, "invalid", data.frame()),
+               regexp = "argument `loq_method` must be")
 })
 
 #####check_levelsinvar####

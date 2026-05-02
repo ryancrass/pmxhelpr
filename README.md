@@ -100,7 +100,7 @@ aesthetics:
 
 - `var_addn()` — factor labels with counts of unique identifiers per
   group
-- `var_pc()` — prediction-corrected values
+- `var_predcorr()` — prediction-corrected values
 - `var_dosenorm()` — dose-normalized values
 
 ### `mrgsolve` Wrappers

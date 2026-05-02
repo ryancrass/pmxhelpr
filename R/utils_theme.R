@@ -383,6 +383,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @param ref_line Reference line aesthetics. See [pmx_line()].
 #' @param loess LOESS trend line aesthetics. See [pmx_trend()].
 #' @param linear Linear trend line aesthetics. See [pmx_trend()].
+#' @param obs Shortcut: apply shared aesthetics to `obs_point`. See [pmx_style()].
 #'
 #' @return A named list of theme elements
 #' @export
@@ -390,7 +391,9 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
 #' @examples
 #' plot_dvconc_theme()
 #' plot_dvconc_theme(loess = pmx_trend(color = "red"))
-plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL, linear = NULL) {
+#' plot_dvconc_theme(obs = pmx_style(alpha = 0.3))
+plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL,
+                              linear = NULL, obs = NULL) {
   defaults <- list(
     obs_point = pmx_point(shape = 1, size = 1.25, alpha = 0.5),
     ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
@@ -399,7 +402,8 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL, l
     linear = pmx_trend(linewidth = 1, linetype = 2,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4)
   )
-  merge_theme(compact(list(obs_point = obs_point, ref_line = ref_line, loess = loess, linear = linear)),
+  merge_theme(compact(list(obs_point = obs_point, ref_line = ref_line, loess = loess,
+                           linear = linear, obs = obs)),
               defaults)
 }
 

@@ -7,7 +7,7 @@ This is a major refactor of the package focused on simplifying function interfac
 ### Removed Functions
 * Remove `plot_dvtime_dual`. Users can compose PK and PD panels directly with `plot_dvtime` + `patchwork`, which provides independent control of each panel's arguments.
 * Remove `df_addn`. Replaced by exported vectorized helper `var_addn`.
-* Remove `df_pcdv`. Replaced by exported vectorized helper `var_pc`.
+* Remove `df_pcdv`. Replaced by exported vectorized helper `var_predcorr`.
 * Remove `df_nobsbin`. Bin count is now computed within `df_vpcstats`.
 
 ### Renamed Functions
@@ -40,7 +40,7 @@ This is a major refactor of the package focused on simplifying function interfac
 ### New Exported Functions
 * `var_addn`: Vectorized helper to create factor labels with counts of unique values.
 * `var_dosenorm`: Vectorized dose normalization helper.
-* `var_pc`: Vectorized prediction correction helper.
+* `var_predcorr`: Vectorized prediction correction helper.
 * `df_vpcstats`: Exported VPC summary statistics function with integrated bin counting (replaces `df_nobsbin` dependency).
 * `plot_vpc_shown`: Constructor for VPC layer visibility settings.
 * `plot_vpc_legend`: Renamed from `plot_vpclegend` with updated interface.

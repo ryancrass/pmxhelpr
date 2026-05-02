@@ -69,8 +69,12 @@ check_levelsinvar <- function(data, var, levels, name, levels_name){
 }
 
 check_loq_method <- function(loq, loq_method, data) {
+  aliases <- c(none = 0, postdose = 1, all = 2)
+  if (is.character(loq_method) && loq_method %in% names(aliases)) {
+    loq_method <- aliases[[loq_method]]
+  }
   if(is.null(loq_method) || !loq_method %in% c(0, 1, 2)) {
-    rlang::abort(message = "argument `loq_method` must be 0, 1, or 2")
+    rlang::abort(message = 'argument `loq_method` must be 0, 1, 2, "none", "postdose", or "all"')
   }
 
   if(loq_method != 0) {
@@ -85,6 +89,7 @@ check_loq_method <- function(loq, loq_method, data) {
       }
     }
   }
+  loq_method
 }
 
 check_timeu <- function(var){

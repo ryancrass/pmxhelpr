@@ -101,7 +101,7 @@ df_vpcstats <- function(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param pcvpc Logical for prediction correction.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#' @inheritParams var_pc
+#' @inheritParams var_predcorr
 #' @return A preprocessed data.frame with standardized column names.
 #' @keywords internal
 
@@ -142,8 +142,8 @@ df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
     sim <- sim |>
       dplyr::filter(EVID == 0) |>
       dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
-      dplyr::mutate(OBSDV = var_pc(OBSDV, PRED, lower_bound),
-                    SIMDV = var_pc(SIMDV, PRED, lower_bound)) |>
+      dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
+                    SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
       dplyr::ungroup()
   } else {
     sim <- sim |>

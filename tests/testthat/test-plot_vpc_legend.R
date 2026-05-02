@@ -5,7 +5,7 @@ test_that("Output is a `ggplot` object", {
 })
 
 test_that("Output with custom ci and pi is a `ggplot` object", {
-  expect_s3_class(plot_vpc_legend(ci = c(0.025, 0.975), pi = c(0.025, 0.975)),
+  expect_s3_class(plot_vpc_legend(ci = 0.95, pi = c(0.025, 0.975)),
                   class = "ggplot")
 })
 

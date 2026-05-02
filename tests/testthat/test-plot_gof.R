@@ -70,7 +70,7 @@ test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE"
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
-  expect_no_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", dose_var = "DOSEN", dosenorm = FALSE))
+  expect_no_error(suppressWarnings(plot_gof(data = data_sad_pkfit, dv_var = "ODV", dose_var = "DOSEN", dosenorm = FALSE)))
 })
 
 test_that("Error if dv_var does not exist in `data`", {

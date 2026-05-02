@@ -16,10 +16,10 @@
 #'
 #'   Options are:
 #'
-#'     + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-#'     + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+#'     + `0` or `"none"` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
+#'     + `1` or `"postdose"` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the linear scale
-#'     + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+#'     + `2` or `"all"` : Impute all BLQ data to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 #'
 #' @param cent Character string specifying the central tendency measure to plot.
@@ -81,6 +81,10 @@ plot_dvtime <- function(data,
   id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
   col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
+
+  if (!missing(dose_var) && !isTRUE(dosenorm)) {
+    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
+  }
 
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,

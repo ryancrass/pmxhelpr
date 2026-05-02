@@ -5,7 +5,7 @@
 \title{Plot a legend for a visual predictive check (VPC)}
 \usage{
 plot_vpc_legend(
-  ci = c(0.05, 0.95),
+  ci = 0.9,
   pi = c(0.05, 0.95),
   shown = NULL,
   lloq = NULL,
@@ -14,7 +14,8 @@ plot_vpc_legend(
 )
 }
 \arguments{
-\item{ci}{simulated confidence interval plotted. Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is c(0.05, 0.95).}
+\item{ci}{Numeric confidence level for simulation intervals (e.g., \code{0.90} for 90\% CI).
+Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is \code{0.90}.}
 
 \item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is c(0.05, 0.95).}
 
@@ -37,7 +38,7 @@ Plot a legend for a visual predictive check (VPC)
 plot_vpc_legend()
 plot_vpc_legend(
 pi = c(0.025, 0.975),
-ci = c(0.025, 0.925),
+ci = 0.95,
  shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = TRUE,
  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
  obs_median_line = TRUE,

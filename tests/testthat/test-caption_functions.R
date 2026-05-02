@@ -66,12 +66,12 @@ test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE"
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
-  expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", dose_var = "DOSEN", dosenorm = FALSE))
+  expect_no_error(suppressWarnings(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", dose_var = "DOSEN", dosenorm = FALSE)))
 })
 
 test_that("Error if argument `loq_method` is not one of 0, 1, 2", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 3),
-               regexp = "argument `loq_method` must be 0, 1, or 2")
+               regexp = "argument `loq_method` must be")
 })
 
 test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 1", {
@@ -184,8 +184,8 @@ test_that("Error if idv_var does not exist in data", {
 })
 
 test_that("Error if col_var does not exist in data", {
-  expect_error(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "CONC",
-                           col_var = "NONEXIST"),
+  expect_error(suppressWarnings(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "CONC",
+                           col_var = "NONEXIST")),
                regexp = "must be variable.*in `data`")
 })
 

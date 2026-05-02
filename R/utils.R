@@ -169,7 +169,7 @@ df_prep_dvtime <- function(data,
   }
   if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var")
   if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
-  check_loq_method(loq, loq_method, data)
+  loq_method <- check_loq_method(loq, loq_method, data)
   if (!is.null(ref)) check_numeric(ref, "ref")
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
@@ -216,26 +216,32 @@ df_prep_dvtime <- function(data,
 
 var_dosenorm <- function(dv_var,
                          dose_var) {
+  if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
+  if (!is.numeric(dose_var)) rlang::abort("`dose_var` must be numeric")
+  if (length(dv_var) != length(dose_var)) rlang::abort("`dv_var` and `dose_var` must have the same length")
   dv_var / dose_var
 }
 
 
-#' Internal Helper: Apply prediction correction
+#' Apply prediction correction
 #'
 #' @param dv_var Vector containing the dependent variable (DV)
 #' @param pred_var Vector containing population predictions (PRED)
 #' @param lower_bound Lower bound for prediction correction formula.
 #'
 #' @return A numeric vector of prediction-corrected values of `dv_var`
-#' @export var_pc
+#' @export var_predcorr
 #' @examples
 #' pkmodel <- model_mread_load(model = "pkmodel")
 #' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
-#' data <- dplyr::mutate(data, PCDV = var_pc(ODV, PRED))
+#' data <- dplyr::mutate(data, PCDV = var_predcorr(ODV, PRED))
 #'
-var_pc <- function(dv_var,
-                   pred_var,
-                   lower_bound = 0) {
+var_predcorr <- function(dv_var,
+                         pred_var,
+                         lower_bound = 0) {
+  if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
+  if (!is.numeric(pred_var)) rlang::abort("`pred_var` must be numeric")
+  if (length(dv_var) != length(pred_var)) rlang::abort("`dv_var` and `pred_var` must have the same length")
   predbin <- stats::median(pred_var)
   denom <- pred_var - lower_bound
   denom[denom == 0] <- NA_real_
@@ -264,6 +270,7 @@ var_pc <- function(dv_var,
 var_addn <- function(grp_var,
                      id_var,
                      sep = NULL) {
+  if (length(grp_var) != length(id_var)) rlang::abort("`grp_var` and `id_var` must have the same length")
   counts <- tapply(id_var, grp_var, dplyr::n_distinct)
   n <- unname(counts[as.character(grp_var)])
   parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)

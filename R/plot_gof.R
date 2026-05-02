@@ -52,6 +52,10 @@ plot_gof <- function(data,
   id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
+  if (!missing(dose_var) && !isTRUE(dosenorm)) {
+    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
+  }
+
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,
     dv_var_str = dv_var_str,
@@ -117,8 +121,10 @@ plot_gof <- function(data,
   if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Define Manual Legend
+  legend_order <- c("OBS", "DV", "IPRED", "PRED")
   plot <- plot +
-    ggplot2::scale_color_manual(values = output_colors)
+    ggplot2::scale_color_manual(values = output_colors,
+                                breaks = legend_order[legend_order %in% active])
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)

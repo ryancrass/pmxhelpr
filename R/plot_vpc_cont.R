@@ -32,7 +32,7 @@
 #'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
-#' @param ci Numeric vector of length 2 specifying confidence interval quantiles. Default is `c(0.05, 0.95)`.
+#' @param ci Numeric confidence level for simulation intervals (e.g., `0.90` for 90% CI). Default is `0.90`.
 #' @param vpcstats Logical. If `TRUE`, return a list of computed VPC statistics instead of a plot. Default is `FALSE`.
 #'
 #' @param time_var Column containing the actual time variable in `sim`.
@@ -49,7 +49,7 @@
 #'    Accepts bare names or strings. Default is `OBSDV`.
 #' @param irep_name Name of replicate variable in `sim`. Accepts bare names or strings. Default is `SIM`.
 #' @inheritParams plot_dvtime
-#' @inheritParams var_pc
+#' @inheritParams var_predcorr
 #'
 #' @return A `ggplot2` object (default), or a `data.frame` of VPC summary
 #'    statistics from [df_vpcstats()] when `vpcstats = TRUE`.
@@ -87,7 +87,7 @@ plot_vpc_cont <- function(sim,
                                shown = NULL,
                                theme = NULL,
                                pi = c(0.05, 0.95),
-                               ci = c(0.05, 0.95),
+                               ci = 0.90,
                                vpcstats = FALSE)
 {
 
@@ -103,7 +103,10 @@ plot_vpc_cont <- function(sim,
   #Inherit LLOQ from sim column if not explicitly provided
   if (is.null(loq) && "LLOQ" %in% colnames(sim)) {
     lloq_vals <- unique(sim$LLOQ[sim[[irep_name_str]] == 1 & !is.na(sim$LLOQ)])
-    if (length(lloq_vals) == 1L) loq <- lloq_vals
+    if (length(lloq_vals) == 1L) {
+      loq <- lloq_vals
+      message("Inheriting `loq = ", loq, "` from `LLOQ` column in `sim`.")
+    }
   }
 
   #Preprocess: validate, rename, prediction-correct or BLQ-handle
@@ -125,7 +128,8 @@ plot_vpc_cont <- function(sim,
 
   ##Compute VPC Statistics
   bin_var <- "BIN_MID"
-  vpcstat <- df_vpcstats(sim, pi, ci, bin_var, strat_var_str, irep_name_str, loq)
+  ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
+  vpcstat <- df_vpcstats(sim, pi, ci_bounds, bin_var, strat_var_str, irep_name_str, loq)
 
   ##Return database if requested
   if(isTRUE(vpcstats)) {

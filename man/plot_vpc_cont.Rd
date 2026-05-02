@@ -22,7 +22,7 @@ plot_vpc_cont(
   shown = NULL,
   theme = NULL,
   pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
+  ci = 0.9,
   vpcstats = FALSE
 )
 }
@@ -53,13 +53,18 @@ Accepts bare names or strings. Currently, only a single stratifying variable is 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-If \code{NULL} (default) and an \code{LLOQ} column is present in \code{sim}, the unique LLOQ value
-is inherited from that column automatically.
-Ignored when \code{pcvpc = TRUE} (LLOQ is not meaningful on the prediction-corrected scale).
-Specifying this argument implies that the observed variable \code{OBSDV} is missing (\code{NA})
-and \code{MDV = 1} where < \code{loq} in \code{sim}.
-For standard VPCs (\code{pcvpc = FALSE}), all \code{MDV} values are set to 0 so that
-all observations (including BLQ) are included in summary statistics.
+For standard VPCs (\code{pcvpc = FALSE})
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `MDV` values are set to 0
+ so that all observations (including BLQ) are processed when and censoring is performed at the quantile level.
+ Filter to `EVID==0` so that doses are dropped.
+ + If `loq=NULL` and `LLOQ` is NOT present in `sim`, the dataset is filtered to `MDV==0` since `loq` is unknown.
+}\if{html}{\out{</div>}}
+
+For prediction-corrected VPCs (\code{pcvpc = TRUE})
++ If \code{loq} specified or \code{loq=NULL} and \code{LLOQ} is present in \code{sim}, all \code{SIMDV} and \code{OBSDV} values < loq are set to
+missing (\code{NA_real_}) so that both observed and simulated data are censored in the same way before quantile calculation.
++ If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{sim}, filter to \code{MDV==0} since \code{loq} is unknown.
 Dashed horizontal line plotted at \code{loq} by default (controlled via \code{theme}).}
 
 \item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
@@ -80,7 +85,7 @@ Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
-\item{ci}{Numeric vector of length 2 specifying confidence interval quantiles. Default is \code{c(0.05, 0.95)}.}
+\item{ci}{Numeric confidence level for simulation intervals (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
 
 \item{vpcstats}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
 }

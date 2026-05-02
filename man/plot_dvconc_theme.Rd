@@ -8,7 +8,8 @@ plot_dvconc_theme(
   obs_point = NULL,
   ref_line = NULL,
   loess = NULL,
-  linear = NULL
+  linear = NULL,
+  obs = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ plot_dvconc_theme(
 \item{loess}{LOESS trend line aesthetics. See \code{\link[=pmx_trend]{pmx_trend()}}.}
 
 \item{linear}{Linear trend line aesthetics. See \code{\link[=pmx_trend]{pmx_trend()}}.}
+
+\item{obs}{Shortcut: apply shared aesthetics to \code{obs_point}. See \code{\link[=pmx_style]{pmx_style()}}.}
 }
 \value{
 A named list of theme elements
@@ -30,4 +33,5 @@ Call with no arguments to view defaults. Pass element overrides to customize.
 \examples{
 plot_dvconc_theme()
 plot_dvconc_theme(loess = pmx_trend(color = "red"))
+plot_dvconc_theme(obs = pmx_style(alpha = 0.3))
 }

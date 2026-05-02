@@ -1,7 +1,8 @@
 
 #' Plot a legend for a visual predictive check (VPC)
 #'
-#' @param ci simulated confidence interval plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
+#' @param ci Numeric confidence level for simulation intervals (e.g., `0.90` for 90% CI).
+#'    Should match argument passed to [plot_vpc_cont()]. Default is `0.90`.
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
 #' @param lloq label for lower limit of quantification in the plot legend.
 #' @param update list containing the plot elements to be updated. Default is set by [plot_vpc_theme()].
@@ -15,13 +16,13 @@
 #'plot_vpc_legend()
 #'plot_vpc_legend(
 #'pi = c(0.025, 0.975),
-#'ci = c(0.025, 0.925),
+#'ci = 0.95,
 #'  shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = TRUE,
 #'  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
 #'  obs_median_line = TRUE,
 #'  sim_median_line = FALSE, sim_median_ci = TRUE))
 
-plot_vpc_legend <- function(ci = c(0.05, 0.95),
+plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
@@ -37,7 +38,7 @@ plot_vpc_legend <- function(ci = c(0.05, 0.95),
   obs <- "Obs"
   obs_cent <- "Obs Med"
   sim_cent <- "Sim Med"
-  sim_cilab <- paste0("Sim ", (max(ci)-min(ci))*100, "% CI")
+  sim_cilab <- paste0("Sim ", ci * 100, "% CI")
   obs_pilab <- paste0("Obs ", pi[1]*100,"th", " and ", pi[2]*100, "th")
   sim_pilab <- paste0("Sim ", pi[1]*100,"th - ", pi[2]*100, "th")
   sim_cilab_cent <- paste0(sim_cilab, " Med")

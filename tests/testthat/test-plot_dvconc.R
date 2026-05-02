@@ -3,7 +3,7 @@
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
   data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
-  expect_s3_class(plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose"),
+  expect_s3_class(suppressWarnings(plot_dvconc(data, dv_var = "ODV", idv_var = "CONC", col_var = "Dose")),
                class = "ggplot")
 })
 
@@ -50,8 +50,8 @@ test_that("Color aesthetic is mapped when col_trend = TRUE", {
 
 test_that("Color aesthetic is not mapped when col_trend = FALSE", {
   data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
-  p <- plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
-                   col_var = "Dose", col_trend = FALSE)
+  p <- suppressWarnings(plot_dvconc(data, dv_var = "ODV", idv_var = "CONC",
+                   col_var = "Dose", col_trend = FALSE))
   expect_false("colour" %in% names(p$mapping))
 })
 
@@ -85,7 +85,7 @@ test_that("No reference line when ref is NULL", {
 ##Test NSE Bare Names
 test_that("plot_dvconc accepts bare names and produces ggplot", {
   data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
-  expect_s3_class(plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose), "ggplot")
+  expect_s3_class(suppressWarnings(plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose)), "ggplot")
 })
 
 test_that("plot_dvconc bare names match string output", {

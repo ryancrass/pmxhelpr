@@ -43,6 +43,10 @@ plot_dvconc <- function(data,
   idv_var_str <- resolve_var(rlang::enquo(idv_var))
   col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
+  if (!is.null(col_var_str) && !isTRUE(col_trend)) {
+    warning("`col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.", call. = FALSE)
+  }
+
   #Checks
   check_df(data, "data")
   check_varsindf(data, dv_var_str, "data", "dv_var")

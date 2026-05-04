@@ -83,7 +83,7 @@ test_that("Error if pred_var does not exist in `sim` and pcvpc = TRUE", {
                                  dv_var = "ODV")
 
   expect_error(
-    plot_vpc_cont(sim = testsim, pred_var = "CPRED", pcvpc = TRUE),
+    plot_vpc_cont(sim = testsim, pred_var = "CPRED", pcvpc = TRUE, loq = 1),
     regexp = "must be variable.*in `sim`"
   )
 })
@@ -191,8 +191,8 @@ test_that("PC-VPC applies per-bin prediction correction, not global", {
                                  replicates = 10,
                                  dv_var = "ODV")
 
-  stats_pc <- plot_vpc_cont(sim = testsim, pcvpc = TRUE, vpcstats = TRUE)
-  stats_nopc <- plot_vpc_cont(sim = testsim, pcvpc = FALSE, vpcstats = TRUE)
+  stats_pc <- plot_vpc_cont(sim = testsim, pcvpc = TRUE, loq = 1, vpcstats = TRUE)
+  stats_nopc <- plot_vpc_cont(sim = testsim, pcvpc = FALSE, loq = 1, vpcstats = TRUE)
 
   # PC and non-PC medians should differ
   expect_false(identical(stats_pc$q50_med, stats_nopc$q50_med))
@@ -273,6 +273,21 @@ test_that("loq is inherited from LLOQ column in sim when not explicitly provided
   lloq_val <- unique(testsim$LLOQ[testsim$SIM == 1 & !is.na(testsim$LLOQ)])
   stats_explicit <- plot_vpc_cont(sim = testsim, loq = lloq_val, vpcstats = TRUE)
   expect_identical(stats_inherit, stats_explicit)
+})
+
+test_that("plot_vpc_cont warns when loq is inherited from LLOQ and pcvpc = TRUE", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"))
+
+  # Inherited loq + pcvpc = TRUE: warn about pre-PC censoring + no ref line
+  expect_warning(plot_vpc_cont(sim = testsim, pcvpc = TRUE, vpcstats = TRUE),
+                 regexp = "prediction-correction")
+
+  # Explicit loq + pcvpc = TRUE: user-confirmed, no warning
+  expect_no_warning(plot_vpc_cont(sim = testsim, pcvpc = TRUE, loq = 1, vpcstats = TRUE))
 })
 
 test_that("explicit loq overrides LLOQ column in sim", {

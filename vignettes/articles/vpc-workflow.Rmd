@@ -272,7 +272,7 @@ plot_vpc_cont(
 
 A decent, if slightly misleading, plot! Simulated 90% (`ci` = c(0.05, 0.95)) confidence intervals print at the median (50th) and  5th and 95th percentiles (`pi` = c(0.05, 0.95)) and corresponding quantiles of the observed are shown as lines with observed data points overlaid.
 
-`plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset `sim`. This behavior is suppressed when prediction-correction is applied with `pcvpc = TRUE`.
+`plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset `sim`. Under `pcvpc = TRUE`, BLQ censoring is still applied (before prediction-correction, to both observed and simulated data), but the LOQ reference line is not drawn since `loq` has no meaning on the prediction-corrected scale. `plot_vpc_cont()` emits a warning when `loq` is inherited from the `LLOQ` column and `pcvpc = TRUE` so this interaction is explicit; pass `loq` directly to acknowledge and suppress the warning.
 
 ### Prediction-correction
 
@@ -412,9 +412,9 @@ Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input
   - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`.
   - In the calculation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
 
-Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst. 
+Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst.
 
-Additionally, this method of accounting for the censoring of data below the LLOQ by specifying the `loq` argument should only be applied to Visual Predictive Checks (`pcvpc = FALSE`) and should *not* be applied to Prediction-corrected Visual Predictive Checks (`pcvpc = TRUE`).
+`loq` may also be passed for prediction-corrected VPCs (`pcvpc = TRUE`). In that case, observed and simulated values below `loq` are censored to `NA_real_` before prediction-correction so that both data streams are treated symmetrically, and no LOQ reference line is drawn (the LOQ has no meaning on the prediction-corrected scale).
 
 ### Adjusting the elements displayed
 

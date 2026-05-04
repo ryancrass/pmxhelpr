@@ -19,7 +19,8 @@
 #'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `SIMDV` and `OBSDV` values < loq are set to
 #'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
 #'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, filter to `MDV==0` since `loq` is unknown.
-#'    Dashed horizontal line plotted at `loq` by default (controlled via `theme`).
+#'    Dashed horizontal line plotted at `loq` by default for standard VPCs (controlled via `theme`);
+#'    suppressed for `pcvpc = TRUE` since `loq` has no meaning on the prediction-corrected scale.
 #' @param min_bin_count Minimum number of quantifiable observations
 #'    (`nbin - nobsblq` in the summary statistics frame) per exact bin required
 #'    for inclusion in binned plot layers. BLQ-encoded records (`nobsblq`) do
@@ -121,6 +122,14 @@ plot_vpc_cont <- function(sim,
     if (length(lloq_vals) == 1L) {
       loq <- lloq_vals
       message("Inheriting `loq = ", loq, "` from `LLOQ` column in `sim`.")
+      if (isTRUE(pcvpc)) {
+        rlang::warn(paste0(
+          "`loq` inherited from `LLOQ` column with `pcvpc = TRUE`: ",
+          "BLQ censoring is applied before prediction-correction, ",
+          "and no LOQ reference line is drawn (LOQ has no meaning on the prediction-corrected scale). ",
+          "Pass `loq` explicitly to confirm censoring and suppress this warning."
+        ))
+      }
     } else if (length(lloq_vals) > 1L) {
       rlang::warn(paste0("`LLOQ` column in `sim` has multiple unique values (",
                          paste(lloq_vals, collapse = ", "),

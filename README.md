@@ -13,8 +13,8 @@ standardized, efficient, and reproducible. This package provides helper
 and wrapper functions for common steps in the modeling analysis workflow
 outside of model parameter estimation.
 
-These include such as exploratory data analysis, model evaluation, and
-model application.
+These include exploratory data analysis, model evaluation, and model
+application.
 
 ## Documentation
 
@@ -140,11 +140,11 @@ aesthetics:
   (PRED) PK model predictions
 
 **Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
-(original DV) to note that it has not been transformed, rather than
-`DV`, because they preserve raw observed values for BLQ-aware workflows.
-Functions like `plot_dvtime()` default `dv_var = DV` to match the
-standard NMTRAN convention; when running examples on the bundled data,
-pass `dv_var = "ODV"` (as every example below does).
+(original DV), to note that it is provided in original units from the
+source data. Functions like `plot_dvtime()` default `dv_var = DV` to
+match the standard NONMEM convention; when running examples on the
+bundled data, one may derive a variable `DV` or pass the argument
+`dv_var = "ODV"` (as every example below does).
 
 ## Example Exploratory Data Analysis Workflow
 

@@ -66,7 +66,8 @@ For prediction-corrected VPCs (\code{pcvpc = TRUE})
 + If \code{loq} specified or \code{loq=NULL} and \code{LLOQ} is present in \code{sim}, all \code{SIMDV} and \code{OBSDV} values < loq are set to
 missing (\code{NA_real_}) so that both observed and simulated data are censored in the same way before quantile calculation.
 + If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{sim}, filter to \code{MDV==0} since \code{loq} is unknown.
-Dashed horizontal line plotted at \code{loq} by default (controlled via \code{theme}).}
+Dashed horizontal line plotted at \code{loq} by default for standard VPCs (controlled via \code{theme});
+suppressed for \code{pcvpc = TRUE} since \code{loq} has no meaning on the prediction-corrected scale.}
 
 \item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
 

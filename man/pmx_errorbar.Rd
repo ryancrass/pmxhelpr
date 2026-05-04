@@ -29,3 +29,6 @@ A \code{pmx_errorbar} element object
 \description{
 Error bar aesthetics
 }
+\examples{
+pmx_errorbar(linewidth = 0.5, width = 0.5)
+}

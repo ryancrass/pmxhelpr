@@ -29,3 +29,6 @@ A \code{pmx_trend} element object
 \description{
 Trend line aesthetics (dvconc loess/linear)
 }
+\examples{
+pmx_trend(linewidth = 1.2, color = "darkblue", se_color = "lightgrey")
+}

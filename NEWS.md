@@ -13,7 +13,7 @@ This is a major refactor of the package focused on simplifying function interfac
 ### Renamed Functions
 * Rename `plot_popgof` / `plot_popgof_theme` to `plot_gof` / `plot_gof_theme`.
 * Rename `plot_vpc_exactbins` to `plot_vpc_cont`.
-* Rename `plot_vpclegend` to `plot_vpc_legend`.
+* Rename `plot_vpclegend` to `plot_vpc_legend` (interface updated; see usage docs).
 * Rename `df_addpred` to `df_mrgsim_addpred`.
 * Rename `breaks_time` to internal helper `var_timebreaks`.
 
@@ -46,7 +46,6 @@ This is a major refactor of the package focused on simplifying function interfac
 * `var_predcorr`: Vectorized prediction correction helper.
 * `df_vpcstats`: Exported VPC summary statistics function with integrated bin counting (replaces `df_nobsbin` dependency).
 * `plot_vpc_shown`: Constructor for VPC layer visibility settings.
-* `plot_vpc_legend`: Renamed from `plot_vpclegend` with updated interface.
 
 ### Theme System
 * New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`).

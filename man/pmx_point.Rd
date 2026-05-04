@@ -22,3 +22,6 @@ A \code{pmx_point} element object
 Constructor for point layer aesthetics. Used for observed data points and
 central tendency points across all plot types.
 }
+\examples{
+pmx_point(shape = 1, size = 2, color = "blue")
+}

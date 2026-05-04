@@ -16,3 +16,4 @@
 ^\.Rprofile$
 ^\.claude$
 ^vignettes/articles$
+^Rplots\.pdf$

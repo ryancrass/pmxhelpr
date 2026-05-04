@@ -30,3 +30,6 @@ A \code{pmx_ribbon} element object
 Constructor for ribbon layer aesthetics. Used for simulated prediction
 interval and median CI ribbons in VPC plots.
 }
+\examples{
+pmx_ribbon(fill = "skyblue", alpha = 0.3)
+}

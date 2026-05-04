@@ -78,6 +78,7 @@
 #' vpc_plot <- plot_vpc_cont(
 #' sim = simout,
 #' pcvpc = TRUE,
+#' loq = 1,
 #' pi = c(0.05, 0.95),
 #' ci = 0.90)
 

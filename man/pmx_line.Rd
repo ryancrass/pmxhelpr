@@ -22,3 +22,6 @@ A \code{pmx_line} element object
 Constructor for line layer aesthetics. Used for trend lines, reference lines,
 spaghetti lines, and central tendency lines across all plot types.
 }
+\examples{
+pmx_line(linewidth = 1, linetype = "dashed", color = "red")
+}

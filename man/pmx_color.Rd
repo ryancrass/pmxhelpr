@@ -20,3 +20,6 @@ A \code{pmx_color} element object
 Creates a color element for \code{\link[=plot_gof_theme]{plot_gof_theme()}} controlling the manual
 color scale for DV, PRED, and IPRED overlay lines.
 }
+\examples{
+pmx_color(dv = "black", pred = "purple", ipred = "darkgreen")
+}

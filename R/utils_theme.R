@@ -135,6 +135,8 @@ apply_style <- function(style, prefix, defaults) {
 #'
 #' @return A `pmx_point` element object
 #' @export
+#' @examples
+#' pmx_point(shape = 1, size = 2, color = "blue")
 pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
   check_shape(shape, "shape")
   check_size(size, "size")
@@ -158,6 +160,8 @@ pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
 #'
 #' @return A `pmx_line` element object
 #' @export
+#' @examples
+#' pmx_line(linewidth = 1, linetype = "dashed", color = "red")
 pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
                      color = NULL) {
   check_size(linewidth, "linewidth")
@@ -183,6 +187,8 @@ pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
 #'
 #' @return A `pmx_ribbon` element object
 #' @export
+#' @examples
+#' pmx_ribbon(fill = "skyblue", alpha = 0.3)
 pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
                        linetype = NULL, linewidth = NULL) {
   check_color(fill, "fill")
@@ -230,6 +236,8 @@ pmx_style <- function(color = NULL, alpha = NULL) {
 #'
 #' @return A `pmx_errorbar` element object
 #' @export
+#' @examples
+#' pmx_errorbar(linewidth = 0.5, width = 0.5)
 pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
                          alpha = NULL, color = NULL, width = NULL) {
   check_size(linewidth, "linewidth")
@@ -252,6 +260,8 @@ pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
 #'
 #' @return A `pmx_trend` element object
 #' @export
+#' @examples
+#' pmx_trend(linewidth = 1.2, color = "darkblue", se_color = "lightgrey")
 pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
                       se_color = NULL, se_alpha = NULL) {
   check_size(linewidth, "linewidth")
@@ -276,6 +286,8 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 #'
 #' @return A `pmx_color` element object
 #' @export
+#' @examples
+#' pmx_color(dv = "black", pred = "purple", ipred = "darkgreen")
 pmx_color <- function(dv = NULL, pred = NULL, ipred = NULL) {
   check_color(dv, "dv")
   check_color(pred, "pred")

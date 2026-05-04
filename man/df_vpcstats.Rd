@@ -60,3 +60,11 @@ Computes two-stage quantile summary statistics for VPC plots.
 Can be called directly on preprocessed data or accessed via
 \code{plot_vpc_cont(vpcstats = TRUE)}, which handles preprocessing automatically.
 }
+\examples{
+model <- model_mread_load(model = "pkmodel")
+simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
+                              dv_var = ODV)
+# Recommended usage: access summary statistics via plot_vpc_cont
+stats <- plot_vpc_cont(sim = simout, loq = 1, vpcstats = TRUE)
+head(stats)
+}

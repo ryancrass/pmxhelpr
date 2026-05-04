@@ -163,6 +163,7 @@ df_prep_dvtime <- function(data,
   if (!is.null(pred_var_str)) check_varsindf(data, pred_var_str, "data", "pred_var")
   if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var")
   check_varsindf(data, "MDV", "data", "MDV")
+  check_varsindf(data, "EVID", "data", "EVID")
   if (!is.null(col_var_str)) {
     check_varsindf(data, col_var_str, "data", "col_var")
     check_factor(data, col_var_str, "col_var")
@@ -185,6 +186,8 @@ df_prep_dvtime <- function(data,
   if (!is.null(col_var_str)) {
     data[[col_var_str]] <- factor(data[[col_var_str]])
   }
+
+  data <- dplyr::filter(data, EVID == 0)
 
   pred_vars <- c(if (!is.null(pred_var_str)) "PRED",
                   if (!is.null(ipred_var_str)) "IPRED")

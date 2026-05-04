@@ -1,6 +1,11 @@
 #' Plot a dependent variable versus concentration
 #'
-#' @param data Input dataset.
+#' Unlike [plot_dvtime()] and [plot_gof()], this function does not filter dose
+#' rows internally. Pre-filter the input to observation rows (typically by
+#' `CMT` or `EVID == 0`) before calling — see the example below.
+#'
+#' @param data Input dataset. Must contain only observation rows (no dose
+#'    records). Filter by `CMT` or `EVID == 0` before passing.
 #' @param idv_var Independent variable column. Accepts bare names or strings. Default is `CONC`.
 #' @param col_trend Logical indicating if the variable specified in `col_var` should be used to stratify trend lines
 #' @param loess Logical indicating if a loess smoother fit should be shown. Default is `TRUE`

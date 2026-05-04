@@ -42,9 +42,16 @@ are suppressed to allow inheritance.}
 A modified ggplot object with central tendency layers added
 }
 \description{
-For use by plot functions where color is either fixed (from theme) or
-inherited from a global \code{col_var} aesthetic. For GOF overlay plots that
-map color to fixed string labels, use \code{\link[=add_cent_layers_manual]{add_cent_layers_manual()}} instead.
+Use this variant when color is either fixed (from theme) or inherited from
+a global \code{col_var} aesthetic set in \code{\link[=init_plot]{init_plot()}}. The layers do not
+contribute to a \code{scale_color_manual} legend.
+}
+\details{
+For GOF-style overlay plots — multiple cent layers with different y-vars
+(DV / PRED / IPRED) sharing a manual color legend — use
+\code{\link[=add_cent_layers_manual]{add_cent_layers_manual()}} instead. The two helpers implement different
+\code{aes()} contracts (inherited/fixed color vs. literal-label color routed
+through \code{scale_color_manual()}) and intentionally are not unified.
 }
 \examples{
 #

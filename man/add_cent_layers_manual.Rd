@@ -40,8 +40,17 @@ One of \code{"mean"}, \code{"mean_sdl"}, \code{"mean_sdl_upper"}, \code{"median"
 A modified ggplot object with central tendency layers added
 }
 \description{
-Like \code{\link[=add_cent_layers]{add_cent_layers()}} but maps color to a fixed string label for use
-with \code{scale_color_manual()} in GOF overlay plots. Color is always
-mapped via aes; fixed theme colors are never applied.
+Use this variant for GOF-style overlay plots where multiple cent layers
+with different y-vars (DV / PRED / IPRED) share a single manual color
+legend. The layer's \code{color} is set to the literal string \code{color_aes}
+inside \code{aes()} so ggplot treats it as a discrete level, then
+\code{scale_color_manual()} (added by the calling plot function) maps each
+level to a color. Fixed theme colors are never applied.
+}
+\details{
+For single-y plots where color is inherited from a global \code{col_var}
+aesthetic or fixed from the theme, use \code{\link[=add_cent_layers]{add_cent_layers()}}. The two
+helpers implement different \code{aes()} contracts and intentionally are not
+unified.
 }
 \keyword{internal}

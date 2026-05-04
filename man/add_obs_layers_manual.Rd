@@ -21,7 +21,15 @@ add_obs_layers_manual(plot, id_var_str, point_el, line_el, color_aes)
 modified ggplot object
 }
 \description{
-Like \code{\link[=add_obs_layers]{add_obs_layers()}} but maps color to a fixed string label for use
-with \code{scale_color_manual()} in GOF overlay plots.
+Use this variant for GOF-style overlay plots where the obs layer
+participates in a manual color legend alongside cent layers for DV /
+PRED / IPRED. The layer's \code{color} is set to the literal string
+\code{color_aes} inside \code{aes()}, which ggplot treats as a discrete level
+that \code{scale_color_manual()} then maps to a color.
+}
+\details{
+For column-mapped, inherited, or fixed-from-theme color, use
+\code{\link[=add_obs_layers]{add_obs_layers()}}. The two helpers implement different \code{aes()}
+contracts and intentionally are not unified.
 }
 \keyword{internal}

@@ -213,10 +213,27 @@ test_that("df_prep_dvtime errors on missing dv_var", {
 })
 
 test_that("df_prep_dvtime errors on missing dose_var when dosenorm = TRUE", {
-  df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0)
+  df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0, EVID = 0)
   expect_error(
     pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", dosenorm = TRUE, dose_var_str = "DOSE"),
-    regexp = "must be variable"
+    regexp = "argument `dose_var` must be variable"
+  )
+})
+
+test_that("df_prep_dvtime filters EVID != 0 rows", {
+  df <- data.frame(TIME = c(0, 1, 2), NTIME = c(0, 1, 2),
+                   DV = c(NA, 5, 10), MDV = c(1, 0, 0),
+                   EVID = c(1, 0, 0))
+  result <- pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME")
+  expect_equal(nrow(result$data), 2L)
+  expect_true(all(result$data$EVID == 0))
+})
+
+test_that("df_prep_dvtime errors on missing EVID column", {
+  df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0)
+  expect_error(
+    pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME"),
+    regexp = "argument `EVID` must be variable"
   )
 })
 

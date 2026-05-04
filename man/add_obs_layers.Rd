@@ -26,4 +26,11 @@ theme alpha) and optionally a \code{geom_line} layer connecting observations
 within groups when \code{id_var_str} is specified. Color is mapped to a data
 column when \code{col_var_str} is provided.
 }
+\details{
+Use this variant when color is column-mapped, inherited from a global
+aesthetic, or fixed from the theme. For GOF-style overlay plots that
+route color through \code{scale_color_manual()} via a literal label, use
+\code{\link[=add_obs_layers_manual]{add_obs_layers_manual()}} instead. The two helpers implement different
+\code{aes()} contracts and intentionally are not unified.
+}
 \keyword{internal}

@@ -107,9 +107,6 @@ plot_dvtime <- function(data,
   plottheme <- env$plottheme
   width     <- env$width
 
-  #Remove EVID!=0
-  data <- dplyr::filter(data, EVID==0)
-
 ###Plot
 
   #Initialize Plot

@@ -22,7 +22,8 @@ plot_dvconc(
 )
 }
 \arguments{
-\item{data}{Input dataset.}
+\item{data}{Input dataset. Must contain only observation rows (no dose
+records). Filter by \code{CMT} or \code{EVID == 0} before passing.}
 
 \item{dv_var}{Column containing the dependent variable. Accepts bare names or strings. Default is \code{DV}.}
 
@@ -57,7 +58,9 @@ Defaults can be viewed by running \code{plot_dvconc_theme()} with no arguments.}
 A \code{ggplot2} plot object
 }
 \description{
-Plot a dependent variable versus concentration
+Unlike \code{\link[=plot_dvtime]{plot_dvtime()}} and \code{\link[=plot_gof]{plot_gof()}}, this function does not filter dose
+rows internally. Pre-filter the input to observation rows (typically by
+\code{CMT} or \code{EVID == 0}) before calling — see the example below.
 }
 \examples{
 data_sad_pd <- dplyr::filter(data_sad, CMT ==3)

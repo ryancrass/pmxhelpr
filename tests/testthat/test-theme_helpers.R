@@ -136,20 +136,29 @@ test_that("errorbar_width derives 2.5% of max NTIME when width is NULL", {
   expect_equal(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(0, 1, 8))), 0.2)
 })
 
-test_that("errorbar_width errors on empty data with no override", {
+test_that("errorbar_width warns and returns NA on empty data with no override", {
   theme <- list(cent_errorbar = list(width = NULL))
-  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = numeric(0))),
-               regexp = "empty or all NA")
+  expect_warning(
+    result <- pmxhelpr:::errorbar_width(theme, data.frame(NTIME = numeric(0))),
+    regexp = "empty or all NA"
+  )
+  expect_equal(result, NA_real_)
 })
 
-test_that("errorbar_width errors on all-NA NTIME with no override", {
+test_that("errorbar_width warns and returns NA on all-NA NTIME with no override", {
   theme <- list(cent_errorbar = list(width = NULL))
-  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(NA_real_, NA_real_))),
-               regexp = "empty or all NA")
+  expect_warning(
+    result <- pmxhelpr:::errorbar_width(theme, data.frame(NTIME = c(NA_real_, NA_real_))),
+    regexp = "empty or all NA"
+  )
+  expect_equal(result, NA_real_)
 })
 
-test_that("errorbar_width errors when NTIME column is missing", {
+test_that("errorbar_width warns and returns NA when NTIME column is missing", {
   theme <- list(cent_errorbar = list(width = NULL))
-  expect_error(pmxhelpr:::errorbar_width(theme, data.frame(OTHER = 1)),
-               regexp = "empty or all NA")
+  expect_warning(
+    result <- pmxhelpr:::errorbar_width(theme, data.frame(OTHER = 1)),
+    regexp = "empty or all NA"
+  )
+  expect_equal(result, NA_real_)
 })

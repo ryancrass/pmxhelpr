@@ -1,4 +1,34 @@
 
+# ---------------------------------------------------------------------------
+# Plot families and shared helpers
+#
+# pmxhelpr exposes three plot families. Each shares some helpers with the
+# others but legitimately diverges in preprocessing and panel theme; new
+# plot functions should categorize against these before reaching for shared
+# infrastructure.
+#
+# 1. Continuous family — plot_dvtime, plot_gof, plot_dvconc
+#    Preprocess: df_prep_dvtime (renames TIME/NTIME/DV, BLQ, dose-norm).
+#    Init:       init_plot (theme_bw + strips minor + strips major.x).
+#    Layers:     add_ref_layers, add_blq_layers, add_obs_layers[_manual],
+#                add_cent_layers[_manual], add_trend_layers.
+#    Env:        prep_plot_env (caption + merged theme + errorbar width).
+#
+# 2. Regression family — plot_doseprop
+#    Preprocess: filter to requested metrics; left-join df_doseprop output.
+#    Init:       hand-rolled ggplot + theme_bw (keeps major.x for log-log).
+#    Layers:     add_obs_layers (no col_var/id_var), add_trend_layers (lm).
+#
+# 3. VPC family — plot_vpc_cont
+#    Preprocess: df_vpcpreprocess (BLQ encoding, prediction correction).
+#    Build:      vpc_build_plot (ribbons/lines from df_vpcstats output).
+#    Init:       white-paneled background, hand-applied at the end.
+#
+# Shared across families: resolve_var (R/utils.R), merge_theme /
+# merge_element (R/utils_theme.R), pmx_* element constructors, build_layer.
+# ---------------------------------------------------------------------------
+
+
 #' Internal helper: Initialize a ggplot with standard theme
 #'
 #' Creates a ggplot object with the base theme (`theme_bw`) and removes minor
@@ -47,9 +77,15 @@ build_layer <- function(layer_fn, args, color = NULL, color_mapped = FALSE) {
 
 #' Internal helper: Add central tendency point, line, and error bar layers
 #'
-#' For use by plot functions where color is either fixed (from theme) or
-#' inherited from a global `col_var` aesthetic. For GOF overlay plots that
-#' map color to fixed string labels, use [add_cent_layers_manual()] instead.
+#' Use this variant when color is either fixed (from theme) or inherited from
+#' a global `col_var` aesthetic set in [init_plot()]. The layers do not
+#' contribute to a `scale_color_manual` legend.
+#'
+#' For GOF-style overlay plots — multiple cent layers with different y-vars
+#' (DV / PRED / IPRED) sharing a manual color legend — use
+#' [add_cent_layers_manual()] instead. The two helpers implement different
+#' `aes()` contracts (inherited/fixed color vs. literal-label color routed
+#' through `scale_color_manual()`) and intentionally are not unified.
 #'
 #' @param plot ggplot object to modify.
 #' @param cent Character string specifying the central tendency measure.
@@ -132,9 +168,17 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 
 #' Add central tendency layers for GOF overlay plots
 #'
-#' Like [add_cent_layers()] but maps color to a fixed string label for use
-#' with \code{scale_color_manual()} in GOF overlay plots. Color is always
-#' mapped via aes; fixed theme colors are never applied.
+#' Use this variant for GOF-style overlay plots where multiple cent layers
+#' with different y-vars (DV / PRED / IPRED) share a single manual color
+#' legend. The layer's `color` is set to the literal string `color_aes`
+#' inside `aes()` so ggplot treats it as a discrete level, then
+#' `scale_color_manual()` (added by the calling plot function) maps each
+#' level to a color. Fixed theme colors are never applied.
+#'
+#' For single-y plots where color is inherited from a global `col_var`
+#' aesthetic or fixed from the theme, use [add_cent_layers()]. The two
+#' helpers implement different `aes()` contracts and intentionally are not
+#' unified.
 #'
 #' @inheritParams add_cent_layers
 #' @param color_aes String label for color aesthetic (e.g., `"DV"`, `"PRED"`).
@@ -204,6 +248,12 @@ add_cent_layers_manual <- function(plot, cent, y_var, point_el, line_el, eb_el,
 #' within groups when `id_var_str` is specified. Color is mapped to a data
 #' column when `col_var_str` is provided.
 #'
+#' Use this variant when color is column-mapped, inherited from a global
+#' aesthetic, or fixed from the theme. For GOF-style overlay plots that
+#' route color through `scale_color_manual()` via a literal label, use
+#' [add_obs_layers_manual()] instead. The two helpers implement different
+#' `aes()` contracts and intentionally are not unified.
+#'
 #' @param plot ggplot object
 #' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
 #' @param point_el A `pmx_point` element with point aesthetics.
@@ -243,8 +293,15 @@ add_obs_layers <- function(plot, id_var_str, point_el, line_el,
 
 #' Add observed data layers for GOF plots with manual legend
 #'
-#' Like [add_obs_layers()] but maps color to a fixed string label for use
-#' with \code{scale_color_manual()} in GOF overlay plots.
+#' Use this variant for GOF-style overlay plots where the obs layer
+#' participates in a manual color legend alongside cent layers for DV /
+#' PRED / IPRED. The layer's `color` is set to the literal string
+#' `color_aes` inside `aes()`, which ggplot treats as a discrete level
+#' that `scale_color_manual()` then maps to a color.
+#'
+#' For column-mapped, inherited, or fixed-from-theme color, use
+#' [add_obs_layers()]. The two helpers implement different `aes()`
+#' contracts and intentionally are not unified.
 #'
 #' @param plot ggplot object
 #' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
@@ -434,7 +491,8 @@ prep_plot_env <- function(data, cent, log_y, theme, theme_fn) {
 errorbar_width <- function(plottheme, data) {
   if(is.numeric(plottheme$cent_errorbar$width)) return(plottheme$cent_errorbar$width)
   if (!"NTIME" %in% colnames(data) || nrow(data) == 0L || all(is.na(data$NTIME))) {
-    rlang::abort("cannot compute default errorbar width: `NTIME` is empty or all NA. Set `width` via `pmx_errorbar(width = ...)`.")
+    rlang::warn("cannot compute default errorbar width: `NTIME` is empty or all NA. Returning NA; set `width` via `pmx_errorbar(width = ...)` to suppress this warning.")
+    return(NA_real_)
   }
   max(data$NTIME, na.rm = TRUE) * 0.025
 }

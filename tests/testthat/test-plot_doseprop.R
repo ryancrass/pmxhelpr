@@ -144,6 +144,11 @@ test_that("Error if variable specified in `dose_var` is not in `data`", {
                regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
+test_that("Error if variable specified in `exp_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), exp_var = "EXP"),
+               regexp = "argument `exp_var` must be variable.*in `data`")
+})
+
 test_that("Error if argument `method` is not one of normal or tdist", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
                regexp = "argument `method` must be `normal` or `tdist`")

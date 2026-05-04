@@ -88,6 +88,43 @@ test_that("plot_dvconc_theme elements have correct classes", {
   expect_s3_class(theme$linear, "pmx_trend")
 })
 
+#####plot_doseprop_theme####
+
+test_that("plot_doseprop_theme returns a named list with defaults", {
+  theme <- plot_doseprop_theme()
+  expect_type(theme, "list")
+  expect_true("linear" %in% names(theme))
+  expect_true("color" %in% names(theme$linear))
+})
+
+test_that("plot_doseprop_theme override merges correctly", {
+  theme <- plot_doseprop_theme(linear = pmx_trend(color = "red"))
+  expect_equal(theme$linear$color, "red")
+})
+
+test_that("plot_doseprop_theme errors on invalid element field", {
+  expect_error(plot_doseprop_theme(linear = pmx_trend(fake_key = 1)),
+               regexp = "unused argument")
+})
+
+test_that("plot_doseprop_theme returns all expected keys", {
+  theme <- plot_doseprop_theme()
+  expected <- c("obs_point", "linear")
+  expect_setequal(names(theme), expected)
+})
+
+test_that("plot_doseprop_theme elements have correct classes", {
+  theme <- plot_doseprop_theme()
+  expect_s3_class(theme$obs_point, "pmx_point")
+  expect_s3_class(theme$linear, "pmx_trend")
+})
+
+test_that("plot_doseprop_theme obs shortcut applies to obs_point", {
+  theme <- plot_doseprop_theme(obs = pmx_style(color = "red", alpha = 0.3))
+  expect_equal(theme$obs_point$color, "red")
+  expect_equal(theme$obs_point$alpha, 0.3)
+})
+
 #####plot_gof_theme####
 
 test_that("plot_gof_theme returns a named list with defaults", {

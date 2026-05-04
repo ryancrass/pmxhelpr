@@ -142,6 +142,8 @@ df_doseprop <- function(data,
 #' Plot a dose-proportionality assessment via power law (log-log) regression
 #'
 #' @param se logical to display confidence interval around regression. Default is `TRUE`.
+#' @param theme Named list of aesthetic parameters for the plot created by [plot_doseprop_theme()].
+#'    Defaults can be viewed by running `plot_doseprop_theme()` with no arguments.
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
 #' @inheritParams df_doseprop
@@ -160,7 +162,8 @@ plot_doseprop <- function(data,
                           method = "normal",
                           ci = 0.90,
                           sigdigits=3,
-                          se = TRUE) {
+                          se = TRUE,
+                          theme = NULL) {
 
   metric_var_str <- resolve_var(rlang::enquo(metric_var))
   exp_var_str    <- resolve_var(rlang::enquo(exp_var))
@@ -172,6 +175,8 @@ plot_doseprop <- function(data,
   check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
+  plottheme <- merge_theme(theme, plot_doseprop_theme())
+
   dat <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
   tab <- df_doseprop(data, metrics,
                      metric_var = metric_var_str, exp_var = exp_var_str,
@@ -180,14 +185,23 @@ plot_doseprop <- function(data,
 
   plot_data <- dplyr::left_join(dat, tab, by = metric_var_str)
 
-  plot <-
-  ggplot2::ggplot(data = plot_data, ggplot2::aes(x = .data[[dose_var_str]], y = .data[[exp_var_str]])) +
-    ggplot2::geom_point() +
-    ggplot2::geom_smooth(method = "lm", formula = y~x, se = se, level = ci) +
-    ggplot2::labs(x = "Dose", y = "Exposure")+
+  base <- ggplot2::ggplot(data = plot_data,
+                          ggplot2::aes(x = .data[[dose_var_str]],
+                                       y = .data[[exp_var_str]]))
+
+  plot <- add_obs_layers(base, id_var_str = NULL,
+                         point_el = plottheme$obs_point,
+                         line_el = NULL)
+  plot <- add_trend_layers(plot, method = "lm", show = TRUE, se = se,
+                           plottheme = plottheme,
+                           col_var_str = NULL, col_trend = FALSE,
+                           formula = y ~ x, level = ci,
+                           theme_key = "linear")
+  plot <- plot +
+    ggplot2::labs(x = "Dose", y = "Exposure") +
     ggplot2::scale_x_log10(guide = "axis_logticks") +
     ggplot2::scale_y_log10(guide = "axis_logticks") +
-    ggplot2::facet_wrap(~label, scales = "free")+
+    ggplot2::facet_wrap(~label, scales = "free") +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
 

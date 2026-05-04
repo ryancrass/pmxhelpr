@@ -13,7 +13,8 @@ plot_doseprop(
   method = "normal",
   ci = 0.9,
   sigdigits = 3,
-  se = TRUE
+  se = TRUE,
+  theme = NULL
 )
 }
 \arguments{
@@ -40,6 +41,9 @@ Options 0.90 (default) and 0.95}
 \item{sigdigits}{number of significant digits for rounding}
 
 \item{se}{logical to display confidence interval around regression. Default is \code{TRUE}.}
+
+\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}.
+Defaults can be viewed by running \code{plot_doseprop_theme()} with no arguments.}
 }
 \value{
 a \code{ggplot} plot object

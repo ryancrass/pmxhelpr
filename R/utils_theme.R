@@ -438,6 +438,34 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL,
 }
 
 
+#' Dose-proportionality plot theme
+#'
+#' Constructor and factory for `plot_doseprop` plot aesthetics.
+#' Call with no arguments to view defaults. Pass element overrides to customize.
+#'
+#' @param obs_point Observed data point aesthetics. See [pmx_point()].
+#' @param linear Linear regression line + SE ribbon aesthetics. See [pmx_trend()].
+#' @param obs Shortcut: apply shared aesthetics to `obs_point`. See [pmx_style()].
+#'
+#' @return A named list of theme elements
+#' @export
+#'
+#' @examples
+#' plot_doseprop_theme()
+#' plot_doseprop_theme(linear = pmx_trend(color = "red"))
+#' plot_doseprop_theme(obs = pmx_style(alpha = 0.3))
+plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
+  defaults <- list(
+    obs_point = pmx_point(shape = 1, size = 2, alpha = 0.7),
+    linear    = pmx_trend(linewidth = 1, linetype = 1,
+                          color = "black",
+                          se_color = "lightgrey", se_alpha = 0.4)
+  )
+  merge_theme(compact(list(obs_point = obs_point, linear = linear, obs = obs)),
+              defaults)
+}
+
+
 #' VPC plot theme
 #'
 #' Constructor and factory for `plot_vpc_cont` plot aesthetics.

@@ -182,3 +182,19 @@ test_that("plot_doseprop accepts bare names", {
                   metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE),
     "ggplot")
 })
+
+test_that("plot_doseprop accepts theme argument and applies overrides", {
+  custom_theme <- plot_doseprop_theme(
+    obs_point = pmx_point(color = "red"),
+    linear = pmx_trend(color = "navy"))
+  p <- plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                     metrics = c("aucinf.obs", "cmax"),
+                     theme = custom_theme)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_doseprop default theme produces a valid plot", {
+  expect_no_error(
+    plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                  metrics = c("aucinf.obs", "cmax")))
+})

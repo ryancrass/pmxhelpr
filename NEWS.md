@@ -19,6 +19,7 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ### Behavior Changes
 * `df_mrgsim_replicate()` when `num_vars` / `char_vars` are `NULL` (default), all numeric/character columns of `data` are now auto-carried to the output. Previously only `EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, and the model output columns were carried. Explicit lists in `num_vars` / `char_vars` continue to override to carry exactly that list, so existing code with explicit lists is unaffected.
+* `plot_doseprop()` default point appearance changed from filled black circles (ggplot2 default) to open circles at `alpha = 0.7`, matching the package design language. Pass `theme = plot_doseprop_theme(obs_point = pmx_point(shape = 19, size = 1.5, alpha = 1, color = "black"))` to restore prior appearance.
 
 ### Removed Exported Functions
 * `dvconc_caption` and `dvtime_caption` removed.
@@ -29,6 +30,7 @@ This is a major refactor of the package focused on simplifying function interfac
   * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
   * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `cent_color`, `ref_line`, `loq_line`.
   * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys: `obs_point`, `ref_line`, `loess`, `linear`.
+  * `plot_doseprop_theme`, theme factory for `plot_doseprop`, includes keys: `obs_point`, `linear`.
 * VPC plot theme factory keys now follow an `element_statistic` naming convention aligned with the `shown` argument
   * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs_point`, `obs_median_line`, `obs_pi_line`, `sim_pi_line`, `sim_pi_ci`, `sim_pi_area`, `sim_median_line`, `sim_median_ci`, `loq_line`. 
 
@@ -48,6 +50,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_vpc_shown`: Constructor for VPC layer visibility settings.
 
 ### Theme System
+* New `plot_doseprop_theme` constructor for `plot_doseprop` aesthetics with keys `obs_point` and `linear` (plus `obs` role shortcut). `plot_doseprop()` now accepts a `theme` argument; previously its appearance was not customizable.
 * New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`).
 * New `plot_gof_shown` constructor for GOF layer visibility settings, paralleling `plot_vpc_shown` (e.g., `plot_gof_shown(pred = FALSE)`).
 * New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`).

@@ -539,3 +539,15 @@ The required arguments to `plot_doseprop()` are the same as `df_doseprop()`!
 ```{r power-law-plot}
 plot_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
 ```
+
+Plot aesthetics can be customized via the `theme` argument and the [`plot_doseprop_theme()`] constructor, which exposes `obs_point` (point aesthetics) and `linear` (regression line + SE ribbon aesthetics) keys plus an `obs` role-level shortcut.
+
+```{r power-law-plot-themed}
+plot_doseprop(
+  filter(data_sad_nca, PART == "Part 1-SAD"),
+  metrics = c("aucinf.obs", "cmax"),
+  theme = plot_doseprop_theme(
+    obs_point = pmx_point(color = "darkblue"),
+    linear = pmx_trend(color = "firebrick"))
+)
+```

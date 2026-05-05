@@ -39,10 +39,22 @@ Options 0.90 (default) and 0.95}
 \item{sigdigits}{number of significant digits for rounding}
 }
 \value{
-\code{data.frame}
+A data.frame with one row per metric and columns \code{Intercept},
+\code{StandardError}, \code{CI}, \code{Power}, \code{LCL}, \code{UCL}, \code{Proportional}, \code{PowerCI},
+\code{Interpretation}, plus the column named in \code{metric_var}. The object
+carries class \code{c("doseprop_stats", "data.frame")} and these attributes:
+\code{obs} (the filtered observation rows used for the plot scatter overlay),
+\code{metric_var}, \code{exp_var}, \code{dose_var}, \code{ci}, \code{method}. Pass it directly to
+\code{\link[=plot_doseprop]{plot_doseprop()}} or \code{\link[=plot_build_doseprop]{plot_build_doseprop()}} to replot without
+refitting.
 }
 \description{
-Compute and tabulate estimates for log-log regression
+Computes per-metric log-log regression statistics and returns them in a
+cacheable, replottable object. The returned data.frame carries the class
+\code{"doseprop_stats"} and the plotting context as attributes (\code{obs},
+\code{metric_var}, \code{exp_var}, \code{dose_var}, \code{ci}, \code{method}), so that
+\code{\link[=plot_doseprop]{plot_doseprop()}} / \code{\link[=plot_build_doseprop]{plot_build_doseprop()}} can render directly from this
+object without re-fitting any regressions.
 }
 \examples{
 df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))

@@ -19,7 +19,8 @@ init_plot(data, x_var, y_var, col_var_str = NULL)
 A ggplot object with base theme applied
 }
 \description{
-Creates a ggplot object with the base theme (\code{theme_bw}) and removes minor
-grid lines and major x-axis grid lines.
+Creates a ggplot object with the base theme (\code{theme_bw}) and the unified
+panel theme via \code{\link[=apply_panel_theme]{apply_panel_theme()}} (continuous-family defaults: minor
+and major.x gridlines blanked).
 }
 \keyword{internal}

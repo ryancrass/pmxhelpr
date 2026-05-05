@@ -203,3 +203,96 @@ test_that("plot_doseprop default theme produces a valid plot", {
     plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                   metrics = c("aucinf.obs", "cmax")))
 })
+
+
+##### df_doseprop() class tag and attributes #####
+
+test_that("df_doseprop returns a doseprop_stats-classed object", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(out, "doseprop_stats")
+  expect_s3_class(out, "data.frame")
+})
+
+test_that("df_doseprop attaches obs and column-name attributes", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(attr(out, "obs"), "data.frame")
+  expect_equal(attr(out, "metric_var"), "PPTESTCD")
+  expect_equal(attr(out, "exp_var"),    "PPORRES")
+  expect_equal(attr(out, "dose_var"),   "DOSE")
+  expect_equal(attr(out, "ci"),         0.90)
+  expect_equal(attr(out, "method"),     "normal")
+})
+
+test_that("df_doseprop obs attribute contains only the requested metrics", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  obs <- attr(out, "obs")
+  expect_setequal(unique(obs$PPTESTCD), c("aucinf.obs", "cmax"))
+})
+
+
+##### plot_build_doseprop() #####
+
+test_that("plot_build_doseprop accepts a doseprop_stats object and returns a ggplot", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_build_doseprop(stats)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_build_doseprop rejects non-doseprop_stats input", {
+  expect_error(plot_build_doseprop(data.frame(x = 1)),
+               regexp = "must be a `doseprop_stats` object")
+})
+
+test_that("plot_build_doseprop honors se = FALSE", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_build_doseprop(stats, se = FALSE)
+  expect_false(p$layers[[2]]$stat_params$se)
+})
+
+test_that("plot_build_doseprop honors theme overrides", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  custom_theme <- plot_doseprop_theme(
+    obs_point = pmx_point(color = "red"),
+    linear = pmx_trend(color = "navy"))
+  p <- plot_build_doseprop(stats, theme = custom_theme)
+  expect_s3_class(p, "ggplot")
+})
+
+
+##### plot_doseprop() dual-mode dispatch #####
+
+test_that("plot_doseprop accepts a precomputed doseprop_stats object", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_doseprop(stats)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_doseprop honors se on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_doseprop(stats, se = FALSE)
+  expect_false(p$layers[[2]]$stat_params$se)
+})
+
+test_that("plot_doseprop raw and precomputed paths produce structurally equivalent plot data", {
+  d <- dplyr::filter(data_sad_nca, PART == "Part 1-SAD")
+  stats <- df_doseprop(d, metrics = c("aucinf.obs", "cmax"))
+  p_pre <- plot_doseprop(stats)
+  p_raw <- plot_doseprop(d, metrics = c("aucinf.obs", "cmax"))
+  built_pre <- ggplot2::ggplot_build(p_pre)
+  built_raw <- ggplot2::ggplot_build(p_raw)
+  expect_equal(length(built_pre$data), length(built_raw$data))
+  expect_equal(vapply(built_pre$data, nrow, integer(1)),
+               vapply(built_raw$data, nrow, integer(1)))
+})
+
+test_that("plot_doseprop silently ignores pipeline args on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  expect_no_error(
+    plot_doseprop(stats, metrics = c("aucinf.obs"), method = "tdist", ci = 0.95))
+})

@@ -6,7 +6,7 @@
 \usage{
 plot_doseprop(
   data,
-  metrics,
+  metrics = NULL,
   metric_var = PPTESTCD,
   exp_var = PPORRES,
   dose_var = DOSE,
@@ -18,10 +18,13 @@ plot_doseprop(
 )
 }
 \arguments{
-\item{data}{Input dataset for log-log regression.
-Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP formatting)}
+\item{data}{Either raw observation data (data.frame, default expected
+format is output from \code{PKNCA::pk.nca()}) or a \code{doseprop_stats} object
+returned by \code{\link[=df_doseprop]{df_doseprop()}}.}
 
-\item{metrics}{character vector of exposure metrics in \code{data} to plot}
+\item{metrics}{character vector of exposure metrics in \code{data} to plot.
+Required on the raw-data path; ignored when \code{data} is a
+\code{doseprop_stats} object.}
 
 \item{metric_var}{Column in \code{data} containing the values provided in \code{metrics}.
 Accepts bare names or strings. Default is \code{PPTESTCD}.}
@@ -40,17 +43,39 @@ Options 0.90 (default) and 0.95}
 
 \item{sigdigits}{number of significant digits for rounding}
 
-\item{se}{logical to display confidence interval around regression. Default is \code{TRUE}.}
+\item{se}{logical to display confidence interval around regression.
+Default is \code{TRUE}.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}.
-Defaults can be viewed by running \code{plot_doseprop_theme()} with no arguments.}
+\item{theme}{Named list of aesthetic parameters for the plot created by
+\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}. Defaults can be viewed by running
+\code{plot_doseprop_theme()} with no arguments.}
 }
 \value{
 a \code{ggplot} plot object
 }
 \description{
-Plot a dose-proportionality assessment via power law (log-log) regression
+Dual-mode wrapper that delegates to \code{\link[=df_doseprop]{df_doseprop()}} for computation and
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}} for rendering. Accepts either:
+\itemize{
+\item raw observation data (e.g. PKNCA output) plus a \code{metrics} vector — the
+common one-shot mode; or
+\item a precomputed \code{doseprop_stats} object returned by \code{\link[=df_doseprop]{df_doseprop()}} — skip
+the regression refit and replot with different \code{theme} / \code{se} settings.
+}
+
+On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_var},
+\code{exp_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) are silently ignored
+because the regression does not run again. \code{theme} and \code{se} are honored
+on both paths.
 }
 \examples{
-plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
+# Raw-data path
+plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+               metrics = c("aucinf.obs", "cmax"))
+
+# Precomputed path: compute once, replot many times
+stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                      metrics = c("aucinf.obs", "cmax"))
+plot_doseprop(stats)
+plot_doseprop(stats, se = FALSE)
 }

@@ -212,10 +212,5 @@ plot_build_vpc <- function(compute_out,
         "Replicates = ", attr(compute_out$stats, "n_replicates")))
   }
 
-  plot +
-    ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white",
-                                                            linewidth = 0.5,
-                                                            color = "black"),
-                   panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
+  apply_panel_theme(plot, white_panel = TRUE)
 }

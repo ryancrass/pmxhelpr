@@ -296,3 +296,47 @@ test_that("plot_doseprop silently ignores pipeline args on the precomputed path"
   expect_no_error(
     plot_doseprop(stats, metrics = c("aucinf.obs"), method = "tdist", ci = 0.95))
 })
+
+
+##### S3 methods on doseprop_stats #####
+
+test_that("is_doseprop_stats() correctly detects the class", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_true(is_doseprop_stats(stats))
+  expect_false(is_doseprop_stats(mtcars))
+  expect_false(is_doseprop_stats(as.data.frame(stats)))
+})
+
+test_that("print.doseprop_stats() runs and writes the doseprop_stats banner", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  out <- capture.output(print(stats))
+  expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
+  expect_true(any(grepl("metric_var = PPTESTCD", out, fixed = TRUE)))
+  expect_true(any(grepl("aucinf.obs", out, fixed = TRUE)))
+})
+
+test_that("summary.doseprop_stats() runs and writes a per-metric line", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  out <- capture.output(summary(stats))
+  expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
+  expect_true(any(grepl("per-metric:", out, fixed = TRUE)))
+  expect_true(any(grepl("Dose-proportional", out, fixed = TRUE)))
+})
+
+test_that("as.data.frame.doseprop_stats() drops the doseprop_stats class", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  d <- as.data.frame(stats)
+  expect_s3_class(d, "data.frame")
+  expect_false(inherits(d, "doseprop_stats"))
+  expect_equal(nrow(d), nrow(stats))
+  expect_equal(colnames(d), colnames(stats))
+})
+
+test_that("as.data.frame.doseprop_stats() preserves metadata attributes", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  d <- as.data.frame(stats)
+  expect_s3_class(attr(d, "obs"), "data.frame")
+  expect_equal(attr(d, "metric_var"), "PPTESTCD")
+  expect_equal(attr(d, "ci"),         0.90)
+  expect_equal(attr(d, "method"),     "normal")
+})

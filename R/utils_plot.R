@@ -20,8 +20,9 @@
 #    Layers:     add_obs_layers (no col_var/id_var), add_trend_layers (lm).
 #
 # 3. VPC family — plot_vpc_cont
-#    Preprocess: df_vpcpreprocess (BLQ encoding, prediction correction).
-#    Build:      vpc_build_plot (ribbons/lines from df_vpcstats output).
+#    Preprocess: df_vpcpreprocess (validate, EVID=0, BLQ encode).
+#    Compute:    df_vpccompute (pred-correction, quantile aggregation).
+#    Build:      plot_build_vpc (ribbons/lines + obs overlay from compute output).
 #    Init:       white-paneled background, hand-applied at the end.
 #
 # Shared across families: resolve_var (R/utils.R), merge_theme /

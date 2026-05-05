@@ -5,73 +5,55 @@
 \title{Preprocess simulation data for VPC statistics}
 \usage{
 df_vpcpreprocess(
-  sim,
+  data,
   time_var_str,
   ntime_var_str,
   pred_var_str,
-  ipred_var_str,
   sim_dv_var_str,
   obs_dv_var_str,
-  strat_var_str,
-  pcvpc,
-  lower_bound,
-  loq,
-  mode = c("auto", "rank", "drop")
+  strat_var_str = NULL,
+  irep_name_str = "SIM",
+  loq = NULL
 )
 }
 \arguments{
-\item{sim}{Simulated data from \code{df_mrgsim_replicate()} or equivalent.}
+\item{data}{Simulated data from \code{df_mrgsim_replicate()} or equivalent.}
 
-\item{time_var_str}{String name of the actual time column in \code{sim}.}
+\item{time_var_str}{String name of the actual time column in \code{data}.}
 
-\item{ntime_var_str}{String name of the nominal time column in \code{sim}.}
+\item{ntime_var_str}{String name of the nominal time column in \code{data}.}
 
-\item{pred_var_str}{String name of the population prediction column in \code{sim}.}
+\item{pred_var_str}{String name of the population prediction column in \code{data}.}
 
-\item{ipred_var_str}{String name of the individual prediction column in \code{sim}.}
+\item{sim_dv_var_str}{String name of the simulated DV column in \code{data}.}
 
-\item{sim_dv_var_str}{String name of the simulated DV column in \code{sim}.}
-
-\item{obs_dv_var_str}{String name of the observed DV column in \code{sim}.}
+\item{obs_dv_var_str}{String name of the observed DV column in \code{data}.}
 
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 
-\item{pcvpc}{Logical for prediction correction.}
+\item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
-\item{lower_bound}{Lower bound for prediction correction formula.}
-
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.}
-
-\item{mode}{One of \code{"auto"} (default), \code{"rank"}, or \code{"drop"}. Selects how
-BLQ-encoded values are carried into downstream quantile aggregation.
-\code{"rank"} preserves \code{-Inf} encoding (BLQ ranks at the low end of the
-sorted vector — fully-censored bins return \code{-Inf} quantiles, masked to
-\code{NA} before plotting). \code{"drop"} converts \code{-Inf} to \code{NA} so BLQ rows are
-excluded from quantile computation entirely. \code{"auto"} resolves to
-\code{"rank"} for std VPC and \code{"drop"} for pcVPC, matching historical
-pmxhelpr behavior.}
+\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
+When \code{NULL} and column \code{LLOQ} is present in \code{data}, the value is inherited
+from the unique non-NA \code{LLOQ} value at replicate 1.}
 }
 \value{
-A preprocessed data.frame with standardized column names. OBSDV
-(and SIMDV in pcVPC + \code{loq}) carries \code{-Inf} for BLQ rows in \code{"rank"}
-mode and \code{NA_real_} in \code{"drop"} mode.
+A preprocessed data.frame with standardized columns. The resolved
+\code{loq} is attached as \code{attr(., "loq")}.
 }
 \description{
-Internal function. Validates columns, renames to standard names, drops
-dose rows, applies BLQ encoding, and (for pcVPC) prediction correction.
+Internal function. Validates columns, resolves \code{loq} (inheritance from an
+\code{LLOQ} column when not explicitly supplied), filters dose rows
+(\code{EVID == 0}), renames simulation-output columns to standard internal
+names, and applies BLQ encoding to \code{OBSDV}. Prediction-correction and the
+(mode-aware) BLQ-encoding of \code{SIMDV} are handled per-flavor in
+\code{\link[=df_vpccompute]{df_vpccompute()}}.
 
-BLQ encoding rules:
+BLQ encoding (in this stage):
 \itemize{
-\item OBSDV (both modes): positions where \code{MDV == 1}, \code{is.na(OBSDV)}, or
-(when \code{loq} is provided) \code{OBSDV < loq} are encoded as \code{-Inf} via
+\item \code{OBSDV} positions where \code{MDV == 1}, \code{is.na(OBSDV)}, or (when \code{loq}
+is provided) \code{OBSDV < loq} are encoded as \code{-Inf} via
 \code{\link[=var_loqcens]{var_loqcens()}}.
-\item SIMDV (pcVPC only, when \code{loq} is provided): positions where
-\code{SIMDV < loq} are encoded as \code{-Inf} via \code{\link[=var_loqcens]{var_loqcens()}}.
-\item For drop-mode quantile semantics, encoded \code{-Inf} values are
-converted to \code{NA_real_} via \code{\link[=var_infna]{var_infna()}} before downstream
-consumers (\code{\link[=var_predcorr]{var_predcorr()}} in pcVPC; quantile aggregation in
-\code{\link[=df_vpcstats]{df_vpcstats()}}). For rank-mode, the \code{-Inf} encoding is preserved
-and ranks at the low end of \code{\link[stats:quantile]{stats::quantile()}}.
 }
 }
 \keyword{internal}

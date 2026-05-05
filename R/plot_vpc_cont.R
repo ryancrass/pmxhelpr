@@ -1,32 +1,34 @@
 #' Plot a visual predictive check (VPC) for continuous data with exact time bins
 #'
 #' @description  `plot_vpc_cont()` generates a VPC plot using exact time bins
-#' and returns a `ggplot2` object.
+#' and returns a `ggplot2` object. Thin wrapper that delegates to
+#' [df_vpcstats()] for computation and an internal builder for plot
+#' construction.
 #'
-#' @param sim Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
+#' @param data Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
 #' @param strat_var Stratification variable.
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
 #'    For standard VPCs (`pcvpc = FALSE`)
 #'
-#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `MDV` values are set to 0
+#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `data`, all `MDV` values are set to 0
 #'      so that all observations (including BLQ) are processed when and censoring is performed at the quantile level.
 #'      Filter to `EVID==0` so that doses are dropped.
-#'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, the dataset is filtered to `MDV==0` since `loq` is unknown.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is filtered to `MDV==0` since `loq` is unknown.
 #'
 #'    For prediction-corrected VPCs (`pcvpc = TRUE`)
-#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `SIMDV` and `OBSDV` values < loq are set to
+#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `data`, all `SIMDV` and `OBSDV` values < loq are set to
 #'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
-#'      + If `loq=NULL` and `LLOQ` is NOT present in `sim`, filter to `MDV==0` since `loq` is unknown.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, filter to `MDV==0` since `loq` is unknown.
 #'    Dashed horizontal line plotted at `loq` by default for standard VPCs (controlled via `theme`);
 #'    suppressed for `pcvpc = TRUE` since `loq` has no meaning on the prediction-corrected scale.
 #' @param min_bin_count Minimum number of quantifiable observations
-#'    (`nbin - nobsblq` in the summary statistics frame) per exact bin required
-#'    for inclusion in binned plot layers. BLQ-encoded records (`nobsblq`) do
-#'    not count toward this threshold. This argument drops small bins from
-#'    summary statistic plotting but retains the underlying observations as
-#'    data points.
+#'    (`obs_n - obs_n_blq` in the summary statistics frame) per exact bin
+#'    required for inclusion in binned plot layers. BLQ-encoded records
+#'    (`obs_n_blq`) do not count toward this threshold. This argument drops
+#'    small bins from summary statistic plotting but retains the underlying
+#'    observations as data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
 #' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Controls how
 #'    BLQ-encoded values are carried through quantile aggregation. In `"rank"`
@@ -43,27 +45,26 @@
 #'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
-#' @param ci Numeric confidence level for simulation intervals (e.g., `0.90` for 90% CI). Default is `0.90`.
-#' @param vpcstats Logical. If `TRUE`, return a list of computed VPC statistics instead of a plot. Default is `FALSE`.
+#' @param ci Numeric scalar in `(0, 1)` for simulation interval (e.g., `0.90` for 90% CI). Default is `0.90`.
 #'
-#' @param time_var Column containing the actual time variable in `sim`.
+#' @param time_var Column containing the actual time variable in `data`.
 #'    Accepts bare names or strings. Default is `TIME`.
-#' @param ntime_var Column containing the nominal time variable in `sim`.
+#' @param ntime_var Column containing the nominal time variable in `data`.
 #'    Accepts bare names or strings. Default is `NTIME`.
-#' @param pred_var Column containing population predictions in `sim`.
+#' @param pred_var Column containing population predictions in `data`.
 #'    Accepts bare names or strings. Default is `PRED`.
-#' @param ipred_var Column containing individual predictions in `sim`.
-#'    Accepts bare names or strings. Default is `IPRED`.
-#' @param sim_dv_var Column containing simulated DV in `sim`.
+#' @param sim_dv_var Column containing simulated DV in `data`.
 #'    Accepts bare names or strings. Default is `SIMDV`.
-#' @param obs_dv_var Column containing observed DV in `sim`.
+#' @param obs_dv_var Column containing observed DV in `data`.
 #'    Accepts bare names or strings. Default is `OBSDV`.
-#' @param irep_name Name of replicate variable in `sim`. Accepts bare names or strings. Default is `SIM`.
+#' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
+#' @param sim Deprecated. Use `data` instead. Soft alias retained for one cycle —
+#'    passing `sim = ...` emits a warning and the value is forwarded to `data`.
 #' @inheritParams plot_dvtime
 #' @inheritParams var_predcorr
 #'
-#' @return A `ggplot2` object (default), or a `data.frame` of VPC summary
-#'    statistics from [df_vpcstats()] when `vpcstats = TRUE`.
+#' @return A `ggplot2` object. To access the underlying VPC summary statistics
+#'    data.frame directly, use [df_vpcstats()].
 #' @export plot_vpc_cont
 #'
 #' @examples
@@ -76,175 +77,85 @@
 #' irep_name = SIM)
 #'
 #' vpc_plot <- plot_vpc_cont(
-#' sim = simout,
+#' data = simout,
 #' pcvpc = TRUE,
 #' loq = 1,
 #' pi = c(0.05, 0.95),
 #' ci = 0.90)
 
-plot_vpc_cont <- function(sim,
-                               time_var = TIME,
-                               ntime_var = NTIME,
-                               pred_var = PRED,
-                               ipred_var = IPRED,
-                               sim_dv_var = SIMDV,
-                               obs_dv_var = OBSDV,
-                               strat_var = NULL,
-                               pcvpc = FALSE,
-                               loq = NULL,
-                               irep_name = SIM,
-                               min_bin_count=1,
-                               show_rep = TRUE,
-                               lower_bound = 0,
-                               mode = c("auto", "rank", "drop"),
-                               shown = NULL,
-                               theme = NULL,
-                               pi = c(0.05, 0.95),
-                               ci = 0.90,
-                               vpcstats = FALSE)
-{
-  mode <- match.arg(mode)
-
-  check_quantile_pair(pi, "pi")
-  check_quantile_scalar(ci, "ci")
-
-  time_var_str    <- resolve_var(rlang::enquo(time_var))
-  ntime_var_str   <- resolve_var(rlang::enquo(ntime_var))
-  pred_var_str    <- resolve_var(rlang::enquo(pred_var))
-  ipred_var_str   <- resolve_var(rlang::enquo(ipred_var))
-  sim_dv_var_str  <- resolve_var(rlang::enquo(sim_dv_var))
-  obs_dv_var_str  <- resolve_var(rlang::enquo(obs_dv_var))
-  strat_var_str   <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  irep_name_str   <- resolve_var(rlang::enquo(irep_name))
-
-  #Inherit LLOQ from sim column if not explicitly provided
-  if (is.null(loq) && "LLOQ" %in% colnames(sim)) {
-    lloq_vals <- unique(sim$LLOQ[sim[[irep_name_str]] == 1 & !is.na(sim$LLOQ)])
-    if (length(lloq_vals) == 1L) {
-      loq <- lloq_vals
-      message("Inheriting `loq = ", loq, "` from `LLOQ` column in `sim`.")
-      if (isTRUE(pcvpc)) {
-        rlang::warn(paste0(
-          "`loq` inherited from `LLOQ` column with `pcvpc = TRUE`: ",
-          "BLQ censoring is applied before prediction-correction, ",
-          "and no LOQ reference line is drawn (LOQ has no meaning on the prediction-corrected scale). ",
-          "Pass `loq` explicitly to confirm censoring and suppress this warning."
-        ))
-      }
-    } else if (length(lloq_vals) > 1L) {
-      rlang::warn(paste0("`LLOQ` column in `sim` has multiple unique values (",
-                         paste(lloq_vals, collapse = ", "),
-                         "); not inherited. Pass `loq` explicitly to enable BLQ handling."))
-    }
+plot_vpc_cont <- function(data,
+                          time_var = TIME,
+                          ntime_var = NTIME,
+                          pred_var = PRED,
+                          sim_dv_var = SIMDV,
+                          obs_dv_var = OBSDV,
+                          strat_var = NULL,
+                          pcvpc = FALSE,
+                          loq = NULL,
+                          irep_name = SIM,
+                          min_bin_count = 1,
+                          show_rep = TRUE,
+                          lower_bound = 0,
+                          mode = c("auto", "rank", "drop"),
+                          shown = NULL,
+                          theme = NULL,
+                          pi = c(0.05, 0.95),
+                          ci = 0.90,
+                          sim) {
+  if (!missing(sim)) {
+    warning("`sim` is deprecated; use `data` instead.", call. = FALSE)
+    if (missing(data)) data <- sim
   }
 
-  #Warn if strat_var has NA values (would produce NA facet)
-  if (!is.null(strat_var_str) && strat_var_str %in% colnames(sim)) {
-    if (any(is.na(sim[[strat_var_str]]))) {
-      rlang::warn(paste0("`strat_var` ('", strat_var_str,
-                         "') contains NA values; faceting will produce an `NA` facet"))
-    }
+  ## Precomputed-stats path: caller passed the list returned by df_vpcstats().
+  ## Skip preprocess + compute and recover plotting context from the stored
+  ## attributes. Pipeline args (strat_var, loq, mode, pi, ci, column-name
+  ## args) are ignored on this path because the pipeline doesn't run; pcvpc
+  ## is honored as a plot-time view selector.
+  if (inherits(data, "vpc_stats")) {
+    return(plot_build_vpc(
+      data,
+      min_bin_count = min_bin_count,
+      show_rep      = show_rep,
+      shown         = shown,
+      theme         = theme,
+      pcvpc         = pcvpc,
+      loq           = attr(data$stats, "loq"),
+      strat_var_str = attr(data$stats, "strat_var"),
+      bin_var       = "BIN_MID"
+    ))
   }
 
-  if(!is.null(loq)) {check_numeric_strict(loq, "loq")}
+  time_var_str   <- resolve_var(rlang::enquo(time_var))
+  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
+  pred_var_str   <- resolve_var(rlang::enquo(pred_var))
+  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
+  obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var))
+  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
 
-  #Preprocess: validate, rename, BLQ-encode, optionally prediction-correct
-  sim <- df_vpcpreprocess(sim, time_var_str, ntime_var_str,
-                          pred_var_str, ipred_var_str,
-                          sim_dv_var_str, obs_dv_var_str,
-                          strat_var_str, pcvpc, lower_bound, loq,
-                          mode = mode)
-
-  check_varsindf(sim, irep_name_str, "sim", "irep_name")
-
-  #Preserve the user-supplied loq for BLQ-fraction computation in df_vpcstats.
-  #The local `loq` is then nullified in pcVPC mode since it is used downstream
-  #only as the y-position of the LLOQ reference line, which is meaningless on
-  #the prediction-corrected scale.
-  loq_for_stats <- loq
-  if (isTRUE(pcvpc)) loq <- NULL
-
-  ##Compute VPC Statistics
-  bin_var <- "BIN_MID"
-  ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  vpcstat <- df_vpcstats(sim, pi = pi, ci = ci_bounds, bin_var = bin_var,
-                         strat_var = strat_var_str, irep_name = irep_name_str,
-                         loq = loq_for_stats, pcvpc = pcvpc)
-
-  ##Mask any `-Inf` quantile outputs (rank-mode artifact for fully-censored
-  ##bins) and any `-Inf` OBSDV values (rank-mode rows surviving to the
-  ##overlay) to NA so ggplot drops them silently. No-op when preprocess
-  ##already converted to NA via drop mode.
-  vpcstat <- vpcstat |>
-    dplyr::mutate(dplyr::across(c("q5_low", "q5_med", "q5_hi",
-                                   "q50_low", "q50_med", "q50_hi",
-                                   "q95_low", "q95_med", "q95_hi",
-                                   "obs5", "obs50", "obs95"),
-                                 var_infna))
-  sim <- dplyr::mutate(sim, OBSDV = var_infna(OBSDV))
-
-  ##Return database if requested
-  if(isTRUE(vpcstats)) {
-    return(vpcstat)
-  }
-
-  #Isolate observed data for plot overlay
-  obs <- sim |>
-    dplyr::filter(.data[[irep_name_str]] == 1 & MDV == 0)
-
-  ##Set vpc aesthetics and theme
-  show_vpc <- merge_element(shown, plot_vpc_shown())
-  vpctheme <- merge_theme(theme, plot_vpc_theme())
-
-  ##Build VPC Plot
-  plot <- vpc_build_plot(
-    vpcstats = dplyr::filter(vpcstat, (nbin - nobsblq) >= min_bin_count),
-    bin_var = bin_var,
-    strat_var_str = strat_var_str,
-    shown = show_vpc,
-    theme = vpctheme,
-    loq = loq
+  out <- df_vpcstats(
+    data = data,
+    time_var   = time_var_str,
+    ntime_var  = ntime_var_str,
+    pred_var   = pred_var_str,
+    sim_dv_var = sim_dv_var_str,
+    obs_dv_var = obs_dv_var_str,
+    strat_var  = strat_var_str,
+    irep_name  = irep_name_str,
+    loq = loq, lower_bound = lower_bound,
+    mode = mode, pi = pi, ci = ci
   )
 
-  ##Overlay Observations if Requested
-  if(isTRUE(show_vpc$obs_point)){
-    plot <- plot+
-      ggplot2::geom_point(ggplot2::aes(y = OBSDV, x = TIME),
-                          data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs_point$shape,
-                          alpha = vpctheme$obs_point$alpha,
-                          size = vpctheme$obs_point$size,
-                          color = vpctheme$obs_point$color)
-  }
-
-
-  ##Add subtitle with replicates
-  if(isTRUE(show_rep)){
-    plot <- plot+
-      ggplot2::labs(caption = paste0("Replicates = ", max(sim[[irep_name_str]])))
-  }
-
-
-  ##Apply theme panel elements
-  plot <- plot +
-    ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white",
-                                                   linewidth = 0.5,
-                                                   color = "black"),
-                   panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
-
-
-  return(plot)
+  plot_build_vpc(
+    out,
+    min_bin_count = min_bin_count,
+    show_rep = show_rep,
+    shown = shown,
+    theme = theme,
+    pcvpc = pcvpc,
+    loq = attr(out$stats, "loq"),
+    strat_var_str = strat_var_str,
+    bin_var = "BIN_MID"
+  )
 }
-
-
-
-
-
-
-
-
-
-
-
-

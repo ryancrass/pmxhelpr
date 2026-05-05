@@ -20,6 +20,15 @@ This is a major refactor of the package focused on simplifying function interfac
 ### Behavior Changes
 * `df_mrgsim_replicate()` when `num_vars` / `char_vars` are `NULL` (default), all numeric/character columns of `data` are now auto-carried to the output. Previously only `EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, and the model output columns were carried. Explicit lists in `num_vars` / `char_vars` continue to override to carry exactly that list, so existing code with explicit lists is unaffected.
 * `plot_doseprop()` default point appearance changed from filled black circles (ggplot2 default) to open circles at `alpha = 0.7`, matching the package design language. Pass `theme = plot_doseprop_theme(obs_point = pmx_point(shape = 19, size = 1.5, alpha = 1, color = "black"))` to restore prior appearance.
+* `df_vpcstats()` now returns a list with two data.frames: `stats` (summary statistics, previously the entire return) and `obs` (first-replicate observation rows used as the plot scatter overlay). Code that expected a data.frame should access `result$stats`. The `stats` element carries `n_replicates` and `loq` as attributes.
+* `plot_gof()` now applies the `EVID == 0` filter via `df_prep_dvtime()` (was previously letting dose rows through silently when callers forgot to pre-filter).
+* `errorbar_width()` warns and returns `NA_real_` instead of aborting on empty / all-NA NTIME input.
+
+### Renamed / Removed Arguments
+* `plot_vpc_cont(sim = ...)` renamed to `plot_vpc_cont(data = ...)` for consistency with other plot functions. `sim = ...` is retained as a soft-deprecated alias for one cycle and emits an `rlang` warning when used.
+* `plot_vpc_cont(vpcstats = TRUE)` argument removed. Use `df_vpcstats(data, ...)` directly to obtain the summary statistics and observation overlay.
+* `ipred_var` argument removed from `plot_vpc_cont()` and `df_vpcstats()`. The VPC pipeline only consumes `PRED` (for prediction-correction) and never used the renamed `IPRED` column; the argument was carried over from the prior `vpc`-package-based implementation and did nothing.
+* `pcvpc` argument removed from `df_vpcstats()`. The function now always computes both standard and prediction-corrected statistics and emits both column sets in a single call. The `pcvpc` decision moves to the plotting layer: `plot_vpc_cont(out, pcvpc = TRUE)` selects the prediction-corrected view at plot time.
 
 ### Removed Exported Functions
 * `dvconc_caption` and `dvtime_caption` removed.
@@ -46,7 +55,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * `var_addn`: Vectorized helper to create factor labels with counts of unique values.
 * `var_dosenorm`: Vectorized dose normalization helper.
 * `var_predcorr`: Vectorized prediction correction helper.
-* `df_vpcstats`: Exported VPC summary statistics function with integrated bin counting (replaces `df_nobsbin` dependency).
+* `df_vpcstats`: Exported VPC summary statistics function. Takes raw simulation output (e.g. from `df_mrgsim_replicate()`) and returns a list with `stats` (summary statistics with integrated bin counting, replacing `df_nobsbin` dependency) and `obs` (first-replicate observation rows for the plot scatter overlay).
 * `plot_vpc_shown`: Constructor for VPC layer visibility settings.
 
 ### Theme System
@@ -59,7 +68,13 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ### VPC Pipeline
 * VPC pipeline refactored to remove dependency on `vpc` package.
-* VPC pre-processing (variable renaming, prediction-correction) handled internally within `df_vpcstats`.
+* VPC pipeline restructured into three internal stages with two thin user-facing wrappers:
+  1. `df_vpcpreprocess()` — validates inputs, resolves `loq` (inheritance from `LLOQ` column) and `mode` (`"auto"` resolution), filters `EVID == 0`, standardizes column names, and applies BLQ encoding via `var_loqcens`.
+  2. `df_vpccompute()` — applies prediction-correction (when `pcvpc = TRUE`), computes the two-stage simulated quantile summary plus observed quantiles, masks `-Inf` BLQ artifacts to `NA`, and builds the observation overlay subset. Returns `list(stats, obs)`.
+  3. `plot_build_vpc()` — applies the `min_bin_count` filter, draws ribbons / lines, overlays observed scatter, draws the LOQ reference line, applies stratification facets, and adds the replicates caption + panel theme.
+  `df_vpcstats()` is a wrapper around stages 1–2; `plot_vpc_cont()` is a wrapper around all three. The previous internal helpers `vpc_pipeline()` and `vpc_build_plot()` are removed.
+* `plot_vpc_cont()` now accepts the list returned by `df_vpcstats()` directly (in addition to raw simulation data). Pass a precomputed `df_vpcstats()` result to skip the preprocess + compute steps and re-plot the same data with different `min_bin_count` / `shown` / `theme` settings without paying the summarization cost again. The `df_vpcstats()` return is class-tagged `"vpc_stats"`; pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are silently ignored on this path because the pipeline does not run. `pcvpc` is honored on both paths as a plot-time view selector.
+* `df_vpcstats()` always emits both standard and prediction-corrected statistics in a single call. The `stats` data.frame gains 12 `pc_*`-prefixed columns (3 obs + 9 sim quantile CIs) alongside the existing std-mode columns; `obs_n / obs_n_blq / obs_prop_blq / sim_prop_blq_* / ci / pi_low / pi_hi` are not duplicated (counts and run-config are flavor-independent; `sim_prop_blq_*` is std-only because LOQ has no meaning on the prediction-corrected scale). The `obs` data.frame gains a `PC_OBSDV` column alongside the existing `OBSDV`. Users can now compute summary statistics once and re-plot under either VPC flavor by toggling `plot_vpc_cont(out, pcvpc = ...)`.
 * `df_vpcstats` accepts combined simulation output directly from `df_mrgsim_replicate`.
 * Add `loq` handling to VPC plots with observed quantile censoring.
 * `plot_vpc_cont` inherits `loq` from `LLOQ` column in `sim` when not explicitly provided.
@@ -67,7 +82,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_vpc_cont` warns when `loq` is inherited from the `LLOQ` column and `pcvpc = TRUE`, noting that BLQ censoring is applied before prediction-correction and that no LOQ reference line is drawn on the PC scale. Pass `loq` explicitly to acknowledge and suppress the warning.
 * Unified BLQ pipeline: all censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting / `vpcstats = TRUE` return. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
 * `var_loqcens` rewritten as a vector encoder (`var_loqcens(x, loq, mdv)`) returning `-Inf` at BLQ positions; previously computed a censored quantile.
-* `df_vpcstats` now reports per-bin `nbin`, `nobsblq` (renamed from `nmiss`), and `obs_prop_blq`; the `nobs` column is removed. When `loq` is supplied, the result also includes `sim_prop_blq_low`, `sim_prop_blq_med`, and `sim_prop_blq_hi`. The `min_bin_count` filter in `plot_vpc_cont` now gates on `nbin - nobsblq` (quantifiable observations).
+* `df_vpcstats` summary statistics column names harmonized to a `<role>_<low|med|hi>` scheme. Per-bin counts are `obs_n` and `obs_n_blq` (previously `nbin` / `nobsblq`; the `nobs` column was removed and `nmiss` previously renamed to `nobsblq`). Simulated quantile CIs are `sim_low_low/med/hi`, `sim_med_low/med/hi`, `sim_hi_low/med/hi` (previously `q5_*`, `q50_*`, `q95_*`); observed quantiles are `obs_low/med/hi` (previously `obs5/50/95`). When `loq` is supplied, the result also includes `sim_prop_blq_low/med/hi`. The `min_bin_count` filter gates on `obs_n - obs_n_blq` (quantifiable observations). Trailing `ci`, `pi_low`, `pi_hi` columns echo the configuration so consumers can interpret the `_low/_med/_hi` CI suffix and the `sim_low_*` / `sim_hi_*` PI prefix groups.
 * `plot_vpc_cont` and `df_vpcpreprocess` accept a new `mode` argument (`"auto"` (default), `"rank"`, or `"drop"`) that controls how BLQ-encoded values flow into quantile aggregation. `"rank"` keeps `-Inf` encoding so BLQ rows rank low at `stats::quantile`; fully-censored bins return `-Inf` and are masked to `NA` before plotting. `"drop"` converts BLQ to `NA` so those rows are excluded from quantile computation entirely. `"auto"` resolves to `"rank"` for std VPC and `"drop"` for pcVPC, matching prior package behavior — no numerical change for existing users.
 
 ## Internal Improvements

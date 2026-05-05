@@ -419,7 +419,7 @@ simout <- df_mrgsim_replicate(data_pk, model, replicates = 100, dv_var = "ODV")
 
 ```{r example-vpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 plot_vpc_cont(
-  sim = simout,
+  data = simout,
   pcvpc = TRUE,
   theme = new_vpc_theme,
   min_bin_count = 4,

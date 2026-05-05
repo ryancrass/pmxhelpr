@@ -15,7 +15,7 @@ test_that("df_mrgsim_addpred -> plot_vpc_cont: prediction-corrected DV pipeline 
                              replicates = 1, dv_var = "ODV")
   expect_s3_class(sim, "data.frame")
   expect_equal(nrow(data_pred), nrow(sim))
-  p <- plot_vpc_cont(sim = sim, pcvpc = TRUE)
+  p <- plot_vpc_cont(data = sim, pcvpc = TRUE, loq = 1)
   expect_s3_class(p, "ggplot")
 })
 
@@ -31,7 +31,7 @@ test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces VPC plo
   model <- model_mread_load("pkmodel")
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
                              replicates = 5, dv_var = "ODV")
-  p <- plot_vpc_cont(sim = sim)
+  p <- plot_vpc_cont(data = sim)
   expect_s3_class(p, "ggplot")
 })
 

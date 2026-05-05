@@ -1,105 +1,153 @@
-#' Compute VPC summary statistics from preprocessed simulation data
+
+#' Preprocess simulation data for VPC statistics
 #'
 #' @description
-#' Computes two-stage quantile summary statistics for VPC plots.
-#' Can be called directly on preprocessed data or accessed via
-#' `plot_vpc_cont(vpcstats = TRUE)`, which handles preprocessing automatically.
+#' Internal function. Validates columns, resolves `loq` (inheritance from an
+#' `LLOQ` column when not explicitly supplied), filters dose rows
+#' (`EVID == 0`), renames simulation-output columns to standard internal
+#' names, and applies BLQ encoding to `OBSDV`. Prediction-correction and the
+#' (mode-aware) BLQ-encoding of `SIMDV` are handled per-flavor in
+#' [df_vpccompute()].
 #'
-#' @param sim Preprocessed simulation data containing `SIMDV`, `OBSDV`,
-#'    `MDV`, and a replicate identifier column. Typically output from
-#'    `df_mrgsim_replicate()` after internal preprocessing by `plot_vpc_cont()`.
-#'    BLQ encoding (`-Inf` or `NA`) is expected to be applied upstream by
-#'    `df_vpcpreprocess()`.
-#' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
-#'    Default is `c(0.05, 0.95)`.
-#' @param ci Numeric vector of length 2 specifying confidence interval quantiles.
-#'    Default is `c(0.05, 0.95)`.
-#' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
-#' @param strat_var String or `NULL`. Stratification variable name. Default is `NULL`.
-#' @param irep_name String. Replicate identifier column name. Default is `"SIM"`.
+#' BLQ encoding (in this stage):
+#' \itemize{
+#'   \item `OBSDV` positions where `MDV == 1`, `is.na(OBSDV)`, or (when `loq`
+#'     is provided) `OBSDV < loq` are encoded as `-Inf` via
+#'     [`var_loqcens()`].
+#' }
+#'
+#' @param data Simulated data from `df_mrgsim_replicate()` or equivalent.
+#' @param time_var_str String name of the actual time column in `data`.
+#' @param ntime_var_str String name of the nominal time column in `data`.
+#' @param pred_var_str String name of the population prediction column in `data`.
+#' @param sim_dv_var_str String name of the simulated DV column in `data`.
+#' @param obs_dv_var_str String name of the observed DV column in `data`.
+#' @param strat_var_str String or `NULL`. Stratification variable name.
+#' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    When supplied, the result includes simulated BLQ proportion CIs
-#'    (`sim_prop_blq_low`, `sim_prop_blq_med`, `sim_prop_blq_hi`).
-#' @param pcvpc Logical. `TRUE` if `sim` came from prediction-corrected
-#'    preprocessing (`SIMDV` is on the PC scale and BLQ rows are `NA`),
-#'    `FALSE` for std VPC (`SIMDV` is raw). Selects the BLQ-detection
-#'    expression for `sim_prop_blq`: `is.na(SIMDV)` in pcVPC mode (raw `<loq`
-#'    is meaningless on the PC scale), `(SIMDV < loq) | is.na(SIMDV)` in std
-#'    VPC mode. Default is `FALSE`.
+#'    When `NULL` and column `LLOQ` is present in `data`, the value is inherited
+#'    from the unique non-NA `LLOQ` value at replicate 1.
 #'
-#' @return A `data.frame` with bin counts (`nbin` total records, `nobsblq`
-#'    BLQ-encoded observations), the observed BLQ proportion (`obs_prop_blq`),
-#'    simulated quantile CIs (`q5_low`, `q5_med`, `q5_hi`, `q50_low`, `q50_med`,
-#'    `q50_hi`, `q95_low`, `q95_med`, `q95_hi`), and observed quantiles
-#'    (`obs5`, `obs50`, `obs95`), joined by `bin_var`. When `loq` is supplied,
-#'    `sim_prop_blq_low/med/hi` columns are appended. Quantile values may be
-#'    `-Inf` for fully BLQ-censored bins; callers should apply [`var_infna()`]
-#'    before plotting.
-#' @export df_vpcstats
+#' @return A preprocessed data.frame with standardized columns. The resolved
+#'    `loq` is attached as `attr(., "loq")`.
+#' @keywords internal
+
+df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
+                             pred_var_str,
+                             sim_dv_var_str, obs_dv_var_str,
+                             strat_var_str = NULL, irep_name_str = "SIM",
+                             loq = NULL) {
+
+  check_df(data, "data")
+  check_varsindf(data, time_var_str, "data", "time_var")
+  check_varsindf(data, ntime_var_str, "data", "ntime_var")
+  check_varsindf(data, pred_var_str, "data", "pred_var")
+  check_varsindf(data, sim_dv_var_str, "data", "sim_dv_var")
+  check_varsindf(data, obs_dv_var_str, "data", "obs_dv_var")
+  check_varsindf(data, "MDV", "data", "MDV")
+  check_varsindf(data, "EVID", "data", "EVID")
+  check_varsindf(data, irep_name_str, "data", "irep_name")
+  if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var")
+  if (!is.null(strat_var_str)) check_factor(data, strat_var_str, "strat_var")
+
+  if (!is.null(strat_var_str) && any(is.na(data[[strat_var_str]]))) {
+    rlang::warn(paste0("`strat_var` ('", strat_var_str,
+                       "') contains NA values; faceting will produce an `NA` facet"))
+  }
+
+  if (is.null(loq) && "LLOQ" %in% colnames(data)) {
+    lloq_vals <- unique(data$LLOQ[data[[irep_name_str]] == 1 & !is.na(data$LLOQ)])
+    if (length(lloq_vals) == 1L) {
+      loq <- lloq_vals
+      message("Inheriting `loq = ", loq, "` from `LLOQ` column in `data`.")
+    } else if (length(lloq_vals) > 1L) {
+      rlang::warn(paste0("`LLOQ` column in `data` has multiple unique values (",
+                         paste(lloq_vals, collapse = ", "),
+                         "); not inherited. Pass `loq` explicitly to enable BLQ handling."))
+    }
+  }
+
+  if (!is.null(loq)) check_numeric_strict(loq, "loq")
+
+  data <- df_prep_timevars(data, time_var_str, ntime_var_str)
+  data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
+                                              SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
+  data <- dplyr::rename(data, BIN_MID = NTIME)
+  data <- dplyr::filter(data, EVID == 0)
+
+  data$OBSDV <- var_loqcens(data$OBSDV, loq = loq, mdv = data$MDV)
+
+  attr(data, "loq") <- loq
+  data
+}
+
+
+
+#' Internal helper: per-flavor VPC quantile aggregation
 #'
-#' @examples
-#' model <- model_mread_load(model = "pkmodel")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
-#'                               dv_var = ODV)
-#' # Recommended usage: access summary statistics via plot_vpc_cont
-#' stats <- plot_vpc_cont(sim = simout, loq = 1, vpcstats = TRUE)
-#' head(stats)
+#' @description
+#' Computes the per-bin two-stage simulated quantile summary plus observed
+#' quantiles for a single VPC flavor (standard or prediction-corrected).
+#' Called twice by [df_vpccompute()] — once with std-mode data, once with
+#' a prediction-corrected copy.
+#'
+#' @param data Preprocessed data with standardized columns. For the pc flavor,
+#'    `OBSDV` and `SIMDV` are expected to already be prediction-corrected.
+#' @param group_vars Character vector of grouping columns (`bin_var` and
+#'    optional `strat_var`).
+#' @param irep_name String. Replicate identifier column name.
+#' @param pi Numeric vector of length 2 specifying prediction interval
+#'    quantiles.
+#' @param ci_bounds Numeric vector of length 2 specifying CI bounds derived
+#'    from `ci`.
+#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
+#'    When `NULL`, `sim_prop_blq_*` columns are not produced.
+#' @param pcvpc Logical. Selects the BLQ-detection expression for
+#'    `sim_prop_blq` in stage 1: in pcVPC, BLQ rows were masked to NA before
+#'    prediction-correction, so detection uses `is.na(SIMDV)`; in std VPC,
+#'    detection uses `(SIMDV < loq) | is.na(SIMDV)`.
+#'
+#' @return A `data.frame` with `group_vars`, `obs_n`, `obs_n_blq`,
+#'    `obs_prop_blq`, the simulated quantile CIs (`sim_low_low/med/hi`,
+#'    `sim_med_low/med/hi`, `sim_hi_low/med/hi`), the observed quantiles
+#'    (`obs_low`, `obs_med`, `obs_hi`), and (when `loq` is supplied)
+#'    `sim_prop_blq_low/med/hi`. Quantile columns are masked through
+#'    [`var_infna()`].
+#' @keywords internal
 
-df_vpcstats <- function(sim,
-                        pi = c(0.05, 0.95),
-                        ci = c(0.05, 0.95),
-                        bin_var = "BIN_MID",
-                        strat_var = NULL,
-                        irep_name = "SIM",
-                        loq = NULL, pcvpc = FALSE) {
-
-  check_quantile_pair(pi, "pi")
-  check_quantile_pair(ci, "ci")
-
-  group_vars <- c(bin_var)
-  if (!is.null(strat_var)) group_vars <- c(bin_var, strat_var)
-
-  ## Stage 1: Per-replicate quantiles on simulated data.
-  ## nbin counts all records; nobsblq counts BLQ-encoded observations
-  ## (non-finite OBSDV). When `loq` is supplied, sim_prop_blq is the per-
-  ## replicate fraction of simulated values flagged as BLQ. The detection
-  ## expression depends on mode: in std VPC, SIMDV is raw, so we count
-  ## `(SIMDV < loq) | is.na(SIMDV)`. In pcVPC, SIMDV is on the prediction-
-  ## corrected scale where the raw `loq` no longer maps to a single
-  ## threshold, so we trust the `is.na` encoding (BLQ rows were masked to
-  ## NA before var_predcorr ran).
-  stage1 <- sim |>
+compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
+                               loq, pcvpc) {
+  stage1 <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
     dplyr::summarise(
-      nbin    = dplyr::n(),
-      nobsblq = sum(!is.finite(.data[["OBSDV"]])),
+      obs_n     = dplyr::n(),
+      obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
       sim_prop_blq = if (is.null(loq)) NA_real_
         else if (isTRUE(pcvpc)) mean(is.na(.data[["SIMDV"]]))
         else mean((.data[["SIMDV"]] < loq) | is.na(.data[["SIMDV"]])),
-      q_lo    = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
-      q50     = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
-      q_hi    = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
+      sim_low      = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
+      sim_med      = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
+      sim_hi       = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
       .groups = "drop"
     )
 
-  ## Stage 2: CIs across replicates
   sim_quant <- stage1 |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
-      nbin    = dplyr::first(nbin),
-      nobsblq = dplyr::first(nobsblq),
-      q5_low  = stats::quantile(q_lo, probs = ci[1], na.rm = TRUE),
-      q5_med  = stats::quantile(q_lo, probs = 0.5,   na.rm = TRUE),
-      q5_hi   = stats::quantile(q_lo, probs = ci[2], na.rm = TRUE),
-      q50_low = stats::quantile(q50,  probs = ci[1], na.rm = TRUE),
-      q50_med = stats::quantile(q50,  probs = 0.5,   na.rm = TRUE),
-      q50_hi  = stats::quantile(q50,  probs = ci[2], na.rm = TRUE),
-      q95_low = stats::quantile(q_hi, probs = ci[1], na.rm = TRUE),
-      q95_med = stats::quantile(q_hi, probs = 0.5,   na.rm = TRUE),
-      q95_hi  = stats::quantile(q_hi, probs = ci[2], na.rm = TRUE),
-      sim_prop_blq_low = stats::quantile(sim_prop_blq, probs = ci[1], na.rm = TRUE),
-      sim_prop_blq_med = stats::quantile(sim_prop_blq, probs = 0.5,   na.rm = TRUE),
-      sim_prop_blq_hi  = stats::quantile(sim_prop_blq, probs = ci[2], na.rm = TRUE),
+      obs_n     = dplyr::first(obs_n),
+      obs_n_blq = dplyr::first(obs_n_blq),
+      sim_low_low  = stats::quantile(sim_low, probs = ci_bounds[1], na.rm = TRUE),
+      sim_low_med  = stats::quantile(sim_low, probs = 0.5,          na.rm = TRUE),
+      sim_low_hi   = stats::quantile(sim_low, probs = ci_bounds[2], na.rm = TRUE),
+      sim_med_low  = stats::quantile(sim_med, probs = ci_bounds[1], na.rm = TRUE),
+      sim_med_med  = stats::quantile(sim_med, probs = 0.5,          na.rm = TRUE),
+      sim_med_hi   = stats::quantile(sim_med, probs = ci_bounds[2], na.rm = TRUE),
+      sim_hi_low   = stats::quantile(sim_hi,  probs = ci_bounds[1], na.rm = TRUE),
+      sim_hi_med   = stats::quantile(sim_hi,  probs = 0.5,          na.rm = TRUE),
+      sim_hi_hi    = stats::quantile(sim_hi,  probs = ci_bounds[2], na.rm = TRUE),
+      sim_prop_blq_low = stats::quantile(sim_prop_blq, probs = ci_bounds[1], na.rm = TRUE),
+      sim_prop_blq_med = stats::quantile(sim_prop_blq, probs = 0.5,          na.rm = TRUE),
+      sim_prop_blq_hi  = stats::quantile(sim_prop_blq, probs = ci_bounds[2], na.rm = TRUE),
       .groups = "drop"
     )
   if (is.null(loq)) {
@@ -107,121 +155,175 @@ df_vpcstats <- function(sim,
       "sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")))
   }
 
-  ## Observed quantiles from first replicate
-  obs_quant <- sim |>
+  obs_quant <- data |>
     dplyr::filter(.data[[irep_name]] == 1) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
       obs_prop_blq = sum(!is.finite(.data[["OBSDV"]])) / dplyr::n(),
-      obs5  = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
-      obs50 = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
-      obs95 = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
+      obs_low = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
+      obs_med = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
+      obs_hi  = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
       .groups = "drop"
     )
 
-  dplyr::left_join(sim_quant, obs_quant, by = group_vars)
+  out <- dplyr::left_join(sim_quant, obs_quant, by = group_vars)
+
+  out |>
+    dplyr::mutate(dplyr::across(c("sim_low_low", "sim_low_med", "sim_low_hi",
+                                  "sim_med_low", "sim_med_med", "sim_med_hi",
+                                  "sim_hi_low",  "sim_hi_med",  "sim_hi_hi",
+                                  "obs_low", "obs_med", "obs_hi"),
+                                var_infna))
 }
 
 
-#' Preprocess simulation data for VPC statistics
+
+#' Compute VPC quantile statistics from preprocessed data
 #'
 #' @description
-#' Internal function. Validates columns, renames to standard names, drops
-#' dose rows, applies BLQ encoding, and (for pcVPC) prediction correction.
+#' Internal function. Always emits both standard and prediction-corrected
+#' summary statistics: the std flavor uses raw `OBSDV`/`SIMDV`; the pc flavor
+#' applies `var_loqcens` to `SIMDV` (when `loq` is supplied) and
+#' [`var_predcorr()`] per (`bin_var` × `strat_var` × `CMT`) to both
+#' `OBSDV` and `SIMDV`. The pc columns are returned with a `pc_` prefix.
 #'
-#' BLQ encoding rules:
-#' \itemize{
-#'   \item OBSDV (both modes): positions where `MDV == 1`, `is.na(OBSDV)`, or
-#'     (when `loq` is provided) `OBSDV < loq` are encoded as `-Inf` via
-#'     [`var_loqcens()`].
-#'   \item SIMDV (pcVPC only, when `loq` is provided): positions where
-#'     `SIMDV < loq` are encoded as `-Inf` via [`var_loqcens()`].
-#'   \item For drop-mode quantile semantics, encoded `-Inf` values are
-#'     converted to `NA_real_` via [`var_infna()`] before downstream
-#'     consumers ([`var_predcorr()`] in pcVPC; quantile aggregation in
-#'     [`df_vpcstats()`]). For rank-mode, the `-Inf` encoding is preserved
-#'     and ranks at the low end of [`stats::quantile()`].
-#' }
-#'
-#' @param sim Simulated data from `df_mrgsim_replicate()` or equivalent.
-#' @param time_var_str String name of the actual time column in `sim`.
-#' @param ntime_var_str String name of the nominal time column in `sim`.
-#' @param pred_var_str String name of the population prediction column in `sim`.
-#' @param ipred_var_str String name of the individual prediction column in `sim`.
-#' @param sim_dv_var_str String name of the simulated DV column in `sim`.
-#' @param obs_dv_var_str String name of the observed DV column in `sim`.
-#' @param strat_var_str String or `NULL`. Stratification variable name.
-#' @param pcvpc Logical for prediction correction.
+#' @param data Preprocessed simulation data, typically from [df_vpcpreprocess()].
+#' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
+#'    Default is `c(0.05, 0.95)`.
+#' @param ci Numeric scalar in `(0, 1)` specifying the simulation interval
+#'    (e.g. `0.90` for a 90% CI). Default is `0.90`.
+#' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
+#' @param strat_var String or `NULL`. Stratification variable name. Default is `NULL`.
+#' @param irep_name String. Replicate identifier column name. Default is `"SIM"`.
+#' @param lower_bound Numeric. Forwarded to [`var_predcorr()`] in the pc
+#'    flavor.
+#' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Controls how
+#'    BLQ-encoded values flow into quantile aggregation per-flavor: `"auto"`
+#'    uses `"rank"` for the std flavor and `"drop"` for the pc flavor (the
+#'    historical defaults); `"rank"` and `"drop"` apply to both flavors.
 #' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Selects how
-#'    BLQ-encoded values are carried into downstream quantile aggregation.
-#'    `"rank"` preserves `-Inf` encoding (BLQ ranks at the low end of the
-#'    sorted vector — fully-censored bins return `-Inf` quantiles, masked to
-#'    `NA` before plotting). `"drop"` converts `-Inf` to `NA` so BLQ rows are
-#'    excluded from quantile computation entirely. `"auto"` resolves to
-#'    `"rank"` for std VPC and `"drop"` for pcVPC, matching historical
-#'    pmxhelpr behavior.
-#' @inheritParams var_predcorr
-#' @return A preprocessed data.frame with standardized column names. OBSDV
-#'    (and SIMDV in pcVPC + `loq`) carries `-Inf` for BLQ rows in `"rank"`
-#'    mode and `NA_real_` in `"drop"` mode.
+#'    Defaults to `attr(data, "loq")`. When supplied, the std stats include
+#'    `sim_prop_blq_low/med/hi`. The pc stats do *not* emit a
+#'    `pc_sim_prop_blq_*` set — LOQ has no meaning on the prediction-corrected
+#'    scale.
+#'
+#' @return A list of two data.frames with class `c("vpc_stats", "list")`:
+#'    \describe{
+#'      \item{`stats`}{Wide summary with both std and pc columns. Std columns
+#'        are unprefixed (`obs_low/med/hi`, `sim_low_*` etc.); pc-flavor
+#'        observed and simulated quantile columns carry a `pc_` prefix
+#'        (`pc_obs_low`, `pc_sim_low_med`, etc.). `obs_n`, `obs_n_blq`,
+#'        `obs_prop_blq`, `sim_prop_blq_*`, `ci`, `pi_low`, `pi_hi` are
+#'        single (not duplicated). Carries attributes `n_replicates`,
+#'        `loq`, and `strat_var`.}
+#'      \item{`obs`}{First-replicate observation rows with `MDV == 0`,
+#'        carrying both `OBSDV` (std) and `PC_OBSDV` (prediction-corrected).}
+#'    }
 #' @keywords internal
 
-df_vpcpreprocess <- function(sim, time_var_str, ntime_var_str,
-                             pred_var_str, ipred_var_str,
-                             sim_dv_var_str, obs_dv_var_str,
-                             strat_var_str, pcvpc, lower_bound, loq,
-                             mode = c("auto", "rank", "drop")) {
+df_vpccompute <- function(data,
+                          pi = c(0.05, 0.95),
+                          ci = 0.90,
+                          bin_var = "BIN_MID",
+                          strat_var = NULL,
+                          irep_name = "SIM",
+                          lower_bound = 0,
+                          mode = c("auto", "rank", "drop"),
+                          loq = attr(data, "loq")) {
+
+  ## Force the lazy default before any data mutation: dplyr's group_by /
+  ## mutate strips attributes, so reading attr(data, "loq") later would
+  ## return NULL.
+  force(loq)
 
   mode <- match.arg(mode)
-  if (mode == "auto") mode <- if (isTRUE(pcvpc)) "drop" else "rank"
+  check_quantile_pair(pi, "pi")
+  check_quantile_scalar(ci, "ci")
+  ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
 
-  check_df(sim, "sim")
-  check_varsindf(sim, time_var_str, "sim", "time_var")
-  check_varsindf(sim, ntime_var_str, "sim", "ntime_var")
-  if (isTRUE(pcvpc)) check_varsindf(sim, pred_var_str, "sim", "pred_var")
-  check_varsindf(sim, sim_dv_var_str, "sim", "sim_dv_var")
-  check_varsindf(sim, obs_dv_var_str, "sim", "obs_dv_var")
-  check_varsindf(sim, "MDV", "sim", "MDV")
-  check_varsindf(sim, "EVID", "sim", "EVID")
-  if (!is.null(strat_var_str)) check_varsindf(sim, strat_var_str, "sim", "strat_var")
-  if (!is.null(strat_var_str)) check_factor(sim, strat_var_str, "strat_var")
+  group_vars <- c(bin_var)
+  if (!is.null(strat_var)) group_vars <- c(bin_var, strat_var)
 
-  sim <- df_prep_timevars(sim, time_var_str, ntime_var_str)
-  sim <- dplyr::rename(sim, dplyr::any_of(c(PRED = pred_var_str, IPRED = ipred_var_str,
-                                             SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
-  sim <- dplyr::rename(sim, BIN_MID = NTIME)
-
-  sim <- dplyr::filter(sim, EVID == 0)
-
-  ## Encode OBSDV BLQ rows as -Inf in both modes
-  sim$OBSDV <- var_loqcens(sim$OBSDV, loq = loq, mdv = sim$MDV)
-
-  if (isTRUE(pcvpc)) {
-    ## Encode SIMDV BLQ rows as -Inf when loq is provided
-    if (!is.null(loq)) sim$SIMDV <- var_loqcens(sim$SIMDV, loq = loq)
-
-    if (mode == "drop") {
-      ## Convert -Inf to NA so PC excludes BLQ from median(PRED) via na.rm and
-      ## NA propagates through corrected values; quantile drops them. In
-      ## "rank" mode, -Inf passes through `var_predcorr` (the formula yields
-      ## -Inf when y = -Inf and PRED is finite) and ranks low at quantile time.
-      sim$OBSDV <- var_infna(sim$OBSDV)
-      sim$SIMDV <- var_infna(sim$SIMDV)
-    }
-
-    pc_group_vars <- c("BIN_MID", strat_var_str)
-    if ("CMT" %in% colnames(sim)) pc_group_vars <- c("BIN_MID", "CMT", strat_var_str)
-    sim <- sim |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
-      dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
-                    SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
-      dplyr::ungroup()
-  } else if (mode == "drop") {
-    ## Std VPC drop mode: convert OBSDV -Inf to NA so BLQ rows are dropped
-    ## from quantile via na.rm. SIMDV is uncensored in std VPC, no change.
-    sim$OBSDV <- var_infna(sim$OBSDV)
+  ## ----- Standard flavor -----
+  std_mode <- if (mode == "auto") "rank" else mode
+  data_std <- data
+  if (std_mode == "drop") {
+    data_std$OBSDV <- var_infna(data_std$OBSDV)
   }
+  stats_std <- compute_one_flavor(data_std, group_vars, irep_name,
+                                  pi, ci_bounds, loq, pcvpc = FALSE)
 
-  sim
+  ## ----- Prediction-corrected flavor -----
+  pc_mode <- if (mode == "auto") "drop" else mode
+  data_pc <- data
+  ## SIMDV BLQ encoding is required for pc so that censoring is applied
+  ## *before* prediction-correction. Std-VPC simulated quantiles intentionally
+  ## leave SIMDV uncensored, so this encoding is pc-only.
+  if (!is.null(loq)) {
+    data_pc$SIMDV <- var_loqcens(data_pc$SIMDV, loq = loq)
+  }
+  if (pc_mode == "drop") {
+    data_pc$OBSDV <- var_infna(data_pc$OBSDV)
+    data_pc$SIMDV <- var_infna(data_pc$SIMDV)
+  }
+  pc_group_vars <- c(bin_var, strat_var)
+  if ("CMT" %in% colnames(data_pc)) pc_group_vars <- c(bin_var, "CMT", strat_var)
+  data_pc <- data_pc |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
+    dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
+                  SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
+    dplyr::ungroup()
+  ## Pass loq = NULL for pc so compute_one_flavor doesn't emit
+  ## sim_prop_blq_* (LOQ has no meaning on the pc scale).
+  stats_pc_full <- compute_one_flavor(data_pc, group_vars, irep_name,
+                                      pi, ci_bounds, loq = NULL, pcvpc = TRUE)
+
+  ## Keep only the quantile columns from the pc flavor; counts, BLQ
+  ## proportions, and any sim_prop_blq carry-over are std-only.
+  pc_quantile_cols <- c("obs_low", "obs_med", "obs_hi",
+                        "sim_low_low", "sim_low_med", "sim_low_hi",
+                        "sim_med_low", "sim_med_med", "sim_med_hi",
+                        "sim_hi_low",  "sim_hi_med",  "sim_hi_hi")
+  stats_pc <- stats_pc_full |>
+    dplyr::select(dplyr::all_of(c(group_vars, pc_quantile_cols))) |>
+    dplyr::rename_with(~ paste0("pc_", .x), -dplyr::all_of(group_vars))
+
+  stats <- dplyr::left_join(stats_std, stats_pc, by = group_vars)
+
+  stats <- stats |>
+    dplyr::relocate(
+      dplyr::all_of(group_vars),
+      "obs_n", "obs_n_blq", "obs_prop_blq",
+      dplyr::any_of(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")),
+      "obs_low", "obs_med", "obs_hi",
+      "sim_low_low", "sim_low_med", "sim_low_hi",
+      "sim_med_low", "sim_med_med", "sim_med_hi",
+      "sim_hi_low",  "sim_hi_med",  "sim_hi_hi",
+      "pc_obs_low", "pc_obs_med", "pc_obs_hi",
+      "pc_sim_low_low", "pc_sim_low_med", "pc_sim_low_hi",
+      "pc_sim_med_low", "pc_sim_med_med", "pc_sim_med_hi",
+      "pc_sim_hi_low",  "pc_sim_hi_med",  "pc_sim_hi_hi"
+    )
+
+  ## Tag rows with the configuration that drove the column scheme.
+  stats[["ci"]]     <- ci
+  stats[["pi_low"]] <- pi[1]
+  stats[["pi_hi"]]  <- pi[2]
+
+  ## Build obs frame with both std (raw) OBSDV and pc OBSDV columns. data_std
+  ## and data_pc share row count + ordering (mutate doesn't reorder), so we
+  ## can attach PC_OBSDV directly before filtering.
+  data_std$OBSDV <- var_infna(data_std$OBSDV)
+  data_pc$OBSDV  <- var_infna(data_pc$OBSDV)
+  data_full <- data_std
+  data_full[["PC_OBSDV"]] <- data_pc$OBSDV
+  obs <- data_full |>
+    dplyr::filter(.data[[irep_name]] == 1 & MDV == 0)
+
+  attr(stats, "n_replicates") <- max(data[[irep_name]], na.rm = TRUE)
+  attr(stats, "loq")       <- loq
+  attr(stats, "strat_var") <- strat_var
+
+  structure(list(stats = stats, obs = obs),
+            class = c("vpc_stats", "list"))
 }

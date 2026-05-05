@@ -108,9 +108,9 @@ colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk
 
 # VPC Workflow
 
-## Overview
-
- `pmxhelpr` includes a function for generating VPC and pcVPC plots for model evaluation: `plot_vpc_cont()`.
+ `pmxhelpr` includes two functions for calculating summary statistics across simulated replicates of an input dataset and plotting the ouput for model evaluation: `df_vpcstats` and `plot_vpc_cont()`.
+ 
+The `df_vpcstats` function can be called within `plot_vpc_cont()`, for a one function call calculation and visualization of VPC statistics. `df_vpcstats` returns a list of two data.frames, `stats` and `obs`, which contained the summary statistics of the simulated and observed data and the observed data points for overlay, respectively. The returned output can be passed directly into `plot_vpc_cont()` or the full pipeline can be run within the plotting function.
 
 Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times). Additionally, when a dataset contains an exact binning variable, these algorithms may not reproduce the exact bins. For example, absorption phase timepoints that are close together may be grouped into a single bin, obscuring important pharmacokinetic details.
 
@@ -253,35 +253,150 @@ nrow(simout)
 ```
 
 
+## Calculating the summary statistics with `df_vpcstats()`
+
+`pmxhelpr` contains a function to pre-process and derive summary statistics from the observed and simulated data for plotting in downstream VPC and pcVPC plots to evalaute the model fit for longitudinal, continuous repeated measures data: `df_vpcstats()` 
+
+This function is designed around the concept of actual and nominal time variables, with the latter used to bin data together to calculate summary statistics across simulation replicates. Functionality is included for handling of data missing due to assay sensitivity (BLQ) separately depending on user request of standard or prediction-corrected values.
+
+### Overview of `df_vpcstats()`
+
+The `df_vpcstats` function handles the first two steps in the VPC plot pipeline after simulation:
+  
+  1. Pre-processing the data to validate arguments, filter to observation records, and handle missing data
+  2. Grouping, prediction-correction (if requested), and calculation of summary statistics
+  
+VPC summary statistics are calculated for the input dataset `data` at the study replicate replicate-level at the median and quantiles specified by `pi`, and subserquently summarized across replicates at the median and upper and lower quantiles specified by `ci` to identify the non-parametric confidence interval. 
+
+Outputs are grouped by the variables passed to `ntime_var` and `strat_var`. 
+
+The remaining arguments control processing for prediction-correction (`pcvpc`) and BLQ handling (`loq`).
+
+`df_vpcstats()` returns a list with two data.frames: 
+
+  + `stats` the quantile summary statistics of the observed and simulated data
+  + `obs` first-replicate observation rows used as the scatter overlay in `plot_vpc_cont()`). 
+
+Let's calculate VPC summary statistics for our simulated dataset. The minimum stratification based on extrinsic participant factors in the study design for a standard vpc is stratifying by Dose and Food.
+
+```{r df-vpcstats-dose-food, warning=FALSE}
+vpcstats_ntime_dose_food <- df_vpcstats(
+  data = simout,
+  strat_var = DoseFood
+)
+
+glimpse(vpcstats_ntime_dose_food$stats)
+```
+
+A helpful informational message prints to let us know that the `loq` argument was automatically inherited from our input dataset passed to `data` since it contained a variable named `LLOQ`.
+
+`df_vpcstats()` always emits **both** standard-VPC and prediction-corrected (pcVPC) summary statistics in a single call. The standard-flavor columns are unprefixed; the prediction-corrected counterparts carry a `pc_` prefix. Selecting which view to render is a plot-time decision via `plot_vpc_cont(out, pcvpc = TRUE/FALSE)`.
+
+The `stats` element contains the following summary statistics:
+
+  + `obs_n / obs_n_blq / obs_prop_blq`: count of observations (EVID = 0) in each bin, count of BLQ-encoded observations (MDV=1, OBSDV<loq, is.na(OBSDV)), and the BLQ proportion. Single (not duplicated under `pc_*`) — these are row counts, unaffected by prediction-correction.
+  + `sim_low_low / sim_low_med / sim_low_hi`: standard-flavor quantiles of the lower `pi` quantile (`pi_low`) across replicates. Suffix `_low/_med/_hi` refers to the lower/upper `ci` bound and the median.
+  + `sim_med_low / sim_med_med / sim_med_hi`: standard-flavor quantiles of the simulated median across replicates.
+  + `sim_hi_low / sim_hi_med / sim_hi_hi`: standard-flavor quantiles of the upper `pi` quantile (`pi_hi`) across replicates.
+  + `obs_low / obs_med / obs_hi`: standard-flavor observed quantiles in each bin.
+  + `sim_prop_blq_low / sim_prop_blq_med / sim_prop_blq_hi`: standard-flavor quantiles of the proportion of simulated data < `loq` across replicates. Std-only — LOQ has no meaning on the prediction-corrected scale, so the pc flavor does not emit a `pc_sim_prop_blq_*` set.
+  + `pc_obs_low/med/hi`, `pc_sim_low_low/med/hi`, `pc_sim_med_low/med/hi`, `pc_sim_hi_low/med/hi`: prediction-corrected counterparts of the standard observed and simulated quantile groups.
+  + `ci`: confidence interval width (run config; constant within result).
+  + `pi_low / pi_hi`: lower and upper prediction-interval probabilities (run config; constant within result).
+  
+
+### Pre-processing of Data for VPCs
+
+*NOTE* The VPC Workflow functions work best when used in sequence as a tool chain. `df_vpcstats` is designed to work with an input simulated dataset generated by `df_mrgsim_replicate`. No pre-processing of the simulated output is required before passing directly into `df_vpcstats`. Indeed, data processessing to handle BLQ imputation and prediction-corrected is built into the `df_vpcstats` pre-processing function pipeline; therefore, the user should pass in a simulated dataset that includes all observations collected and analyzed regardless of assay result (e.g., `MDV=0` or `MDV=1`).
+
+The handling of BLQ imputation for derivation of quantiles within and across replicates is controlled by the `mode` argument. Options include:
+
+  + `"auto"` (default) apply rank when `pcVPC = FALSE` and drop when `pcVPC = TRUE`
+  + `"rank"` include BLQ data in quantile calculations
+  + `"drop"` drop BLQ data and calculate quantiles on the continuous portion of the data
+
+The default method recommended by `pmxhelpr` is `"auto"`, which applies the `"rank"` method for standard VPCs and the `"drop"` method for pcVPCs. The other options are included for comparability and reproducibility across other VPC plotting functions and to give the user control on handling. Under the hood, this option controls whether missing values are inputed to -Inf (rank) or NA (drop) prior to calculation of quantile summary statistics, which drop missing values with `na.rm = TRUE`. 
+
+For standard VPCs without prediction-correction, mboth the observed and simulated data are handled with `"rank"`; however, no BLQ handling is applied to the simulated data and rankings are based on raw simulated values without BLQ censoring to illustrate the underlying "true" profile based on the model.
+
+We can see that specifying `mode = "drop"` results in differential summary statistics from the default `mode = "auto"` in 15 of the 114 rows in the output `stats` data.frame.
+
+```{r df-vpcstats-dose-food-drop, warning=FALSE}
+vpcstats_ntime_dose_food_drop <- df_vpcstats(
+  data = simout,
+  strat_var = DoseFood,
+  mode = "drop"
+)
+glimpse(vpcstats_ntime_dose_food_drop$stats)
+nrow(vpcstats_ntime_dose_food_drop$stats)
+anti_join(vpcstats_ntime_dose_food$stats, vpcstats_ntime_dose_food_drop$stats) %>% nrow()
+```
+
+
+### Prediction-correction
+
+Prediction-correction is applied internally as part of every `df_vpcstats()` call — the pc-flavor columns (`pc_*`) appear alongside the standard columns in the output. The pc pipeline censors both observed and simulated values at the `loq` prior to prediction-correction (when `loq` is known) and then calculates quantile summary statistics on the continuous, quantifiable range. If `loq` is unknown, missing observations (`MDV == 1`) are excluded from quantile summary statistics for both the observed and simulated data.
+
+```{r df-vpcstats-pc-part, warning=FALSE}
+vpcstats_ntime_part <- df_vpcstats(
+  data = simout,
+  strat_var = PART
+)
+
+glimpse(dplyr::select(vpcstats_ntime_part$stats, BIN_MID, PART, dplyr::starts_with("pc_")))
+```
+
 ## VPC Plots with `plot_vpc_cont()`
 
-`pmxhelpr` contains a function to produce VPC and pcVPC plots for models fit to longitudinal, continuous repeated measures data: `plot_vpc_cont()` 
+`pmxhelpr` contains a function to produce VPC and pcVPC plots for models fit to longitudinal, continuous repeated measures data: `plot_vpc_cont()`
 
 This function is designed around the concept of actual and nominal time variables, with the latter used to bin data together to calculate and display summary statistics across simulation replicates.
 
-`plot_vpc_cont` has 1 required argument: `sim`, the input simulated dataset for the VPC procedure.
+`plot_vpc_cont` has 1 required argument: `data`, the input simulated dataset for the VPC procedure. Standard VPCs require stratification by dose, and other extrinsic study conditions, for interpretability; therefore, we will also specify `strat_var=DoseFood` to also stratify our plots by this variable.
 
 ```{r plot-vpc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  sim = simout,
+  data = simout,
+  strat_var = DoseFood
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 ```
 
-A decent, if slightly misleading, plot! Simulated 90% (`ci` = c(0.05, 0.95)) confidence intervals print at the median (50th) and  5th and 95th percentiles (`pi` = c(0.05, 0.95)) and corresponding quantiles of the observed are shown as lines with observed data points overlaid.
+### Reusing precomputed stats
 
-`plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset `sim`. Under `pcvpc = TRUE`, BLQ censoring is still applied (before prediction-correction, to both observed and simulated data), but the LOQ reference line is not drawn since `loq` has no meaning on the prediction-corrected scale. `plot_vpc_cont()` emits a warning when `loq` is inherited from the `LLOQ` column and `pcvpc = TRUE` so this interaction is explicit; pass `loq` directly to acknowledge and suppress the warning.
+`plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `theme` — without paying the summarization cost on every call.
+
+```{r plot-vpc-precomputed, fig.height=4, fig.width=6, warning=FALSE}
+out <- df_vpcstats(data = simout, strat_var = DoseFood)
+
+# Standard VPC view from the precomputed result
+plot_vpc_cont(out, pcvpc = FALSE) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
+  scale_y_log10(guide = "axis_logticks")
+
+# Prediction-corrected view from the same precomputed result
+plot_vpc_cont(out, pcvpc = TRUE) +
+  labs(x = "Time (hours)", y = "Prediction-corrected concentration") +
+  scale_x_continuous(breaks = seq(0, 168, 24))
+```
+
+When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are ignored — those decisions were already made when `df_vpcstats()` ran. Plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) still apply.
+
+`plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset.
 
 ### Prediction-correction
 
-Because this study includes multiple dose levels, it is not appropriate to visualize the data together in a single VPC plot. One must either: 1) Facet by dose, 2) prediction-correct 
+Under `pcvpc = TRUE`, BLQ censoring is still applied (before prediction-correction, to both observed and simulated data), but the LOQ reference line is not drawn since `loq` has no meaning on the prediction-corrected scale.
 
-```{r plot-vpc-pc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+
+```{r plot-vpc-pc, fig.height=4, fig.width=6, warning=FALSE}
 plot_vpc_cont(
-  sim = simout,
-  pcvpc = TRUE
+  data = simout,
+  pcvpc = TRUE, 
+  strat_var = PART
 ) +
   labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
@@ -298,7 +413,7 @@ Let's take a look at our prediction-corrected VPC stratified by Food Status.
 
 ```{r plot-vpc-pc-food, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  sim = mutate(simout,FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
+  data = mutate(simout,FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
   pcvpc = TRUE,
   strat_var = FoodStatus
 ) +
@@ -308,28 +423,16 @@ plot_vpc_cont(
 
 ```
 
-Now let's look at a regular VPC stratified by the interaction of dose and food status
-
-```{r plot-vpc-dosefood, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_vpc_cont(
-  sim = simout,
-  strat_var = DoseFood
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
-```
-
 *NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
 
-Simulated intervals in below plots are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification.
+Simulated and observed intervals in the plot below are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification. Only the observed points are correctly stratified, as they are added to the final plot layer.
 
 ```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  sim = simout
+  data = simout
 ) +
   facet_wrap(~DoseFood)+
-  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_x_continuous(breaks = seq(0,168,24))+
   scale_y_log10(guide = "axis_logticks")
 ```
@@ -342,7 +445,7 @@ When setting `min_bin_count = 10`, summary statistics are not plotted for the fi
 
 ```{r plot-vpc-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  sim = simout,
+  data = simout,
   pcvpc = TRUE,
   min_bin_count = 10
 ) +
@@ -375,7 +478,7 @@ Let's plot using the default arguments to `plot_vpc_cont()`. The default behavio
 
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_blq_drop <- plot_vpc_cont(
-  sim = filter(sim100, MDV==0),
+  data = filter(sim100, MDV==0),
   pcvpc = TRUE,
   strat_var = PART
 ) +
@@ -394,7 +497,7 @@ Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
 
 ```{r plot-vpc-blq-obs-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc <- plot_vpc_cont(
-  sim = sim100,
+  data = sim100,
   strat_var = PART,
   loq = 1
 ) +
@@ -443,7 +546,7 @@ For example, the 90% prediction interval (i.e., 5th to 95th percentiles) can be 
 
 ```{r plot-vpc-pcvpc-90pi, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 plot_vpc_cont(
-  sim = simout,
+  data = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, sim_median_ci = FALSE, sim_median_line = TRUE, sim_pi_area = TRUE)
@@ -457,7 +560,7 @@ Now, let's say we want to remove the observed data points from the plot above to
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
  plot_vpc_cont(
-  sim = simout,
+  data = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_point = FALSE)
@@ -471,7 +574,7 @@ We could also take this one step further and only look at the median and the sim
 
 ```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
  plot_vpc_cont(
-  sim = simout,
+  data = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = FALSE, sim_pi_ci = FALSE)
@@ -505,7 +608,7 @@ Regenerating our BLQ quantile censored plot stratified by part with the new them
 
 ```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc2 <- plot_vpc_cont(
-  sim = sim100,
+  data = sim100,
   strat_var = PART,
   loq = 1,
   theme = vpc_new_theme
@@ -519,16 +622,15 @@ vpc2
 
 ### Accessing VPC Summary Statistics
 
-By default, `plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics used to build the plot, set `vpcstats = TRUE`. This returns a `data.frame` containing the observed and simulated quantiles, confidence intervals, and bin information.
+`plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics directly, use `df_vpcstats()` — it accepts the same simulation input and returns a list with two data.frames: `stats` (observed and simulated quantiles, confidence intervals, and bin information) and `obs` (first-replicate observation rows used as the plot's scatter overlay).
 
 ```{r vpc-stats, message=FALSE, warning=FALSE}
-stats <- plot_vpc_cont(
-  sim = simout,
-  strat_var = DoseFood,
-  vpcstats = TRUE
+out <- df_vpcstats(
+  data = simout,
+  strat_var = DoseFood
 )
 
-head(stats)
+head(out$stats)
 ```
 
 

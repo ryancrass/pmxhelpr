@@ -251,7 +251,7 @@ glimpse(simout)
 
 
 plot_obj_food <- plot_vpc_cont(
-  sim = simout, 
+  data = simout, 
   strat_var = "Food",
   pcvpc = TRUE
 ) + 

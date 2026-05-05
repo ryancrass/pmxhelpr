@@ -5,11 +5,10 @@
 \title{Plot a visual predictive check (VPC) for continuous data with exact time bins}
 \usage{
 plot_vpc_cont(
-  sim,
+  data,
   time_var = TIME,
   ntime_var = NTIME,
   pred_var = PRED,
-  ipred_var = IPRED,
   sim_dv_var = SIMDV,
   obs_dv_var = OBSDV,
   strat_var = NULL,
@@ -24,28 +23,25 @@ plot_vpc_cont(
   theme = NULL,
   pi = c(0.05, 0.95),
   ci = 0.9,
-  vpcstats = FALSE
+  sim
 )
 }
 \arguments{
-\item{sim}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
+\item{data}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
 
-\item{time_var}{Column containing the actual time variable in \code{sim}.
+\item{time_var}{Column containing the actual time variable in \code{data}.
 Accepts bare names or strings. Default is \code{TIME}.}
 
-\item{ntime_var}{Column containing the nominal time variable in \code{sim}.
+\item{ntime_var}{Column containing the nominal time variable in \code{data}.
 Accepts bare names or strings. Default is \code{NTIME}.}
 
-\item{pred_var}{Column containing population predictions in \code{sim}.
+\item{pred_var}{Column containing population predictions in \code{data}.
 Accepts bare names or strings. Default is \code{PRED}.}
 
-\item{ipred_var}{Column containing individual predictions in \code{sim}.
-Accepts bare names or strings. Default is \code{IPRED}.}
-
-\item{sim_dv_var}{Column containing simulated DV in \code{sim}.
+\item{sim_dv_var}{Column containing simulated DV in \code{data}.
 Accepts bare names or strings. Default is \code{SIMDV}.}
 
-\item{obs_dv_var}{Column containing observed DV in \code{sim}.
+\item{obs_dv_var}{Column containing observed DV in \code{data}.
 Accepts bare names or strings. Default is \code{OBSDV}.}
 
 \item{strat_var}{Stratification variable.
@@ -56,27 +52,27 @@ Accepts bare names or strings. Currently, only a single stratifying variable is 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
 For standard VPCs (\code{pcvpc = FALSE})
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ + If `loq` specified or `loq=NULL` and `LLOQ` is present in `sim`, all `MDV` values are set to 0
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ + If `loq` specified or `loq=NULL` and `LLOQ` is present in `data`, all `MDV` values are set to 0
  so that all observations (including BLQ) are processed when and censoring is performed at the quantile level.
  Filter to `EVID==0` so that doses are dropped.
- + If `loq=NULL` and `LLOQ` is NOT present in `sim`, the dataset is filtered to `MDV==0` since `loq` is unknown.
+ + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is filtered to `MDV==0` since `loq` is unknown.
 }\if{html}{\out{</div>}}
 
 For prediction-corrected VPCs (\code{pcvpc = TRUE})
-+ If \code{loq} specified or \code{loq=NULL} and \code{LLOQ} is present in \code{sim}, all \code{SIMDV} and \code{OBSDV} values < loq are set to
++ If \code{loq} specified or \code{loq=NULL} and \code{LLOQ} is present in \code{data}, all \code{SIMDV} and \code{OBSDV} values < loq are set to
 missing (\code{NA_real_}) so that both observed and simulated data are censored in the same way before quantile calculation.
-+ If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{sim}, filter to \code{MDV==0} since \code{loq} is unknown.
++ If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{data}, filter to \code{MDV==0} since \code{loq} is unknown.
 Dashed horizontal line plotted at \code{loq} by default for standard VPCs (controlled via \code{theme});
 suppressed for \code{pcvpc = TRUE} since \code{loq} has no meaning on the prediction-corrected scale.}
 
-\item{irep_name}{Name of replicate variable in \code{sim}. Accepts bare names or strings. Default is \code{SIM}.}
+\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations
-(\code{nbin - nobsblq} in the summary statistics frame) per exact bin required
-for inclusion in binned plot layers. BLQ-encoded records (\code{nobsblq}) do
-not count toward this threshold. This argument drops small bins from
-summary statistic plotting but retains the underlying observations as
-data points.}
+(\code{obs_n - obs_n_blq} in the summary statistics frame) per exact bin
+required for inclusion in binned plot layers. BLQ-encoded records
+(\code{obs_n_blq}) do not count toward this threshold. This argument drops
+small bins from summary statistic plotting but retains the underlying
+observations as data points.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
 
@@ -98,17 +94,20 @@ Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
-\item{ci}{Numeric confidence level for simulation intervals (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
+\item{ci}{Numeric scalar in \verb{(0, 1)} for simulation interval (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
 
-\item{vpcstats}{Logical. If \code{TRUE}, return a list of computed VPC statistics instead of a plot. Default is \code{FALSE}.}
+\item{sim}{Deprecated. Use \code{data} instead. Soft alias retained for one cycle —
+passing \code{sim = ...} emits a warning and the value is forwarded to \code{data}.}
 }
 \value{
-A \code{ggplot2} object (default), or a \code{data.frame} of VPC summary
-statistics from \code{\link[=df_vpcstats]{df_vpcstats()}} when \code{vpcstats = TRUE}.
+A \code{ggplot2} object. To access the underlying VPC summary statistics
+data.frame directly, use \code{\link[=df_vpcstats]{df_vpcstats()}}.
 }
 \description{
 \code{plot_vpc_cont()} generates a VPC plot using exact time bins
-and returns a \code{ggplot2} object.
+and returns a \code{ggplot2} object. Thin wrapper that delegates to
+\code{\link[=df_vpcstats]{df_vpcstats()}} for computation and an internal builder for plot
+construction.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
@@ -120,7 +119,7 @@ char_vars = c("USUBJID", "PART"),
 irep_name = SIM)
 
 vpc_plot <- plot_vpc_cont(
-sim = simout,
+data = simout,
 pcvpc = TRUE,
 loq = 1,
 pi = c(0.05, 0.95),

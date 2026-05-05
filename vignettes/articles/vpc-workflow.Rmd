@@ -368,6 +368,8 @@ plot_vpc_cont(
 
 `plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `theme` — without paying the summarization cost on every call.
 
+The `df_vpcstats()` return is class-tagged `"vpc_stats"`; `print(out)` shows a focused summary of dimensions, run-config attributes (`n_replicates`, `loq`, `strat_var`), and column groups rather than dumping all columns. Use `out$stats` and `out$obs` (or `as.data.frame(out)` for the stats data.frame) to access the underlying frames.
+
 ```{r plot-vpc-precomputed, fig.height=4, fig.width=6, warning=FALSE}
 out <- df_vpcstats(data = simout, strat_var = DoseFood)
 
@@ -386,6 +388,18 @@ plot_vpc_cont(out, pcvpc = TRUE) +
 When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are ignored — those decisions were already made when `df_vpcstats()` ran. Plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) still apply.
 
 `plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset.
+
+#### Building plots from a `vpc_stats` object directly
+
+For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var` and `loq` inherit from the stats data.frame's attributes when not passed explicitly.
+
+```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
+out <- df_vpcstats(data = simout, strat_var = DoseFood)
+plot_build_vpc(out, pcvpc = FALSE) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
+  scale_y_log10(guide = "axis_logticks")
+```
 
 ### Prediction-correction
 

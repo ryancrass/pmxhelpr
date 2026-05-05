@@ -8,7 +8,7 @@ df_vpccompute(
   data,
   pi = c(0.05, 0.95),
   ci = 0.9,
-  bin_var = "BIN_MID",
+  bin_var = BIN_MID_VAR,
   strat_var = NULL,
   irep_name = "SIM",
   lower_bound = 0,

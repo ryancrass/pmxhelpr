@@ -1,3 +1,35 @@
+## ---- VPC pipeline conventions -------------------------------------------
+## Internal registry of column-naming conventions and column groups produced
+## by df_vpccompute(). Used by compute_one_flavor() (var_infna mutate),
+## df_vpccompute() (relocate, pc select + rename), validate_vpc_stats(), and
+## the public-API default values for `bin_var`. Keep these in sync if a new
+## column or group is added.
+##
+##   BIN_MID_VAR              standardized internal name for the bin column
+##   .vpc_count_cols          single, flavor-independent (counts of rows)
+##   .vpc_blq_cols            std-only (LOQ has no meaning on the pc scale)
+##   .vpc_obs_quantile_cols   mirrored under pc_*
+##   .vpc_sim_quantile_cols   mirrored under pc_*
+##   .vpc_quantile_cols       union of obs + sim quantile cols
+##   .vpc_meta_cols           single, run-config (ci, pi_low, pi_hi)
+
+BIN_MID_VAR <- "BIN_MID"
+
+.vpc_count_cols <- c("obs_n", "obs_n_blq", "obs_prop_blq")
+
+.vpc_blq_cols <- c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
+
+.vpc_obs_quantile_cols <- c("obs_low", "obs_med", "obs_hi")
+
+.vpc_sim_quantile_cols <- c("sim_low_low", "sim_low_med", "sim_low_hi",
+                            "sim_med_low", "sim_med_med", "sim_med_hi",
+                            "sim_hi_low",  "sim_hi_med",  "sim_hi_hi")
+
+.vpc_quantile_cols <- c(.vpc_obs_quantile_cols, .vpc_sim_quantile_cols)
+
+.vpc_meta_cols <- c("ci", "pi_low", "pi_hi")
+
+
 
 #' Preprocess simulation data for VPC statistics
 #'
@@ -72,7 +104,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
                                               SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
-  data <- dplyr::rename(data, BIN_MID = NTIME)
+  data <- dplyr::rename(data, !!BIN_MID_VAR := NTIME)
   data <- dplyr::filter(data, EVID == 0)
 
   data$OBSDV <- var_loqcens(data$OBSDV, loq = loq, mdv = data$MDV)
@@ -169,11 +201,7 @@ compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
   out <- dplyr::left_join(sim_quant, obs_quant, by = group_vars)
 
   out |>
-    dplyr::mutate(dplyr::across(c("sim_low_low", "sim_low_med", "sim_low_hi",
-                                  "sim_med_low", "sim_med_med", "sim_med_hi",
-                                  "sim_hi_low",  "sim_hi_med",  "sim_hi_hi",
-                                  "obs_low", "obs_med", "obs_hi"),
-                                var_infna))
+    dplyr::mutate(dplyr::across(dplyr::all_of(.vpc_quantile_cols), var_infna))
 }
 
 
@@ -224,7 +252,7 @@ compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
 df_vpccompute <- function(data,
                           pi = c(0.05, 0.95),
                           ci = 0.90,
-                          bin_var = "BIN_MID",
+                          bin_var = BIN_MID_VAR,
                           strat_var = NULL,
                           irep_name = "SIM",
                           lower_bound = 0,
@@ -280,12 +308,8 @@ df_vpccompute <- function(data,
 
   ## Keep only the quantile columns from the pc flavor; counts, BLQ
   ## proportions, and any sim_prop_blq carry-over are std-only.
-  pc_quantile_cols <- c("obs_low", "obs_med", "obs_hi",
-                        "sim_low_low", "sim_low_med", "sim_low_hi",
-                        "sim_med_low", "sim_med_med", "sim_med_hi",
-                        "sim_hi_low",  "sim_hi_med",  "sim_hi_hi")
   stats_pc <- stats_pc_full |>
-    dplyr::select(dplyr::all_of(c(group_vars, pc_quantile_cols))) |>
+    dplyr::select(dplyr::all_of(c(group_vars, .vpc_quantile_cols))) |>
     dplyr::rename_with(~ paste0("pc_", .x), -dplyr::all_of(group_vars))
 
   stats <- dplyr::left_join(stats_std, stats_pc, by = group_vars)
@@ -293,16 +317,10 @@ df_vpccompute <- function(data,
   stats <- stats |>
     dplyr::relocate(
       dplyr::all_of(group_vars),
-      "obs_n", "obs_n_blq", "obs_prop_blq",
-      dplyr::any_of(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")),
-      "obs_low", "obs_med", "obs_hi",
-      "sim_low_low", "sim_low_med", "sim_low_hi",
-      "sim_med_low", "sim_med_med", "sim_med_hi",
-      "sim_hi_low",  "sim_hi_med",  "sim_hi_hi",
-      "pc_obs_low", "pc_obs_med", "pc_obs_hi",
-      "pc_sim_low_low", "pc_sim_low_med", "pc_sim_low_hi",
-      "pc_sim_med_low", "pc_sim_med_med", "pc_sim_med_hi",
-      "pc_sim_hi_low",  "pc_sim_hi_med",  "pc_sim_hi_hi"
+      dplyr::all_of(.vpc_count_cols),
+      dplyr::any_of(.vpc_blq_cols),
+      dplyr::all_of(.vpc_quantile_cols),
+      dplyr::all_of(paste0("pc_", .vpc_quantile_cols))
     )
 
   ## Tag rows with the configuration that drove the column scheme.
@@ -326,4 +344,52 @@ df_vpccompute <- function(data,
 
   structure(list(stats = stats, obs = obs),
             class = c("vpc_stats", "list"))
+}
+
+
+
+#' Validate a `vpc_stats` object
+#'
+#' @description
+#' Internal helper. Asserts that `x` carries the `vpc_stats` class, contains
+#' the `stats` and `obs` data.frames, and that each carries the column groups
+#' downstream consumers (notably [plot_build_vpc()]) depend on. Aborts with a
+#' clear message on failure; returns `x` invisibly on success.
+#'
+#' @param x Object to validate.
+#'
+#' @return `invisible(x)` on success.
+#' @keywords internal
+
+validate_vpc_stats <- function(x) {
+  if (!inherits(x, "vpc_stats")) {
+    rlang::abort("`x` must be a `vpc_stats` object (output of `df_vpcstats()`).")
+  }
+  if (!all(c("stats", "obs") %in% names(x)) ||
+      !is.data.frame(x$stats) || !is.data.frame(x$obs)) {
+    rlang::abort("`vpc_stats` object must contain `stats` and `obs` data.frames.")
+  }
+
+  ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
+  ## Use the medians as the canonical column for each group so we don't
+  ## depend on every CI bound being present.
+  required_stats <- c(BIN_MID_VAR, .vpc_count_cols,
+                      "obs_low", "obs_med", "obs_hi",
+                      "sim_low_med", "sim_med_med", "sim_hi_med",
+                      "pc_obs_low", "pc_obs_med", "pc_obs_hi",
+                      "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med")
+  missing_stats <- setdiff(required_stats, colnames(x$stats))
+  if (length(missing_stats) > 0) {
+    rlang::abort(paste0("`vpc_stats$stats` is missing required columns: ",
+                        paste(missing_stats, collapse = ", ")))
+  }
+
+  required_obs <- c("OBSDV", "PC_OBSDV", "TIME")
+  missing_obs <- setdiff(required_obs, colnames(x$obs))
+  if (length(missing_obs) > 0) {
+    rlang::abort(paste0("`vpc_stats$obs` is missing required columns: ",
+                        paste(missing_obs, collapse = ", ")))
+  }
+
+  invisible(x)
 }

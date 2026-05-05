@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_build_vpc.R
 \name{plot_build_vpc}
 \alias{plot_build_vpc}
-\title{Build a VPC ggplot from compute output}
+\title{Build a VPC ggplot from a \code{vpc_stats} object}
 \usage{
 plot_build_vpc(
   compute_out,
@@ -12,16 +12,15 @@ plot_build_vpc(
   theme = NULL,
   pcvpc = FALSE,
   loq = NULL,
-  strat_var_str = NULL,
-  bin_var = "BIN_MID"
+  strat_var = NULL,
+  bin_var = BIN_MID_VAR
 )
 }
 \arguments{
-\item{compute_out}{List with two data.frames as returned by
-\code{\link[=df_vpccompute]{df_vpccompute()}}: \code{stats} (summary statistics with both std and pc
-columns; carries \code{n_replicates}, \code{loq}, \code{strat_var} attributes) and
-\code{obs} (first-replicate observations carrying both \code{OBSDV} and
-\code{PC_OBSDV}).}
+\item{compute_out}{A \code{vpc_stats} object (typically the output of
+\code{\link[=df_vpcstats]{df_vpcstats()}}). Must contain \code{stats} and \code{obs} data.frames with the
+columns documented in \code{\link[=df_vpcstats]{df_vpcstats()}}. Validated by
+\code{validate_vpc_stats()} at entry.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations
 (\code{obs_n - obs_n_blq}) required for inclusion in binned plot layers.
@@ -29,19 +28,24 @@ BLQ-encoded records do not count toward this threshold.}
 
 \item{show_rep}{Logical. Display replicate count as a plot caption.}
 
-\item{shown}{Named list of logicals specifying which layers to include.}
+\item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.}
 
-\item{theme}{Named list of aesthetic parameters (colors, sizes, etc.).}
+\item{theme}{Aesthetic parameters created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.}
 
 \item{pcvpc}{Logical. When \code{TRUE}, plot the prediction-corrected columns
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
 LOQ reference line. Default is \code{FALSE} (standard VPC).}
 
 \item{loq}{Numeric value for LOQ reference line, or \code{NULL} to suppress.
-Forced to \code{NULL} when \code{pcvpc = TRUE} (LOQ has no meaning on the
-prediction-corrected scale).}
+When omitted, the value is read from \code{attr(compute_out$stats, "loq")}
+so \code{\link[=df_vpcstats]{df_vpcstats()}} output is handled automatically. Forced to \code{NULL}
+when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
+scale).}
 
-\item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
+\item{strat_var}{Stratification variable. Accepts bare names or strings.
+Default is \code{NULL}. When \code{NULL}, the value is read from
+\code{attr(compute_out$stats, "strat_var")} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
+handled automatically.}
 
 \item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 }
@@ -49,12 +53,23 @@ prediction-corrected scale).}
 A \code{ggplot2} object.
 }
 \description{
-\code{plot_build_vpc()} constructs a ggplot2 VPC plot from the output of
-\code{\link[=df_vpccompute]{df_vpccompute()}} / \code{\link[=df_vpcstats]{df_vpcstats()}}. It applies the \code{min_bin_count} filter,
+Constructs a ggplot2 VPC plot from a \code{\link[=df_vpcstats]{df_vpcstats()}} result (or any object
+satisfying the \code{vpc_stats} contract). Applies the \code{min_bin_count} filter,
 draws the simulated and observed quantile layers, overlays the observation
 scatter, draws the LOQ reference line, applies stratification facets, and
 adds the replicates caption and panel theme. The \code{pcvpc} argument selects
 the standard or prediction-corrected column set; both are present in the
 compute output.
+
+Most users will reach this function indirectly via \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}.
+Call \code{plot_build_vpc()} directly when working from a manually-constructed
+or cached \code{vpc_stats} object — for example, plotting a precomputed result
+from disk or a custom pipeline that produces compatible columns.
 }
-\keyword{internal}
+\examples{
+model <- model_mread_load(model = "pkmodel")
+simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+                              dv_var = ODV)
+out <- df_vpcstats(simout, strat_var = FOOD)
+p <- plot_build_vpc(out, pcvpc = FALSE)
+}

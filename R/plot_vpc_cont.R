@@ -120,9 +120,7 @@ plot_vpc_cont <- function(data,
       shown         = shown,
       theme         = theme,
       pcvpc         = pcvpc,
-      loq           = attr(data$stats, "loq"),
-      strat_var_str = attr(data$stats, "strat_var"),
-      bin_var       = "BIN_MID"
+      bin_var       = BIN_MID_VAR
     ))
   }
 
@@ -154,8 +152,6 @@ plot_vpc_cont <- function(data,
     shown = shown,
     theme = theme,
     pcvpc = pcvpc,
-    loq = attr(out$stats, "loq"),
-    strat_var_str = strat_var_str,
-    bin_var = "BIN_MID"
+    bin_var = BIN_MID_VAR
   )
 }

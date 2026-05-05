@@ -106,7 +106,7 @@ df_vpcstats <- function(data,
   df_vpccompute(
     pre,
     pi = pi, ci = ci,
-    bin_var = "BIN_MID",
+    bin_var = BIN_MID_VAR,
     strat_var = strat_var_str,
     irep_name = irep_name_str,
     lower_bound = lower_bound,

@@ -1,36 +1,52 @@
-#' Build a VPC ggplot from compute output
+#' Build a VPC ggplot from a `vpc_stats` object
 #'
 #' @description
-#' `plot_build_vpc()` constructs a ggplot2 VPC plot from the output of
-#' [df_vpccompute()] / [df_vpcstats()]. It applies the `min_bin_count` filter,
+#' Constructs a ggplot2 VPC plot from a [df_vpcstats()] result (or any object
+#' satisfying the `vpc_stats` contract). Applies the `min_bin_count` filter,
 #' draws the simulated and observed quantile layers, overlays the observation
 #' scatter, draws the LOQ reference line, applies stratification facets, and
 #' adds the replicates caption and panel theme. The `pcvpc` argument selects
 #' the standard or prediction-corrected column set; both are present in the
 #' compute output.
 #'
-#' @param compute_out List with two data.frames as returned by
-#'    [df_vpccompute()]: `stats` (summary statistics with both std and pc
-#'    columns; carries `n_replicates`, `loq`, `strat_var` attributes) and
-#'    `obs` (first-replicate observations carrying both `OBSDV` and
-#'    `PC_OBSDV`).
+#' Most users will reach this function indirectly via [plot_vpc_cont()].
+#' Call `plot_build_vpc()` directly when working from a manually-constructed
+#' or cached `vpc_stats` object — for example, plotting a precomputed result
+#' from disk or a custom pipeline that produces compatible columns.
+#'
+#' @param compute_out A `vpc_stats` object (typically the output of
+#'    [df_vpcstats()]). Must contain `stats` and `obs` data.frames with the
+#'    columns documented in [df_vpcstats()]. Validated by
+#'    `validate_vpc_stats()` at entry.
 #' @param min_bin_count Minimum number of quantifiable observations
 #'    (`obs_n - obs_n_blq`) required for inclusion in binned plot layers.
 #'    BLQ-encoded records do not count toward this threshold.
 #' @param show_rep Logical. Display replicate count as a plot caption.
-#' @param shown Named list of logicals specifying which layers to include.
-#' @param theme Named list of aesthetic parameters (colors, sizes, etc.).
+#' @param shown Layer visibility settings created by [plot_vpc_shown()].
+#' @param theme Aesthetic parameters created by [plot_vpc_theme()].
 #' @param pcvpc Logical. When `TRUE`, plot the prediction-corrected columns
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC).
 #' @param loq Numeric value for LOQ reference line, or `NULL` to suppress.
-#'    Forced to `NULL` when `pcvpc = TRUE` (LOQ has no meaning on the
-#'    prediction-corrected scale).
-#' @param strat_var_str String or `NULL`. Stratification variable name.
+#'    When omitted, the value is read from `attr(compute_out$stats, "loq")`
+#'    so [df_vpcstats()] output is handled automatically. Forced to `NULL`
+#'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
+#'    scale).
+#' @param strat_var Stratification variable. Accepts bare names or strings.
+#'    Default is `NULL`. When `NULL`, the value is read from
+#'    `attr(compute_out$stats, "strat_var")` so output of [df_vpcstats()] is
+#'    handled automatically.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #'
 #' @return A `ggplot2` object.
-#' @keywords internal
+#' @export plot_build_vpc
+#'
+#' @examples
+#' model <- model_mread_load(model = "pkmodel")
+#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+#'                               dv_var = ODV)
+#' out <- df_vpcstats(simout, strat_var = FOOD)
+#' p <- plot_build_vpc(out, pcvpc = FALSE)
 
 plot_build_vpc <- function(compute_out,
                            min_bin_count = 1,
@@ -39,8 +55,21 @@ plot_build_vpc <- function(compute_out,
                            theme = NULL,
                            pcvpc = FALSE,
                            loq = NULL,
-                           strat_var_str = NULL,
-                           bin_var = "BIN_MID") {
+                           strat_var = NULL,
+                           bin_var = BIN_MID_VAR) {
+
+  validate_vpc_stats(compute_out)
+
+  ## Strat var dispatch: explicit user input takes precedence; otherwise
+  ## inherit from the stats df attribute (set by df_vpccompute).
+  strat_var_str <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  if (is.null(strat_var_str)) {
+    strat_var_str <- attr(compute_out$stats, "strat_var")
+  }
+
+  ## LOQ dispatch: missing() distinguishes "not passed" (inherit from attr)
+  ## from "explicit NULL" (suppress ref line).
+  if (missing(loq)) loq <- attr(compute_out$stats, "loq")
 
   vpcstats <- dplyr::filter(compute_out$stats,
                             (.data$obs_n - .data$obs_n_blq) >= min_bin_count)

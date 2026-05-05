@@ -294,6 +294,113 @@ test_that("df_vpcstats errors on ci outside (0,1)", {
                regexp = "must be a single numeric value in \\(0, 1\\)")
 })
 
+##### Direct tests for compute_one_flavor() #####
+
+## Setup: preprocessed test data.
+testsim_pre <- pmxhelpr:::df_vpcpreprocess(
+  testsim_raw,
+  time_var_str = "TIME", ntime_var_str = "NTIME",
+  pred_var_str = "PRED",
+  sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV",
+  strat_var_str = NULL, irep_name_str = "SIM",
+  loq = 1
+)
+.cof_args <- list(group_vars = "BIN_MID",
+                  irep_name = "SIM",
+                  pi = c(0.05, 0.95),
+                  ci_bounds = c(0.05, 0.95))
+
+test_that("compute_one_flavor: returns a data.frame with the expected column groups", {
+  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = 1, pcvpc = FALSE)
+  expect_s3_class(out, "data.frame")
+  expected <- c("BIN_MID",
+                "obs_n", "obs_n_blq", "obs_prop_blq",
+                "sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi",
+                "sim_low_low", "sim_low_med", "sim_low_hi",
+                "sim_med_low", "sim_med_med", "sim_med_hi",
+                "sim_hi_low",  "sim_hi_med",  "sim_hi_hi",
+                "obs_low", "obs_med", "obs_hi")
+  expect_true(all(expected %in% colnames(out)))
+})
+
+test_that("compute_one_flavor: loq = NULL omits the sim_prop_blq_* columns", {
+  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = NULL, pcvpc = FALSE)
+  expect_false(any(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
+                    %in% colnames(out)))
+})
+
+test_that("compute_one_flavor: pcvpc flag drives the sim_prop_blq detection branch", {
+  ## With pcvpc = TRUE the detection uses is.na(SIMDV); with pcvpc = FALSE it
+  ## uses (SIMDV < loq) | is.na(SIMDV). On unmodified preprocessed data
+  ## (no pred-correction applied), SIMDV is raw and has no NAs, so the std
+  ## branch counts BLQ via the < loq test and the pc branch counts zero.
+  std <- pmxhelpr:::compute_one_flavor(testsim_pre,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = 1, pcvpc = FALSE)
+  pc  <- pmxhelpr:::compute_one_flavor(testsim_pre,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = 1, pcvpc = TRUE)
+  expect_true(any(std$sim_prop_blq_med > 0, na.rm = TRUE))
+  expect_true(all(pc$sim_prop_blq_med == 0, na.rm = TRUE))
+})
+
+test_that("compute_one_flavor: var_infna is applied — no -Inf in quantile cols", {
+  ## Push every observation BLQ via a huge loq; OBSDV becomes -Inf in
+  ## preprocess, then ranks low at quantile, then should be masked to NA by
+  ## var_infna inside compute_one_flavor.
+  pre_all_blq <- pmxhelpr:::df_vpcpreprocess(
+    testsim_raw,
+    time_var_str = "TIME", ntime_var_str = "NTIME",
+    pred_var_str = "PRED",
+    sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV",
+    strat_var_str = NULL, irep_name_str = "SIM",
+    loq = 1e6
+  )
+  out <- pmxhelpr:::compute_one_flavor(pre_all_blq,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = 1e6, pcvpc = FALSE)
+  q_cols <- c("obs_low", "obs_med", "obs_hi",
+              "sim_low_low", "sim_low_med", "sim_low_hi")
+  for (col in q_cols) {
+    expect_false(any(is.infinite(out[[col]])),
+                 info = paste0("column `", col, "` contained -Inf"))
+  }
+})
+
+test_that("compute_one_flavor: obs_n equals records-per-bin (single replicate)", {
+  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+                                       group_vars = .cof_args$group_vars,
+                                       irep_name = .cof_args$irep_name,
+                                       pi = .cof_args$pi,
+                                       ci_bounds = .cof_args$ci_bounds,
+                                       loq = NULL, pcvpc = FALSE)
+  ## Reference: rows per bin in replicate 1 (preprocess already filtered EVID==0)
+  ref <- testsim_pre |>
+    dplyr::filter(SIM == 1) |>
+    dplyr::group_by(BIN_MID) |>
+    dplyr::summarise(n = dplyr::n(), .groups = "drop")
+  expect_equal(out$obs_n, ref$n, ignore_attr = TRUE)
+})
+
 test_that("plot_vpc_cont errors on scalar ci at boundary", {
   expect_error(df_vpcstats(testsim_raw, ci = 1),
                regexp = "must be a single numeric value in \\(0, 1\\)")

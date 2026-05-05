@@ -57,6 +57,9 @@ This is a major refactor of the package focused on simplifying function interfac
 * `var_predcorr`: Vectorized prediction correction helper.
 * `df_vpcstats`: Exported VPC summary statistics function. Takes raw simulation output (e.g. from `df_mrgsim_replicate()`) and returns a list with `stats` (summary statistics with integrated bin counting, replacing `df_nobsbin` dependency) and `obs` (first-replicate observation rows for the plot scatter overlay).
 * `plot_vpc_shown`: Constructor for VPC layer visibility settings.
+* `is_vpc_stats`: Predicate for the `vpc_stats` class returned by `df_vpcstats()`.
+* S3 methods on the `vpc_stats` class: `print()` shows a focused summary (object dimensions, run-config attributes, column groups, head preview); `summary()` is the same without the head; `as.data.frame()` extracts the `stats` data.frame.
+* `plot_build_vpc`: Public renderer that builds a VPC ggplot from any `vpc_stats` object. Most users still go through `plot_vpc_cont()`; call `plot_build_vpc()` directly when working from a manually-constructed or cached `vpc_stats` object (e.g. external preprocessing, custom flavors, snapshot fixtures). `strat_var` accepts bare names or strings and inherits from `attr(stats, "strat_var")` when not passed; `loq` similarly inherits from `attr(stats, "loq")` when omitted (pass `loq = NULL` explicitly to suppress the reference line).
 
 ### Theme System
 * New `plot_doseprop_theme` constructor for `plot_doseprop` aesthetics with keys `obs_point` and `linear` (plus `obs` role shortcut). `plot_doseprop()` now accepts a `theme` argument; previously its appearance was not customizable.
@@ -92,6 +95,10 @@ This is a major refactor of the package focused on simplifying function interfac
 * Centralize input validation in `utils_check.R`.
 * Update `size` to `linewidth` for line geom aesthetics throughout.
 * Expand test coverage from ~100 to 415+ tests.
+* VPC pipeline column-group registry: internal vectors (`.vpc_count_cols`, `.vpc_blq_cols`, `.vpc_obs_quantile_cols`, `.vpc_sim_quantile_cols`, `.vpc_meta_cols`) replace the duplicated column lists previously inlined inside `df_vpccompute()` (relocate, rename_with, var_infna across-mutate). Adding a new column group is now a single-site change.
+* Centralize the bin-variable name as the internal constant `BIN_MID_VAR` instead of repeating the `"BIN_MID"` literal across `df_vpcpreprocess`, `df_vpccompute`, `df_vpcstats`, `plot_vpc_cont`, and `plot_build_vpc`.
+* Internal `validate_vpc_stats()` helper, called at the top of `plot_build_vpc()`, asserts that the input carries the `vpc_stats` class and contains the required stats and obs columns. Surfaces clear errors before plotting deep-fails inside `aes()`.
+* Direct unit tests for the internal `compute_one_flavor()` helper (column-group output, `loq = NULL` drops `sim_prop_blq_*`, `pcvpc` flag drives BLQ-detection branch, `var_infna` is applied, `obs_n` matches records-per-bin).
 
 ## Documentation
 * Restructure vignettes: separate PK EDA, PK/PD EDA, GOF diagnostics, VPC workflow, and plot aesthetics into dedicated vignettes with cross-links.

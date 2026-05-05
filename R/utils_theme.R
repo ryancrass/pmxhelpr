@@ -143,7 +143,7 @@ pmx_point <- function(shape = NULL, size = NULL, alpha = NULL, color = NULL) {
   check_color(color, "color")
   structure(
     compact(list(shape = shape, size = size, alpha = alpha, color = color)),
-    class = "pmx_point"
+    class = c("pmx_point", "pmx_element")
   )
 }
 
@@ -169,7 +169,7 @@ pmx_line <- function(linewidth = NULL, linetype = NULL, alpha = NULL,
   structure(
     compact(list(linewidth = linewidth, linetype = linetype,
                  alpha = alpha, color = color)),
-    class = "pmx_line"
+    class = c("pmx_line", "pmx_element")
   )
 }
 
@@ -197,7 +197,7 @@ pmx_ribbon <- function(fill = NULL, alpha = NULL, color = NULL,
   structure(
     compact(list(fill = fill, alpha = alpha, color = color,
                  linetype = linetype, linewidth = linewidth)),
-    class = "pmx_ribbon"
+    class = c("pmx_ribbon", "pmx_element")
   )
 }
 
@@ -221,7 +221,7 @@ pmx_style <- function(color = NULL, alpha = NULL) {
   check_color(color, "color")
   structure(
     compact(list(color = color, alpha = alpha)),
-    class = "pmx_style"
+    class = c("pmx_style", "pmx_element")
   )
 }
 
@@ -246,7 +246,7 @@ pmx_errorbar <- function(linewidth = NULL, linetype = NULL,
   out <- compact(list(linewidth = linewidth, linetype = linetype,
                       alpha = alpha, color = color))
   out["width"] <- list(width)
-  structure(out, class = "pmx_errorbar")
+  structure(out, class = c("pmx_errorbar", "pmx_element"))
 }
 
 
@@ -270,7 +270,7 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
   structure(
     compact(list(linewidth = linewidth, linetype = linetype, color = color,
                  se_color = se_color, se_alpha = se_alpha)),
-    class = "pmx_trend"
+    class = c("pmx_trend", "pmx_element")
   )
 }
 
@@ -294,7 +294,7 @@ pmx_color <- function(dv = NULL, pred = NULL, ipred = NULL) {
   check_color(ipred, "ipred")
   structure(
     compact(list(dv = dv, pred = pred, ipred = ipred)),
-    class = "pmx_color"
+    class = c("pmx_color", "pmx_element")
   )
 }
 
@@ -340,6 +340,7 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
+  class(defaults) <- c("plot_dvtime_theme", "pmx_theme")
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
@@ -394,6 +395,7 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     cent_color    = pmx_color(dv = "blue", pred = "red", ipred = "green")
   )
+  class(defaults) <- c("plot_gof_theme", "pmx_theme")
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
@@ -432,6 +434,7 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL,
     linear = pmx_trend(linewidth = 1, linetype = 2,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4)
   )
+  class(defaults) <- c("plot_dvconc_theme", "pmx_theme")
   merge_theme(compact(list(obs_point = obs_point, ref_line = ref_line, loess = loess,
                            linear = linear, obs = obs)),
               defaults)
@@ -461,6 +464,7 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
                           color = "black",
                           se_color = "lightgrey", se_alpha = 0.4)
   )
+  class(defaults) <- c("plot_doseprop_theme", "pmx_theme")
   merge_theme(compact(list(obs_point = obs_point, linear = linear, obs = obs)),
               defaults)
 }
@@ -503,6 +507,7 @@ plot_vpc_theme <- function(obs_point = NULL, obs_median_line = NULL, obs_pi_line
     sim_median_ci   = pmx_ribbon(fill = "#FF0000", alpha = 0.3),
     loq_line        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
   )
+  class(defaults) <- c("plot_vpc_theme", "pmx_theme")
   merge_theme(compact(list(obs_point = obs_point, obs_median_line = obs_median_line,
                            obs_pi_line = obs_pi_line, sim_pi_line = sim_pi_line,
                            sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,

@@ -177,3 +177,41 @@ check_loglog_args <- function(method, ci, sigdigits) {
   }
   check_integer(sigdigits, "sigdigits")
 }
+
+
+#' Internal helper: abort if pipeline arguments are passed on the
+#' precomputed-stats path.
+#'
+#' Plot wrappers like [plot_vpc_cont()] and [plot_doseprop()] accept either
+#' raw data or a precomputed `pmx_stats` container. On the cached path the
+#' pipeline never re-runs, so any pipeline argument the user supplied would
+#' be silently ignored. This helper inspects the caller's `match.call()`,
+#' subtracts the explicitly-allowed plot-only arguments, and aborts when the
+#' remainder is non-empty — making the silent-shadow case audible.
+#'
+#' @param call A `call` object, typically `match.call()` evaluated in the
+#'    wrapper's frame.
+#' @param plot_only_args Character vector of argument names that ARE honored
+#'    on the precomputed-stats path (e.g. `"theme"`, `"shown"`, `"pcvpc"`).
+#'    The matched data argument should also be included.
+#' @param fn_name Character scalar, the wrapper's name, used in the error
+#'    message.
+#'
+#' @return `invisible(NULL)` on success.
+#' @keywords internal
+check_pipeline_args_dropped <- function(call, plot_only_args, fn_name) {
+  passed <- names(call)
+  passed <- passed[nzchar(passed)]                 # drop "" (function name, positional)
+  passed <- setdiff(passed, plot_only_args)
+  if (length(passed) > 0) {
+    rlang::abort(paste0(
+      "`", fn_name, "()` cannot accept pipeline arguments when `data` is a ",
+      "precomputed `pmx_stats` object: ",
+      paste(passed, collapse = ", "),
+      ". Either: (a) call the underlying df_*stats() function with these ",
+      "arguments and pass its result to `", fn_name, "()`; or (b) pass raw ",
+      "data and let `", fn_name, "()` build the stats."
+    ))
+  }
+  invisible(NULL)
+}

@@ -11,8 +11,6 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.retina = 1,
-  dpi = 96,
   out.width = "100%"
 )
 ```
@@ -312,6 +310,31 @@ plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
   facet_wrap(~PART)
 ```
 
+## Composing themes with `+`
+
+When you have a base theme handle and want to apply an override without rebuilding from defaults, use the `+` operator. The right-hand side is a partial `pmx_theme` (built with `pmx_theme()`), and only its keys win — every other key on the left side is preserved.
+
+```{r example-compose, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+base_theme <- plot_vpc_theme()
+red_obs    <- pmx_theme(list(obs_point = pmx_point(color = "red")))
+new_theme  <- base_theme + red_obs
+
+# Class is preserved — still a plot_vpc_theme
+inherits(new_theme, "plot_vpc_theme")
+new_theme$obs_point$color   # "red"
+new_theme$sim_pi_ci$fill    # untouched, still the default
+```
+
+`pmx_theme()` is the public partial-theme constructor: it takes a named list of `pmx_element` objects and tags it with the `pmx_theme` class. With no `subclass` argument the partial is plot-type-agnostic; pass `subclass = "plot_<type>_theme"` if you need the partial to satisfy a specific class check.
+
+`+` is also defined on `pmx_element` for layering field-level overrides:
+
+```{r example-element-compose}
+pmx_point(size = 2, color = "blue") + pmx_point(color = "red")
+```
+
+`theme + NULL` returns the theme unchanged — convenient for `theme + maybe_extra_theme` patterns where the right side may conditionally be `NULL`.
+
 ## Remove Individual Data Points
 
 A common use case for the `theme` argument is to set to `alpha = 0` for data points to remove them from the plot. This example removes points for observations and central tendency means to emphasize the error bars
@@ -430,3 +453,51 @@ plot_vpc_cont(
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")
 ```
+
+# Inspecting and Validating Themes
+
+The `pmx_*()` element constructors and `plot_*_theme()` factories return objects with shared S3 class tags — `pmx_element` and `pmx_theme` — that provide predicates for programmatic validation and a consistent `print` method for interactive inspection. These are useful when you build themes inside helper functions, share them across teams, or test that overrides have produced the expected structure.
+
+## Print Methods
+
+Every element constructor returns an object whose `print()` method shows the element type as a banner and the set fields inline. Unset fields (those left at their `NULL` default) are omitted.
+
+```{r print-element}
+print(pmx_point(shape = 1, size = 2, alpha = 0.5))
+```
+
+Theme factories return objects whose `print()` method shows the theme type as a banner and one line per theme key, listing the inner element type and its set fields. This is the same format you have already seen when calling `plot_dvtime_theme()`, `plot_vpc_theme()`, and the other factories above — the print method dispatches automatically at the REPL.
+
+```{r print-theme}
+print(plot_dvtime_theme())
+```
+
+## Predicates
+
+The shared predicates `is_pmx_element()` and `is_pmx_theme()` test whether an object came from any constructor or factory in their respective families. For a specific-type check, use `inherits(x, "pmx_point")` (or whichever class) directly — that's the standard R idiom and works on every `pmx_*` element and `plot_*_theme` factory.
+
+```{r predicates}
+is_pmx_element(pmx_point())                          # TRUE
+is_pmx_element(list(shape = 1))                      # FALSE -- a plain list, not a pmx element
+
+is_pmx_theme(plot_dvtime_theme())                    # TRUE
+inherits(plot_dvtime_theme(), "plot_dvtime_theme")   # TRUE  -- specific-type check
+inherits(plot_vpc_theme(),    "plot_dvtime_theme")   # FALSE
+```
+
+These are most useful inside helper functions that should accept either a default-built theme or a user override, where you want to fail fast on a typo (e.g., a plain list mistakenly passed where a theme was expected).
+
+## Class Propagation Through Merge
+
+User overrides are merged into the default theme via the internal `merge_theme()` helper at plot time. The merge preserves the theme's class tags, so a customized theme still satisfies both the shared predicate and any specific-type `inherits()` check.
+
+```{r merge-class}
+custom <- plot_dvtime_theme(obs_point = pmx_point(size = 2),
+                            cent_line = pmx_line(linetype = "dashed"))
+
+is_pmx_theme(custom)                          # TRUE
+inherits(custom, "plot_dvtime_theme")         # TRUE
+class(custom)
+```
+
+This means programmatic theme-building and theme-validation pipelines work uniformly on raw factory output and on any sequence of overrides applied to it.

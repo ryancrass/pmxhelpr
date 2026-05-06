@@ -96,11 +96,14 @@ df_loglog <- function(fit,
 #'
 #' @description
 #' Computes per-metric log-log regression statistics and returns them in a
-#' cacheable, replottable object. The returned data.frame carries the class
-#' `"doseprop_stats"` and the plotting context as attributes (`obs`,
-#' `metric_var`, `exp_var`, `dose_var`, `ci`, `method`), so that
-#' [plot_doseprop()] / [plot_build_doseprop()] can render directly from this
-#' object without re-fitting any regressions.
+#' cacheable, replottable container. The returned object is a
+#' [pmx_stats()] container with class
+#' `c("doseprop_stats", "pmx_stats")` and three slots — `stats` (per-metric
+#' regression body), `obs` (filtered observation rows used for the scatter
+#' overlay), and `config` (regression configuration: `metric_var`, `exp_var`,
+#' `dose_var`, `ci`, `method`) — so that [plot_doseprop()] /
+#' [plot_build_doseprop()] can render directly from this object without
+#' re-fitting any regressions.
 #'
 #' @param metrics character vector of exposure metrics in `data` to plot
 #' @param metric_var Column in `data` containing the values provided in `metrics`.
@@ -108,14 +111,19 @@ df_loglog <- function(fit,
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
 #'
-#' @return A data.frame with one row per metric and columns `Intercept`,
-#'    `StandardError`, `CI`, `Power`, `LCL`, `UCL`, `Proportional`, `PowerCI`,
-#'    `Interpretation`, plus the column named in `metric_var`. The object
-#'    carries class `c("doseprop_stats", "data.frame")` and these attributes:
-#'    `obs` (the filtered observation rows used for the plot scatter overlay),
-#'    `metric_var`, `exp_var`, `dose_var`, `ci`, `method`. Pass it directly to
-#'    [plot_doseprop()] or [plot_build_doseprop()] to replot without
-#'    refitting.
+#' @return A `doseprop_stats` container (subclass of `pmx_stats`) with three
+#'    slots:
+#'    \describe{
+#'      \item{`stats`}{One row per metric and columns `Intercept`,
+#'        `StandardError`, `CI`, `Power`, `LCL`, `UCL`, `Proportional`,
+#'        `PowerCI`, `Interpretation`, plus the column named in `metric_var`.}
+#'      \item{`obs`}{The filtered observation rows used for the plot scatter
+#'        overlay.}
+#'      \item{`config`}{Named list with `metric_var`, `exp_var`, `dose_var`,
+#'        `ci`, `method`.}
+#'    }
+#'    Pass directly to [plot_doseprop()] or [plot_build_doseprop()] to replot
+#'    without refitting.
 #' @export df_doseprop
 #'
 #' @examples
@@ -153,14 +161,18 @@ df_doseprop <- function(data,
 
   obs_filtered <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
 
-  class(out) <- c("doseprop_stats", "data.frame")
-  attr(out, "obs")        <- obs_filtered
-  attr(out, "metric_var") <- metric_var_str
-  attr(out, "exp_var")    <- exp_var_str
-  attr(out, "dose_var")   <- dose_var_str
-  attr(out, "ci")         <- ci
-  attr(out, "method")     <- method
-  out
+  pmx_stats(
+    stats  = out,
+    obs    = obs_filtered,
+    config = list(
+      metric_var = metric_var_str,
+      exp_var    = exp_var_str,
+      dose_var   = dose_var_str,
+      ci         = ci,
+      method     = method
+    ),
+    subclass = "doseprop_stats"
+  )
 }
 
 
@@ -181,22 +193,21 @@ validate_doseprop_stats <- function(x) {
   if (!inherits(x, "doseprop_stats")) {
     rlang::abort("`x` must be a `doseprop_stats` object (output of `df_doseprop()`).")
   }
+  validate_pmx_stats(x)
   required_cols <- c("Intercept", "Power", "LCL", "UCL", "PowerCI")
-  missing_cols <- setdiff(required_cols, colnames(x))
+  missing_cols <- setdiff(required_cols, colnames(x$stats))
   if (length(missing_cols) > 0) {
     rlang::abort(paste0("`doseprop_stats` is missing required columns: ",
                         paste(missing_cols, collapse = ", ")))
   }
-  required_attrs <- c("obs", "metric_var", "exp_var", "dose_var", "ci")
-  missing_attrs <- required_attrs[vapply(required_attrs,
-                                         function(a) is.null(attr(x, a)),
-                                         logical(1))]
-  if (length(missing_attrs) > 0) {
-    rlang::abort(paste0("`doseprop_stats` is missing required attributes: ",
-                        paste(missing_attrs, collapse = ", ")))
+  required_config <- c("metric_var", "exp_var", "dose_var", "ci")
+  missing_config <- setdiff(required_config, names(x$config))
+  if (length(missing_config) > 0) {
+    rlang::abort(paste0("`doseprop_stats` is missing required config keys: ",
+                        paste(missing_config, collapse = ", ")))
   }
-  if (!is.data.frame(attr(x, "obs"))) {
-    rlang::abort("`doseprop_stats` attribute `obs` must be a data.frame.")
+  if (!is.data.frame(x$obs)) {
+    rlang::abort("`doseprop_stats$obs` must be a data.frame.")
   }
   invisible(x)
 }
@@ -219,9 +230,9 @@ validate_doseprop_stats <- function(x) {
 #' columns and attributes.
 #'
 #' @param stats A `doseprop_stats` object (typically the output of
-#'    [df_doseprop()]). Must carry the `obs`, `metric_var`, `exp_var`,
-#'    `dose_var`, and `ci` attributes. Validated by `validate_doseprop_stats()`
-#'    at entry.
+#'    [df_doseprop()]). Must contain `$obs` and `$config` slots with
+#'    `metric_var`, `exp_var`, `dose_var`, and `ci`. Validated by
+#'    `validate_doseprop_stats()` at entry.
 #' @param theme Named list of aesthetic parameters for the plot created by
 #'    [plot_doseprop_theme()]. Defaults can be viewed by running
 #'    `plot_doseprop_theme()` with no arguments.
@@ -243,15 +254,15 @@ plot_build_doseprop <- function(stats,
 
   validate_doseprop_stats(stats)
 
-  metric_var_str <- attr(stats, "metric_var")
-  exp_var_str    <- attr(stats, "exp_var")
-  dose_var_str   <- attr(stats, "dose_var")
-  ci             <- attr(stats, "ci")
-  obs            <- attr(stats, "obs")
+  metric_var_str <- stats$config$metric_var
+  exp_var_str    <- stats$config$exp_var
+  dose_var_str   <- stats$config$dose_var
+  ci             <- stats$config$ci
+  obs            <- stats$obs
 
   plottheme <- merge_theme(theme, plot_doseprop_theme())
 
-  tab <- stats
+  tab <- stats$stats
   tab$label <- paste0(tab[[metric_var_str]], " | ", tab$PowerCI)
 
   plot_data <- dplyr::left_join(obs, tab, by = metric_var_str)
@@ -291,9 +302,10 @@ plot_build_doseprop <- function(stats,
 #'   the regression refit and replot with different `theme` / `se` settings.
 #'
 #' On the precomputed path, pipeline arguments (`metrics`, `metric_var`,
-#' `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) are silently ignored
-#' because the regression does not run again. `theme` and `se` are honored
-#' on both paths.
+#' `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
+#' because the regression does not run again — passing any of them aborts
+#' with a message pointing the caller at [df_doseprop()]. Only `theme` and
+#' `se` are accepted on both paths.
 #'
 #' @param data Either raw observation data (data.frame, default expected
 #'    format is output from `PKNCA::pk.nca()`) or a `doseprop_stats` object
@@ -336,6 +348,11 @@ plot_doseprop <- function(data,
                           theme = NULL) {
 
   if (inherits(data, "doseprop_stats")) {
+    check_pipeline_args_dropped(
+      call           = match.call(),
+      plot_only_args = c("data", "theme", "se"),
+      fn_name        = "plot_doseprop"
+    )
     return(plot_build_doseprop(data, theme = theme, se = se))
   }
 

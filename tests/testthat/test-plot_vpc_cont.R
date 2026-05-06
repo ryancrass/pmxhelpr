@@ -199,7 +199,7 @@ test_that("PC-VPC applies per-bin prediction correction, not global", {
 })
 
 ##Test vpcstats return
-test_that("df_vpcstats() returns list(stats, obs) with expected stats columns", {
+test_that("df_vpcstats() returns a pmx_stats container with stats, obs, config slots", {
   testsim <- df_mrgsim_replicate(data = data_sad,
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
@@ -207,9 +207,12 @@ test_that("df_vpcstats() returns list(stats, obs) with expected stats columns", 
 
   result <- df_vpcstats(testsim)
   expect_type(result, "list")
-  expect_named(result, c("stats", "obs"))
+  expect_s3_class(result, "vpc_stats")
+  expect_s3_class(result, "pmx_stats")
+  expect_named(result, c("stats", "obs", "config"))
   expect_s3_class(result$stats, "data.frame")
   expect_s3_class(result$obs, "data.frame")
+  expect_type(result$config, "list")
   expected_cols <- c("BIN_MID", "obs_n", "sim_low_med", "sim_med_med", "sim_hi_med",
                      "obs_low", "obs_med", "obs_hi")
   expect_true(all(expected_cols %in% colnames(result$stats)))
@@ -343,6 +346,33 @@ test_that("min_bin_count override on precomputed path filters layers", {
                           function(d) "ymin" %in% colnames(d) && nrow(d) > 0,
                           logical(1))
   expect_false(any(ribbon_layers))
+})
+
+test_that("plot_vpc_cont aborts when pipeline args are passed on the precomputed path", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV")
+  out <- df_vpcstats(testsim)
+  expect_error(plot_vpc_cont(out, strat_var = "FOOD"),
+               regexp = "cannot accept pipeline arguments")
+  expect_error(plot_vpc_cont(out, loq = 1),
+               regexp = "cannot accept pipeline arguments")
+  expect_error(plot_vpc_cont(out, mode = "drop"),
+               regexp = "cannot accept pipeline arguments")
+})
+
+test_that("plot_vpc_cont accepts plot-only args on the precomputed path", {
+  testsim <- df_mrgsim_replicate(data = data_sad,
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV")
+  out <- df_vpcstats(testsim)
+  expect_s3_class(plot_vpc_cont(out, pcvpc = TRUE), "ggplot")
+  expect_s3_class(plot_vpc_cont(out, min_bin_count = 2), "ggplot")
+  expect_s3_class(plot_vpc_cont(out, show_rep = FALSE), "ggplot")
+  expect_s3_class(plot_vpc_cont(out, theme = plot_vpc_theme()), "ggplot")
+  expect_s3_class(plot_vpc_cont(out, shown = plot_vpc_shown()), "ggplot")
 })
 
 test_that("precomputed and raw paths produce structurally equivalent plot data", {

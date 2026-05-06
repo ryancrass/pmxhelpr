@@ -4,25 +4,30 @@
 \alias{is_pmx_theme}
 \title{Test whether an object is a pmx plot theme}
 \usage{
-is_pmx_theme(x)
+is_pmx_theme(x, strict = FALSE)
 }
 \arguments{
 \item{x}{Object to test.}
+
+\item{strict}{Logical. When \code{TRUE}, additionally checks that every named
+entry of the theme is a \code{pmx_element}. Default \code{FALSE}
+(class-tag check only, cheap).}
 }
 \value{
 Logical scalar.
 }
 \description{
 Predicate that returns \code{TRUE} if \code{x} carries the shared \code{"pmx_theme"}
-class -- i.e., it was constructed by one of \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}},
-\code{\link[=plot_gof_theme]{plot_gof_theme()}}, \code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}}, \code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}, or
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. Use the per-type predicates
-(\code{\link[=is_plot_dvtime_theme]{is_plot_dvtime_theme()}} etc.) when you need to distinguish among
-theme flavors.
+class -- i.e., it was constructed by \code{\link[=pmx_theme]{pmx_theme()}} or one of
+\code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}, \code{\link[=plot_gof_theme]{plot_gof_theme()}}, \code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}},
+\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}, or \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. For a specific-type
+check, use \code{inherits(x, "plot_vpc_theme")} (or whichever subclass)
+directly.
 }
 \examples{
-is_pmx_theme(plot_dvtime_theme())   # TRUE
-is_pmx_theme(plot_vpc_theme())      # TRUE
-is_pmx_theme(pmx_point())           # FALSE
-is_pmx_theme(list(obs_point = 1))   # FALSE
+is_pmx_theme(plot_dvtime_theme())                     # TRUE
+is_pmx_theme(plot_vpc_theme())                        # TRUE
+is_pmx_theme(pmx_point())                             # FALSE
+is_pmx_theme(list(obs_point = 1))                     # FALSE
+inherits(plot_vpc_theme(), "plot_vpc_theme")          # TRUE -- specific-type check
 }

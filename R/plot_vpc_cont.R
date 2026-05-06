@@ -107,12 +107,20 @@ plot_vpc_cont <- function(data,
     if (missing(data)) data <- sim
   }
 
-  ## Precomputed-stats path: caller passed the list returned by df_vpcstats().
-  ## Skip preprocess + compute and recover plotting context from the stored
-  ## attributes. Pipeline args (strat_var, loq, mode, pi, ci, column-name
-  ## args) are ignored on this path because the pipeline doesn't run; pcvpc
-  ## is honored as a plot-time view selector.
+  ## Precomputed-stats path: caller passed the container returned by
+  ## df_vpcstats(). Skip preprocess + compute and recover plotting context
+  ## from the container's $config slot. Pipeline args (strat_var, loq, mode,
+  ## pi, ci, column-name args) cannot be honored on this path because the
+  ## pipeline doesn't run again; the wrapper aborts if any are passed.
+  ## Plot-only args (min_bin_count, show_rep, shown, theme, pcvpc) are
+  ## accepted on both paths.
   if (inherits(data, "vpc_stats")) {
+    check_pipeline_args_dropped(
+      call           = match.call(),
+      plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
+                         "theme", "pcvpc"),
+      fn_name        = "plot_vpc_cont"
+    )
     return(plot_build_vpc(
       data,
       min_bin_count = min_bin_count,

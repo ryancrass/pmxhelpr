@@ -64,9 +64,10 @@ the regression refit and replot with different \code{theme} / \code{se} settings
 }
 
 On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_var},
-\code{exp_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) are silently ignored
-because the regression does not run again. \code{theme} and \code{se} are honored
-on both paths.
+\code{exp_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) cannot be honored
+because the regression does not run again — passing any of them aborts
+with a message pointing the caller at \code{\link[=df_doseprop]{df_doseprop()}}. Only \code{theme} and
+\code{se} are accepted on both paths.
 }
 \examples{
 # Raw-data path

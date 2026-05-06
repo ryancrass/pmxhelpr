@@ -11,8 +11,6 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.retina = 1,
-  dpi = 96,
   out.width = "100%"
 )
 ```
@@ -110,7 +108,7 @@ colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk
 
  `pmxhelpr` includes two functions for calculating summary statistics across simulated replicates of an input dataset and plotting the ouput for model evaluation: `df_vpcstats` and `plot_vpc_cont()`.
  
-The `df_vpcstats` function can be called within `plot_vpc_cont()`, for a one function call calculation and visualization of VPC statistics. `df_vpcstats` returns a list of two data.frames, `stats` and `obs`, which contained the summary statistics of the simulated and observed data and the observed data points for overlay, respectively. The returned output can be passed directly into `plot_vpc_cont()` or the full pipeline can be run within the plotting function.
+The `df_vpcstats` function can be called within `plot_vpc_cont()`, for a one function call calculation and visualization of VPC statistics. `df_vpcstats` returns a `pmx_stats` container with `stats` (summary statistics of simulated and observed data), `obs` (observed data points for overlay), and `config` (run configuration) slots. The returned output can be passed directly into `plot_vpc_cont()` or the full pipeline can be run within the plotting function.
 
 Many VPC tools use automatic binning algorithms (e.g., Jenks natural breaks, k-means, density) to determine bin intervals from the data. While these are useful for datasets without a pre-defined binning variable, they are not optimized to leverage input datasets with a variable representing exact bin times (e.g., nominal or protocol-specified times). Additionally, when a dataset contains an exact binning variable, these algorithms may not reproduce the exact bins. For example, absorption phase timepoints that are close together may be grouped into a single bin, obscuring important pharmacokinetic details.
 
@@ -272,10 +270,11 @@ Outputs are grouped by the variables passed to `ntime_var` and `strat_var`.
 
 The remaining arguments control processing for prediction-correction (`pcvpc`) and BLQ handling (`loq`).
 
-`df_vpcstats()` returns a list with two data.frames: 
+`df_vpcstats()` returns a [`pmx_stats`][is_pmx_stats] container with three slots:
 
-  + `stats` the quantile summary statistics of the observed and simulated data
-  + `obs` first-replicate observation rows used as the scatter overlay in `plot_vpc_cont()`). 
+  + `stats` — the quantile summary statistics of the observed and simulated data
+  + `obs` — first-replicate observation rows used as the scatter overlay in `plot_vpc_cont()`
+  + `config` — the run configuration (`n_replicates`, `loq`, `strat_var`) used by downstream plot builders
 
 Let's calculate VPC summary statistics for our simulated dataset. The minimum stratification based on extrinsic participant factors in the study design for a standard vpc is stratifying by Dose and Food.
 
@@ -346,6 +345,36 @@ vpcstats_ntime_part <- df_vpcstats(
 glimpse(dplyr::select(vpcstats_ntime_part$stats, BIN_MID, PART, dplyr::starts_with("pc_")))
 ```
 
+### Inspecting the `vpc_stats` object
+
+The container returned by `df_vpcstats()` is class-tagged `c("vpc_stats", "pmx_stats")`, which provides three S3 methods designed for interactive inspection without dumping every column.
+
+`print()` shows a focused summary — object dimensions, run-config values (`n_replicates`, `loq`, `strat_var`), the column groups present in `stats` (counts, simulated-BLQ proportions, standard and prediction-corrected observed/simulated quantiles, run-config metadata), and a short head preview.
+
+```{r vpc-stats-print}
+print(vpcstats_ntime_dose_food)
+```
+
+`summary()` returns the same content as `print()` but suppresses the head preview, which is convenient for snapshotting the run configuration without the row content.
+
+```{r vpc-stats-summary}
+summary(vpcstats_ntime_dose_food)
+```
+
+`as.data.frame()` returns the `stats` slot as a plain data.frame. Access `obs` and `config` separately via `vpcstats_ntime_dose_food$obs` and `vpcstats_ntime_dose_food$config`.
+
+```{r vpc-stats-as-df}
+glimpse(as.data.frame(vpcstats_ntime_dose_food))
+```
+
+Use `is_vpc_stats()` to test class membership programmatically — for example, in user code that should accept either a precomputed `vpc_stats` object or a raw simulated data.frame. Pass `strict = TRUE` to additionally validate structural integrity.
+
+```{r vpc-stats-predicate}
+is_vpc_stats(vpcstats_ntime_dose_food)
+is_vpc_stats(vpcstats_ntime_dose_food$stats)  # FALSE -- that's the inner data.frame
+```
+
+
 ## VPC Plots with `plot_vpc_cont()`
 
 `pmxhelpr` contains a function to produce VPC and pcVPC plots for models fit to longitudinal, continuous repeated measures data: `plot_vpc_cont()`
@@ -368,7 +397,7 @@ plot_vpc_cont(
 
 `plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `theme` — without paying the summarization cost on every call.
 
-The `df_vpcstats()` return is class-tagged `"vpc_stats"`; `print(out)` shows a focused summary of dimensions, run-config attributes (`n_replicates`, `loq`, `strat_var`), and column groups rather than dumping all columns. Use `out$stats` and `out$obs` (or `as.data.frame(out)` for the stats data.frame) to access the underlying frames.
+The `df_vpcstats()` return is class-tagged `"vpc_stats"` (see [Inspecting the `vpc_stats` object](#inspecting-the-vpc_stats-object) above for `print()` / `summary()` / `as.data.frame()` / `is_vpc_stats()` usage). Use `out$stats` and `out$obs` to access the underlying frames directly.
 
 ```{r plot-vpc-precomputed, fig.height=4, fig.width=6, warning=FALSE}
 out <- df_vpcstats(data = simout, strat_var = DoseFood)
@@ -385,13 +414,13 @@ plot_vpc_cont(out, pcvpc = TRUE) +
   scale_x_continuous(breaks = seq(0, 168, 24))
 ```
 
-When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are ignored — those decisions were already made when `df_vpcstats()` ran. Plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) still apply.
+When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) **cannot** be honored — those decisions were already made when `df_vpcstats()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_vpcstats()`. Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) are accepted on this path; to change a pipeline setting, re-run `df_vpcstats()` and pass the new result.
 
 `plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset.
 
 #### Building plots from a `vpc_stats` object directly
 
-For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var` and `loq` inherit from the stats data.frame's attributes when not passed explicitly.
+For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var` and `loq` inherit from the container's `$config` slot when not passed explicitly.
 
 ```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
 out <- df_vpcstats(data = simout, strat_var = DoseFood)
@@ -636,7 +665,7 @@ vpc2
 
 ### Accessing VPC Summary Statistics
 
-`plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics directly, use `df_vpcstats()` — it accepts the same simulation input and returns a list with two data.frames: `stats` (observed and simulated quantiles, confidence intervals, and bin information) and `obs` (first-replicate observation rows used as the plot's scatter overlay).
+`plot_vpc_cont()` returns a `ggplot` object. To access the underlying summary statistics directly, use `df_vpcstats()` — it accepts the same simulation input and returns a `pmx_stats` container with `stats` (observed and simulated quantiles, confidence intervals, and bin information), `obs` (first-replicate observation rows used as the plot's scatter overlay), and `config` (the run configuration) slots.
 
 ```{r vpc-stats, message=FALSE, warning=FALSE}
 out <- df_vpcstats(
@@ -706,3 +735,44 @@ The legend can then be combined with the ggplot object returned from `plot_vpc_c
 vpc_wleg2 <- vpc2 + vpc_new_legend + plot_layout(heights = c(2.5,1))
 vpc_wleg2
 ```
+
+
+# Pipeline Column Contracts
+
+Reference table of column-name expectations across the three VPC pipeline stages. Default column names are shown; each user-facing function accepts column-name arguments (`time_var`, `ntime_var`, `pred_var`, `sim_dv_var`, `obs_dv_var`, `irep_name`, `strat_var`) that remap input columns to the standard names used internally. Output names are fixed.
+
+## `df_mrgsim_replicate(data, model, replicates, ...)`
+
+| Stage | Columns |
+|---|---|
+| **Required input** | `ID`, `TIME`, `NTIME`, `EVID`, `MDV`, `CMT`, plus the column named by `dv_var` (default `DV`) |
+| **Always-carried output** | `ID`, `TIME`, `NTIME`, `EVID`, `MDV`, `CMT`, `PRED`, `IPRED`, `SIMDV`, `OBSDV`, replicate counter (default `SIM`) |
+| **Auto-carried output** | All numeric and character columns of `data` (e.g. `LLOQ`, `DOSE`, `FOOD`, `PART`) — restricted with explicit `num_vars` / `char_vars` lists |
+
+Output column-name standardization is the key contract: `dv_var` is renamed to `OBSDV` and the simulator's DV capture is renamed to `SIMDV`, regardless of source names.
+
+## `df_vpcstats(data, ...)`
+
+| Stage | Columns |
+|---|---|
+| **Required input** | `EVID`, `MDV`, `PRED`, `SIMDV`, `OBSDV`, `TIME`, `NTIME`, `SIM` (or per `irep_name`) |
+| **Optional input** | `LLOQ` (auto-inherited as `loq`), `<strat_var>` (any column named via `strat_var`) |
+| **Output: `$stats`** | Identifiers: `BIN_MID`, `<strat_var>` |
+|  | Counts: `obs_n`, `obs_n_blq`, `obs_prop_blq` |
+|  | Std observed quantiles: `obs_low`, `obs_med`, `obs_hi` |
+|  | Std simulated CIs: `sim_low_low/med/hi`, `sim_med_low/med/hi`, `sim_hi_low/med/hi` |
+|  | Std sim BLQ proportions: `sim_prop_blq_low/med/hi` (only when `loq` is known) |
+|  | pcVPC observed quantiles: `pc_obs_low/med/hi` |
+|  | pcVPC simulated CIs: `pc_sim_low_low/med/hi`, `pc_sim_med_low/med/hi`, `pc_sim_hi_low/med/hi` |
+|  | Run config: `ci`, `pi_low`, `pi_hi` |
+| **Output: `$obs`** | First-replicate observation rows with `MDV == 0`. Carries `OBSDV` (std-scale), `PC_OBSDV` (prediction-corrected), `TIME`, plus all input columns. |
+| **Output: `$config`** | Named list: `n_replicates`, `loq`, `strat_var` |
+
+## `plot_build_vpc(compute_out, ...)`
+
+| Stage | Columns |
+|---|---|
+| **Required input** | A `vpc_stats` container with the `$stats`, `$obs`, and `$config` columns above. Validated at entry by the internal `validate_vpc_stats()`. |
+| **Honored args on the precomputed path** | `min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc` |
+
+Pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are **not** accepted at this stage — those decisions live in `df_vpcstats()`. Passing any of them to `plot_vpc_cont()` on the precomputed-stats path aborts with a message pointing back at `df_vpcstats()`.

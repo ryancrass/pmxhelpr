@@ -1,0 +1,172 @@
+---
+title: "Dose-Proportionality Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{doseprop-workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r usethis, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%"
+)
+```
+
+This vignette demonstrates the `pmxhelpr` dose-proportionality assessment workflow using power law (log-log) regression of exposure metrics versus dose. The pipeline mirrors the [VPC workflow](vpc-workflow.html): a stats function (`df_doseprop()`) returns a class-tagged object, a public renderer (`plot_build_doseprop()`) draws plots from that object, and a top-level wrapper (`plot_doseprop()`) bundles both for one-shot use.
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+```
+
+# Background
+
+Dose proportionality assessment evaluates whether exposure increases proportionally with dose. The standard approach is power law regression on the relationship
+
+$$Exposure = \alpha \cdot DOSE^\gamma$$
+
+which linearizes via log transformation to
+
+$$\log(Exposure) = intercept + \gamma \cdot \log(DOSE)$$
+
+Hypothesis testing proceeds via the confidence interval around the power estimate ($\gamma$): the null is dose-proportional ($\gamma = 1$); the alternative is non-proportional ($\gamma \ne 1$). Interpretation rules of thumb:
+
+  + CI includes 1: dose-proportional
+  + CI excludes 1, upper bound below 1: less than dose-proportional
+  + CI excludes 1, lower bound above 1: greater than dose-proportional
+
+This assessment is typically performed on both Cmax and AUC. The combination informs which phase of the PK profile is contributing most to non-linearity (absorption rate, absorption extent, or elimination). For a more complete discussion of the underlying theory and worked NCA derivation using the `PKNCA` package, see the [PK EDA workflow](eda-pk-workflow.html) vignette.
+
+# Data
+
+This vignette uses the internal `data_sad_nca` dataset, which is the NCA parameter output for the `data_sad` SAD + food-effect study. The dataset is formatted in the SDTM `PP` (Pharmacokinetic Parameters) domain conventions, with one row per subject per parameter.
+
+```{r data-glimpse}
+glimpse(data_sad_nca)
+```
+
+For dose-proportionality assessment we want to focus on the SAD cohort and exclude the food-effect arm — food can also influence Cmax / AUC and would confound the dose-proportionality interpretation.
+
+```{r data-prep}
+nca_sad <- filter(data_sad_nca, PART == "Part 1-SAD")
+unique(nca_sad$PART)
+```
+
+
+# Computing summary statistics with `df_doseprop()`
+
+`df_doseprop()` performs the per-metric log-log regression and returns a `doseprop_stats` container — a [`pmx_stats`][is_pmx_stats] object with three slots: `stats` (one row per metric), `obs` (the observation rows used for the scatter overlay), and `config` (the regression configuration). Downstream plot builders read directly from these slots to render without a refit.
+
+The required arguments are:
+
+  + `data` — a `data.frame` of NCA parameters (typically `PKNCA::pk.nca()` output)
+  + `metrics` — character vector of exposure metric names to evaluate
+
+Optional arguments specify the column containing metric names (`metric_var`, default `PPTESTCD`), exposure values (`exp_var`, default `PPORRES`), dose (`dose_var`, default `DOSE`), the CI distribution (`method`, default `"normal"`; `"tdist"` available for small-sample analyses), and the CI width (`ci`, default `0.90`).
+
+```{r df-doseprop}
+stats <- df_doseprop(nca_sad, metrics = c("aucinf.obs", "cmax"))
+stats
+```
+
+The `stats` slot holds the per-metric estimates (`Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, `PowerCI`, `Interpretation`, etc.). The `obs` slot holds the filtered observation rows used for the plot overlay, and `config` records the column names and CI settings used during the fit.
+
+# Inspecting the `doseprop_stats` object
+
+The returned object is class-tagged `c("doseprop_stats", "pmx_stats")`, which provides three S3 methods designed for interactive inspection.
+
+`print()` shows a focused summary — object dimensions, the regression configuration values (`metric_var`, `exp_var`, `dose_var`, `ci`, `method`), the count of observation rows attached for the scatter overlay, and the per-metric stats body.
+
+```{r print-stats}
+print(stats)
+```
+
+`summary()` shares the header but condenses the body to one line per metric using the `PowerCI` and `Interpretation` columns. This is the most compact way to scan the assessment.
+
+```{r summary-stats}
+summary(stats)
+```
+
+`as.data.frame()` returns the `stats` slot as a plain `data.frame` — useful when downstream tooling expects a flat tabular result. The observation overlay and run configuration remain accessible via `stats$obs` and `stats$config`.
+
+```{r as-data-frame-stats}
+plain <- as.data.frame(stats)
+class(plain)
+stats$config$metric_var
+```
+
+Use `is_doseprop_stats()` to test class membership programmatically — for example, in user code that should accept either a precomputed `doseprop_stats` object or a raw NCA data.frame. Pass `strict = TRUE` to additionally validate structural integrity.
+
+```{r predicate-stats}
+is_doseprop_stats(stats)
+is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
+```
+
+# Plotting with `plot_doseprop()`
+
+`plot_doseprop()` is the top-level wrapper that bundles `df_doseprop()` and `plot_build_doseprop()`. The required arguments are the same as `df_doseprop()`. The output is a `ggplot` object with one panel per metric, where the facet label includes the metric name and the `PowerCI` text.
+
+```{r plot-raw, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_doseprop(nca_sad, metrics = c("aucinf.obs", "cmax"))
+```
+
+The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
+
+# Reusing precomputed stats
+
+`plot_doseprop()` also accepts a `doseprop_stats` object directly. This skips the regression refit and is useful when you want to inspect the stats object and then render the same data multiple times — for example, with and without the SE ribbon, or with different aesthetic overrides — without paying the regression cost again.
+
+```{r plot-precomputed, fig.height=4, fig.width=6, warning=FALSE}
+# With the SE ribbon (default)
+plot_doseprop(stats)
+
+# Without the SE ribbon
+plot_doseprop(stats, se = FALSE)
+```
+
+When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_var`, `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
+
+## Building plots from a `doseprop_stats` object directly
+
+For downstream code or custom workflows that produce a `doseprop_stats`-shaped object outside `df_doseprop()` (e.g. external preprocessing, snapshot fixtures), `plot_build_doseprop()` is exported as the public renderer. It is the same engine that `plot_doseprop()` uses internally on the precomputed path and accepts the same plot-only arguments (`theme`, `se`). All other plotting context — observation rows, column names, CI level — is recovered from the object's attributes.
+
+```{r plot-build-direct, fig.height=4, fig.width=6, warning=FALSE}
+plot_build_doseprop(stats)
+```
+
+# Theming
+
+Plot aesthetics are customized via the `theme` argument and the `plot_doseprop_theme()` constructor. The factory exposes two keys:
+
+  + `obs_point` — observation point aesthetics (constructed via `pmx_point()`)
+  + `linear` — regression line and SE ribbon aesthetics (constructed via `pmx_trend()`)
+
+It also accepts an `obs` role-level shortcut via `pmx_style()` for setting shared aesthetics on the points.
+
+```{r theme-defaults}
+plot_doseprop_theme()
+```
+
+A typical override:
+
+```{r plot-themed, fig.height=4, fig.width=6, warning=FALSE}
+plot_doseprop(
+  stats,
+  theme = plot_doseprop_theme(
+    obs_point = pmx_point(shape = 19, color = "darkblue", alpha = 1),
+    linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.15))
+)
+```
+
+For a deeper treatment of the theme system — element constructors, role shortcuts, the `pmx_element` / `pmx_theme` class system, and predicates for theme validation — see the [Plot Themes and Aesthetics](plot-themes.html) vignette.
+
+# See also
+
+  + [PK EDA workflow](eda-pk-workflow.html) — derivation of the `data_sad_nca` parameters via `PKNCA` and the broader exploratory PK workflow.
+  + [VPC workflow](vpc-workflow.html) — analogous stats / build / wrapper architecture for visual predictive checks.
+  + [Plot Themes and Aesthetics](plot-themes.html) — element constructors, theme factories, and class system for customizing plot output.

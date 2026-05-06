@@ -1,19 +1,19 @@
 ##### pmx_element class predicates #####
 
-test_that("each pmx_* constructor satisfies its specific predicate AND is_pmx_element()", {
+test_that("each pmx_* constructor satisfies its specific class AND is_pmx_element()", {
   cases <- list(
-    pmx_point    = list(obj = pmx_point(),    pred = is_pmx_point),
-    pmx_line     = list(obj = pmx_line(),     pred = is_pmx_line),
-    pmx_ribbon   = list(obj = pmx_ribbon(),   pred = is_pmx_ribbon),
-    pmx_errorbar = list(obj = pmx_errorbar(), pred = is_pmx_errorbar),
-    pmx_trend    = list(obj = pmx_trend(),    pred = is_pmx_trend),
-    pmx_style    = list(obj = pmx_style(),    pred = is_pmx_style),
-    pmx_color    = list(obj = pmx_color(),    pred = is_pmx_color)
+    pmx_point    = list(obj = pmx_point(),    cls = "pmx_point"),
+    pmx_line     = list(obj = pmx_line(),     cls = "pmx_line"),
+    pmx_ribbon   = list(obj = pmx_ribbon(),   cls = "pmx_ribbon"),
+    pmx_errorbar = list(obj = pmx_errorbar(), cls = "pmx_errorbar"),
+    pmx_trend    = list(obj = pmx_trend(),    cls = "pmx_trend"),
+    pmx_style    = list(obj = pmx_style(),    cls = "pmx_style"),
+    pmx_color    = list(obj = pmx_color(),    cls = "pmx_color")
   )
   for (nm in names(cases)) {
     obj <- cases[[nm]]$obj
-    pred <- cases[[nm]]$pred
-    expect_true(pred(obj),             info = paste0("specific predicate failed on ", nm))
+    cls <- cases[[nm]]$cls
+    expect_true(inherits(obj, cls),    info = paste0("specific class check failed on ", nm))
     expect_true(is_pmx_element(obj),   info = paste0("is_pmx_element failed on ", nm))
   }
 })
@@ -24,11 +24,11 @@ test_that("is_pmx_element() rejects plain lists and unrelated objects", {
   expect_false(is_pmx_element(NULL))
 })
 
-test_that("per-type predicates are mutually exclusive across element types", {
-  expect_false(is_pmx_point(pmx_line()))
-  expect_false(is_pmx_line(pmx_point()))
-  expect_false(is_pmx_ribbon(pmx_trend()))
-  expect_false(is_pmx_errorbar(pmx_style()))
+test_that("per-type classes are mutually exclusive across element types", {
+  expect_false(inherits(pmx_line(),  "pmx_point"))
+  expect_false(inherits(pmx_point(), "pmx_line"))
+  expect_false(inherits(pmx_trend(), "pmx_ribbon"))
+  expect_false(inherits(pmx_style(), "pmx_errorbar"))
 })
 
 
@@ -53,4 +53,37 @@ test_that("print.pmx_element() works on every element type", {
   for (ctor in ctors) {
     expect_no_error(capture.output(print(ctor())))
   }
+})
+
+
+##### +.pmx_element #####
+
+test_that("`+.pmx_element` returns left side unchanged when right side is NULL", {
+  base <- pmx_point(size = 2)
+  expect_identical(base + NULL, base)
+})
+
+test_that("`+.pmx_element` overlays right side fields onto left side", {
+  out <- pmx_point(size = 2) + pmx_point(color = "red")
+  expect_equal(out$size, 2)
+  expect_equal(out$color, "red")
+  expect_s3_class(out, "pmx_point")
+})
+
+test_that("`+.pmx_element` right side wins when fields collide", {
+  out <- pmx_point(size = 2, color = "blue") + pmx_point(color = "red")
+  expect_equal(out$color, "red")
+  expect_equal(out$size, 2)
+})
+
+test_that("`+.pmx_element` aborts on a non-pmx_element right side", {
+  expect_error(pmx_point() + 1L,
+               regexp = "must be a `pmx_element`")
+})
+
+test_that("`+.pmx_element` aborts on different subclasses", {
+  expect_error(pmx_point() + pmx_line(),
+               regexp = "subclasses must match")
+  expect_error(pmx_style() + pmx_point(),
+               regexp = "subclasses must match")
 })

@@ -37,14 +37,14 @@ BLQ-encoded records do not count toward this threshold.}
 LOQ reference line. Default is \code{FALSE} (standard VPC).}
 
 \item{loq}{Numeric value for LOQ reference line, or \code{NULL} to suppress.
-When omitted, the value is read from \code{attr(compute_out$stats, "loq")}
-so \code{\link[=df_vpcstats]{df_vpcstats()}} output is handled automatically. Forced to \code{NULL}
+When omitted, the value is read from \code{compute_out$config$loq} so
+\code{\link[=df_vpcstats]{df_vpcstats()}} output is handled automatically. Forced to \code{NULL}
 when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
 scale).}
 
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. When \code{NULL}, the value is read from
-\code{attr(compute_out$stats, "strat_var")} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
+\code{compute_out$config$strat_var} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
 handled automatically.}
 
 \item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}

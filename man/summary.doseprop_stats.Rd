@@ -16,8 +16,7 @@
 }
 \description{
 Compact summary of a \code{\link[=df_doseprop]{df_doseprop()}} result: the same header and
-configuration attributes shown by \code{\link[=print.doseprop_stats]{print.doseprop_stats()}}, but the body
-is condensed to one line per metric using the \code{PowerCI} and
-\code{Interpretation} columns. Suitable for vignette output and test
-snapshots.
+configuration values shown by \code{\link[=print.doseprop_stats]{print.doseprop_stats()}}, but the body is
+condensed to one line per metric using the \code{PowerCI} and \code{Interpretation}
+columns. Suitable for vignette output and test snapshots.
 }

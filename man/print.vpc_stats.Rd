@@ -18,7 +18,7 @@
 }
 \description{
 Focused summary of a \code{\link[=df_vpcstats]{df_vpcstats()}} result: object dimensions, run-config
-attributes (\code{n_replicates}, \code{loq}, \code{strat_var}), the column groups present
+values (\code{n_replicates}, \code{loq}, \code{strat_var}), the column groups present
 in \code{stats}, and a short head preview. Inspect the underlying data.frames
-directly via \code{x$stats} and \code{x$obs}.
+directly via \code{x$stats} and \code{x$obs}; inspect run config via \code{x$config}.
 }

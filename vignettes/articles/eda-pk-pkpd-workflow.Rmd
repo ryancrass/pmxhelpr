@@ -1,8 +1,8 @@
 ---
-title: "Exploratory Analyses of PK Data"
+title: "Exploratory Analyses of PK and PK/PD Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{eda-pk-workflow}
+  %\VignetteIndexEntry{eda-pk-pkpd-workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,8 +11,6 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.retina = 1,
-  dpi = 96,
   out.width = "100%"
 )
 ```
@@ -116,6 +114,7 @@ Finally, let's filter down only to PK observations for this exploratory analysis
 
 ```{r plot-data-cmt, message=FALSE, warning=FALSE}
 plot_data_pk <- filter(plot_data, CMT == 2)
+plot_data_pd <- filter(plot_data, CMT == 3)
 ```
 
 
@@ -407,147 +406,177 @@ lapply(1:n_pgs, function(n_pg) {
 
 
 
-# Dose-proportionality Assessment with `df_doseprop()` and `plot_doseprop()`
+# Population Response-time Plots with `plot_dvtime()`
 
-Another assessment that is commonly performed for pharmacokinetic data is dose proportionality (e.g., does exposure increase proportionally with dose). This is an important assessment prior to population PK modeling, as it informs whether non-linearity is an important consideration in model development. 
+Longitudinal pharmacodynamic response data can be visualized over time using `plot_dvtime()`. This function is designed to visualize a dependent variable versus time and can be used for PK and/or PD data!
 
-The industry standard approach to assessing dose proportionality is power law regression. Power law regression is based on the following relationship:
+```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
+  labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
+```
 
-$$Exposure = \alpha*(DOSE)^\gamma$$
+## Specifying a Reference Value for Change Metrics
 
-This power relationship can be transformed to a linear relationship to support quantitative estimation of the power ($\gamma$) via simple linear regression by taking the logarithm of both sides:
+A horizontal reference line can be added by specifying the `ref` argument with a numeric y-intercept value. For example, `ref = 100` adds a reference line at y = 100:
 
-$$log(Exposure) = intercept + \gamma*log(DOSE)$$
+```{r plot-dvtime-pd-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data_pd, dv_var = ODV,col_var = `Dose and Food`,
+            ref = 100) +
+  labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
+```
 
-`NOTE`: Use of natural logarithm and log10 transformations will not impact the assessment of the power and will only shift the intercept. 
+When the response variable is expressed as change from baseline, `ref = 0` provides the appropriate reference line:
 
-This approach facilitates hypothesis testing via assessment of the 95% CI around the power ($\gamma$) estimated from the log-log regression. The null hypothesis is that exposure increases proportionally to dose (e.g., $\gamma=1$) and the alternative hypothesis is that exposure does *NOT* increase proportionally to dose (e.g., $\gamma\ne 1$). 
+```{r plot-dvtime-pd-ref0, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data_pd, dv_var = CFB,col_var = `Dose and Food`,
+            ref = 0) +
+   labs(y = "Response (% of Baseline)", x = "Time Since First Dose (hours)")
+```
 
-Interpretation of the relationship is based on the 95% CI of the $\gamma$ estimate as follows:
+## Combining PK and PD Panels
 
-  + 90% CI includes one (1): exposure increases proportionally to dose
-  + 90% CI excludes one (1) & is less than 1: exposure increases less-than-proportionally to dose
-  + 90% CI excludes one (1) & is greater than 1: exposure increases greater-than-proportionally to dose
+Simultaneous visualization of the time-course of drug concentration and response can be achieved by combining two `plot_dvtime()` calls with the `patchwork` package. This approach provides full control over the content and aesthetics of each panel.
+
+```{r plot-dvtime-pkpd-panels, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
+                    log_y = TRUE) +
+  labs(x = "Time Since First Dose (hours)", y = "Concentration (ng/mL)")
+
+p_pd <- plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`,
+                    ref = 100) +
+  labs(x = "Time Since First Dose (hours)", y = "Response (% of Baseline)")
+
+p_pk / p_pd + plot_layout(guides = "collect")
+```
+
+Each panel can be customized independently. For example, BLQ imputation can be applied to the PK panel while the PD panel uses change from baseline with its own central tendency specification with captions removed from both panels.
+
+```{r plot-dvtime-pkpd-custom, fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
+p_pk <- plot_dvtime(data = plot_data_pk, dv_var = ODV,col_var = Dose, 
+                    log_y = TRUE,loq_method = 2, show_caption = FALSE) +
+  labs(x = "Time Since First Dose (hours)", y = "Concentration (ng/mL)")
+
+p_pd <- plot_dvtime(data = plot_data_pd, dv_var = CFB,
+                    col_var = Dose, cent = "median", show_caption = FALSE) +
+  labs(x = "Time Since First Dose (hours)", y = "Response (% Change from Baseline)")
+
+p_pk / p_pd + plot_layout(guides = "collect")
+```
+
+# Population Response-Concentration Plots with `plot_dvconc()`
+
+## Overview
+
+ `plot_dvconc()` is a plotting function intended to help with visualization of the relationship between a dependent variable for response and drug concentration.
+ 
+## Specifying Depenent and Independent Variables
+
+`plot_dvconc()` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`), The defaults are as follows:
+
+  - `dv_var` = DV, character string specifying the dependent variable to map to the y-axis. 
+  - `idv_var`= CONC, character string specifying the dependent variable to map to the x-axis.
   
-This assessment is generally performed based on both maximum concentration (Cmax) and area under the concentration-time curve (AUC). While not a hard and fast rule, some inference can be drawn about which phase of the pharmacokinetic profile is most likely contributing the majority of the non-linearity of exposure with dose. 
+Both arguments use non-standard evaluation and can be passed as bare column names or strings.
 
-  + AUC = *NOT* dose-proportional | Cmax = dose-proportional = elimination phase
-  + AUC = dose-proportional | Cmax = *NOT* dose-proportional = absorption phase (rate)
-  + AUC = *NOT* dose-proportional | Cmax = *NOT* dose-proportional = absorption phase (extent)
+```{r plot-dvconc, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = ODV, idv_var = CONC) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% of Baseline)")
+```
+
+## Specifying Change from Baseline
+
+Like `plot_dvtime()`, we can add a horizontal reference line by specifying `ref` with a numeric y-intercept.
+
+```{r plot-dvconc-ref, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
+            ref = 0) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+## Specifying the Color Aesthetic
+
+`plot_dvconc()` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data  without stratifying the trend lines by the variable mapped to the color aesthetic. The `col_var` argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+
+```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
+            ref = 0,
+            col_var = `Dose and Food`, col_trend = FALSE) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+Trend lines stratified by the variable mapped to the color aesthetic are requested by setting `col_trend = TRUE`.
+
+```{r plot-dvconc-col-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
+           col_var = `Dose and Food`, col_trend = TRUE) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+## Specifying the Central Tendency
+
+There are two trend line types supported by `plot_dvconc()`
+
+  - locally estimated scatter plot smoothing (LOESS) fit
+  - linear regression. 
   
-These exploratory assessments provide quantitative support for structural PK model decision-making. Practically speaking, non-linearities in absorption rate are rarely impactful, and the modeler is really deciding between dose-dependent bioavailability and concentration-dependent elimination (e.g., Michaelis-Menten kinetics, target-mediated drug disposition [TMDD])
-  
-## Step 1: Derive NCA Parameters
+The central tendency trend lines visualized are controlled by logical arguments `loess` and `linear`. The default is `loess = TRUE` and `linear = FALSE`
 
-The first step in performing this assessment is deriving the necessary NCA PK parameters. NCA software (e.g., Phoenix WinNonlin) is quite expensive; however, thankfully there is an R package for performing NCA analyses: `PKNCA`.
-
-Refer to the documentation for the `PKNCA` packge for details. This vignette will not provide a detailed overview of `PKNCA` functions and workflows.
-
-First, let's set the options for our NCA analysis and define the intervals over which we want to obtain the NCA parameters.  `data_sad` is a single ascending dose (SAD) design with a parallel food effect (FE) cohort; therefore, our interval is [0, $\infty$]
-
-```{r nca-set-up}
-##Set NCA options
-PKNCA.options(conc.blq = list("first" = "keep", 
-                              "middle" = unique(data_sad$LLOQ[!is.na(data_sad$LLOQ)]), 
-                              "last" = "drop"),
-              allow.tmax.in.half.life = FALSE,
-              min.hl.r.squared = 0.9)
-
-##Calculation Intervals and Requested Parameters
-intervals <-
-  data.frame(start = 0,
-             end = Inf,
-             auclast = TRUE,
-             aucinf.obs = TRUE,
-             aucpext.obs = TRUE,
-             half.life = TRUE,
-             cmax = TRUE,
-             vz.obs = TRUE, 
-             cl.obs = TRUE 
-             )  
+```{r plot-dvconc-col-trend-loess-linear, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC, ref = 0, 
+            col_var = `Dose and Food`, col_trend = FALSE, loess = TRUE, linear = TRUE) +
+   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
-Next, we will set up our dose and concentration objects and perform the NCA using `PKNCA`
+The confidence intervals of the trend lines are suppressed by default in order to facilitate visualization of the central tendency and spread of observed data points simultaneously. Confidence intervals can be added to the plot using the logical arguments `se_loess` and `se_linear`.
 
-```{r nca-output}
-#Impute BLQ concentrations to 0 (PKNCA formatting)
-data_sad_nca_input <- data_sad %>% 
-  filter(CMT %in% c(1,2)) %>% 
-  mutate(CONC = ifelse(is.na(ODV), 0, ODV), 
-         AMT = AMT/1000) #Convert from mg to ug (concentration is ng/mL = ug/L)
-
-#Build PKNCA objects for concentration and dose including relevant strata
-conc_obj <- PKNCAconc(filter(data_sad_nca_input, EVID==0), CONC~TIME|ID+DOSE+PART)
-dose_obj <- PKNCAdose(filter(data_sad_nca_input, EVID==1), AMT~TIME|ID+PART)
-nca_data_obj <- PKNCAdata(conc_obj, dose_obj, intervals = intervals)
-nca_results_obj <- as.data.frame(pk.nca(nca_data_obj))
-glimpse(nca_results_obj)
+```{r plot-dvconc-loess-linear-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = FALSE, linear = TRUE, se_loess = FALSE, se_linear = TRUE) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
-The NCA results object output from `PKNCA` is formatted using the variable names in `SDTM` standards for the `PP` domain (Pharmacokinetic Parameters). This NCA output dataset is also available internally within `pmxhelpr` as `data_sad_nca` with a few additional columns specifying units.
+Additional arguments can be passed to `geom_smooth(method = "loess")`, such as increasing the span of the smoothing fit.
 
-```{r nca-data}
-glimpse(data_sad_nca)
+```{r plot-dvconc-loess-span, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
+            span = 1) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+If the color aesthetic is mapped to the trendlines with `col_trend = TRUE`, it will also map to the ribbons defining the CIs of the trend lines.
+
+```{r plot-dvconc-col-trend-se, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
+            col_var = `Dose and Food`, col_trend = TRUE,se_loess = TRUE) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
-We will need to select the relevant PK parameters from this dataset for input into our power law regression analysis of dose-proportionality. Thankfully, `pmxhelpr` handles the filtering and power law regression in one step with functions for outputting either tables or plots of results!
 
-## Step 2: Perform Power Law Regression
+## Adjusting the Plot Theme with `plot_dvconc_theme()`
 
-The `df_doseprop()` function is a wrapper function which bundles two other `pmxhelpr` functions:
+The default aesthetics for Response-Concentration plots are controlled via `plot_dvconc_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing Response-Concentration aesthetics.
 
-  + `mod_loglog()` a function to perform log-log regression which returns a `lm` object
-  + `df_loglog()` a function to tabulate the power estimate and CI which returns a `data.frame`
-  
-There are two required arguments to `df_doseprop9)`.
-
-  + `data` a `data.frame` containing NCA parameter estimates
-  + `metrics` a character vector of NCA parameters to evaluate in log-log regression
-  
-Additional optional arguments can be specified if variables containin exposure metric names and values differ from defaults. Both arguments use non-standard evaluation and can be passed as bare column names or strings.
-
-  + `metric_var` dataset variable containing exposure metric names. Default is `PPTESTCD`.
-  + `exp_var` dataset variable containing exposure metric values. Default is `PPORRES`
-
-```{r power-law-table}
-power_table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
-power_table
+```{r theme-dvconc}
+plot_dvconc_theme()
 ```
 
-The table includes the relevant estimates from the power law regression (intercept, standard error, power, lower confidence limit, upper confidence limit), as well as, a logical flag for dose-proportionality and text interpretation.
+Say we want to update the color of the trend line and standard error. This can be done by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
 
-Based on this assessment, these data appear dose-proportional for both Cmax and AUC! However, we should not include the food effect part of the study in this assessment, as food could also influence these parameters, and confounds the assessment of dose proportionality. The most important thing is to understand the input data!
-
-Let's run it again, but this time only include `Part 1-SAD`.
-
-```{r power-law-table-nofe}
-power_table <- df_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
-power_table
-```
-
-In this case, the interpretation is unchanged with and without inclusion of the food effect cohort. `df_doseprop()` provides two arguments for defining the confidence interval.
-
-  + `method`: method to derive the upper and lower confidence limits. The default is `"normal"`, specifying use of the normal distribution, with `"tdist"` as an alternative, specifying use of the t-distribution. The t-distribution is preferred for analyses with smaller sample sizes
-  + `ci`: width of the confidence interval. The default is `0.90` (90% CI), which is used in the bioequivalence criteria.
-
-## Step 3: Visualize the Power Law Regression
-
-We can also visualize these data using the `plot_doseprop()` function. This function leverages the linear regression option within `ggplot2::geom_smooth()` to perform the log-log regression for visualization and pulls in the functionality of `df_doseprop()` to extract the power estimate and CI into the facet label.
-
-The required arguments to `plot_doseprop()` are the same as `df_doseprop()`!
-
-```{r power-law-plot}
-plot_doseprop(filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
-```
-
-Plot aesthetics can be customized via the `theme` argument and the [`plot_doseprop_theme()`] constructor, which exposes `obs_point` (point aesthetics) and `linear` (regression line + SE ribbon aesthetics) keys plus an `obs` role-level shortcut.
-
-```{r power-law-plot-themed}
-plot_doseprop(
-  filter(data_sad_nca, PART == "Part 1-SAD"),
-  metrics = c("aucinf.obs", "cmax"),
-  theme = plot_doseprop_theme(
-    obs_point = pmx_point(color = "darkblue"),
-    linear = pmx_trend(color = "firebrick"))
+```{r new-theme-dvconc}
+dvconc_new_theme <- plot_dvconc_theme(
+  loess = pmx_trend(color = "darkred", se_color = "darkred")
 )
 ```
+
+```{r plot-dvconc-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
+            col_var = `Dose and Food`, col_trend = FALSE,
+            loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
+            theme = dvconc_new_theme) +
+  labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+
+

@@ -16,8 +16,9 @@
 }
 \description{
 Focused summary of a \code{\link[=df_doseprop]{df_doseprop()}} result: object dimensions, the
-regression configuration attributes (\code{metric_var}, \code{exp_var}, \code{dose_var},
+regression configuration values (\code{metric_var}, \code{exp_var}, \code{dose_var},
 \code{ci}, \code{method}), the number of observation rows attached for the plot
-scatter overlay, and the per-metric stats body. Inspect attributes
-directly via \code{attr(x, "obs")}, \code{attr(x, "metric_var")}, etc.
+scatter overlay, and the per-metric stats body. Inspect the underlying
+frames directly via \code{x$stats} and \code{x$obs}; inspect run config via
+\code{x$config}.
 }

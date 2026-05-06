@@ -1,11 +1,14 @@
-#' Test whether an object is a `vpc_stats` list
+#' Test whether an object is a `vpc_stats` container
 #'
 #' @description
 #' Predicate that returns `TRUE` if `x` carries the `"vpc_stats"` class — i.e.,
-#' it is the list returned by [df_vpcstats()] (also accepted by
+#' it is the container returned by [df_vpcstats()] (also accepted by
 #' [plot_vpc_cont()] on the precomputed-stats fast path).
 #'
 #' @param x Object to test.
+#' @param strict Logical. When `TRUE`, additionally runs
+#'    `validate_vpc_stats()` and returns `FALSE` on validation failure.
+#'    Default `FALSE` (class-tag check only, cheap).
 #'
 #' @return Logical scalar.
 #' @export is_vpc_stats
@@ -18,8 +21,10 @@
 #' is_vpc_stats(out)        # TRUE
 #' is_vpc_stats(out$stats)  # FALSE — that's the inner data.frame
 
-is_vpc_stats <- function(x) {
-  inherits(x, "vpc_stats")
+is_vpc_stats <- function(x, strict = FALSE) {
+  ok <- inherits(x, "vpc_stats")
+  if (!ok || !isTRUE(strict)) return(ok)
+  tryCatch({validate_vpc_stats(x); TRUE}, error = function(e) FALSE)
 }
 
 
@@ -28,9 +33,9 @@ is_vpc_stats <- function(x) {
 #'
 #' @description
 #' Focused summary of a [df_vpcstats()] result: object dimensions, run-config
-#' attributes (`n_replicates`, `loq`, `strat_var`), the column groups present
+#' values (`n_replicates`, `loq`, `strat_var`), the column groups present
 #' in `stats`, and a short head preview. Inspect the underlying data.frames
-#' directly via `x$stats` and `x$obs`.
+#' directly via `x$stats` and `x$obs`; inspect run config via `x$config`.
 #'
 #' @param x A `vpc_stats` object.
 #' @param n_head Integer. Number of rows of `stats` to preview.
@@ -45,13 +50,13 @@ print.vpc_stats <- function(x, n_head = 3, ...) {
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(x$stats), ncol(x$stats)))
   cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
-  cat(sprintf("  attributes: n_replicates = %s, loq = %s, strat_var = %s\n",
-              format(attr(x$stats, "n_replicates")),
-              format(attr(x$stats, "loq")),
-              format(attr(x$stats, "strat_var"))))
+  cat(sprintf("  config: n_replicates = %s, loq = %s, strat_var = %s\n",
+              format(x$config$n_replicates),
+              format(x$config$loq),
+              format(x$config$strat_var)))
 
   bin_present  <- BIN_MID_VAR %in% colnames(x$stats)
-  strat_in_stats <- intersect(attr(x$stats, "strat_var"), colnames(x$stats))
+  strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))
   identifiers <- c(if (bin_present) BIN_MID_VAR, strat_in_stats)
   blq_present <- intersect(.vpc_blq_cols, colnames(x$stats))
   std_obs <- intersect(.vpc_obs_quantile_cols, colnames(x$stats))
@@ -104,26 +109,4 @@ print.vpc_stats <- function(x, n_head = 3, ...) {
 
 summary.vpc_stats <- function(object, ...) {
   print.vpc_stats(object, n_head = 0)
-}
-
-
-
-#' Coerce a `vpc_stats` object to a data.frame
-#'
-#' @description
-#' Returns the `stats` element as a plain data.frame (drops the `vpc_stats`
-#' class, keeps the `n_replicates`, `loq`, and `strat_var` attributes
-#' attached to the stats data.frame). Use `x$obs` separately for the scatter
-#' overlay.
-#'
-#' @param x A `vpc_stats` object.
-#' @param row.names,optional Standard `as.data.frame` arguments (unused).
-#' @param ... Currently unused.
-#'
-#' @return A `data.frame` (the `stats` element).
-#' @export
-#' @method as.data.frame vpc_stats
-
-as.data.frame.vpc_stats <- function(x, row.names = NULL, optional = FALSE, ...) {
-  as.data.frame(x$stats)
 }

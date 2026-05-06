@@ -67,19 +67,20 @@ test_that("Error if argument `sigdigits` is not coercible to an integer", {
 
 #####df_doseprop#####
 ##Test Output
-test_that("Output is a `data.frame`", {
-  expect_s3_class(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax")),
-                  class = "data.frame")
+test_that("Output is a `doseprop_stats` / `pmx_stats` container", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(out, "doseprop_stats")
+  expect_s3_class(out, "pmx_stats")
 })
 
-test_that("Output countains variable specified in `metric_var`", {
-  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD") |>
+test_that("Output stats slot contains variable specified in `metric_var`", {
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")$stats |>
                  dplyr::select(PPTESTCD),
                   "PPTESTCD")
 })
 
-test_that("Output countains anticipated variables", {
-  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD"),
+test_that("Output stats slot contains anticipated variables", {
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")$stats,
                c("Intercept", "StandardError", "CI", "Power", "LCL", "UCL",
                  "Proportional","PowerCI", "Interpretation", "PPTESTCD"))
 })
@@ -88,7 +89,7 @@ test_that("Output rounds values as specified in the `sigdigits` argument", {
 
   signdig <- function(x){length(gregexpr("[[:digit:]]", as.character(x))[[1]])}
   test <- df_doseprop(data_sad_nca, metrics = c("cmax"), metric_var = "PPTESTCD",
-                      sigdigits = 4)$Intercept
+                      sigdigits = 4)$stats$Intercept
   result <- signdig(test)
   expect_equal(result,4)
 })
@@ -205,28 +206,27 @@ test_that("plot_doseprop default theme produces a valid plot", {
 })
 
 
-##### df_doseprop() class tag and attributes #####
+##### df_doseprop() class tag and slots #####
 
-test_that("df_doseprop returns a doseprop_stats-classed object", {
+test_that("df_doseprop returns a doseprop_stats / pmx_stats container", {
   out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   expect_s3_class(out, "doseprop_stats")
-  expect_s3_class(out, "data.frame")
+  expect_s3_class(out, "pmx_stats")
 })
 
-test_that("df_doseprop attaches obs and column-name attributes", {
+test_that("df_doseprop populates obs slot and config keys", {
   out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
-  expect_s3_class(attr(out, "obs"), "data.frame")
-  expect_equal(attr(out, "metric_var"), "PPTESTCD")
-  expect_equal(attr(out, "exp_var"),    "PPORRES")
-  expect_equal(attr(out, "dose_var"),   "DOSE")
-  expect_equal(attr(out, "ci"),         0.90)
-  expect_equal(attr(out, "method"),     "normal")
+  expect_s3_class(out$obs, "data.frame")
+  expect_equal(out$config$metric_var, "PPTESTCD")
+  expect_equal(out$config$exp_var,    "PPORRES")
+  expect_equal(out$config$dose_var,   "DOSE")
+  expect_equal(out$config$ci,         0.90)
+  expect_equal(out$config$method,     "normal")
 })
 
-test_that("df_doseprop obs attribute contains only the requested metrics", {
+test_that("df_doseprop obs slot contains only the requested metrics", {
   out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
-  obs <- attr(out, "obs")
-  expect_setequal(unique(obs$PPTESTCD), c("aucinf.obs", "cmax"))
+  expect_setequal(unique(out$obs$PPTESTCD), c("aucinf.obs", "cmax"))
 })
 
 
@@ -290,11 +290,21 @@ test_that("plot_doseprop raw and precomputed paths produce structurally equivale
                vapply(built_raw$data, nrow, integer(1)))
 })
 
-test_that("plot_doseprop silently ignores pipeline args on the precomputed path", {
+test_that("plot_doseprop aborts when pipeline args are passed on the precomputed path", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))
-  expect_no_error(
-    plot_doseprop(stats, metrics = c("aucinf.obs"), method = "tdist", ci = 0.95))
+  expect_error(
+    plot_doseprop(stats, metrics = c("aucinf.obs"), method = "tdist", ci = 0.95),
+    regexp = "cannot accept pipeline arguments"
+  )
+})
+
+test_that("plot_doseprop accepts plot-only args on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  custom_theme <- plot_doseprop_theme(obs_point = pmx_point(color = "red"))
+  expect_s3_class(plot_doseprop(stats, theme = custom_theme), "ggplot")
+  expect_s3_class(plot_doseprop(stats, se = FALSE), "ggplot")
 })
 
 
@@ -305,6 +315,16 @@ test_that("is_doseprop_stats() correctly detects the class", {
   expect_true(is_doseprop_stats(stats))
   expect_false(is_doseprop_stats(mtcars))
   expect_false(is_doseprop_stats(as.data.frame(stats)))
+})
+
+test_that("is_doseprop_stats(strict = TRUE) catches structurally invalid objects", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_true(is_doseprop_stats(stats, strict = TRUE))
+  bad <- structure(list(stats = data.frame(), obs = data.frame(),
+                        config = list()),
+                   class = c("doseprop_stats", "pmx_stats"))
+  expect_true(is_doseprop_stats(bad))               # cheap check still passes
+  expect_false(is_doseprop_stats(bad, strict = TRUE))
 })
 
 test_that("print.doseprop_stats() runs and writes the doseprop_stats banner", {
@@ -323,20 +343,12 @@ test_that("summary.doseprop_stats() runs and writes a per-metric line", {
   expect_true(any(grepl("Dose-proportional", out, fixed = TRUE)))
 })
 
-test_that("as.data.frame.doseprop_stats() drops the doseprop_stats class", {
+test_that("as.data.frame() returns the stats slot as a plain data.frame", {
   stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   d <- as.data.frame(stats)
   expect_s3_class(d, "data.frame")
   expect_false(inherits(d, "doseprop_stats"))
-  expect_equal(nrow(d), nrow(stats))
-  expect_equal(colnames(d), colnames(stats))
-})
-
-test_that("as.data.frame.doseprop_stats() preserves metadata attributes", {
-  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
-  d <- as.data.frame(stats)
-  expect_s3_class(attr(d, "obs"), "data.frame")
-  expect_equal(attr(d, "metric_var"), "PPTESTCD")
-  expect_equal(attr(d, "ci"),         0.90)
-  expect_equal(attr(d, "method"),     "normal")
+  expect_false(inherits(d, "pmx_stats"))
+  expect_equal(nrow(d), nrow(stats$stats))
+  expect_equal(colnames(d), colnames(stats$stats))
 })

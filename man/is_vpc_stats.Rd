@@ -2,19 +2,23 @@
 % Please edit documentation in R/vpc_stats_class.R
 \name{is_vpc_stats}
 \alias{is_vpc_stats}
-\title{Test whether an object is a \code{vpc_stats} list}
+\title{Test whether an object is a \code{vpc_stats} container}
 \usage{
-is_vpc_stats(x)
+is_vpc_stats(x, strict = FALSE)
 }
 \arguments{
 \item{x}{Object to test.}
+
+\item{strict}{Logical. When \code{TRUE}, additionally runs
+\code{validate_vpc_stats()} and returns \code{FALSE} on validation failure.
+Default \code{FALSE} (class-tag check only, cheap).}
 }
 \value{
 Logical scalar.
 }
 \description{
 Predicate that returns \code{TRUE} if \code{x} carries the \code{"vpc_stats"} class — i.e.,
-it is the list returned by \code{\link[=df_vpcstats]{df_vpcstats()}} (also accepted by
+it is the container returned by \code{\link[=df_vpcstats]{df_vpcstats()}} (also accepted by
 \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} on the precomputed-stats fast path).
 }
 \examples{

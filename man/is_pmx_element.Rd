@@ -16,11 +16,12 @@ Logical scalar.
 Predicate that returns \code{TRUE} if \code{x} carries the shared \code{"pmx_element"}
 class -- i.e., it was constructed by one of \code{\link[=pmx_point]{pmx_point()}}, \code{\link[=pmx_line]{pmx_line()}},
 \code{\link[=pmx_ribbon]{pmx_ribbon()}}, \code{\link[=pmx_errorbar]{pmx_errorbar()}}, \code{\link[=pmx_trend]{pmx_trend()}}, \code{\link[=pmx_style]{pmx_style()}}, or
-\code{\link[=pmx_color]{pmx_color()}}. Use the per-type predicates (\code{\link[=is_pmx_point]{is_pmx_point()}} etc.) when
-you need to distinguish among element flavors.
+\code{\link[=pmx_color]{pmx_color()}}. For a specific-type check, use \code{inherits(x, "pmx_point")}
+(or whichever type) directly.
 }
 \examples{
 is_pmx_element(pmx_point(shape = 1))     # TRUE
 is_pmx_element(pmx_line(linewidth = 1))  # TRUE
 is_pmx_element(list(shape = 1))          # FALSE
+inherits(pmx_point(), "pmx_point")       # TRUE -- specific-type check
 }

@@ -2,24 +2,28 @@
 % Please edit documentation in R/doseprop_stats_class.R
 \name{is_doseprop_stats}
 \alias{is_doseprop_stats}
-\title{Test whether an object is a \code{doseprop_stats} data.frame}
+\title{Test whether an object is a \code{doseprop_stats} container}
 \usage{
-is_doseprop_stats(x)
+is_doseprop_stats(x, strict = FALSE)
 }
 \arguments{
 \item{x}{Object to test.}
+
+\item{strict}{Logical. When \code{TRUE}, additionally runs
+\code{validate_doseprop_stats()} and returns \code{FALSE} on validation failure.
+Default \code{FALSE} (class-tag check only, cheap).}
 }
 \value{
 Logical scalar.
 }
 \description{
 Predicate that returns \code{TRUE} if \code{x} carries the \code{"doseprop_stats"} class
--- i.e., it is the data.frame returned by \code{\link[=df_doseprop]{df_doseprop()}} (also accepted by
+-- i.e., it is the container returned by \code{\link[=df_doseprop]{df_doseprop()}} (also accepted by
 \code{\link[=plot_doseprop]{plot_doseprop()}} and \code{\link[=plot_build_doseprop]{plot_build_doseprop()}} on the precomputed-stats
 fast path).
 }
 \examples{
 stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 is_doseprop_stats(stats)             # TRUE
-is_doseprop_stats(as.data.frame(stats))  # FALSE -- class stripped
+is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame
 }

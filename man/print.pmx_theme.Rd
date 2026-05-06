@@ -16,8 +16,7 @@
 }
 \description{
 Compact REPL display for any object inheriting \code{"pmx_theme"} -- the
-values returned by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}, \code{\link[=plot_gof_theme]{plot_gof_theme()}},
-\code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}}, \code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}, and \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
+values returned by \code{\link[=pmx_theme]{pmx_theme()}} and the per-plot theme factories.
 Shows the theme type as a banner and one line per theme key, listing the
 inner element type and its set fields inline.
 }

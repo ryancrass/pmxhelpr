@@ -28,13 +28,13 @@
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC).
 #' @param loq Numeric value for LOQ reference line, or `NULL` to suppress.
-#'    When omitted, the value is read from `attr(compute_out$stats, "loq")`
-#'    so [df_vpcstats()] output is handled automatically. Forced to `NULL`
+#'    When omitted, the value is read from `compute_out$config$loq` so
+#'    [df_vpcstats()] output is handled automatically. Forced to `NULL`
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
 #'    scale).
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. When `NULL`, the value is read from
-#'    `attr(compute_out$stats, "strat_var")` so output of [df_vpcstats()] is
+#'    `compute_out$config$strat_var` so output of [df_vpcstats()] is
 #'    handled automatically.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #'
@@ -61,15 +61,15 @@ plot_build_vpc <- function(compute_out,
   validate_vpc_stats(compute_out)
 
   ## Strat var dispatch: explicit user input takes precedence; otherwise
-  ## inherit from the stats df attribute (set by df_vpccompute).
+  ## inherit from the container's config slot (set by df_vpccompute).
   strat_var_str <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
   if (is.null(strat_var_str)) {
-    strat_var_str <- attr(compute_out$stats, "strat_var")
+    strat_var_str <- compute_out$config$strat_var
   }
 
-  ## LOQ dispatch: missing() distinguishes "not passed" (inherit from attr)
+  ## LOQ dispatch: missing() distinguishes "not passed" (inherit from config)
   ## from "explicit NULL" (suppress ref line).
-  if (missing(loq)) loq <- attr(compute_out$stats, "loq")
+  if (missing(loq)) loq <- compute_out$config$loq
 
   vpcstats <- dplyr::filter(compute_out$stats,
                             (.data$obs_n - .data$obs_n_blq) >= min_bin_count)
@@ -209,7 +209,7 @@ plot_build_vpc <- function(compute_out,
   if (isTRUE(show_rep)) {
     plot <- plot +
       ggplot2::labs(caption = paste0(
-        "Replicates = ", attr(compute_out$stats, "n_replicates")))
+        "Replicates = ", compute_out$config$n_replicates))
   }
 
   apply_panel_theme(plot, white_panel = TRUE)

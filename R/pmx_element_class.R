@@ -27,8 +27,8 @@ format_pmx_fields <- function(x) {
 #' Predicate that returns `TRUE` if `x` carries the shared `"pmx_element"`
 #' class -- i.e., it was constructed by one of [pmx_point()], [pmx_line()],
 #' [pmx_ribbon()], [pmx_errorbar()], [pmx_trend()], [pmx_style()], or
-#' [pmx_color()]. Use the per-type predicates ([is_pmx_point()] etc.) when
-#' you need to distinguish among element flavors.
+#' [pmx_color()]. For a specific-type check, use `inherits(x, "pmx_point")`
+#' (or whichever type) directly.
 #'
 #' @param x Object to test.
 #'
@@ -39,6 +39,7 @@ format_pmx_fields <- function(x) {
 #' is_pmx_element(pmx_point(shape = 1))     # TRUE
 #' is_pmx_element(pmx_line(linewidth = 1))  # TRUE
 #' is_pmx_element(list(shape = 1))          # FALSE
+#' inherits(pmx_point(), "pmx_point")       # TRUE -- specific-type check
 
 is_pmx_element <- function(x) {
   inherits(x, "pmx_element")
@@ -46,54 +47,46 @@ is_pmx_element <- function(x) {
 
 
 
-#' Per-type predicates for pmx theme elements
+#' Combine two pmx theme elements
 #'
 #' @description
-#' Predicates that return `TRUE` only when `x` is the specific element type
-#' indicated by the function name. Each is a thin wrapper over
-#' `inherits(x, "<tag>")`. Pair with [is_pmx_element()] for the broader
-#' "any pmx element" test.
+#' Overlay one `pmx_element` onto another of the same subclass. Each set
+#' field in `b` overrides the matching field in `a`; fields unique to `a` are
+#' unchanged. Useful for layering partial overrides on a base element:
+#' `pmx_point(size = 2) + pmx_point(color = "red")` returns
+#' `pmx_point(size = 2, color = "red")`.
 #'
-#' @param x Object to test.
+#' Cross-subclass combinations (e.g. `pmx_style + pmx_point`) are
+#' intentionally disallowed — `pmx_style` is a theme-level shortcut applied
+#' at theme construction time, not a sibling element type.
 #'
-#' @return Logical scalar.
-#' @name pmx_element_predicates
+#' @param a A `pmx_element` object (left side, the "base").
+#' @param b A `pmx_element` object of the same subclass as `a` (right side,
+#'    the "override"), or `NULL`. When `NULL`, `a` is returned unchanged.
+#'
+#' @return A `pmx_element` with the same class as `a`.
+#' @export
+#' @method + pmx_element
 #'
 #' @examples
-#' is_pmx_point(pmx_point())        # TRUE
-#' is_pmx_point(pmx_line())         # FALSE
-#' is_pmx_line(pmx_line())          # TRUE
-#' is_pmx_ribbon(pmx_ribbon())      # TRUE
-NULL
+#' pmx_point(size = 2) + pmx_point(color = "red")
+#' pmx_line(linewidth = 1) + NULL
 
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_point
-is_pmx_point <- function(x) inherits(x, "pmx_point")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_line
-is_pmx_line <- function(x) inherits(x, "pmx_line")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_ribbon
-is_pmx_ribbon <- function(x) inherits(x, "pmx_ribbon")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_errorbar
-is_pmx_errorbar <- function(x) inherits(x, "pmx_errorbar")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_trend
-is_pmx_trend <- function(x) inherits(x, "pmx_trend")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_style
-is_pmx_style <- function(x) inherits(x, "pmx_style")
-
-#' @rdname pmx_element_predicates
-#' @export is_pmx_color
-is_pmx_color <- function(x) inherits(x, "pmx_color")
+`+.pmx_element` <- function(a, b) {
+  if (is.null(b)) return(a)
+  if (!is_pmx_element(b)) {
+    rlang::abort(
+      "right-hand side of `+.pmx_element` must be a `pmx_element` or `NULL`."
+    )
+  }
+  if (class(a)[1] != class(b)[1]) {
+    rlang::abort(paste0(
+      "cannot combine `", class(a)[1], "` with `", class(b)[1],
+      "` via `+.pmx_element` (subclasses must match)."
+    ))
+  }
+  merge_element(b, a)
+}
 
 
 

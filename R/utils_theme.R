@@ -340,14 +340,13 @@ plot_dvtime_theme <- function(obs_point = NULL, obs_line = NULL,
     ref_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1)
   )
-  class(defaults) <- c("plot_dvtime_theme", "pmx_theme")
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
     cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
     obs = obs, cent = cent
   ))
-  merge_theme(user, defaults)
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_dvtime_theme")
 }
 
 
@@ -395,14 +394,13 @@ plot_gof_theme <- function(obs_point = NULL, obs_line = NULL,
     loq_line      = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1),
     cent_color    = pmx_color(dv = "blue", pred = "red", ipred = "green")
   )
-  class(defaults) <- c("plot_gof_theme", "pmx_theme")
   user <- compact(list(
     obs_point = obs_point, obs_line = obs_line,
     cent_point = cent_point, cent_line = cent_line,
     cent_errorbar = cent_errorbar, ref_line = ref_line, loq_line = loq_line,
     obs = obs, cent = cent, cent_color = cent_color
   ))
-  merge_theme(user, defaults)
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_gof_theme")
 }
 
 
@@ -434,10 +432,9 @@ plot_dvconc_theme <- function(obs_point = NULL, ref_line = NULL, loess = NULL,
     linear = pmx_trend(linewidth = 1, linetype = 2,
                        color = "black", se_color = "lightgrey", se_alpha = 0.4)
   )
-  class(defaults) <- c("plot_dvconc_theme", "pmx_theme")
-  merge_theme(compact(list(obs_point = obs_point, ref_line = ref_line, loess = loess,
-                           linear = linear, obs = obs)),
-              defaults)
+  user <- compact(list(obs_point = obs_point, ref_line = ref_line,
+                       loess = loess, linear = linear, obs = obs))
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_dvconc_theme")
 }
 
 
@@ -464,9 +461,8 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
                           color = "black",
                           se_color = "lightgrey", se_alpha = 0.4)
   )
-  class(defaults) <- c("plot_doseprop_theme", "pmx_theme")
-  merge_theme(compact(list(obs_point = obs_point, linear = linear, obs = obs)),
-              defaults)
+  user <- compact(list(obs_point = obs_point, linear = linear, obs = obs))
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_doseprop_theme")
 }
 
 
@@ -507,13 +503,12 @@ plot_vpc_theme <- function(obs_point = NULL, obs_median_line = NULL, obs_pi_line
     sim_median_ci   = pmx_ribbon(fill = "#FF0000", alpha = 0.3),
     loq_line        = pmx_line(color = "#990000", linetype = "dashed", linewidth = 0.5)
   )
-  class(defaults) <- c("plot_vpc_theme", "pmx_theme")
-  merge_theme(compact(list(obs_point = obs_point, obs_median_line = obs_median_line,
-                           obs_pi_line = obs_pi_line, sim_pi_line = sim_pi_line,
-                           sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
-                           sim_median_line = sim_median_line, sim_median_ci = sim_median_ci,
-                           loq_line = loq_line)),
-              defaults)
+  user <- compact(list(obs_point = obs_point, obs_median_line = obs_median_line,
+                       obs_pi_line = obs_pi_line, sim_pi_line = sim_pi_line,
+                       sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
+                       sim_median_line = sim_median_line, sim_median_ci = sim_median_ci,
+                       loq_line = loq_line))
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_vpc_theme")
 }
 
 

@@ -338,12 +338,16 @@ df_vpccompute <- function(data,
   obs <- data_full |>
     dplyr::filter(.data[[irep_name]] == 1 & MDV == 0)
 
-  attr(stats, "n_replicates") <- max(data[[irep_name]], na.rm = TRUE)
-  attr(stats, "loq")       <- loq
-  attr(stats, "strat_var") <- strat_var
-
-  structure(list(stats = stats, obs = obs),
-            class = c("vpc_stats", "list"))
+  pmx_stats(
+    stats  = stats,
+    obs    = obs,
+    config = list(
+      n_replicates = max(data[[irep_name]], na.rm = TRUE),
+      loq          = loq,
+      strat_var    = strat_var
+    ),
+    subclass = "vpc_stats"
+  )
 }
 
 
@@ -365,8 +369,8 @@ validate_vpc_stats <- function(x) {
   if (!inherits(x, "vpc_stats")) {
     rlang::abort("`x` must be a `vpc_stats` object (output of `df_vpcstats()`).")
   }
-  if (!all(c("stats", "obs") %in% names(x)) ||
-      !is.data.frame(x$stats) || !is.data.frame(x$obs)) {
+  validate_pmx_stats(x)
+  if (!is.data.frame(x$obs)) {
     rlang::abort("`vpc_stats` object must contain `stats` and `obs` data.frames.")
   }
 
@@ -389,6 +393,13 @@ validate_vpc_stats <- function(x) {
   if (length(missing_obs) > 0) {
     rlang::abort(paste0("`vpc_stats$obs` is missing required columns: ",
                         paste(missing_obs, collapse = ", ")))
+  }
+
+  required_config <- c("n_replicates", "loq", "strat_var")
+  missing_config  <- setdiff(required_config, names(x$config))
+  if (length(missing_config) > 0) {
+    rlang::abort(paste0("`vpc_stats$config` is missing required keys: ",
+                        paste(missing_config, collapse = ", ")))
   }
 
   invisible(x)

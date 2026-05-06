@@ -5,10 +5,10 @@ testsim <- df_mrgsim_replicate(data = data_sad,
                                replicates = 5,
                                dv_var = "ODV")
 
-test_that("df_vpcstats() output carries the vpc_stats class", {
+test_that("df_vpcstats() output carries the vpc_stats and pmx_stats classes", {
   out <- df_vpcstats(testsim)
   expect_s3_class(out, "vpc_stats")
-  expect_s3_class(out, "list")
+  expect_s3_class(out, "pmx_stats")
 })
 
 test_that("is_vpc_stats() distinguishes vpc_stats objects from inner data.frames", {
@@ -18,6 +18,22 @@ test_that("is_vpc_stats() distinguishes vpc_stats objects from inner data.frames
   expect_false(is_vpc_stats(out$obs))
   expect_false(is_vpc_stats(NULL))
   expect_false(is_vpc_stats(list(stats = data.frame(), obs = data.frame())))
+})
+
+test_that("is_vpc_stats(strict = TRUE) catches structurally invalid objects", {
+  out <- df_vpcstats(testsim)
+  expect_true(is_vpc_stats(out, strict = TRUE))
+  bad <- structure(list(stats = data.frame(), obs = data.frame(), config = list()),
+                   class = c("vpc_stats", "pmx_stats"))
+  expect_true(is_vpc_stats(bad))               # cheap check still passes
+  expect_false(is_vpc_stats(bad, strict = TRUE))
+})
+
+test_that("is_pmx_stats() detects the shared base class", {
+  out <- df_vpcstats(testsim)
+  expect_true(is_pmx_stats(out))
+  expect_false(is_pmx_stats(out$stats))
+  expect_false(is_pmx_stats(NULL))
 })
 
 test_that("print.vpc_stats emits the headline summary and column groups", {
@@ -80,8 +96,11 @@ test_that("validate_vpc_stats rejects a non-vpc_stats object", {
 })
 
 test_that("validate_vpc_stats rejects a vpc_stats list missing stats or obs", {
-  bad_no_obs <- structure(list(stats = data.frame(BIN_MID = 1)),
-                          class = c("vpc_stats", "list"))
+  bad_no_obs <- structure(list(stats = data.frame(BIN_MID = 1),
+                               obs   = NULL,
+                               config = list(n_replicates = 1, loq = NULL,
+                                             strat_var = NULL)),
+                          class = c("vpc_stats", "pmx_stats"))
   expect_error(pmxhelpr:::validate_vpc_stats(bad_no_obs),
                regexp = "must contain `stats` and `obs`")
 })
@@ -102,10 +121,22 @@ test_that("validate_vpc_stats rejects a vpc_stats list missing required obs colu
                regexp = "missing required columns: PC_OBSDV")
 })
 
+test_that("validate_vpc_stats rejects a vpc_stats container missing config keys", {
+  out <- df_vpcstats(testsim)
+  bad <- out
+  bad$config$loq <- NULL
+  bad$config[["loq"]] <- NULL
+  bad$config <- bad$config[setdiff(names(bad$config), "loq")]
+  expect_error(pmxhelpr:::validate_vpc_stats(bad),
+               regexp = "missing required keys: loq")
+})
+
 test_that("plot_vpc_cont via the precomputed path surfaces validator errors", {
   bad <- structure(list(stats = data.frame(BIN_MID = 1),
-                        obs   = data.frame()),
-                   class = c("vpc_stats", "list"))
+                        obs   = data.frame(),
+                        config = list(n_replicates = 1, loq = NULL,
+                                      strat_var = NULL)),
+                   class = c("vpc_stats", "pmx_stats"))
   expect_error(plot_vpc_cont(bad),
                regexp = "missing required columns")
 })

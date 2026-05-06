@@ -33,12 +33,15 @@ run_vpcstats <- function(sim, strat_var_str = NULL,
 }
 
 ## Test Output
-test_that("df_vpcstats returns a list with stats and obs data.frames", {
+test_that("df_vpcstats returns a pmx_stats container with stats, obs, and config slots", {
   result <- run_vpcstats(testsim_raw)
   expect_type(result, "list")
-  expect_named(result, c("stats", "obs"))
+  expect_s3_class(result, "vpc_stats")
+  expect_s3_class(result, "pmx_stats")
+  expect_named(result, c("stats", "obs", "config"))
   expect_s3_class(result$stats, "data.frame")
   expect_s3_class(result$obs, "data.frame")
+  expect_type(result$config, "list")
 })
 
 test_that("df_vpcstats returns expected columns without loq", {

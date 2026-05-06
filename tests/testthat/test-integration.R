@@ -38,7 +38,8 @@ test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces VPC plo
 test_that("df_doseprop + plot_doseprop: same data produces consistent table and plot", {
   tbl <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   p <- plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
-  expect_s3_class(tbl, "data.frame")
+  expect_s3_class(tbl, "doseprop_stats")
+  expect_s3_class(tbl, "pmx_stats")
   expect_s3_class(p, "ggplot")
-  expect_equal(nrow(tbl), 2)
+  expect_equal(nrow(tbl$stats), 2)
 })

@@ -5,7 +5,7 @@
 #' [df_vpcstats()] for computation and an internal builder for plot
 #' construction.
 #'
-#' @param data Input dataset. Must contain the following variables: `"ID"`, `"TIME"`
+#' @param data Input dataset. `
 #' @param strat_var Stratification variable.
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
@@ -58,11 +58,10 @@
 #' @param obs_dv_var Column containing observed DV in `data`.
 #'    Accepts bare names or strings. Default is `OBSDV`.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
-#' @param sim Deprecated. Use `data` instead. Soft alias retained for one cycle —
-#'    passing `sim = ...` emits a warning and the value is forwarded to `data`.
 #' @inheritParams plot_dvtime
 #' @inheritParams var_predcorr
 #'
+#' @family vpc
 #' @return A `ggplot2` object. To access the underlying VPC summary statistics
 #'    data.frame directly, use [df_vpcstats()].
 #' @export plot_vpc_cont
@@ -100,12 +99,7 @@ plot_vpc_cont <- function(data,
                           shown = NULL,
                           theme = NULL,
                           pi = c(0.05, 0.95),
-                          ci = 0.90,
-                          sim) {
-  if (!missing(sim)) {
-    warning("`sim` is deprecated; use `data` instead.", call. = FALSE)
-    if (missing(data)) data <- sim
-  }
+                          ci = 0.90) {
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute and recover plotting context

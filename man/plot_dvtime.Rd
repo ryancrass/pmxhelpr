@@ -98,3 +98,10 @@ data <- dplyr::mutate(data_sad_pk, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }
+\seealso{
+Other exploratory analysis: 
+\code{\link{plot_dvconc}()},
+\code{\link{plot_dvconc_theme}()},
+\code{\link{plot_dvtime_theme}()}
+}
+\concept{exploratory analysis}

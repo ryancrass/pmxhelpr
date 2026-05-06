@@ -42,3 +42,9 @@ pmx_theme(list(obs_point = pmx_point(color = "red")))
 # Compose onto a complete theme
 plot_vpc_theme() + pmx_theme(list(obs_point = pmx_point(color = "red")))
 }
+\seealso{
+Other pmx theme class: 
+\code{\link{is_pmx_element}()},
+\code{\link{is_pmx_theme}()}
+}
+\concept{pmx theme class}

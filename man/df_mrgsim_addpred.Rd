@@ -30,3 +30,9 @@ pkmodel <- model_mread_load(model = "pkmodel")
 data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 
 }
+\seealso{
+Other mrgsolve wrappers: 
+\code{\link{df_mrgsim_replicate}()},
+\code{\link{model_mread_load}()}
+}
+\concept{mrgsolve wrappers}

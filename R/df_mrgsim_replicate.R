@@ -30,6 +30,7 @@
 #' @param seed Random seed. Default is `123456789`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
+#' @family mrgsolve wrappers
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
 #'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus the columns selected by
 #'    `num_vars` / `char_vars` (auto-carried by default; see those parameters).

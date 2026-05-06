@@ -30,3 +30,13 @@ mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
 summary(mod_cmax)
 
 }
+\seealso{
+Other dose proportionality: 
+\code{\link{df_doseprop}()},
+\code{\link{df_loglog}()},
+\code{\link{is_doseprop_stats}()},
+\code{\link{plot_build_doseprop}()},
+\code{\link{plot_doseprop}()},
+\code{\link{plot_doseprop_theme}()}
+}
+\concept{dose proportionality}

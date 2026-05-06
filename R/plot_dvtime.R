@@ -49,6 +49,7 @@
 #'    Defaults can be viewed by running `plot_dvtime_theme()` with no arguments.
 #'    Default error bar width is 2.5% of maximum `NTIME`.
 #'
+#' @family exploratory analysis
 #' @return A `ggplot2` plot object
 #'
 #' @export plot_dvtime

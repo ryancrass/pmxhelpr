@@ -43,6 +43,7 @@
 #'    (e.g., `0.90` for a 90% CI). Default is `0.90`.
 #' @inheritParams var_predcorr
 #'
+#' @family vpc
 #' @return A list with two data.frames (class `c("vpc_stats", "list")`):
 #'    \describe{
 #'      \item{`stats`}{Wide summary statistics. Standard-VPC columns are

@@ -64,6 +64,14 @@ test_that("summary.vpc_stats matches print(n_head = 0)", {
   expect_identical(summary_txt, print_no_head_txt)
 })
 
+test_that("summary.vpc_stats output is stable (snapshot)", {
+  ## Snapshots `summary()` rather than `print()` because `summary()` skips
+  ## the head preview and is therefore deterministic across simulation
+  ## seeds — only run config and column-group structure are emitted.
+  out <- df_vpcstats(testsim, strat_var = "FOOD", loq = 1)
+  expect_snapshot(summary(out))
+})
+
 test_that("print.vpc_stats returns the input invisibly", {
   out <- df_vpcstats(testsim)
   ret <- withr::with_output_sink(tempfile(), print(out))

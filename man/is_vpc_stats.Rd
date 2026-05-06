@@ -29,3 +29,13 @@ out <- df_vpcstats(simout)
 is_vpc_stats(out)        # TRUE
 is_vpc_stats(out$stats)  # FALSE — that's the inner data.frame
 }
+\seealso{
+Other vpc: 
+\code{\link{df_vpcstats}()},
+\code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_cont}()},
+\code{\link{plot_vpc_legend}()},
+\code{\link{plot_vpc_shown}()},
+\code{\link{plot_vpc_theme}()}
+}
+\concept{vpc}

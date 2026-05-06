@@ -343,6 +343,12 @@ test_that("summary.doseprop_stats() runs and writes a per-metric line", {
   expect_true(any(grepl("Dose-proportional", out, fixed = TRUE)))
 })
 
+test_that("doseprop_stats print/summary output is stable (snapshot)", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_snapshot(print(stats))
+  expect_snapshot(summary(stats))
+})
+
 test_that("as.data.frame() returns the stats slot as a plain data.frame", {
   stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   d <- as.data.frame(stats)

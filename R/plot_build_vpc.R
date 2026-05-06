@@ -38,6 +38,7 @@
 #'    handled automatically.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #'
+#' @family vpc
 #' @return A `ggplot2` object.
 #' @export plot_build_vpc
 #'

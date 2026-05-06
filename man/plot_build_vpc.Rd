@@ -73,3 +73,13 @@ simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
 out <- df_vpcstats(simout, strat_var = FOOD)
 p <- plot_build_vpc(out, pcvpc = FALSE)
 }
+\seealso{
+Other vpc: 
+\code{\link{df_vpcstats}()},
+\code{\link{is_vpc_stats}()},
+\code{\link{plot_vpc_cont}()},
+\code{\link{plot_vpc_legend}()},
+\code{\link{plot_vpc_shown}()},
+\code{\link{plot_vpc_theme}()}
+}
+\concept{vpc}

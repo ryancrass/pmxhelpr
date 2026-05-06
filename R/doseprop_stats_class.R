@@ -11,6 +11,7 @@
 #'    `validate_doseprop_stats()` and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
+#' @family dose proportionality
 #' @return Logical scalar.
 #' @export is_doseprop_stats
 #'

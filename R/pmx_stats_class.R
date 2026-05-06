@@ -1,7 +1,7 @@
 #' Construct a `pmx_stats` container
 #'
 #' @description
-#' Internal constructor for the cacheable stats containers returned by
+#' Constructor for the cacheable stats containers returned by
 #' [df_vpcstats()] and [df_doseprop()]. Each container is a named list with
 #' three slots — `stats` (the per-row summary frame), `obs` (the observation
 #' overlay used by plot builders, may be `NULL`), and `config` (named list of
@@ -17,8 +17,9 @@
 #' @param subclass Character scalar naming the concrete subclass (e.g.
 #'    `"vpc_stats"`, `"doseprop_stats"`).
 #'
+#' @family pmx stats class
 #' @return An object of class `c(subclass, "pmx_stats")`.
-#' @keywords internal
+#' @export pmx_stats
 
 pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
   out <- structure(
@@ -44,6 +45,7 @@ pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
 #'    [validate_pmx_stats()] and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
+#' @family pmx stats class
 #' @return Logical scalar.
 #' @export is_pmx_stats
 

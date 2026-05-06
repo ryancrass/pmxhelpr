@@ -24,6 +24,7 @@
 #'    (e.g. `"plot_vpc_theme"`). When `NULL` (default), the result carries
 #'    only `"pmx_theme"` — the right shape for a generic partial.
 #'
+#' @family pmx theme class
 #' @return An object of class `c(subclass, "pmx_theme")` (or just
 #'    `"pmx_theme"` when `subclass` is `NULL`).
 #' @export
@@ -72,6 +73,7 @@ pmx_theme <- function(elements = list(), subclass = NULL) {
 #'    entry of the theme is a `pmx_element`. Default `FALSE`
 #'    (class-tag check only, cheap).
 #'
+#' @family pmx theme class
 #' @return Logical scalar.
 #' @export is_pmx_theme
 #'

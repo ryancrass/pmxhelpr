@@ -19,6 +19,7 @@
 #'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
 #'    Default error bar width is 2.5% of maximum `NTIME`.
 #'
+#' @family goodness-of-fit
 #' @return A `ggplot2` plot object
 #'
 #' @export plot_gof

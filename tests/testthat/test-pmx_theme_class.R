@@ -58,6 +58,11 @@ test_that("print.pmx_theme() shows VPC ribbon entries with their type", {
   expect_true(any(grepl("<pmx_ribbon>", out, fixed = TRUE)))
 })
 
+test_that("print.pmx_theme output is stable (snapshot)", {
+  expect_snapshot(print(plot_dvtime_theme()))
+  expect_snapshot(print(plot_vpc_theme()))
+})
+
 
 ##### Class propagation through merge_theme #####
 

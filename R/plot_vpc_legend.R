@@ -9,6 +9,7 @@
 #' @param ... Other arguments passed to [ggplot2::theme()].
 #'
 #' @inheritParams plot_vpc_cont
+#' @family vpc
 #' @return a ggplot2 object
 #' @export plot_vpc_legend
 #'

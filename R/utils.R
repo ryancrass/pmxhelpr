@@ -212,6 +212,7 @@ df_prep_dvtime <- function(data,
 #' @param dv_var Vector containing the dependent variable (DV)
 #' @param dose_var Vector containing dose
 #'
+#' @family vectorized helpers
 #' @return A numeric vector of dose-normalized values of `dv_var`
 #' @export var_dosenorm
 #' @examples
@@ -238,6 +239,7 @@ var_dosenorm <- function(dv_var,
 #' @param pred_var Vector containing population predictions (PRED)
 #' @param lower_bound Lower bound for prediction correction formula.
 #'
+#' @family vectorized helpers
 #' @return A numeric vector of prediction-corrected values of `dv_var`
 #' @export var_predcorr
 #' @examples
@@ -274,6 +276,7 @@ var_predcorr <- function(dv_var,
 #' @param sep Optional separator to add between values of `grp_var` and appended counts.
 #'    Default is NULL.
 #'
+#' @family vectorized helpers
 #' @return A factor vector with group labels appended with subject counts (e.g., `"100 mg (n=6)"`)
 #' @export var_addn
 #' @examples

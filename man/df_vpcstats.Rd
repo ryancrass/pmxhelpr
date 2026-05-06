@@ -102,3 +102,13 @@ result <- df_vpcstats(simout, loq = 1)
 head(result$stats)
 head(result$obs)
 }
+\seealso{
+Other vpc: 
+\code{\link{is_vpc_stats}()},
+\code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_cont}()},
+\code{\link{plot_vpc_legend}()},
+\code{\link{plot_vpc_shown}()},
+\code{\link{plot_vpc_theme}()}
+}
+\concept{vpc}

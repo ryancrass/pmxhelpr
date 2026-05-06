@@ -26,3 +26,9 @@ data <- dplyr::filter(data_sad, CMT != 3)
 var_addn(data$DOSE, data$ID, sep = "mg")
 
 }
+\seealso{
+Other vectorized helpers: 
+\code{\link{var_dosenorm}()},
+\code{\link{var_predcorr}()}
+}
+\concept{vectorized helpers}

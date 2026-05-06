@@ -10,6 +10,7 @@
 #'    after removing random effects with [mrgsolve::zero_re()]. Accepts bare names or strings. Default is `IPRED`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
 #'
+#' @family mrgsolve wrappers
 #' @return A data.frame with the same number of rows as `data` and on additional
 #'  numeric variable `PRED`.
 #' @export df_mrgsim_addpred

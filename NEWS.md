@@ -55,7 +55,7 @@ This is a major refactor of the package focused on simplifying function interfac
 
 ### Unified Stats Container (`pmx_stats`)
 * `df_vpcstats()` and `df_doseprop()` now return a shared `pmx_stats` container — a class-tagged list with three slots: `stats` (the per-row summary frame), `obs` (observation overlay), and `config` (run configuration). The class vector is `c(<subclass>, "pmx_stats")` where `<subclass>` is `vpc_stats` or `doseprop_stats`. Builders read columns from `$stats` / `$obs` and configuration from `$config` (e.g. `result$config$loq` instead of `attr(result$stats, "loq")`).
-* Internal constructor `pmx_stats(stats, obs, config, subclass)` and validator `validate_pmx_stats(x)` back the class. Adding a future stats pipeline reuses this constructor and the base S3 methods.
+* Constructor `pmx_stats(stats, obs, config, subclass)` and validator `validate_pmx_stats(x)` back the class. Adding a future stats pipeline reuses this constructor and the base S3 methods.
 * Base S3 methods: `print` / `summary` show object dimensions, slot row counts, and the run-config keys; `as.data.frame()` returns `$stats` as a plain `data.frame`. Subclasses (`vpc_stats`, `doseprop_stats`) override `print` / `summary` for richer output.
 * `is_pmx_stats(x, strict = FALSE)`, `is_vpc_stats(x, strict = FALSE)`, `is_doseprop_stats(x, strict = FALSE)` predicates. With `strict = TRUE`, each runs the corresponding validator and returns `FALSE` on structural failure. Plot builders (`plot_build_vpc()`, `plot_build_doseprop()`) call the validators directly at entry.
 

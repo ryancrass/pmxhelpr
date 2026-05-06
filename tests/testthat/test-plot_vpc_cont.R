@@ -41,18 +41,6 @@ test_that("Error if incorrect class for argument `data`", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("`sim` is a deprecated alias for `data`", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 5,
-                                 dv_var = "ODV")
-  expect_warning(
-    p <- plot_vpc_cont(sim = testsim),
-    regexp = "`sim` is deprecated"
-  )
-  expect_s3_class(p, "ggplot")
-})
-
 test_that("Error if time_var does not exist in `data`", {
   testsim <- df_mrgsim_replicate(data=data_sad,
                                  model=model_mread_load("pkmodel"),

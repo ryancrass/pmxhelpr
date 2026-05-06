@@ -8,6 +8,7 @@
 #' @param dose_var Column in `data` containing the dose (independent variable).
 #'    Accepts bare names or strings. Default is `DOSE`.
 #'
+#' @family dose proportionality
 #' @return `lm` object
 #' @export mod_loglog
 #'
@@ -46,6 +47,7 @@ mod_loglog <- function(data,
 #'    Options 0.90 (default) and 0.95
 #' @param sigdigits number of significant digits for rounding
 #'
+#' @family dose proportionality
 #' @return `data.frame`
 #' @export df_loglog
 #'
@@ -111,6 +113,7 @@ df_loglog <- function(fit,
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
 #'
+#' @family dose proportionality
 #' @return A `doseprop_stats` container (subclass of `pmx_stats`) with three
 #'    slots:
 #'    \describe{
@@ -239,6 +242,7 @@ validate_doseprop_stats <- function(x) {
 #' @param se logical to display confidence interval around regression. Default
 #'    is `TRUE`.
 #'
+#' @family dose proportionality
 #' @return a `ggplot` plot object
 #' @export plot_build_doseprop
 #'
@@ -322,6 +326,7 @@ plot_build_doseprop <- function(stats,
 #' @inheritParams df_loglog
 #' @inheritParams df_doseprop
 #'
+#' @family dose proportionality
 #' @return a `ggplot` plot object
 #' @export plot_doseprop
 #'

@@ -80,3 +80,9 @@ num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
 char_vars = c("USUBJID", "PART"),
 irep_name = SIM)
 }
+\seealso{
+Other mrgsolve wrappers: 
+\code{\link{df_mrgsim_addpred}()},
+\code{\link{model_mread_load}()}
+}
+\concept{mrgsolve wrappers}

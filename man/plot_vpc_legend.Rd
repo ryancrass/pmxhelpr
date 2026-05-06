@@ -44,3 +44,13 @@ ci = 0.95,
  obs_median_line = TRUE,
  sim_median_line = FALSE, sim_median_ci = TRUE))
 }
+\seealso{
+Other vpc: 
+\code{\link{df_vpcstats}()},
+\code{\link{is_vpc_stats}()},
+\code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_cont}()},
+\code{\link{plot_vpc_shown}()},
+\code{\link{plot_vpc_theme}()}
+}
+\concept{vpc}

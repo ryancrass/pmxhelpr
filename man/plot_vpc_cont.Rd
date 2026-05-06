@@ -22,12 +22,11 @@ plot_vpc_cont(
   shown = NULL,
   theme = NULL,
   pi = c(0.05, 0.95),
-  ci = 0.9,
-  sim
+  ci = 0.9
 )
 }
 \arguments{
-\item{data}{Input dataset. Must contain the following variables: \code{"ID"}, \code{"TIME"}}
+\item{data}{Input dataset. `}
 
 \item{time_var}{Column containing the actual time variable in \code{data}.
 Accepts bare names or strings. Default is \code{TIME}.}
@@ -95,9 +94,6 @@ Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for simulation interval (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
-
-\item{sim}{Deprecated. Use \code{data} instead. Soft alias retained for one cycle —
-passing \code{sim = ...} emits a warning and the value is forwarded to \code{data}.}
 }
 \value{
 A \code{ggplot2} object. To access the underlying VPC summary statistics
@@ -125,3 +121,13 @@ loq = 1,
 pi = c(0.05, 0.95),
 ci = 0.90)
 }
+\seealso{
+Other vpc: 
+\code{\link{df_vpcstats}()},
+\code{\link{is_vpc_stats}()},
+\code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_legend}()},
+\code{\link{plot_vpc_shown}()},
+\code{\link{plot_vpc_theme}()}
+}
+\concept{vpc}

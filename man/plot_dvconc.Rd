@@ -68,3 +68,10 @@ data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 
 }
+\seealso{
+Other exploratory analysis: 
+\code{\link{plot_dvconc_theme}()},
+\code{\link{plot_dvtime}()},
+\code{\link{plot_dvtime_theme}()}
+}
+\concept{exploratory analysis}

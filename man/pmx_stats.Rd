@@ -22,7 +22,7 @@ width, replicate count).}
 An object of class \code{c(subclass, "pmx_stats")}.
 }
 \description{
-Internal constructor for the cacheable stats containers returned by
+Constructor for the cacheable stats containers returned by
 \code{\link[=df_vpcstats]{df_vpcstats()}} and \code{\link[=df_doseprop]{df_doseprop()}}. Each container is a named list with
 three slots — \code{stats} (the per-row summary frame), \code{obs} (the observation
 overlay used by plot builders, may be \code{NULL}), and \code{config} (named list of
@@ -30,4 +30,8 @@ run configuration consumed by the plot builders). The class vector is
 \verb{c(<subclass>, "pmx_stats")}. The structural shape is enforced by
 \code{\link[=validate_pmx_stats]{validate_pmx_stats()}} at construction time.
 }
-\keyword{internal}
+\seealso{
+Other pmx stats class: 
+\code{\link{is_pmx_stats}()}
+}
+\concept{pmx stats class}

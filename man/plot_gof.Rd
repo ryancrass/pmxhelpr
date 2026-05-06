@@ -110,3 +110,9 @@ selectively hide variables.
 plot_gof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 
 }
+\seealso{
+Other goodness-of-fit: 
+\code{\link{plot_gof_shown}()},
+\code{\link{plot_gof_theme}()}
+}
+\concept{goodness-of-fit}

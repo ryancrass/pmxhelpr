@@ -55,6 +55,12 @@ test_that("print.pmx_element() works on every element type", {
   }
 })
 
+test_that("print.pmx_element output is stable (snapshot)", {
+  expect_snapshot(print(pmx_point(shape = 16, size = 2)))
+  expect_snapshot(print(pmx_line()))
+  expect_snapshot(print(pmx_ribbon(fill = "grey60", alpha = 0.4)))
+})
+
 
 ##### +.pmx_element #####
 

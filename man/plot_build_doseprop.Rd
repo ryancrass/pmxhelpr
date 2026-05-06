@@ -43,3 +43,13 @@ stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
 plot_build_doseprop(stats)
 plot_build_doseprop(stats, se = FALSE)
 }
+\seealso{
+Other dose proportionality: 
+\code{\link{df_doseprop}()},
+\code{\link{df_loglog}()},
+\code{\link{is_doseprop_stats}()},
+\code{\link{mod_loglog}()},
+\code{\link{plot_doseprop}()},
+\code{\link{plot_doseprop_theme}()}
+}
+\concept{dose proportionality}

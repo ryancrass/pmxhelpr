@@ -10,6 +10,7 @@
 #'    `validate_vpc_stats()` and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
+#' @family vpc
 #' @return Logical scalar.
 #' @export is_vpc_stats
 #'

@@ -20,3 +20,9 @@ Internal Helper: Apply dose-normalization to a variable
 \examples{
 data <- dplyr::mutate(data_sad, DNDV = var_dosenorm(ODV, DOSE))
 }
+\seealso{
+Other vectorized helpers: 
+\code{\link{var_addn}()},
+\code{\link{var_predcorr}()}
+}
+\concept{vectorized helpers}

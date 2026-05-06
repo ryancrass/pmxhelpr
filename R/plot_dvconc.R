@@ -19,6 +19,7 @@
 #' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
 #'
+#' @family exploratory analysis
 #' @return A `ggplot2` plot object
 #'
 #' @export plot_dvconc

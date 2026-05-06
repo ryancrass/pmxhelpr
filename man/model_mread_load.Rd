@@ -21,3 +21,9 @@ model library in \code{pmxhelpr}
 \examples{
 model <- model_mread_load("pkmodel")
 }
+\seealso{
+Other mrgsolve wrappers: 
+\code{\link{df_mrgsim_addpred}()},
+\code{\link{df_mrgsim_replicate}()}
+}
+\concept{mrgsolve wrappers}

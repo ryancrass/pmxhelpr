@@ -25,3 +25,9 @@ data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmo
 data <- dplyr::mutate(data, PCDV = var_predcorr(ODV, PRED))
 
 }
+\seealso{
+Other vectorized helpers: 
+\code{\link{var_addn}()},
+\code{\link{var_dosenorm}()}
+}
+\concept{vectorized helpers}

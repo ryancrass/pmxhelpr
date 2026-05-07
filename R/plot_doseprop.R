@@ -29,12 +29,15 @@ mod_loglog <- function(data,
   check_df(data, "data")
   check_varsindf(data, exp_var_str, "data", "exp_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
-  if(nrow(data) < 2) {rlang::abort(message = "argument `data` must contain at least 2 rows for log-log regression")}
+  if (nrow(data) < 2) {
+    rlang::abort("argument `data` must contain at least 2 rows for log-log regression")
+  }
 
-  form <- stats::as.formula(paste(paste0("log(",exp_var_str,")"),"~",paste0("log(",dose_var_str,")")))
-  fit <- stats::lm(form, data)
-  return(fit)
-
+  form <- stats::reformulate(
+    termlabels = paste0("log(", dose_var_str, ")"),
+    response   = paste0("log(", exp_var_str, ")")
+  )
+  stats::lm(form, data)
 }
 
 
@@ -90,7 +93,7 @@ df_loglog <- function(fit,
                                       LCL > 1 & UCL > 1 ~ "Greater than dose-proportional",
                                       .default = "Dose-proportional"))
 
-  return(tab)
+  tab
 }
 
 
@@ -138,8 +141,8 @@ df_doseprop <- function(data,
                         exp_var = PPORRES,
                         dose_var = DOSE,
                         method = "normal",
-                        ci = 0.90,
-                        sigdigits=3) {
+                        ci = 0.9,
+                        sigdigits = 3) {
 
   metric_var_str <- resolve_var(rlang::enquo(metric_var))
   exp_var_str    <- resolve_var(rlang::enquo(exp_var))
@@ -152,17 +155,25 @@ df_doseprop <- function(data,
   check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
+  obs_filtered <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
+  form <- stats::reformulate(
+    termlabels = paste0("log(", dose_var_str, ")"),
+    response   = paste0("log(", exp_var_str, ")")
+  )
+
   tab_list <- lapply(metrics, function(m) {
-    dat_m <- dplyr::filter(data, .data[[metric_var_str]] == m)
-    fit   <- mod_loglog(dat_m, exp_var = exp_var_str, dose_var = dose_var_str)
-    tab   <- df_loglog(fit, method, ci, sigdigits)
+    dat_m <- dplyr::filter(obs_filtered, .data[[metric_var_str]] == m)
+    if (nrow(dat_m) < 2) {
+      rlang::abort(paste0("metric `", m,
+                          "` has fewer than 2 rows; cannot fit log-log regression"))
+    }
+    fit <- stats::lm(form, dat_m)
+    tab <- df_loglog(fit, method, ci, sigdigits)
     tab[[metric_var_str]] <- m
     tab
   })
 
   out <- do.call(rbind.data.frame, tab_list)
-
-  obs_filtered <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
 
   pmx_stats(
     stats  = out,
@@ -215,30 +226,6 @@ validate_doseprop_stats <- function(x) {
   invisible(x)
 }
 
-
-
-#' Internal helper: snap a positive range outward to half-decade boundaries
-#'
-#' Returns `c(lower, upper)` where each end lands on the nearest value of the
-#' form `10^k` or `5 * 10^k` (integer `k`) that strictly brackets the input
-#' range. Used to set tight log10 axis limits in `plot_build_doseprop`.
-#'
-#' @param x Length-2 numeric vector `c(min, max)` of positive values.
-#' @return Length-2 numeric vector `c(lower, upper)` with `lower < x[1]` and
-#'    `upper > x[2]`, each on a half-decade grid position.
-#' @keywords internal
-#' @noRd
-half_decade_bracket <- function(x) {
-  klo <- floor(log10(x[1])); blo <- 10^klo
-  khi <- floor(log10(x[2])); bhi <- 10^khi
-  lo <- if (x[1] > 5 * blo) 5 * blo
-        else if (x[1] > blo) blo
-        else 5 * 10^(klo - 1)
-  hi <- if (x[2] < 5 * bhi) 5 * bhi
-        else if (x[2] < 10 * bhi) 10 * bhi
-        else 5 * 10^(khi + 1)
-  c(lo, hi)
-}
 
 
 #' Build a dose-proportionality ggplot from a `doseprop_stats` object
@@ -309,13 +296,13 @@ plot_build_doseprop <- function(stats,
     ggplot2::labs(x = "Dose", y = "Exposure") +
     ggplot2::scale_x_log10(
       guide  = "axis_logticks",
-      limits = half_decade_bracket,
-      expand = ggplot2::expansion(mult = 0)
+      limits = function(x) c(10^floor(log10(x[1])), 10^ceiling(log10(x[2]))),
+      expand = ggplot2::expansion(mult = 0.02)
     ) +
     ggplot2::scale_y_log10(
       guide  = "axis_logticks",
-      limits = half_decade_bracket,
-      expand = ggplot2::expansion(mult = 0)
+      limits = function(x) c(10^floor(log10(x[1])), 10^ceiling(log10(x[2]))),
+      expand = ggplot2::expansion(mult = 0.02)
     ) +
     ggplot2::facet_wrap(~label, scales = "free")
 }
@@ -374,7 +361,7 @@ plot_doseprop <- function(data,
                           exp_var = PPORRES,
                           dose_var = DOSE,
                           method = "normal",
-                          ci = 0.90,
+                          ci = 0.9,
                           sigdigits = 3,
                           se = TRUE,
                           theme = NULL) {
@@ -391,13 +378,6 @@ plot_doseprop <- function(data,
   metric_var_str <- resolve_var(rlang::enquo(metric_var))
   exp_var_str    <- resolve_var(rlang::enquo(exp_var))
   dose_var_str   <- resolve_var(rlang::enquo(dose_var))
-
-  check_df(data, "data")
-  check_varsindf(data, metric_var_str, "data", "metric_var")
-  check_varsindf(data, exp_var_str, "data", "exp_var")
-  check_varsindf(data, dose_var_str, "data", "dose_var")
-  check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
-  check_loglog_args(method, ci, sigdigits)
 
   stats <- df_doseprop(data, metrics,
                        metric_var = metric_var_str,

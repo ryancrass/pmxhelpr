@@ -271,9 +271,7 @@ plot_build_doseprop <- function(stats,
 
   plot_data <- dplyr::left_join(obs, tab, by = metric_var_str)
 
-  base <- ggplot2::ggplot(data = plot_data,
-                          ggplot2::aes(x = .data[[dose_var_str]],
-                                       y = .data[[exp_var_str]]))
+  base <- init_plot(plot_data, dose_var_str, exp_var_str)
 
   plot <- add_obs_layers(base, id_var_str = NULL,
                          point_el = plottheme$obs_point,
@@ -283,14 +281,11 @@ plot_build_doseprop <- function(stats,
                            col_var_str = NULL, col_trend = FALSE,
                            formula = y ~ x, level = ci,
                            theme_key = "linear")
-  plot <- plot +
+  plot +
     ggplot2::labs(x = "Dose", y = "Exposure") +
     ggplot2::scale_x_log10(guide = "axis_logticks") +
     ggplot2::scale_y_log10(guide = "axis_logticks") +
-    ggplot2::facet_wrap(~label, scales = "free") +
-    ggplot2::theme_bw()
-
-  apply_panel_theme(plot, keep_major_x = TRUE)
+    ggplot2::facet_wrap(~label, scales = "free")
 }
 
 

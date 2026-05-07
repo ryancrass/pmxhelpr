@@ -17,9 +17,8 @@
 #    Preprocess: df_doseprop (per-metric log-log fits + obs subset attached
 #                as `obs` attribute on a `doseprop_stats`-classed data.frame).
 #    Build:      plot_build_doseprop (ggplot from a doseprop_stats object).
+#    Init:       init_plot (theme_bw + apply_panel_theme()).
 #    Layers:     add_obs_layers (no col_var/id_var), add_trend_layers (lm).
-#    Panel:      apply_panel_theme(keep_major_x = TRUE) — keeps major.x for
-#                log-log readability.
 #
 # 3. VPC family — plot_vpc_cont
 #    Preprocess: df_vpcpreprocess (validate, EVID=0, BLQ encode).
@@ -35,29 +34,22 @@
 
 #' Internal helper: Apply unified panel theme to a ggplot
 #'
-#' All three plot families (continuous, regression, VPC) blank
-#' `panel.grid.minor` and differ only in two switches:
-#' `keep_major_x` (regression keeps it for log-log readability) and
-#' `white_panel` (VPC uses a white panel rather than `theme_bw()`'s grey).
-#' This helper centralizes the panel theme application so each family picks
-#' its variant via parameters rather than re-stating an inline `theme()`
-#' block.
+#' All plot families blank `panel.grid.minor` and `panel.grid.major.x`. The
+#' VPC family additionally uses a white panel rather than `theme_bw()`'s grey
+#' (toggled via `white_panel`). This helper centralizes the panel theme
+#' application so each family picks its variant via parameters rather than
+#' re-stating an inline `theme()` block.
 #'
 #' @param plot A ggplot2 object.
-#' @param keep_major_x Logical. When `FALSE` (default), `panel.grid.major.x`
-#'    is blanked. Set `TRUE` for the regression family (log-log axes benefit
-#'    from the major-x gridline).
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a
 #'    white rectangle with a thin black border. Default is `FALSE`. Used by
 #'    the VPC family.
 #'
 #' @return A ggplot2 object with the unified panel theme applied.
 #' @keywords internal
-apply_panel_theme <- function(plot, keep_major_x = FALSE, white_panel = FALSE) {
-  args <- list(panel.grid.minor = ggplot2::element_blank())
-  if (!isTRUE(keep_major_x)) {
-    args$panel.grid.major.x <- ggplot2::element_blank()
-  }
+apply_panel_theme <- function(plot, white_panel = FALSE) {
+  args <- list(panel.grid.minor = ggplot2::element_blank(),
+               panel.grid.major.x = ggplot2::element_blank())
   if (isTRUE(white_panel)) {
     args$panel.background <- ggplot2::element_rect(fill = "white",
                                                    linewidth = 0.5,

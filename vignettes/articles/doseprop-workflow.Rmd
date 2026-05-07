@@ -84,7 +84,31 @@ stats
 The `stats` slot holds the per-metric estimates from the log log regression, which contains all the information needed to format an output table.
 
 
-## Inspecting the `doseprop_stats` object
+# Plotting with `plot_doseprop()`
+
+`plot_doseprop()` is the top-level wrapper that bundles `df_doseprop()` and `plot_build_doseprop()`. The required arguments are the same as `df_doseprop()`. The output is a `ggplot` object with one panel per metric, where the facet label includes the metric name and the `PowerCI` text.
+
+```{r plot-raw, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_doseprop(data_nca, metrics = c("aucinf.obs", "cmax"))
+```
+
+The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
+
+## Reusing precomputed stats
+
+`plot_doseprop()` also accepts a `doseprop_stats` object directly. This skips the regression refit and is useful when you want to inspect the stats object and then render the same data multiple times — for example, with and without the SE ribbon, or with different aesthetic overrides — without paying the regression cost again.
+
+```{r plot-precomputed, fig.height=4, fig.width=6, warning=FALSE}
+# With the SE ribbon (default)
+plot_doseprop(dose_prop_obj)
+
+# Without the SE ribbon
+plot_doseprop(dose_prop_obj, se = FALSE)
+```
+
+When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_var`, `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
+
+# Inspecting the `doseprop_stats` object
 
 `df_doseprop()` performs the per-metric log-log regression and returns a `doseprop_stats`  [`pmx_stats`][is_pmx_stats] object with three slots:
 
@@ -121,31 +145,8 @@ is_doseprop_stats(stats)
 is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 ```
 
-# Plotting with `plot_doseprop()`
 
-`plot_doseprop()` is the top-level wrapper that bundles `df_doseprop()` and `plot_build_doseprop()`. The required arguments are the same as `df_doseprop()`. The output is a `ggplot` object with one panel per metric, where the facet label includes the metric name and the `PowerCI` text.
-
-```{r plot-raw, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_doseprop(nca_sad, metrics = c("aucinf.obs", "cmax"))
-```
-
-The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
-
-## Reusing precomputed stats
-
-`plot_doseprop()` also accepts a `doseprop_stats` object directly. This skips the regression refit and is useful when you want to inspect the stats object and then render the same data multiple times — for example, with and without the SE ribbon, or with different aesthetic overrides — without paying the regression cost again.
-
-```{r plot-precomputed, fig.height=4, fig.width=6, warning=FALSE}
-# With the SE ribbon (default)
-plot_doseprop(stats)
-
-# Without the SE ribbon
-plot_doseprop(stats, se = FALSE)
-```
-
-When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_var`, `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
-
-## Building plots from a `doseprop_stats` object directly
+# Building plots from a `doseprop_stats` object directly
 
 For downstream code or custom workflows that produce a `doseprop_stats`-shaped object outside `df_doseprop()` (e.g. external preprocessing, snapshot fixtures), `plot_build_doseprop()` is exported as the public renderer. It is the same engine that `plot_doseprop()` uses internally on the precomputed path and accepts the same plot-only arguments (`theme`, `se`). All other plotting context — observation rows, column names, CI level — is recovered from the object's attributes.
 
@@ -172,8 +173,8 @@ A typical override:
 plot_doseprop(
   stats,
   theme = plot_doseprop_theme(
-    obs_point = pmx_point(shape = 19, color = "darkblue", alpha = 1),
-    linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.15))
+    obs_point = pmx_point(shape = 19, color = "black", alpha = 0.8, size = 1),
+    linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.2))
 )
 ```
 

@@ -4,14 +4,10 @@
 \alias{apply_panel_theme}
 \title{Internal helper: Apply unified panel theme to a ggplot}
 \usage{
-apply_panel_theme(plot, keep_major_x = FALSE, white_panel = FALSE)
+apply_panel_theme(plot, white_panel = FALSE)
 }
 \arguments{
 \item{plot}{A ggplot2 object.}
-
-\item{keep_major_x}{Logical. When \code{FALSE} (default), \code{panel.grid.major.x}
-is blanked. Set \code{TRUE} for the regression family (log-log axes benefit
-from the major-x gridline).}
 
 \item{white_panel}{Logical. When \code{TRUE}, sets \code{panel.background} to a
 white rectangle with a thin black border. Default is \code{FALSE}. Used by
@@ -21,12 +17,10 @@ the VPC family.}
 A ggplot2 object with the unified panel theme applied.
 }
 \description{
-All three plot families (continuous, regression, VPC) blank
-\code{panel.grid.minor} and differ only in two switches:
-\code{keep_major_x} (regression keeps it for log-log readability) and
-\code{white_panel} (VPC uses a white panel rather than \code{theme_bw()}'s grey).
-This helper centralizes the panel theme application so each family picks
-its variant via parameters rather than re-stating an inline \code{theme()}
-block.
+All plot families blank \code{panel.grid.minor} and \code{panel.grid.major.x}. The
+VPC family additionally uses a white panel rather than \code{theme_bw()}'s grey
+(toggled via \code{white_panel}). This helper centralizes the panel theme
+application so each family picks its variant via parameters rather than
+re-stating an inline \code{theme()} block.
 }
 \keyword{internal}

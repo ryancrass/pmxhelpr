@@ -9,7 +9,7 @@ plot_vpc_legend(
   pi = c(0.05, 0.95),
   shown = NULL,
   lloq = NULL,
-  update = NULL,
+  theme = NULL,
   ...
 )
 }
@@ -24,7 +24,8 @@ Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{lloq}{label for lower limit of quantification in the plot legend.}
 
-\item{update}{list containing the plot elements to be updated. Default is set by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.}
+\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
+Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }

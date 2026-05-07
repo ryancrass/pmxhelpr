@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot elements with package plotting functions including `plot_dvtime()`/`plot_dvconc()` and `plot_gof()`/`plot_vpc_cont()`. This vignette will introduce the theory and naming conventions behind the theme factor functions for each plot and individual element constructors.
+This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot themes and theme elements with for all package plotting functions, which includes `plot_dvtime()`, `plot_dvconc()`, `plot_doseprop()`, `plot_gof()`, and `plot_vpc_cont()`. This vignette will introduce the theory and naming conventions behind the theme factory functions for each plot, as well as, individual plot element constructors.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -37,37 +37,28 @@ This vignette will assume familiarity with these internal datasets from other vi
 
 ## data_sad
 
-Dataset definitions can be viewed by calling `?data_sad`. A quick summary of variables and types is printed below.
-
-PART specifies the two study cohorts:
-
-  - Single Ascending Dose (SAD)
-  - Food Effect (FE).
-
-```{r data-part}
-unique(data_sad$PART)
-```
+Dataset definitions can be viewed by calling `?data_sad`.
 
 Let's define some variables that may be useful in plotting and filter down to PK or PD relevant records.
 
 ```{r data-factors, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 data <- data_sad %>% 
-  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"),
          DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
-  mutate(`Food Status` = var_addn(`Food Status`, ID),
-         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
+  mutate(`Dose and Food` = var_addn(DoseFood, ID)) %>% 
   mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 
 gof_data <- data_sad_pkfit %>%
-  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
+  mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"),
          DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
-  mutate(`Food Status` = var_addn(`Food Status`, ID),
-         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
+  mutate(`Dose and Food` = var_addn(DoseFood, ID)) %>% 
   mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
 
 data_pk <- filter(data, CMT %in% c(1,2))
 data_pd <- filter(data, CMT %in% c(1,3))
 data_pkfit <- filter(gof_data, CMT %in% c(1,2))
+data_nca <- filter(data_sad_nca, PART == "Part 1-SAD")
+doseprop_data_nca <- df_doseprop(data_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")
 ```
 
 An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This is loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
@@ -80,19 +71,26 @@ model <- model_mread_load("pkmodel")
 
 # Overview
 
-Every `pmxhelpr` plot function (`plot_dvtime()`, `plot_dvconc()`, `plot_gof()`, `plot_vpc_cont()`) accepts a `theme` argument that controls the appearance of points, lines, ribbons, error bars, and reference lines. The theme system has two layers:
+Every `pmxhelpr` plot function (`plot_dvtime()`, `plot_dvconc()`, `plot_doseprop()`, `plot_gof()`, `plot_vpc_cont()`) accepts a `theme` argument that controls the appearance of points, lines, ribbons, error bars, and reference lines. The theme system has two layers:
 
 1. **Element constructors** (`pmx_point()`, `pmx_line()`, etc.) define *what* to style. Each constructor maps directly to a `ggplot2` geom and only accepts aesthetics relevant to that geom.
 
 2. **Theme factories** (`plot_dvtime_theme()`, `plot_gof_theme()`, etc.) define *where* those elements go. Each factory returns a named list of default element objects, one per visual layer in the plot. User overrides are merged field-by-field into these defaults.
 
-This design means every plot function uses the same workflow:
+This design means every plot function uses the same workflow. The defaults can be viewed by calling the theme factory function corresponding to the plot with no arguments, which produces default plot aesthetics.
 
-```{r workflow-example, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r theme-factory-default,  message=FALSE, warning=FALSE}
 # View defaults
 plot_dvtime_theme()
-plot_dvtime(data_pk, dv_var = ODV, theme = plot_dvtime_theme())
+```
 
+```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data_pk, dv_var = ODV, theme = plot_dvtime_theme())
+```
+
+The workflow to update themes is consistent across plotting functions.
+
+```{r fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 # Override specific fields — unspecified fields keep their defaults
 new_dvtime_theme <- plot_dvtime_theme(cent_line = pmx_line(linetype = "dashed"))
 plot_dvtime(data_pk, dv_var = ODV, theme = new_dvtime_theme)
@@ -101,24 +99,18 @@ plot_dvtime(data_pk, dv_var = ODV, theme = new_dvtime_theme)
 
 # Element Constructors
 
-Each constructor creates a named list with a class tag. Only non-NULL fields are stored, so partial overrides are easy to define by only passing the elements to overide.
+Each constructor creates a named list with an S3 class tag. 
 
 ```{r constructor-ex1}
 # Full element with all fields
 pmx_point(shape = 16, size = 1.25, alpha = 1, color = "blue")
 ```
 
+Only non-NULL fields are stored, so partial overrides are easy to define by only passing the elements to override. When a user-supplied element is merged into a default, each specified field replaces the corresponding default. Unspecified fields are preserved. This occurs without user input in the plot theme constructor factory functions.
+
 ```{r constructor-ex2}
 # Partial override — only the fields you want to change
 pmx_point(size = 2)
-```
-
-When a user-supplied element is merged into a default, each specified field replaces the corresponding default. Unspecified fields are preserved. This occurs without user input in the plot theme constructor factory functions.
-
-```{r merge-example}
-default <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
-override <- pmx_point(size = 2)
-pmxhelpr:::merge_element(override, default)
 ```
 
 The available element constructors are as follows:
@@ -178,7 +170,7 @@ The same constructors and merge logic apply everywhere, so learning the system o
 
 ## Role-Level Shortcuts with `pmx_style()`
 
-When a role has both `_point` and `_line` elements (e.g., `obs_point` and `obs_line`), you can set shared aesthetics on both at once using `pmx_style()`:
+When a role has both `_point` and `_line` elements (e.g., `obs_point` and `obs_line`), you can set shared aesthetics on both at once using `pmx_style()`. This is passed to a shared key for observations (`obs`).
 
 ```{r style-shortcut}
 # These two calls produce the same result:
@@ -218,8 +210,8 @@ The relationship between element key, element constructor, and purpose is define
   + `obs_line` | `pmx_line` | Individual spaghetti lines connecting observations
   + `cent_point` | `pmx_point` | Central tendency points
   + `cent_line` | `pmx_line` | Central tendency lines 
-  + `cent_errorbar` | `pmx_errorbar` | Error bars for central tendency 
-  + `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline) 
+  + `cent_errorbar` | `pmx_errorbar` | Central tendency error bars
+  + `ref_line` | `pmx_line` | Reference line (e.g., change-from-baseline, target value) 
   + `loq_line` | `pmx_line` | LOQ reference line
 
 Shortcuts: `obs` = `obs_point`/`obs_line`, `cent` = `cent_point`/`cent_line` accept `pmx_style()`.
@@ -234,8 +226,8 @@ The relationship between element key, element constructor, and purpose is define
 
  + `obs_point` | `pmx_point` | Observed data points (default: darkgrey)
  + `obs_line` | `pmx_line` | Individual spaghetti lines connecting observations (default: darkgrey)
- + `cent_point` | `pmx_point` | Shared central tendency points for DV, PRED, IPRED |
- + `cent_line` | `pmx_line` | Shared central tendency lines for DV, PRED, IPRED |
+ + `cent_point` | `pmx_point` | Shared central tendency points for DV, PRED, IPRED 
+ + `cent_line` | `pmx_line` | Shared central tendency lines for DV, PRED, IPRED
  + `cent_errorbar` | `pmx_errorbar` | Shared central tendency error bars 
  + `ref_line` | `pmx_line` | Reference line
  + `loq_line` | `pmx_line` | LOQ reference line
@@ -277,40 +269,7 @@ The relationship between element key, element constructor, and purpose is define
 
 Shortcuts using `pmx_style()` are not relevant for this function.
 
-# Examples
-
-The following examples demonstrate common customization patterns. Each pattern applies to any plot function — only the theme factory and element keys change. These examples will endeavor to cover common use cases for default theme overrides. 
-
-## Make Theme Overrides Inline
-
-Pass element overrides directly in the `theme` argument. Only the fields you specify are changed. This example removes points for observations and central tendency means to emphasize the error bars
-
-```{r example-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl", log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
-                                     cent_point = pmx_point(size = 0))) +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
-  facet_wrap(~PART)
-```
-
-## Make Theme Overrides with a Reusable Theme Object
-
-A more common approach to modifying theme elements is to create a reusable theme object that can be passed to a series of plots. The example below produces the same plot output as the inline example above, but can be recycled to additional plots.
-
-```{r example-reuse, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-my_theme <- plot_dvtime_theme(cent_point = pmx_point(size = 0), 
-                              obs_point = pmx_point(alpha = 0))
-
-plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl", log_y = TRUE,
-            theme = my_theme) +
-  scale_x_continuous(breaks = seq(0, 168, 24))+
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
-  facet_wrap(~PART)
-```
-
-## Composing themes with `+`
+### Composing themes with the `+` operator
 
 When you have a base theme handle and want to apply an override without rebuilding from defaults, use the `+` operator. The right-hand side is a partial `pmx_theme` (built with `pmx_theme()`), and only its keys win — every other key on the left side is preserved.
 
@@ -335,9 +294,45 @@ pmx_point(size = 2, color = "blue") + pmx_point(color = "red")
 
 `theme + NULL` returns the theme unchanged — convenient for `theme + maybe_extra_theme` patterns where the right side may conditionally be `NULL`.
 
+
+# Examples
+
+The following examples demonstrate common customization patterns. Each pattern applies to any plot function — only the theme factory and element keys change. These examples will endeavor to cover common use cases for default theme overrides. 
+
+## Make Theme Overrides Inline
+
+Pass element overrides directly in the `theme` argument. Only the fields specified are changed. This example removes points for observations, increases the size of the mean data points, and removes error bar caps directly within a `plot_dvtime()` plot call. 
+
+```{r example-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
+            cent = "mean_sdl", log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
+                                     cent_point = pmx_point(size =2, alpha = 1), 
+                                     cent_errorbar = pmx_errorbar(width = 1))) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
+```
+
+## Make Theme Overrides with a Reusable Theme Object
+
+A more common approach to modifying theme elements is to create a reusable theme object that can be passed to a series of plots. The example below produces the same plot output as the inline example above, but can be recycled to additional plots.
+
+```{r example-reuse, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+my_theme <- plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
+                                     cent_point = pmx_point(size =2, alpha = 1), 
+                                     cent_errorbar = pmx_errorbar(width = 1))
+
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
+            cent = "mean_sdl", log_y = TRUE,
+            theme = my_theme) +
+  scale_x_continuous(breaks = seq(0, 168, 24))+
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
+```
+
 ## Remove Individual Data Points
 
-A common use case for the `theme` argument is to set to `alpha = 0` for data points to remove them from the plot. This example removes points for observations and central tendency means to emphasize the error bars
+A common use case for the `theme` argument is to set to `alpha = 0` for data points to remove them from the plot. Those that are also part of a layer including both points and lines, may also be removed by setting `size=0` with the corresponding line present. This example removes points for observations and central tendency means to emphasize the error bars.
 
 ```{r example-no-pts, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = data_pk, dv_var = ODV, col_var = PART,
@@ -347,8 +342,20 @@ plot_dvtime(data = data_pk, dv_var = ODV, col_var = PART,
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
+# Modifying Error Bar Width
 
-## Modifying color / alpha for points / lines simultaneously with `pmx_style()`
+The default error bar width is 2.5% of the maximum nominal time. Override with the `width` field:
+
+```{r example-eb-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
+            cent = "mean_sdl", log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
+                                     cent_errorbar = pmx_errorbar(width = 10))) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~PART)
+```
+
+## Modifying color and alpha for points or lines simultaneously with `pmx_style()`
 
 Use `pmx_style()` to change the color of both point and line elements for a role in one call. This example uses it to change the color and alpha of the individual spaghetti line colors and the color and alpha of the central tendency line.
 
@@ -363,47 +370,46 @@ plot_dvtime(data = data_pk, dv_var = ODV, id_var = ID,
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") 
 ```
 
-
-## Modifying Error Bar Width
-
-The default error bar width is 2.5% of the maximum nominal time. Override with the `width` field:
-
-```{r example-eb-width, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl", log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0),
-                                     cent_errorbar = pmx_errorbar(width = 10))) +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
-  facet_wrap(~PART)
-```
-
-## Trend Line Customization with `pmx_trend()`
+## Trend Line Customization for `plot_dvconc_theme()` with `pmx_trend()`
 
 `pmx_trend()` controls both the trend line and its standard error ribbon. The `color`, `linewidth`, and `linetype` fields style the line itself, while `se_color` and `se_alpha` style the confidence ribbon shown when `se_loess = TRUE` or `se_linear = TRUE`.
 
 An example override of the line color and SE ribbon appearances is provided below.
 
 ```{r example-trend, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+dvconc_theme <- plot_dvconc_theme(loess = pmx_trend(color = "steelblue", linetype = 1,
+                                                    se_color = "steelblue", se_alpha = 0.2))
+
 plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
             loess = TRUE, se_loess = TRUE, ref = 0,
-            theme = plot_dvconc_theme(
-              loess = pmx_trend(color = "steelblue", linetype = 1,
-                                se_color = "steelblue", se_alpha = 0.2))) +
+            theme = dvconc_theme) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 
 Both trend elements can be customized independently. Here the LOESS line is styled as a solid blue line and the linear fit as a dashed red line.
 
 ```{r example-trend-both, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+new_linear_red <- pmx_theme(list(linear = pmx_trend(color = "firebrick", linetype = 2,
+                                 se_color = "firebrick", se_alpha = 0.15)))
+new_dvconc_theme <- dvconc_theme + new_linear_red
+
 plot_dvconc(data = data_pd, dv_var = CFB, idv_var = CONC,
             ref = 0,
             loess = TRUE, linear = TRUE,
             se_loess = TRUE, se_linear = TRUE,
-            theme = plot_dvconc_theme(
-              loess  = pmx_trend(color = "steelblue", se_color = "steelblue", se_alpha = 0.15),
-              linear = pmx_trend(color = "firebrick", linetype = 2,
-                                 se_color = "firebrick", se_alpha = 0.15))) +
+            theme = new_dvconc_theme) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
+```
+
+## Trend line customization for `plot_doseprop_theme()` with `pmx_trend()`
+
+We can also apply customization using `pmx_trend` for dose-proportionality plots with `plot_doseprop_theme()`. We can recycle the previous `new_linear_red` object since `plot_doseprop_theme` shares a linear regression fit key.
+
+```{r example doseprop-trend}
+new_doseprop_theme <- plot_doseprop_theme() + new_linear_red
+
+plot_doseprop(data = doseprop_data_nca, 
+                          theme = new_doseprop_theme)
 ```
 
 ## Customize Colors for Central Tendency using `plot_gof_theme()`
@@ -448,11 +454,22 @@ plot_vpc_cont(
   min_bin_count = 4,
   shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE, 
                          obs_median_line = TRUE, obs_pi_line = FALSE, 
-                         sim_median_ci = FALSE)
+                         sim_median_line = TRUE, sim_median_ci = FALSE)
 ) +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
   scale_y_log10(guide = "axis_logticks")
 ```
+This object can be passed into `plot_vpc_legend()` to generate a legend matching the custo aesthetics of the plot, which can be paneled with the `patchwork` package.
+
+```{r example-vpc-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+plot_vpc_legend(
+  theme = new_vpc_theme,
+  shown = plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE, 
+                         obs_median_line = TRUE, obs_pi_line = FALSE, 
+                         sim_median_line = TRUE, sim_median_ci = FALSE)
+) 
+```
+
 
 # Inspecting and Validating Themes
 
@@ -482,10 +499,10 @@ is_pmx_element(list(shape = 1))                      # FALSE -- a plain list, no
 
 is_pmx_theme(plot_dvtime_theme())                    # TRUE
 inherits(plot_dvtime_theme(), "plot_dvtime_theme")   # TRUE  -- specific-type check
-inherits(plot_vpc_theme(),    "plot_dvtime_theme")   # FALSE
+inherits(plot_vpc_theme(), "plot_dvtime_theme")   # FALSE
 ```
 
-These are most useful inside helper functions that should accept either a default-built theme or a user override, where you want to fail fast on a typo (e.g., a plain list mistakenly passed where a theme was expected).
+These are inside helper functions that should accept either a default-built theme or a user override, where you want to fail fast on a typo (e.g., a plain list mistakenly passed where a theme was expected).
 
 ## Class Propagation Through Merge
 

@@ -5,7 +5,8 @@
 #'    Should match argument passed to [plot_vpc_cont()]. Default is `0.90`.
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
 #' @param lloq label for lower limit of quantification in the plot legend.
-#' @param update list containing the plot elements to be updated. Default is set by [plot_vpc_theme()].
+#' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
+#'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
 #' @param ... Other arguments passed to [ggplot2::theme()].
 #'
 #' @inheritParams plot_vpc_cont
@@ -27,11 +28,11 @@ plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
-                        update = NULL,
+                        theme = NULL,
                         ...){
 
   #aesthetics for legend based on settings in plot_vpc_theme
-  plist <- merge_theme(update, plot_vpc_theme())
+  plist <- merge_theme(theme, plot_vpc_theme())
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())

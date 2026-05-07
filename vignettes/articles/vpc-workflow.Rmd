@@ -725,7 +725,7 @@ plot_vpc_legend(shown = shown_elements)
 The legend can also be updated with the updated VPC plot theme elements. This is easiest to do by setting a new theme object, which we did previously when we created `vpc_new_theme` with `plot_vpc_theme()`. We can use this same theme list object to generat the VPC plot with `plot_vpc_cont()` and the VPC legend with `plot_vpc_legend()`.
 
 ```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_new_legend <- plot_vpc_legend(update = vpc_new_theme)
+vpc_new_legend <- plot_vpc_legend(theme = vpc_new_theme)
 vpc_new_legend
 ```
 

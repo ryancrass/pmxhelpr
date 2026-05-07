@@ -14,12 +14,12 @@
 #'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'
-#'   Options are:
+#'  Options are:
 #'
-#'     + `0` or `"none"` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-#'     + `1` or `"postdose"` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+#'     + No handling: `0` or `"none"`, Plot input dataset `DV` vs `TIME` as is. (default)
+#'     + Impute Post-dose: `1` or `"postdose"`, Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the linear scale
-#'     + `2` or `"all"` : Impute all BLQ data to 1/2 x `loq`.
+#'     + Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
 #'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 #'
 #' @param cent Character string specifying the central tendency measure to plot.

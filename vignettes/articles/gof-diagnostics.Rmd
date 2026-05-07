@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 This vignette will demonstrate `pmxhelpr` functions for generating standard overlay goodness-of-fit model diagnostics for evaluation of longitudinal non-linear mixed effects model fit.
 
-This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-pkpd-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
+This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -28,7 +28,6 @@ library(forcats, warn.conflicts = FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
-
 
 
 # Data 
@@ -83,8 +82,6 @@ mrgsolve::see(model)
 ## Overview
 
  `pmxhelpr` includes a function for generating overlay goodness-of-fit (GOF) plots for model evaluation: `plot_gof()`.
- 
- `plot_gof()` esthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
   
 ## Specifying Dependent and Independent Variables 
 
@@ -209,7 +206,9 @@ Transformation of the plot to a semi-log scale (log-scale y-axis only) is recomm
   
 ## Adjusting the Plot Theme with `plot_gof_theme()`
 
-The default aesthetics for VPC plots are controlled via `plot_gof_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+`plot_gof()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
+
+The theme constructor factory function for `plot_gof()` is `plot_gof_theme()`. 
 
 ```{r theme}
 plot_gof_theme()

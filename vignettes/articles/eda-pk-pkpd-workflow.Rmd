@@ -126,12 +126,12 @@ plot_data_pd <- filter(plot_data, CMT == 3)
 
  `pmxhelpr` includes a function for common visualizations of observed concentration-time data in exploratory data analysis: `plot_dvtime()`
 
-Let's try passing in our PK dataset with no other arguments.
+Let's try passing in our PK dataset with no other arguments. 
 
 ```{r plot-dvtime-fail, fig.height=4, fig.width=6, error=TRUE, message=TRUE}
 plot_dvtime(plot_data_pk)
 ```
-
+The function with no arguments other than the input dataset returns an error with a helpful error message letting us know the additional argument required to be specified.
 
 ## Specifying Dependent and Independent Variables 
 
@@ -147,7 +147,7 @@ These arguments all support non-standard evaluation and these arguments may be p
 plot_dvtime(plot_data_pk, dv_var = ODV)
 ```
 
-Now the function returns a plot! Conveniently, the time variables in `data_sad` had names aligned with the default arguments; however, this may not always be the case. 
+Now the function returns a plot! Conveniently, the time variables in `data_sad` had names aligned with the default arguments and did not have to be specified as arguments; however, this may not always be the case. 
 
 The same variable name can be passed to both `time_var` and `ntime_var` arguments for the special case where only nominal times are known.
 
@@ -272,25 +272,23 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
 
 The `loq_method` argument specifies how BLQ imputation should be performed. Options are:
 
-  + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-  + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+  + `0` or `"none"`: No handling. Plot input dataset `DV` vs `TIME` as is. (default)
+  + `1` or `"postdose"`: Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
       Useful for plotting concentration-time data with some data BLQ on a linear scale
-  + `2` : Impute all BLQ data at to 1/2 x `loq`. 
+  + `2` or `"all"`: Impute all BLQ data at to 1/2 x `loq`. 
       Useful for plotting concentration-time data with some data BLQ on a log scale
   
-The `loq` argument specifies the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is `1` or `2`, but can be `NULL` *if* the variable `LLOQ` is present in the dataset.
-
-Because `LLOQ` is a variable in `plot_data`, the `loq` argument does not need to be specified.
+The `loq` argument specifies the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is non-zero, but can be `NULL` *if* the variable `LLOQ` is present in the dataset and the value of `loq` will be inherited from the data,.
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
-            cent = "mean",log_y = TRUE,loq_method = 2) +
+            cent = "mean",log_y = TRUE,loq_method = "all") +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
 ```
 
-The same plot is obtained by specifying `loq = 1`
+The same plot is obtained by specifying `loq_method = 2` and `loq = 1`
 
 ```{r plot-dvtime-blq2, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
@@ -301,7 +299,6 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
 ```
 
 A reference line is drawn to denote the LLOQ and all observations with `EVID=0` and `MDV=1` are imputed as LLOQ/2. The numeric value of LLOQ is printed in the legend and a caption is added to indicate the imputation method for BLQ data.
-
 
 ## Applying Dose-normalization
 
@@ -408,7 +405,7 @@ lapply(1:n_pgs, function(n_pg) {
 
 # Population Response-time Plots with `plot_dvtime()`
 
-Longitudinal pharmacodynamic response data can be visualized over time using `plot_dvtime()`. This function is designed to visualize a dependent variable versus time and can be used for PK and/or PD data!
+Longitudinal pharmacodynamic response data can also be visualized over time using `plot_dvtime()`. This function is designed to visualize a dependent variable versus time and can be used for PK and/or PD data!
 
 ```{r plot-dvtime-pd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pd, dv_var = ODV, col_var = `Dose and Food`) +
@@ -495,7 +492,9 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
 
 ## Specifying the Color Aesthetic
 
-`plot_dvconc()` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data  without stratifying the trend lines by the variable mapped to the color aesthetic. The `col_var` argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+`plot_dvconc()` includes two arguments for controlling the color aesthetic, `col_var` and `col_trend`. If a variable is passed to the `col_var` argument, the data points are colored based on this variable; however, by default `col_trend = FALSE` and the trend line is fit to the totality of the data without stratifying the trend lines by the variable mapped to the color aesthetic. 
+
+The `col_var` argument uses non-standard evaluation and can be passed as a bare column name or as a string.
 
 ```{r plot-dvconc-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,
@@ -571,8 +570,7 @@ dvconc_new_theme <- plot_dvconc_theme(
 ```
 
 ```{r plot-dvconc-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0, 
-            col_var = `Dose and Food`, col_trend = FALSE,
+plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
             theme = dvconc_new_theme) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")

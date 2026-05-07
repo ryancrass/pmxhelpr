@@ -66,7 +66,7 @@ The required arguments are:
   + `data` — a `data.frame` of NCA parameters (typically `PKNCA::pk.nca()` output)
   + `metrics` — character vector of exposure metric names to evaluate
   
-```{r df-doseprop}
+```{r df-doseprop-obj}
 dose_prop_obj <- df_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"))
 dose_prop_obj
 ```
@@ -77,22 +77,59 @@ Optional arguments must be specified if input dataset defaults differ from SDTM 
     
 The ddefault argument for the numeric dose variable `dose_var` is `DOSE`.
 
-```{r df-doseprop}
+```{r df-doseprop-stat}
+stats <- dose_prop_obj$stats
 stats
 ```
 
 The `stats` slot holds the per-metric estimates from the log log regression, which contains all the information needed to format an output table.
 
+## Adjusting the summary statistics
+
+The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
+
+  + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
+  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequilvance assessment.
+  + `sigdigits`: number of significant digits to return in outputs
+  
+The example below modifies the previous calculation by requesting the `tdist` method, 95%, and rounding to only 2 significant digits.
+  
+```{r df-doseprop-obj-95ci-tdist}
+dose_prop_obj_95ci_tdist <- df_doseprop(data_nca1, 
+                                        metrics = c("aucinf.obs", "cmax"), 
+                                        method = "tdist", 
+                                        ci = 0.95, 
+                                        sigdigits = 2)
+dose_prop_obj_95ci_tdist
+```
 
 # Plotting with `plot_doseprop()`
 
 `plot_doseprop()` is the top-level wrapper that bundles `df_doseprop()` and `plot_build_doseprop()`. The required arguments are the same as `df_doseprop()`. The output is a `ggplot` object with one panel per metric, where the facet label includes the metric name and the `PowerCI` text.
 
 ```{r plot-raw, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_doseprop(data_nca, metrics = c("aucinf.obs", "cmax"))
+plot_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"))
 ```
 
 The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
+
+## Adjusting the summary statistics
+
+The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
+
+  + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
+  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequilvance assessment.
+  + `sigdigits`: number of significant digits to return in outputs
+  
+The example below modifies the previous calculation by requesting the `tdist` method, 95%, and rounding to only 2 significant digits.
+  
+```{r plot-raw-95ci}
+plot_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"), 
+              method = "tdist", 
+              ci = 0.95, 
+              sigdigits = 2)
+```
+
 
 ## Reusing precomputed stats
 
@@ -121,27 +158,27 @@ The returned object is class-tagged `c("doseprop_stats", "pmx_stats")`, which pr
 `print()` shows a focused summary — object dimensions, the regression configuration values (`metric_var`, `exp_var`, `dose_var`, `ci`, `method`), the count of observation rows attached for the scatter overlay, and the per-metric stats body.
 
 ```{r print-stats}
-print(stats)
+print(dose_prop_obj)
 ```
 
 `summary()` shares the header but condenses the body to one line per metric using the `PowerCI` and `Interpretation` columns. This is the most compact way to scan the assessment.
 
 ```{r summary-stats}
-summary(stats)
+summary(dose_prop_obj)
 ```
 
-`as.data.frame()` returns the `stats` slot as a plain `data.frame` — useful when downstream tooling expects a flat tabular result. The observation overlay and run configuration remain accessible via `stats$obs` and `stats$config`.
+`as.data.frame()` returns the `stats` slot as a plain `data.frame` — useful when downstream tooling expects a flat tabular result. The observation overlay and run configuration remain accessible via `dose_prop_obj$obs` and `dose_prop_obj$config`.
 
 ```{r as-data-frame-stats}
-plain <- as.data.frame(stats)
+plain <- as.data.frame(dose_prop_obj)
 class(plain)
-stats$config$metric_var
+dose_prop_obj$config$metric_var
 ```
 
 Use `is_doseprop_stats()` to test class membership programmatically — for example, in user code that should accept either a precomputed `doseprop_stats` object or a raw NCA data.frame. Pass `strict = TRUE` to additionally validate structural integrity.
 
 ```{r predicate-stats}
-is_doseprop_stats(stats)
+is_doseprop_stats(dose_prop_obj)
 is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 ```
 
@@ -151,7 +188,7 @@ is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 For downstream code or custom workflows that produce a `doseprop_stats`-shaped object outside `df_doseprop()` (e.g. external preprocessing, snapshot fixtures), `plot_build_doseprop()` is exported as the public renderer. It is the same engine that `plot_doseprop()` uses internally on the precomputed path and accepts the same plot-only arguments (`theme`, `se`). All other plotting context — observation rows, column names, CI level — is recovered from the object's attributes.
 
 ```{r plot-build-direct, fig.height=4, fig.width=6, warning=FALSE}
-plot_build_doseprop(stats)
+plot_build_doseprop(dose_prop_obj)
 ```
 
 # Theming
@@ -171,7 +208,7 @@ A typical override:
 
 ```{r plot-themed, fig.height=4, fig.width=6, warning=FALSE}
 plot_doseprop(
-  stats,
+  dose_prop_obj,
   theme = plot_doseprop_theme(
     obs_point = pmx_point(shape = 19, color = "black", alpha = 0.8, size = 1),
     linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.2))

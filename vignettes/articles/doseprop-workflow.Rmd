@@ -15,7 +15,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette demonstrates the `pmxhelpr` dose-proportionality assessment workflow using power law (log-log) regression of exposure metrics versus dose. The pipeline mirrors the [VPC workflow](vpc-workflow.html): a stats function (`df_doseprop()`) returns a class-tagged object, a public renderer (`plot_build_doseprop()`) draws plots from that object, and a top-level wrapper (`plot_doseprop()`) bundles both for one-shot use.
+This vignette demonstrates the `pmxhelpr` dose-proportionality assessment workflow using power law (log-log) regression of exposure versus dose. 
+
+The pipeline mirrors the [VPC workflow](vpc-workflow.html): a stats function (`df_doseprop()`) returns a class-tagged object, a public renderer (`plot_build_doseprop()`) draws plots from that object, and a top-level wrapper (`plot_doseprop()`) bundles both for one-shot use.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -40,7 +42,7 @@ Hypothesis testing proceeds via the confidence interval around the power estimat
   + CI excludes 1, upper bound below 1: less than dose-proportional
   + CI excludes 1, lower bound above 1: greater than dose-proportional
 
-This assessment is typically performed on both Cmax and AUC. The combination informs which phase of the PK profile is contributing most to non-linearity (absorption rate, absorption extent, or elimination). For a more complete discussion of the underlying theory and worked NCA derivation using the `PKNCA` package, see the [PK EDA workflow](eda-pk-workflow.html) vignette.
+This assessment is typically performed on both Cmax and AUC. The combination informs which phase of the PK profile is contributing most to non-linearity (absorption rate, absorption extent, or elimination). 
 
 # Data
 
@@ -50,33 +52,45 @@ This vignette uses the internal `data_sad_nca` dataset, which is the NCA paramet
 glimpse(data_sad_nca)
 ```
 
-For dose-proportionality assessment we want to focus on the SAD cohort and exclude the food-effect arm — food can also influence Cmax / AUC and would confound the dose-proportionality interpretation.
+For dose-proportionality assessment we want to focus on the SAD cohort and exclude the food-effect arm — food can also influence exposure and may confound dose-proportionality interpretation.
 
 ```{r data-prep}
-nca_sad <- filter(data_sad_nca, PART == "Part 1-SAD")
-unique(nca_sad$PART)
+data_nca1 <- filter(data_sad_nca, PART == "Part 1-SAD")
+unique(data_nca1$PART)
 ```
 
 
 # Computing summary statistics with `df_doseprop()`
 
-`df_doseprop()` performs the per-metric log-log regression and returns a `doseprop_stats` container — a [`pmx_stats`][is_pmx_stats] object with three slots: `stats` (one row per metric), `obs` (the observation rows used for the scatter overlay), and `config` (the regression configuration). Downstream plot builders read directly from these slots to render without a refit.
-
 The required arguments are:
-
   + `data` — a `data.frame` of NCA parameters (typically `PKNCA::pk.nca()` output)
   + `metrics` — character vector of exposure metric names to evaluate
-
-Optional arguments specify the column containing metric names (`metric_var`, default `PPTESTCD`), exposure values (`exp_var`, default `PPORRES`), dose (`dose_var`, default `DOSE`), the CI distribution (`method`, default `"normal"`; `"tdist"` available for small-sample analyses), and the CI width (`ci`, default `0.90`).
+  
+```{r df-doseprop}
+dose_prop_obj <- df_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"))
+dose_prop_obj
+```
+ 
+Optional arguments must be specified if input dataset defaults differ from SDTM formatting and `PKNCA` defaults:
+    + `metric_var`: variable in `data` containing metric names requested in `metrics`, default `PPTESTCD`.
+    + `exp_var`, variable in `data` containing exposure metric values values, default `PPORRES`.
+    
+The ddefault argument for the numeric dose variable `dose_var` is `DOSE`.
 
 ```{r df-doseprop}
-stats <- df_doseprop(nca_sad, metrics = c("aucinf.obs", "cmax"))
 stats
 ```
 
-The `stats` slot holds the per-metric estimates (`Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, `PowerCI`, `Interpretation`, etc.). The `obs` slot holds the filtered observation rows used for the plot overlay, and `config` records the column names and CI settings used during the fit.
+The `stats` slot holds the per-metric estimates from the log log regression, which contains all the information needed to format an output table.
 
-# Inspecting the `doseprop_stats` object
+
+## Inspecting the `doseprop_stats` object
+
+`df_doseprop()` performs the per-metric log-log regression and returns a `doseprop_stats`  [`pmx_stats`][is_pmx_stats] object with three slots:
+
+  + `stats` (one row per metric), 
+  + `obs` (the observation rows used for the scatter overlay)
+  + `config` (the regression configuration). Downstream plot builders read directly from these slots to render without a refit.
 
 The returned object is class-tagged `c("doseprop_stats", "pmx_stats")`, which provides three S3 methods designed for interactive inspection.
 
@@ -117,7 +131,7 @@ plot_doseprop(nca_sad, metrics = c("aucinf.obs", "cmax"))
 
 The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
 
-# Reusing precomputed stats
+## Reusing precomputed stats
 
 `plot_doseprop()` also accepts a `doseprop_stats` object directly. This skips the regression refit and is useful when you want to inspect the stats object and then render the same data multiple times — for example, with and without the SE ribbon, or with different aesthetic overrides — without paying the regression cost again.
 

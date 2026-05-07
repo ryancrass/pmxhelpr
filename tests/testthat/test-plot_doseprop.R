@@ -358,3 +358,24 @@ test_that("as.data.frame() returns the stats slot as a plain data.frame", {
   expect_equal(nrow(d), nrow(stats$stats))
   expect_equal(colnames(d), colnames(stats$stats))
 })
+
+test_that("plot_build_doseprop facet limits are half-decade boundaries strictly bracketing data", {
+  stats <- df_doseprop(
+    dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+    metrics = c("aucinf.obs", "cmax")
+  )
+  dose_min <- min(stats$obs[[stats$config$dose_var]])
+  dose_max <- max(stats$obs[[stats$config$dose_var]])
+  is_half_decade <- function(v) {
+    m <- 10^v / 10^floor(v)
+    abs(m - 1) < 1e-6 | abs(m - 5) < 1e-6
+  }
+  p  <- plot_build_doseprop(stats)
+  pp <- ggplot2::ggplot_build(p)$layout$panel_params
+  for (panel in pp) {
+    expect_true(all(is_half_decade(panel$x.range)))
+    expect_true(all(is_half_decade(panel$y.range)))
+    expect_lt(panel$x.range[1], log10(dose_min))
+    expect_gt(panel$x.range[2], log10(dose_max))
+  }
+})

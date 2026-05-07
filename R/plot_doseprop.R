@@ -217,6 +217,30 @@ validate_doseprop_stats <- function(x) {
 
 
 
+#' Internal helper: snap a positive range outward to half-decade boundaries
+#'
+#' Returns `c(lower, upper)` where each end lands on the nearest value of the
+#' form `10^k` or `5 * 10^k` (integer `k`) that strictly brackets the input
+#' range. Used to set tight log10 axis limits in `plot_build_doseprop`.
+#'
+#' @param x Length-2 numeric vector `c(min, max)` of positive values.
+#' @return Length-2 numeric vector `c(lower, upper)` with `lower < x[1]` and
+#'    `upper > x[2]`, each on a half-decade grid position.
+#' @keywords internal
+#' @noRd
+half_decade_bracket <- function(x) {
+  klo <- floor(log10(x[1])); blo <- 10^klo
+  khi <- floor(log10(x[2])); bhi <- 10^khi
+  lo <- if (x[1] > 5 * blo) 5 * blo
+        else if (x[1] > blo) blo
+        else 5 * 10^(klo - 1)
+  hi <- if (x[2] < 5 * bhi) 5 * bhi
+        else if (x[2] < 10 * bhi) 10 * bhi
+        else 5 * 10^(khi + 1)
+  c(lo, hi)
+}
+
+
 #' Build a dose-proportionality ggplot from a `doseprop_stats` object
 #'
 #' @description
@@ -283,8 +307,16 @@ plot_build_doseprop <- function(stats,
                            theme_key = "linear")
   plot +
     ggplot2::labs(x = "Dose", y = "Exposure") +
-    ggplot2::scale_x_log10(guide = "axis_logticks") +
-    ggplot2::scale_y_log10(guide = "axis_logticks") +
+    ggplot2::scale_x_log10(
+      guide  = "axis_logticks",
+      limits = half_decade_bracket,
+      expand = ggplot2::expansion(mult = 0)
+    ) +
+    ggplot2::scale_y_log10(
+      guide  = "axis_logticks",
+      limits = half_decade_bracket,
+      expand = ggplot2::expansion(mult = 0)
+    ) +
     ggplot2::facet_wrap(~label, scales = "free")
 }
 

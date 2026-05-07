@@ -776,3 +776,7 @@ Output column-name standardization is the key contract: `dv_var` is renamed to `
 | **Honored args on the precomputed path** | `min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc` |
 
 Pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) are **not** accepted at this stage — those decisions live in `df_vpcstats()`. Passing any of them to `plot_vpc_cont()` on the precomputed-stats path aborts with a message pointing back at `df_vpcstats()`.
+
+# See also
+
+  + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.

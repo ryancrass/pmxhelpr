@@ -219,6 +219,5 @@ For a deeper treatment of the theme system — element constructors, role shortc
 
 # See also
 
-  + [PK EDA workflow](eda-pk-workflow.html) — derivation of the `data_sad_nca` parameters via `PKNCA` and the broader exploratory PK workflow.
-  + [VPC workflow](vpc-workflow.html) — analogous stats / build / wrapper architecture for visual predictive checks.
+  + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.
   + [Plot Themes and Aesthetics](plot-themes.html) — element constructors, theme factories, and class system for customizing plot output.

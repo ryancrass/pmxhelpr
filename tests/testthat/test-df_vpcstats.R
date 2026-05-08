@@ -246,6 +246,58 @@ test_that("mode='auto' applies rank to std flavor and drop to pc flavor", {
   expect_equal(auto_stats$stats$pc_sim_med_med, drop_stats$stats$pc_sim_med_med)
 })
 
+test_that("mode='drop' drops pc OBSDV and SIMDV BLQ before pred-correction", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  drop_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "drop")
+  no_loq     <- run_vpcstats(testsim_raw, mode = "drop")
+  ## SIMDV encoding-then-drop in pc flavor must shift pc sim medians vs no-loq
+  expect_false(identical(drop_stats$stats$pc_sim_med_med,
+                         no_loq$stats$pc_sim_med_med))
+  ## pc quantile cols must be finite or NA — never -Inf (var_infna applied)
+  pc_q_cols <- c("pc_obs_low", "pc_sim_low_med")
+  for (col in pc_q_cols) {
+    expect_false(any(is.infinite(drop_stats$stats[[col]])),
+                 info = paste0("drop-mode pc col `", col, "` contained -Inf"))
+  }
+})
+
+test_that("mode='rank' pc flavor: -Inf survives pred-correction, then masked to NA", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  rank_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "rank")
+  ## var_infna runs on quantile cols, so no -Inf should leak out
+  q_cols <- c("pc_obs_low", "pc_obs_med", "pc_obs_hi",
+              "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med")
+  for (col in q_cols) {
+    expect_false(any(is.infinite(rank_stats$stats[[col]])),
+                 info = paste0("pc rank-mode column `", col, "` contained -Inf"))
+  }
+})
+
+test_that("pcVPC mode='rank' and mode='drop' yield different pc obs/sim quantiles", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  rank_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "rank")
+  drop_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "drop")
+  ## At least one quantile column must differ between modes in pc flavor
+  expect_false(identical(rank_stats$stats$pc_obs_low,
+                         drop_stats$stats$pc_obs_low))
+  expect_false(identical(rank_stats$stats$pc_sim_low_med,
+                         drop_stats$stats$pc_sim_low_med))
+})
+
+test_that("std VPC sim quantiles invariant across mode (rank vs drop) with loq", {
+  loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
+                              0.25, na.rm = TRUE)
+  rank_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "rank")
+  drop_stats <- run_vpcstats(testsim_raw, loq = loq_val, mode = "drop")
+  ## std SIMDV is never encoded; mode must not affect sim_*_med columns
+  expect_equal(rank_stats$stats$sim_low_med, drop_stats$stats$sim_low_med)
+  expect_equal(rank_stats$stats$sim_med_med, drop_stats$stats$sim_med_med)
+  expect_equal(rank_stats$stats$sim_hi_med,  drop_stats$stats$sim_hi_med)
+})
+
 ## Test quantile ordering
 test_that("simulated quantile medians are ordered sim_low_med <= sim_med_med <= sim_hi_med", {
   result <- run_vpcstats(testsim_raw)

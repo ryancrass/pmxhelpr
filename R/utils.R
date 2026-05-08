@@ -134,6 +134,10 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #' @param id_var_str String specifying the group column name for spaghetti lines, or `NULL`.
 #' @param dosenorm Logical indicating if dose normalization should be applied.
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for none.
+#' @param blq_mode One of `"obs"` (default) or `"all"`. Controls which columns
+#'    receive BLQ imputation: `"obs"` imputes the renamed `DV` only; `"all"`
+#'    additionally imputes any `PRED` / `IPRED` columns that were renamed via
+#'    `pred_var_str` / `ipred_var_str`. Has no effect when `loq_method = 0`.
 #'
 #' @return A named list with elements `data` (processed data.frame) and `lloq` (numeric LLOQ value).
 #' @keywords internal
@@ -154,7 +158,10 @@ df_prep_dvtime <- function(data,
                            loq = NULL,
                            loq_method = 0,
                            dosenorm = FALSE,
-                           ref = NULL) {
+                           ref = NULL,
+                           blq_mode = c("obs", "all")) {
+
+  blq_mode <- match.arg(blq_mode)
 
   check_df(data, "data")
   check_varsindf(data, time_var_str, "data", "time_var")
@@ -189,8 +196,10 @@ df_prep_dvtime <- function(data,
 
   data <- dplyr::filter(data, EVID == 0)
 
-  pred_vars <- c(if (!is.null(pred_var_str)) "PRED",
-                  if (!is.null(ipred_var_str)) "IPRED")
+  pred_vars <- if (blq_mode == "all") {
+    c(if (!is.null(pred_var_str)) "PRED",
+      if (!is.null(ipred_var_str)) "IPRED")
+  } else NULL
   data <- df_prep_blq(data, loq, loq_method, pred_vars = pred_vars)
 
   lloq <- if ("LOQ" %in% colnames(data)) unique(data$LOQ[!is.na(data$LOQ)]) else NA_real_

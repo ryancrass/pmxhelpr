@@ -208,10 +208,58 @@ plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
 
 Transformation of the plot to a semi-log scale (log-scale y-axis only) is recommended to be performed using the `log_y` argument for the following benefits:
 
-  + Includes log tick marks on the y-axis 
-  + Updates the caption with the correct central tendency measure if `show_captions = TRUE`. 
-  
-  
+  + Includes log tick marks on the y-axis
+  + Updates the caption with the correct central tendency measure if `show_captions = TRUE`.
+
+
+## Handling Below-the-Limit-of-Quantification (BLQ) Data
+
+By default `plot_gof()` excludes BLQ records (`MDV == 1`) from the central tendency calculation, which can artificially flatten or distort the observed central tendency in the late terminal phase when visualizing data on a semi-log scale. 
+
+The `loq` and `loq_method` arguments in `plot_gof()` inherit the BLQ handling pipeline from  `plot_dvtime()`. `plot_gof` includes one additional argument in the pipeline, `blq_mode`, which controls whether the imputation extends to the prediction layers (`PRED`, `IPRED`) or stays scoped to the observed layer (`DV`) only.
+
+The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL  and ~169 BLQ rows. Without BLQ handling, the observed line drops or terminates at late times because those records are filtered out of the central tendency.
+
+```{r gof-blq-none, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(plot_data, dv_var = "ODV", log_y = TRUE) +
+  labs(x = "Time (h)", y = "Concentration (ng/mL)")
+```
+
+To anchor the late-time visual to the assay LLOQ, pass `loq` and a non-zero `loq_method`. With `loq_method = 2` all BLQ observations are imputed to `0.5 * LOQ`, the dashed LLOQ reference line and a `LLOQ = 1` legend entry are added automatically, and the observed (`DV`) central tendency continues at `y = 0.5` for late times. Predictions are *not* imputed by default — they follow the model's natural decay through and below the LLOQ.
+
+```{r gof-blq-obs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(plot_data, dv_var = "ODV",
+         loq = 1, loq_method = 2,
+         log_y = TRUE) +
+  labs(x = "Time (h)", y = "Concentration (ng/mL)")
+```
+
+When `loq` is omitted and the input dataset carries an `LLOQ` column (as `data_sad_pkfit` does), the per-row `LLOQ` value is used as each observation's imputation threshold. The chunk below renders the same plot as the previous one without specifying `loq` explicitly:
+
+```{r gof-blq-obs-inherit, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(plot_data, dv_var = "ODV",
+         loq_method = 2,
+         log_y = TRUE) +
+  labs(x = "Time (h)", y = "Concentration (ng/mL)")
+```
+
+This is the recommended setting for evaluating model fit, since the prediction lines are unaltered model output and any divergence between the observed plateau and the prediction trajectory below the LLOQ is itself diagnostic information.
+
+Setting `blq_mode = "all"` extends the imputation to `PRED` and `IPRED` as well — any prediction below the LLOQ snaps to `0.5 * LOQ`. Use this when the GOF visual should mirror an estimation engine that censored predictions during the fit (e.g., M3-style likelihood with explicit BLQ censoring), so the rendered prediction lines reflect the same data the likelihood saw.
+
+```{r gof-blq-all, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_gof(plot_data, dv_var = "ODV",
+         loq = 1, loq_method = 2,
+         blq_mode = "all",
+         log_y = TRUE) +
+  labs(x = "Time (h)", y = "Concentration (ng/mL)")
+```
+
+In short: pick `blq_mode = "obs"` (default) when you want to see how well the model's natural prediction (uncensored) matches censored observations — predictions extending below the LLOQ signal where the model expects sub-quantifiable concentrations. Pick `blq_mode = "all"` when you want a like-for-like visual against an estimation pipeline that censored the predictions.
+
+`loq_method = 1` is also available: it imputes only the post-dose BLQ records to `0.5 * LOQ` and pre-dose BLQ to `0` — useful for plotting on linear scales. See [`plot_dvtime()`](eda-pk-pkpd-workflow.html) for the full method semantics.
+
+
 ## Adjusting the Plot Theme with `plot_gof_theme()`
 
 `plot_gof()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.

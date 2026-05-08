@@ -16,6 +16,7 @@ plot_gof(
   dose_var = DOSE,
   loq = NULL,
   loq_method = 0,
+  blq_mode = c("obs", "all"),
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
   ref = NULL,
@@ -53,20 +54,19 @@ observations within each level of the variable.}
 \item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
-Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.}
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ).
+BLQ imputation behavior on the DV / prediction layers is controlled by
+\code{blq_mode} and \code{loq_method}. Default is \code{NULL}.}
 
-\item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
+\item{loq_method}{Method for handling BLQ data. See \code{\link[=plot_dvtime]{plot_dvtime()}} for
+option details. Default is \code{0} (no imputation).}
 
-Options are:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{+ No handling: `0` or `"none"`, Plot input dataset `DV` vs `TIME` as is. (default)
-+ Impute Post-dose: `1` or `"postdose"`, Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
-   Useful for plotting concentration-time data with some data BLQ on the linear scale
-+ Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
-   Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
-}\if{html}{\out{</div>}}}
+\item{blq_mode}{One of \code{"obs"} (default) or \code{"all"}. Controls which layers
+receive BLQ imputation: \code{"obs"} imputes the observed \code{DV} layer only,
+leaving \code{PRED} / \code{IPRED} untouched (mirrors \code{\link[=plot_dvtime]{plot_dvtime()}}); \code{"all"}
+additionally imputes the prediction layers, useful when the GOF visual
+should mirror an estimation engine that censored predictions to LLOQ.
+Has no effect when \code{loq_method = 0}.}
 
 \item{cent}{Character string specifying the central tendency measure to plot.
 

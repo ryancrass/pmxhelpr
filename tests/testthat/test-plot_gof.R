@@ -96,3 +96,65 @@ test_that("plot_gof warns when shown has no active elements", {
                  regexp = "no overlay layers")
 })
 
+
+##Test BLQ handling
+test_that("plot_gof accepts loq_method = 1 and renders the LOQ ref line", {
+  p <- plot_gof(data_sad_pkfit, dv_var = "ODV", loq = 1, loq_method = 1)
+  expect_s3_class(p, "ggplot")
+  hline_layers <- Filter(function(L) inherits(L$geom, "GeomHline"), p$layers)
+  expect_gte(length(hline_layers), 1)
+})
+
+test_that("plot_gof accepts loq_method = 2 and renders the LOQ ref line", {
+  p <- plot_gof(data_sad_pkfit, dv_var = "ODV", loq = 1, loq_method = 2)
+  expect_s3_class(p, "ggplot")
+  hline_layers <- Filter(function(L) inherits(L$geom, "GeomHline"), p$layers)
+  expect_gte(length(hline_layers), 1)
+})
+
+test_that("default blq_mode = 'obs' leaves PRED / IPRED untouched", {
+  prep <- pmxhelpr:::df_prep_dvtime(
+    data_sad_pkfit,
+    time_var_str = "TIME", ntime_var_str = "NTIME",
+    dv_var_str = "ODV",
+    pred_var_str = "PRED", ipred_var_str = "IPRED",
+    loq = 1, loq_method = 2
+  )
+  prepped <- prep$data
+  # Reference original values restricted to the same rows that survived
+  # the EVID==0 filter inside df_prep_dvtime.
+  orig <- dplyr::filter(data_sad_pkfit, EVID == 0)
+  blq_rows <- which(prepped$MDV == 1L)
+  expect_gt(length(blq_rows), 0)
+  # DV (renamed from ODV) was imputed for BLQ rows
+  expect_true(all(prepped$DV[blq_rows] == 0.5 * 1))
+  # PRED / IPRED retain their original values (no imputation in obs mode)
+  expect_identical(prepped$PRED[blq_rows], orig$PRED[blq_rows])
+  expect_identical(prepped$IPRED[blq_rows], orig$IPRED[blq_rows])
+})
+
+test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
+  prep <- pmxhelpr:::df_prep_dvtime(
+    data_sad_pkfit,
+    time_var_str = "TIME", ntime_var_str = "NTIME",
+    dv_var_str = "ODV",
+    pred_var_str = "PRED", ipred_var_str = "IPRED",
+    loq = 1, loq_method = 2,
+    blq_mode = "all"
+  )
+  prepped <- prep$data
+  orig    <- dplyr::filter(data_sad_pkfit, EVID == 0)
+  loq_val <- 1
+  # Rows with original PRED < LOQ get imputed to 0.5 * LOQ; rows >= LOQ are
+  # preserved verbatim.
+  pred_below <- which(orig$PRED < loq_val)
+  pred_above <- which(orig$PRED >= loq_val)
+  expect_gt(length(pred_below), 0)
+  expect_true(all(prepped$PRED[pred_below] == 0.5 * loq_val))
+  expect_identical(prepped$PRED[pred_above], orig$PRED[pred_above])
+  # Same invariant for IPRED.
+  ipred_below <- which(orig$IPRED < loq_val)
+  if (length(ipred_below) > 0) {
+    expect_true(all(prepped$IPRED[ipred_below] == 0.5 * loq_val))
+  }
+})

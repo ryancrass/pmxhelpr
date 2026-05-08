@@ -17,7 +17,8 @@ df_prep_dvtime(
   loq = NULL,
   loq_method = 0,
   dosenorm = FALSE,
-  ref = NULL
+  ref = NULL,
+  blq_mode = c("obs", "all")
 )
 }
 \arguments{
@@ -46,6 +47,11 @@ df_prep_dvtime(
 \item{dosenorm}{Logical indicating if dose normalization should be applied.}
 
 \item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for none.}
+
+\item{blq_mode}{One of \code{"obs"} (default) or \code{"all"}. Controls which columns
+receive BLQ imputation: \code{"obs"} imputes the renamed \code{DV} only; \code{"all"}
+additionally imputes any \code{PRED} / \code{IPRED} columns that were renamed via
+\code{pred_var_str} / \code{ipred_var_str}. Has no effect when \code{loq_method = 0}.}
 }
 \value{
 A named list with elements \code{data} (processed data.frame) and \code{lloq} (numeric LLOQ value).

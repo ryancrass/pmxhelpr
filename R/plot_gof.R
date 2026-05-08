@@ -14,6 +14,17 @@
 #'    Accepts bare names or strings. Default is `IPRED`.
 #' @param shown Layer visibility settings created by [plot_gof_shown()].
 #'    Defaults can be viewed by running `plot_gof_shown()` with no arguments.
+#' @param loq Numeric value of the lower limit of quantification (LLOQ).
+#'    BLQ imputation behavior on the DV / prediction layers is controlled by
+#'    `blq_mode` and `loq_method`. Default is `NULL`.
+#' @param loq_method Method for handling BLQ data. See [plot_dvtime()] for
+#'    option details. Default is `0` (no imputation).
+#' @param blq_mode One of `"obs"` (default) or `"all"`. Controls which layers
+#'    receive BLQ imputation: `"obs"` imputes the observed `DV` layer only,
+#'    leaving `PRED` / `IPRED` untouched (mirrors [plot_dvtime()]); `"all"`
+#'    additionally imputes the prediction layers, useful when the GOF visual
+#'    should mirror an estimation engine that censored predictions to LLOQ.
+#'    Has no effect when `loq_method = 0`.
 #' @inheritParams plot_dvtime
 #' @param theme Theme object created by [plot_gof_theme()].
 #'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
@@ -38,6 +49,7 @@ plot_gof <- function(data,
                         dose_var = DOSE,
                         loq = NULL,
                         loq_method = 0,
+                        blq_mode = c("obs", "all"),
                         cent = c("mean", "mean_sdl", "mean_sdl_upper",
                                  "median", "median_iqr", "none"),
                         dosenorm = FALSE,
@@ -47,6 +59,7 @@ plot_gof <- function(data,
                         theme = NULL){
 
   cent <- match.arg(cent)
+  blq_mode <- match.arg(blq_mode)
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   pred_var_str  <- resolve_var(rlang::enquo(pred_var))
@@ -69,7 +82,8 @@ plot_gof <- function(data,
     dose_var_str = if (dosenorm) dose_var_str,
     id_var_str = id_var_str,
     dosenorm = dosenorm,
-    ref = ref
+    ref = ref,
+    blq_mode = blq_mode
   )
   data <- prep$data
   lloq <- prep$lloq
@@ -104,7 +118,7 @@ plot_gof <- function(data,
   #Reference Lines
   plot <- add_ref_layers(plot, ref, plottheme$ref_line)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = FALSE)
+  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = TRUE)
   plot <- blq$plot
   caption <- blq$caption
 

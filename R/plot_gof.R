@@ -6,6 +6,7 @@
 #' `theme` argument via [plot_gof_theme()]. Use the `shown` argument to
 #' selectively hide variables.
 #'
+#' @param data Input dataset.
 #' @param dv_var Column containing the dependent variable (DV).
 #'    Accepts bare names or strings. Default is `DV`.
 #' @param pred_var Column containing population predictions (PRED).
@@ -25,7 +26,26 @@
 #'    additionally imputes the prediction layers, useful when the GOF visual
 #'    should mirror an estimation engine that censored predictions to LLOQ.
 #'    Has no effect when `loq_method = 0`.
-#' @inheritParams plot_dvtime
+#' @param time_var Column containing the actual time variable.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable.
+#'    Accepts bare names or strings. Default is `NTIME`.
+#' @param id_var Column to group observations for spaghetti lines.
+#'    Accepts bare names or strings. Default is `NULL` (no spaghetti lines).
+#' @param dose_var Column to use in dose-normalization when `dosenorm = TRUE`.
+#'    Accepts bare names or strings. Default is `DOSE`.
+#' @param cent Character string specifying the central tendency measure. See
+#'    [plot_dvtime()] for option details. Default is `"mean"`.
+#' @param dosenorm Logical indicating if observed data points should be dose
+#'    normalized. Default is `FALSE`. Requires variable specified in
+#'    `dose_var` to be present in `data`.
+#' @param ref Numeric y-intercept for a horizontal reference line, or `NULL`
+#'    for no reference line.
+#' @param log_y Logical indicator for log10 transformation of the y-axis.
+#'    Also controls whether the caption reports arithmetic or geometric mean
+#'    when `show_caption = TRUE`.
+#' @param show_caption Logical indicating if a caption should be shown
+#'    describing the data plotted.
 #' @param theme Theme object created by [plot_gof_theme()].
 #'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
 #'    Default error bar width is 2.5% of maximum `NTIME`.

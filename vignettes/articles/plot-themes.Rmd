@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot themes and theme elements with for all package plotting functions, which includes `plot_dvtime()`, `plot_dvconc()`, `plot_doseprop()`, `plot_gof()`, and `plot_vpc_cont()`. This vignette will introduce the theory and naming conventions behind the theme factory functions for each plot, as well as, individual plot element constructors.
+This vignette will demonstrate `pmxhelpr` functions for viewing and modifying plot themes and theme elements for all package plotting functions, which includes `plot_dvtime()`, `plot_dvconc()`, `plot_doseprop()`, `plot_gof()`, and `plot_vpc_cont()`. This vignette will introduce the theory and naming conventions behind the theme factory functions for each plot, as well as individual plot element constructors.
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)

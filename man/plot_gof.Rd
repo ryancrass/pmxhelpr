@@ -47,11 +47,9 @@ Accepts bare names or strings. Default is \code{NTIME}.}
 Defaults can be viewed by running \code{plot_gof_shown()} with no arguments.}
 
 \item{id_var}{Column to group observations for spaghetti lines.
-Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).
-Specifying a column (e.g., \code{id_var = ID}) enables spaghetti lines connecting
-observations within each level of the variable.}
+Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).}
 
-\item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
+\item{dose_var}{Column to use in dose-normalization when \code{dosenorm = TRUE}.
 Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ).
@@ -68,29 +66,22 @@ additionally imputes the prediction layers, useful when the GOF visual
 should mirror an estimation engine that censored predictions to LLOQ.
 Has no effect when \code{loq_method = 0}.}
 
-\item{cent}{Character string specifying the central tendency measure to plot.
+\item{cent}{Character string specifying the central tendency measure. See
+\code{\link[=plot_dvtime]{plot_dvtime()}} for option details. Default is \code{"mean"}.}
 
-Options are:
-\itemize{
-\item Mean only: \code{"mean"} (default)
-\item Mean +/- Standard Deviation (upper and lower error bar): \code{"mean_sdl"}
-\item Mean + Standard Deviation (upper error bar only): \code{"mean_sdl_upper"}
-\item Median only: \code{"median"}
-\item Median +/- Interquartile Range: \code{median_iqr}
-\item None: \code{"none"}
-}}
+\item{dosenorm}{Logical indicating if observed data points should be dose
+normalized. Default is \code{FALSE}. Requires variable specified in
+\code{dose_var} to be present in \code{data}.}
 
-\item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
-Requires variable specified in \code{dose_var} to be present in \code{data}}
+\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL}
+for no reference line.}
 
-\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for
-no reference line. For example, \code{ref = 0} draws a baseline reference for
-change-from-baseline data.}
+\item{log_y}{Logical indicator for log10 transformation of the y-axis.
+Also controls whether the caption reports arithmetic or geometric mean
+when \code{show_caption = TRUE}.}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
-the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
-
-\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
+\item{show_caption}{Logical indicating if a caption should be shown
+describing the data plotted.}
 
 \item{theme}{Theme object created by \code{\link[=plot_gof_theme]{plot_gof_theme()}}.
 Defaults can be viewed by running \code{plot_gof_theme()} with no arguments.

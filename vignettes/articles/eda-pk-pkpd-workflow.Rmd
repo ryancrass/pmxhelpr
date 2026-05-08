@@ -186,7 +186,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE) +
 
 ## Specifying the Color Aesthetic
 
-The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. 
+The color aesthetic can be mapped to a dataset variable using the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. 
 
 This can be demonstrated using the `Dose and Food` variable we defined earlier with sample size counts using `var_addn()`.
 

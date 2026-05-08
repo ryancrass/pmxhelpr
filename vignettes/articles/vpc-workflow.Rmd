@@ -138,9 +138,9 @@ The are optional arguments specifying key dataset variables to be input into the
   - `ipred_var` = IPRED, individual prediction variable (fixed + level 1 random effects)
   - `sim_dv_var` = DV, dependent variable captured in the simulated output (fixed + level 1 and 2 random effects)
   
-These argument uses non-standard evaluation and can be passed as a bare column name or as a string.
+These arguments use non-standard evaluation and can be passed as a bare column name or as a string.
 
-We can pass `data_sad_pk` and `model`  and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). 
+We can pass `data_sad_pk` and `model` and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). 
 
 ```{r df_mrgsim_replicate}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
@@ -225,7 +225,7 @@ glimpse(simout)
 
 ### Additional arguments passed to `mrgsim_df()`
 
-Additional arguments can be passed to `mrgsim_df()` via the elipses `...`. One argument that may sometimes be useful is `obsonly = TRUE`. This argument removes dose records from the simulation output and reduce file size.
+Additional arguments can be passed to `mrgsim_df()` via the ellipses `...`. One argument that may sometimes be useful is `obsonly = TRUE`. This argument removes dose records from the simulation output and reduce file size.
 
 ```{r df_mrgsim_replicate-obsonly}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
@@ -509,7 +509,7 @@ Specifying `loq` is the preferred method for plotting VPC diagnostics with the `
 
 `loq` may also be passed for prediction-corrected VPCs (`pcvpc = TRUE`). In that case, observed and simulated values below `loq` are censored to `NA_real_` before prediction-correction so that both data streams are treated symmetrically, and no LOQ reference line is drawn (the LOQ has no meaning on the prediction-corrected scale).
 
-The unique vector of values for `data$loq` is used automatically if the variable `"LLOQ"` is present in the input dataest. This allows for the scenario in which there are multiple unique LLOQ values within a single pooled analysis dataset.
+The unique vector of `LLOQ` values is used automatically if the variable `"LLOQ"` is present in the input dataset. This allows for the scenario in which there are multiple unique LLOQ values within a single pooled analysis dataset.
 
 ```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_vpc_cont(

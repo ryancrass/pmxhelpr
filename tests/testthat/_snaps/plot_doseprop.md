@@ -6,7 +6,7 @@
       <doseprop_stats>
         stats: 2 rows x 10 columns
         obs:   72 rows
-        config: metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal
+        config: metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal
       
         stats body:
         Intercept StandardError  CI Power   LCL  UCL Proportional
@@ -26,7 +26,7 @@
       <doseprop_stats>
         stats: 2 rows x 10 columns
         obs:   72 rows
-        config: metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal
+        config: metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal
       
         per-metric:
           aucinf.obs: Power: 0.997 (90% CI 0.888-1.11) -- Dose-proportional

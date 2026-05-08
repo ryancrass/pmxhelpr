@@ -13,9 +13,9 @@ test_that("Error if argument `data` is not a `data.frame`", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error if variable specified in argument `exp_var` is not in `data`", {
-  expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), exp_var = "param"),
-               regexp = "argument `exp_var` must be variable.*in `data`")
+test_that("Error if variable specified in argument `metric_value_var` is not in `data`", {
+  expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), metric_value_var = "param"),
+               regexp = "argument `metric_value_var` must be variable.*in `data`")
 })
 
 test_that("Error if variable specified in argument `dose_var` is not in `data`", {
@@ -73,14 +73,14 @@ test_that("Output is a `doseprop_stats` / `pmx_stats` container", {
   expect_s3_class(out, "pmx_stats")
 })
 
-test_that("Output stats slot contains variable specified in `metric_var`", {
-  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")$stats |>
+test_that("Output stats slot contains variable specified in `metric_name_var`", {
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "PPTESTCD")$stats |>
                  dplyr::select(PPTESTCD),
                   "PPTESTCD")
 })
 
 test_that("Output stats slot contains anticipated variables", {
-  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")$stats,
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "PPTESTCD")$stats,
                c("Intercept", "StandardError", "CI", "Power", "LCL", "UCL",
                  "Proportional","PowerCI", "Interpretation", "PPTESTCD"))
 })
@@ -88,7 +88,7 @@ test_that("Output stats slot contains anticipated variables", {
 test_that("Output rounds values as specified in the `sigdigits` argument", {
 
   signdig <- function(x){length(gregexpr("[[:digit:]]", as.character(x))[[1]])}
-  test <- df_doseprop(data_sad_nca, metrics = c("cmax"), metric_var = "PPTESTCD",
+  test <- df_doseprop(data_sad_nca, metrics = c("cmax"), metric_name_var = "PPTESTCD",
                       sigdigits = 4)$stats$Intercept
   result <- signdig(test)
   expect_equal(result,4)
@@ -111,9 +111,9 @@ test_that("Output plot maps variable specified in `dose_var` to the x aesthetic"
   )
 })
 
-test_that("Output plot maps variable specified in `exp_var` to the x aesthetic", {
+test_that("Output plot maps variable specified in `metric_value_var` to the x aesthetic", {
   expect_equal(
-    rlang::quo_name(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), exp_var = "PPORRES")$mapping$y),
+    rlang::quo_name(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_value_var = "PPORRES")$mapping$y),
     "PPORRES"
   )
 })
@@ -130,14 +130,14 @@ test_that("Error if incorrect class for argument `data`", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_var]]`", {
+test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_name_var]]`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("auc")),
-               regexp = "argument `metrics` must be levels in variable `metric_var`")
+               regexp = "argument `metrics` must be levels in variable `metric_name_var`")
 })
 
-test_that("Error if variable specified in `metric_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "METRIC"),
-               regexp = "argument `metric_var` must be variable.*in `data`")
+test_that("Error if variable specified in `metric_name_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "METRIC"),
+               regexp = "argument `metric_name_var` must be variable.*in `data`")
 })
 
 test_that("Error if variable specified in `dose_var` is not in `data`", {
@@ -145,9 +145,9 @@ test_that("Error if variable specified in `dose_var` is not in `data`", {
                regexp = "argument `dose_var` must be variable.*in `data`")
 })
 
-test_that("Error if variable specified in `exp_var` is not in `data`", {
-  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), exp_var = "EXP"),
-               regexp = "argument `exp_var` must be variable.*in `data`")
+test_that("Error if variable specified in `metric_value_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_value_var = "EXP"),
+               regexp = "argument `metric_value_var` must be variable.*in `data`")
 })
 
 test_that("Error if argument `method` is not one of normal or tdist", {
@@ -168,16 +168,16 @@ test_that("Error if argument `sigdigits` is not coercible to an integer", {
 ##Test NSE Bare Names
 test_that("mod_loglog accepts bare names and matches string output", {
   dat <- dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs")
-  m1 <- mod_loglog(dat, exp_var = PPORRES, dose_var = DOSE)
-  m2 <- mod_loglog(dat, exp_var = "PPORRES", dose_var = "DOSE")
+  m1 <- mod_loglog(dat, metric_value_var = PPORRES, dose_var = DOSE)
+  m2 <- mod_loglog(dat, metric_value_var = "PPORRES", dose_var = "DOSE")
   expect_identical(coef(m1), coef(m2))
 })
 
 test_that("df_doseprop accepts bare names and matches string output", {
   t1 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
-                     metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE)
+                     metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE)
   t2 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
-                     metric_var = "PPTESTCD", exp_var = "PPORRES", dose_var = "DOSE")
+                     metric_name_var = "PPTESTCD", metric_value_var = "PPORRES", dose_var = "DOSE")
   expect_identical(t1, t2)
 })
 
@@ -185,7 +185,7 @@ test_that("plot_doseprop accepts bare names", {
   expect_s3_class(
     plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                   metrics = c("aucinf.obs", "cmax"),
-                  metric_var = PPTESTCD, exp_var = PPORRES, dose_var = DOSE),
+                  metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE),
     "ggplot")
 })
 
@@ -217,8 +217,8 @@ test_that("df_doseprop returns a doseprop_stats / pmx_stats container", {
 test_that("df_doseprop populates obs slot and config keys", {
   out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   expect_s3_class(out$obs, "data.frame")
-  expect_equal(out$config$metric_var, "PPTESTCD")
-  expect_equal(out$config$exp_var,    "PPORRES")
+  expect_equal(out$config$metric_name_var, "PPTESTCD")
+  expect_equal(out$config$metric_value_var,    "PPORRES")
   expect_equal(out$config$dose_var,   "DOSE")
   expect_equal(out$config$ci,         0.90)
   expect_equal(out$config$method,     "normal")
@@ -331,7 +331,7 @@ test_that("print.doseprop_stats() runs and writes the doseprop_stats banner", {
   stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
   out <- capture.output(print(stats))
   expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
-  expect_true(any(grepl("metric_var = PPTESTCD", out, fixed = TRUE)))
+  expect_true(any(grepl("metric_name_var = PPTESTCD", out, fixed = TRUE)))
   expect_true(any(grepl("aucinf.obs", out, fixed = TRUE)))
 })
 

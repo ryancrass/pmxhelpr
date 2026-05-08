@@ -188,7 +188,7 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE) +
 
 The color aesthetic can be mapped to a dataset variable using the the `col_var` argument. This argument uses non-standard evaluation and can be passed as a bare column name or as a string. 
 
-This can be demonstrated using a the `Dose and Food` variable we defined earlier with sample size counts using `var_addn()`.
+This can be demonstrated using the `Dose and Food` variable we defined earlier with sample size counts using `var_addn()`.
 
 ```{r plot-dvtime-col, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, log_y = TRUE, 
@@ -275,10 +275,10 @@ The `loq_method` argument specifies how BLQ imputation should be performed. Opti
   + `0` or `"none"`: No handling. Plot input dataset `DV` vs `TIME` as is. (default)
   + `1` or `"postdose"`: Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
       Useful for plotting concentration-time data with some data BLQ on a linear scale
-  + `2` or `"all"`: Impute all BLQ data at to 1/2 x `loq`. 
+  + `2` or `"all"`: Impute all BLQ data to 1/2 x `loq`.
       Useful for plotting concentration-time data with some data BLQ on a log scale
   
-The `loq` argument specifies the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is non-zero, but can be `NULL` *if* the variable `LLOQ` is present in the dataset and the value of `loq` will be inherited from the data,.
+The `loq` argument specifies the numeric value of the LLOQ. The `loq` argument must be specified when `loq_method` is non-zero, but can be `NULL` *if* the variable `LLOQ` is present in the dataset and the value of `loq` will be inherited from the data.
 
 ```{r plot-dvtime-blq1, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
@@ -466,12 +466,12 @@ p_pk / p_pd + plot_layout(guides = "collect")
 
  `plot_dvconc()` is a plotting function intended to help with visualization of the relationship between a dependent variable for response and drug concentration.
  
-## Specifying Depenent and Independent Variables
+## Specifying Dependent and Independent Variables
 
-`plot_dvconc()` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`), The defaults are as follows:
+`plot_dvconc()` has 2 arguments that specify the dependent variable to be mapped to the y-axis `dv_var` and the independent variable to be mapped to the x-axis (`idv_var`). The defaults are as follows:
 
-  - `dv_var` = DV, character string specifying the dependent variable to map to the y-axis. 
-  - `idv_var`= CONC, character string specifying the dependent variable to map to the x-axis.
+  - `dv_var` = DV, character string specifying the dependent variable to map to the y-axis.
+  - `idv_var`= CONC, character string specifying the independent variable to map to the x-axis.
   
 Both arguments use non-standard evaluation and can be passed as bare column names or strings.
 

@@ -63,6 +63,7 @@ unique(data_nca1$PART)
 # Computing summary statistics with `df_doseprop()`
 
 The required arguments are:
+
   + `data` — a `data.frame` of NCA parameters (typically `PKNCA::pk.nca()` output)
   + `metrics` — character vector of exposure metric names to evaluate
   
@@ -72,10 +73,11 @@ dose_prop_obj
 ```
  
 Optional arguments must be specified if input dataset defaults differ from SDTM formatting and `PKNCA` defaults:
-    + `metric_var`: variable in `data` containing metric names requested in `metrics`, default `PPTESTCD`.
-    + `exp_var`, variable in `data` containing exposure metric values values, default `PPORRES`.
+
+  + `metric_name_var`: variable in `data` containing metric names requested in `metrics`, default `PPTESTCD`.
+  + `metric_value_var`: variable in `data` containing exposure metric values, default `PPORRES`.
     
-The ddefault argument for the numeric dose variable `dose_var` is `DOSE`.
+The default argument for the numeric dose variable `dose_var` is `DOSE`.
 
 ```{r df-doseprop-stat}
 stats <- dose_prop_obj$stats
@@ -89,7 +91,7 @@ The `stats` slot holds the per-metric estimates from the log log regression, whi
 The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
 
   + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
-  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequilvance assessment.
+  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequivalence assessment.
   + `sigdigits`: number of significant digits to return in outputs
   
 The example below modifies the previous calculation by requesting the `tdist` method, 95%, and rounding to only 2 significant digits.
@@ -118,18 +120,17 @@ The default appearance uses open circles at `alpha = 0.7` for the observation po
 The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
 
   + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
-  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequilvance assessment.
+  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequivalence assessment.
   + `sigdigits`: number of significant digits to return in outputs
-  
-The example below modifies the previous calculation by requesting the `tdist` method, 95%, and rounding to only 2 significant digits.
-  
-```{r plot-raw-95ci}
-plot_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"), 
+ 
+```{r plot-doseprop-obj-95ci-tdist, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_doseprop(data_nca1, 
+              metrics = c("aucinf.obs", "cmax"),
               method = "tdist", 
               ci = 0.95, 
               sigdigits = 2)
-```
 
+```
 
 ## Reusing precomputed stats
 
@@ -143,7 +144,7 @@ plot_doseprop(dose_prop_obj)
 plot_doseprop(dose_prop_obj, se = FALSE)
 ```
 
-When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_var`, `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
+When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
 
 # Inspecting the `doseprop_stats` object
 
@@ -155,7 +156,7 @@ When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`m
 
 The returned object is class-tagged `c("doseprop_stats", "pmx_stats")`, which provides three S3 methods designed for interactive inspection.
 
-`print()` shows a focused summary — object dimensions, the regression configuration values (`metric_var`, `exp_var`, `dose_var`, `ci`, `method`), the count of observation rows attached for the scatter overlay, and the per-metric stats body.
+`print()` shows a focused summary — object dimensions, the regression configuration values (`metric_name_var`, `metric_value_var`, `dose_var`, `ci`, `method`), the count of observation rows attached for the scatter overlay, and the per-metric stats body.
 
 ```{r print-stats}
 print(dose_prop_obj)
@@ -172,7 +173,7 @@ summary(dose_prop_obj)
 ```{r as-data-frame-stats}
 plain <- as.data.frame(dose_prop_obj)
 class(plain)
-dose_prop_obj$config$metric_var
+dose_prop_obj$config$metric_name_var
 ```
 
 Use `is_doseprop_stats()` to test class membership programmatically — for example, in user code that should accept either a precomputed `doseprop_stats` object or a raw NCA data.frame. Pass `strict = TRUE` to additionally validate structural integrity.

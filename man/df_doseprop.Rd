@@ -7,8 +7,8 @@
 df_doseprop(
   data,
   metrics,
-  metric_var = PPTESTCD,
-  exp_var = PPORRES,
+  metric_name_var = PPTESTCD,
+  metric_value_var = PPORRES,
   dose_var = DOSE,
   method = "normal",
   ci = 0.9,
@@ -21,11 +21,11 @@ Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP for
 
 \item{metrics}{character vector of exposure metrics in \code{data} to plot}
 
-\item{metric_var}{Column in \code{data} containing the values provided in \code{metrics}.
+\item{metric_name_var}{Column in \code{data} containing the metric names listed in \code{metrics}.
 Accepts bare names or strings. Default is \code{PPTESTCD}.}
 
-\item{exp_var}{Column in \code{data} containing the exposure metric (dependent variable).
-Accepts bare names or strings. Default is \code{PPORRES}.}
+\item{metric_value_var}{Column in \code{data} containing the exposure metric values
+(dependent variable). Accepts bare names or strings. Default is \code{PPORRES}.}
 
 \item{dose_var}{Column in \code{data} containing the dose (independent variable).
 Accepts bare names or strings. Default is \code{DOSE}.}
@@ -44,10 +44,10 @@ slots:
 \describe{
 \item{\code{stats}}{One row per metric and columns \code{Intercept},
 \code{StandardError}, \code{CI}, \code{Power}, \code{LCL}, \code{UCL}, \code{Proportional},
-\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_var}.}
+\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_name_var}.}
 \item{\code{obs}}{The filtered observation rows used for the plot scatter
 overlay.}
-\item{\code{config}}{Named list with \code{metric_var}, \code{exp_var}, \code{dose_var},
+\item{\code{config}}{Named list with \code{metric_name_var}, \code{metric_value_var}, \code{dose_var},
 \code{ci}, \code{method}.}
 }
 Pass directly to \code{\link[=plot_doseprop]{plot_doseprop()}} or \code{\link[=plot_build_doseprop]{plot_build_doseprop()}} to replot
@@ -59,7 +59,7 @@ cacheable, replottable container. The returned object is a
 \code{\link[=pmx_stats]{pmx_stats()}} container with class
 \code{c("doseprop_stats", "pmx_stats")} and three slots — \code{stats} (per-metric
 regression body), \code{obs} (filtered observation rows used for the scatter
-overlay), and \code{config} (regression configuration: \code{metric_var}, \code{exp_var},
+overlay), and \code{config} (regression configuration: \code{metric_name_var}, \code{metric_value_var},
 \code{dose_var}, \code{ci}, \code{method}) — so that \code{\link[=plot_doseprop]{plot_doseprop()}} /
 \code{\link[=plot_build_doseprop]{plot_build_doseprop()}} can render directly from this object without
 re-fitting any regressions.

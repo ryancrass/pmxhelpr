@@ -3,8 +3,8 @@
 #'
 #' @param data Input dataset for log-log regression.
 #'    Default expected format is output from `PKNCA::pk.nca()` (i.e., SDTM PP formatting)
-#' @param exp_var Column in `data` containing the exposure metric (dependent variable).
-#'    Accepts bare names or strings. Default is `PPORRES`.
+#' @param metric_value_var Column in `data` containing the exposure metric values
+#'    (dependent variable). Accepts bare names or strings. Default is `PPORRES`.
 #' @param dose_var Column in `data` containing the dose (independent variable).
 #'    Accepts bare names or strings. Default is `DOSE`.
 #'
@@ -20,14 +20,14 @@
 #' summary(mod_cmax)
 #'
 mod_loglog <- function(data,
-                       exp_var = PPORRES,
+                       metric_value_var = PPORRES,
                        dose_var = DOSE) {
 
-  exp_var_str  <- resolve_var(rlang::enquo(exp_var))
+  metric_value_var_str  <- resolve_var(rlang::enquo(metric_value_var))
   dose_var_str <- resolve_var(rlang::enquo(dose_var))
 
   check_df(data, "data")
-  check_varsindf(data, exp_var_str, "data", "exp_var")
+  check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
   if (nrow(data) < 2) {
     rlang::abort("argument `data` must contain at least 2 rows for log-log regression")
@@ -35,7 +35,7 @@ mod_loglog <- function(data,
 
   form <- stats::reformulate(
     termlabels = paste0("log(", dose_var_str, ")"),
-    response   = paste0("log(", exp_var_str, ")")
+    response   = paste0("log(", metric_value_var_str, ")")
   )
   stats::lm(form, data)
 }
@@ -105,13 +105,13 @@ df_loglog <- function(fit,
 #' [pmx_stats()] container with class
 #' `c("doseprop_stats", "pmx_stats")` and three slots — `stats` (per-metric
 #' regression body), `obs` (filtered observation rows used for the scatter
-#' overlay), and `config` (regression configuration: `metric_var`, `exp_var`,
+#' overlay), and `config` (regression configuration: `metric_name_var`, `metric_value_var`,
 #' `dose_var`, `ci`, `method`) — so that [plot_doseprop()] /
 #' [plot_build_doseprop()] can render directly from this object without
 #' re-fitting any regressions.
 #'
 #' @param metrics character vector of exposure metrics in `data` to plot
-#' @param metric_var Column in `data` containing the values provided in `metrics`.
+#' @param metric_name_var Column in `data` containing the metric names listed in `metrics`.
 #'    Accepts bare names or strings. Default is `PPTESTCD`.
 #' @inheritParams mod_loglog
 #' @inheritParams df_loglog
@@ -122,10 +122,10 @@ df_loglog <- function(fit,
 #'    \describe{
 #'      \item{`stats`}{One row per metric and columns `Intercept`,
 #'        `StandardError`, `CI`, `Power`, `LCL`, `UCL`, `Proportional`,
-#'        `PowerCI`, `Interpretation`, plus the column named in `metric_var`.}
+#'        `PowerCI`, `Interpretation`, plus the column named in `metric_name_var`.}
 #'      \item{`obs`}{The filtered observation rows used for the plot scatter
 #'        overlay.}
-#'      \item{`config`}{Named list with `metric_var`, `exp_var`, `dose_var`,
+#'      \item{`config`}{Named list with `metric_name_var`, `metric_value_var`, `dose_var`,
 #'        `ci`, `method`.}
 #'    }
 #'    Pass directly to [plot_doseprop()] or [plot_build_doseprop()] to replot
@@ -137,39 +137,39 @@ df_loglog <- function(fit,
 
 df_doseprop <- function(data,
                         metrics,
-                        metric_var = PPTESTCD,
-                        exp_var = PPORRES,
+                        metric_name_var = PPTESTCD,
+                        metric_value_var = PPORRES,
                         dose_var = DOSE,
                         method = "normal",
                         ci = 0.9,
                         sigdigits = 3) {
 
-  metric_var_str <- resolve_var(rlang::enquo(metric_var))
-  exp_var_str    <- resolve_var(rlang::enquo(exp_var))
+  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
+  metric_value_var_str    <- resolve_var(rlang::enquo(metric_value_var))
   dose_var_str   <- resolve_var(rlang::enquo(dose_var))
 
   check_df(data, "data")
-  check_varsindf(data, metric_var_str, "data", "metric_var")
-  check_varsindf(data, exp_var_str, "data", "exp_var")
+  check_varsindf(data, metric_name_var_str, "data", "metric_name_var")
+  check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
-  check_levelsinvar(data, metric_var_str, metrics, "metric_var", "metrics")
+  check_levelsinvar(data, metric_name_var_str, metrics, "metric_name_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
-  obs_filtered <- dplyr::filter(data, .data[[metric_var_str]] %in% metrics)
+  obs_filtered <- dplyr::filter(data, .data[[metric_name_var_str]] %in% metrics)
   form <- stats::reformulate(
     termlabels = paste0("log(", dose_var_str, ")"),
-    response   = paste0("log(", exp_var_str, ")")
+    response   = paste0("log(", metric_value_var_str, ")")
   )
 
   tab_list <- lapply(metrics, function(m) {
-    dat_m <- dplyr::filter(obs_filtered, .data[[metric_var_str]] == m)
+    dat_m <- dplyr::filter(obs_filtered, .data[[metric_name_var_str]] == m)
     if (nrow(dat_m) < 2) {
       rlang::abort(paste0("metric `", m,
                           "` has fewer than 2 rows; cannot fit log-log regression"))
     }
     fit <- stats::lm(form, dat_m)
     tab <- df_loglog(fit, method, ci, sigdigits)
-    tab[[metric_var_str]] <- m
+    tab[[metric_name_var_str]] <- m
     tab
   })
 
@@ -179,8 +179,8 @@ df_doseprop <- function(data,
     stats  = out,
     obs    = obs_filtered,
     config = list(
-      metric_var = metric_var_str,
-      exp_var    = exp_var_str,
+      metric_name_var = metric_name_var_str,
+      metric_value_var    = metric_value_var_str,
       dose_var   = dose_var_str,
       ci         = ci,
       method     = method
@@ -214,7 +214,7 @@ validate_doseprop_stats <- function(x) {
     rlang::abort(paste0("`doseprop_stats` is missing required columns: ",
                         paste(missing_cols, collapse = ", ")))
   }
-  required_config <- c("metric_var", "exp_var", "dose_var", "ci")
+  required_config <- c("metric_name_var", "metric_value_var", "dose_var", "ci")
   missing_config <- setdiff(required_config, names(x$config))
   if (length(missing_config) > 0) {
     rlang::abort(paste0("`doseprop_stats` is missing required config keys: ",
@@ -245,7 +245,7 @@ validate_doseprop_stats <- function(x) {
 #'
 #' @param stats A `doseprop_stats` object (typically the output of
 #'    [df_doseprop()]). Must contain `$obs` and `$config` slots with
-#'    `metric_var`, `exp_var`, `dose_var`, and `ci`. Validated by
+#'    `metric_name_var`, `metric_value_var`, `dose_var`, and `ci`. Validated by
 #'    `validate_doseprop_stats()` at entry.
 #' @param theme Named list of aesthetic parameters for the plot created by
 #'    [plot_doseprop_theme()]. Defaults can be viewed by running
@@ -269,8 +269,8 @@ plot_build_doseprop <- function(stats,
 
   validate_doseprop_stats(stats)
 
-  metric_var_str <- stats$config$metric_var
-  exp_var_str    <- stats$config$exp_var
+  metric_name_var_str <- stats$config$metric_name_var
+  metric_value_var_str    <- stats$config$metric_value_var
   dose_var_str   <- stats$config$dose_var
   ci             <- stats$config$ci
   obs            <- stats$obs
@@ -278,11 +278,11 @@ plot_build_doseprop <- function(stats,
   plottheme <- merge_theme(theme, plot_doseprop_theme())
 
   tab <- stats$stats
-  tab$label <- paste0(tab[[metric_var_str]], " | ", tab$PowerCI)
+  tab$label <- paste0(tab[[metric_name_var_str]], " | ", tab$PowerCI)
 
-  plot_data <- dplyr::left_join(obs, tab, by = metric_var_str)
+  plot_data <- dplyr::left_join(obs, tab, by = metric_name_var_str)
 
-  base <- init_plot(plot_data, dose_var_str, exp_var_str)
+  base <- init_plot(plot_data, dose_var_str, metric_value_var_str)
 
   plot <- add_obs_layers(base, id_var_str = NULL,
                          point_el = plottheme$obs_point,
@@ -319,8 +319,8 @@ plot_build_doseprop <- function(stats,
 #' * a precomputed `doseprop_stats` object returned by [df_doseprop()] — skip
 #'   the regression refit and replot with different `theme` / `se` settings.
 #'
-#' On the precomputed path, pipeline arguments (`metrics`, `metric_var`,
-#' `exp_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
+#' On the precomputed path, pipeline arguments (`metrics`, `metric_name_var`,
+#' `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
 #' because the regression does not run again — passing any of them aborts
 #' with a message pointing the caller at [df_doseprop()]. Only `theme` and
 #' `se` are accepted on both paths.
@@ -357,8 +357,8 @@ plot_build_doseprop <- function(stats,
 
 plot_doseprop <- function(data,
                           metrics = NULL,
-                          metric_var = PPTESTCD,
-                          exp_var = PPORRES,
+                          metric_name_var = PPTESTCD,
+                          metric_value_var = PPORRES,
                           dose_var = DOSE,
                           method = "normal",
                           ci = 0.9,
@@ -375,13 +375,13 @@ plot_doseprop <- function(data,
     return(plot_build_doseprop(data, theme = theme, se = se))
   }
 
-  metric_var_str <- resolve_var(rlang::enquo(metric_var))
-  exp_var_str    <- resolve_var(rlang::enquo(exp_var))
+  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
+  metric_value_var_str    <- resolve_var(rlang::enquo(metric_value_var))
   dose_var_str   <- resolve_var(rlang::enquo(dose_var))
 
   stats <- df_doseprop(data, metrics,
-                       metric_var = metric_var_str,
-                       exp_var = exp_var_str,
+                       metric_name_var = metric_name_var_str,
+                       metric_value_var = metric_value_var_str,
                        dose_var = dose_var_str,
                        method = method, ci = ci, sigdigits = sigdigits)
 

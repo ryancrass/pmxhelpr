@@ -7,8 +7,8 @@
 plot_doseprop(
   data,
   metrics = NULL,
-  metric_var = PPTESTCD,
-  exp_var = PPORRES,
+  metric_name_var = PPTESTCD,
+  metric_value_var = PPORRES,
   dose_var = DOSE,
   method = "normal",
   ci = 0.9,
@@ -26,11 +26,11 @@ returned by \code{\link[=df_doseprop]{df_doseprop()}}.}
 Required on the raw-data path; ignored when \code{data} is a
 \code{doseprop_stats} object.}
 
-\item{metric_var}{Column in \code{data} containing the values provided in \code{metrics}.
+\item{metric_name_var}{Column in \code{data} containing the metric names listed in \code{metrics}.
 Accepts bare names or strings. Default is \code{PPTESTCD}.}
 
-\item{exp_var}{Column in \code{data} containing the exposure metric (dependent variable).
-Accepts bare names or strings. Default is \code{PPORRES}.}
+\item{metric_value_var}{Column in \code{data} containing the exposure metric values
+(dependent variable). Accepts bare names or strings. Default is \code{PPORRES}.}
 
 \item{dose_var}{Column in \code{data} containing the dose (independent variable).
 Accepts bare names or strings. Default is \code{DOSE}.}
@@ -63,8 +63,8 @@ common one-shot mode; or
 the regression refit and replot with different \code{theme} / \code{se} settings.
 }
 
-On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_var},
-\code{exp_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) cannot be honored
+On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_name_var},
+\code{metric_value_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) cannot be honored
 because the regression does not run again — passing any of them aborts
 with a message pointing the caller at \code{\link[=df_doseprop]{df_doseprop()}}. Only \code{theme} and
 \code{se} are accepted on both paths.

@@ -9,7 +9,7 @@ plot_build_doseprop(stats, theme = NULL, se = TRUE)
 \arguments{
 \item{stats}{A \code{doseprop_stats} object (typically the output of
 \code{\link[=df_doseprop]{df_doseprop()}}). Must contain \verb{$obs} and \verb{$config} slots with
-\code{metric_var}, \code{exp_var}, \code{dose_var}, and \code{ci}. Validated by
+\code{metric_name_var}, \code{metric_value_var}, \code{dose_var}, and \code{ci}. Validated by
 \code{validate_doseprop_stats()} at entry.}
 
 \item{theme}{Named list of aesthetic parameters for the plot created by

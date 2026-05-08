@@ -58,7 +58,7 @@ data_pk <- filter(data, CMT %in% c(1,2))
 data_pd <- filter(data, CMT %in% c(1,3))
 data_pkfit <- filter(gof_data, CMT %in% c(1,2))
 data_nca <- filter(data_sad_nca, PART == "Part 1-SAD")
-doseprop_data_nca <- df_doseprop(data_nca, metrics = c("aucinf.obs", "cmax"), metric_var = "PPTESTCD")
+doseprop_data_nca <- df_doseprop(data_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "PPTESTCD")
 ```
 
 An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This is loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread`.
@@ -164,7 +164,7 @@ Several element roles appear across multiple theme factories:
       + Used in: `plot_dvtime_theme`, `plot_gof_theme`
   + Element Key: `obs_point`
       + Element Constructor: `pmx_point`
-      + Used in: `plot_dvtime_theme`, `plot_dvconc` `plot_gof_theme`, `plot_dvconc_theme`
+      + Used in: `plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme`
 
 The same constructors and merge logic apply everywhere, so learning the system once covers all plot types.
 

@@ -32,7 +32,7 @@ is_doseprop_stats <- function(x, strict = FALSE) {
 #'
 #' @description
 #' Focused summary of a [df_doseprop()] result: object dimensions, the
-#' regression configuration values (`metric_var`, `exp_var`, `dose_var`,
+#' regression configuration values (`metric_name_var`, `metric_value_var`, `dose_var`,
 #' `ci`, `method`), the number of observation rows attached for the plot
 #' scatter overlay, and the per-metric stats body. Inspect the underlying
 #' frames directly via `x$stats` and `x$obs`; inspect run config via
@@ -51,9 +51,9 @@ print.doseprop_stats <- function(x, ...) {
               nrow(x$stats), ncol(x$stats)))
   cat(sprintf("  obs:   %d rows\n",
               if (is.data.frame(x$obs)) nrow(x$obs) else 0L))
-  cat(sprintf("  config: metric_var = %s, exp_var = %s, dose_var = %s, ci = %s, method = %s\n",
-              format(x$config$metric_var),
-              format(x$config$exp_var),
+  cat(sprintf("  config: metric_name_var = %s, metric_value_var = %s, dose_var = %s, ci = %s, method = %s\n",
+              format(x$config$metric_name_var),
+              format(x$config$metric_value_var),
               format(x$config$dose_var),
               format(x$config$ci),
               format(x$config$method)))
@@ -81,22 +81,22 @@ print.doseprop_stats <- function(x, ...) {
 #' @method summary doseprop_stats
 
 summary.doseprop_stats <- function(object, ...) {
-  metric_var_str <- object$config$metric_var
+  metric_name_var_str <- object$config$metric_name_var
   cat("<doseprop_stats>\n")
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(object$stats), ncol(object$stats)))
   cat(sprintf("  obs:   %d rows\n",
               if (is.data.frame(object$obs)) nrow(object$obs) else 0L))
-  cat(sprintf("  config: metric_var = %s, exp_var = %s, dose_var = %s, ci = %s, method = %s\n",
-              format(metric_var_str),
-              format(object$config$exp_var),
+  cat(sprintf("  config: metric_name_var = %s, metric_value_var = %s, dose_var = %s, ci = %s, method = %s\n",
+              format(metric_name_var_str),
+              format(object$config$metric_value_var),
               format(object$config$dose_var),
               format(object$config$ci),
               format(object$config$method)))
   cat("\n  per-metric:\n")
   for (i in seq_len(nrow(object$stats))) {
     cat(sprintf("    %s: %s -- %s\n",
-                object$stats[[metric_var_str]][i],
+                object$stats[[metric_name_var_str]][i],
                 object$stats$PowerCI[i],
                 object$stats$Interpretation[i]))
   }

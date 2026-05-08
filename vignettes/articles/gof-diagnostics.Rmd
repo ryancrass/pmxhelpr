@@ -60,7 +60,6 @@ plot_data <- data_sad_pkfit %>%
 ```
 
 
-
 # PK Model
 
 An example PK model (`pkmodel`) in `mrgmod` format is provided in the internal package library. This can be loaded using the helper function `model_mread_load()`, which wraps `mrgsolve::mread()`.
@@ -100,6 +99,7 @@ The example dataset `data_sad_pkfit` only differs from these defaults in the var
 
 ```{r plot-popgof, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV") + 
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
@@ -109,8 +109,9 @@ The pooled analysis population includes multiple dose levels in a single plot, w
 
 ```{r plot-popgof-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE, dose_var = DOSE) +
-  facet_wrap(~`Food Status`) +
-  labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
+  labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~`Food Status`)
 ```
 
 ## Facetting by Study Design (Extrinsic) Factors
@@ -119,8 +120,9 @@ Although, generally population goodness-of-fit plots are stratified by study des
 
 ```{r plot-popgof-dosegrp, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV") +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~`Dose and Food`, scales = "free")
 ```
 
 ## Controlling Visible Output Variables
@@ -145,8 +147,9 @@ Some analysts prefer to only overlay the "typical value" in these plots and excl
 ```{r plot-gof-shown, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV",
          shown = plot_gof_shown(ipred = FALSE)) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~`Dose and Food`, scales = "free")
 ```
 
 The observed data points can also be removed with `obs = FALSE`. Notice how different this plot appears when only visualizing central tendency!
@@ -154,8 +157,9 @@ The observed data points can also be removed with `obs = FALSE`. Notice how diff
 ```{r plot-popgof-dosegrp-noobs, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV",
          shown = plot_gof_shown(obs = FALSE)) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~`Dose and Food`, scales = "free") 
 ```
 The `shown` object can be stored and reused across multiple `plot_gof()` calls to maintain consistent visibility settings throughout a workflow:
 
@@ -163,12 +167,14 @@ The `shown` object can be stored and reused across multiple `plot_gof()` calls t
 my_shown <- plot_gof_shown(ipred = FALSE)
 
 plot_gof(filter(plot_data, FOOD == 0), dv_var = ODV, shown = my_shown) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") + 
+  facet_wrap(~`Dose and Food`, scales = "free")  
 
 plot_gof(filter(plot_data, FOOD == 1), dv_var = ODV, shown = my_shown) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") + 
+  facet_wrap(~`Dose and Food`, scales = "free")
 ```
 
 
@@ -184,17 +190,19 @@ If the `log_y` argument is used to generate semi-log plots along with `show_capt
 
 ```{r plot-popgof-dosegrp-meansd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
-            log_y = TRUE) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+         log_y = TRUE) +
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") + 
+  facet_wrap(~`Dose and Food`, scales = "free")
 ```
 
 The caption will *NOT* update if a new axis is added to the plot object outside of `plot_gof()` with `scale_y_log10()`.
 
 ```{r plot-popgof-dosegrp-logscale, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
-  facet_wrap(~`Dose and Food`, scales = "free") +
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") + 
+  facet_wrap(~`Dose and Food`, scales = "free") +
   scale_y_log10()
 ```
 
@@ -214,20 +222,20 @@ The theme constructor factory function for `plot_gof()` is `plot_gof_theme()`.
 plot_gof_theme()
 ```
 
-Say we want to update the width of the observed data trend line and add points at the binned values for the central tendency lines. The points are suppressed by default `alpha=0`. We can accomplish these theme changes by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
+Say we want add points at the binned values for the central tendency lines. The points are suppressed by default `alpha=0`. We can accomplish thia theme changes by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
 
 ```{r new-theme}
 gof_new_theme <- plot_gof_theme(
-  cent_errorbar = pmx_errorbar(width = 10),
-  cent_point = pmx_point(shape = 16, alpha = 1)
+  cent_point = pmx_point(shape = 16, alpha = 1, size = 1.5)
 )
 ```
 
 ```{r plot-popgof-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
+plot_gof(data = plot_data, dv_var = "ODV", cent = "mean",
             log_y = TRUE, theme = gof_new_theme) +
-  facet_wrap(~`Dose and Food`, scales = "free") +
-  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
+  scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) + 
+  labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
+  facet_wrap(~`Dose and Food`, scales = "free") 
 ```
 
 
@@ -250,9 +258,10 @@ for(i in 1:n_ids){
                             dv_var = "ODV",
                             log_y = TRUE,
                             id_var = ID,
-                            shown = plot_gof_shown(pred = FALSE),
+                            shown = plot_gof_shown(pred = FALSE, dv = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +
+  scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(title = paste0("ID = ", ids[i]), y = "Concentration (ng/mL)", x = "Time (hours)") +
   theme(legend.position="none")
 }

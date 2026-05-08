@@ -2,6 +2,13 @@ url: https://ryancrass.github.io/pmxhelpr/
 template:
   bootstrap: 5
 
+repo:
+  url:
+    home: https://github.com/ryancrass/pmxhelpr/
+    source: https://github.com/ryancrass/pmxhelpr/blob/dev/
+    issue: https://github.com/ryancrass/pmxhelpr/issues/
+    user: https://github.com/
+
 articles:
   - title: Articles
     navbar: ~

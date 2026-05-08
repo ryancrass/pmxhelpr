@@ -23,10 +23,8 @@ plotting workflow, lives on the [pmxhelpr
 website](https://ryancrass.github.io/pmxhelpr/). Start with the
 articles:
 
-- [Exploratory Analyses of PK
-  Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-workflow.html)
-- [Exploratory Analyses of PK/PD
-  Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pkpd-workflow.html)
+- [Exploratory Analyses of PK and PK/PD
+  Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
 - [Goodness-of-Fit
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check

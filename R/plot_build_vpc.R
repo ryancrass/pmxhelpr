@@ -28,13 +28,17 @@
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC).
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
-#'    or `NULL` to suppress. One reference line is drawn per unique value, so
-#'    multi-LLOQ data renders as multiple dashed lines. The legend entry for
-#'    LLOQ is *not* attached here — pass the same value to [plot_vpc_legend()]
-#'    when composing the legend panel. When omitted, the value is read from
-#'    `compute_out$config$loq` (already a vector of unique non-NA LOQ values
-#'    when [df_vpcstats()] populated the container). Forced to `NULL` when
-#'    `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected scale).
+#'    or `NULL` to suppress. When `strat_var` is set and `compute_out$obs`
+#'    carries a row-aligned `LOQ` column, ref lines are drawn per facet —
+#'    each facet shows only the LLOQ values applicable to its strat-level
+#'    rows. Otherwise (no stratification, or legacy containers without
+#'    `obs$LOQ`), one global reference line is drawn per unique value of
+#'    `loq`. The legend entry for LLOQ is *not* attached here — pass the
+#'    same value to [plot_vpc_legend()] when composing the legend panel.
+#'    When omitted, the value is read from `compute_out$config$loq` (already
+#'    a vector of unique non-NA LOQ values when [df_vpcstats()] populated the
+#'    container). Forced to `NULL` when `pcvpc = TRUE` (LOQ has no meaning on
+#'    the prediction-corrected scale).
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. When `NULL`, the value is read from
 #'    `compute_out$config$strat_var` so output of [df_vpcstats()] is
@@ -186,13 +190,30 @@ plot_build_vpc <- function(compute_out,
   }
 
   if (!is.null(loq)) {
-    plot <- plot +
-      ggplot2::geom_hline(
-        yintercept = loq,
-        color = vpctheme$loq_line$color,
-        linetype = vpctheme$loq_line$linetype,
-        linewidth = vpctheme$loq_line$linewidth
+    if (!is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
+      loq_facet_df <- unique(
+        compute_out$obs[!is.na(compute_out$obs$LOQ),
+                        c(strat_var_str, "LOQ"),
+                        drop = FALSE]
       )
+      plot <- plot +
+        ggplot2::geom_hline(
+          data = loq_facet_df,
+          mapping = ggplot2::aes(yintercept = .data[["LOQ"]]),
+          color = vpctheme$loq_line$color,
+          linetype = vpctheme$loq_line$linetype,
+          linewidth = vpctheme$loq_line$linewidth,
+          inherit.aes = FALSE
+        )
+    } else {
+      plot <- plot +
+        ggplot2::geom_hline(
+          yintercept = loq,
+          color = vpctheme$loq_line$color,
+          linetype = vpctheme$loq_line$linetype,
+          linewidth = vpctheme$loq_line$linewidth
+        )
+    }
   }
 
   if (!is.null(strat_var_str)) {

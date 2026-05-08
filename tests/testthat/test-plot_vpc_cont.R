@@ -406,6 +406,31 @@ test_that("df_vpcstats inherits per-row LLOQ when column has multiple unique val
   expect_s3_class(p, "ggplot")
 })
 
+test_that("plot_build_vpc draws per-facet LLOQ ref lines when stratified", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"),
+                                 char_vars = c("PART"))
+  # Re-code Part 2-FE to LLOQ = 2 (mirrors the vignette pattern)
+  testsim$LLOQ[testsim$PART == "Part 2-FE"] <- 2
+
+  p <- plot_vpc_cont(testsim, strat_var = PART)
+
+  # Locate the geom_hline layer used for the LLOQ ref line(s)
+  hline_layer <- Filter(function(L) inherits(L$geom, "GeomHline"), p$layers)
+  expect_length(hline_layer, 1)
+  hline_data <- hline_layer[[1]]$data
+
+  # Layer data carries both strat_var and LOQ columns (per-facet path)
+  expect_true("LOQ" %in% colnames(hline_data))
+  expect_true("PART" %in% colnames(hline_data))
+  # One row per (strat_level, LOQ) pair: Part 1-SAD/1 and Part 2-FE/2
+  expect_setequal(hline_data$LOQ, c(1, 2))
+  expect_equal(nrow(hline_data), 2)
+})
+
 test_that("plot_vpc_cont warns when strat_var contains NA values", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),

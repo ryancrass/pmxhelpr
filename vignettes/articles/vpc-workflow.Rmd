@@ -521,6 +521,52 @@ plot_vpc_cont(
   scale_y_log10(guide = "axis_logticks")
 ```
 
+### Pooled Data with Multiple LLOQs
+
+A common real-world scenario is a bioanalytical assay update mid-development: an early cohort runs on the original assay (e.g., LLOQ = 1 ng/mL) and a later cohort runs on an updated assay (e.g., LLOQ = 2 ng/mL). When the analysis dataset pools both, the `LLOQ` column carries different values across rows. `pmxhelpr` resolves `loq` per row so each observation is censored at its own threshold; the unique non-NA values are surfaced via `config$loq` for plotting.
+
+The example below mimics this scenario by re-coding `LLOQ = 2` for the Part 2 food-effect cohort while leaving Part 1 at the original `LLOQ = 1`.
+
+```{r sim-multi-loq, message=FALSE, warning=FALSE}
+sim100_multi_loq <- sim100
+sim100_multi_loq$LLOQ[sim100_multi_loq$PART == "Part 2-FE"] <- 2
+distinct(sim100_multi_loq, PART, LLOQ)
+```
+
+Calling `df_vpcstats()` on this pooled dataset emits the per-row inheritance message and stores the sorted unique values in `config$loq`. The row-aligned threshold remains accessible on `out_multi$obs$LOQ` for any downstream code that needs the per-observation value.
+
+```{r vpc-stats-multi-loq, message=TRUE, warning=FALSE}
+out_multi <- df_vpcstats(sim100_multi_loq, strat_var = PART)
+out_multi$config$loq
+```
+
+`plot_vpc_cont()` consumes the precomputed stats and draws one dashed reference line per unique LLOQ value.
+
+```{r plot-vpc-multi-loq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+vpc_multi <- plot_vpc_cont(out_multi) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0, 168, 24)) +
+  scale_y_log10(guide = "axis_logticks")
+vpc_multi
+```
+
+Each facet renders only the LLOQ(s) applicable to that strat-level: Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The ref-line set is recomputed at plot time from the row-aligned `obs$LOQ` column grouped by `strat_var`, so the visualization stays in sync with whatever per-row inheritance produced. The legend (built from `out_multi$config$loq`) still summarizes the analysis-wide set of LLOQs, since the legend is a figure-level annotation rather than a facet-level one.
+
+`plot_vpc_legend()` accepts the same vector and registers one entry per unique LLOQ value.
+
+```{r vpc-multi-loq-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+vpc_multi_legend <- plot_vpc_legend(lloq = out_multi$config$loq)
+vpc_multi_legend
+```
+
+Composing the plot and legend with `patchwork` yields a single figure where both LLOQ thresholds are simultaneously labeled.
+
+```{r plot-vpc-multi-loq-w-legend, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+vpc_multi + vpc_multi_legend + plot_layout(heights = c(2.5, 1))
+```
+
+Passing `out_multi$config$loq` directly to `plot_vpc_legend()` keeps the legend in sync with whatever LLOQs `df_vpcstats()` discovered, with no need to hardcode the value set at the call site.
+
 ### Reusing precomputed stats
 
 `plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `theme` — without paying the summarization cost on every call.

@@ -39,9 +39,10 @@ BLQ-encoded values flow into quantile aggregation per-flavor: \code{"auto"}
 uses \code{"rank"} for the std flavor and \code{"drop"} for the pc flavor (the
 historical defaults); \code{"rank"} and \code{"drop"} apply to both flavors.}
 
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
-Defaults to \code{attr(data, "loq")}. When supplied, the std stats include
-\code{sim_prop_blq_low/med/hi}. The pc stats do \emph{not} emit a
+\item{loq}{Numeric vector of unique LOQ values present in \code{data} (length 1
+when LLOQ is constant), or \code{NULL}. Defaults to \code{attr(data, "loq")}. When
+non-NULL, the std stats include \code{sim_prop_blq_low/med/hi} (BLQ detection
+reads per-row thresholds from \code{data$LOQ}). The pc stats do \emph{not} emit a
 \verb{pc_sim_prop_blq_*} set — LOQ has no meaning on the prediction-corrected
 scale.}
 }

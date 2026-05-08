@@ -44,9 +44,10 @@ Accepts bare names or strings. Default is \code{OBSDV}.}
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. Only a single stratifying variable is supported.}
 
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
-When \code{NULL} and column \code{LLOQ} is present in \code{data}, the value is
-inherited.}
+\item{loq}{Numeric scalar, or \code{NULL}. When \code{NULL} and column \code{LLOQ} is
+present in \code{data}, per-row \code{LLOQ} values are used as the censoring
+threshold; the unique non-NA values are exposed via \code{config$loq} for
+plotting. A scalar \code{loq} broadcasts to a constant threshold across rows.}
 
 \item{irep_name}{Replicate identifier column. Accepts bare names or strings.
 Default is \code{SIM}.}

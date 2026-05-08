@@ -4,7 +4,7 @@
 \alias{compute_one_flavor}
 \title{Internal helper: per-flavor VPC quantile aggregation}
 \usage{
-compute_one_flavor(data, group_vars, irep_name, pi, ci_bounds, loq, pcvpc)
+compute_one_flavor(data, group_vars, irep_name, pi, ci_bounds, has_loq, pcvpc)
 }
 \arguments{
 \item{data}{Preprocessed data with standardized columns. For the pc flavor,
@@ -21,19 +21,20 @@ quantiles.}
 \item{ci_bounds}{Numeric vector of length 2 specifying CI bounds derived
 from \code{ci}.}
 
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
-When \code{NULL}, \verb{sim_prop_blq_*} columns are not produced.}
+\item{has_loq}{Logical. When \code{TRUE}, the \code{data} frame is expected to carry
+a row-aligned \code{LOQ} column and \verb{sim_prop_blq_*} columns are produced.
+When \code{FALSE}, \verb{sim_prop_blq_*} columns are dropped.}
 
 \item{pcvpc}{Logical. Selects the BLQ-detection expression for
 \code{sim_prop_blq} in stage 1: in pcVPC, BLQ rows were masked to NA before
 prediction-correction, so detection uses \code{is.na(SIMDV)}; in std VPC,
-detection uses \code{(SIMDV < loq) | is.na(SIMDV)}.}
+detection uses \code{(SIMDV < LOQ) | is.na(SIMDV)} per row.}
 }
 \value{
 A \code{data.frame} with \code{group_vars}, \code{obs_n}, \code{obs_n_blq},
 \code{obs_prop_blq}, the simulated quantile CIs (\code{sim_low_low/med/hi},
 \code{sim_med_low/med/hi}, \code{sim_hi_low/med/hi}), the observed quantiles
-(\code{obs_low}, \code{obs_med}, \code{obs_hi}), and (when \code{loq} is supplied)
+(\code{obs_low}, \code{obs_med}, \code{obs_hi}), and (when \code{has_loq = TRUE})
 \code{sim_prop_blq_low/med/hi}. Quantile columns are masked through
 \code{\link[=var_infna]{var_infna()}}.
 }

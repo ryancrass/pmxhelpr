@@ -331,7 +331,9 @@ anti_join(vpcstats_ntime_dose_food$stats, vpcstats_ntime_dose_food_drop$stats) %
 
 ### Prediction-correction
 
-Prediction-correction is applied internally as part of every `df_vpcstats()` call — the prediction-corrected columns (`pc_*`) appear alongside the standard columns in the output. The prediction-correction pipeline censors both observed and simulated values at the `loq` prior to prediction-correction (when `loq` is known) and then calculates quantile summary statistics on the continuous, quantifiable range. If `loq` is unknown, missing observations (`MDV == 1`) are excluded from quantile summary statistics for both the observed and simulated data.
+Prediction-correction is applied internally as part of every `df_vpcstats()` call; therefore, the prediction-corrected columns (`pc_*`) appear alongside the standard columns in the output. 
+
+The prediction-correction pipeline censors both observed and simulated values at the `loq` prior to prediction-correction (when `loq` is known) and then calculates quantile summary statistics on the continuous, quantifiable range. If `loq` is unknown, missing observations (`MDV == 1`) are excluded from quantile summary statistics for both the observed and simulated data.
 
 ```{r df-vpcstats-pc-part, warning=FALSE}
 vpcstats_ntime_part <- df_vpcstats(
@@ -469,12 +471,7 @@ sim100 <- simout %>%
   filter(DOSE == 100)
 ```
 
-There are two potential approaches processing and plotting the VPC:
-
-  1. `Exclude BLQ`: remove missing observations (`MDV=1`) in the observed input data before passing to the simulation (e.g., filter out `MDV=1 and EVID=0`)
-  2. `Censor Observed Quantiles`: simulate all timepoints and set quantiles of the observed data to `NA`, if the sample representing that quantile of the observed is BLQ (`MDV=1`) in the bin.
-
-Let's plot using the default arguments to `plot_vpc_cont()`. The default behavior is `Exclude BLQ`, which filters out `MDV=1`.
+A common approach to plotting VPCs, especially pcVPCs, is to exclude all `MDV=1` observations. Let's plot using `plot_vpc_cont()` filtering out `MDV=1` in the input dataset to exclude observed BLQ timepoints.
 
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_vpc_cont(
@@ -508,14 +505,21 @@ vpc
 
 Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
 
-Specifying `loq` assumes that `MDV=1` represents *only* BLQ samples in the input dataset for the plot (`sim`) when `EVID=0`. The function sets the `MDV` variable in `sim` to zero (0) so that all timepoints are included.
-
-  - In the calculation of the summary statistics of the observed data, the quantiles are calculated across all data per bin and taken as `NA` when that quantile of observations is below `loq`.
-  - In the calculation of summary statistics of the simulated data, the simulated confidence intervals are based on all data without any censoring, which is representative of the model-predicted "true" underlying PK profile in the absence of real-world assay limitations.
-
 Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst.
 
 `loq` may also be passed for prediction-corrected VPCs (`pcvpc = TRUE`). In that case, observed and simulated values below `loq` are censored to `NA_real_` before prediction-correction so that both data streams are treated symmetrically, and no LOQ reference line is drawn (the LOQ has no meaning on the prediction-corrected scale).
+
+The unique vector of values for `data$loq` is used automatically if the variable `"LLOQ"` is present in the input dataest. This allows for the scenario in which there are multiple unique LLOQ values within a single pooled analysis dataset.
+
+```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_vpc_cont(
+  data = sim100,
+  strat_var = PART,
+) +
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
+  scale_x_continuous(breaks = seq(0,168,24))+
+  scale_y_log10(guide = "axis_logticks")
+```
 
 ### Reusing precomputed stats
 
@@ -642,7 +646,7 @@ vpc_new_theme <- plot_vpc_theme(
 
 Regenerating our BLQ quantile censored plot stratified by part with the new theme yields the following plot
 
-```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+```{r plot-vpc-blq-obs-cens-newtheme, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc2 <- plot_vpc_cont(
   data = sim100,
   strat_var = PART,
@@ -720,10 +724,10 @@ This section will review the functionality for generating legends for VPC plots 
 
 ### Defaults Legend
 
-To obtain a legend for a plot using default aesthetics, simply run `plot_vpc_legend()` without any arguments specified.
+To obtain a legend for a plot using default aesthetics, run `plot_vpc_legend()`. Pass `lloq` to include an LLOQ entry that mirrors the reference line drawn by `plot_vpc_cont()` when `loq` was specified — here we pass `lloq = 1` to match the `loq = 1` used to build `vpc` above.
 
 ```{r vpc-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_legend <- plot_vpc_legend()
+vpc_legend <- plot_vpc_legend(lloq = 1)
 vpc_legend
 ```
 
@@ -749,10 +753,10 @@ plot_vpc_legend(shown = shown_elements)
 
 ### Updating the Legend Theme
 
-The legend can also be updated with the updated VPC plot theme elements. This is easiest to do by setting a new theme object, which we did previously when we created `vpc_new_theme` with `plot_vpc_theme()`. We can use this same theme list object to generat the VPC plot with `plot_vpc_cont()` and the VPC legend with `plot_vpc_legend()`.
+The legend can also be updated with the updated VPC plot theme elements. This is easiest to do by setting a new theme object, which we did previously when we created `vpc_new_theme` with `plot_vpc_theme()`. We can use this same theme list object to generate the VPC plot with `plot_vpc_cont()` and the VPC legend with `plot_vpc_legend()`, again passing `lloq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
 
 ```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_new_legend <- plot_vpc_legend(theme = vpc_new_theme)
+vpc_new_legend <- plot_vpc_legend(lloq = 1, theme = vpc_new_theme)
 vpc_new_legend
 ```
 

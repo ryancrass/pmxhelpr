@@ -36,11 +36,14 @@ BLQ-encoded records do not count toward this threshold.}
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
 LOQ reference line. Default is \code{FALSE} (standard VPC).}
 
-\item{loq}{Numeric value for LOQ reference line, or \code{NULL} to suppress.
-When omitted, the value is read from \code{compute_out$config$loq} so
-\code{\link[=df_vpcstats]{df_vpcstats()}} output is handled automatically. Forced to \code{NULL}
-when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
-scale).}
+\item{loq}{Numeric scalar or vector of LOQ values for the reference line,
+or \code{NULL} to suppress. One reference line is drawn per unique value, so
+multi-LLOQ data renders as multiple dashed lines. The legend entry for
+LLOQ is \emph{not} attached here — pass the same value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}}
+when composing the legend panel. When omitted, the value is read from
+\code{compute_out$config$loq} (already a vector of unique non-NA LOQ values
+when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the container). Forced to \code{NULL} when
+\code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected scale).}
 
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. When \code{NULL}, the value is read from

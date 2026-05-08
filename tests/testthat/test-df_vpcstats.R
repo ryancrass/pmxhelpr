@@ -319,7 +319,7 @@ test_that("compute_one_flavor: returns a data.frame with the expected column gro
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = 1, pcvpc = FALSE)
+                                       has_loq = TRUE, pcvpc = FALSE)
   expect_s3_class(out, "data.frame")
   expected <- c("BIN_MID",
                 "obs_n", "obs_n_blq", "obs_prop_blq",
@@ -331,13 +331,13 @@ test_that("compute_one_flavor: returns a data.frame with the expected column gro
   expect_true(all(expected %in% colnames(out)))
 })
 
-test_that("compute_one_flavor: loq = NULL omits the sim_prop_blq_* columns", {
+test_that("compute_one_flavor: has_loq = FALSE omits the sim_prop_blq_* columns", {
   out <- pmxhelpr:::compute_one_flavor(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = NULL, pcvpc = FALSE)
+                                       has_loq = FALSE, pcvpc = FALSE)
   expect_false(any(c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
                     %in% colnames(out)))
 })
@@ -352,13 +352,13 @@ test_that("compute_one_flavor: pcvpc flag drives the sim_prop_blq detection bran
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = 1, pcvpc = FALSE)
+                                       has_loq = TRUE, pcvpc = FALSE)
   pc  <- pmxhelpr:::compute_one_flavor(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = 1, pcvpc = TRUE)
+                                       has_loq = TRUE, pcvpc = TRUE)
   expect_true(any(std$sim_prop_blq_med > 0, na.rm = TRUE))
   expect_true(all(pc$sim_prop_blq_med == 0, na.rm = TRUE))
 })
@@ -380,7 +380,7 @@ test_that("compute_one_flavor: var_infna is applied — no -Inf in quantile cols
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = 1e6, pcvpc = FALSE)
+                                       has_loq = TRUE, pcvpc = FALSE)
   q_cols <- c("obs_low", "obs_med", "obs_hi",
               "sim_low_low", "sim_low_med", "sim_low_hi")
   for (col in q_cols) {
@@ -395,7 +395,7 @@ test_that("compute_one_flavor: obs_n equals records-per-bin (single replicate)",
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
-                                       loq = NULL, pcvpc = FALSE)
+                                       has_loq = FALSE, pcvpc = FALSE)
   ## Reference: rows per bin in replicate 1 (preprocess already filtered EVID==0)
   ref <- testsim_pre |>
     dplyr::filter(SIM == 1) |>

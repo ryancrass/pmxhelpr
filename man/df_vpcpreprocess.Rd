@@ -33,13 +33,14 @@ df_vpcpreprocess(
 
 \item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
-\item{loq}{Numeric value of the lower limit of quantification, or \code{NULL}.
-When \code{NULL} and column \code{LLOQ} is present in \code{data}, the value is inherited
-from the unique non-NA \code{LLOQ} value at replicate 1.}
+\item{loq}{Numeric scalar, or \code{NULL}. When \code{NULL} and column \code{LLOQ} is
+present in \code{data}, per-row \code{LLOQ} values are used as the censoring
+threshold. A scalar \code{loq} broadcasts to a constant threshold across rows.}
 }
 \value{
-A preprocessed data.frame with standardized columns. The resolved
-\code{loq} is attached as \code{attr(., "loq")}.
+A preprocessed data.frame with standardized columns and (when a LOQ
+source exists) a row-aligned \code{LOQ} column. The unique non-NA LOQ values
+are attached as \code{attr(., "loq")}.
 }
 \description{
 Internal function. Validates columns, resolves \code{loq} (inheritance from an
@@ -51,8 +52,8 @@ names, and applies BLQ encoding to \code{OBSDV}. Prediction-correction and the
 
 BLQ encoding (in this stage):
 \itemize{
-\item \code{OBSDV} positions where \code{MDV == 1}, \code{is.na(OBSDV)}, or (when \code{loq}
-is provided) \code{OBSDV < loq} are encoded as \code{-Inf} via
+\item \code{OBSDV} positions where \code{MDV == 1}, \code{is.na(OBSDV)}, or (when a LOQ
+source is available) \code{OBSDV < LOQ} are encoded as \code{-Inf} via
 \code{\link[=var_loqcens]{var_loqcens()}}.
 }
 }

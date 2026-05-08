@@ -381,16 +381,29 @@ test_that("precomputed and raw paths produce structurally equivalent plot data",
 
 ##### Test edge-case warnings #####
 
-test_that("plot_vpc_cont warns when LLOQ column has multiple unique values", {
+test_that("df_vpcstats inherits per-row LLOQ when column has multiple unique values", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
                                  num_vars = c("LLOQ"))
-  # Inject a second non-NA LLOQ value
+  # Inject a second non-NA LLOQ value at the last nominal time
   testsim$LLOQ[testsim$NTIME == max(testsim$NTIME, na.rm = TRUE)] <- 2
-  expect_warning(df_vpcstats(testsim),
-                 regexp = "multiple unique values")
+
+  # No warning, just an inheritance message
+  expect_warning(out <- df_vpcstats(testsim), regexp = NA)
+
+  # Config carries the sorted unique values
+  expect_equal(out$config$loq, c(1, 2))
+
+  # obs slot carries the row-aligned LOQ column (the obs filter to MDV==0 may
+  # exclude one of the injected values; config$loq is the canonical multi-set)
+  expect_true("LOQ" %in% colnames(out$obs))
+  expect_equal(length(out$obs$LOQ), nrow(out$obs))
+
+  # The built plot draws one geom_hline layer rendering 2 lines
+  p <- plot_vpc_cont(testsim)
+  expect_s3_class(p, "ggplot")
 })
 
 test_that("plot_vpc_cont warns when strat_var contains NA values", {

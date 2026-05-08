@@ -9,20 +9,27 @@
 #' @param strat_var Stratification variable.
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
-#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'    For standard VPCs (`pcvpc = FALSE`)
+#' @param loq Numeric scalar, or `NULL`. Lower limit of quantification (LLOQ).
+#'    When `NULL` and column `LLOQ` is present in `data`, per-row `LLOQ`
+#'    values are used as the censoring threshold; a scalar `loq` broadcasts
+#'    to a constant threshold across rows. For standard VPCs (`pcvpc = FALSE`)
 #'
-#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `data`, all `MDV` values are set to 0
-#'      so that all observations (including BLQ) are processed when and censoring is performed at the quantile level.
-#'      Filter to `EVID==0` so that doses are dropped.
-#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is filtered to `MDV==0` since `loq` is unknown.
+#'      + If a LOQ source is available (scalar `loq` or `LLOQ` column), all
+#'      observations (including BLQ) are processed and censoring is performed
+#'      at the quantile level. Filter to `EVID==0` so that doses are dropped.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is
+#'      filtered to `MDV==0` since `loq` is unknown.
 #'
 #'    For prediction-corrected VPCs (`pcvpc = TRUE`)
-#'      + If `loq` specified or `loq=NULL` and `LLOQ` is present in `data`, all `SIMDV` and `OBSDV` values < loq are set to
-#'      missing (`NA_real_`) so that both observed and simulated data are censored in the same way before quantile calculation.
-#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, filter to `MDV==0` since `loq` is unknown.
-#'    Dashed horizontal line plotted at `loq` by default for standard VPCs (controlled via `theme`);
-#'    suppressed for `pcvpc = TRUE` since `loq` has no meaning on the prediction-corrected scale.
+#'      + If a LOQ source is available, all `SIMDV` and `OBSDV` values
+#'      `< LOQ` (per row) are set to missing (`NA_real_`) so that both
+#'      observed and simulated data are censored in the same way before
+#'      quantile calculation.
+#'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, filter to
+#'      `MDV==0` since `loq` is unknown.
+#'    Dashed horizontal line plotted at each unique LLOQ value by default for
+#'    standard VPCs (controlled via `theme`); suppressed for `pcvpc = TRUE`
+#'    since `loq` has no meaning on the prediction-corrected scale.
 #' @param min_bin_count Minimum number of quantifiable observations
 #'    (`obs_n - obs_n_blq` in the summary statistics frame) per exact bin
 #'    required for inclusion in binned plot layers. BLQ-encoded records

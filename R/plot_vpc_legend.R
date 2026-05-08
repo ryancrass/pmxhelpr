@@ -4,7 +4,11 @@
 #' @param ci Numeric confidence level for simulation intervals (e.g., `0.90` for 90% CI).
 #'    Should match argument passed to [plot_vpc_cont()]. Default is `0.90`.
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
-#' @param lloq label for lower limit of quantification in the plot legend.
+#' @param lloq Numeric scalar or vector of LLOQ values to label in the legend,
+#'    or `NULL` to omit. Each unique value becomes one legend entry rendered
+#'    with the theme's `loq_line` linetype. Pass `compute_out$config$loq` from
+#'    a [df_vpcstats()] result to mirror the reference lines drawn by
+#'    [plot_build_vpc()].
 #' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
 #'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
 #' @param ... Other arguments passed to [ggplot2::theme()].
@@ -36,7 +40,12 @@ plot_vpc_legend <- function(ci = 0.90,
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
-  lloq_lab <- as.character(lloq)
+  lloq_lab <- paste0("LLOQ = ", lloq)
+  df_lloq <- if (!is.null(lloq)) {
+    data.frame(x = rep(NA_real_, length(lloq)),
+               y = rep(NA_real_, length(lloq)),
+               lloq_lab = factor(lloq_lab, levels = lloq_lab))
+  } else NULL
   obs <- "Obs"
   obs_cent <- "Obs Med"
   sim_cent <- "Sim Med"
@@ -53,7 +62,8 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$obs_point == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
                                                   color = plist$obs_point$color,
                                                   size = plist$obs_point$size, na.rm= TRUE)} +
-    {if(!is.null(lloq)) ggplot2::geom_line(ggplot2::aes(linetype = lloq_lab),
+    {if(!is.null(lloq)) ggplot2::geom_line(data = df_lloq,
+                                           ggplot2::aes(linetype = lloq_lab),
                                            color = plist$loq_line$color,
                                            linewidth = 1, na.rm= TRUE)} +
     {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
@@ -93,7 +103,7 @@ plot_vpc_legend <- function(ci = 0.90,
                             {if(nlist$obs_pi_line == TRUE) assign(obs_pilab, plist$obs_pi_line$linetype)},
                             {if(nlist$sim_median_line == TRUE) assign(sim_cent, plist$sim_median_line$linetype)},
                             {if(nlist$sim_pi_line == TRUE) assign(sim_pilab, plist$sim_pi_line$linetype)},
-                            {if(!is.null(lloq)) assign(lloq_lab, "solid")}
+                            {if(!is.null(lloq)) rep(plist$loq_line$linetype, length(lloq_lab))}
                             )) +
     ggplot2::scale_fill_manual(name = "Intervals",
                       breaks = c(

@@ -43,8 +43,8 @@ BIN_MID_VAR <- "BIN_MID"
 #'
 #' BLQ encoding (in this stage):
 #' \itemize{
-#'   \item `OBSDV` positions where `MDV == 1`, `is.na(OBSDV)`, or (when `loq`
-#'     is provided) `OBSDV < loq` are encoded as `-Inf` via
+#'   \item `OBSDV` positions where `MDV == 1`, `is.na(OBSDV)`, or (when a LOQ
+#'     source is available) `OBSDV < LOQ` are encoded as `-Inf` via
 #'     [`var_loqcens()`].
 #' }
 #'
@@ -56,12 +56,13 @@ BIN_MID_VAR <- "BIN_MID"
 #' @param obs_dv_var_str String name of the observed DV column in `data`.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
 #' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
-#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    When `NULL` and column `LLOQ` is present in `data`, the value is inherited
-#'    from the unique non-NA `LLOQ` value at replicate 1.
+#' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
+#'    present in `data`, per-row `LLOQ` values are used as the censoring
+#'    threshold. A scalar `loq` broadcasts to a constant threshold across rows.
 #'
-#' @return A preprocessed data.frame with standardized columns. The resolved
-#'    `loq` is attached as `attr(., "loq")`.
+#' @return A preprocessed data.frame with standardized columns and (when a LOQ
+#'    source exists) a row-aligned `LOQ` column. The unique non-NA LOQ values
+#'    are attached as `attr(., "loq")`.
 #' @keywords internal
 
 df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
@@ -87,19 +88,13 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                        "') contains NA values; faceting will produce an `NA` facet"))
   }
 
-  if (is.null(loq) && "LLOQ" %in% colnames(data)) {
-    lloq_vals <- unique(data$LLOQ[data[[irep_name_str]] == 1 & !is.na(data$LLOQ)])
-    if (length(lloq_vals) == 1L) {
-      loq <- lloq_vals
-      message("Inheriting `loq = ", loq, "` from `LLOQ` column in `data`.")
-    } else if (length(lloq_vals) > 1L) {
-      rlang::warn(paste0("`LLOQ` column in `data` has multiple unique values (",
-                         paste(lloq_vals, collapse = ", "),
-                         "); not inherited. Pass `loq` explicitly to enable BLQ handling."))
-    }
-  }
-
   if (!is.null(loq)) check_numeric_strict(loq, "loq")
+  if (!is.null(loq)) {
+    data$LOQ <- loq
+  } else if ("LLOQ" %in% colnames(data)) {
+    data$LOQ <- data$LLOQ
+    message("Inheriting per-row `loq` from `LLOQ` column in `data`.")
+  }
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
@@ -107,9 +102,14 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   data <- dplyr::rename(data, !!BIN_MID_VAR := NTIME)
   data <- dplyr::filter(data, EVID == 0)
 
-  data$OBSDV <- var_loqcens(data$OBSDV, loq = loq, mdv = data$MDV)
+  loq_col <- if ("LOQ" %in% colnames(data)) data$LOQ else NULL
+  data$OBSDV <- var_loqcens(data$OBSDV, loq = loq_col, mdv = data$MDV)
 
-  attr(data, "loq") <- loq
+  attr(data, "loq") <- if ("LOQ" %in% colnames(data)) {
+    sort(unique(data$LOQ[!is.na(data$LOQ)]))
+  } else {
+    NULL
+  }
   data
 }
 
@@ -132,31 +132,33 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 #'    quantiles.
 #' @param ci_bounds Numeric vector of length 2 specifying CI bounds derived
 #'    from `ci`.
-#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    When `NULL`, `sim_prop_blq_*` columns are not produced.
+#' @param has_loq Logical. When `TRUE`, the `data` frame is expected to carry
+#'    a row-aligned `LOQ` column and `sim_prop_blq_*` columns are produced.
+#'    When `FALSE`, `sim_prop_blq_*` columns are dropped.
 #' @param pcvpc Logical. Selects the BLQ-detection expression for
 #'    `sim_prop_blq` in stage 1: in pcVPC, BLQ rows were masked to NA before
 #'    prediction-correction, so detection uses `is.na(SIMDV)`; in std VPC,
-#'    detection uses `(SIMDV < loq) | is.na(SIMDV)`.
+#'    detection uses `(SIMDV < LOQ) | is.na(SIMDV)` per row.
 #'
 #' @return A `data.frame` with `group_vars`, `obs_n`, `obs_n_blq`,
 #'    `obs_prop_blq`, the simulated quantile CIs (`sim_low_low/med/hi`,
 #'    `sim_med_low/med/hi`, `sim_hi_low/med/hi`), the observed quantiles
-#'    (`obs_low`, `obs_med`, `obs_hi`), and (when `loq` is supplied)
+#'    (`obs_low`, `obs_med`, `obs_hi`), and (when `has_loq = TRUE`)
 #'    `sim_prop_blq_low/med/hi`. Quantile columns are masked through
 #'    [`var_infna()`].
 #' @keywords internal
 
 compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
-                               loq, pcvpc) {
+                               has_loq, pcvpc) {
   stage1 <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
     dplyr::summarise(
       obs_n     = dplyr::n(),
       obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
-      sim_prop_blq = if (is.null(loq)) NA_real_
+      sim_prop_blq = if (!isTRUE(has_loq)) NA_real_
         else if (isTRUE(pcvpc)) mean(is.na(.data[["SIMDV"]]))
-        else mean((.data[["SIMDV"]] < loq) | is.na(.data[["SIMDV"]])),
+        else mean((.data[["SIMDV"]] < .data[["LOQ"]]) | is.na(.data[["SIMDV"]]),
+                  na.rm = TRUE),
       sim_low      = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
       sim_med      = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
       sim_hi       = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
@@ -182,7 +184,7 @@ compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
       sim_prop_blq_hi  = stats::quantile(sim_prop_blq, probs = ci_bounds[2], na.rm = TRUE),
       .groups = "drop"
     )
-  if (is.null(loq)) {
+  if (!isTRUE(has_loq)) {
     sim_quant <- dplyr::select(sim_quant, -dplyr::any_of(c(
       "sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")))
   }
@@ -229,9 +231,10 @@ compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
 #'    BLQ-encoded values flow into quantile aggregation per-flavor: `"auto"`
 #'    uses `"rank"` for the std flavor and `"drop"` for the pc flavor (the
 #'    historical defaults); `"rank"` and `"drop"` apply to both flavors.
-#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    Defaults to `attr(data, "loq")`. When supplied, the std stats include
-#'    `sim_prop_blq_low/med/hi`. The pc stats do *not* emit a
+#' @param loq Numeric vector of unique LOQ values present in `data` (length 1
+#'    when LLOQ is constant), or `NULL`. Defaults to `attr(data, "loq")`. When
+#'    non-NULL, the std stats include `sim_prop_blq_low/med/hi` (BLQ detection
+#'    reads per-row thresholds from `data$LOQ`). The pc stats do *not* emit a
 #'    `pc_sim_prop_blq_*` set — LOQ has no meaning on the prediction-corrected
 #'    scale.
 #'
@@ -279,7 +282,8 @@ df_vpccompute <- function(data,
     data_std$OBSDV <- var_infna(data_std$OBSDV)
   }
   stats_std <- compute_one_flavor(data_std, group_vars, irep_name,
-                                  pi, ci_bounds, loq, pcvpc = FALSE)
+                                  pi, ci_bounds,
+                                  has_loq = !is.null(loq), pcvpc = FALSE)
 
   ## ----- Prediction-corrected flavor -----
   pc_mode <- if (mode == "auto") "drop" else mode
@@ -288,7 +292,7 @@ df_vpccompute <- function(data,
   ## *before* prediction-correction. Std-VPC simulated quantiles intentionally
   ## leave SIMDV uncensored, so this encoding is pc-only.
   if (!is.null(loq)) {
-    data_pc$SIMDV <- var_loqcens(data_pc$SIMDV, loq = loq)
+    data_pc$SIMDV <- var_loqcens(data_pc$SIMDV, loq = data_pc$LOQ)
   }
   if (pc_mode == "drop") {
     data_pc$OBSDV <- var_infna(data_pc$OBSDV)
@@ -301,10 +305,11 @@ df_vpccompute <- function(data,
     dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
                   SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
     dplyr::ungroup()
-  ## Pass loq = NULL for pc so compute_one_flavor doesn't emit
+  ## Pass has_loq = FALSE for pc so compute_one_flavor doesn't emit
   ## sim_prop_blq_* (LOQ has no meaning on the pc scale).
   stats_pc_full <- compute_one_flavor(data_pc, group_vars, irep_name,
-                                      pi, ci_bounds, loq = NULL, pcvpc = TRUE)
+                                      pi, ci_bounds,
+                                      has_loq = FALSE, pcvpc = TRUE)
 
   ## Keep only the quantile columns from the pc flavor; counts, BLQ
   ## proportions, and any sim_prop_blq carry-over are std-only.

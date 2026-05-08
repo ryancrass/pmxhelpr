@@ -22,7 +22,11 @@ Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. D
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
-\item{lloq}{label for lower limit of quantification in the plot legend.}
+\item{lloq}{Numeric scalar or vector of LLOQ values to label in the legend,
+or \code{NULL} to omit. Each unique value becomes one legend entry rendered
+with the theme's \code{loq_line} linetype. Pass \code{compute_out$config$loq} from
+a \code{\link[=df_vpcstats]{df_vpcstats()}} result to mirror the reference lines drawn by
+\code{\link[=plot_build_vpc]{plot_build_vpc()}}.}
 
 \item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
 Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}

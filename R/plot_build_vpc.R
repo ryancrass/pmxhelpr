@@ -27,11 +27,14 @@
 #' @param pcvpc Logical. When `TRUE`, plot the prediction-corrected columns
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC).
-#' @param loq Numeric value for LOQ reference line, or `NULL` to suppress.
-#'    When omitted, the value is read from `compute_out$config$loq` so
-#'    [df_vpcstats()] output is handled automatically. Forced to `NULL`
-#'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
-#'    scale).
+#' @param loq Numeric scalar or vector of LOQ values for the reference line,
+#'    or `NULL` to suppress. One reference line is drawn per unique value, so
+#'    multi-LLOQ data renders as multiple dashed lines. The legend entry for
+#'    LLOQ is *not* attached here — pass the same value to [plot_vpc_legend()]
+#'    when composing the legend panel. When omitted, the value is read from
+#'    `compute_out$config$loq` (already a vector of unique non-NA LOQ values
+#'    when [df_vpcstats()] populated the container). Forced to `NULL` when
+#'    `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected scale).
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. When `NULL`, the value is read from
 #'    `compute_out$config$strat_var` so output of [df_vpcstats()] is

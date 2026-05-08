@@ -31,9 +31,10 @@
 #'    Default is `SIM`.
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. Only a single stratifying variable is supported.
-#' @param loq Numeric value of the lower limit of quantification, or `NULL`.
-#'    When `NULL` and column `LLOQ` is present in `data`, the value is
-#'    inherited.
+#' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
+#'    present in `data`, per-row `LLOQ` values are used as the censoring
+#'    threshold; the unique non-NA values are exposed via `config$loq` for
+#'    plotting. A scalar `loq` broadcasts to a constant threshold across rows.
 #' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. See
 #'    [plot_vpc_cont()] for semantics. `"auto"` resolves to `"rank"` for the
 #'    standard flavor and `"drop"` for the prediction-corrected flavor.

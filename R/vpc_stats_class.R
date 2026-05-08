@@ -53,7 +53,7 @@ print.vpc_stats <- function(x, n_head = 3, ...) {
   cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
   cat(sprintf("  config: n_replicates = %s, loq = %s, strat_var = %s\n",
               format(x$config$n_replicates),
-              format(x$config$loq),
+              paste(format(x$config$loq), collapse = ", "),
               format(x$config$strat_var)))
 
   bin_present  <- BIN_MID_VAR %in% colnames(x$stats)

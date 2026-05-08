@@ -25,12 +25,12 @@ articles:
 
 - [Exploratory Analyses of PK and PK/PD
   Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
+- [Dose-Proportionality
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
 - [Goodness-of-Fit
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
-- [Dose-Proportionality
-  Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
 - [Plot Themes and
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
 
@@ -69,9 +69,6 @@ the prefix indicates what the function returns:
     exposure metrics versus dose
   - `plot_doseprop()` — log-log regression plots of exposure metric(s)
     versus dose
-  - `df_loglog()` — log-log regression parameters for a single exposure
-    metric
-  - `mod_loglog()` — `lm` object from a single log-log regression
 
 ### Model Evaluation
 
@@ -81,8 +78,7 @@ the prefix indicates what the function returns:
 - Visual Predictive Check (VPC):
   - `df_mrgsim_replicate()` — simulated replicates of an input dataset
     via `mrgsolve`
-  - `df_vpcstats()` — VPC summary statistics (observed/simulated
-    quantiles and confidence intervals)
+  - `df_vpcstats()` — VPC summary statistics
   - `plot_vpc_cont()` — VPC plot from simulated data with exact time
     bins
   - `plot_vpc_legend()` — legend for a VPC plot
@@ -93,9 +89,10 @@ Plot aesthetics are controlled through theme factories and element
 constructors. Each plot function has a corresponding `*_theme()`
 factory:
 
-- `plot_dvtime_theme()`, `plot_dvconc_theme()`, `plot_gof_theme()`,
-  `plot_vpc_theme()` — return named lists of default element objects for
-  the `theme` argument of their corresponding plot function
+- `plot_dvtime_theme()`, `plot_dvconc_theme()`, `plot_doseprop_theme()`,
+  `plot_gof_theme()`, `plot_vpc_theme()` — return named lists of default
+  element objects for the `theme` argument of their corresponding plot
+  function
 - `plot_vpc_shown()` / `plot_gof_shown()` — control which VPC / GOF
   layers are visible via the `shown` argument
 
@@ -199,7 +196,7 @@ plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
   labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration
-plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",
+plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB", ref = 0,
             col_var = "Regimen", loess = TRUE, linear = TRUE) +
   labs(y = "Response (% Change)")
 
@@ -212,6 +209,7 @@ table <- df_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 table
 
 #Visualize dose-proportionality
+plot_doseprop(table)
 plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 ```
 

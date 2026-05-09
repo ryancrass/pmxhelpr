@@ -1,6 +1,6 @@
 # pmxhelpr (development version)
 
-This is a major refactor of the package focused on simplifying function interfaces, standardizing naming conventions, unifying the theme system across all plot families, and introducing a shared `pmx_stats` container that makes `df_vpcstats()` and `df_doseprop()` interchangeable from a downstream-tooling perspective.
+This is a major refactor of the package focused on simplifying function interfaces, standardizing naming conventions, unifying the theme system across all plot families, and introducing class-tagged objects for both stats outputs and theme building blocks, with predicates and `print()`/`summary()` methods for interactive inspection and programmatic validation.
 
 ## Breaking Changes
 
@@ -26,12 +26,6 @@ This is a major refactor of the package focused on simplifying function interfac
 * `plot_gof()` now applies the `EVID == 0` filter via `df_prep_dvtime()` (was previously letting dose rows through silently when callers forgot to pre-filter).
 * `errorbar_width()` warns and returns `NA_real_` instead of aborting on empty / all-NA NTIME input.
 
-### Renamed / Removed Arguments
-* `plot_vpc_cont(sim = ...)` renamed to `plot_vpc_cont(data = ...)` for consistency with other plot functions. `sim = ...` is retained as a soft-deprecated alias for one cycle and emits an `rlang` warning when used.
-* `plot_vpc_cont(vpcstats = TRUE)` argument removed. Use `df_vpcstats(data, ...)` directly to obtain the summary statistics and observation overlay.
-* `ipred_var` argument removed from `plot_vpc_cont()` and `df_vpcstats()`. The VPC pipeline only consumes `PRED` (for prediction-correction) and never used the renamed `IPRED` column; the argument was carried over from the prior `vpc`-package-based implementation and did nothing.
-* `pcvpc` argument removed from `df_vpcstats()`. The function now always computes both standard and prediction-corrected statistics and emits both column sets in a single call. The `pcvpc` decision moves to the plotting layer: `plot_vpc_cont(out, pcvpc = TRUE)` selects the prediction-corrected view at plot time.
-
 ### Removed Exported Functions
 * `dvconc_caption` and `dvtime_caption` removed.
 
@@ -48,9 +42,8 @@ This is a major refactor of the package focused on simplifying function interfac
 ### Simplified Plot Function Arguments
 * Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
 * Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `pmx_color()` in `plot_gof_theme()`.
-* Consolidate `plot_gof_theme` per-overlay keys (`dv_point`, `dv_line`, `pred_point`, `pred_line`, `ipred_point`, `ipred_line`) into shared `cent_point`/`cent_line` with a `pmx_color()` element for overlay colors.
 * Replace `cfb` (logical) and `cfb_base` (numeric) arguments with a single `ref` argument (`NULL` = no line, numeric = draw horizontal reference line at that value) in `plot_dvtime`, `plot_gof`, and `plot_dvconc`. For example, `cfb = TRUE, cfb_base = 0` becomes `ref = 0`.
-* `plot_gof()` BLQ imputation is now scoped by the new `blq_mode = c("obs", "all")` argument (default `"obs"`). Previously, when both `pred_var` and `ipred_var` were resolved and `loq_method` was non-zero, predictions were also snapped to `0.5 * LOQ` for BLQ rows. Default behavior now imputes the observed `DV` layer only — predictions follow the model's natural decay through and below the LLOQ, matching `plot_dvtime`'s scoping. Pass `blq_mode = "all"` to opt into the prior pred-censoring behavior (useful when matching the GOF visual to an estimation engine that censored predictions to LLOQ).
+* `plot_gof()` BLQ imputation is now scoped by the new `blq_mode = c("obs", "all")` argument (default `"obs"`). Default behavior now imputes the observed `DV` layer only — predictions follow the model's natural decay through and below the LLOQ. Pass `blq_mode = "all"` to opt into the prior pred-censoring behavior (useful when matching the GOF visual to an estimation engine that censored predictions to LLOQ).
 
 ## New Features
 
@@ -97,10 +90,10 @@ This is a major refactor of the package focused on simplifying function interfac
 * `df_vpcstats()` always emits both standard and prediction-corrected statistics in a single call. The `stats` data.frame gains 12 `pc_*`-prefixed columns (3 obs + 9 sim quantile CIs) alongside the existing std-mode columns; `obs_n / obs_n_blq / obs_prop_blq / sim_prop_blq_* / ci / pi_low / pi_hi` are not duplicated (counts and run-config are flavor-independent; `sim_prop_blq_*` is std-only because LOQ has no meaning on the prediction-corrected scale). The `obs` data.frame gains a `PC_OBSDV` column alongside the existing `OBSDV`. Users can now compute summary statistics once and re-plot under either VPC flavor by toggling `plot_vpc_cont(out, pcvpc = ...)`.
 * `df_vpcstats` accepts combined simulation output directly from `df_mrgsim_replicate`.
 * Add `loq` handling to VPC plots with observed quantile censoring.
-* `plot_vpc_cont` inherits `loq` from `LLOQ` column in `sim` when not explicitly provided.
+* `plot_vpc_cont` inherits `loq` from `LLOQ` column in `data` when not explicitly provided.
 * `plot_vpc_cont` ignores `loq` when `pcvpc = TRUE` (LLOQ not meaningful on prediction-corrected scale).
 * `plot_vpc_cont` warns when `loq` is inherited from the `LLOQ` column and `pcvpc = TRUE`, noting that BLQ censoring is applied before prediction-correction and that no LOQ reference line is drawn on the PC scale. Pass `loq` explicitly to acknowledge and suppress the warning.
-* Unified BLQ pipeline: all censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting / `vpcstats = TRUE` return. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
+* Unified BLQ pipeline: all censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
 * Per-row LLOQ inheritance: when `loq = NULL` and the input dataset's `LLOQ` column carries multiple unique values (e.g., assay update mid-study, pooled multi-cohort dataset), each observation is censored against its own row's `LLOQ`. The unique non-NA values are exposed via `config$loq` (a numeric vector) and made available to downstream consumers. Replaces the prior "scalar-or-refuse" inheritance that warned and silently disabled BLQ handling on multi-valued `LLOQ`.
 * Per-facet LLOQ reference lines: when a stratified VPC plot has per-row `LOQ` available, `plot_build_vpc()` draws one ref line per facet using the `(strat_var × LOQ)` distinct combinations from `compute_out$obs`. Each facet shows only the LLOQ(s) applicable to its strat-level rows (e.g., Part 1 shows LLOQ = 1, Part 2 shows LLOQ = 2). Falls back to global ref lines when unstratified or when the container lacks `obs$LOQ`.
 * `plot_vpc_legend()` now accepts vector `lloq` — one legend entry is registered per unique LLOQ value, formatted as `LLOQ = <value>` and rendered with the theme's `loq_line$linetype` (was hard-coded `"solid"`). Pass `compute_out$config$loq` directly to mirror the multi-LLOQ ref-line set on the VPC plot.
@@ -120,7 +113,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * Standardize `TRUE`/`FALSE` evaluation and error messaging across all functions.
 * Centralize input validation in `utils_check.R`.
 * Update `size` to `linewidth` for line geom aesthetics throughout.
-* Expand test coverage from ~100 to 480+ tests.
+* Expand test coverage from ~100 to 510+ tests.
 * VPC pipeline column-group registry: internal vectors (`.vpc_count_cols`, `.vpc_blq_cols`, `.vpc_obs_quantile_cols`, `.vpc_sim_quantile_cols`, `.vpc_meta_cols`) replace the duplicated column lists previously inlined inside `df_vpccompute()` (relocate, rename_with, var_infna across-mutate). Adding a new column group is now a single-site change.
 * Centralize the bin-variable name as the internal constant `BIN_MID_VAR` instead of repeating the `"BIN_MID"` literal across `df_vpcpreprocess`, `df_vpccompute`, `df_vpcstats`, `plot_vpc_cont`, and `plot_build_vpc`.
 * Internal `validate_pmx_stats()` helper checks the structural shape of the shared base class (`stats`/`obs`/`config` slots, types). The subclass validators `validate_vpc_stats()` and `validate_doseprop_stats()` delegate to it and add their own column / config-key checks. Called at the top of `plot_build_vpc()` and `plot_build_doseprop()`, surfacing clear errors before plotting deep-fails inside `aes()`.
@@ -128,8 +121,8 @@ This is a major refactor of the package focused on simplifying function interfac
 * Direct unit tests for the internal `compute_one_flavor()` helper (column-group output, `loq = NULL` drops `sim_prop_blq_*`, `pcvpc` flag drives BLQ-detection branch, `var_infna` is applied, `obs_n` matches records-per-bin).
 
 ## Documentation
-* Restructure vignettes: separate PK EDA, PK/PD EDA, GOF diagnostics, VPC workflow, and plot aesthetics into dedicated vignettes with cross-links.
-* New `Dose-Proportionality Workflow` vignette covering the `df_doseprop()` / `plot_build_doseprop()` / `plot_doseprop()` pipeline, the `doseprop_stats` / `pmx_stats` class system with `print()` / `summary()` / `as.data.frame()` methods, the dual-mode precomputed-stats path, and theme customization. The dose-proportionality section in the PK EDA vignette is now a brief NCA-derivation pointer to this dedicated workflow.
+* Restructure vignettes: combined PK and PK/PD exploratory analyses, GOF diagnostics, VPC workflow, dose-proportionality workflow, and plot themes & aesthetics into dedicated vignettes with cross-links.
+* New `Dose-Proportionality Workflow` vignette covering the `df_doseprop()` / `plot_build_doseprop()` / `plot_doseprop()` pipeline, the `doseprop_stats` / `pmx_stats` class system with `print()` / `summary()` / `as.data.frame()` methods, the dual-mode precomputed-stats path, and theme customization. The exploratory PK/PD vignette cross-links to this dedicated workflow rather than embedding a dose-proportionality section.
 * `Plot Themes and Aesthetics` vignette gains an "Inspecting and Validating Themes" section covering the `pmx_element` / `pmx_theme` S3 system (`print()` output, the `is_pmx_element()` / `is_pmx_theme()` predicates, and `inherits()`-based specific-type checks) and a "Composing themes with `+`" section showing partial-theme construction via `pmx_theme()` and `+.pmx_theme` / `+.pmx_element` composition.
 * `Visual Predictive Check Workflow` vignette gains an "Inspecting the `vpc_stats` object" section demonstrating `print()`, `summary()`, `as.data.frame()`, and `is_vpc_stats()` on the `df_vpcstats()` return, and a "Pipeline Column Contracts" reference section documenting the input/output column expectations of `df_mrgsim_replicate()` → `df_vpcstats()` → `plot_build_vpc()`.
 * Move all narrative vignettes to the pkgdown site (`https://ryancrass.github.io/pmxhelpr/articles/`). The package no longer ships built vignettes in `inst/doc/`, which keeps the installed package small. Content is unchanged.

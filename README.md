@@ -11,10 +11,8 @@
 The goal of pmxhelpr is to make pharmacometrics workflows more
 standardized, efficient, and reproducible. This package provides helper
 and wrapper functions for common steps in the modeling analysis workflow
-outside of model parameter estimation.
-
-These include exploratory data analysis, model evaluation, and model
-application.
+outside of model parameter estimation. Currently, workflows cover key
+steps in exploratory data analysis and model evaluation.
 
 ## Documentation
 
@@ -37,11 +35,13 @@ articles:
 ## Installation
 
 You can install the development version of pmxhelpr from
-[GitHub](https://github.com/) with:
+[GitHub](https://github.com/ryancrass/pmxhelpr/releases/latest) with:
+
+The most recent tagged version (`@vX.Y.Z`) can be installed with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr")
+devtools::install_github("ryancrass/pmxhelpr@vX.Y.Z")
 ```
 
 ## Function Naming Conventions

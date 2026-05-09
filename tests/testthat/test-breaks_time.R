@@ -5,9 +5,11 @@ test_that("Output is a `numeric` vector ", {
   expect_vector(pmxhelpr:::var_timebreaks(data_sad$NTIME), ptype = numeric())
 })
 
-test_that("Length of time bins returned matches `n` argument", {
-  expect_lte(length(pmxhelpr:::var_timebreaks(data_sad$NTIME, n = 10)),
-             10)
+test_that("var_timebreaks honors n upper bound and returns monotonic increasing breaks", {
+  breaks <- pmxhelpr:::var_timebreaks(data_sad$NTIME, n = 10)
+  expect_lte(length(breaks), 10)
+  expect_gte(length(breaks), 2)
+  expect_true(all(diff(breaks) > 0))
 })
 
 test_that("Maximum time break is <= maximum value of the time binning variable ", {

@@ -74,36 +74,35 @@ test_that("Error if argument `loq_method` is not one of 0, 1, 2", {
                regexp = "argument `loq_method` must be")
 })
 
-test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 1", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 1, loq = "$"),
-               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
-})
-
-test_that("Error if argument `loq` is not coercible to numeric and `loq_method` = 2", {
-  expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 2, loq = "$"),
-               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
+test_that("Error if argument `loq` is not coercible to numeric (loq_method 1 and 2)", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  for (m in c(1, 2)) {
+    expect_error(
+      plot_dvtime(data = d, dv_var = "ODV", loq_method = m, loq = "$"),
+      regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`"
+    )
+  }
 })
 
 test_that("No error if variable `LLOQ` exists in `data` and `loq` = NULL and `loq_method` != 0", {
   expect_no_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 1))
 })
 
-test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = 1", {
-  expect_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq_method = 1),
-               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
+test_that("Error if `LLOQ` is missing and `loq` = NULL (loq_method 1 and 2)", {
+  d <- dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ)
+  for (m in c(1, 2)) {
+    expect_error(
+      plot_dvtime(data = d, dv_var = "ODV", loq_method = m),
+      regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`"
+    )
+  }
 })
 
-test_that("Error if variable `LLOQ` does not exist in `data` and `loq` = NULL and `loq_method` = `", {
-  expect_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq_method = 2),
-               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`")
-})
-
-test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 1", {
-  expect_no_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq = 1, loq_method = 1))
-})
-
-test_that("No error if variable `LLOQ` does not exist in `data` and `loq` = a numeric value and `loq_method` = 2", {
-  expect_no_error(plot_dvtime(data = dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ), dv_var = "ODV", loq = 1, loq_method = 2))
+test_that("No error if `LLOQ` is missing and `loq` is numeric (loq_method 1 and 2)", {
+  d <- dplyr::select(dplyr::filter(data_sad, CMT != 3), -LLOQ)
+  for (m in c(1, 2)) {
+    expect_no_error(plot_dvtime(data = d, dv_var = "ODV", loq = 1, loq_method = m))
+  }
 })
 
 

@@ -2,13 +2,6 @@
 
 #####plot_dvtime_theme####
 
-test_that("plot_dvtime_theme returns a named list with defaults", {
-  theme <- plot_dvtime_theme()
-  expect_type(theme, "list")
-  expect_true(length(theme) > 0)
-  expect_true(all(nchar(names(theme)) > 0))
-})
-
 test_that("plot_dvtime_theme override merges correctly", {
   theme <- plot_dvtime_theme(ref_line = pmx_line(linewidth = 99))
   expect_equal(theme$ref_line$linewidth, 99)
@@ -53,13 +46,6 @@ test_that("plot_dvtime_theme elements have correct classes", {
 
 #####plot_dvconc_theme####
 
-test_that("plot_dvconc_theme returns a named list with defaults", {
-  theme <- plot_dvconc_theme()
-  expect_type(theme, "list")
-  expect_true("loess" %in% names(theme))
-  expect_true("color" %in% names(theme$loess))
-})
-
 test_that("plot_dvconc_theme override merges correctly", {
   theme <- plot_dvconc_theme(loess = pmx_trend(color = "red"))
   expect_equal(theme$loess$color, "red")
@@ -90,13 +76,6 @@ test_that("plot_dvconc_theme elements have correct classes", {
 
 #####plot_doseprop_theme####
 
-test_that("plot_doseprop_theme returns a named list with defaults", {
-  theme <- plot_doseprop_theme()
-  expect_type(theme, "list")
-  expect_true("linear" %in% names(theme))
-  expect_true("color" %in% names(theme$linear))
-})
-
 test_that("plot_doseprop_theme override merges correctly", {
   theme <- plot_doseprop_theme(linear = pmx_trend(color = "red"))
   expect_equal(theme$linear$color, "red")
@@ -126,15 +105,6 @@ test_that("plot_doseprop_theme obs shortcut applies to obs_point", {
 })
 
 #####plot_gof_theme####
-
-test_that("plot_gof_theme returns a named list with defaults", {
-  theme <- plot_gof_theme()
-  expect_type(theme, "list")
-  expect_true("obs_point" %in% names(theme))
-  expect_true("cent_point" %in% names(theme))
-  expect_true("cent_line" %in% names(theme))
-  expect_true("cent_color" %in% names(theme))
-})
 
 test_that("plot_gof_theme override merges correctly", {
   theme <- plot_gof_theme(cent_line = pmx_line(linewidth = 5))
@@ -186,13 +156,6 @@ test_that("plot_gof_theme elements have correct classes", {
 })
 
 #####plot_vpc_theme####
-
-test_that("plot_vpc_theme returns a named list with defaults", {
-  theme <- plot_vpc_theme()
-  expect_type(theme, "list")
-  expect_true("obs_point" %in% names(theme))
-  expect_true("sim_median_line" %in% names(theme))
-})
 
 test_that("plot_vpc_theme override merges correctly", {
   theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"))
@@ -259,4 +222,38 @@ test_that("plot_gof_theme cent shortcut applies alpha to point and line", {
   theme <- plot_gof_theme(cent = pmx_style(alpha = 0.5))
   expect_equal(theme$cent_point$alpha, 0.5)
   expect_equal(theme$cent_line$alpha, 0.5)
+})
+
+#####plot_vpc_shown####
+
+test_that("plot_vpc_shown returns the documented defaults", {
+  s <- plot_vpc_shown()
+  expect_type(s, "list")
+  expect_true(s$obs_point)
+  expect_true(s$obs_pi_line)
+  expect_true(s$obs_median_line)
+  expect_false(s$sim_pi_line)
+  expect_true(s$sim_pi_ci)
+  expect_false(s$sim_pi_area)
+  expect_false(s$sim_median_line)
+  expect_true(s$sim_median_ci)
+})
+
+test_that("plot_vpc_shown partial override preserves other defaults", {
+  s <- plot_vpc_shown(sim_pi_area = TRUE, sim_pi_ci = FALSE)
+  expect_true(s$sim_pi_area)
+  expect_false(s$sim_pi_ci)
+  expect_true(s$obs_point)
+  expect_true(s$obs_pi_line)
+  expect_true(s$sim_median_ci)
+})
+
+test_that("plot_vpc_shown returns expected keys", {
+  s <- plot_vpc_shown()
+  expect_setequal(
+    names(s),
+    c("obs_point", "obs_pi_line", "obs_median_line",
+      "sim_pi_line", "sim_pi_ci", "sim_pi_area",
+      "sim_median_line", "sim_median_ci")
+  )
 })

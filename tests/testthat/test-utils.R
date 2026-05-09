@@ -341,3 +341,99 @@ test_that("check_quantile_scalar rejects vector input", {
                regexp = "single numeric")
 })
 
+#####df_prep_blq#####
+
+test_that("df_prep_blq with loq_method = 0 is a no-op", {
+  d <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1, 2)), DV = ODV)
+  out <- pmxhelpr:::df_prep_blq(d, loq = 10, loq_method = 0)
+  expect_identical(out, d)
+})
+
+test_that("df_prep_blq loq_method = 1 imputes 0 pre-dose and 0.5*LOQ post-dose for MDV==1", {
+  d <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1, 2)), DV = ODV)
+  out <- pmxhelpr:::df_prep_blq(d, loq = 10, loq_method = 1)
+  pre  <- out$DV[out$MDV == 1 & out$EVID == 0 & out$TIME <= 0]
+  post <- out$DV[out$MDV == 1 & out$EVID == 0 & out$TIME >  0]
+  expect_true(length(pre)  > 0 && all(pre  == 0))
+  expect_true(length(post) > 0 && all(post == 5))
+})
+
+test_that("df_prep_blq loq_method = 2 imputes 0.5*LOQ for all MDV==1 rows", {
+  d <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1, 2)), DV = ODV)
+  out <- pmxhelpr:::df_prep_blq(d, loq = 10, loq_method = 2)
+  blq <- out$DV[out$MDV == 1 & out$EVID == 0]
+  expect_true(length(blq) > 0 && all(blq == 5))
+})
+
+test_that("df_prep_blq loq_method = 2 lifts pred_vars below LOQ to 0.5*LOQ", {
+  d <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1, 2)), DV = ODV)
+  d$PRED <- d$DV
+  out <- pmxhelpr:::df_prep_blq(d, loq = 10, loq_method = 2,
+                                pred_vars = "PRED")
+  obs <- out[out$EVID == 0, ]
+  below <- obs$PRED[!is.na(obs$PRED) & obs$PRED < 10]
+  expect_true(length(below) > 0 && all(below == 5))
+})
+
+#####internal check_* helpers#####
+
+test_that("check_modlib errors with the model name when the path is missing", {
+  expect_error(pmxhelpr:::check_modlib("nope", tempfile()),
+               regexp = "`nope`.*does not exist")
+})
+
+test_that("check_mrgmod accepts an mrgmod object", {
+  m <- model_mread_load("pkmodel")
+  expect_silent(pmxhelpr:::check_mrgmod(m, "model"))
+})
+
+test_that("check_mrgmod errors on non-mrgmod input", {
+  expect_error(pmxhelpr:::check_mrgmod(list(), "model"),
+               regexp = "must be class `mrgmod`")
+})
+
+test_that("check_mrgmod_outputvars errors when neither sim_dv_var nor ipred_var is captured", {
+  m <- model_mread_load("pkmodel")
+  expect_error(
+    pmxhelpr:::check_mrgmod_outputvars(m, "DOES_NOT_EXIST", "ALSO_NOT"),
+    regexp = "must contain output variables"
+  )
+})
+
+test_that("check_capture errors with the variable name when missing from capture", {
+  m <- model_mread_load("pkmodel")
+  expect_error(
+    pmxhelpr:::check_capture(m, "NOPE", "pkmodel", "sim_dv_var"),
+    regexp = "must be captured as output"
+  )
+})
+
+test_that("check_loglog_args errors on bad method", {
+  expect_error(pmxhelpr:::check_loglog_args("other", 0.95, 3),
+               regexp = "must be `normal` or `tdist`")
+})
+
+test_that("check_loglog_args errors on ci outside (0,1)", {
+  expect_error(pmxhelpr:::check_loglog_args("normal", 1.5, 3),
+               regexp = "must be a numeric value between 0 and 1")
+})
+
+test_that("check_loglog_args accepts valid arguments silently", {
+  expect_silent(pmxhelpr:::check_loglog_args("normal", 0.95, 3))
+  expect_silent(pmxhelpr:::check_loglog_args("tdist",  0.90, 4))
+})
+
+test_that("check_pipeline_args_dropped accepts plot-only args silently", {
+  fake_call <- quote(plot_vpc_cont(data = stats_obj, theme = my_theme))
+  expect_silent(pmxhelpr:::check_pipeline_args_dropped(
+    fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"))
+})
+
+test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
+  fake_call <- quote(plot_vpc_cont(data = stats_obj, loq = 1, mode = "drop"))
+  expect_error(
+    pmxhelpr:::check_pipeline_args_dropped(
+      fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"),
+    regexp = "loq|mode"
+  )
+})

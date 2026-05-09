@@ -1,20 +1,26 @@
 #####Integration Tests####
 ## Cross-function workflow tests
 
-test_that("var_addn -> plot_dvtime: factor col_var from var_addn is accepted", {
+test_that("var_addn -> plot_dvtime: factor col_var maps to the color aesthetic", {
   data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvtime(data, dv_var = "ODV", col_var = "Dose")
   expect_s3_class(p, "ggplot")
+  expect_true("colour" %in% names(p$mapping))
+  expect_equal(rlang::quo_name(p$mapping$colour), "Dose")
 })
 
-test_that("df_mrgsim_addpred -> plot_vpc_cont: prediction-corrected DV pipeline produces valid output", {
+test_that("df_mrgsim_addpred -> plot_vpc_cont: prediction-corrected pipeline shifts pc medians vs std", {
   model <- model_mread_load("pkmodel")
   data_pred <- df_mrgsim_addpred(data_sad, model)
   expect_s3_class(data_pred, "data.frame")
+  expect_true("PRED" %in% colnames(data_pred))
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
-                             replicates = 1, dv_var = "ODV")
-  expect_s3_class(sim, "data.frame")
-  expect_equal(nrow(data_pred), nrow(sim))
+                              replicates = 1, dv_var = "ODV")
+  stats <- df_vpcstats(sim, loq = 1)
+  ## pc-flavor pred-correction must produce different sim medians than std
+  expect_false(identical(stats$stats$sim_med_med,
+                          stats$stats$pc_sim_med_med))
+  ## And the plot still builds
   p <- plot_vpc_cont(data = sim, pcvpc = TRUE, loq = 1)
   expect_s3_class(p, "ggplot")
 })
@@ -27,12 +33,17 @@ test_that("var_addn -> plot_dvconc: factor col_var works in dvconc with col_tren
   expect_true("colour" %in% names(p$mapping))
 })
 
-test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces VPC plot", {
+test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces a VPC with sim and obs geoms", {
   model <- model_mread_load("pkmodel")
   sim <- df_mrgsim_replicate(data = data_sad, model = model,
-                             replicates = 5, dv_var = "ODV")
+                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_s3_class(p, "ggplot")
+  has_geom <- function(p, cls) any(vapply(p$layers,
+                                            function(l) inherits(l$geom, cls),
+                                            logical(1)))
+  expect_true(has_geom(p, "GeomRibbon"))   # sim PI CI ribbon
+  expect_true(has_geom(p, "GeomPoint"))    # obs points
 })
 
 test_that("df_doseprop + plot_doseprop: same data produces consistent table and plot", {

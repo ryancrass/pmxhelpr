@@ -58,6 +58,30 @@ plot_vpc_legend <- function(ci = 0.90,
   df <- data.frame(x=NA_real_, y=NA_real_)
   plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y))
 
+  ## Named-vector construction for the manual scales: pairs each legend label
+  ## (the data value mapped in the geom aes()) with its aesthetic value. Names
+  ## must be set with stats::setNames() because most labels are held in
+  ## variables (e.g. `obs_pilab`), not literal tokens. Passing named values to
+  ## scale_*_manual() avoids the positional coupling between `breaks` and
+  ## `values` that the previous assign()-based construction relied on.
+  shape_vals <- if (isTRUE(nlist$obs_point)) {
+    c("Obs" = plist$obs_point$shape)
+  } else NULL
+
+  linetype_vals <- c(
+    if (isTRUE(nlist$obs_median_line)) stats::setNames(plist$obs_median_line$linetype, obs_cent),
+    if (isTRUE(nlist$obs_pi_line))     stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
+    if (isTRUE(nlist$sim_median_line)) stats::setNames(plist$sim_median_line$linetype, sim_cent),
+    if (isTRUE(nlist$sim_pi_line))     stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
+    if (!is.null(lloq))                stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
+  )
+
+  fill_vals <- c(
+    if (isTRUE(nlist$sim_median_ci)) stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
+    if (isTRUE(nlist$sim_pi_ci))     stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
+    if (isTRUE(nlist$sim_pi_area))   stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
+  )
+
   plot <- plot_blank +
     {if(nlist$obs_point == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
                                                   color = plist$obs_point$color,
@@ -87,35 +111,15 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                   fill = sim_pilab),
                                                      alpha = plist$sim_pi_area$alpha, na.rm= TRUE)}+
-    {if(nlist$obs_point == TRUE) ggplot2::scale_shape_manual(name = "Points",
-                       breaks = obs,
-                       values = assign(obs, plist$obs_point$shape))}+
+    {if (isTRUE(nlist$obs_point)) ggplot2::scale_shape_manual(name = "Points",
+                                                              breaks = names(shape_vals),
+                                                              values = shape_vals)} +
     ggplot2::scale_linetype_manual(name = "Lines",
-                          breaks = c(
-                            {if(nlist$obs_median_line == TRUE) obs_cent},
-                            {if(nlist$obs_pi_line == TRUE) obs_pilab},
-                            {if(nlist$sim_median_line == TRUE) sim_cent},
-                            {if(nlist$sim_pi_line == TRUE) sim_pilab},
-                            {if(!is.null(lloq)) lloq_lab}
-                            ),
-                          values = c(
-                            {if(nlist$obs_median_line == TRUE) assign(obs_cent, plist$obs_median_line$linetype)},
-                            {if(nlist$obs_pi_line == TRUE) assign(obs_pilab, plist$obs_pi_line$linetype)},
-                            {if(nlist$sim_median_line == TRUE) assign(sim_cent, plist$sim_median_line$linetype)},
-                            {if(nlist$sim_pi_line == TRUE) assign(sim_pilab, plist$sim_pi_line$linetype)},
-                            {if(!is.null(lloq)) rep(plist$loq_line$linetype, length(lloq_lab))}
-                            )) +
+                                   breaks = names(linetype_vals),
+                                   values = linetype_vals) +
     ggplot2::scale_fill_manual(name = "Intervals",
-                      breaks = c(
-                        {if(nlist$sim_median_ci == TRUE) sim_cilab_cent},
-                        {if(nlist$sim_pi_ci == TRUE) sim_cilab_pi},
-                        {if(nlist$sim_pi_area == TRUE) sim_pilab}
-                        ),
-                      values = c(
-                        {if(nlist$sim_median_ci == TRUE) assign(sim_cilab_cent, plist$sim_median_ci$fill)},
-                        {if(nlist$sim_pi_ci == TRUE)assign(sim_cilab_pi, plist$sim_pi_ci$fill)},
-                        {if(nlist$sim_pi_area == TRUE)assign(sim_pilab, plist$sim_pi_area$fill)}
-                        ))+
+                               breaks = names(fill_vals),
+                               values = fill_vals) +
     ggplot2::theme_void()+
     ggplot2::theme(legend.position = "inside",
                    legend.box = "horizontal",

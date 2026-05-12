@@ -28,17 +28,21 @@
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC).
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
-#'    or `NULL` to suppress. When `strat_var` is set and `compute_out$obs`
+#'    or `NULL` to suppress. When omitted (inherited from
+#'    `compute_out$config$loq`) and `strat_var` is set and `compute_out$obs`
 #'    carries a row-aligned `LOQ` column, ref lines are drawn per facet —
 #'    each facet shows only the LLOQ values applicable to its strat-level
-#'    rows. Otherwise (no stratification, or legacy containers without
-#'    `obs$LOQ`), one global reference line is drawn per unique value of
-#'    `loq`. The legend entry for LLOQ is *not* attached here — pass the
-#'    same value to [plot_vpc_legend()] when composing the legend panel.
-#'    When omitted, the value is read from `compute_out$config$loq` (already
-#'    a vector of unique non-NA LOQ values when [df_vpcstats()] populated the
-#'    container). Forced to `NULL` when `pcvpc = TRUE` (LOQ has no meaning on
-#'    the prediction-corrected scale).
+#'    rows. When `loq` is supplied explicitly, the value always wins and
+#'    one global reference line is drawn per unique value of `loq` (the
+#'    per-facet column-based dispatch is reserved for the inherited case).
+#'    In the no-stratification or no-`obs$LOQ` cases, a global reference
+#'    line is drawn per unique value of `loq` regardless of inheritance.
+#'    The legend entry for LLOQ is *not* attached here — pass the same
+#'    value to [plot_vpc_legend()] when composing the legend panel.
+#'    `compute_out$config$loq` is already a vector of unique non-NA LOQ
+#'    values when [df_vpcstats()] populated the container. Forced to `NULL`
+#'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
+#'    scale).
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. When `NULL`, the value is read from
 #'    `compute_out$config$strat_var` so output of [df_vpcstats()] is
@@ -75,9 +79,13 @@ plot_build_vpc <- function(compute_out,
     strat_var_str <- compute_out$config$strat_var
   }
 
-  ## LOQ dispatch: missing() distinguishes "not passed" (inherit from config)
-  ## from "explicit NULL" (suppress ref line).
-  if (missing(loq)) loq <- compute_out$config$loq
+  ## LOQ dispatch: missing() distinguishes "not passed" (inherit from config),
+  ## "explicit NULL" (suppress ref line), and "explicit value" (override). The
+  ## inherited flag is preserved so the per-facet column-based rendering below
+  ## is reserved for the inherited case; an explicit `loq` always draws a
+  ## global hline.
+  loq_inherited <- missing(loq)
+  if (loq_inherited) loq <- compute_out$config$loq
 
   vpcstats <- dplyr::filter(compute_out$stats,
                             (.data$obs_n - .data$obs_n_blq) >= min_bin_count)
@@ -190,7 +198,7 @@ plot_build_vpc <- function(compute_out,
   }
 
   if (!is.null(loq)) {
-    if (!is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
+    if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
       loq_facet_df <- unique(
         compute_out$obs[!is.na(compute_out$obs$LOQ),
                         c(strat_var_str, "LOQ"),

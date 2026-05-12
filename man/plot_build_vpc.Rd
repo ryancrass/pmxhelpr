@@ -37,17 +37,21 @@ BLQ-encoded records do not count toward this threshold.}
 LOQ reference line. Default is \code{FALSE} (standard VPC).}
 
 \item{loq}{Numeric scalar or vector of LOQ values for the reference line,
-or \code{NULL} to suppress. When \code{strat_var} is set and \code{compute_out$obs}
+or \code{NULL} to suppress. When omitted (inherited from
+\code{compute_out$config$loq}) and \code{strat_var} is set and \code{compute_out$obs}
 carries a row-aligned \code{LOQ} column, ref lines are drawn per facet —
 each facet shows only the LLOQ values applicable to its strat-level
-rows. Otherwise (no stratification, or legacy containers without
-\code{obs$LOQ}), one global reference line is drawn per unique value of
-\code{loq}. The legend entry for LLOQ is \emph{not} attached here — pass the
-same value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} when composing the legend panel.
-When omitted, the value is read from \code{compute_out$config$loq} (already
-a vector of unique non-NA LOQ values when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the
-container). Forced to \code{NULL} when \code{pcvpc = TRUE} (LOQ has no meaning on
-the prediction-corrected scale).}
+rows. When \code{loq} is supplied explicitly, the value always wins and
+one global reference line is drawn per unique value of \code{loq} (the
+per-facet column-based dispatch is reserved for the inherited case).
+In the no-stratification or no-\code{obs$LOQ} cases, a global reference
+line is drawn per unique value of \code{loq} regardless of inheritance.
+The legend entry for LLOQ is \emph{not} attached here — pass the same
+value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} when composing the legend panel.
+\code{compute_out$config$loq} is already a vector of unique non-NA LOQ
+values when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the container. Forced to \code{NULL}
+when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
+scale).}
 
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. When \code{NULL}, the value is read from

@@ -431,6 +431,34 @@ test_that("plot_build_vpc draws per-facet LLOQ ref lines when stratified", {
   expect_equal(nrow(hline_data), 2)
 })
 
+test_that("plot_build_vpc: explicit loq overrides per-facet column dispatch (PR#19 review)", {
+  ## Regression for PR#19 review (jacobdum): when the caller supplies `loq`
+  ## explicitly to plot_build_vpc(), it must always draw global hline(s) at
+  ## that value, even on stratified data that carries a row-aligned LOQ
+  ## column. Previously the column branch silently won and the explicit `loq`
+  ## was ignored on that path.
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 5,
+                                 dv_var = "ODV",
+                                 num_vars = c("LLOQ"),
+                                 char_vars = c("PART"))
+  testsim$LLOQ[testsim$PART == "Part 2-FE"] <- 2
+  out <- df_vpcstats(testsim, strat_var = PART)
+
+  p <- plot_build_vpc(out, loq = 5)
+
+  hline_layer <- Filter(function(L) inherits(L$geom, "GeomHline"), p$layers)
+  expect_length(hline_layer, 1)
+  # Global-hline branch: geom_hline(yintercept = loq) builds a one-row
+  # layer-data data.frame(yintercept = loq), and the strat/LOQ columns
+  # carried by the per-facet branch are absent.
+  hline_data <- as.data.frame(hline_layer[[1]]$data)
+  expect_equal(hline_data$yintercept, 5)
+  expect_false("LOQ"  %in% colnames(hline_data))
+  expect_false("PART" %in% colnames(hline_data))
+})
+
 test_that("plot_vpc_cont warns when strat_var contains NA values", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),

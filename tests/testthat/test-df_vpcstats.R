@@ -349,7 +349,7 @@ test_that("df_vpcstats errors on ci outside (0,1)", {
                regexp = "must be a single numeric value in \\(0, 1\\)")
 })
 
-##### Direct tests for compute_one_flavor() #####
+##### Direct tests for compute_vpcstat() #####
 
 ## Setup: preprocessed test data.
 testsim_pre <- pmxhelpr:::df_vpcpreprocess(
@@ -365,8 +365,8 @@ testsim_pre <- pmxhelpr:::df_vpcpreprocess(
                   pi = c(0.05, 0.95),
                   ci_bounds = c(0.05, 0.95))
 
-test_that("compute_one_flavor: returns a data.frame with the expected column groups", {
-  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+test_that("compute_vpcstat: returns a data.frame with the expected column groups", {
+  out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
@@ -383,8 +383,8 @@ test_that("compute_one_flavor: returns a data.frame with the expected column gro
   expect_true(all(expected %in% colnames(out)))
 })
 
-test_that("compute_one_flavor: has_loq = FALSE omits the sim_prop_blq_* columns", {
-  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+test_that("compute_vpcstat: has_loq = FALSE omits the sim_prop_blq_* columns", {
+  out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
@@ -394,18 +394,18 @@ test_that("compute_one_flavor: has_loq = FALSE omits the sim_prop_blq_* columns"
                     %in% colnames(out)))
 })
 
-test_that("compute_one_flavor: pcvpc flag drives the sim_prop_blq detection branch", {
+test_that("compute_vpcstat: pcvpc flag drives the sim_prop_blq detection branch", {
   ## With pcvpc = TRUE the detection uses is.na(SIMDV); with pcvpc = FALSE it
   ## uses (SIMDV < loq) | is.na(SIMDV). On unmodified preprocessed data
   ## (no pred-correction applied), SIMDV is raw and has no NAs, so the std
   ## branch counts BLQ via the < loq test and the pc branch counts zero.
-  std <- pmxhelpr:::compute_one_flavor(testsim_pre,
+  std <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = TRUE, pcvpc = FALSE)
-  pc  <- pmxhelpr:::compute_one_flavor(testsim_pre,
+  pc  <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
@@ -415,10 +415,41 @@ test_that("compute_one_flavor: pcvpc flag drives the sim_prop_blq detection bran
   expect_true(all(pc$sim_prop_blq_med == 0, na.rm = TRUE))
 })
 
-test_that("compute_one_flavor: var_infna is applied — no -Inf in quantile cols", {
+test_that("compute_vpcstat: NA-LOQ rows with finite SIMDV count as non-BLQ in denominator", {
+  ## Regression for PR#19 review (jacobdum): when LOQ is NA on a row with a
+  ## finite SIMDV, the comparison `SIMDV < LOQ` returns NA. The previous impl
+  ## used `na.rm = TRUE`, dropping those rows from both numerator and
+  ## denominator. The fix coalesces NA -> FALSE so such rows count as
+  ## non-BLQ.
+  ##
+  ## One bin, one replicate, four rows:
+  ##   LOQ = 5,  SIMDV = 3   -> BLQ
+  ##   LOQ = 5,  SIMDV = 10  -> not BLQ
+  ##   LOQ = NA, SIMDV = 20  -> not BLQ (under fix); dropped (under bug)
+  ##   LOQ = NA, SIMDV = NA  -> BLQ
+  ## Correct proportion = 2/4 = 0.5; buggy proportion = 2/3.
+  pre <- data.frame(
+    BIN_MID = rep(1, 4),
+    SIM     = rep(1, 4),
+    OBSDV   = c(3, 10, 20, NA),
+    SIMDV   = c(3, 10, 20, NA),
+    LOQ     = c(5, 5, NA, NA)
+  )
+  out <- pmxhelpr:::compute_vpcstat(pre,
+                                       group_vars = "BIN_MID",
+                                       irep_name = "SIM",
+                                       pi = c(0.05, 0.95),
+                                       ci_bounds = c(0.05, 0.95),
+                                       has_loq = TRUE, pcvpc = FALSE)
+  ## With a single replicate, sim_prop_blq_{low,med,hi} all equal the
+  ## per-replicate proportion.
+  expect_equal(out$sim_prop_blq_med, 0.5, ignore_attr = TRUE)
+})
+
+test_that("compute_vpcstat: var_infna is applied — no -Inf in quantile cols", {
   ## Push every observation BLQ via a huge loq; OBSDV becomes -Inf in
   ## preprocess, then ranks low at quantile, then should be masked to NA by
-  ## var_infna inside compute_one_flavor.
+  ## var_infna inside compute_vpcstat.
   pre_all_blq <- pmxhelpr:::df_vpcpreprocess(
     testsim_raw,
     time_var_str = "TIME", ntime_var_str = "NTIME",
@@ -427,7 +458,7 @@ test_that("compute_one_flavor: var_infna is applied — no -Inf in quantile cols
     strat_var_str = NULL, irep_name_str = "SIM",
     loq = 1e6
   )
-  out <- pmxhelpr:::compute_one_flavor(pre_all_blq,
+  out <- pmxhelpr:::compute_vpcstat(pre_all_blq,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,
@@ -441,8 +472,8 @@ test_that("compute_one_flavor: var_infna is applied — no -Inf in quantile cols
   }
 })
 
-test_that("compute_one_flavor: obs_n equals records-per-bin (single replicate)", {
-  out <- pmxhelpr:::compute_one_flavor(testsim_pre,
+test_that("compute_vpcstat: obs_n equals records-per-bin (single replicate)", {
+  out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
                                        irep_name = .cof_args$irep_name,
                                        pi = .cof_args$pi,

@@ -1,6 +1,6 @@
 ## ---- VPC pipeline conventions -------------------------------------------
 ## Internal registry of column-naming conventions and column groups produced
-## by df_vpccompute(). Used by compute_one_flavor() (var_infna mutate),
+## by df_vpccompute(). Used by compute_vpcstat() (var_infna mutate),
 ## df_vpccompute() (relocate, pc select + rename), validate_vpc_stats(), and
 ## the public-API default values for `bin_var`. Keep these in sync if a new
 ## column or group is added.
@@ -148,7 +148,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 #'    [`var_infna()`].
 #' @keywords internal
 
-compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
+compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
                                has_loq, pcvpc) {
   stage1 <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
@@ -157,8 +157,9 @@ compute_one_flavor <- function(data, group_vars, irep_name, pi, ci_bounds,
       obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
       sim_prop_blq = if (!isTRUE(has_loq)) NA_real_
         else if (isTRUE(pcvpc)) mean(is.na(.data[["SIMDV"]]))
-        else mean((.data[["SIMDV"]] < .data[["LOQ"]]) | is.na(.data[["SIMDV"]]),
-                  na.rm = TRUE),
+        else mean(dplyr::coalesce(
+                    (.data[["SIMDV"]] < .data[["LOQ"]]) | is.na(.data[["SIMDV"]]),
+                    FALSE)),
       sim_low      = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
       sim_med      = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
       sim_hi       = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
@@ -275,17 +276,17 @@ df_vpccompute <- function(data,
   group_vars <- c(bin_var)
   if (!is.null(strat_var)) group_vars <- c(bin_var, strat_var)
 
-  ## ----- Standard flavor -----
+  ## ----- Standard -----
   std_mode <- if (mode == "auto") "rank" else mode
   data_std <- data
   if (std_mode == "drop") {
     data_std$OBSDV <- var_infna(data_std$OBSDV)
   }
-  stats_std <- compute_one_flavor(data_std, group_vars, irep_name,
+  stats_std <- compute_vpcstat(data_std, group_vars, irep_name,
                                   pi, ci_bounds,
                                   has_loq = !is.null(loq), pcvpc = FALSE)
 
-  ## ----- Prediction-corrected flavor -----
+  ## ----- Prediction-corrected  -----
   pc_mode <- if (mode == "auto") "drop" else mode
   data_pc <- data
   ## SIMDV BLQ encoding is required for pc so that censoring is applied
@@ -305,9 +306,9 @@ df_vpccompute <- function(data,
     dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
                   SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
     dplyr::ungroup()
-  ## Pass has_loq = FALSE for pc so compute_one_flavor doesn't emit
+  ## Pass has_loq = FALSE for pc so compute_vpcstat doesn't emit
   ## sim_prop_blq_* (LOQ has no meaning on the pc scale).
-  stats_pc_full <- compute_one_flavor(data_pc, group_vars, irep_name,
+  stats_pc_full <- compute_vpcstat(data_pc, group_vars, irep_name,
                                       pi, ci_bounds,
                                       has_loq = FALSE, pcvpc = TRUE)
 

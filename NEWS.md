@@ -118,7 +118,7 @@ This is a major refactor of the package focused on simplifying function interfac
 * Centralize the bin-variable name as the internal constant `BIN_MID_VAR` instead of repeating the `"BIN_MID"` literal across `df_vpcpreprocess`, `df_vpccompute`, `df_vpcstats`, `plot_vpc_cont`, and `plot_build_vpc`.
 * Internal `validate_pmx_stats()` helper checks the structural shape of the shared base class (`stats`/`obs`/`config` slots, types). The subclass validators `validate_vpc_stats()` and `validate_doseprop_stats()` delegate to it and add their own column / config-key checks. Called at the top of `plot_build_vpc()` and `plot_build_doseprop()`, surfacing clear errors before plotting deep-fails inside `aes()`.
 * Unified panel theme application across all three plot families via internal `apply_panel_theme(plot, white_panel)` helper. All families blank `panel.grid.minor` and `panel.grid.major.x`; the VPC family additionally passes `white_panel = TRUE` for the white-background variant. Replaces three separate inline `theme()` blocks with a single helper. No visual change.
-* Direct unit tests for the internal `compute_one_flavor()` helper (column-group output, `loq = NULL` drops `sim_prop_blq_*`, `pcvpc` flag drives BLQ-detection branch, `var_infna` is applied, `obs_n` matches records-per-bin).
+* Direct unit tests for the internal `compute_vpcstat()` helper (column-group output, `loq = NULL` drops `sim_prop_blq_*`, `pcvpc` flag drives BLQ-detection branch, `var_infna` is applied, `obs_n` matches records-per-bin).
 
 ## Documentation
 * Restructure vignettes: combined PK and PK/PD exploratory analyses, GOF diagnostics, VPC workflow, dose-proportionality workflow, and plot themes & aesthetics into dedicated vignettes with cross-links.

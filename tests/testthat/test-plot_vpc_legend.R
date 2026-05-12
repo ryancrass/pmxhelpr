@@ -64,6 +64,13 @@ test_that("plot_vpc_legend with lloq adds layers vs the no-lloq default", {
   expect_gt(length(p_loq$layers), length(p_no$layers))
 })
 
+test_that("plot_vpc_legend rejects non-numeric lloq", {
+  expect_error(plot_vpc_legend(lloq = "0.1"),
+               regexp = "argument `lloq` must be class `numeric`")
+  expect_error(plot_vpc_legend(lloq = c(0.1, NA)),
+               regexp = "argument `lloq` must be class `numeric`")
+})
+
 test_that("plot_vpc_legend obs_point = FALSE removes the obs point geom", {
   p_on  <- plot_vpc_legend(shown = plot_vpc_shown(obs_point = TRUE))
   p_off <- plot_vpc_legend(shown = plot_vpc_shown(obs_point = FALSE))

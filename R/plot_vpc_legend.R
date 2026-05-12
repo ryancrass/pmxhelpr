@@ -40,6 +40,7 @@ plot_vpc_legend <- function(ci = 0.90,
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
+  if (!is.null(lloq)) check_numeric_strict(lloq, "lloq")
   lloq_lab <- paste0("LLOQ = ", lloq)
   df_lloq <- if (!is.null(lloq)) {
     data.frame(x = rep(NA_real_, length(lloq)),

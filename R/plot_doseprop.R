@@ -223,6 +223,9 @@ validate_doseprop_stats <- function(x) {
   if (!is.data.frame(x$obs)) {
     rlang::abort("`doseprop_stats$obs` must be a data.frame.")
   }
+  check_varsindf(x$obs, x$config$metric_name_var,  "obs", "config$metric_name_var")
+  check_varsindf(x$obs, x$config$metric_value_var, "obs", "config$metric_value_var")
+  check_varsindf(x$obs, x$config$dose_var,         "obs", "config$dose_var")
   invisible(x)
 }
 

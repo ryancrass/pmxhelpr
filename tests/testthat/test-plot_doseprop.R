@@ -244,6 +244,22 @@ test_that("plot_build_doseprop rejects non-doseprop_stats input", {
                regexp = "must be a `doseprop_stats` object")
 })
 
+test_that("validate_doseprop_stats: config-named columns must exist in obs (PR#19 review)", {
+  ## Regression for PR#19 review (jacobdum): the validator's contract should
+  ## include that the column names recorded in $config actually exist in $obs.
+  ## Otherwise plot_build_doseprop() fails deep inside aes() with a confusing
+  ## error. Build a valid container, then drop the metric_name_var column
+  ## from $obs and confirm the validator aborts with a clear message.
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  broken <- stats
+  broken$obs <- broken$obs[, setdiff(colnames(broken$obs),
+                                     broken$config$metric_name_var),
+                           drop = FALSE]
+  expect_error(plot_build_doseprop(broken),
+               regexp = "`config\\$metric_name_var` must be variable\\(s\\) in `obs`")
+})
+
 test_that("plot_build_doseprop honors se = FALSE", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))

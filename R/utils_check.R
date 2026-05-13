@@ -112,12 +112,6 @@ check_timeu <- function(var){
   }
 }
 
-check_lm <- function(fit, name){
-  if(!"lm" %in% class(fit)){
-    rlang::abort(message = paste0("argument `", name, "` must be class `lm`"))
-  }
-}
-
 check_quantile_pair <- function(x, name) {
   if (!is.numeric(x) || length(x) != 2L || any(is.na(x))) {
     rlang::abort(paste0("argument `", name, "` must be a length-2 numeric vector with no NAs"))

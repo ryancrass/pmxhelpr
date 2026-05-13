@@ -1,47 +1,9 @@
 
-#' Perform a log-log Regression
-#'
-#' @param data Input dataset for log-log regression.
-#'    Default expected format is output from `PKNCA::pk.nca()` (i.e., SDTM PP formatting)
-#' @param metric_value_var Column in `data` containing the exposure metric values
-#'    (dependent variable). Accepts bare names or strings. Default is `PPORRES`.
-#' @param dose_var Column in `data` containing the dose (independent variable).
-#'    Accepts bare names or strings. Default is `DOSE`.
-#'
-#' @family dose proportionality
-#' @return `lm` object
-#' @export mod_loglog
-#'
-#' @examples
-#' mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-#' summary(mod_auc)
-#'
-#' mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
-#' summary(mod_cmax)
-#'
-mod_loglog <- function(data,
-                       metric_value_var = PPORRES,
-                       dose_var = DOSE) {
-
-  metric_value_var_str  <- resolve_var(rlang::enquo(metric_value_var))
-  dose_var_str <- resolve_var(rlang::enquo(dose_var))
-
-  check_df(data, "data")
-  check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
-  check_varsindf(data, dose_var_str, "data", "dose_var")
-  if (nrow(data) < 2) {
-    rlang::abort("argument `data` must contain at least 2 rows for log-log regression")
-  }
-
-  form <- stats::reformulate(
-    termlabels = paste0("log(", dose_var_str, ")"),
-    response   = paste0("log(", metric_value_var_str, ")")
-  )
-  stats::lm(form, data)
-}
-
-
 #' Compute estimate table for log-log regression
+#'
+#' Internal per-fit helper used by [df_doseprop()]. Converts a single `lm` fit
+#' on `log(metric_value) ~ log(dose)` into a one-row stats table with Power,
+#' CI, Proportional, PowerCI, and Interpretation columns.
 #'
 #' @param fit `lm` model object for the log-log regression
 #' @param method character string specifying the distribution to be used to derived the confidence interval.
@@ -50,23 +12,15 @@ mod_loglog <- function(data,
 #'    Options 0.90 (default) and 0.95
 #' @param sigdigits number of significant digits for rounding
 #'
-#' @family dose proportionality
 #' @return `data.frame`
-#' @export df_loglog
-#'
-#' @examples
-#' mod_auc <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-#' df_loglog(mod_auc)
-#'
-#' mod_cmax <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "cmax"))
-#' df_loglog(mod_cmax)
+#' @keywords internal
+#' @noRd
 
 df_loglog <- function(fit,
                       method = "normal",
                       ci = 0.9,
                       sigdigits = 3) {
 
-  check_lm(fit, "fit")
   check_loglog_args(method, ci, sigdigits)
 
   int <- stats::coef(fit)[[1]]
@@ -110,11 +64,20 @@ df_loglog <- function(fit,
 #' [plot_build_doseprop()] can render directly from this object without
 #' re-fitting any regressions.
 #'
+#' @param data Input dataset for log-log regression.
+#'    Default expected format is output from `PKNCA::pk.nca()` (i.e., SDTM PP formatting).
 #' @param metrics character vector of exposure metrics in `data` to plot
 #' @param metric_name_var Column in `data` containing the metric names listed in `metrics`.
 #'    Accepts bare names or strings. Default is `PPTESTCD`.
-#' @inheritParams mod_loglog
-#' @inheritParams df_loglog
+#' @param metric_value_var Column in `data` containing the exposure metric values
+#'    (dependent variable). Accepts bare names or strings. Default is `PPORRES`.
+#' @param dose_var Column in `data` containing the dose (independent variable).
+#'    Accepts bare names or strings. Default is `DOSE`.
+#' @param method character string specifying the distribution to be used to derive the confidence interval.
+#'    Options are `"normal"` (default) and `"tdist"`.
+#' @param ci confidence interval to be calculated.
+#'    Options `0.90` (default) and `0.95`.
+#' @param sigdigits number of significant digits for rounding.
 #'
 #' @family dose proportionality
 #' @return A `doseprop_stats` container (subclass of `pmx_stats`) with three
@@ -339,8 +302,6 @@ plot_build_doseprop <- function(stats,
 #' @param theme Named list of aesthetic parameters for the plot created by
 #'    [plot_doseprop_theme()]. Defaults can be viewed by running
 #'    `plot_doseprop_theme()` with no arguments.
-#' @inheritParams mod_loglog
-#' @inheritParams df_loglog
 #' @inheritParams df_doseprop
 #'
 #' @family dose proportionality

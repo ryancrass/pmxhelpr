@@ -128,18 +128,6 @@ test_that("check_levelsinvar errors when levels don't exist", {
                regexp = "must be levels in variable")
 })
 
-#####check_lm####
-
-test_that("check_lm does not error on lm object", {
-  fit <- lm(mpg ~ wt, data = mtcars)
-  expect_no_error(pmxhelpr:::check_lm(fit, "fit"))
-})
-
-test_that("check_lm errors on non-lm object", {
-  expect_error(pmxhelpr:::check_lm("not_lm", "fit"),
-               regexp = "must be class `lm`")
-})
-
 #####resolve_var####
 
 test_that("resolve_var returns NULL for null quo", {

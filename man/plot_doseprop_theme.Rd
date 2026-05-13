@@ -28,9 +28,7 @@ plot_doseprop_theme(obs = pmx_style(alpha = 0.3))
 \seealso{
 Other dose proportionality: 
 \code{\link{df_doseprop}()},
-\code{\link{df_loglog}()},
 \code{\link{is_doseprop_stats}()},
-\code{\link{mod_loglog}()},
 \code{\link{plot_build_doseprop}()},
 \code{\link{plot_doseprop}()}
 }

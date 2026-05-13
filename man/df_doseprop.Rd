@@ -17,7 +17,7 @@ df_doseprop(
 }
 \arguments{
 \item{data}{Input dataset for log-log regression.
-Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP formatting)}
+Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP formatting).}
 
 \item{metrics}{character vector of exposure metrics in \code{data} to plot}
 
@@ -30,13 +30,13 @@ Accepts bare names or strings. Default is \code{PPTESTCD}.}
 \item{dose_var}{Column in \code{data} containing the dose (independent variable).
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{method}{character string specifying the distribution to be used to derived the confidence interval.
-Options are "normal" (default) and "tdist"}
+\item{method}{character string specifying the distribution to be used to derive the confidence interval.
+Options are \code{"normal"} (default) and \code{"tdist"}.}
 
 \item{ci}{confidence interval to be calculated.
-Options 0.90 (default) and 0.95}
+Options \code{0.90} (default) and \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding}
+\item{sigdigits}{number of significant digits for rounding.}
 }
 \value{
 A \code{doseprop_stats} container (subclass of \code{pmx_stats}) with three
@@ -69,9 +69,7 @@ df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 }
 \seealso{
 Other dose proportionality: 
-\code{\link{df_loglog}()},
 \code{\link{is_doseprop_stats}()},
-\code{\link{mod_loglog}()},
 \code{\link{plot_build_doseprop}()},
 \code{\link{plot_doseprop}()},
 \code{\link{plot_doseprop_theme}()}

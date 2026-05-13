@@ -35,13 +35,13 @@ Accepts bare names or strings. Default is \code{PPTESTCD}.}
 \item{dose_var}{Column in \code{data} containing the dose (independent variable).
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{method}{character string specifying the distribution to be used to derived the confidence interval.
-Options are "normal" (default) and "tdist"}
+\item{method}{character string specifying the distribution to be used to derive the confidence interval.
+Options are \code{"normal"} (default) and \code{"tdist"}.}
 
 \item{ci}{confidence interval to be calculated.
-Options 0.90 (default) and 0.95}
+Options \code{0.90} (default) and \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding}
+\item{sigdigits}{number of significant digits for rounding.}
 
 \item{se}{logical to display confidence interval around regression.
 Default is \code{TRUE}.}
@@ -83,9 +83,7 @@ plot_doseprop(stats, se = FALSE)
 \seealso{
 Other dose proportionality: 
 \code{\link{df_doseprop}()},
-\code{\link{df_loglog}()},
 \code{\link{is_doseprop_stats}()},
-\code{\link{mod_loglog}()},
 \code{\link{plot_build_doseprop}()},
 \code{\link{plot_doseprop_theme}()}
 }

@@ -1,66 +1,30 @@
-#####mod_loglog#####
+#####df_loglog (internal)#####
 
-##Test Output
-test_that("Output is a `lm` object", {
-  expect_s3_class(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs")),
-                  "lm")
-})
-
-
-##Test Argument Handling
-test_that("Error if argument `data` is not a `data.frame`", {
-  expect_error(mod_loglog("data"),
-               regexp = "argument `data` must be a `data.frame`")
-})
-
-test_that("Error if variable specified in argument `metric_value_var` is not in `data`", {
-  expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), metric_value_var = "param"),
-               regexp = "argument `metric_value_var` must be variable.*in `data`")
-})
-
-test_that("Error if variable specified in argument `dose_var` is not in `data`", {
-  expect_error(mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variable.*in `data`")
-})
-
-
-#####df_loglog#####
+auc_fit <- function() {
+  stats::lm(log(PPORRES) ~ log(DOSE),
+            data = dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+}
 
 ##Test Output
 test_that("Output is a `data.frame` object", {
-  fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-
-  expect_s3_class(df_loglog(fit),
+  expect_s3_class(pmxhelpr:::df_loglog(auc_fit()),
                   "data.frame")
 })
 
 
 ##Test Argument Handling
-test_that("Error if argument `fit` is not a `lm` object", {
-  fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-
-  expect_error(df_loglog("fit"),
-               regexp = "argument `fit` must be class `lm`")
-})
-
 test_that("Error if argument `method` not one of normal or tdist", {
-  fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-
-  expect_error(df_loglog(fit, method = 1),
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), method = 1),
                regexp = "argument `method` must be `normal` or `tdist`")
 })
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
-  fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-
-  expect_error(df_loglog(fit, ci = 1.1),
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), ci = 1.1),
                regexp = "argument `ci` must be a numeric value between 0 and 1")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {
-  fit <- mod_loglog(dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
-
-  expect_error(df_loglog(fit, sigdigits = "$"),
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = "$"),
                regexp = "argument `sigdigits` must be coercible to class `integer`")
 })
 
@@ -166,13 +130,6 @@ test_that("Error if argument `sigdigits` is not coercible to an integer", {
 })
 
 ##Test NSE Bare Names
-test_that("mod_loglog accepts bare names and matches string output", {
-  dat <- dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs")
-  m1 <- mod_loglog(dat, metric_value_var = PPORRES, dose_var = DOSE)
-  m2 <- mod_loglog(dat, metric_value_var = "PPORRES", dose_var = "DOSE")
-  expect_identical(coef(m1), coef(m2))
-})
-
 test_that("df_doseprop accepts bare names and matches string output", {
   t1 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
                      metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE)

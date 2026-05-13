@@ -71,8 +71,6 @@ reference:
     desc: Power law (log-log) regression helpers.
     contents:
       - df_doseprop
-      - df_loglog
-      - mod_loglog
 
   - title: Vectorized Helpers
     desc: Vectorized utilities intended for use inside `dplyr::mutate()`.

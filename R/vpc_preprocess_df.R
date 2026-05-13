@@ -294,6 +294,8 @@ df_vpccompute <- function(data,
   ## leave SIMDV uncensored, so this encoding is pc-only.
   if (!is.null(loq)) {
     data_pc$SIMDV <- var_loqcens(data_pc$SIMDV, loq = data_pc$LOQ)
+  } else {
+    data_pc$SIMDV <- var_loqcens(data_pc$SIMDV, mdv = data_pc$MDV)
   }
   if (pc_mode == "drop") {
     data_pc$OBSDV <- var_infna(data_pc$OBSDV)

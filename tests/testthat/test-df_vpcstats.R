@@ -262,6 +262,18 @@ test_that("mode='drop' drops pc OBSDV and SIMDV BLQ before pred-correction", {
   }
 })
 
+test_that("pc flavor with loq=NULL excludes MDV==1 SIMDV rows from pc quantiles", {
+  sim_extreme <- testsim_raw
+  mdv1_idx <- which(sim_extreme$EVID == 0 & sim_extreme$MDV == 1)
+  sim_extreme$SIMDV[mdv1_idx] <- 1e6
+
+  base    <- run_vpcstats(testsim_raw)
+  extreme <- run_vpcstats(sim_extreme)
+
+  expect_equal(base$stats$pc_sim_med_med, extreme$stats$pc_sim_med_med)
+  expect_equal(base$stats$pc_obs_med,     extreme$stats$pc_obs_med)
+})
+
 test_that("mode='rank' pc flavor: -Inf survives pred-correction, then masked to NA", {
   loq_val <- stats::quantile(testsim_raw$OBSDV[testsim_raw$EVID == 0],
                               0.25, na.rm = TRUE)

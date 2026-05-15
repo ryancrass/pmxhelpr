@@ -92,10 +92,12 @@ reference:
       - pmx_stats
       - pmx_theme
       - is_pmx_stats
+      - is_pmx_vpc_plot
       - is_vpc_stats
       - is_doseprop_stats
       - is_pmx_element
       - is_pmx_theme
+      - "`+.pmx_vpc_plot`"
       - "`+.pmx_theme`"
       - "`+.pmx_element`"
       - print.pmx_stats

@@ -69,8 +69,10 @@
 #' @inheritParams var_predcorr
 #'
 #' @family vpc
-#' @return A `ggplot2` object. To access the underlying VPC summary statistics
-#'    data.frame directly, use [df_vpcstats()].
+#' @return A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the
+#'    underlying VPC summary statistics data.frame directly, use [df_vpcstats()].
+#'    Adding `facet_wrap()` or `facet_grid()` to the result directly will warn,
+#'    as stratification must be specified via `strat_var` at call time.
 #' @export plot_vpc_cont
 #'
 #' @examples

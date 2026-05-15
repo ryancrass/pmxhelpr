@@ -103,8 +103,10 @@ Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
 \item{ci}{Numeric scalar in \verb{(0, 1)} for simulation interval (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
 }
 \value{
-A \code{ggplot2} object. To access the underlying VPC summary statistics
-data.frame directly, use \code{\link[=df_vpcstats]{df_vpcstats()}}.
+A \code{pmx_vpc_plot} object (a \code{ggplot2} subclass). To access the
+underlying VPC summary statistics data.frame directly, use \code{\link[=df_vpcstats]{df_vpcstats()}}.
+Adding \code{facet_wrap()} or \code{facet_grid()} to the result directly will warn,
+as stratification must be specified via \code{strat_var} at call time.
 }
 \description{
 \code{plot_vpc_cont()} generates a VPC plot using exact time bins
@@ -131,6 +133,7 @@ ci = 0.90)
 \seealso{
 Other vpc: 
 \code{\link{df_vpcstats}()},
+\code{\link{is_pmx_vpc_plot}()},
 \code{\link{is_vpc_stats}()},
 \code{\link{plot_build_vpc}()},
 \code{\link{plot_vpc_legend}()},

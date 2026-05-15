@@ -473,3 +473,51 @@ test_that("plot_vpc_cont warns when strat_var contains NA values", {
   expect_warning(df_vpcstats(testsim, strat_var = FOOD_f),
                  regexp = "NA values")
 })
+
+
+## Test pmx_vpc_plot S3 class
+
+test_that("plot_vpc_cont() returns a pmx_vpc_plot object", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  expect_s3_class(plot_vpc_cont(data = sim), "pmx_vpc_plot")
+})
+
+test_that("plot_build_vpc() returns a pmx_vpc_plot object", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  out <- df_vpcstats(sim)
+  expect_s3_class(plot_build_vpc(out), "pmx_vpc_plot")
+})
+
+test_that("Adding facet_wrap() to a pmx_vpc_plot warns about incorrect statistics", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  p <- plot_vpc_cont(data = sim)
+  expect_warning(p + ggplot2::facet_wrap(~FOOD),
+                 regexp = "facet_\\*\\(\\).*plot_vpc_cont")
+})
+
+test_that("Adding facet_grid() to a pmx_vpc_plot warns about incorrect statistics", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  p <- plot_vpc_cont(data = sim)
+  expect_warning(p + ggplot2::facet_grid(~FOOD),
+                 regexp = "facet_\\*\\(\\).*plot_vpc_cont")
+})
+
+test_that("Adding non-facet layers to a pmx_vpc_plot does not warn", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  p <- plot_vpc_cont(data = sim)
+  expect_no_warning(p + ggplot2::labs(title = "test"))
+})
+
+test_that("pmx_vpc_plot class is preserved after adding non-facet layers", {
+  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+                             replicates = 5, dv_var = "ODV")
+  p <- plot_vpc_cont(data = sim) + ggplot2::labs(title = "test")
+  expect_s3_class(p, "pmx_vpc_plot")
+  expect_warning(p + ggplot2::facet_wrap(~FOOD),
+                 regexp = "facet_\\*\\(\\).*plot_vpc_cont")
+})

@@ -245,5 +245,7 @@ plot_build_vpc <- function(compute_out,
         "Replicates = ", compute_out$config$n_replicates))
   }
 
-  apply_panel_theme(plot, white_panel = TRUE)
+  p <- apply_panel_theme(plot, white_panel = TRUE)
+  class(p) <- c("pmx_vpc_plot", class(p))
+  p
 }

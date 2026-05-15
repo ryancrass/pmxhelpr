@@ -52,6 +52,7 @@ ci = 0.95,
 \seealso{
 Other vpc: 
 \code{\link{df_vpcstats}()},
+\code{\link{is_pmx_vpc_plot}()},
 \code{\link{is_vpc_stats}()},
 \code{\link{plot_build_vpc}()},
 \code{\link{plot_vpc_cont}()},

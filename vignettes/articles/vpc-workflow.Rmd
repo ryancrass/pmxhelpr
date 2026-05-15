@@ -429,7 +429,7 @@ plot_vpc_cont(
 
 Simulated and observed intervals in the plot below are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification. Only the observed points are correctly stratified, as they are added to the final plot layer.
 
-```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
 plot_vpc_cont(
   data = simout
 ) +

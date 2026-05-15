@@ -47,6 +47,7 @@ plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 \seealso{
 Other vpc: 
 \code{\link{df_vpcstats}()},
+\code{\link{is_pmx_vpc_plot}()},
 \code{\link{is_vpc_stats}()},
 \code{\link{plot_build_vpc}()},
 \code{\link{plot_vpc_cont}()},

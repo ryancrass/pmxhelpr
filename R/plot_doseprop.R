@@ -244,7 +244,7 @@ plot_build_doseprop <- function(stats,
   plottheme <- merge_theme(theme, plot_doseprop_theme())
 
   tab <- stats$stats
-  tab$label <- paste0(tab[[metric_name_var_str]], " | ", tab$PowerCI)
+  tab$label <- paste0(tab[[metric_name_var_str]], "\n", tab$PowerCI)
 
   plot_data <- dplyr::left_join(obs, tab, by = metric_name_var_str)
 

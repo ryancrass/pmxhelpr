@@ -197,8 +197,8 @@ max(simout$IREP)
 
 `df_mrgsim_replicate()` does not auto-carry input columns. Use `carry_out` and `recover` (passed through `...` to `mrgsim_df()`) to list the columns you want propagated to the output:
 
-  - `carry_out`: character vector of input column names to carry to the output. Best for numeric columns (`DOSE`, `FOOD`, `BLQ`, `LLOQ`, ...).
-  - `recover`: character vector of non-numeric input column names to restore to the output. Best for character / factor columns (`PART`, `DoseFood`, ...).
+  - `carry_out`: character vector of numeric input column names to carry to the output. Best for numeric columns (`DOSE`, `FOOD`, `BLQ`, `LLOQ`, ...).
+  - `recover`: character vector of input column names of any type to restore to the output. Best for character / factor columns (`PART`, `DoseFood`, ...).
 
 The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, `OBSDV`, `PRED`) is appended internally so the wrapper's standardized output structure is preserved regardless of what you pass.
 

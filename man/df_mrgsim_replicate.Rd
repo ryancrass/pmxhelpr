@@ -60,7 +60,8 @@ Pass an explicit character vector to recover exactly that list.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}. Note: \code{carry_out} and
+\code{recover} are managed internally; use \code{num_vars} and \code{char_vars} instead.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})

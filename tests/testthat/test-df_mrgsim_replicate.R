@@ -123,6 +123,24 @@ test_that("Error if variables specified by char_vars do not exist in `data`", {
                regexp = "argument `char_vars` must be variable.*in `data`")
 })
 
+test_that("Error if carry_out is passed via ...", {
+  expect_error(
+    df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                        model = model_mread_load("pkmodel"), replicates = 2, dv_var = "ODV",
+                        carry_out = "DOSE"),
+    regexp = "`carry_out` cannot be passed via `\\.\\.\\.`"
+  )
+})
+
+test_that("Error if recover is passed via ...", {
+  expect_error(
+    df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                        model = model_mread_load("pkmodel"), replicates = 2, dv_var = "ODV",
+                        recover = "USUBJID"),
+    regexp = "`recover` cannot be passed via `\\.\\.\\.`"
+  )
+})
+
 test_that("Same seed produces identical output", {
   out1 <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                               model=model_mread_load("pkmodel"), replicates = 2,

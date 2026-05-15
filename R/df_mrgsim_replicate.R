@@ -28,7 +28,8 @@
 #'    Pass an explicit character vector to recover exactly that list.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
-#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()].
+#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()]. Note: `carry_out` and
+#'   `recover` are managed internally; use `num_vars` and `char_vars` instead.
 #'
 #' @family mrgsolve wrappers
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
@@ -83,6 +84,13 @@ df_mrgsim_replicate <- function(data,
   check_varsindf(data, num_vars, "data", "num_vars")
   check_varsindf(data, char_vars, "data", "char_vars")
   check_integer(seed, "seed")
+  dots <- list(...)
+  if ("carry_out" %in% names(dots)) {
+    rlang::abort("`carry_out` cannot be passed via `...` in `df_mrgsim_replicate()`. Use `num_vars` instead.")
+  }
+  if ("recover" %in% names(dots)) {
+    rlang::abort("`recover` cannot be passed via `...` in `df_mrgsim_replicate()`. Use `char_vars` instead.")
+  }
 
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))

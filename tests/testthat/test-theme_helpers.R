@@ -69,6 +69,36 @@ test_that("merge_theme routes pmx_style to apply_style", {
   expect_equal(result$obs_line$linewidth, 1)
 })
 
+test_that("merge_theme explicit key beats pmx_style shortcut (shortcut last)", {
+  defaults <- plot_dvtime_theme()
+  user <- list(obs_point = pmx_point(color = "red"), obs = pmx_style(color = "blue"))
+  result <- pmxhelpr:::merge_theme(user, defaults)
+  expect_equal(result$obs_point$color, "red")
+  expect_equal(result$obs_line$color, "blue")
+})
+
+test_that("merge_theme explicit key beats pmx_style shortcut (shortcut first)", {
+  defaults <- plot_dvtime_theme()
+  user <- list(obs = pmx_style(color = "blue"), obs_point = pmx_point(color = "red"))
+  result <- pmxhelpr:::merge_theme(user, defaults)
+  expect_equal(result$obs_point$color, "red")
+  expect_equal(result$obs_line$color, "blue")
+})
+
+test_that("merge_theme errors on cross-family theme", {
+  expect_error(
+    pmxhelpr:::merge_theme(plot_vpc_theme(), plot_dvtime_theme()),
+    regexp = "theme family mismatch"
+  )
+})
+
+test_that("merge_theme allows base pmx_theme override with any family", {
+  defaults <- plot_dvtime_theme()
+  user <- pmx_theme(list(obs_point = pmx_point(size = 99)))
+  result <- pmxhelpr:::merge_theme(user, defaults)
+  expect_equal(result$obs_point$size, 99)
+})
+
 test_that("merge_theme applies pmx_color overrides in plot_gof_theme", {
   theme <- plot_gof_theme(cent_color = pmx_color(pred = "purple"))
   expect_equal(theme$cent_color$pred, "purple")

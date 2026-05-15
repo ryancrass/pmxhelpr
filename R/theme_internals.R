@@ -76,14 +76,27 @@ element_fields <- function(cls) {
 #'
 merge_theme <- function(user, default) {
   if (is.null(user)) return(default)
+  if (inherits(user, "pmx_theme") &&
+      class(user)[1] != "pmx_theme" &&
+      class(user)[1] != class(default)[1]) {
+    rlang::abort(paste0(
+      "theme family mismatch: `", class(user)[1], "` cannot override `",
+      class(default)[1], "`. Use `pmx_theme()` to build a family-agnostic override bundle."
+    ))
+  }
   out <- default
   for (nm in names(user)) {
     if (inherits(user[[nm]], "pmx_style")) {
       out <- apply_style(user[[nm]], nm, out)
-    } else if (!nm %in% names(default)) {
-      warning(paste0("`", nm, "` is not a valid group in the theme"))
-    } else {
-      out[[nm]] <- merge_element(user[[nm]], out[[nm]])
+    }
+  }
+  for (nm in names(user)) {
+    if (!inherits(user[[nm]], "pmx_style")) {
+      if (!nm %in% names(default)) {
+        warning(paste0("`", nm, "` is not a valid group in the theme"))
+      } else {
+        out[[nm]] <- merge_element(user[[nm]], out[[nm]])
+      }
     }
   }
   out

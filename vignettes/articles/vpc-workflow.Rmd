@@ -240,12 +240,22 @@ nrow(simout)
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
-                     char_vars = c("PART", "DoseFood"), 
+                     dv_var = ODV,
+                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     char_vars = c("PART", "DoseFood"),
                      obsonly = TRUE)
 
 nrow(simout)
+```
+
+Two arguments to `mrgsim_df()` are reserved and cannot be passed through `...`: `carry_out` and `recover`. These are managed internally to populate the output columns selected by `num_vars` and `char_vars`. Attempting to pass either through `...` aborts with an informative error pointing to the correct argument.
+
+```{r df_mrgsim_replicate-carry-out-guard, error=TRUE}
+df_mrgsim_replicate(data = data_sad_pk,
+                    model = model,
+                    replicates = 100,
+                    dv_var = ODV,
+                    carry_out = "DOSE")
 ```
 
 
@@ -409,7 +419,7 @@ plot_vpc_cont(
 
 ### Stratifying plots
 
-The other option to prediction-correction is to stratify by confounding factors. Dose is generally the minimum stratification for a VPC plot. The variable for stratification *MUST* be passed to the argument `strat_var` and not added later only as a `facet_wrap`/`facet_grid` call to the returned object.
+The other option to prediction-correction is to stratify by confounding factors. Dose is generally the minimum stratification for a VPC plot. The variable for stratification *MUST* be passed to the argument `strat_var` and not added later only as a `facet_wrap`/`facet_grid` call to the returned object. `plot_vpc_cont()` returns a `pmx_vpc_plot` object that emits a warning when a `facet_wrap()` or `facet_grid()` layer is added with `+`, calling out that the pre-computed VPC statistics will be inconsistent with the new panels.
 
 Let's take a look at our prediction-corrected VPC stratified by Food Status.
 
@@ -427,7 +437,7 @@ plot_vpc_cont(
 
 *NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
 
-Simulated and observed intervals in the plot below are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification. Only the observed points are correctly stratified, as they are added to the final plot layer.
+Simulated and observed intervals in the plot below are *INCORRECT* and reflect the full dataset, not the `DoseFood` stratification. Only the observed points are correctly stratified, as they are added to the final plot layer. The warning printed above the plot is emitted by the `+.pmx_vpc_plot` method as the `facet_wrap()` layer is added.
 
 ```{r plot-vpc-dosefood-facet, fig.height=4, fig.width=6, message=TRUE, warning=TRUE}
 plot_vpc_cont(

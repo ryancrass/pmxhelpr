@@ -80,8 +80,8 @@
 #' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
 #' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 #' dv_var = ODV,
-#' num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"),
-#' char_vars = c("USUBJID", "PART"),
+#' carry_out = c("LLOQ", "WTBL", "FOOD"),
+#' recover  = c("USUBJID", "PART"),
 #' irep_name = SIM)
 #'
 #' vpc_plot <- plot_vpc_cont(

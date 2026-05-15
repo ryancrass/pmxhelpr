@@ -18,25 +18,20 @@
 #'    Accepts bare names or strings. Default is `IPRED`.
 #' @param sim_dv_var Name of simulated DV output from `model`.
 #'    Accepts bare names or strings. Default is `DV`.
-#' @param num_vars Numeric variables in `data` to carry into output.
-#'    Default is `NULL`, which auto-carries all numeric columns of `data`
-#'    not already in the always-carried set (`EVID`, `MDV`, `CMT`,
-#'    `TIME`, `NTIME`, `ID`, `OBSDV`, `PRED`, `IPRED`, `SIMDV`).
-#'    Pass an explicit character vector to carry exactly that list.
-#' @param char_vars Character variables in `data` to recover into output.
-#'    Default is `NULL`, which auto-recovers all character columns of `data`.
-#'    Pass an explicit character vector to recover exactly that list.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
-#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()]. Note: `carry_out` and
-#'   `recover` are managed internally; use `num_vars` and `char_vars` instead.
+#' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
+#'   `carry_out` and `recover` to control which input columns are propagated to
+#'   the output. The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`,
+#'   `OBSDV`, and the population prediction column) is added to whatever the
+#'   user passes to `carry_out`.
 #'
 #' @family mrgsolve wrappers
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
-#'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus the columns selected by
-#'    `num_vars` / `char_vars` (auto-carried by default; see those parameters).
+#'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus any input
+#'    columns listed in `carry_out` / `recover`.
 #'
-#' @importFrom rlang :=
+#' @importFrom rlang := %||%
 #' @export df_mrgsim_replicate
 #'
 #' @examples
@@ -44,8 +39,8 @@
 #' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
 #' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 #' dv_var = ODV,
-#' num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-#' char_vars = c("USUBJID", "PART"),
+#' carry_out = c("LLOQ", "WTBL", "FOOD"),
+#' recover = c("USUBJID", "PART"),
 #' irep_name = SIM)
 
 df_mrgsim_replicate <- function(data,
@@ -57,8 +52,6 @@ df_mrgsim_replicate <- function(data,
                     pred_var = PRED,
                     ipred_var = IPRED,
                     sim_dv_var = DV,
-                    num_vars = NULL,
-                    char_vars = NULL,
                     irep_name = SIM,
                     seed = 123456789,
                     ...) {
@@ -81,16 +74,7 @@ df_mrgsim_replicate <- function(data,
   check_varsindf(data, dv_var_str, "data", "dv_var")
   check_varsindf(data, time_var_str, "data", "time_var")
   check_varsindf(data, ntime_var_str, "data", "ntime_var")
-  check_varsindf(data, num_vars, "data", "num_vars")
-  check_varsindf(data, char_vars, "data", "char_vars")
   check_integer(seed, "seed")
-  dots <- list(...)
-  if ("carry_out" %in% names(dots)) {
-    rlang::abort("`carry_out` cannot be passed via `...` in `df_mrgsim_replicate()`. Use `num_vars` instead.")
-  }
-  if ("recover" %in% names(dots)) {
-    rlang::abort("`recover` cannot be passed via `...` in `df_mrgsim_replicate()`. Use `char_vars` instead.")
-  }
 
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
@@ -100,45 +84,38 @@ df_mrgsim_replicate <- function(data,
 
   data <- df_mrgsim_addpred(data, model, output_var = ipred_var_str)
 
-  #Variables to Return
-  default_vars <- c("EVID", "MDV", "CMT")
-  out_vars <- c(pred_var_str, ipred_var_str,sim_dv_var_str, "OBSDV", "TIME", "NTIME")
-
-  #Auto-carry input columns when the user did not enumerate them explicitly.
-  #`data` here has been renamed (dv_var -> OBSDV) and time-prepped, so its
-  #column names align with what mrgsolve will emit.
-  auto_pool <- setdiff(colnames(data), c(default_vars, out_vars, "ID"))
-  if (is.null(num_vars)) {
-    num_vars <- auto_pool[vapply(data[auto_pool], is.numeric, logical(1))]
-  }
-  if (is.null(char_vars)) {
-    char_vars <- auto_pool[vapply(data[auto_pool], is.character, logical(1))]
-  }
+  #Always-carried set required by the downstream dplyr::select(); union with
+  #user-supplied carry_out so the function's output structure is preserved.
+  internal_carry <- c("EVID", "MDV", "CMT", "TIME", "NTIME", "OBSDV", pred_var_str)
+  dots <- list(...)
+  user_carry   <- dots$carry_out %||% character(0)
+  user_recover <- dots$recover   %||% character(0)
+  dots$carry_out <- NULL
+  dots$recover   <- NULL
+  carry_out_final <- union(internal_carry, user_carry)
 
   ##Run Simulation
-  withr::with_seed(seed = seed,
-
-                   simout <- lapply(
-                     seq(as.integer(replicates)),
-                     function(rep, data, model) {
-                       mrgsolve::mrgsim_df(x = model, data = data,
-                                           carry_out = paste(unique(c(default_vars,
-                                                                      out_vars,
-                                                                      num_vars)),
-                                                             collapse = ","),
-                                           recover = paste(char_vars,collapse = ","),
-                                           ...) |>
-                         dplyr::mutate("{irep_name_str}" := rep) |>
-                         dplyr::rename(dplyr::any_of(c(PRED = pred_var_str,
-                                                       IPRED = ipred_var_str,
-                                                       SIMDV = sim_dv_var_str))) |>
-                         dplyr::select(ID, TIME, NTIME,
-                                       PRED, IPRED, SIMDV, OBSDV,
-                                       dplyr::everything())} ,
-                     data = data,
-                     model = model) |>
-                     dplyr::bind_rows()
-
+  withr::with_seed(
+    seed = seed,
+    simout <- lapply(
+      seq(as.integer(replicates)),
+      function(rep, data, model) {
+        do.call(mrgsolve::mrgsim_df,
+                c(list(x = model, data = data,
+                       carry_out = carry_out_final,
+                       recover   = user_recover),
+                  dots)) |>
+          dplyr::mutate("{irep_name_str}" := rep) |>
+          dplyr::rename(dplyr::any_of(c(PRED = pred_var_str,
+                                        IPRED = ipred_var_str,
+                                        SIMDV = sim_dv_var_str))) |>
+          dplyr::select(ID, TIME, NTIME,
+                        PRED, IPRED, SIMDV, OBSDV,
+                        dplyr::everything())
+      },
+      data = data,
+      model = model
+    ) |> dplyr::bind_rows()
   )
 
   return(simout)

@@ -3,7 +3,8 @@
 testsim <- df_mrgsim_replicate(data = data_sad,
                                model = model_mread_load("pkmodel"),
                                replicates = 5,
-                               dv_var = "ODV")
+                               dv_var = "ODV",
+                               carry_out = "FOOD")
 
 test_that("df_vpcstats() output carries the vpc_stats and pmx_stats classes", {
   out <- df_vpcstats(testsim)
@@ -162,7 +163,7 @@ test_that("plot_build_vpc() inherits strat_var from the stats attribute when not
                                        model = model_mread_load("pkmodel"),
                                        replicates = 5,
                                        dv_var = "ODV",
-                                       char_vars = "FOOD")
+                                       carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
   out <- df_vpcstats(testsim_strat, strat_var = FOOD_f)
   p <- plot_build_vpc(out)  # no strat_var passed
@@ -175,7 +176,7 @@ test_that("plot_build_vpc() accepts strat_var as a bare name (NSE)", {
                                        model = model_mread_load("pkmodel"),
                                        replicates = 5,
                                        dv_var = "ODV",
-                                       char_vars = "FOOD")
+                                       carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
   out <- df_vpcstats(testsim_strat, strat_var = FOOD_f)
   p_bare <- plot_build_vpc(out, strat_var = FOOD_f)

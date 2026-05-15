@@ -153,7 +153,7 @@ test_that("df_vpcstats with strat_var returns rows for each bin x stratum", {
     model = model_mread_load("pkmodel"),
     replicates = 10,
     dv_var = "ODV",
-    char_vars = "FOOD")
+    carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
 
   result <- run_vpcstats(testsim_strat, strat_var_str = "FOOD_f")

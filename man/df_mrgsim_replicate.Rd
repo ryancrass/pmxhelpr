@@ -14,8 +14,6 @@ df_mrgsim_replicate(
   pred_var = PRED,
   ipred_var = IPRED,
   sim_dv_var = DV,
-  num_vars = NULL,
-  char_vars = NULL,
   irep_name = SIM,
   seed = 123456789,
   ...
@@ -46,27 +44,20 @@ Accepts bare names or strings. Default is \code{IPRED}.}
 \item{sim_dv_var}{Name of simulated DV output from \code{model}.
 Accepts bare names or strings. Default is \code{DV}.}
 
-\item{num_vars}{Numeric variables in \code{data} to carry into output.
-Default is \code{NULL}, which auto-carries all numeric columns of \code{data}
-not already in the always-carried set (\code{EVID}, \code{MDV}, \code{CMT},
-\code{TIME}, \code{NTIME}, \code{ID}, \code{OBSDV}, \code{PRED}, \code{IPRED}, \code{SIMDV}).
-Pass an explicit character vector to carry exactly that list.}
-
-\item{char_vars}{Character variables in \code{data} to recover into output.
-Default is \code{NULL}, which auto-recovers all character columns of \code{data}.
-Pass an explicit character vector to recover exactly that list.}
-
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}. Note: \code{carry_out} and
-\code{recover} are managed internally; use \code{num_vars} and \code{char_vars} instead.}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}, including
+\code{carry_out} and \code{recover} to control which input columns are propagated to
+the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
+\code{OBSDV}, and the population prediction column) is added to whatever the
+user passes to \code{carry_out}.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
-and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus the columns selected by
-\code{num_vars} / \code{char_vars} (auto-carried by default; see those parameters).
+and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus any input
+columns listed in \code{carry_out} / \code{recover}.
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}
@@ -77,8 +68,8 @@ model <- model_mread_load(model = "pkmodel")
 data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
 simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
-num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-char_vars = c("USUBJID", "PART"),
+carry_out = c("LLOQ", "WTBL", "FOOD"),
+recover = c("USUBJID", "PART"),
 irep_name = SIM)
 }
 \seealso{

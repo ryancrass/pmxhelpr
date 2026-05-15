@@ -166,7 +166,7 @@ test_that("plot_vpc_cont accepts bare strat_var and matches string output", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 char_vars = "FOOD")
+                                 carry_out = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
   v1 <- df_vpcstats(testsim, strat_var = FOOD_f)
   v2 <- df_vpcstats(testsim, strat_var = "FOOD_f")
@@ -212,7 +212,7 @@ test_that("Stratified VPC produces a faceted plot", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 char_vars = "FOOD")
+                                 carry_out = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
 
   p <- plot_vpc_cont(data = testsim, strat_var = FOOD_f)
@@ -257,7 +257,7 @@ test_that("loq is inherited from LLOQ column in sim when not explicitly provided
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 num_vars = c("LLOQ"))
+                                 carry_out = c("LLOQ"))
 
   # With LLOQ column present and loq = NULL, should auto-inherit
   expect_message(
@@ -275,7 +275,7 @@ test_that("explicit loq overrides LLOQ column in sim", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 num_vars = c("LLOQ"))
+                                 carry_out = c("LLOQ"))
 
   stats_inherit <- df_vpcstats(testsim)
   stats_override <- df_vpcstats(testsim, loq = 999)
@@ -301,7 +301,7 @@ test_that("precomputed path with strat_var produces a faceted plot", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 char_vars = "FOOD")
+                                 carry_out = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
   out <- df_vpcstats(testsim, strat_var = FOOD_f)
   p <- plot_vpc_cont(out)
@@ -389,7 +389,7 @@ test_that("df_vpcstats inherits per-row LLOQ when column has multiple unique val
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 num_vars = c("LLOQ"))
+                                 carry_out = c("LLOQ"))
   # Inject a second non-NA LLOQ value at the last nominal time
   testsim$LLOQ[testsim$NTIME == max(testsim$NTIME, na.rm = TRUE)] <- 2
 
@@ -414,8 +414,8 @@ test_that("plot_build_vpc draws per-facet LLOQ ref lines when stratified", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
-                                 num_vars = c("LLOQ"),
-                                 char_vars = c("PART"))
+                                 carry_out = c("LLOQ"),
+                                 recover  = c("PART"))
   # Re-code Part 2-FE to LLOQ = 2 (mirrors the vignette pattern)
   testsim$LLOQ[testsim$PART == "Part 2-FE"] <- 2
 
@@ -444,8 +444,8 @@ test_that("plot_build_vpc: explicit loq overrides per-facet column dispatch (PR#
                                  model = model_mread_load("pkmodel"),
                                  replicates = 5,
                                  dv_var = "ODV",
-                                 num_vars = c("LLOQ"),
-                                 char_vars = c("PART"))
+                                 carry_out = c("LLOQ"),
+                                 recover  = c("PART"))
   testsim$LLOQ[testsim$PART == "Part 2-FE"] <- 2
   out <- df_vpcstats(testsim, strat_var = PART)
 
@@ -467,7 +467,7 @@ test_that("plot_vpc_cont warns when strat_var contains NA values", {
                                  model = model_mread_load("pkmodel"),
                                  replicates = 5,
                                  dv_var = "ODV",
-                                 char_vars = "FOOD")
+                                 carry_out = "FOOD")
   testsim$FOOD_f <- factor(testsim$FOOD)
   testsim$FOOD_f[1:5] <- NA
   expect_warning(df_vpcstats(testsim, strat_var = FOOD_f),

@@ -43,25 +43,18 @@ test_that("output data.frame contains variable requested with argument `irep_nam
                "IREP")
 })
 
-test_that("df_mrgsim_replicate auto-carries input columns when num_vars/char_vars are NULL", {
-  out <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                             model = model_mread_load("pkmodel"),
-                             replicates = 2, dv_var = "ODV")
-  # Numeric columns from input data should appear automatically
-  expect_true(all(c("LLOQ", "DOSE", "FOOD", "WTBL", "BLQ") %in% colnames(out)))
-  # Character columns from input data should appear automatically
-  expect_true(all(c("USUBJID", "PART") %in% colnames(out)))
-})
-
-test_that("df_mrgsim_replicate explicit num_vars overrides auto-carry (does not auto-add)", {
+test_that("df_mrgsim_replicate carries user-specified columns via carry_out and recover", {
   out <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                              model = model_mread_load("pkmodel"),
                              replicates = 2, dv_var = "ODV",
-                             num_vars = c("WTBL"))
-  expect_true("WTBL" %in% colnames(out))
-  # Other numeric input columns should NOT be carried when num_vars is explicit
-  expect_false("DOSE" %in% colnames(out))
+                             carry_out = c("WTBL", "DOSE"),
+                             recover  = c("USUBJID"))
+  # Requested columns appear
+  expect_true(all(c("WTBL", "DOSE", "USUBJID") %in% colnames(out)))
+  # Unlisted input columns do not appear
   expect_false("LLOQ" %in% colnames(out))
+  expect_false("BLQ"  %in% colnames(out))
+  expect_false("PART" %in% colnames(out))
 })
 
 
@@ -110,37 +103,6 @@ test_that("Error if DV variable specified in dv_vars does not exist in `data`", 
                regexp = "argument `dv_var` must be variable.*in `data`")
 })
 
-test_that("Error if variables specified by num_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
-                                   model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   num_vars = "test"))
-})
-
-test_that("Error if variables specified by char_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
-                                   model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   char_vars = "test"),
-               regexp = "argument `char_vars` must be variable.*in `data`")
-})
-
-test_that("Error if carry_out is passed via ...", {
-  expect_error(
-    df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                        model = model_mread_load("pkmodel"), replicates = 2, dv_var = "ODV",
-                        carry_out = "DOSE"),
-    regexp = "`carry_out` cannot be passed via `\\.\\.\\.`"
-  )
-})
-
-test_that("Error if recover is passed via ...", {
-  expect_error(
-    df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                        model = model_mread_load("pkmodel"), replicates = 2, dv_var = "ODV",
-                        recover = "USUBJID"),
-    regexp = "`recover` cannot be passed via `\\.\\.\\.`"
-  )
-})
-
 test_that("Same seed produces identical output", {
   out1 <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                               model=model_mread_load("pkmodel"), replicates = 2,
@@ -162,9 +124,7 @@ test_that("Error if incorrect class for arugmument `seed`", {
 test_that("df_mrgsim_replicate accepts bare names", {
   model <- model_mread_load(model = "pkmodel")
   s1 <- df_mrgsim_replicate(dplyr::filter(data_sad, CMT != 3), model, replicates = 2,
-                              dv_var = ODV, irep_name = SIM,
-                              num_vars = c("CMT", "EVID", "MDV"),
-                              char_vars = c("USUBJID"))
+                              dv_var = ODV, irep_name = SIM)
   expect_true(nrow(s1) > 0)
   expect_true("SIM" %in% colnames(s1))
 })

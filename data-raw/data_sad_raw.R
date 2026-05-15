@@ -113,7 +113,7 @@ withr::with_seed(
 ##Run PD Simulation
 withr::with_seed(
   seed = 123456789,
-  pdsimout <- df_mrgsim_replicate(data_sad_pk, pdmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+  pdsimout <- df_mrgsim_replicate(data_sad_pk, pdmod, replicates = 1, dv_var = "ODV", carry_out = "LINE")
 )
 
 pd_data <- data_sad_pk %>%
@@ -188,7 +188,7 @@ usethis::use_data(data_sad_nca, overwrite = TRUE)
 
 withr::with_seed(
   seed = 987654321,
-  pkfit <- df_mrgsim_replicate(data_sad_pk, pkmod, replicates = 1, dv_var = "ODV", num_vars = "LINE")
+  pkfit <- df_mrgsim_replicate(data_sad_pk, pkmod, replicates = 1, dv_var = "ODV", carry_out = "LINE")
 )
 
 data_sad_pkfit <- data_sad_pk %>%

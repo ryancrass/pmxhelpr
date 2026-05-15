@@ -14,7 +14,7 @@ simout <- data_sad %>%
   filter(DOSE %in% c(10, 50, 100, 200)) %>%
   df_mrgsim_replicate(model = model, replicates = 100,
                               output_vars = c(DV = "ODV"),
-                              num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"))
+                              carry_out = c("LLOQ", "WTBL", "FOOD"))
 
 
 #####Plot VPC#####

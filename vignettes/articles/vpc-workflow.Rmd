@@ -146,7 +146,9 @@ We can pass `data_sad_pk` and `model` and run the simulation for 100 `replicates
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV)
+                     dv_var = ODV,
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 glimpse(simout)
 max(simout$SIM)
@@ -164,8 +166,10 @@ These variable standard names are output regardless of the input name. For examp
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     sim_dv_var = Y)
+                     dv_var = ODV,
+                     sim_dv_var = Y,
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 glimpse(simout)
 ```
@@ -180,31 +184,31 @@ This argument uses non-standard evaluation and can be supplied as a bare name or
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     irep_name = IREP)
+                     dv_var = ODV,
+                     irep_name = IREP,
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 max(simout$IREP)
 ```
 
 
-### Restricting Carried-Forward Variables
+### Carrying Input Columns to the Output
 
-By default, `df_mrgsim_replicate` auto-carries every numeric and character column of `data` into the output. This means downstream functions like `plot_vpc_cont()` find columns such as `LLOQ`, `BLQ`, and stratification variables without further configuration.
+`df_mrgsim_replicate()` does not auto-carry input columns. Use `carry_out` and `recover` (passed through `...` to `mrgsim_df()`) to list the columns you want propagated to the output:
 
-If you want a leaner output containing only specific columns, pass character vectors of numeric and character variable names to `num_vars` and `char_vars`, respectively. 
+  - `carry_out`: character vector of input column names to carry to the output. Best for numeric columns (`DOSE`, `FOOD`, `BLQ`, `LLOQ`, ...).
+  - `recover`: character vector of non-numeric input column names to restore to the output. Best for character / factor columns (`PART`, `DoseFood`, ...).
 
-  - `num_vars`, numeric variable names passed to the `carry_out` argument of `mrgsim_df()`.
-  - `char_vars`, character variable names passed to the `recover` argument of `mrgsim_df()`.
-
-When either is non-`NULL`, that side becomes the explicit list (only those columns are carried). Passing `NULL` (the default) restores auto-carry for that side.
+The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, `OBSDV`, `PRED`) is appended internally so the wrapper's standardized output structure is preserved regardless of what you pass.
 
 ```{r df_mrgsim_replicate-capture}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     char_vars = c("PART", "DoseFood"))
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 colnames(simout)
 ```
@@ -217,23 +221,25 @@ The unique seed can be set using the `seed` argument. The default is `1234567889
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     seed = 42)
+                     dv_var = ODV,
+                     seed = 42,
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 glimpse(simout)
 ```
 
 ### Additional arguments passed to `mrgsim_df()`
 
-Additional arguments can be passed to `mrgsim_df()` via the ellipses `...`. One argument that may sometimes be useful is `obsonly = TRUE`. This argument removes dose records from the simulation output and reduce file size.
+Any other `mrgsim_df()` argument can be passed via `...`. One useful argument is `obsonly = TRUE`, which removes dose records from the simulation output to reduce file size.
 
 ```{r df_mrgsim_replicate-obsonly}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
-                     dv_var = ODV, 
-                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"), 
-                     char_vars = c("PART", "DoseFood"))
+                     dv_var = ODV,
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"))
 
 nrow(simout)
 
@@ -241,21 +247,11 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     num_vars = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     char_vars = c("PART", "DoseFood"),
+                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                     recover  = c("PART", "DoseFood"),
                      obsonly = TRUE)
 
 nrow(simout)
-```
-
-Two arguments to `mrgsim_df()` are reserved and cannot be passed through `...`: `carry_out` and `recover`. These are managed internally to populate the output columns selected by `num_vars` and `char_vars`. Attempting to pass either through `...` aborts with an informative error pointing to the correct argument.
-
-```{r df_mrgsim_replicate-carry-out-guard, error=TRUE}
-df_mrgsim_replicate(data = data_sad_pk,
-                    model = model,
-                    replicates = 100,
-                    dv_var = ODV,
-                    carry_out = "DOSE")
 ```
 
 

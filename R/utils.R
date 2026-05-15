@@ -80,6 +80,10 @@ df_prep_timevars <- function(data, time_var_str, ntime_var_str) {
 df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
   if(!loq_method %in% c(1, 2)) return(data)
 
+  if (is.null(loq) && "LLOQ" %in% colnames(data)) {
+    message("Inheriting per-row `loq` from `LLOQ` column in `data`.")
+  }
+
   data <- data |>
     dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq))
 

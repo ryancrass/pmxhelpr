@@ -260,7 +260,10 @@ test_that("loq is inherited from LLOQ column in sim when not explicitly provided
                                  num_vars = c("LLOQ"))
 
   # With LLOQ column present and loq = NULL, should auto-inherit
-  stats_inherit <- df_vpcstats(testsim)
+  expect_message(
+    stats_inherit <- df_vpcstats(testsim),
+    regexp = "Inheriting per-row `loq` from `LLOQ` column in `data`"
+  )
   # Explicit loq matching LLOQ value should give same result
   lloq_val <- unique(testsim$LLOQ[testsim$SIM == 1 & !is.na(testsim$LLOQ)])
   stats_explicit <- df_vpcstats(testsim, loq = lloq_val)

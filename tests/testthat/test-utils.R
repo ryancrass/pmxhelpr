@@ -225,6 +225,16 @@ test_that("df_prep_dvtime errors on missing EVID column", {
   )
 })
 
+test_that("df_prep_dvtime messages when inheriting loq from LLOQ column", {
+  df <- data.frame(TIME = c(0, 1, 2), NTIME = c(0, 1, 2),
+                   DV = c(NA, NA, 5), MDV = c(1, 1, 0), EVID = c(0, 0, 0),
+                   LLOQ = c(1, 1, 1))
+  expect_message(
+    pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", loq_method = 1),
+    regexp = "Inheriting per-row `loq` from `LLOQ` column in `data`"
+  )
+})
+
 #####prep_plot_env####
 
 test_that("prep_plot_env returns list with expected elements", {
@@ -361,6 +371,14 @@ test_that("df_prep_blq loq_method = 2 lifts pred_vars below LOQ to 0.5*LOQ", {
   obs <- out[out$EVID == 0, ]
   below <- obs$PRED[!is.na(obs$PRED) & obs$PRED < 10]
   expect_true(length(below) > 0 && all(below == 5))
+})
+
+test_that("df_prep_blq messages when inheriting loq from LLOQ column", {
+  d <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1, 2)), DV = ODV)
+  expect_message(
+    pmxhelpr:::df_prep_blq(d, loq = NULL, loq_method = 1),
+    regexp = "Inheriting per-row `loq` from `LLOQ` column in `data`"
+  )
 })
 
 #####internal check_* helpers#####

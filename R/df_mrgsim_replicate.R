@@ -20,11 +20,23 @@
 #'    Accepts bare names or strings. Default is `DV`.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
+#' @param parallel Logical. If `TRUE`, replicates run in parallel via
+#'   [future.apply::future_lapply()]. Requires the `future.apply` package
+#'   and a parallel plan set by the user (e.g.,
+#'   `future::plan(future::multisession, workers = 4)`). Default is `FALSE`
+#'   (sequential).
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
 #'   `carry_out` and `recover` to control which input columns are propagated to
 #'   the output. The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`,
 #'   `OBSDV`, and the population prediction column) is added to whatever the
 #'   user passes to `carry_out`.
+#'
+#' @details
+#' Under `parallel = TRUE`, per-replicate RNG streams are generated from `seed`
+#' using L'Ecuyer-CMRG (via `future.seed = seed`), so output is reproducible
+#' given the same `seed` and `future::plan()`. Output under `parallel = TRUE`
+#' will differ numerically from `parallel = FALSE` because the RNG mechanism
+#' differs, but is statistically equivalent.
 #'
 #' @family mrgsolve wrappers
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
@@ -42,6 +54,14 @@
 #' carry_out = c("LLOQ", "WTBL", "FOOD"),
 #' recover = c("USUBJID", "PART"),
 #' irep_name = SIM)
+#'
+#' \dontrun{
+#' future::plan(future::multisession, workers = 4)
+#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
+#'                               replicates = 1000, dv_var = ODV,
+#'                               parallel = TRUE)
+#' future::plan(future::sequential)
+#' }
 
 df_mrgsim_replicate <- function(data,
                     model,
@@ -54,6 +74,7 @@ df_mrgsim_replicate <- function(data,
                     sim_dv_var = DV,
                     irep_name = SIM,
                     seed = 123456789,
+                    parallel = FALSE,
                     ...) {
 
   dv_var_str     <- resolve_var(rlang::enquo(dv_var))
@@ -76,6 +97,17 @@ df_mrgsim_replicate <- function(data,
   check_varsindf(data, ntime_var_str, "data", "ntime_var")
   check_integer(seed, "seed")
 
+  if (!isTRUE(parallel) && !isFALSE(parallel)) {
+    rlang::abort("argument `parallel` must be `TRUE` or `FALSE`")
+  }
+  if (isTRUE(parallel) && !requireNamespace("future.apply", quietly = TRUE)) {
+    rlang::abort(paste0(
+      "argument `parallel = TRUE` requires the {future.apply} package. ",
+      "Install it with `install.packages(\"future.apply\")` and set a ",
+      "parallel plan via `future::plan(future::multisession, workers = N)`."
+    ))
+  }
+
   ##Handle DV Variable
   data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
 
@@ -95,28 +127,39 @@ df_mrgsim_replicate <- function(data,
   carry_out_final <- union(internal_carry, user_carry)
 
   ##Run Simulation
-  withr::with_seed(
-    seed = seed,
-    simout <- lapply(
-      seq(as.integer(replicates)),
-      function(rep, data, model) {
-        do.call(mrgsolve::mrgsim_df,
-                c(list(x = model, data = data,
-                       carry_out = carry_out_final,
-                       recover   = user_recover),
-                  dots)) |>
-          dplyr::mutate("{irep_name_str}" := rep) |>
-          dplyr::rename(dplyr::any_of(c(PRED = pred_var_str,
-                                        IPRED = ipred_var_str,
-                                        SIMDV = sim_dv_var_str))) |>
-          dplyr::select(ID, TIME, NTIME,
-                        PRED, IPRED, SIMDV, OBSDV,
-                        dplyr::everything())
-      },
-      data = data,
-      model = model
+  rep_fn <- function(rep, data, model) {
+    out <- do.call(mrgsolve::mrgsim_df,
+                   c(list(x = model, data = data,
+                          carry_out = carry_out_final,
+                          recover   = user_recover),
+                     dots))
+    out[[irep_name_str]] <- rep
+    out
+  }
+
+  reps <- seq(as.integer(replicates))
+
+  if (isTRUE(parallel)) {
+    simout <- future.apply::future_lapply(
+      X = reps, FUN = rep_fn,
+      data = data, model = model,
+      future.seed = seed
     ) |> dplyr::bind_rows()
-  )
+  } else {
+    withr::with_seed(
+      seed = seed,
+      simout <- lapply(reps, rep_fn, data = data, model = model) |>
+        dplyr::bind_rows()
+    )
+  }
+
+  simout <- simout |>
+    dplyr::rename(dplyr::any_of(c(PRED  = pred_var_str,
+                                  IPRED = ipred_var_str,
+                                  SIMDV = sim_dv_var_str))) |>
+    dplyr::select(ID, TIME, NTIME,
+                  PRED, IPRED, SIMDV, OBSDV,
+                  dplyr::everything())
 
   return(simout)
 }

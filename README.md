@@ -10,9 +10,9 @@
 
 The goal of pmxhelpr is to make pharmacometrics workflows more
 standardized, efficient, and reproducible. This package provides helper
-and wrapper functions for common steps in the modeling analysis workflow
-outside of model parameter estimation. Currently, workflows cover key
-steps in exploratory data analysis and model evaluation.
+and wrapper functions for common steps in the modeling analysis
+workflow, outside of model parameter estimation. Currently, workflows
+cover key steps in exploratory data analysis and model evaluation.
 
 ## Documentation
 
@@ -34,14 +34,19 @@ articles:
 
 ## Installation
 
-You can install the development version of pmxhelpr from
+You can install the most recent tagged version of pmxhelpr from
 [GitHub](https://github.com/ryancrass/pmxhelpr/releases/latest) with:
-
-The most recent tagged version (`@vX.Y.Z`) can be installed with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr@vX.Y.Z")
+devtools::install_github("ryancrass/pmxhelpr@v0.5.0")
+```
+
+The README examples use a few packages from `Suggests` that aren’t
+installed automatically:
+
+``` r
+install.packages(c("dplyr", "ggplot2", "forcats", "patchwork"))
 ```
 
 ## Function Naming Conventions
@@ -51,7 +56,6 @@ the prefix indicates what the function returns:
 
 - `plot_*` — returns a `ggplot` object
 - `df_*` — returns a `data.frame`
-- `mod_*` — returns a model object
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
 - `pmx_*` — returns a theme element constructor (for use with `*_theme`
@@ -86,7 +90,7 @@ the prefix indicates what the function returns:
 ### Theme System
 
 Plot aesthetics are controlled through theme factories and element
-constructors. Each plot function has a corresponding `*_theme()`
+constructors. Each plot function has a corresponding `plot_*_theme()`
 factory:
 
 - `plot_dvtime_theme()`, `plot_dvconc_theme()`, `plot_doseprop_theme()`,
@@ -96,8 +100,8 @@ factory:
 - `plot_vpc_shown()` / `plot_gof_shown()` — control which VPC / GOF
   layers are visible via the `shown` argument
 
-Element constructors create typed objects that map to `ggplot2` geom
-aesthetics:
+Element constructors (`pmx_*`) create typed objects that map to
+`ggplot2` geom aesthetics:
 
 - `pmx_point()` — point aesthetics (shape, size, alpha, color)
 - `pmx_line()` — line aesthetics (linewidth, linetype, alpha, color)
@@ -134,6 +138,11 @@ interactive inspection and programmatic validation.
   `plot_build_vpc()` / `plot_build_doseprop()` are exported for custom
   workflows that produce class-compatible objects outside `pmxhelpr`.
 
+`pmxhelpr` returns a class tagged object for VPC plot outputs to warn
+users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added
+outside the returned object directing users to the correct
+stratification method using the `strat_var` argument.
+
 See the [Plot Themes and
 Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html#inspecting-and-validating-themes)
 and
@@ -154,8 +163,8 @@ workflow articles for worked examples.
   `mrgmod` object
 - `df_mrgsim_replicate()` — replicates input data via simulation
   returning a `data.frame`
-- `df_mrgsim_addpred()` — adds population model predictions (PRED) to a
-  dataset
+- `df_mrgsim_addpred()` — adds population model predictions (PRED) to
+  the returned `data.frame`
 
 ### Internal Datasets
 
@@ -179,6 +188,11 @@ This is a basic example which illustrates a simple exploratory data
 analysis workflow using pmxhelpr:
 
 ``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
 

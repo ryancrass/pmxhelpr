@@ -16,6 +16,7 @@ df_mrgsim_replicate(
   sim_dv_var = DV,
   irep_name = SIM,
   seed = 123456789,
+  parallel = FALSE,
   ...
 )
 }
@@ -48,6 +49,12 @@ Accepts bare names or strings. Default is \code{DV}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
+\item{parallel}{Logical. If \code{TRUE}, replicates run in parallel via
+\code{\link[future.apply:future_lapply]{future.apply::future_lapply()}}. Requires the \code{future.apply} package
+and a parallel plan set by the user (e.g.,
+\code{future::plan(future::multisession, workers = 4)}). Default is \code{FALSE}
+(sequential).}
+
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}, including
 \code{carry_out} and \code{recover} to control which input columns are propagated to
 the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
@@ -63,6 +70,13 @@ columns listed in \code{carry_out} / \code{recover}.
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}
 that returns a data.frame containing \code{replicates} iterations of \code{data}
 }
+\details{
+Under \code{parallel = TRUE}, per-replicate RNG streams are generated from \code{seed}
+using L'Ecuyer-CMRG (via \code{future.seed = seed}), so output is reproducible
+given the same \code{seed} and \code{future::plan()}. Output under \code{parallel = TRUE}
+will differ numerically from \code{parallel = FALSE} because the RNG mechanism
+differs, but is statistically equivalent.
+}
 \examples{
 model <- model_mread_load(model = "pkmodel")
 data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
@@ -71,6 +85,14 @@ dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover = c("USUBJID", "PART"),
 irep_name = SIM)
+
+\dontrun{
+future::plan(future::multisession, workers = 4)
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
+                              replicates = 1000, dv_var = ODV,
+                              parallel = TRUE)
+future::plan(future::sequential)
+}
 }
 \seealso{
 Other mrgsolve wrappers: 

@@ -173,17 +173,17 @@ test_that("Error if incorrect class for argument `data`", {
 })
 
 test_that("Error if dv_var does not exist in data", {
-  expect_error(plot_dvconc(data = data_sad, dv_var = "NONEXIST", idv_var = "CONC"),
+  expect_error(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "NONEXIST", idv_var = "CONC"),
                regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if idv_var does not exist in data", {
-  expect_error(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "NONEXIST"),
+  expect_error(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", idv_var = "NONEXIST"),
                regexp = "must be variable.*in `data`")
 })
 
 test_that("Error if col_var does not exist in data", {
-  expect_error(suppressWarnings(plot_dvconc(data = data_sad, dv_var = "ODV", idv_var = "CONC",
+  expect_error(suppressWarnings(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", idv_var = "CONC",
                            col_var = "NONEXIST")),
                regexp = "must be variable.*in `data`")
 })

@@ -505,3 +505,11 @@ test_that("plot_vpc_cont errors on scalar ci at boundary", {
   expect_error(df_vpcstats(testsim_raw, ci = 0),
                regexp = "must be a single numeric value in \\(0, 1\\)")
 })
+
+test_that("df_vpcstats warns when simout contains multiple CMT values after EVID filter", {
+  testsim_multi <- testsim_raw
+  obs_idx <- which(testsim_multi$EVID == 0)[1:10]
+  testsim_multi$CMT[obs_idx] <- 3
+  expect_warning(df_vpcstats(testsim_multi),
+                 regexp = "Multiple unique values of `CMT`")
+})

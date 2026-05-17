@@ -28,9 +28,24 @@ library(withr, warn.conflicts =  FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
+The continuous-range VPC plots in this vignette share a common axes / labels layer (time on x with breaks every 24 hours, concentration on a log10 y-axis). Defining a single list object lets each plot reuse it with `+ vpc_scales_labs`; pcVPC views override the y label with `+ labs(y = ...)` afterwards. The censored-range VPCs use a parallel `vpc_cens_scales_labs` for the BLQ-proportion plots.
+
+```{r vpc-scales-labs}
+vpc_scales_labs <- list(
+  labs(x = "Time (hours)", y = "Concentration (ng/mL)"),
+  scale_x_continuous(breaks = seq(0, 168, 24)),
+  scale_y_log10(guide = "axis_logticks")
+)
+
+vpc_cens_scales_labs <- list(
+  labs(x = "Time (hours)", y = "Proportion BLQ"),
+  scale_x_continuous(breaks = seq(0, 168, 24))
+)
+```
 
 
-# Data 
+
+# Data
 
 The example dataset used in this vignette (`data_sad`) is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
@@ -143,12 +158,13 @@ These arguments use non-standard evaluation and can be passed as a bare column n
 We can pass `data_sad_pk` and `model` and run the simulation for 100 `replicates`. The names of actual and nominal time variables in `data_sad` match the default arguments; however, our dependent variable is named `ODV`, which must be specified in the `dv_var` argument, since it differs from the default (`DV`). 
 
 ```{r df_mrgsim_replicate}
-simout <- df_mrgsim_replicate(data = data_sad_pk,
-                     model = model,
-                     replicates = 100,
-                     dv_var = ODV,
-                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     recover  = c("PART", "DoseFood"))
+simout <- df_mrgsim_replicate(
+  data = data_sad_pk,
+  model = model,
+  replicates = 100,
+  dv_var = ODV,
+  carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+  recover  = c("PART", "DoseFood"))
 
 glimpse(simout)
 max(simout$SIM)
@@ -234,22 +250,17 @@ glimpse(simout)
 Any other `mrgsim_df()` argument can be passed via `...`. One useful argument is `obsonly = TRUE`, which removes dose records from the simulation output to reduce file size.
 
 ```{r df_mrgsim_replicate-obsonly}
-simout <- df_mrgsim_replicate(data = data_sad_pk,
-                     model = model,
-                     replicates = 100,
-                     dv_var = ODV,
-                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     recover  = c("PART", "DoseFood"))
-
+# Default behavior (dose records included) — simout from the prior chunk
 nrow(simout)
 
+# With obsonly = TRUE, dose records are removed
 simout <- df_mrgsim_replicate(data = data_sad_pk,
-                     model = model,
-                     replicates = 100,
-                     dv_var = ODV,
-                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     recover  = c("PART", "DoseFood"),
-                     obsonly = TRUE)
+                              model = model,
+                              replicates = 100,
+                              dv_var = ODV,
+                              carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                              recover  = c("PART", "DoseFood"),
+                              obsonly = TRUE)
 
 nrow(simout)
 ```
@@ -415,9 +426,7 @@ plot_vpc_cont(
   data = simout,
   strat_var = DoseFood
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs
 ```
 
 The default for standard VPCs in `pmxhelpr` is to censor observed quantiles at the `loq` when it is known without censoring simulated values. The `loq` is inherited from the input dataset automatically since the variable `"LLOQ"` is present in `data`.
@@ -429,12 +438,11 @@ Under `pcvpc = TRUE`, BLQ censoring is still applied (before prediction-correcti
 ```{r plot-vpc-pc, fig.height=4, fig.width=6, warning=FALSE}
 plot_vpc_cont(
   data = simout,
-  pcvpc = TRUE, 
+  pcvpc = TRUE,
   strat_var = PART
 ) +
-  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 ## Stratifying plots
@@ -445,14 +453,12 @@ Let's take a look at our prediction-corrected VPC stratified by Food Status.
 
 ```{r plot-vpc-pc-food, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  data = mutate(simout,FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
+  data = mutate(simout, FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
   pcvpc = TRUE,
   strat_var = FoodStatus
 ) +
-  labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
-
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 *NOTE* Because `plot_vpc_cont` performs BOTH the summary statistic calculation and the plotting, one cannot simply add a `facet_wrap` layer with the stratification after calling `plot_vpc_cont`. This will result in the binned observed quantiles and simulated intervals plotted reflecting the unstratified data across all conditions with only the observed points stratified.
@@ -463,10 +469,8 @@ Simulated and observed intervals in the plot below are *INCORRECT* and reflect t
 plot_vpc_cont(
   data = simout
 ) +
-  facet_wrap(~DoseFood)+
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  facet_wrap(~DoseFood) +
+  vpc_scales_labs
 ```
 
 ## Dropping small sample bins
@@ -481,9 +485,8 @@ plot_vpc_cont(
   pcvpc = TRUE,
   min_bin_count = 10
 ) +
-  labs(x = "Time (hours)", y = "PRED-corrected Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 ## BLQ handling
@@ -505,13 +508,11 @@ A common approach to plotting VPCs, especially pcVPCs, is to exclude all `MDV=1`
 
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_vpc_cont(
-  data = filter(sim100, MDV==0),
+  data = filter(sim100, MDV == 0),
   pcvpc = TRUE,
   strat_var = PART
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs
 ```
 
 The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (i.e., plotting `"ODV"`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is due to the decreasing sample size with time due to exclusion of timepoints where `MDV=1`.
@@ -526,9 +527,7 @@ vpc <- plot_vpc_cont(
   strat_var = PART,
   loq = 1
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs
 
 vpc
 ```
@@ -544,11 +543,9 @@ The unique vector of `LLOQ` values is used automatically if the variable `"LLOQ"
 ```{r plot-vpc-blq-obs-cens2, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_vpc_cont(
   data = sim100,
-  strat_var = PART,
+  strat_var = PART
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs
 ```
 
 ## Pooled Data with Multiple LLOQs
@@ -573,10 +570,7 @@ out_multi$config$loq
 `plot_vpc_cont()` consumes the precomputed stats and draws one dashed reference line per unique LLOQ value.
 
 ```{r plot-vpc-multi-loq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-vpc_multi <- plot_vpc_cont(out_multi) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
-  scale_y_log10(guide = "axis_logticks")
+vpc_multi <- plot_vpc_cont(out_multi) + vpc_scales_labs
 vpc_multi
 ```
 
@@ -607,16 +601,12 @@ The `df_vpcstats()` return is class-tagged `"vpc_stats"` (see [Inspecting the `v
 out <- df_vpcstats(data = simout, strat_var = DoseFood)
 
 # Standard VPC view from the precomputed result
-plot_vpc_cont(out, pcvpc = FALSE) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
-  scale_y_log10(guide = "axis_logticks")
+plot_vpc_cont(out, pcvpc = FALSE) + vpc_scales_labs
 
 # Prediction-corrected view from the same precomputed result
 plot_vpc_cont(out, pcvpc = TRUE) +
-  labs(x = "Time (hours)", y = "Prediction-corrected concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) **cannot** be honored — those decisions were already made when `df_vpcstats()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_vpcstats()`. Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) are accepted on this path; to change a pipeline setting, re-run `df_vpcstats()` and pass the new result.
@@ -655,37 +645,34 @@ plot_vpc_cont(
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, sim_median_ci = FALSE, sim_median_line = TRUE, sim_pi_area = TRUE)
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 Now, let's say we want to remove the observed data points from the plot above to better visualize the observed quantile lines relative to their corresponding simulated confidence intervals. This can be accomplished with `shown`.
 
 ```{r plot-vpc-pcvpc-noobs, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
- plot_vpc_cont(
+plot_vpc_cont(
   data = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_point = FALSE)
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 We could also take this one step further and only look at the median and the simulated confidence interval of the median, to closely interrogate central tendency. This is common for VPC strata which have few observations, leading to inadequate sample size to discriminate between the confidence intervals of the median and the extremes. This is common scenario when evaluating VPC plots stratified by individual study arms in early phase trials.
 
 ```{r plot-vpc-pcvpc-noobs-medonly, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
- plot_vpc_cont(
+plot_vpc_cont(
   data = simout,
   pcvpc = TRUE,
   min_bin_count = 5,
   shown = plot_vpc_shown(obs_point = FALSE, obs_pi_line = FALSE, sim_pi_ci = FALSE)
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
 ## Building plots from a `vpc_stats` object directly
@@ -693,11 +680,7 @@ We could also take this one step further and only look at the median and the sim
 For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var` and `loq` inherit from the container's `$config` slot when not passed explicitly.
 
 ```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
-out <- df_vpcstats(data = simout, strat_var = DoseFood)
-plot_build_vpc(out, pcvpc = FALSE) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
-  scale_y_log10(guide = "axis_logticks")
+plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 ```
 
 
@@ -730,9 +713,7 @@ vpc2 <- plot_vpc_cont(
   loq = 1,
   theme = vpc_new_theme
 ) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24))+
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs
 
 vpc2
 ```
@@ -761,8 +742,7 @@ plot_vpc_cens(
   strat_var = PART,
   loq = 1
 ) +
-  labs(x = "Time (hours)", y = "Proportion BLQ") +
-  scale_x_continuous(breaks = seq(0,168,24))
+  vpc_cens_scales_labs
 ```
 
 The ribbon is the non-parametric CI of the simulated BLQ proportion across replicates (controlled by `ci`), and the solid red line and points show the observed proportion per bin. A well-fitting model places the observed line inside the simulated CI band. The simulated median line is hidden by default. It can be enable it via `shown = plot_vpc_shown(sim_median_line = TRUE)`.
@@ -778,14 +758,14 @@ The practical consequence: for a bin with 12 observations and 8 BLQ values, `plo
 A second contrast worth noting: because `obs_n` is determined by the protocol-specified sampling schedule (every subject in a stratum contributes one observation per nominal time bin), `obs_n` is effectively constant across bins within a stratum. As a result, `min_bin_count` on a cens VPC behaves more like a stratum-level filter than the bin-level filter it is on a cont VPC. The example below uses the full `simout` (across all SAD dose levels) so that Part 1-SAD has 30 observations per bin (5 dose cohorts × 6 subjects) while Part 2-FE has 6. Setting `min_bin_count = 10` retains every Part 1-SAD bin and drops the entire Part 2-FE panel.
 
 ```{r plot-vpc-cens-min-bin, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-plot_vpc_cens(
+cens_vpc <- plot_vpc_cens(
   data = simout,
   strat_var = PART,
   loq = 1,
   min_bin_count = 10
 ) +
-  labs(x = "Time (hours)", y = "Proportion BLQ") +
-  scale_x_continuous(breaks = seq(0,168,24))
+  vpc_cens_scales_labs
+cens_vpc
 ```
 
 
@@ -793,57 +773,28 @@ plot_vpc_cens(
 
 `plot_vpc_cont()` and `plot_vpc_cens()` are complementary halves of a single diagnostic: the pcVPC interrogates whether the model captures the dynamic range above LOQ, while the cens VPC interrogates whether it captures the censoring frequency. Composed together on a shared time axis they make one figure that summarizes both halves of the diagnostic for the same stratification.
 
-Build the pcVPC on `sim100` using `strat_var = PART` — the same stratification used for `cens_vpc` above. The bottom panel will carry the shared x-axis label, so the top panel sets `x = NULL`.
+Build the pcVPC and cens VPC on `sim100` using `strat_var = PART`. The bottom panel will carry the shared x-axis label, so the top panel sets `x = NULL`.
 
-```{r plot-vpc-pc-strata, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-pcvpc <- plot_vpc_cont(
-  data = sim100,
-  pcvpc = TRUE,
-  strat_var = PART
+```{r plot-vpc-pc-cens-patchwork, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+patch_stats <- df_vpcstats(data = simout, strat_var = PART)
+
+pcvpc_patch <- plot_vpc_cont(
+  data = patch_stats,
+  pcvpc = TRUE
 ) +
-  labs(x = NULL, y = "Pred-corrected Conc. (ng/mL)") +
-  scale_x_continuous(breaks = seq(0,168,24)) +
-  scale_y_log10(guide = "axis_logticks")
+  vpc_scales_labs +
+  labs(x = NULL, y = "Pred-corrected Conc. (ng/mL)")
+
+cens_vpc_patch <- plot_vpc_cens(
+  data = patch_stats
+) +
+  vpc_cens_scales_labs
 ```
 
-Stack the two diagnostics vertically with `patchwork` — pcVPC on top, cens VPC below. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
+Stack the two diagnostics vertically with `patchwork`, prediction-corrected continuous range on top and censored range below. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
 ```{r plot-vpc-pc-cens-stack, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-pcvpc / cens_vpc + plot_layout(heights = c(2, 1))
-```
-
-
-# Adjusting the Plot Theme with `plot_vpc_theme()`
-
- `plot_vpc_cont()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
- 
-```{r theme}
-plot_vpc_theme()
-```
-
-For VPC workflows, it is almost always preferred to set alternative theme objects that can be recycled into different VPC plot strata. 
-
-The example below sets a new VPC theme using a blue / black color schema.
-
-```{r new-vpc-theme, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-new_vpc_theme <- plot_vpc_theme(obs_point = pmx_point(color = "#000000"),
-                                obs_median_line = pmx_line(color = "#000000"),
-                                obs_pi_line = pmx_line(color = "#000000"),
-                                sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-                                sim_pi_ci = pmx_ribbon(fill = "#3388cc"), 
-                                sim_pi_area = pmx_ribbon(fill = "#3388cc"))
-```
-
-
-```{r example-vpc, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-plot_vpc_cont(
-  data = simout,
-  pcvpc = TRUE,
-  theme = new_vpc_theme,
-  strat_var = PART
-) +
-  labs(x = "Time (hours)", y = "Concentration (ng/mL)") +
-  scale_y_log10(guide = "axis_logticks")
+pcvpc_patch / cens_vpc_patch + plot_layout(heights = c(2, 1))
 ```
 
 
@@ -864,22 +815,18 @@ vpc_legend <- plot_vpc_legend(lloq = 1)
 vpc_legend
 ```
 
-The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair the default-theme legend with `vpc` (the LOQ-censored, PART-stratified plot from the [BLQ handling](#blq-handling) section, which also uses the default theme).
 
 ```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_wleg <- vpc + vpc_legend + plot_layout(heights = c(2.5,1))
+vpc_wleg <- vpc + vpc_legend + plot_layout(heights = c(2.5, 1))
 vpc_wleg
 ```
 
 ## Updating the Continuous Range Legend Elements with `plot_vpc_shown()`
 
-The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont` and `plot_vpc_legend`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`
+The legend can be updated to remove or add elements based on `shown` argument common to `plot_vpc_cont()` and `plot_vpc_legend()`. The defaults list can be viewed and updated globally to be passed to all plots in a VPC workflow using `plot_vpc_shown()`. Assigning the modified element set to a `shown_elements` object lets the same configuration be reused by both the plot and the legend.
 
 ```{r vpc-legend-medonly}
-plot_vpc_legend(shown = plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE))
-```
-
-```{r vpc-legend-shown-medonly}
 shown_elements <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE)
 plot_vpc_legend(shown = shown_elements)
 ```
@@ -893,10 +840,10 @@ vpc_new_legend <- plot_vpc_legend(lloq = 1, theme = vpc_new_theme)
 vpc_new_legend
 ```
 
-The legend can then be combined with the ggplot object returned from `plot_vpc_cont` into a single plot object with the `patchwork` package.
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair `vpc_new_legend` (which uses `vpc_new_theme`) with `vpc2` (the same VPC plot rendered with `vpc_new_theme` earlier).
 
 ```{r plot-vpc-pcvpc-w-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_wleg2 <- vpc2 + vpc_new_legend + plot_layout(heights = c(2.5,1))
+vpc_wleg2 <- vpc2 + vpc_new_legend + plot_layout(heights = c(2.5, 1))
 vpc_wleg2
 ```
 
@@ -930,8 +877,7 @@ cens_vpc_themed <- plot_vpc_cens(
   shown = cens_shown,
   theme = cens_theme
 ) +
-  labs(x = "Time (hours)", y = "Proportion BLQ") +
-  scale_x_continuous(breaks = seq(0,168,24))
+  vpc_cens_scales_labs
 
 cens_vpc_themed
 ```
@@ -957,14 +903,6 @@ cens_vpc_themed + cens_legend_themed + plot_layout(heights = c(2.5, 1))
 Pass `lloq` to mirror the LOQ source the cens VPC was built against.
 
 ```{r vpc-cens-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-cens_vpc <- plot_vpc_cens(
-  data = sim100,
-  strat_var = PART,
-  loq = 1
-) +
-  labs(x = "Time (hours)", y = "Proportion BLQ") +
-  scale_x_continuous(breaks = seq(0,168,24))
-
 cens_legend <- plot_vpc_legend(type = "cens", lloq = 1)
 cens_legend
 ```
@@ -980,7 +918,8 @@ cens_vpc + cens_legend + plot_layout(heights = c(2.5, 1))
 We can add legends to our stacked continous dara range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
 ```{r plot-vpc-pc-cens-stack-w-legends, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-pcvpc / vpc_legend / cens_vpc / cens_legend + plot_layout(heights = c(2, 0.5, 2, 0.5))
+pcvpc_patch / vpc_legend / cens_vpc_patch / cens_legend + 
+  plot_layout(heights = c(2, 0.5, 2, 0.5))
 ```
 
 # See also

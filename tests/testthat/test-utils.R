@@ -443,3 +443,26 @@ test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
     regexp = "loq|mode"
   )
 })
+
+#####check_single_cmt####
+
+test_that("check_single_cmt warns when multiple CMT values present", {
+  df <- data.frame(CMT = c(2, 2, 3, 3), EVID = 0)
+  expect_warning(pmxhelpr:::check_single_cmt(df),
+                 regexp = "Multiple unique values of `CMT`")
+})
+
+test_that("check_single_cmt is silent when only one CMT present", {
+  df <- data.frame(CMT = c(2, 2, 2), EVID = 0)
+  expect_no_warning(pmxhelpr:::check_single_cmt(df))
+})
+
+test_that("check_single_cmt is silent when CMT column is absent", {
+  df <- data.frame(TIME = 1:3, EVID = 0)
+  expect_no_warning(pmxhelpr:::check_single_cmt(df))
+})
+
+test_that("check_single_cmt is silent on empty data", {
+  df <- data.frame(CMT = integer(0), EVID = integer(0))
+  expect_no_warning(pmxhelpr:::check_single_cmt(df))
+})

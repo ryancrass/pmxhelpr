@@ -101,6 +101,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                                               SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
   data <- dplyr::rename(data, !!BIN_MID_VAR := NTIME)
   data <- dplyr::filter(data, EVID == 0)
+  check_single_cmt(data)
 
   loq_col <- if ("LOQ" %in% colnames(data)) data$LOQ else NULL
   data$OBSDV <- var_loqcens(data$OBSDV, loq = loq_col, mdv = data$MDV)

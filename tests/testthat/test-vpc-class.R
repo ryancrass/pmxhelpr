@@ -1,6 +1,6 @@
 ##### Tests for the `vpc_stats` S3 class and validator #####
 
-testsim <- df_mrgsim_replicate(data = data_sad,
+testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                model = model_mread_load("pkmodel"),
                                replicates = 5,
                                dv_var = "ODV",
@@ -159,7 +159,7 @@ test_that("plot_build_vpc() is callable on a df_vpcstats() result", {
 })
 
 test_that("plot_build_vpc() inherits strat_var from the stats attribute when not passed", {
-  testsim_strat <- df_mrgsim_replicate(data = data_sad,
+  testsim_strat <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                        model = model_mread_load("pkmodel"),
                                        replicates = 5,
                                        dv_var = "ODV",
@@ -172,7 +172,7 @@ test_that("plot_build_vpc() inherits strat_var from the stats attribute when not
 })
 
 test_that("plot_build_vpc() accepts strat_var as a bare name (NSE)", {
-  testsim_strat <- df_mrgsim_replicate(data = data_sad,
+  testsim_strat <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                        model = model_mread_load("pkmodel"),
                                        replicates = 5,
                                        dv_var = "ODV",

@@ -6,6 +6,7 @@
 \usage{
 plot_build_vpc(
   compute_out,
+  type = c("cont", "cens"),
   min_bin_count = 1,
   show_rep = TRUE,
   shown = NULL,
@@ -22,19 +23,39 @@ plot_build_vpc(
 columns documented in \code{\link[=df_vpcstats]{df_vpcstats()}}. Validated by
 \code{validate_vpc_stats()} at entry.}
 
-\item{min_bin_count}{Minimum number of quantifiable observations
-(\code{obs_n - obs_n_blq}) required for inclusion in binned plot layers.
-BLQ-encoded records do not count toward this threshold.}
+\item{type}{One of \code{"cont"} (default) or \code{"cens"}. \code{"cont"} plots the
+continuous concentration VPC (quantile ribbons and obs scatter).
+\code{"cens"} plots the BLQ-proportion VPC (proportion CI ribbon plus
+observed per-bin proportion line/points); requires \verb{sim_prop_blq_*}
+columns in \code{compute_out$stats} (i.e., \code{df_vpcstats()} was called with
+a LOQ source). \code{type = "cens"} is incompatible with \code{pcvpc = TRUE}.}
+
+\item{min_bin_count}{Minimum number of observations per bin required for
+inclusion in binned plot layers. For \code{type = "cont"}, the threshold is
+applied to \emph{quantifiable} obs only (\code{obs_n - obs_n_blq}); BLQ-encoded
+records do not count toward it. For \code{type = "cens"}, the threshold is
+applied to total obs (\code{obs_n}) — BLQ-heavy bins are the most
+informative on a cens VPC and are retained.}
 
 \item{show_rep}{Logical. Display replicate count as a plot caption.}
 
-\item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.}
+\item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
+For \code{type = "cens"}, only the \code{obs_point}, \code{obs_median_line},
+\code{sim_median_line}, and \code{sim_median_ci} keys are read. Defaults follow
+\code{plot_vpc_shown()}: observed proportion line/points and simulated CI
+ribbon are shown; the simulated median line is off by default (pass
+\code{plot_vpc_shown(sim_median_line = TRUE)} to enable it).}
 
-\item{theme}{Aesthetic parameters created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.}
+\item{theme}{Aesthetic parameters created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. For
+\code{type = "cens"}, only the keys corresponding to the four cens layers
+above are read; other keys are ignored. The cens \code{obs_point} color is
+inherited from \code{obs_median_line} (so points match the obs line); the
+\code{obs_point} theme key still controls shape/alpha/size.}
 
 \item{pcvpc}{Logical. When \code{TRUE}, plot the prediction-corrected columns
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
-LOQ reference line. Default is \code{FALSE} (standard VPC).}
+LOQ reference line. Default is \code{FALSE} (standard VPC). Only meaningful
+when \code{type = "cont"}.}
 
 \item{loq}{Numeric scalar or vector of LOQ values for the reference line,
 or \code{NULL} to suppress. When omitted (inherited from
@@ -68,14 +89,16 @@ Constructs a ggplot2 VPC plot from a \code{\link[=df_vpcstats]{df_vpcstats()}} r
 satisfying the \code{vpc_stats} contract). Applies the \code{min_bin_count} filter,
 draws the simulated and observed quantile layers, overlays the observation
 scatter, draws the LOQ reference line, applies stratification facets, and
-adds the replicates caption and panel theme. The \code{pcvpc} argument selects
-the standard or prediction-corrected column set; both are present in the
-compute output.
+adds the replicates caption and panel theme. The \code{type} argument selects
+the continuous (concentration quantile) or censored (BLQ proportion) layer
+set; the \code{pcvpc} argument selects the standard or prediction-corrected
+column set within the continuous type.
 
-Most users will reach this function indirectly via \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}.
-Call \code{plot_build_vpc()} directly when working from a manually-constructed
-or cached \code{vpc_stats} object — for example, plotting a precomputed result
-from disk or a custom pipeline that produces compatible columns.
+Most users will reach this function indirectly via \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} or
+\code{\link[=plot_vpc_cens]{plot_vpc_cens()}}. Call \code{plot_build_vpc()} directly when working from a
+manually-constructed or cached \code{vpc_stats} object — for example, plotting
+a precomputed result from disk or a custom pipeline that produces
+compatible columns.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
@@ -89,6 +112,7 @@ Other vpc:
 \code{\link{df_vpcstats}()},
 \code{\link{is_pmx_vpc_plot}()},
 \code{\link{is_vpc_stats}()},
+\code{\link{plot_vpc_cens}()},
 \code{\link{plot_vpc_cont}()},
 \code{\link{plot_vpc_legend}()},
 \code{\link{plot_vpc_shown}()},

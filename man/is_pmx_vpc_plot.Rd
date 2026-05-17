@@ -29,6 +29,7 @@ Other vpc:
 \code{\link{df_vpcstats}()},
 \code{\link{is_vpc_stats}()},
 \code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_cens}()},
 \code{\link{plot_vpc_cont}()},
 \code{\link{plot_vpc_legend}()},
 \code{\link{plot_vpc_shown}()},

@@ -527,6 +527,26 @@ plot_vpc_cont(
   scale_y_log10(guide = "axis_logticks")
 ```
 
+### Censoring VPC with `plot_vpc_cens()`
+
+A complementary diagnostic for assay censoring is the proportion of BLQ observations over time. `plot_vpc_cens()` mirrors `plot_vpc_cont()` but plots `obs_prop_blq` (the per-bin observed BLQ proportion) and the empirical confidence band of `sim_prop_blq` across replicates. Both quantities are already computed by `df_vpcstats()` whenever a LOQ source (scalar `loq` or `LLOQ` column) is available, so no extra summarization step is needed.
+
+`plot_vpc_cens()` is standard-VPC only — LOQ has no meaning on the prediction-corrected scale, so the BLQ proportion is computed and displayed only for the standard (raw) flavor. Like `plot_vpc_cont()`, a LOQ source is required; without one the call aborts.
+
+```{r plot-vpc-cens, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_vpc_cens(
+  data = sim100,
+  strat_var = PART,
+  loq = 1
+) +
+  labs(x = "Time (hours)", y = "Proportion BLQ") +
+  scale_x_continuous(breaks = seq(0,168,24))
+```
+
+The ribbon is the empirical CI of the simulated BLQ proportion across replicates (controlled by `ci`); the solid red line and points show the observed proportion per bin. A well-fitting model places the observed line inside the simulated CI band. The simulated median line is hidden by default; enable it via `shown = plot_vpc_shown(sim_median_line = TRUE)`.
+
+`plot_vpc_cens()` reuses `plot_vpc_shown()` and `plot_vpc_theme()` — only the keys `obs_point`, `obs_median_line`, `sim_median_line`, and `sim_median_ci` are read; other keys are ignored.
+
 ### Pooled Data with Multiple LLOQs
 
 A common real-world scenario is a bioanalytical assay update mid-development: an early cohort runs on the original assay (e.g., LLOQ = 1 ng/mL) and a later cohort runs on an updated assay (e.g., LLOQ = 2 ng/mL). When the analysis dataset pools both, the `LLOQ` column carries different values across rows. `pmxhelpr` resolves `loq` per row so each observation is censored at its own threshold; the unique non-NA values are surfaced via `config$loq` for plotting.

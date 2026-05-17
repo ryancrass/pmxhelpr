@@ -108,6 +108,7 @@ Other vpc:
 \code{\link{is_pmx_vpc_plot}()},
 \code{\link{is_vpc_stats}()},
 \code{\link{plot_build_vpc}()},
+\code{\link{plot_vpc_cens}()},
 \code{\link{plot_vpc_cont}()},
 \code{\link{plot_vpc_legend}()},
 \code{\link{plot_vpc_shown}()},

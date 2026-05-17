@@ -5,7 +5,7 @@ template:
 repo:
   url:
     home: https://github.com/ryancrass/pmxhelpr/
-    source: https://github.com/ryancrass/pmxhelpr/blob/plot_vpc_cens/
+    source: https://github.com/ryancrass/pmxhelpr/blob/main/
     issue: https://github.com/ryancrass/pmxhelpr/issues/
     user: https://github.com/
 

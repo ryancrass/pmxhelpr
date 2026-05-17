@@ -2,7 +2,7 @@
 title: "Plot Themes and Aesthetics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{plot-themes}
+  %\VignetteIndexEntry{Plot Themes and Aesthetics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -518,3 +518,34 @@ class(custom)
 ```
 
 This means programmatic theme-building and theme-validation pipelines work uniformly on raw factory output and on any sequence of overrides applied to it.
+
+## Composing themes and elements with the `+` operator
+
+Themes and elements support a ggplot-style `+` operator that performs a left-to-right merge: each set field on the right-hand side overrides the matching field on the left, and unset fields on the right leave the left-hand side untouched. The merged object keeps the class vector of the left-hand side, so partial overrides applied to a typed factory output stay typed.
+
+```{r theme-plus}
+base  <- plot_vpc_theme()
+patch <- pmx_theme(list(obs_point = pmx_point(color = "red")))
+combined <- base + patch
+
+inherits(combined, "plot_vpc_theme")   # TRUE -- subclass preserved through the merge
+combined$obs_point$color               # "red" -- patch field wins
+combined$obs_point$shape               # 1    -- base field persists (patch did not set it)
+```
+
+The same operator works on individual elements, which is useful when you want to layer a small role-specific tweak onto a shared default element rather than rebuilding the element from scratch.
+
+```{r element-plus}
+shape_default <- pmx_point(shape = 1, size = 1)
+color_patch   <- pmx_point(color = "#3388cc")
+shape_default + color_patch
+```
+
+Two further predicates round out the class system. `is_pmx_stats()` is the shared parent predicate — it matches every stats subclass (`vpc_stats`, `doseprop_stats`) and is the right test in code that should accept any of them. `is_pmx_vpc_plot()` identifies plot objects whose `+` method emits the facet-warning behavior described in the VPC workflow article.
+
+```{r stats-vpcplot-predicates, message=FALSE, warning=FALSE}
+is_pmx_stats(doseprop_data_nca)        # TRUE -- doseprop_stats inherits from pmx_stats
+
+vpc_p <- plot_vpc_cont(simout, pcvpc = TRUE)
+is_pmx_vpc_plot(vpc_p)                 # TRUE
+```

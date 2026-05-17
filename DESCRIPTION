@@ -32,6 +32,7 @@ Suggests:
     future.apply,
     PKNCA
 Config/testthat/edition: 3
+VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

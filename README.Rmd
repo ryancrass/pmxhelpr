@@ -25,6 +25,7 @@ The goal of pmxhelpr is to make pharmacometrics workflows more standardized, eff
 
 Full narrative documentation, including worked examples for every plotting workflow, lives on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/). Start with the articles:
 
+- [Getting Started with pmxhelpr](https://ryancrass.github.io/pmxhelpr/articles/getting-started.html) — a lean tour of every core workflow in one sitting.
 - [Exploratory Analyses of PK and PK/PD Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
 - [Dose-Proportionality Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
 - [Goodness-of-Fit Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)

@@ -21,6 +21,9 @@ plotting workflow, lives on the [pmxhelpr
 website](https://ryancrass.github.io/pmxhelpr/). Start with the
 articles:
 
+- [Getting Started with
+  pmxhelpr](https://ryancrass.github.io/pmxhelpr/articles/getting-started.html)
+  — a lean tour of every core workflow in one sitting.
 - [Exploratory Analyses of PK and PK/PD
   Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
 - [Dose-Proportionality

@@ -2,7 +2,7 @@
 title: "Dose-Proportionality Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{doseprop-workflow}
+  %\VignetteIndexEntry{Dose-Proportionality Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -146,6 +146,8 @@ plot_doseprop(dose_prop_obj, se = FALSE)
 
 When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
 
+
+
 # Inspecting the `doseprop_stats` object
 
 `df_doseprop()` performs the per-metric log-log regression and returns a `doseprop_stats`  [`pmx_stats`][is_pmx_stats] object with three slots:
@@ -183,14 +185,6 @@ is_doseprop_stats(dose_prop_obj)
 is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 ```
 
-
-# Building plots from a `doseprop_stats` object directly
-
-For downstream code or custom workflows that produce a `doseprop_stats`-shaped object outside `df_doseprop()` (e.g. external preprocessing, snapshot fixtures), `plot_build_doseprop()` is exported as the public renderer. It is the same engine that `plot_doseprop()` uses internally on the precomputed path and accepts the same plot-only arguments (`theme`, `se`). All other plotting context — observation rows, column names, CI level — is recovered from the object's attributes.
-
-```{r plot-build-direct, fig.height=4, fig.width=6, warning=FALSE}
-plot_build_doseprop(dose_prop_obj)
-```
 
 # Theming
 

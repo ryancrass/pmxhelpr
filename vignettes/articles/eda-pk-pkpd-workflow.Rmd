@@ -2,7 +2,7 @@
 title: "Exploratory Analyses of PK and PK/PD Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{eda-pk-pkpd-workflow}
+  %\VignetteIndexEntry{Exploratory Analyses of PK and PK/PD Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

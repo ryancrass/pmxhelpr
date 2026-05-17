@@ -94,4 +94,91 @@ test_that("plot_vpc_legend sim_pi_area = TRUE adds a rect-geom layer for the are
   expect_gt(count_rects(p_on), count_rects(p_off))
 })
 
+##Test type dispatch (cont vs cens)
+
+linetype_breaks <- function(p) {
+  scale <- p$scales$scales[[which(vapply(p$scales$scales,
+    function(s) "linetype" %in% s$aesthetics, logical(1)))]]
+  scale$breaks
+}
+fill_breaks <- function(p) {
+  scale <- p$scales$scales[[which(vapply(p$scales$scales,
+    function(s) "fill" %in% s$aesthetics, logical(1)))]]
+  scale$breaks
+}
+
+test_that("Default (type = 'cont') preserves existing 'Obs Med' / 'Sim Med' labels", {
+  p <- plot_vpc_legend(shown = plot_vpc_shown(
+    obs_point = TRUE, obs_pi_line = TRUE, obs_median_line = TRUE,
+    sim_pi_line = TRUE, sim_pi_ci = TRUE, sim_pi_area = TRUE,
+    sim_median_line = TRUE, sim_median_ci = TRUE))
+  lt <- linetype_breaks(p)
+  fl <- fill_breaks(p)
+  expect_true("Obs Med" %in% lt)
+  expect_true("Sim Med" %in% lt)
+  expect_true("Obs 5th and 95th" %in% lt)
+  expect_true("Sim 5th - 95th" %in% lt)
+  expect_true("Sim 90% CI Med" %in% fl)
+  expect_true("Sim 90% CI 5th and 95th" %in% fl)
+  expect_true("Sim 5th - 95th" %in% fl)
+})
+
+test_that("type = 'cens' relabels all three 'Med' labels to 'Prop BLQ'", {
+  p <- plot_vpc_legend(type = "cens",
+                       shown = plot_vpc_shown(
+                         obs_median_line = TRUE,
+                         sim_median_line = TRUE,
+                         sim_median_ci   = TRUE))
+  lt <- linetype_breaks(p)
+  fl <- fill_breaks(p)
+  expect_true("Obs Prop BLQ" %in% lt)
+  expect_true("Sim Prop BLQ" %in% lt)
+  expect_true("Sim 90% CI Prop BLQ" %in% fl)
+  ## Old labels should not appear
+  expect_false("Obs Med" %in% lt)
+  expect_false("Sim Med" %in% lt)
+  expect_false("Sim 90% CI Med" %in% fl)
+})
+
+test_that("type = 'cens' suppresses pi labels even when shown enables them", {
+  p <- plot_vpc_legend(type = "cens",
+                       shown = plot_vpc_shown(
+                         obs_pi_line = TRUE, sim_pi_line = TRUE,
+                         sim_pi_ci = TRUE, sim_pi_area = TRUE))
+  lt <- linetype_breaks(p)
+  fl <- fill_breaks(p)
+  ## No pi-related strings (defaults pi = c(0.05, 0.95), ci = 0.90)
+  expect_false(any(grepl("5th and 95th", lt)))
+  expect_false(any(grepl("5th - 95th",   lt)))
+  expect_false(any(grepl("5th - 95th",   fl)))
+  expect_false(any(grepl("90% CI 5th and 95th", fl)))
+})
+
+test_that("type = 'cens' still respects shown toggles for central-tendency layers", {
+  p <- plot_vpc_legend(type = "cens",
+                       shown = plot_vpc_shown(sim_median_line = FALSE))
+  lt <- linetype_breaks(p)
+  expect_false("Sim Prop BLQ" %in% lt)
+  ## Obs proportion line should remain (default shown$obs_median_line = TRUE)
+  expect_true("Obs Prop BLQ" %in% lt)
+})
+
+test_that("lloq labeling still works under type = 'cens'", {
+  p <- plot_vpc_legend(type = "cens", lloq = c(1, 2))
+  lt <- linetype_breaks(p)
+  expect_true("LLOQ = 1" %in% lt)
+  expect_true("LLOQ = 2" %in% lt)
+})
+
+test_that("type = 'cens' suppresses pi-related geom layers regardless of shown", {
+  p <- plot_vpc_legend(type = "cens",
+                       shown = plot_vpc_shown(
+                         obs_pi_line = TRUE, sim_pi_line = TRUE,
+                         sim_pi_ci = TRUE, sim_pi_area = TRUE))
+  ## Count rect layers: only sim_median_ci should produce one (default ON)
+  n_rect <- sum(vapply(p$layers, function(l) inherits(l$geom, "GeomRect"),
+                       logical(1)))
+  expect_equal(n_rect, 1L)
+})
+
 ##Test Arguments

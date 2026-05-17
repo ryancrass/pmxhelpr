@@ -10,6 +10,7 @@ plot_vpc_legend(
   shown = NULL,
   lloq = NULL,
   theme = NULL,
+  type = c("cont", "cens"),
   ...
 )
 }
@@ -17,7 +18,8 @@ plot_vpc_legend(
 \item{ci}{Numeric confidence level for simulation intervals (e.g., \code{0.90} for 90\% CI).
 Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is \code{0.90}.}
 
-\item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is c(0.05, 0.95).}
+\item{pi}{prediction intervals plotted. Should match argument passed to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. Default is c(0.05, 0.95).
+Ignored when \code{type = "cens"} (cens VPCs do not have prediction intervals).}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
@@ -30,6 +32,16 @@ a \code{\link[=df_vpcstats]{df_vpcstats()}} result to mirror the reference lines
 
 \item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
 Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
+
+\item{type}{One of \code{"cont"} (default) or \code{"cens"}. Selects the labels and
+layer set the legend describes. Under \code{"cont"}, the central-tendency
+entries are labeled \code{"Obs Med"}, \code{"Sim Med"}, and \code{"Sim <ci>\% CI Med"}
+and the pi entries (\code{"Obs <p1>th and <p2>th"}, \code{"Sim <p1>th - <p2>th"},
+\code{"Sim <ci>\% CI <p1>th and <p2>th"}) are included when their \code{shown}
+keys are on. Under \code{"cens"}, the three central-tendency labels are
+relabeled to \code{"Obs Prop BLQ"}, \code{"Sim Prop BLQ"}, \code{"Sim <ci>\% CI Prop BLQ"}
+and all pi-related entries are suppressed regardless of \code{shown} (cens
+VPCs have no prediction interval).}
 
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
@@ -48,6 +60,8 @@ ci = 0.95,
  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
  obs_median_line = TRUE,
  sim_median_line = FALSE, sim_median_ci = TRUE))
+## Cens VPC legend
+plot_vpc_legend(type = "cens", lloq = 1)
 }
 \seealso{
 Other vpc: 

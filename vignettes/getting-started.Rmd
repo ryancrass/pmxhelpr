@@ -86,7 +86,7 @@ data_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
 
 ## `data_sad_pkfit`
 
-`data_sad_pkfit` is a model output dataset version of `data_sad` (`CMT` 1 and 2) with two additional variables (`PRED` and `IPRED`) appendend to the `data_sad`.  
+`data_sad_pkfit` is a model output dataset version of `data_sad` (`CMT` 1 and 2) with two additional variables (`PRED` and `IPRED`) appended to the `data_sad`.  
 
 These variables are derived from the internal PK model `pkmodel`.
 
@@ -107,7 +107,7 @@ data_gof <- data_sad_pkfit %>%
 
 # Longitudinal concentration and response with `plot_dvtime()`
 
-`plot_dvtime()` produces a longitudinal observed-versus-time plot with central-tendency overlays, which was can be used for any longitudinal repeated measures continuous variable, including both concentration `CMT = 2`) and response (`CMT = 3`).
+`plot_dvtime()` produces a longitudinal observed-versus-time plot with central-tendency overlays, which can be used for any longitudinal repeated measures continuous variable, including both concentration `CMT = 2`) and response (`CMT = 3`).
 
 ```{r plot-dvtime-pk, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 pk_plot <- plot_dvtime(
@@ -140,11 +140,11 @@ The two plots can be composed into a single paneled figure using the `patchwork`
 (pk_plot / pd_plot) + plot_layout(guides = "collect")
 ```
 
-See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) article for central tendency controls, BLQ imputation moptions, dose-normalization, and other visual controls.
+See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) article for central tendency controls, BLQ imputation options, dose-normalization, and other visual controls.
 
 # Response versus concentration with `plot_dvconc()`
 
-`plot_dvconc()` plots a dependent variable against a continuous independent variable. The most common use case is visualizing a biomarker value or change metric of response against drug concentration. Trend line options include both linear (`linear`/`se_linear`) and non-linear (`loess`/`se_loess`) logical toggles to control the central tendencey layer displayed.
+`plot_dvconc()` plots a dependent variable against a continuous independent variable. The most common use case is visualizing a biomarker value or change metric of response against drug concentration. Trend line options include both linear (`linear`/`se_linear`) and non-linear (`loess`/`se_loess`) logical toggles to control the central tendency layer displayed.
 
 A dashed black reference line is drawn at `y = ref` when `ref` is specified.
 
@@ -182,14 +182,14 @@ See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) a
 
 # Dose-proportionality with `df_doseprop()` and `plot_doseprop()`
 
-`df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and AUC) versus and returns a class-tagged `doseprop_stats` data frame. 
+`df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and AUC) versus dose and returns a class-tagged `doseprop_stats` data frame.
 
 ```{r doseprop-stats}
 tab <- df_doseprop(data_nca_part1, metrics = c("aucinf.obs", "cmax"))
 tab
 ```
 
-`plot_doseprop()` can directly process an an NCA input dataset (1-stage) or accept a previously process `doseprop_stats` object (2-stage)
+`plot_doseprop()` can directly process an NCA input dataset (1-stage) or accept a previously processed `doseprop_stats` object (2-stage)
 
   1. One-stage: raw NCA `data.frame` input (`df_doseprop()` called internally)
   
@@ -210,7 +210,7 @@ See the [Dose-Proportionality Workflow](doseprop-workflow.html) article for conf
 
 `plot_gof()` produces a population overlay goodness-of-fit (GOF) plot depicting binned central tendency layers of observed values (`dv`), individual predictions (`ipred`), and population predictions (`pred`) over time along with underlying observed data scatter layer (`obs`).
 
-In most cases, these plots will be drawn using model output tables directly from estimation engines (e.g., NONMEM), which will only include predictions at timepoints non-missing and included in parameter estimation (e.g., MDV=0). Our input dataset `data_gof` (derived from `data_sad_pkfit`) includes model predictions from `mrgsim` at all timepoints; therefore, we will fitler on input to mimic this common scenario.
+In most cases, these plots will be drawn using model output tables directly from estimation engines (e.g., NONMEM), which will only include predictions at timepoints non-missing and included in parameter estimation (e.g., MDV=0). Our input dataset `data_gof` (derived from `data_sad_pkfit`) includes model predictions from `mrgsim` at all timepoints; therefore, we will filter on input to mimic this common scenario.
 
 ```{r plot-gof, fig.width=8, fig.height=5, warning=FALSE, message=FALSE}
 plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
@@ -223,15 +223,15 @@ See the [Goodness-of-Fit Diagnostics](gof-diagnostics.html) article for specifyi
 
 # VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 
-The VPC process has been fully built as a workflow within `pmxhelper`, starting from the a fitted model that has been translated to an `mrgsolve` model format (`mrgmod`). 
+The VPC process has been fully built as a workflow within `pmxhelpr`, starting from the a fitted model that has been translated to an `mrgsolve` model format (`mrgmod`).
 
 From a validated model file, the VPC pipeline includes:
-    + replication of the input dataset via simulation with `df_mrgsim_replicat()`
+    + replication of the input dataset via simulation with `df_mrgsim_replicate()`
     + derivation of within and across trial replicate summary statistics with `df_vpcstats`
-    + plot building with `plot_build_vpc()` (both continuous and censored `type'`available)
+    + plot building with `plot_build_vpc()` (both continuous and censored `type` available)
 
 
-## Run the simulation with `df_mrgsim_replicat()`
+## Run the simulation with `df_mrgsim_replicate()`
 
  `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` (or `future.apply::future_lapply()` when `parallel = TRUE` and a corresponding `future::plan()` in place) to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
 
@@ -264,7 +264,7 @@ glimpse(simout)
 
 ## Calculate summary statistics with `df_vpcstats()`
 
-`df_vpcstats` performs the input data validation and summary statistic calculations for the VPC, returning a `pmx_stats`, `vpc_stats` S3 container including `$stats` (`data.frame` of summary statistics), `$obs` observed data for scatter plot overlay, `$config` configuration informatio (e.g., replicates, loq, stratifying variable).
+`df_vpcstats` performs the input data validation and summary statistic calculations for the VPC, returning a `pmx_stats`, `vpc_stats` S3 container including `$stats` (`data.frame` of summary statistics), `$obs` observed data for scatter plot overlay, `$config` configuration information (e.g., replicates, loq, stratifying variable).
 
 `vpc_stats` objects contain both standard, prediction-correction, and proportion BLQ statistics and may be passed directly to `plot_vpc_cont()` or `plot_vpc_cens()` following a 2-stage workflow. Both plotting functions can also take in the raw simulated output and call `df_vpcstats()` internally for a one-stage workflow; however, the summary calculation computation cost is paid in every plot.
 
@@ -323,7 +323,7 @@ cens_vpc_regimen
 ```
 
 ## Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
-`plot_vpc_legend()` returns a legend that can be patchworked beneath the VPC panel(s). The four row layout below stacks the continous and censored VPCs with legends. The two-stage plot building from `vpc_stats` objects is also demonstrated, highlighting the potential efficiency of reusing a precomputed object in such a workflow.
+`plot_vpc_legend()` returns a legend that can be patchworked beneath the VPC panel(s). The four row layout below stacks the continuous and censored VPCs with legends. The two-stage plot building from `vpc_stats` objects is also demonstrated, highlighting the potential efficiency of reusing a precomputed object in such a workflow.
 
 ```{r plot-vpc-patchwork, fig.width=8, fig.height=7, warning=FALSE, message=FALSE}
 vpc_plot_cont <- plot_vpc_cont(vpcstats_obj_regimen) + 

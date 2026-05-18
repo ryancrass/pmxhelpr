@@ -80,7 +80,10 @@ above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for the simulated CI bound on the BLQ
 proportion across replicates (e.g., \code{0.90} for 90\% CI). Default is
-\code{0.90}.}
+\code{0.90}. Honored only on the raw-data path; passing \code{ci} explicitly
+when \code{data} is a precomputed \code{vpc_stats} container raises an error.
+The container's stored \code{ci} (set when \code{df_vpcstats()} was called) is
+the source of truth on that path.}
 }
 \value{
 A \code{pmx_vpc_plot} object (a \code{ggplot2} subclass). To access the

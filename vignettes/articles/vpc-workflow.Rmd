@@ -745,7 +745,7 @@ plot_vpc_cens(
   vpc_cens_scales_labs
 ```
 
-The ribbon is the non-parametric CI of the simulated BLQ proportion across replicates (controlled by `ci`), and the solid red line and points show the observed proportion per bin. A well-fitting model places the observed line inside the simulated CI band. The simulated median line is hidden by default. It can be enable it via `shown = plot_vpc_shown(sim_median_line = TRUE)`.
+The ribbon is the non-parametric CI of the simulated BLQ proportion across replicates (controlled by `ci`), and the solid red line and points show the observed proportion per bin. A well-fitting model places the observed line inside the simulated CI band. The simulated median line is hidden by default. It can be enabled via `shown = plot_vpc_shown(sim_median_line = TRUE)`.
 
 `plot_vpc_cens()` reuses `plot_vpc_shown()` and `plot_vpc_theme()` — only the keys `obs_point`, `obs_median_line`, `sim_median_line`, and `sim_median_ci` are read with other keys ignored.
 
@@ -776,7 +776,7 @@ cens_vpc
 Build the pcVPC and cens VPC on `sim100` using `strat_var = PART`. The bottom panel will carry the shared x-axis label, so the top panel sets `x = NULL`.
 
 ```{r plot-vpc-pc-cens-patchwork, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-patch_stats <- df_vpcstats(data = simout, strat_var = PART)
+patch_stats <- df_vpcstats(data = sim100, strat_var = PART)
 
 pcvpc_patch <- plot_vpc_cont(
   data = patch_stats,
@@ -915,7 +915,7 @@ cens_vpc + cens_legend + plot_layout(heights = c(2.5, 1))
 
 ## Panel observed and censored range VPCs together with legends using `patchwork`
 
-We can add legends to our stacked continous dara range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
+We can add legends to our stacked continuous data range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
 ```{r plot-vpc-pc-cens-stack-w-legends, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 pcvpc_patch / vpc_legend / cens_vpc_patch / cens_legend + 

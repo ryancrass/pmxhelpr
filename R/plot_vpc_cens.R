@@ -48,7 +48,10 @@
 #'
 #' @param ci Numeric scalar in `(0, 1)` for the simulated CI bound on the BLQ
 #'    proportion across replicates (e.g., `0.90` for 90% CI). Default is
-#'    `0.90`.
+#'    `0.90`. Honored only on the raw-data path; passing `ci` explicitly
+#'    when `data` is a precomputed `vpc_stats` container raises an error.
+#'    The container's stored `ci` (set when `df_vpcstats()` was called) is
+#'    the source of truth on that path.
 #'
 #' @param time_var Column containing the actual time variable in `data`.
 #'    Accepts bare names or strings. Default is `TIME`.

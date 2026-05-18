@@ -235,8 +235,8 @@ glimpse(simout)
 
 #Plot output in a Censored Visual Predictive Check (VPC)
 
-plot_obj_cens <- plot_vpc_cont(
-  data = simout, 
+plot_obj_cens <- plot_vpc_cens(
+  data = simout,
   strat_var = "DOSE"
 ) +
 scale_x_continuous(breaks = c(0,24,72,120,168)) +

@@ -277,9 +277,9 @@ vpcstats_obj_part
 
 ## Plotting the continuous data range with `plot_vpc_cont`
 
-`plot_vpc_cont()` builds standard or prediction-corrected VPCs of the continuous, quantifiable range above the LLOQ. 
+`plot_vpc_cont()` builds standard or prediction-corrected VPCs of the continuous, quantifiable range above the LLOQ.
 
-The example below is a pcVPC stratified by PART. 
+The example below is a standard (non-prediction-corrected) VPC stratified by `Regimen`.
 
 ```{r plot-vpc-cont-std, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 vpc_regimen <- plot_vpc_cont(

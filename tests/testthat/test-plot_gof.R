@@ -28,7 +28,7 @@ test_that("Output plot maps variable DV to the y aesthetic", {
 test_that("Output plot contains a caption when argument `show_caption` = TRUE", {
   expect_equal(
     plot_gof(data_sad_pkfit, dv_var = "ODV")$labels$caption,
-    "Solid circles and thick lines are the mean"
+    "Thick lines are the mean"
   )
 })
 

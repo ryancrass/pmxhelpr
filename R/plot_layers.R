@@ -261,7 +261,10 @@ add_obs_layers_manual <- function(plot, id_var_str, point_el, line_el, color_aes
 #' Add LOQ reference line and caption to a plot
 #'
 #' Conditionally adds an horizontal reference line at the LLOQ and appends
-#' BLQ imputation method text to the plot caption.
+#' BLQ imputation method text to the plot caption. Under `dosenorm = TRUE`
+#' the horizontal LLOQ line is suppressed (the line has no meaning on the
+#' dose-normalized scale), but the caption is still appended because the
+#' upstream BLQ imputation in `df_prep_blq()` runs before dose normalization.
 #'
 #' @param plot ggplot object
 #' @param caption character, current caption string
@@ -276,28 +279,30 @@ add_obs_layers_manual <- function(plot, id_var_str, point_el, line_el, color_aes
 add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
                            show_legend = FALSE) {
 
-  if (!loq_method %in% c(1, 2) || isTRUE(dosenorm)) {
+  if (!loq_method %in% c(1, 2)) {
     return(list(plot = plot, caption = caption))
   }
 
-  if (isTRUE(show_legend)) {
-    loq_lab <- paste0(loq)
-    plot <- plot +
-      build_layer(ggplot2::geom_hline,
-        args = list(mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
-                    linewidth = loq_el$linewidth, alpha = loq_el$alpha),
-        color = loq_el$color) +
-      ggplot2::scale_linetype_manual(
-        name = "LLOQ",
-        values = stats::setNames(c(loq_el$linetype), loq_lab)) +
-      ggplot2::guides(color = ggplot2::guide_legend(order = 1),
-                      linetype = ggplot2::guide_legend(order = 2))
-  } else {
-    plot <- plot +
-      build_layer(ggplot2::geom_hline,
-        args = list(yintercept = loq, linewidth = loq_el$linewidth,
-                    linetype = loq_el$linetype, alpha = loq_el$alpha),
-        color = loq_el$color)
+  if (!isTRUE(dosenorm)) {
+    if (isTRUE(show_legend)) {
+      loq_lab <- paste0(loq)
+      plot <- plot +
+        build_layer(ggplot2::geom_hline,
+          args = list(mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
+                      linewidth = loq_el$linewidth, alpha = loq_el$alpha),
+          color = loq_el$color) +
+        ggplot2::scale_linetype_manual(
+          name = "LLOQ",
+          values = stats::setNames(c(loq_el$linetype), loq_lab)) +
+        ggplot2::guides(color = ggplot2::guide_legend(order = 1),
+                        linetype = ggplot2::guide_legend(order = 2))
+    } else {
+      plot <- plot +
+        build_layer(ggplot2::geom_hline,
+          args = list(yintercept = loq, linewidth = loq_el$linewidth,
+                      linetype = loq_el$linetype, alpha = loq_el$alpha),
+          color = loq_el$color)
+    }
   }
 
   blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",

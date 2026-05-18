@@ -28,7 +28,7 @@ test_that("Output plot maps variable DV to the y aesthetic", {
 test_that("Output plot contains a caption when argument `show_caption` = TRUE", {
   expect_equal(
     plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")$labels$caption,
-    "Solid circles and thick lines are the mean"
+    "Thick lines are the mean"
   )
 })
 
@@ -112,6 +112,19 @@ test_that("plot_dvtime loq_method = 2 with explicit loq adds an LOQ reference hl
                            function(l) inherits(l$geom, "GeomHline"),
                            logical(1)))
   expect_true(has_hline)
+})
+
+test_that("plot_dvtime dosenorm = TRUE suppresses LOQ hline but keeps BLQ caption", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  suppressWarnings({
+    p <- plot_dvtime(d, dv_var = "ODV", dose_var = "DOSE",
+                     loq = 0.5, loq_method = 1, dosenorm = TRUE)
+  })
+  has_hline <- any(vapply(p$layers,
+                           function(l) inherits(l$geom, "GeomHline"),
+                           logical(1)))
+  expect_false(has_hline)
+  expect_match(p$labels$caption, "imputed to 1/2 LLOQ")
 })
 
 ##Test dosenorm branch

@@ -162,7 +162,7 @@ caption_dvtime <- function(cent, log_y = FALSE){
   cap <- cent_labels[[cent]][[scale]]
 
   if(cent == "none") ""
-  else paste0("Solid circles and thick lines are the ", cap)
+  else paste0("Thick lines are the ", cap)
 }
 
 

@@ -34,6 +34,9 @@ A named list with elements \code{plot} (modified ggplot) and \code{caption} (mod
 }
 \description{
 Conditionally adds an horizontal reference line at the LLOQ and appends
-BLQ imputation method text to the plot caption.
+BLQ imputation method text to the plot caption. Under \code{dosenorm = TRUE}
+the horizontal LLOQ line is suppressed (the line has no meaning on the
+dose-normalized scale), but the caption is still appended because the
+upstream BLQ imputation in \code{df_prep_blq()} runs before dose normalization.
 }
 \keyword{internal}

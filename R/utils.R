@@ -295,6 +295,9 @@ var_predcorr <- function(dv_var,
 #'
 #' @description `var_addn()` counts distinct values of `id_var` within each
 #'    level of `grp_var` and returns a factor with labels like `"100 mg (n=6)"`.
+#'    Factor levels follow the order in which values first appear in
+#'    `grp_var`, so a pre-sorted input like `c(10, 200, 1000)` yields levels
+#'    in numeric order rather than the alphabetic default of `factor()`.
 #'
 #' @param grp_var Vector of grouping variable values.
 #' @param id_var Vector of identifier values to count distinct entries of.
@@ -315,7 +318,12 @@ var_addn <- function(grp_var,
   counts <- tapply(id_var, grp_var, dplyr::n_distinct)
   n <- unname(counts[as.character(grp_var)])
   parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)
-  factor(paste(parts, paste0("(n=", n, ")")))
+  labels <- paste(parts, paste0("(n=", n, ")"))
+  ordered_grp <- unique(grp_var)
+  ordered_parts <- if (is.null(sep)) paste(ordered_grp) else paste(ordered_grp, sep)
+  ordered_counts <- unname(counts[as.character(ordered_grp)])
+  ordered_levels <- paste(ordered_parts, paste0("(n=", ordered_counts, ")"))
+  factor(labels, levels = ordered_levels)
 }
 
 

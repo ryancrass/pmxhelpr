@@ -22,7 +22,6 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
-library(forcats, warn.conflicts = FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
@@ -42,17 +41,15 @@ Dataset definitions can be viewed by calling `?data_sad`.
 Let's define some variables that may be useful in plotting and filter down to PK or PD relevant records.
 
 ```{r data-factors, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-data <- data_sad %>% 
+data <- data_sad %>%
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"),
-         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
-  mutate(`Dose and Food` = var_addn(DoseFood, ID)) %>% 
-  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>%
+  mutate(`Dose and Food` = var_addn(DoseFood, ID))
 
 gof_data <- data_sad_pkfit %>%
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"),
-         DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
-  mutate(`Dose and Food` = var_addn(DoseFood, ID)) %>% 
-  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+         DoseFood = paste(DOSE, "mg", `Food Status`)) %>%
+  mutate(`Dose and Food` = var_addn(DoseFood, ID))
 
 data_pk <- filter(data, CMT %in% c(1,2))
 data_pd <- filter(data, CMT %in% c(1,3))

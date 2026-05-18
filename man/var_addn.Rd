@@ -20,6 +20,9 @@ A factor vector with group labels appended with subject counts (e.g., \code{"100
 \description{
 \code{var_addn()} counts distinct values of \code{id_var} within each
 level of \code{grp_var} and returns a factor with labels like \code{"100 mg (n=6)"}.
+Factor levels follow the order in which values first appear in
+\code{grp_var}, so a pre-sorted input like \code{c(10, 200, 1000)} yields levels
+in numeric order rather than the alphabetic default of \code{factor()}.
 }
 \examples{
 data <- dplyr::filter(data_sad, CMT != 3)

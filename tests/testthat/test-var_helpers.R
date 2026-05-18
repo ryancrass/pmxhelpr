@@ -37,6 +37,14 @@ test_that("var_addn errors on mismatched lengths", {
                regexp = "must have the same length")
 })
 
+test_that("var_addn preserves input ordering of grp_var in factor levels", {
+  grp <- c(10, 200, 1000, 10, 200, 1000)
+  ids <- c(1, 2, 3, 1, 2, 3)
+  out <- var_addn(grp, ids, sep = "mg")
+  expect_equal(levels(out),
+               c("10 mg (n=1)", "200 mg (n=1)", "1000 mg (n=1)"))
+})
+
 
 ##### var_dosenorm ####
 

@@ -21,7 +21,6 @@ This vignette will demonstrate `pmxhelpr` functions for simulation-based visual 
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
-library(forcats, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
 library(mrgsolve, warn.conflicts =  FALSE)
 library(withr, warn.conflicts =  FALSE)
@@ -74,8 +73,7 @@ data_sad_pk <- data_sad %>%
   mutate(`Food Status` = ifelse(FOOD == 0, "Fasted", "Fed"), 
          DoseFood = paste(DOSE, "mg", `Food Status`)) %>% 
   mutate(`Food Status` = var_addn(`Food Status`, ID),
-         `Dose and Food` = var_addn(DoseFood, ID)) %>% 
-  mutate(`Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
+         `Dose and Food` = var_addn(DoseFood, ID))
 ```
 
 

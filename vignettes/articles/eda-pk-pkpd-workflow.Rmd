@@ -22,7 +22,6 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
-library(forcats, warn.conflicts = FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 library(PKNCA, warn.conflicts = FALSE)
@@ -99,16 +98,8 @@ unique(plot_data$Dose)
 unique(plot_data$`Food Status`)
 unique(plot_data$`Dose and Food`)
 ```
-Unfortunately, often our factors will not be ordered in ascending numerical order. In this case, the 50 mg dose group is sorted at the end. We can use the `forcats` package from the `tidyverse` to quickly reorder our new variables
 
-```{r plot-data-reorder, message=FALSE, warning=FALSE}
-plot_data <- plot_data %>% 
-  mutate(Dose = fct_relevel(Dose, "50 mg (n=6)", after = 1), 
-         `Dose and Food` = fct_relevel(`Dose and Food`, "50 mg Fasted (n=6)", after = 1))
-
-unique(plot_data$Dose)
-unique(plot_data$`Dose and Food`)
-```
+`var_addn()` preserves the order in which values first appear in `grp_var`, so a numerically-sorted input dataset yields factor levels in numeric order without further reordering. If a custom order is needed, `forcats::fct_relevel()` can be applied afterward.
 
 Finally, let's filter down only to PK observations for this exploratory analysis, which is focused on assessing the informational content of the data and trends for population PK analysis.
 

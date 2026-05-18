@@ -135,7 +135,6 @@ This is a basic example which illustrates a simple exploratory data analysis wor
 library(pmxhelpr)
 library(dplyr)
 library(ggplot2)
-library(forcats)
 
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
@@ -144,8 +143,7 @@ glimpse(data_sad)
 data <- data_sad %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE,"mg x1", Food),
-         Regimen = var_addn(DoseFood, ID)) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1)) #Correctly order factor levels
+         Regimen = var_addn(DoseFood, ID))
 
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
@@ -187,8 +185,7 @@ library(withr)
 data <- data_sad_pkfit %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE,"mg x1", Food),
-         Regimen = var_addn(DoseFood, ID)) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1)) #Correctly order factor levels
+         Regimen = var_addn(DoseFood, ID))
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
 plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +

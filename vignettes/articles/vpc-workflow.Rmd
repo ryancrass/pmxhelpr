@@ -31,7 +31,7 @@ library(patchwork, warn.conflicts = FALSE)
 
 # Data 
 
-The example dataset used in this vignette (`data_sad`) is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK Data](eda-pk-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
+The example dataset used in this vignette (`data_sad`) is based on a single ascending dose (SAD) study of an orally administered drug product with a parallel group food effect (FE) cohort. This vignette will assume familiarity with the `data_sad` internal dataset and the `plot_dvtime()` function, as described in the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) vignette. These elements will not be reviewed in detail in this vignette.
 
 ## data_sad
 

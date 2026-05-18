@@ -2,7 +2,7 @@
 title: "Dose-Proportionality Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{doseprop-workflow}
+  %\VignetteIndexEntry{Dose-Proportionality Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

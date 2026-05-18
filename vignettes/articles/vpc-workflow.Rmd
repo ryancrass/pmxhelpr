@@ -2,7 +2,7 @@
 title: "Visual Predictive Check Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{vpc-workflow}
+  %\VignetteIndexEntry{Visual Predictive Check Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -2,7 +2,7 @@
 title: "Standard Overlay Goodness-of-Fit Diagnostics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{gof-diagnostics}
+  %\VignetteIndexEntry{Standard Overlay Goodness-of-Fit Diagnostics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

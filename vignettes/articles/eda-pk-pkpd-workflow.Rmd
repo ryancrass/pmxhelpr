@@ -2,7 +2,7 @@
 title: "Exploratory Analyses of PK and PK/PD Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{eda-pk-pkpd-workflow}
+  %\VignetteIndexEntry{Exploratory Analyses of PK and PK/PD Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -24,7 +24,6 @@ library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
 library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
-library(PKNCA, warn.conflicts = FALSE)
 ```
 
 # Data

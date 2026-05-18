@@ -303,7 +303,7 @@ plot_obj_cens <- plot_vpc_cens(
 scale_x_continuous(breaks = c(0,24,72,120,168)) +
 labs(y = "Proportion BLQ", x = "Time (hours)")
 
-plot_obj_dose_cens
+plot_obj_cens
 
 #Add Legend
 shown_cens <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, obs_point = FALSE)
@@ -311,7 +311,7 @@ plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens)
 plot_obj_cens_leg
 
 plot_obj_cens_wleg <- plot_obj_cens + plot_obj_cens_leg + plot_layout(heights = c(2,1))
-plot_obj_censwleg
+plot_obj_cens_wleg
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics

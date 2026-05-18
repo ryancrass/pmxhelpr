@@ -127,9 +127,9 @@ interactive inspection and programmatic validation.
   (`is_vpc_stats()`, `is_doseprop_stats()`).
 - Element / theme classes — every `pmx_*()` element and `plot_*_theme()`
   factory is class-tagged (`pmx_element` and `pmx_theme` shared, plus
-  per-type tags). Predicates `is_pmx_element()`, `is_pmx_theme()`, and
-  per-type variants (`is_pmx_point()`, `is_plot_dvtime_theme()`, …) test
-  class membership; `print()` methods render the type and set fields.
+  per-type tags). Predicates `is_pmx_element()` and `is_pmx_theme()`
+  test class membership; `print()` methods render the type and set
+  fields.
 - Dual-mode plotting — `plot_vpc_cont()` and `plot_doseprop()` accept
   either raw input data or a precomputed stats object. The precomputed
   path skips the summarization / regression refit, enabling compute-once

@@ -252,13 +252,25 @@ var_dosenorm <- function(dv_var,
 #' @param pred_var Vector containing population predictions (PRED)
 #' @param lower_bound Lower bound for prediction correction formula.
 #'
+#' @details The bin-median `predbin` is computed over the full `pred_var`
+#'    vector passed in. Callers must group their data by a binning variable
+#'    (e.g. nominal time, optionally stratified by compartment or covariates)
+#'    before invoking `var_predcorr()` so that `predbin` is the median across
+#'    the bin's observations, not the entire dataset.
+#'
 #' @family vectorized helpers
 #' @return A numeric vector of prediction-corrected values of `dv_var`
 #' @export var_predcorr
 #' @examples
 #' pkmodel <- model_mread_load(model = "pkmodel")
-#' data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
-#' data <- dplyr::mutate(data, PCDV = var_predcorr(ODV, PRED))
+#' data <- df_mrgsim_addpred(
+#'   data = dplyr::filter(data_sad, CMT != 3),
+#'   model = pkmodel)
+#' data <- data |>
+#'   dplyr::filter(EVID == 0) |>
+#'   dplyr::group_by(NTIME) |>
+#'   dplyr::mutate(PCDV = var_predcorr(ODV, PRED)) |>
+#'   dplyr::ungroup()
 #'
 var_predcorr <- function(dv_var,
                          pred_var,

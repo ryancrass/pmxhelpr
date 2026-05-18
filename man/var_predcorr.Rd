@@ -19,10 +19,23 @@ A numeric vector of prediction-corrected values of \code{dv_var}
 \description{
 Apply prediction correction
 }
+\details{
+The bin-median \code{predbin} is computed over the full \code{pred_var}
+vector passed in. Callers must group their data by a binning variable
+(e.g. nominal time, optionally stratified by compartment or covariates)
+before invoking \code{var_predcorr()} so that \code{predbin} is the median across
+the bin's observations, not the entire dataset.
+}
 \examples{
 pkmodel <- model_mread_load(model = "pkmodel")
-data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
-data <- dplyr::mutate(data, PCDV = var_predcorr(ODV, PRED))
+data <- df_mrgsim_addpred(
+  data = dplyr::filter(data_sad, CMT != 3),
+  model = pkmodel)
+data <- data |>
+  dplyr::filter(EVID == 0) |>
+  dplyr::group_by(NTIME) |>
+  dplyr::mutate(PCDV = var_predcorr(ODV, PRED)) |>
+  dplyr::ungroup()
 
 }
 \seealso{

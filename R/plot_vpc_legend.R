@@ -4,6 +4,7 @@
 #' @param ci Numeric confidence level for simulation intervals (e.g., `0.90` for 90% CI).
 #'    Should match argument passed to [plot_vpc_cont()]. Default is `0.90`.
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
+#'    Ignored when `type = "cens"` (cens VPCs do not have prediction intervals).
 #' @param lloq Numeric scalar or vector of LLOQ values to label in the legend,
 #'    or `NULL` to omit. Each unique value becomes one legend entry rendered
 #'    with the theme's `loq_line` linetype. Pass `compute_out$config$loq` from
@@ -11,6 +12,15 @@
 #'    [plot_build_vpc()].
 #' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
 #'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
+#' @param type One of `"cont"` (default) or `"cens"`. Selects the labels and
+#'    layer set the legend describes. Under `"cont"`, the central-tendency
+#'    entries are labeled `"Obs Med"`, `"Sim Med"`, and `"Sim <ci>% CI Med"`
+#'    and the pi entries (`"Obs <p1>th and <p2>th"`, `"Sim <p1>th - <p2>th"`,
+#'    `"Sim <ci>% CI <p1>th and <p2>th"`) are included when their `shown`
+#'    keys are on. Under `"cens"`, the three central-tendency labels are
+#'    relabeled to `"Obs Prop BLQ"`, `"Sim Prop BLQ"`, `"Sim <ci>% CI Prop BLQ"`
+#'    and all pi-related entries are suppressed regardless of `shown` (cens
+#'    VPCs have no prediction interval).
 #' @param ... Other arguments passed to [ggplot2::theme()].
 #'
 #' @inheritParams plot_vpc_cont
@@ -27,13 +37,18 @@
 #'  sim_pi_line = FALSE, sim_pi_area = FALSE, sim_pi_ci = TRUE,
 #'  obs_median_line = TRUE,
 #'  sim_median_line = FALSE, sim_median_ci = TRUE))
+#'## Cens VPC legend
+#'plot_vpc_legend(type = "cens", lloq = 1)
 
 plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
                         theme = NULL,
+                        type = c("cont", "cens"),
                         ...){
+
+  type <- match.arg(type)
 
   #aesthetics for legend based on settings in plot_vpc_theme
   plist <- merge_theme(theme, plot_vpc_theme())
@@ -48,13 +63,22 @@ plot_vpc_legend <- function(ci = 0.90,
                lloq_lab = factor(lloq_lab, levels = lloq_lab))
   } else NULL
   obs <- "Obs"
-  obs_cent <- "Obs Med"
-  sim_cent <- "Sim Med"
   sim_cilab <- paste0("Sim ", ci * 100, "% CI")
-  obs_pilab <- paste0("Obs ", pi[1]*100,"th", " and ", pi[2]*100, "th")
-  sim_pilab <- paste0("Sim ", pi[1]*100,"th - ", pi[2]*100, "th")
-  sim_cilab_cent <- paste0(sim_cilab, " Med")
-  sim_cilab_pi <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
+  if (type == "cens") {
+    obs_cent       <- "Obs Prop BLQ"
+    sim_cent       <- "Sim Prop BLQ"
+    sim_cilab_cent <- paste0(sim_cilab, " Prop BLQ")
+    obs_pilab      <- NULL
+    sim_pilab      <- NULL
+    sim_cilab_pi   <- NULL
+  } else {
+    obs_cent       <- "Obs Med"
+    sim_cent       <- "Sim Med"
+    sim_cilab_cent <- paste0(sim_cilab, " Med")
+    obs_pilab      <- paste0("Obs ", pi[1]*100,"th", " and ", pi[2]*100, "th")
+    sim_pilab      <- paste0("Sim ", pi[1]*100,"th - ", pi[2]*100, "th")
+    sim_cilab_pi   <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
+  }
 
   df <- data.frame(x=NA_real_, y=NA_real_)
   plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y))
@@ -70,17 +94,17 @@ plot_vpc_legend <- function(ci = 0.90,
   } else NULL
 
   linetype_vals <- c(
-    if (isTRUE(nlist$obs_median_line)) stats::setNames(plist$obs_median_line$linetype, obs_cent),
-    if (isTRUE(nlist$obs_pi_line))     stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
-    if (isTRUE(nlist$sim_median_line)) stats::setNames(plist$sim_median_line$linetype, sim_cent),
-    if (isTRUE(nlist$sim_pi_line))     stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
-    if (!is.null(lloq))                stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
+    if (isTRUE(nlist$obs_median_line))                  stats::setNames(plist$obs_median_line$linetype, obs_cent),
+    if (type == "cont" && isTRUE(nlist$obs_pi_line))    stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
+    if (isTRUE(nlist$sim_median_line))                  stats::setNames(plist$sim_median_line$linetype, sim_cent),
+    if (type == "cont" && isTRUE(nlist$sim_pi_line))    stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
+    if (!is.null(lloq))                                 stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
   )
 
   fill_vals <- c(
-    if (isTRUE(nlist$sim_median_ci)) stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
-    if (isTRUE(nlist$sim_pi_ci))     stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
-    if (isTRUE(nlist$sim_pi_area))   stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
+    if (isTRUE(nlist$sim_median_ci))                  stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
+    if (type == "cont" && isTRUE(nlist$sim_pi_ci))    stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
+    if (type == "cont" && isTRUE(nlist$sim_pi_area))  stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
   )
 
   plot <- plot_blank +
@@ -94,22 +118,22 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
                                                      color = plist$obs_median_line$color,
                                                      linewidth = plist$obs_median_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
+    {if(type == "cont" && nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
                                                  color = plist$obs_pi_line$color,
                                                  linewidth = plist$obs_pi_line$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
                                                      color = plist$sim_median_line$color,
                                                      linewidth = plist$sim_median_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
+    {if(type == "cont" && nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
                                              color = plist$sim_pi_line$color,
                                              linewidth = plist$sim_pi_line$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                      fill = sim_cilab_cent),
                                                         alpha = plist$sim_median_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(type == "cont" && nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                              fill = sim_cilab_pi),
                                                 alpha = plist$sim_pi_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(type == "cont" && nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                   fill = sim_pilab),
                                                      alpha = plist$sim_pi_area$alpha, na.rm= TRUE)}+
     {if (isTRUE(nlist$obs_point)) ggplot2::scale_shape_manual(name = "Points",

@@ -5,7 +5,7 @@
     Output
       <vpc_stats>
         stats: 38 rows x 35 columns
-        obs:   1030 rows
+        obs:   515 rows
         config: n_replicates = 5, loq = 1, strat_var = FOOD
         column groups (stats):
           identifiers  : BIN_MID, FOOD

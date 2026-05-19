@@ -149,3 +149,9 @@ test_that("plot_dvtime id_var adds a GeomLine layer", {
   p_id <- plot_dvtime(d, dv_var = "ODV", id_var = "ID")
   expect_gt(count_lines(p_id), count_lines(p_no))
 })
+
+##Test mixed-CMT input warning
+test_that("plot_dvtime warns when input has multiple CMT values after EVID filter", {
+  expect_warning(plot_dvtime(data_sad, dv_var = "ODV"),
+                 regexp = "Multiple unique values of `CMT`")
+})

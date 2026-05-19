@@ -5,7 +5,7 @@ template:
 repo:
   url:
     home: https://github.com/ryancrass/pmxhelpr/
-    source: https://github.com/ryancrass/pmxhelpr/blob/dev/
+    source: https://github.com/ryancrass/pmxhelpr/blob/main/
     issue: https://github.com/ryancrass/pmxhelpr/issues/
     user: https://github.com/
 
@@ -13,6 +13,7 @@ articles:
   - title: Articles
     navbar: ~
     contents:
+      - matches("getting-started")
       - matches("articles/eda-pk-pkpd-workflow")
       - matches("articles/gof-diagnostics")
       - matches("articles/vpc-workflow")
@@ -27,6 +28,7 @@ reference:
       - plot_dvconc
       - plot_gof
       - plot_vpc_cont
+      - plot_vpc_cens
       - plot_doseprop
       - plot_vpc_legend
 

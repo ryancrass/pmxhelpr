@@ -2,7 +2,7 @@
 
 ##Test Output
 test_that("Output is a `ggplot` plot object", {
-    sim <- df_mrgsim_replicate(data=data_sad,model=model_mread_load("pkmodel"),
+    sim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"),
                         replicates = 10,
                         dv_var = "ODV")
     expect_s3_class(sim, class = "data.frame")
@@ -11,7 +11,7 @@ test_that("Output is a `ggplot` plot object", {
 })
 
 test_that("Output plot contains a caption with number of replicates by default", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -23,7 +23,7 @@ test_that("Output plot contains a caption with number of replicates by default",
 })
 
 test_that("Output plot does not contains a caption with number of replicates when `show_rep = FALSE`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -42,7 +42,7 @@ test_that("Error if incorrect class for argument `data`", {
 })
 
 test_that("Error if time_var does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -54,7 +54,7 @@ test_that("Error if time_var does not exist in `data`", {
 })
 
 test_that("Error if ntime_var does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -66,7 +66,7 @@ test_that("Error if ntime_var does not exist in `data`", {
 })
 
 test_that("No error if time_var and ntime_var specified as same variable", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -77,7 +77,7 @@ test_that("No error if time_var and ntime_var specified as same variable", {
 })
 
 test_that("Error if pred_var does not exist in `data` (pred is required for pc stats, always computed)", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -89,7 +89,7 @@ test_that("Error if pred_var does not exist in `data` (pred is required for pc s
 })
 
 test_that("Error if sim_dv_var does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -101,7 +101,7 @@ test_that("Error if sim_dv_var does not exist in `data`", {
 })
 
 test_that("Error if obs_dv_var does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -113,7 +113,7 @@ test_that("Error if obs_dv_var does not exist in `data`", {
 })
 
 test_that("Error if argument for `loq` is not class numeric", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -126,7 +126,7 @@ test_that("Error if argument for `loq` is not class numeric", {
 
 
 test_that("Error if variable specified by `strat_var` does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -138,7 +138,7 @@ test_that("Error if variable specified by `strat_var` does not exist in `data`",
 })
 
 test_that("Error if variable specified by `irep_name` does not exist in `data`", {
-  testsim <- df_mrgsim_replicate(data=data_sad,
+  testsim <- df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                  model=model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -151,7 +151,7 @@ test_that("Error if variable specified by `irep_name` does not exist in `data`",
 
 ##Test NSE Bare Names
 test_that("plot_vpc_cont accepts bare irep_name and matches string output", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -162,7 +162,7 @@ test_that("plot_vpc_cont accepts bare irep_name and matches string output", {
 })
 
 test_that("plot_vpc_cont accepts bare strat_var and matches string output", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
@@ -175,7 +175,7 @@ test_that("plot_vpc_cont accepts bare strat_var and matches string output", {
 
 ##Test PC-VPC correctness
 test_that("PC-VPC applies per-bin prediction correction, not global", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -188,7 +188,7 @@ test_that("PC-VPC applies per-bin prediction correction, not global", {
 
 ##Test vpcstats return
 test_that("df_vpcstats() returns a pmx_stats container with stats, obs, config slots", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -208,7 +208,7 @@ test_that("df_vpcstats() returns a pmx_stats container with stats, obs, config s
 
 ##Test stratified VPC
 test_that("Stratified VPC produces a faceted plot", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
@@ -222,7 +222,7 @@ test_that("Stratified VPC produces a faceted plot", {
 
 ##Test min_bin_count filtering (plot-layer-only filter)
 test_that("min_bin_count is a plot-layer arg; df_vpcstats returns unfiltered", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -237,7 +237,7 @@ test_that("min_bin_count is a plot-layer arg; df_vpcstats returns unfiltered", {
 
 ##Test pcvpc plot toggle suppresses LOQ ref line
 test_that("plot_vpc_cont(pcvpc = TRUE) suppresses the LOQ reference line", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -253,7 +253,7 @@ test_that("plot_vpc_cont(pcvpc = TRUE) suppresses the LOQ reference line", {
 
 ##Test LLOQ inheritance from sim column
 test_that("loq is inherited from LLOQ column in sim when not explicitly provided", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
@@ -271,7 +271,7 @@ test_that("loq is inherited from LLOQ column in sim when not explicitly provided
 })
 
 test_that("explicit loq overrides LLOQ column in sim", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
@@ -286,7 +286,7 @@ test_that("explicit loq overrides LLOQ column in sim", {
 ##### Test plot_vpc_cont() with precomputed df_vpcstats() output #####
 
 test_that("plot_vpc_cont accepts a precomputed vpc_stats list and returns a ggplot", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -297,7 +297,7 @@ test_that("plot_vpc_cont accepts a precomputed vpc_stats list and returns a ggpl
 })
 
 test_that("precomputed path with strat_var produces a faceted plot", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV",
@@ -310,7 +310,7 @@ test_that("precomputed path with strat_var produces a faceted plot", {
 })
 
 test_that("precomputed pcVPC plot path suppresses LOQ reference line", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -325,7 +325,7 @@ test_that("precomputed pcVPC plot path suppresses LOQ reference line", {
 })
 
 test_that("min_bin_count override on precomputed path filters layers", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -340,7 +340,7 @@ test_that("min_bin_count override on precomputed path filters layers", {
 })
 
 test_that("plot_vpc_cont aborts when pipeline args are passed on the precomputed path", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -354,7 +354,7 @@ test_that("plot_vpc_cont aborts when pipeline args are passed on the precomputed
 })
 
 test_that("plot_vpc_cont accepts plot-only args on the precomputed path", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -367,7 +367,7 @@ test_that("plot_vpc_cont accepts plot-only args on the precomputed path", {
 })
 
 test_that("precomputed and raw paths produce structurally equivalent plot data", {
-  testsim <- df_mrgsim_replicate(data = data_sad,
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
@@ -478,20 +478,20 @@ test_that("plot_vpc_cont warns when strat_var contains NA values", {
 ## Test pmx_vpc_plot S3 class
 
 test_that("plot_vpc_cont() returns a pmx_vpc_plot object", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   expect_s3_class(plot_vpc_cont(data = sim), "pmx_vpc_plot")
 })
 
 test_that("plot_build_vpc() returns a pmx_vpc_plot object", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   out <- df_vpcstats(sim)
   expect_s3_class(plot_build_vpc(out), "pmx_vpc_plot")
 })
 
 test_that("Adding facet_wrap() to a pmx_vpc_plot warns about incorrect statistics", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_warning(p + ggplot2::facet_wrap(~FOOD),
@@ -499,7 +499,7 @@ test_that("Adding facet_wrap() to a pmx_vpc_plot warns about incorrect statistic
 })
 
 test_that("Adding facet_grid() to a pmx_vpc_plot warns about incorrect statistics", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_warning(p + ggplot2::facet_grid(~FOOD),
@@ -507,14 +507,14 @@ test_that("Adding facet_grid() to a pmx_vpc_plot warns about incorrect statistic
 })
 
 test_that("Adding non-facet layers to a pmx_vpc_plot does not warn", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_no_warning(p + ggplot2::labs(title = "test"))
 })
 
 test_that("pmx_vpc_plot class is preserved after adding non-facet layers", {
-  sim <- df_mrgsim_replicate(data = data_sad, model = model_mread_load("pkmodel"),
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model_mread_load("pkmodel"),
                              replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim) + ggplot2::labs(title = "test")
   expect_s3_class(p, "pmx_vpc_plot")

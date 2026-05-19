@@ -199,6 +199,7 @@ df_prep_dvtime <- function(data,
   }
 
   data <- dplyr::filter(data, EVID == 0)
+  check_single_cmt(data)
 
   pred_vars <- if (blq_mode == "all") {
     c(if (!is.null(pred_var_str)) "PRED",

@@ -21,6 +21,9 @@ plotting workflow, lives on the [pmxhelpr
 website](https://ryancrass.github.io/pmxhelpr/). Start with the
 articles:
 
+- [Getting Started with
+  pmxhelpr](https://ryancrass.github.io/pmxhelpr/articles/getting-started.html)
+  — a lean tour of every core workflow in one sitting.
 - [Exploratory Analyses of PK and PK/PD
   Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
 - [Dose-Proportionality
@@ -83,8 +86,10 @@ the prefix indicates what the function returns:
   - `df_mrgsim_replicate()` — simulated replicates of an input dataset
     via `mrgsolve`
   - `df_vpcstats()` — VPC summary statistics
-  - `plot_vpc_cont()` — VPC plot from simulated data with exact time
-    bins
+  - `plot_vpc_cont()` — VPC plot for continuous data range from
+    simulated data with exact time bins
+  - `plot_vpc_cens()` — VPC plot for censored data range from simulated
+    data with exact time bins
   - `plot_vpc_legend()` — legend for a VPC plot
 
 ### Theme System
@@ -286,9 +291,28 @@ simout <- df_mrgsim_replicate(data = data, model = model, replicates = 100,
                               recover  = c("PART", "Food"))
 glimpse(simout)
 
+#Plot output in a Censored Visual Predictive Check (VPC)
+
+plot_obj_cens <- plot_vpc_cens(
+  data = simout,
+  strat_var = "DOSE"
+) +
+scale_x_continuous(breaks = c(0,24,72,120,168)) +
+labs(y = "Proportion BLQ", x = "Time (hours)")
+
+plot_obj_cens
+
+#Add Legend
+shown_cens <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, obs_point = FALSE)
+plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens)
+plot_obj_cens_leg
+
+plot_obj_cens_wleg <- plot_obj_cens + plot_obj_cens_leg + plot_layout(heights = c(2,1))
+plot_obj_cens_wleg
+
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
-  #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
+  #Actual time ("TIME") is used to plot observed data points (prediction-corrected if pcvpc=TRUE)
 
 
 plot_obj_food <- plot_vpc_cont(
@@ -296,7 +320,9 @@ plot_obj_food <- plot_vpc_cont(
   strat_var = "Food",
   pcvpc = TRUE
 ) + 
-  scale_y_log10(guide = "axis_logticks")
+ scale_x_continuous(breaks = c(0,24,72,120,168)) +
+ scale_y_log10(guide = "axis_logticks") +
+ labs(y = "Pred-corrected Conc. (ng/mL)", x = "Time (hours)")
 
 plot_obj_food
 

@@ -2,7 +2,9 @@
 ## Cross-function workflow tests
 
 test_that("var_addn -> plot_dvtime: factor col_var maps to the color aesthetic", {
-  data <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
+  data <- data_sad |>
+    dplyr::filter(CMT != 3) |>
+    dplyr::mutate(Dose = var_addn(DOSE, ID, sep = "mg"))
   p <- plot_dvtime(data, dv_var = "ODV", col_var = "Dose")
   expect_s3_class(p, "ggplot")
   expect_true("colour" %in% names(p$mapping))
@@ -14,7 +16,7 @@ test_that("df_mrgsim_addpred -> plot_vpc_cont: prediction-corrected pipeline shi
   data_pred <- df_mrgsim_addpred(data_sad, model)
   expect_s3_class(data_pred, "data.frame")
   expect_true("PRED" %in% colnames(data_pred))
-  sim <- df_mrgsim_replicate(data = data_sad, model = model,
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model,
                               replicates = 1, dv_var = "ODV")
   stats <- df_vpcstats(sim, loq = 1)
   ## pc-flavor pred-correction must produce different sim medians than std
@@ -35,7 +37,7 @@ test_that("var_addn -> plot_dvconc: factor col_var works in dvconc with col_tren
 
 test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces a VPC with sim and obs geoms", {
   model <- model_mread_load("pkmodel")
-  sim <- df_mrgsim_replicate(data = data_sad, model = model,
+  sim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3), model = model,
                               replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_s3_class(p, "ggplot")

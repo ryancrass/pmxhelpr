@@ -5,28 +5,49 @@
 #' satisfying the `vpc_stats` contract). Applies the `min_bin_count` filter,
 #' draws the simulated and observed quantile layers, overlays the observation
 #' scatter, draws the LOQ reference line, applies stratification facets, and
-#' adds the replicates caption and panel theme. The `pcvpc` argument selects
-#' the standard or prediction-corrected column set; both are present in the
-#' compute output.
+#' adds the replicates caption and panel theme. The `type` argument selects
+#' the continuous (concentration quantile) or censored (BLQ proportion) layer
+#' set; the `pcvpc` argument selects the standard or prediction-corrected
+#' column set within the continuous type.
 #'
-#' Most users will reach this function indirectly via [plot_vpc_cont()].
-#' Call `plot_build_vpc()` directly when working from a manually-constructed
-#' or cached `vpc_stats` object — for example, plotting a precomputed result
-#' from disk or a custom pipeline that produces compatible columns.
+#' Most users will reach this function indirectly via [plot_vpc_cont()] or
+#' [plot_vpc_cens()]. Call `plot_build_vpc()` directly when working from a
+#' manually-constructed or cached `vpc_stats` object — for example, plotting
+#' a precomputed result from disk or a custom pipeline that produces
+#' compatible columns.
 #'
 #' @param compute_out A `vpc_stats` object (typically the output of
 #'    [df_vpcstats()]). Must contain `stats` and `obs` data.frames with the
 #'    columns documented in [df_vpcstats()]. Validated by
 #'    `validate_vpc_stats()` at entry.
-#' @param min_bin_count Minimum number of quantifiable observations
-#'    (`obs_n - obs_n_blq`) required for inclusion in binned plot layers.
-#'    BLQ-encoded records do not count toward this threshold.
+#' @param type One of `"cont"` (default) or `"cens"`. `"cont"` plots the
+#'    continuous concentration VPC (quantile ribbons and obs scatter).
+#'    `"cens"` plots the BLQ-proportion VPC (proportion CI ribbon plus
+#'    observed per-bin proportion line/points); requires `sim_prop_blq_*`
+#'    columns in `compute_out$stats` (i.e., `df_vpcstats()` was called with
+#'    a LOQ source). `type = "cens"` is incompatible with `pcvpc = TRUE`.
+#' @param min_bin_count Minimum number of observations per bin required for
+#'    inclusion in binned plot layers. For `type = "cont"`, the threshold is
+#'    applied to *quantifiable* obs only (`obs_n - obs_n_blq`); BLQ-encoded
+#'    records do not count toward it. For `type = "cens"`, the threshold is
+#'    applied to total obs (`obs_n`) — BLQ-heavy bins are the most
+#'    informative on a cens VPC and are retained.
 #' @param show_rep Logical. Display replicate count as a plot caption.
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
-#' @param theme Aesthetic parameters created by [plot_vpc_theme()].
+#'    For `type = "cens"`, only the `obs_point`, `obs_median_line`,
+#'    `sim_median_line`, and `sim_median_ci` keys are read. Defaults follow
+#'    `plot_vpc_shown()`: observed proportion line/points and simulated CI
+#'    ribbon are shown; the simulated median line is off by default (pass
+#'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it).
+#' @param theme Aesthetic parameters created by [plot_vpc_theme()]. For
+#'    `type = "cens"`, only the keys corresponding to the four cens layers
+#'    above are read; other keys are ignored. The cens `obs_point` color is
+#'    inherited from `obs_median_line` (so points match the obs line); the
+#'    `obs_point` theme key still controls shape/alpha/size.
 #' @param pcvpc Logical. When `TRUE`, plot the prediction-corrected columns
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
-#'    LOQ reference line. Default is `FALSE` (standard VPC).
+#'    LOQ reference line. Default is `FALSE` (standard VPC). Only meaningful
+#'    when `type = "cont"`.
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
 #'    or `NULL` to suppress. When omitted (inherited from
 #'    `compute_out$config$loq`) and `strat_var` is set and `compute_out$obs`
@@ -61,6 +82,7 @@
 #' p <- plot_build_vpc(out, pcvpc = FALSE)
 
 plot_build_vpc <- function(compute_out,
+                           type = c("cont", "cens"),
                            min_bin_count = 1,
                            show_rep = TRUE,
                            shown = NULL,
@@ -70,7 +92,20 @@ plot_build_vpc <- function(compute_out,
                            strat_var = NULL,
                            bin_var = BIN_MID_VAR) {
 
+  type <- match.arg(type)
+
   validate_vpc_stats(compute_out)
+
+  if (type == "cens" && isTRUE(pcvpc)) {
+    rlang::abort(
+      "`pcvpc = TRUE` is not supported for `type = \"cens\"`; LOQ has no meaning on the prediction-corrected scale."
+    )
+  }
+  if (type == "cens" && !"sim_prop_blq_med" %in% colnames(compute_out$stats)) {
+    rlang::abort(
+      "`type = \"cens\"` requires `sim_prop_blq_*` columns in `compute_out$stats`; call `df_vpcstats()` with a LOQ source (`loq` arg or `LLOQ` column)."
+    )
+  }
 
   ## Strat var dispatch: explicit user input takes precedence; otherwise
   ## inherit from the container's config slot (set by df_vpccompute).
@@ -87,8 +122,15 @@ plot_build_vpc <- function(compute_out,
   loq_inherited <- missing(loq)
   if (loq_inherited) loq <- compute_out$config$loq
 
-  vpcstats <- dplyr::filter(compute_out$stats,
-                            (.data$obs_n - .data$obs_n_blq) >= min_bin_count)
+  ## min_bin_count predicate diverges by type. For cont, only quantifiable
+  ## obs count (BLQ-encoded records excluded). For cens, BLQ-heavy bins are
+  ## the most informative so the threshold is applied to total obs.
+  vpcstats <- if (type == "cens") {
+    dplyr::filter(compute_out$stats, .data$obs_n >= min_bin_count)
+  } else {
+    dplyr::filter(compute_out$stats,
+                  (.data$obs_n - .data$obs_n_blq) >= min_bin_count)
+  }
   obs <- compute_out$obs
 
   shown <- merge_element(shown, plot_vpc_shown())
@@ -105,6 +147,8 @@ plot_build_vpc <- function(compute_out,
   if (isTRUE(pcvpc)) loq <- NULL
 
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
+
+  if (type == "cont") {
 
   if (isTRUE(shown$sim_pi_area)) {
     plot <- plot +
@@ -197,7 +241,66 @@ plot_build_vpc <- function(compute_out,
       )
   }
 
-  if (!is.null(loq)) {
+  } else if (type == "cens") {
+
+    ## Cens layers map to a subset of the shown/theme keys used by cont:
+    ##   sim_median_ci    -> ribbon of (sim_prop_blq_low, sim_prop_blq_hi)
+    ##   sim_median_line  -> line at sim_prop_blq_med
+    ##   obs_median_line  -> line at obs_prop_blq
+    ##   obs_point        -> per-bin points at obs_prop_blq (from stats, not obs)
+    if (isTRUE(shown$sim_median_ci)) {
+      plot <- plot +
+        ggplot2::geom_ribbon(
+          ggplot2::aes(ymin = .data[["sim_prop_blq_low"]],
+                       ymax = .data[["sim_prop_blq_hi"]]),
+          fill = vpctheme$sim_median_ci$fill,
+          alpha = vpctheme$sim_median_ci$alpha
+        )
+    }
+
+    if (isTRUE(shown$sim_median_line)) {
+      plot <- plot +
+        ggplot2::geom_line(
+          ggplot2::aes(y = .data[["sim_prop_blq_med"]]),
+          color = vpctheme$sim_median_line$color,
+          linetype = vpctheme$sim_median_line$linetype,
+          linewidth = vpctheme$sim_median_line$linewidth
+        )
+    }
+
+    if (isTRUE(shown$obs_median_line)) {
+      plot <- plot +
+        ggplot2::geom_line(
+          ggplot2::aes(y = .data[["obs_prop_blq"]]),
+          color = vpctheme$obs_median_line$color,
+          linetype = vpctheme$obs_median_line$linetype,
+          linewidth = vpctheme$obs_median_line$linewidth
+        )
+    }
+
+    if (isTRUE(shown$obs_point)) {
+      ## Cens obs points represent the same per-bin statistic as the obs
+      ## line, so inherit the line color (obs_median_line) for color
+      ## coherence. The obs_point theme key still controls shape/alpha/size.
+      plot <- plot +
+        ggplot2::geom_point(
+          ggplot2::aes(y = .data[["obs_prop_blq"]]),
+          shape = vpctheme$obs_point$shape,
+          alpha = vpctheme$obs_point$alpha,
+          size  = vpctheme$obs_point$size,
+          color = vpctheme$obs_median_line$color
+        )
+    }
+
+    ## Cens proportions are bounded [0, 1]. Use coord_cartesian (not
+    ## scale_y_continuous limits) so boundary values aren't dropped; users
+    ## can still override by adding their own coord_*() / scale_y_*() layer.
+    plot <- plot + ggplot2::coord_cartesian(ylim = c(0, 1))
+  }
+
+  ## LOQ ref line: cont only (LOQ is meaningless on the pc scale and not
+  ## drawn on cens plots, which already represent the BLQ proportion).
+  if (type == "cont" && !is.null(loq)) {
     if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
       loq_facet_df <- unique(
         compute_out$obs[!is.na(compute_out$obs$LOQ),
@@ -229,7 +332,9 @@ plot_build_vpc <- function(compute_out,
       ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var_str]]))
   }
 
-  if (isTRUE(shown$obs_point) && nrow(obs) > 0) {
+  ## Obs scatter: cont only. Cens obs points are drawn from the per-bin
+  ## stats frame inside the cens layer block above.
+  if (type == "cont" && isTRUE(shown$obs_point) && nrow(obs) > 0) {
     plot <- plot +
       ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = TIME),
                           data = obs, inherit.aes = FALSE,

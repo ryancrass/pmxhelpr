@@ -209,3 +209,32 @@ check_pipeline_args_dropped <- function(call, plot_only_args, fn_name) {
   }
   invisible(NULL)
 }
+
+#' Warn when a post-`EVID == 0` filter still contains multiple unique CMT values
+#'
+#' @description
+#' Defensive check intended to be called immediately after an internal
+#' `dplyr::filter(data, EVID == 0)` step. If the filtered data carries more
+#' than one unique value of `CMT`, the function emits a `rlang::warn()`
+#' recommending the caller pre-filter to a single observation compartment.
+#' No-op when the `CMT` column is absent or the data is empty.
+#'
+#' @param data Filtered data frame.
+#' @param name Character scalar, name of the upstream argument used in the
+#'    warning text. Defaults to `"data"`.
+#' @return `invisible(NULL)`.
+#' @keywords internal
+check_single_cmt <- function(data, name = "data") {
+  if (!"CMT" %in% colnames(data)) return(invisible(NULL))
+  if (nrow(data) == 0L)            return(invisible(NULL))
+  cmts <- unique(data[["CMT"]])
+  if (length(cmts) <= 1L)          return(invisible(NULL))
+  rlang::warn(c(
+    paste0("Multiple unique values of `CMT` detected in `", name,
+           "` after filtering to `EVID == 0`: ",
+           paste(sort(cmts), collapse = ", "), "."),
+    "i" = "Functions assume a single observation type per call.",
+    "i" = "Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == <n>)`) before passing to this function."
+  ))
+  invisible(NULL)
+}

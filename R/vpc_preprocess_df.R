@@ -72,14 +72,11 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                              loq = NULL) {
 
   check_df(data, "data")
-  check_varsindf(data, time_var_str, "data", "time_var")
-  check_varsindf(data, ntime_var_str, "data", "ntime_var")
-  check_varsindf(data, pred_var_str, "data", "pred_var")
-  check_varsindf(data, sim_dv_var_str, "data", "sim_dv_var")
-  check_varsindf(data, obs_dv_var_str, "data", "obs_dv_var")
-  check_varsindf(data, "MDV", "data", "MDV")
-  check_varsindf(data, "EVID", "data", "EVID")
-  check_varsindf(data, irep_name_str, "data", "irep_name")
+  check_varsindf(data,
+                 c(time_var_str, ntime_var_str, pred_var_str,
+                   sim_dv_var_str, obs_dv_var_str,
+                   "MDV", "EVID", irep_name_str),
+                 "data", "vars")
   if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var")
   if (!is.null(strat_var_str)) check_factor(data, strat_var_str, "strat_var")
 

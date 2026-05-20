@@ -145,7 +145,7 @@ test_that("Error if variable specified by `irep_name` does not exist in `data`",
 
   expect_error(
     plot_vpc_cont(data = testsim, irep_name = "IREP"),
-    regexp = "argument `irep_name` must be variable.*in `data`"
+    regexp = "must be variable.*in `data`"
   )
 })
 

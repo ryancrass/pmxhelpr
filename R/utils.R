@@ -389,3 +389,34 @@ var_infna <- function(x) {
   x[is.infinite(x) & x < 0] <- NA_real_
   x
 }
+
+
+#' Normalize a time-unit alias to its canonical name
+#'
+#' Internal helper. Maps any supported alias (e.g. `"hrs"`, `"d"`, `"mo"`)
+#' to its canonical form (`"hours"`, `"days"`, `"weeks"`, `"months"`).
+#' Aborts on unrecognized input.
+#'
+#' @param var Character scalar. Time-unit alias to normalize.
+#' @param name Character scalar. Argument name used in the error message.
+#'    Defaults to `"unit"`.
+#' @return Canonical unit name as a length-1 unnamed character.
+#' @keywords internal
+#' @noRd
+normalize_time_unit <- function(var, name = "unit") {
+  aliases <- c(
+    hours  = "hours",  hrs  = "hours",  hour  = "hours",  hr  = "hours",  h = "hours",
+    days   = "days",   dys  = "days",   day   = "days",   dy  = "days",   d = "days",
+    weeks  = "weeks",  wks  = "weeks",  week  = "weeks",  wk  = "weeks",  w = "weeks",
+    months = "months", mons = "months", mos   = "months", month = "months",
+    mo     = "months", m    = "months"
+  )
+  out <- aliases[var]
+  if (is.na(out)) {
+    rlang::abort(
+      paste0("argument `", name, "` must be one of: ",
+             paste(names(aliases), collapse = ", "))
+    )
+  }
+  unname(out)
+}

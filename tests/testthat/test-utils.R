@@ -74,17 +74,22 @@ test_that("check_factor does not error on factor-coercible column", {
   expect_no_error(pmxhelpr:::check_factor(df, "x", "x"))
 })
 
-#####check_timeu####
+#####normalize_time_unit####
 
-test_that("check_timeu does not error on valid time units", {
-  expect_no_error(pmxhelpr:::check_timeu("hours"))
-  expect_no_error(pmxhelpr:::check_timeu("days"))
-  expect_no_error(pmxhelpr:::check_timeu("weeks"))
-  expect_no_error(pmxhelpr:::check_timeu("months"))
+test_that("normalize_time_unit returns canonical value for valid aliases", {
+  expect_equal(pmxhelpr:::normalize_time_unit("hours"),  "hours")
+  expect_equal(pmxhelpr:::normalize_time_unit("hrs"),    "hours")
+  expect_equal(pmxhelpr:::normalize_time_unit("h"),      "hours")
+  expect_equal(pmxhelpr:::normalize_time_unit("days"),   "days")
+  expect_equal(pmxhelpr:::normalize_time_unit("wks"),    "weeks")
+  expect_equal(pmxhelpr:::normalize_time_unit("mo"),     "months")
+  expect_equal(pmxhelpr:::normalize_time_unit("months"), "months")
 })
 
-test_that("check_timeu errors on invalid time unit", {
-  expect_error(pmxhelpr:::check_timeu("years"),
+test_that("normalize_time_unit errors on invalid time unit", {
+  expect_error(pmxhelpr:::normalize_time_unit("years"),
+               regexp = "argument `unit` must be one of")
+  expect_error(pmxhelpr:::normalize_time_unit("years", name = "timeu"),
                regexp = "argument `timeu` must be one of")
 })
 

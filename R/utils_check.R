@@ -110,17 +110,6 @@ check_loq_method <- function(loq, loq_method, data) {
   loq_method
 }
 
-check_timeu <- function(var){
-  values <- c("hours", "hrs", "hour", "hr", "h",
-              "days", "dys", "day", "dy", "d",
-              "weeks", "wks", "week", "wk", "w",
-              "months", "mons", "mos", "month", "mo", "m")
-
-  if(!var %in% values){
-    rlang::abort(message = paste0("argument `timeu` must be one of: ", paste(values, collapse = ", ")))
-  }
-}
-
 check_quantile_pair <- function(x, name) {
   if (!is.numeric(x) || length(x) != 2L || any(is.na(x))) {
     rlang::abort(paste0("argument `", name, "` must be a length-2 numeric vector with no NAs"))

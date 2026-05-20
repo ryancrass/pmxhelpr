@@ -26,7 +26,7 @@ test_that("Error if incorrect class for arugmument `x`", {
 
 test_that("Error if `unit` is not within expected values", {
   expect_error(pmxhelpr:::var_timebreaks(unique(data_sad$NTIME), unit = "years"),
-               regexp = "argument `timeu` must be one of")
+               regexp = "argument `unit` must be one of")
 })
 
 test_that("Error if arugmument `n` is not coercible to an integer", {

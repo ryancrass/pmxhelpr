@@ -119,20 +119,13 @@ df_mrgsim_replicate <- function(data,
   #Always-carried set required by the downstream dplyr::select(); union with
   #user-supplied carry_out so the function's output structure is preserved.
   internal_carry <- c("EVID", "MDV", "CMT", "TIME", "NTIME", "OBSDV", pred_var_str)
-  dots <- list(...)
-  user_carry   <- dots$carry_out %||% character(0)
-  user_recover <- dots$recover   %||% character(0)
-  dots$carry_out <- NULL
-  dots$recover   <- NULL
-  carry_out_final <- union(internal_carry, user_carry)
+  dots <- rlang::list2(...)
+  dots$carry_out <- union(internal_carry, dots$carry_out %||% character(0))
 
   ##Run Simulation
   rep_fn <- function(rep, data, model) {
     out <- do.call(mrgsolve::mrgsim_df,
-                   c(list(x = model, data = data,
-                          carry_out = carry_out_final,
-                          recover   = user_recover),
-                     dots))
+                   c(list(x = model, data = data), dots))
     out[[irep_name_str]] <- rep
     out
   }

@@ -140,6 +140,17 @@ test_that("validate_vpc_stats rejects a vpc_stats container missing config keys"
                regexp = "missing required keys: loq")
 })
 
+test_that("validate_vpc_stats rejects a container with loq set but sim_prop_blq_* missing", {
+  out <- df_vpcstats(testsim, loq = 1)
+  bad <- out
+  bad$stats <- dplyr::select(bad$stats,
+                             -dplyr::any_of(grep("^sim_prop_blq_",
+                                                 colnames(bad$stats),
+                                                 value = TRUE)))
+  expect_error(pmxhelpr:::validate_vpc_stats(bad),
+               regexp = "missing `sim_prop_blq_\\*` columns")
+})
+
 test_that("plot_vpc_cont via the precomputed path surfaces validator errors", {
   bad <- structure(list(stats = data.frame(BIN_MID = 1),
                         obs   = data.frame(),

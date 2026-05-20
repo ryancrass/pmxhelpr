@@ -96,15 +96,17 @@ plot_build_vpc <- function(compute_out,
 
   validate_vpc_stats(compute_out)
 
-  if (type == "cens" && isTRUE(pcvpc)) {
-    rlang::abort(
-      "`pcvpc = TRUE` is not supported for `type = \"cens\"`; LOQ has no meaning on the prediction-corrected scale."
-    )
-  }
-  if (type == "cens" && !"sim_prop_blq_med" %in% colnames(compute_out$stats)) {
-    rlang::abort(
-      "`type = \"cens\"` requires `sim_prop_blq_*` columns in `compute_out$stats`; call `df_vpcstats()` with a LOQ source (`loq` arg or `LLOQ` column)."
-    )
+  if (type == "cens") {
+    if (is.null(compute_out$config$loq)) {
+      rlang::abort(
+        "`type = \"cens\"` requires a LOQ source; call `df_vpcstats()` with `loq = <numeric>` or include an `LLOQ` column in `data`."
+      )
+    }
+    if (isTRUE(pcvpc)) {
+      rlang::abort(
+        "`pcvpc = TRUE` is not supported for `type = \"cens\"`; LOQ has no meaning on the prediction-corrected scale."
+      )
+    }
   }
 
   ## Strat var dispatch: explicit user input takes precedence; otherwise

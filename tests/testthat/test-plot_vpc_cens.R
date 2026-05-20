@@ -266,7 +266,7 @@ test_that("plot_vpc_cens errors when precomputed vpc_stats lacks sim_prop_blq_*"
   out_no_loq <- df_vpcstats(testsim)
   expect_false("sim_prop_blq_med" %in% colnames(out_no_loq$stats))
   expect_error(plot_vpc_cens(out_no_loq),
-               regexp = "requires `sim_prop_blq_\\*` columns")
+               regexp = "requires a LOQ source")
 })
 
 test_that("plot_vpc_cens aborts when pipeline args are passed on the precomputed path", {
@@ -322,12 +322,12 @@ test_that("plot_build_vpc(type = 'cens', pcvpc = TRUE) is rejected", {
                regexp = "not supported for `type = \"cens\"`")
 })
 
-test_that("plot_build_vpc(type = 'cens') errors when sim_prop_blq columns are absent", {
+test_that("plot_build_vpc(type = 'cens') errors when LOQ source is absent", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
   out_no_loq <- df_vpcstats(testsim)
   expect_error(plot_build_vpc(out_no_loq, type = "cens"),
-               regexp = "requires `sim_prop_blq_\\*` columns")
+               regexp = "requires a LOQ source")
 })

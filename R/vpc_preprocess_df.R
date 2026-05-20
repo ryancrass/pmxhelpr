@@ -411,5 +411,16 @@ validate_vpc_stats <- function(x) {
                         paste(missing_config, collapse = ", ")))
   }
 
+  ## Cens invariant: if df_vpcstats() was called with a LOQ source, the
+  ## sim_prop_blq_* columns must be present. Catches malformed
+  ## manually-constructed containers; legit no-LOQ containers (config$loq
+  ## NULL, columns absent) are handled by the cens user-facing check in
+  ## plot_build_vpc().
+  if (!is.null(x$config$loq) && !"sim_prop_blq_med" %in% colnames(x$stats)) {
+    rlang::abort(
+      "`vpc_stats$config$loq` is set but `stats` is missing `sim_prop_blq_*` columns."
+    )
+  }
+
   invisible(x)
 }

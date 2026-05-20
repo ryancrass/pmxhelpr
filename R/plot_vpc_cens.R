@@ -111,11 +111,6 @@ plot_vpc_cens <- function(data,
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "theme"),
       fn_name        = "plot_vpc_cens"
     )
-    if (!"sim_prop_blq_med" %in% colnames(data$stats)) {
-      rlang::abort(
-        "`plot_vpc_cens()` requires `sim_prop_blq_*` columns in the precomputed `vpc_stats`; call `df_vpcstats()` with a LOQ source (`loq` arg or `LLOQ` column in `data`)."
-      )
-    }
     return(plot_build_vpc(
       data,
       type          = "cens",
@@ -147,12 +142,6 @@ plot_vpc_cens <- function(data,
     loq        = loq,
     ci         = ci
   )
-
-  if (is.null(out$config$loq)) {
-    rlang::abort(
-      "`plot_vpc_cens()` requires a LOQ source: pass `loq = <numeric>` or include an `LLOQ` column in `data`."
-    )
-  }
 
   plot_build_vpc(
     out,

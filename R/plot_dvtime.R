@@ -89,12 +89,13 @@ plot_dvtime <- function(data,
   if (!missing(dose_var) && !isTRUE(dosenorm)) {
     warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
   }
+  if (!isTRUE(dosenorm)) dose_var_str <- NULL
 
   prep <- df_prep_dvtime(
     data, time_var_str, ntime_var_str,
     dv_var_str = dv_var_str,
     loq = loq, loq_method = loq_method,
-    dose_var_str = if (dosenorm) dose_var_str,
+    dose_var_str = dose_var_str,
     col_var_str = col_var_str,
     id_var_str = id_var_str,
     dosenorm = dosenorm,

@@ -1,153 +1,251 @@
 # pmxhelpr (development version)
 
-This is a major refactor of the package focused on simplifying function interfaces, standardizing naming conventions, unifying the theme system across all plot families, and introducing class-tagged objects for both stats outputs and theme building blocks, with predicates and `print()`/`summary()` methods for interactive inspection and programmatic validation.
+This release simplifies plotting function interfaces, harmonizes naming across
+the package, replaces the flat theme list with a system of theme and element
+constructor, and introduces class-tagged stats containers (`vpc_stats`,
+`doseprop_stats`) that can be tabulated and re-plotted with recomputation. 
 
-## Breaking Changes
+The VPC pipeline is rewritten without the `vpc` package
+dependency with comprehensive BLQ handling for standard and prediction-
+corrected VPCs of the continuous data range and and a new function for VPC 
+plots of the proportion of data BLQ over time.
 
-### Removed Functions
-* Remove `plot_dvtime_dual`. Users can compose PK and PD panels directly with `plot_dvtime` + `patchwork`, which provides independent control of each panel's arguments.
-* Remove `df_addn`. Replaced by exported vectorized helper `var_addn`.
-* Remove `df_pcdv`. Replaced by exported vectorized helper `var_predcorr`.
-* Remove `df_nobsbin`. Bin count is now computed within `df_vpcstats`.
-* Remove `dvconc_caption` and `dvtime_caption` from exported functions. Now internal helpers.
-* Remove `mod_loglog`. Log-log regression is now fit inside `df_doseprop()`; the standalone fitting helper is no longer needed.
-* `df_loglog` is no longer exported. Tabulation of log-log regression output is internal to `df_doseprop()`; call `df_doseprop()` for the user-facing form.
+## Breaking changes
 
-### Renamed Functions
-* Rename `plot_popgof` / `plot_popgof_theme` to `plot_gof` / `plot_gof_theme`.
-* Rename `plot_vpc_exactbins` to `plot_vpc_cont`. Arguments revised.
-* Rename `plot_vpclegend` to `plot_vpc_legend`. Argument `update` is renamed to `theme`, aligning with the theme-argument convention used by other plot functions. The `ci` default changes from `c(0.05, 0.95)` (vector) to `0.90` (scalar). `lloq` now accepts a vector and renders one legend entry per unique value (see VPC Pipeline section).
-* Rename `df_addpred` to `df_mrgsim_addpred`.
-* Rename `breaks_time` to internal helper `var_timebreaks`.
+### Removed functions
 
-### New Exported Functions
-* `var_addn`: Vectorized helper to create factor labels with counts of unique values.
-* `var_dosenorm`: Vectorized dose normalization helper.
-* `var_predcorr`: Vectorized prediction correction helper.
-* `plot_doseprop_theme`: Theme factory for `plot_doseprop`. Keys: `obs_point`, `linear`.
-* `df_vpcstats`: Exported VPC summary statistics function. Takes raw simulation output (e.g. from `df_mrgsim_replicate()`) and returns a `vpc_stats` / `pmx_stats` container. Bin counting is integrated, replacing the previous `df_nobsbin` dependency.
-* `plot_vpc_shown`: Constructor for VPC layer visibility settings.
-* `plot_gof_shown`: Constructor for GOF layer visibility settings.
-* `plot_build_vpc`: Public renderer that builds a VPC ggplot from any `vpc_stats` container. Most users still go through `plot_vpc_cont()`; call `plot_build_vpc()` directly when working from a manually-constructed or cached `vpc_stats` object (e.g. external preprocessing, custom flavors, snapshot fixtures). Most users still go through `plot_vpc_cont()`.`strat_var` accepts bare names or strings and inherits from `compute_out$config$strat_var` when not passed. `loq` similarly inherits from `compute_out$config$loq` when omitted (pass `loq = NULL` explicitly to suppress the reference line).
-* `plot_build_doseprop`: Public renderer that builds a dose-proportionality ggplot from any `doseprop_stats` container. Most users still go through `plot_doseprop()`. Call `plot_build_doseprop()` directly when working from a manually-constructed or cached `doseprop_stats` object. The required column-name strings, observation rows, and `ci` level are recovered from the object's `$obs` and `$config` slots; the only plotting-time arguments are `theme` and `se`.
+* `plot_dvtime_dual()` is removed — compose PK and PD panels with
+  `plot_dvtime()` + `patchwork::wrap_plots()`.
+* `df_addn()` is removed — replaced by `var_addn()`.
+* `df_pcdv()` is removed — replaced by `var_predcorr()`.
+* `df_nobsbin()` is removed — bin counting is now integrated into
+  `df_vpcstats()`.
+* `mod_loglog()` and `df_loglog()` are removed — log-log regression is
+  performed inside `df_doseprop()`.
+* `dvconc_caption()` and `dvtime_caption()` are no longer exported.
 
-### Simplified Plot Function Arguments
-* Remove `x_breaks`, `x_scale`, `x_lab`, and `y_lab` arguments from plot functions. Users add these ggplot2 layers directly to the returned plot object.
-* Remove `output_colors` argument from `plot_gof`. Colors are now controlled via `pmx_color()` in `plot_gof_theme()`.
-* Replace `cfb` (logical) and `cfb_base` (numeric) arguments with a single `ref` argument (`NULL` = no line, numeric = draw horizontal reference line at that value) in `plot_dvtime`, `plot_gof`, and `plot_dvconc`. For example, `cfb = TRUE, cfb_base = 0` becomes `ref = 0`.
-* `plot_gof()` BLQ imputation is now scoped by the new `blq_mode = c("obs", "all")` argument (default `"obs"`). Default behavior now imputes the observed `DV` layer only. Pass `blq_mode = "all"` to apply BLQ imputation to observed and model-predicted layers.
+### Renamed functions
 
-### Renamed and New Function Arguments
-* `df_doseprop()` and `plot_doseprop()`: `metric_var` → `metric_name_var`, `exp_var` → `metric_value_var`. The new names make the role of each column (the metric label vs. its observed value) explicit.
+* `df_addpred()` is renamed to `df_mrgsim_addpred()`.
+* `plot_popgof()` / `plot_popgof_theme()` are renamed to `plot_gof()` /
+  `plot_gof_theme()`.
+* `plot_vpc_exactbins()` is renamed to `plot_vpc_cont()` (arguments
+  revised — see "Removed and renamed arguments").
+* `plot_vpclegend()` is renamed to `plot_vpc_legend()`.
+* `breaks_time()` is now an internal helper (`var_timebreaks()`).
 
-### New Arguments
-* `plot_dvtime()`, `plot_gof()`: `loq_method` now accepts the character aliases `"none"`, `"postdose"`, and `"all"` in addition to the existing numeric values `0`, `1`, `2` (respectively). The legacy numeric form continues to work.
-* `plot_dvtime()` emits a message when `loq` is inherited from the `LLOQ` column of `data`, mirroring the inheritance message in `plot_vpc_cont()`. Pass `loq` explicitly to suppress.
-* `plot_vpc_legend()` argument `update` is renamed to `theme`, aligning with the theme-argument convention used by other plot functions. The `ci` default changes from `c(0.05, 0.95)` (vector) to `0.90` (scalar). `lloq` now accepts a vector and renders one legend entry per unique value (see VPC Pipeline section).
-* Time and output columns across functions are now passed as scalar NSE-friendly arguments (`time_var`, `ntime_var`, `pred_var`, `ipred_var`, `sim_dv_var`) instead of named lists (`time_vars`, `output_vars`).
-* `df_mrgsim_replicate()`  named-vector arguments  `num_vars`, and `char_vars` are removed. Column propagation flows through `...` to `mrgsolve::mrgsim_df()` via `carry_out` (numeric) and `recover` (character / factor). The output contains the always-carried baseline (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`, `OBSDV`, plus the PRED column) plus any columns explicitly requested via `carry_out` / `recover`.
-* `df_mrgsim_replicate()` gains a `parallel` argument (default `FALSE`). When `TRUE`, replicate simulations run via `future.apply::future_lapply()` using the active `future` plan, with per-replicate RNG streams seeded via L'Ecuyer-CMRG so output remains reproducible under a fixed `seed`. Requires the new optional dependency `future.apply` (added to `Suggests`). The function also now applies the trailing `dplyr::rename()` / `dplyr::select()` once on the bound result instead of per replicate, reducing per-iteration overhead on the sequential path. Default sequential output is unchanged.
+### Removed and renamed arguments
 
+* `df_doseprop()` and `plot_doseprop()`: `metric_var` is renamed to
+  `metric_name_var`, and `exp_var` is renamed to `metric_value_var`, to
+  make the role of each column explicit (i.e., exposure metric label
+  variable vs exposure metric value variable).
+* `df_mrgsim_replicate()`: the named-vector arguments `num_vars` and
+  `char_vars` are removed; pass extra simulation columns through `...` to
+  `mrgsolve::mrgsim_df()` via `carry_out` (numeric) and `recover`
+  (any type but useful for character / factor).
+* `plot_dvconc()`, `plot_dvtime()`, and `plot_gof()`: the `cfb` (logical) /
+  `cfb_base` (numeric) argument pair is replaced by a single numeric `ref`
+  argument (`NULL` = no line). For example, `cfb = TRUE, cfb_base = 0` 
+  becomes `ref = 0`.
+* `plot_gof()`: `output_colors` is removed — overlay colors for DV, PRED,
+  and IPRED are now set via `pmx_color()` in `plot_gof_theme()`.
+* `plot_vpc_legend()`: `update` is renamed to `theme`, aligning with the
+  theme-argument convention used by the other plot functions.
+* All plot functions: `x_breaks`, `x_scale`, `x_lab`, and `y_lab` are
+  removed — add the equivalent `ggplot2` layers to the returned plot
+  object.
 
-## Theme System Overhaul
+### Behavior changes
 
-### Theme Factory Functions
-* Theme factory functions used to view, update, and reuse theme plot themes by passing element constructor functions to factory function keys. Keys follow a `layer_element` naming convention. 
-  * `plot_dvtime_theme`, theme factory for `plot_dvtime`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`.
-  * `plot_dvconc_theme`, theme factory for `plot_dvconc`, includes keys: `obs_point`, `ref_line`, `loess`, `linear`.
-  * `plot_doseprop_theme`, theme factory for `plot_doseprop`, includes keys: `obs_point`, `linear`.
-* VPC plot theme factory keys now follow an `element_statistic` naming convention aligned with the `shown` argument
-  * `plot_gof_theme`,  theme factory for `plot_gof`, includes keys: `obs_point`, `obs_line`, `cent_point`, `cent_line`, `cent_errorbar`, `cent_color`, `ref_line`, `loq_line`.
-  * `plot_vpc_theme`, theme factory for `plot_vpc_cont`, includes keys: `obs_point`, `obs_median_line`, `obs_pi_line`, `sim_pi_line`, `sim_pi_ci`, `sim_pi_area`, `sim_median_line`, `sim_median_ci`, `loq_line`. 
-  * Theme factories support role-level shortcuts (`obs`, `cent`) alongside granular element-level overrides.
-  
-### Element Constructor Functions
-* Replaced flat list of role and geometry-based elements with ggplot geometry-based constructor functions: `pmx_point`, `pmx_line`, `pmx_ribbon`, `pmx_errorbar`, `pmx_trend`.
-  * New `pmx_color` constructor controls overlay colors for DV, PRED, and IPRED in `plot_gof_theme()` (e.g., `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`).
-  * New `pmx_style` convenience constructor applies shared aesthetics (color, alpha) to both point and line elements of a role (e.g., `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`).
+* The VPC pipeline is rewritten without the `vpc` package dependency.
+  `df_vpcstats()` summary column names follow a `<role>_<low|med|hi>`
+  scheme — simulated quantiles are `sim_low_*`, `sim_med_*`, `sim_hi_*`;
+  observed quantiles are `obs_low/med/hi`; per-bin counts are `obs_n` and
+  `obs_n_blq` (previously `nbin` / `nobsblq`); BLQ proportions (std-VPC only) 
+  are `sim_prop_blq_*`. The `min_bin_count` filter now gates on 
+  quantifiable observations (`obs_n - obs_n_blq`) for VPCs and total
+  observations (`obs_n`) for cens-VPCs. Comprehensive BLQ handling includes
+  censoring of observed quantiles without censoring simulated data in VPCs
+  and censoring both observed and simulated data at LLOQ before quantile 
+  aggregation in pcVPCs.
+* `plot_vpc_legend(ci)` default changes from `c(0.05, 0.95)` (vector) to
+  `0.90` (scalar). `lloq` now accepts a vector and renders one legend
+  entry per unique value.
+* `vpc` is removed from `Imports` (VPC pipeline no longer depends on it).
+* `patchwork` moves from `Imports` to `Suggests` — install explicitly if
+  you compose multi-panel layouts (e.g. the legend + VPC pattern in the
+  README).
+* `var_addn()` now derives factor levels from the order of first
+  appearance in `grp_var`, so a pre-sorted input like `c(10, 200, 1000)`
+  yields levels in numeric order rather than the alphabetic order
+  returned by `factor()`. Removes the need to follow up with
+  `forcats::fct_relevel()` for numeric dose / time groupings.
+* `plot_build_vpc(loq = …)` supplied explicitly always wins over
+  `compute_out$config$loq` and draws one global reference line per
+  unique value. Per-facet `(strat_var × LLOQ)` dispatch is reserved for
+  the inherited case.
 
-### Unified Internal Theme Class Setting
-* The five `plot_*_theme()` factories (`plot_dvtime_theme`, `plot_gof_theme`, `plot_dvconc_theme`, `plot_doseprop_theme`, `plot_vpc_theme`) delegate their final class-tag + element-validation step to the public `pmx_theme()` factory. Adding a new plot family no longer requires copying it. The internal `merge_theme()`
-  * `pmx_theme(elements, subclass = NULL)`: public factory for partial themes. Takes a named list of `pmx_element` objects and a class tag; validates and compacts. Used internally by every `plot_*_theme()` factory and externally to build override bundles for the `+` operator.
-  * `+.pmx_theme(a, b)`: left-side class wins; merges `b` entries into `a`. `theme + NULL` returns `theme` unchanged. Errors when the right side is not a `pmx_theme`.
-  * `+.pmx_element(a, b)`: same-subclass requirement (so `pmx_style + pmx_point` errors); merges `b` set fields into `a`. `element + NULL` returns `element` unchanged.
-  * `is_pmx_theme(x, strict = FALSE)`: `strict = TRUE` validates that every named entry is a `pmx_element`.
-* `merge_theme` correctly composes `pmx_style` shortcuts with element-level overrides (style applied first, explicit overrides win).
+## New features
 
-### Layers Shown
-* New `plot_gof_shown` constructor for GOF layer visibility settings.
-* New `plot_vpc_shown` constructor for VPC layer visibility settings.
+### New functions
 
+* `plot_vpc_cont()` generates a 1-step (plot `vpc_stats`) or 2-step 
+  (calculate and plot) VPC of the continuous portion of the data range, 
+  wrapping both `df_vpcstats` and `plot_build_vpc()`. 
+* `plot_vpc_cens()` generates a 1-step (plot `vpc_stats`) or 2-step 
+  (calculate and plot) VPC of the censored portion of the data range, 
+  wrapping both `df_vpcstats` and `plot_build_vpc()`. 
+* `df_vpcstats()` computes VPC summary statistics from raw replicate
+  simulation output and returns a `vpc_stats` / `pmx_stats` container.
+  Always emits both standard and prediction-corrected statistics so the
+  same object supports toggling `pcvpc` when plotting.
+* `plot_build_vpc()` renders a VPC ggplot from any `vpc_stats` container.
+  Use directly when working from a manually-constructed or cached
+  `vpc_stats` object; most users still go through `plot_vpc_cont()` and/or 
+  `plot_vpc_cens`.
+* `plot_build_doseprop()` renders a dose-proportionality ggplot from any
+  `doseprop_stats` container; most users still go through
+  `plot_doseprop()`.
+* `plot_doseprop_theme()` is a theme factory for `plot_doseprop()` with
+  keys `obs_point` and `linear`.
+* `plot_gof_shown()` and `plot_vpc_shown()` are constructors for GOF and
+  VPC layer-visibility settings.
+* `var_addn()` generates factor labels with unique-value counts,
+  replacing `df_addn()`.
+* `var_dosenorm()` performs dose normalization.
+* `var_predcorr()` performs prediction correction, replacing `df_pcdv()`.
 
-## New S3 Classes
+### New arguments
 
-### Unified Stats Container (`pmx_stats`)
-* `df_vpcstats()` and `df_doseprop()` now return a shared `pmx_stats` container — a class-tagged list with three slots: `stats` (the per-row summary frame), `obs` (observation overlay), and `config` (run configuration). The class vector is `c(<subclass>, "pmx_stats")` where `<subclass>` is `vpc_stats` or `doseprop_stats`. Builders read columns from `$stats` / `$obs` and configuration from `$config` (e.g. `result$config$loq` instead of `attr(result$stats, "loq")`).
-* Constructor `pmx_stats(stats, obs, config, subclass)` and validator `validate_pmx_stats(x)` back the class. Adding a future stats pipeline reuses this constructor and the base S3 methods.
-* Base S3 methods: `print` / `summary` show object dimensions, slot row counts, and the run-config keys; `as.data.frame()` returns `$stats` as a plain `data.frame`. Subclasses (`vpc_stats`, `doseprop_stats`) override `print` / `summary` for richer output.
-* `is_pmx_stats(x, strict = FALSE)`, `is_vpc_stats(x, strict = FALSE)`, `is_doseprop_stats(x, strict = FALSE)` predicates. With `strict = TRUE`, each runs the corresponding validator and returns `FALSE` on structural failure. Plot builders (`plot_build_vpc()`, `plot_build_doseprop()`) call the validators directly at entry.
-* `vpc_stats` and `doseprop_stats` subclass-specific S3 print and summary methods: `print()` shows a focused summary (dimensions, run-config values, column groups for VPC / per-metric stats body for doseprop); `summary()` is more compact (no head preview for VPC; one line per metric for doseprop using `PowerCI` + `Interpretation`).
+* `df_mrgsim_replicate(parallel = FALSE)` — when `TRUE`, replicate
+  simulations run via `future.apply::future_lapply()` using the active
+  `future` plan, with per-replicate L'Ecuyer-CMRG RNG streams so output
+  stays reproducible under a fixed `seed`. Adds `future.apply` to
+  `Suggests`.
+* `df_vpcstats()` and `plot_vpc_cont()` gain `mode = c("auto", "rank",
+  "drop")` controlling how BLQ-encoded values flow into quantile
+  aggregation. `"auto"` (default) resolves to `"rank"` for std VPC and
+  `"drop"` for pcVPC.
+* `df_vpcstats()` and `plot_vpc_cont()` accept per-row `LLOQ`
+  (multi-cohort / mid-study assay-update datasets): each observation is
+  censored against its own row's `LLOQ`, and stratified plots draw one
+  reference line per `(strat × LLOQ)` combination. Unique non-`NA`
+  values are exposed via `config$loq`.
+* `plot_dvtime()` and `plot_gof()`: `loq_method` accepts the character
+  aliases `"none"`, `"postdose"`, and `"all"` in addition to the existing
+  numeric values `0`, `1`, `2`. The legacy numeric form continues to
+  work.
+* `plot_dvtime()` emits a message when `loq` is inherited from the `LLOQ`
+  column of `data`, mirroring `plot_vpc_cont()`. Pass `loq` explicitly to
+  suppress.
+* `plot_gof(blq_mode = c("obs", "all"))` scopes BLQ imputation to the
+  observed `DV` layer (default) or to observed and model-predicted
+  layers.
+* Time, prediction, and simulated-DV columns across functions are now
+  scalar NSE-friendly arguments (`time_var`, `ntime_var`, `pred_var`,
+  `ipred_var`, `sim_dv_var`) instead of named lists (`time_vars`,
+  `output_vars`). Pass arguments as bare names or strings.
+* `plot_vpc_legend(type = c("cont", "cens"))` selects the label set and
+  layer set the legend describes — `"cens"` relabels the
+  central-tendency entries to `"Obs Prop BLQ"`, `"Sim Prop BLQ"`, and
+  `"Sim <ci>% CI Prop BLQ"` and suppresses all prediction-interval
+  entries, matching the `plot_vpc_cens()` plot.
 
-### Unified Theme and Element Containers (`pmx_theme`, `pmx_element`)
-* `is_pmx_theme(x, strict = FALSE)`: Predicate for the shared `pmx_theme` class returned by every `plot_*_theme()` factory. With `strict = TRUE`, additionally validates that every named entry of the theme is a `pmx_element`. For specific-type checks, use `inherits(x, "plot_vpc_theme")` (or whichever subclass).
-* `is_pmx_element`: Predicate for the shared `pmx_element` class returned by every `pmx_*()` element constructor. For specific-type checks (e.g. `pmx_point` vs. `pmx_line`), use `inherits(x, "pmx_point")`.
-* S3 print methods on the `pmx_element` and `pmx_theme` classes: `pmx_*()` element values render as `<pmx_<type>>` banner + inline `name = value` field listing; `plot_*_theme()` values render as a `<plot_<type>_theme>` banner + one line per theme key showing the inner element type and its set fields. Replaces the default list-with-class-attribute REPL dump.
+### Dual-mode pipelines (replot without recompute)
 
-### Add `ggplot` Subclass to Guard Against External Faceting (`pmx_vpc_plot`)
-* Subclass created to warn users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added outside the returned object directing users to the correct stratification method using the `strat_var` argument.
-* `is_pmx_vpc_plot(x)` predicate for class membership.
+* `plot_doseprop()` accepts the `doseprop_stats` container returned by
+  `df_doseprop()` directly. Pass a precomputed result to skip the
+  regression refit and re-plot with different `theme` or `se` settings.
+  Pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`,
+  `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored on the
+  precomputed path and error with a clear message.
+* `plot_vpc_cont()` accepts the `vpc_stats` container returned by
+  `df_vpcstats()` directly. Pass a precomputed result to re-plot with
+  different `min_bin_count`, `shown`, `theme`, or `pcvpc` settings
+  without re-summarizing. Pipeline arguments (`strat_var`, `loq`,
+  `mode`, `pi`, `ci`, column-name args) cannot be honored on the
+  precomputed path and error with a clear message.
 
-## Revised Workflows
+### Theme system
 
-### VPC Pipeline
-* VPC pipeline refactored to remove dependency on `vpc` package.
+* New `pmx_theme()` factory and `pmx_*()` element constructors —
+  `pmx_point()`, `pmx_line()`, `pmx_ribbon()`, `pmx_errorbar()`, and
+  `pmx_trend()` — replace the previous flat list of role- and
+  geometry-based theme elements.
+* Theme factory keys follow a `layer_element` convention
+  (e.g. `obs_point`, `cent_errorbar`, `ref_line`, `loq_line`). VPC keys
+  follow an `element_statistic` convention aligned with the `shown`
+  argument (e.g. `obs_median_line`, `sim_pi_ci`).
+* New `pmx_color()` constructor sets overlay colors for DV, PRED, and
+  IPRED in `plot_gof_theme()` —
+  e.g. `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`.
+* New `pmx_style()` convenience constructor applies shared aesthetics
+  (color, alpha) to both point and line elements of a role —
+  e.g. `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`.
+* `+.pmx_theme()` and `+.pmx_element()` methods compose partial themes;
+  `pmx_style()` shortcuts are applied first and explicit element-level
+  overrides win.
 
-* VPC pipeline restructured into three internal stages 
-  1. `df_vpcpreprocess()` — validates inputs, resolves `loq` (inheritance from `LLOQ` column) and `mode` (`"auto"` resolution), filters `EVID == 0`, standardizes column names, and applies BLQ encoding via `var_loqcens`.
-  2. `df_vpccompute()` — applies prediction-correction (when `pcvpc = TRUE`), computes the two-stage simulated quantile summary plus observed quantiles, masks `-Inf` BLQ artifacts to `NA`, and builds the observation overlay subset. Returns `list(stats, obs)`.
-  3. `plot_build_vpc()` — applies the `min_bin_count` filter, draws ribbons / lines, overlays observed scatter, draws the LOQ reference line, applies stratification facets, and adds the replicates caption + panel theme.
+### S3 classes and predicates
 
-* Two thin user-facing wrappers are provided: `df_vpcstats` (wrapper around stages 1-2) and `plot_vpc_cont()` (wrapper around stages 1-3).
-  * `df_vpcstats` summary statistics column names harmonized to a `<role>_<low|med|hi>` scheme.  Simulated quantiles are `sim_low_low/med/hi`, `sim_med_low/med/hi`, `sim_hi_low/med/hi`. Observed quantiles are `obs_low/med/hi` (previously `obs5/50/95`). Per-bin counts are `obs_n` and `obs_n_blq` (previously `nbin` / `nobsblq`.When `loq` is supplied, the result also includes `sim_prop_blq_low/med/hi`. The `min_bin_count` filter gates on `obs_n - obs_n_blq` (quantifiable observations). Trailing `ci`, `pi_low`, `pi_hi` columns echo the configuration so consumers can interpret the `_low/_med/_hi` CI suffix and the `sim_low_*` / `sim_hi_*` PI prefix groups.
-  * `df_vpcstats()` always emits both standard and prediction-corrected statistics in a single call. `sim_prop_blq_*` is std-only because LOQ has no meaning on the prediction-corrected scale. The `obs` data.frame gains a `PC_OBSDV` column alongside the existing `OBSDV`. Users can now compute summary statistics once and re-plot under either VPC flavor by toggling `plot_vpc_cont(out, pcvpc = ...)`.
-  * `plot_vpc_cont()` now accepts the container returned by `df_vpcstats()` directly (in addition to raw simulation data). Pass a precomputed `df_vpcstats()` result to skip the preprocess + compute steps and re-plot the same data with different `min_bin_count` / `shown` / `theme` settings without paying the summarization cost again. Plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) are honored on both paths. Pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) cannot be honored on the pre-computed path and abort with a clear error pointing back at `df_vpcstats()`.
+* `pmx_stats` is a shared container with `vpc_stats` and `doseprop_stats`
+  subclasses — slots `$stats`, `$obs`, `$config` — returned by
+  `df_vpcstats()` and `df_doseprop()`.
+* `print()`, `summary()`, and `as.data.frame()` methods on `pmx_stats`
+  give a focused REPL view (dimensions, slot row counts, run-config
+  keys) and a plain `data.frame` view of `$stats`. Subclasses override
+  `print()` / `summary()` for richer output (column groups for VPC;
+  one-line-per-metric `PowerCI` + interpretation for doseprop).
+* `print()` methods on `pmx_theme` and `pmx_element` objects render a
+  banner + per-field listing instead of the default class-attribute
+  dump.
+* `pmx_vpc_plot` is a `ggplot` subclass that warns when `facet_*()`
+  layers are added externally, pointing users to the `strat_var`
+  argument instead.
+* Predicates `is_doseprop_stats()`, `is_pmx_element()`, `is_pmx_stats()`,
+  `is_pmx_theme()`, `is_pmx_vpc_plot()`, and `is_vpc_stats()` are
+  exported. With `strict = TRUE`, the stats and theme predicates run the
+  corresponding structural validator.
 
-* Unified BLQ Handling
-  * All censoring (`MDV == 1`, `is.na(OBSDV)`, `OBSDV < loq`) is applied in `df_vpcpreprocess` via `var_loqcens`. In pcVPC mode, encoded `-Inf` values are converted to `NA` before `var_predcorr` runs. `df_vpcstats` no longer dispatches on `loq` and always uses `stats::quantile(na.rm = TRUE)`. Std-VPC observed quantiles below LOQ are returned as `-Inf` from `df_vpcstats` and converted to `NA_real_` by a new `var_infna` helper before plotting. Std-VPC simulated quantiles are unaffected by `loq` (BLQ encoding applied to OBSDV only).
-  * `plot_vpc_cont` inherits `loq` from `LLOQ` column in `data` when not explicitly provided. `plot_vpc_cont` ignores `loq` when `pcvpc = TRUE` (LLOQ not meaningful on prediction-corrected scale) and warns when `loq` is inherited from the `LLOQ` noting that BLQ censoring is applied before prediction-correction and that no LOQ reference line is drawn on the PC scale. Pass `loq` explicitly to acknowledge and suppress the warning.
-  * Per-row LLOQ inheritance: when `loq = NULL` and the input dataset's `LLOQ` column carries multiple unique values (e.g., assay update mid-study, pooled multi-cohort dataset), each observation is censored against its own row's `LLOQ`. The unique non-NA values are exposed via `config$loq` (a numeric vector) and made available to downstream consumers. Replaces the prior "scalar-or-refuse" inheritance that warned and silently disabled BLQ handling on multi-valued `LLOQ`.
-  * Per-facet LLOQ reference lines: when a stratified VPC plot has per-row `LOQ` available, `plot_build_vpc()` draws one ref line per facet using the `(strat_var × LOQ)` distinct combinations from `compute_out$obs`. Each facet shows only the LLOQ(s) applicable to its strat-level rows (e.g., Part 1 shows LLOQ = 1, Part 2 shows LLOQ = 2). Falls back to global ref lines when unstratified or when the container lacks `obs$LOQ`.
-  * `plot_vpc_cont` and `df_vpcpreprocess` accept a new `mode` argument (`"auto"` (default), `"rank"`, or `"drop"`) that controls how BLQ-encoded values flow into quantile aggregation. `"rank"` keeps `-Inf` encoding so BLQ rows rank low at `stats::quantile`; fully-censored bins return `-Inf` and are masked to `NA` before plotting. `"drop"` converts BLQ to `NA` so those rows are excluded from quantile computation entirely. `"auto"` resolves to `"rank"` for std VPC and `"drop"` for pcVPC, matching prior package behavior — no numerical change for existing users.
-  
-* `plot_vpc_legend()` now accepts vector `lloq` — one legend entry is registered per unique LLOQ value, formatted as `LLOQ = <value>` and rendered with the theme's `loq_line$linetype` (was hard-coded `"solid"`). Pass `compute_out$config$loq` directly to mirror the multi-LLOQ ref-line set on the VPC plot.
+### Vignettes and documentation
 
+* New `Getting Started` vignette ships with the package for new-user
+  onboarding.
+* New `Dose-Proportionality Workflow` vignette covers `df_doseprop()` →
+  `plot_build_doseprop()` → `plot_doseprop()`, the `doseprop_stats` /
+  `pmx_stats` class system, and the precomputed-stats path.
+* The VPC, GOF, exploratory PK / PK-PD, and plot-themes vignettes are
+  restructured into focused articles with cross-links.
+* The `Plot Themes and Aesthetics` article covers inspecting
+  `pmx_element` / `pmx_theme` objects and composing partial themes with
+  `+`.
+* The `Visual Predictive Check Workflow` article covers `df_vpcstats()`,
+  `plot_vpc_cens()`, the pipeline column contracts
+  (`df_mrgsim_replicate()` → `df_vpcstats()` → `plot_build_vpc()`), and
+  inspection of `vpc_stats` objects.
+* Narrative vignettes are hosted on the pkgdown site
+  (<https://ryancrass.github.io/pmxhelpr/articles/>); the installed
+  package no longer ships built vignettes in `inst/doc/`, keeping the
+  install footprint small.
 
-### Dose-Proportionality Pipeline
-* `plot_doseprop()` now accepts the `doseprop_stats` container returned by `df_doseprop()` directly (in addition to raw observation data). Pass a precomputed `df_doseprop()` result to skip the regression refit and re-plot the same data with different `theme` / `se` settings without paying the fitting cost again. Plot-only arguments (`theme`, `se`) are honored on both paths; pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored on the precomputed path and abort with a clear error pointing back at `df_doseprop()`. Mirrors the dual-mode pattern used by `plot_vpc_cont()`.
-* `df_doseprop()` carries the plotting context in the container's `$obs` and `$config` slots so the precomputed object is self-contained: `obs` (filtered observation rows), and `config` (`metric_name_var`, `metric_value_var`, `dose_var`, `ci`, `method`). `plot_build_doseprop()` reads these to render without needing the original data.
+## Minor improvements and bug fixes
 
-## Internal Improvements
-* Standardize NSE handling across all exported functions via `resolve_var` helper.
-* Extract shared plot-building helpers: `add_cent_layers`, `add_obs_layers`, `add_blq_layers`, `add_ref_layers`, `add_trend_layers`, `init_plot`, `prep_plot_env`.
-* Standardize `TRUE`/`FALSE` evaluation and error messaging across all functions.
-* Centralize input validation in `utils_check.R`.
-* Update `size` to `linewidth` for line geom aesthetics throughout.
-* Expand test coverage from ~100 to 510+ tests.
-* VPC pipeline column-group registry: internal vectors (`.vpc_count_cols`, `.vpc_blq_cols`, `.vpc_obs_quantile_cols`, `.vpc_sim_quantile_cols`, `.vpc_meta_cols`) replace the duplicated column lists previously in-lined inside `df_vpccompute()`. Adding a new column group is now a single-site change.
-* Centralize the bin-variable name as the internal constant `BIN_MID_VAR` instead of repeating the `"BIN_MID"` literal across `df_vpcpreprocess`, `df_vpccompute`, `df_vpcstats`, `plot_vpc_cont`, and `plot_build_vpc`.
-* Internal `validate_pmx_stats()` helper checks the structural shape of the shared base class (`stats`/`obs`/`config` slots, types). The subclass validators `validate_vpc_stats()` and `validate_doseprop_stats()` delegate to it and add their own column / config-key checks. Called at the top of `plot_build_vpc()` and `plot_build_doseprop()`, surfacing clear errors before plotting deep-fails inside `aes()`.
-* Unified panel theme application across all three plot families via internal `apply_panel_theme(plot, white_panel)` helper. All families blank `panel.grid.minor` and `panel.grid.major.x`; the VPC family additionally passes `white_panel = TRUE` for the white-background variant. Replaces three separate inline `theme()` blocks with a single helper. No visual change.
-
-## Documentation
-* Restructure vignettes: combined PK and PK/PD exploratory analyses, GOF diagnostics, VPC workflow, dose-proportionality workflow, and plot themes & aesthetics into dedicated vignettes with cross-links.
-* `Plot Themes and Aesthetics` vignette gains an "Inspecting and Validating Themes" section covering the `pmx_element` / `pmx_theme` S3 system (`print()` output, the `is_pmx_element()` / `is_pmx_theme()` predicates, and `inherits()`-based specific-type checks) and a "Composing themes with `+`" section showing partial-theme construction via `pmx_theme()` and `+.pmx_theme` / `+.pmx_element` composition.
-* New `Dose-Proportionality Workflow` vignette covering the `df_doseprop()` / `plot_build_doseprop()` / `plot_doseprop()` pipeline, the `doseprop_stats` / `pmx_stats` class system with `print()` / `summary()` / `as.data.frame()` methods, the dual-mode precomputed-stats path, and theme customization. The exploratory PK/PD vignette cross-links to this dedicated workflow rather than embedding a dose-proportionality section.
-* `Visual Predictive Check Workflow` vignette gains an "Inspecting the `vpc_stats` object" section demonstrating `print()`, `summary()`, `as.data.frame()`, and `is_vpc_stats()` on the `df_vpcstats()` return, and a "Pipeline Column Contracts" reference section documenting the input/output column expectations of `df_mrgsim_replicate()` → `df_vpcstats()` → `plot_build_vpc()`.
-* Move all narrative vignettes to the pkgdown site (`https://ryancrass.github.io/pmxhelpr/articles/`). The package no longer ships built vignettes in `inst/doc/`, which keeps the installed package small. Content is unchanged.
-
-## Dependencies
-* `vpc` removed from `Imports` (VPC pipeline no longer depends on it).
-* `patchwork` moved from `Imports` to `Suggests`. Install explicitly if you compose multi-panel layouts with `patchwork::plot_layout()` (e.g. the legend + VPC pattern in the README).
+* All exported functions that take column-name arguments accept bare
+  names or strings via a shared NSE-resolution helper.
+* Plot functions warn when the input dataset has more than one unique
+  compartment after the `EVID == 0` filter, avoiding silently plotting
+  observations from an unintended compartment.
+* `df_mrgsim_replicate()` errors when the user-supplied `carry_out` /
+  `recover` values overlap the wrapped baseline columns, instead of
+  silently shadowing them.
+* Line-geom aesthetics use `linewidth` instead of the deprecated `size`
+  throughout.
+* `df_vpcstats(pcvpc = TRUE)` now drops `MDV == 1` records from
+  simulated data when `loq = NULL` and the input dataset has no `LLOQ`
+  column, mirroring the observed-data path. Previous behavior caused
+  minor quantile drift on bins with NA observations.
+* Test coverage expanded from ~100 to 800+ tests.
 
 # pmxhelpr 0.4.0
 

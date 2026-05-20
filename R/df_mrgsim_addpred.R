@@ -27,7 +27,6 @@ df_mrgsim_addpred <- function(data,
   output_var_str <- resolve_var(rlang::enquo(output_var))
 
   check_df(data, "data")
-  if (nrow(data) == 0L) rlang::abort("argument `data` must have at least one row")
   check_mrgmod(model, "model")
   check_capture(model, output_var_str, "model", "output_var")
 

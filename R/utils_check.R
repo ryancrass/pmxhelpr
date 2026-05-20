@@ -8,6 +8,9 @@ check_df <- function(df, name){
   if(!is.data.frame(df)){
     rlang::abort(message = paste0("argument `", name, "` must be a `data.frame`"))
   }
+  if(nrow(df) == 0L){
+    rlang::abort(message = paste0("argument `", name, "` must have at least one row"))
+  }
 }
 
 check_mrgmod <- function(mod, name){
@@ -53,6 +56,12 @@ check_integer <- function(var, name){
   num <- suppressWarnings(as.integer(var))
   if(any(is.na(num)) || !is.numeric(num)){
     rlang::abort(message = paste0("argument `", name, "` must be coercible to class `integer`"))
+  }
+}
+
+check_boolean <- function(var, name){
+  if(!isTRUE(var) && !isFALSE(var)){
+    rlang::abort(message = paste0("argument `", name, "` must be `TRUE` or `FALSE`"))
   }
 }
 

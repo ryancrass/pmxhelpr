@@ -87,7 +87,6 @@ df_mrgsim_replicate <- function(data,
 
   #Checks
   check_df(data, "data")
-  if (nrow(data) == 0L) rlang::abort("argument `data` must have at least one row")
   check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
   check_integer(replicates, "replicates")
@@ -96,10 +95,8 @@ df_mrgsim_replicate <- function(data,
   check_varsindf(data, time_var_str, "data", "time_var")
   check_varsindf(data, ntime_var_str, "data", "ntime_var")
   check_integer(seed, "seed")
+  check_boolean(parallel, "parallel")
 
-  if (!isTRUE(parallel) && !isFALSE(parallel)) {
-    rlang::abort("argument `parallel` must be `TRUE` or `FALSE`")
-  }
   if (isTRUE(parallel) && !requireNamespace("future.apply", quietly = TRUE)) {
     rlang::abort(paste0(
       "argument `parallel = TRUE` requires the {future.apply} package; ",

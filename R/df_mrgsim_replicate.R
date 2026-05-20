@@ -102,9 +102,9 @@ df_mrgsim_replicate <- function(data,
   }
   if (isTRUE(parallel) && !requireNamespace("future.apply", quietly = TRUE)) {
     rlang::abort(paste0(
-      "argument `parallel = TRUE` requires the {future.apply} package. ",
-      "Install it with `install.packages(\"future.apply\")` and set a ",
-      "parallel plan via `future::plan(future::multisession, workers = N)`."
+      "argument `parallel = TRUE` requires the {future.apply} package; ",
+      "ensure suggested packages are installed, then set a parallel plan ",
+      "via `future::plan(future::multisession, workers = N)`."
     ))
   }
 
@@ -130,7 +130,7 @@ df_mrgsim_replicate <- function(data,
     out
   }
 
-  reps <- seq(as.integer(replicates))
+  reps <- seq_len(replicates)
 
   if (isTRUE(parallel)) {
     simout <- future.apply::future_lapply(

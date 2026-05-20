@@ -25,9 +25,6 @@
 #'
 #' @return A modified ggplot object with central tendency layers added
 #' @keywords internal
-#' @examples
-#' #
-#'
 add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
                             color_mapped = FALSE, show_errorbars = TRUE) {
 

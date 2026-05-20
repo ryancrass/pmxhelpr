@@ -55,6 +55,18 @@ plot_vpc_legend <- function(ci = 0.90,
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
+
+  ## Cens invariant: no prediction intervals on a cens VPC, so the four
+  ## *_pi_* keys are forced off regardless of the user's `shown`. This
+  ## lets the 8 downstream pi-key sites read `nlist$xxx` directly without
+  ## also re-checking `type`.
+  if (type == "cens") {
+    nlist$obs_pi_line <- FALSE
+    nlist$sim_pi_line <- FALSE
+    nlist$sim_pi_ci   <- FALSE
+    nlist$sim_pi_area <- FALSE
+  }
+
   if (!is.null(lloq)) check_numeric_strict(lloq, "lloq")
   lloq_lab <- paste0("LLOQ = ", lloq)
   df_lloq <- if (!is.null(lloq)) {
@@ -94,17 +106,17 @@ plot_vpc_legend <- function(ci = 0.90,
   } else NULL
 
   linetype_vals <- c(
-    if (isTRUE(nlist$obs_median_line))                  stats::setNames(plist$obs_median_line$linetype, obs_cent),
-    if (type == "cont" && isTRUE(nlist$obs_pi_line))    stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
-    if (isTRUE(nlist$sim_median_line))                  stats::setNames(plist$sim_median_line$linetype, sim_cent),
-    if (type == "cont" && isTRUE(nlist$sim_pi_line))    stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
-    if (!is.null(lloq))                                 stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
+    if (isTRUE(nlist$obs_median_line))  stats::setNames(plist$obs_median_line$linetype, obs_cent),
+    if (isTRUE(nlist$obs_pi_line))      stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
+    if (isTRUE(nlist$sim_median_line))  stats::setNames(plist$sim_median_line$linetype, sim_cent),
+    if (isTRUE(nlist$sim_pi_line))      stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
+    if (!is.null(lloq))                 stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
   )
 
   fill_vals <- c(
-    if (isTRUE(nlist$sim_median_ci))                  stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
-    if (type == "cont" && isTRUE(nlist$sim_pi_ci))    stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
-    if (type == "cont" && isTRUE(nlist$sim_pi_area))  stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
+    if (isTRUE(nlist$sim_median_ci))    stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
+    if (isTRUE(nlist$sim_pi_ci))        stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
+    if (isTRUE(nlist$sim_pi_area))      stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
   )
 
   plot <- plot_blank +
@@ -118,22 +130,22 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
                                                      color = plist$obs_median_line$color,
                                                      linewidth = plist$obs_median_line$linewidth, na.rm= TRUE)} +
-    {if(type == "cont" && nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
+    {if(nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
                                                  color = plist$obs_pi_line$color,
                                                  linewidth = plist$obs_pi_line$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
                                                      color = plist$sim_median_line$color,
                                                      linewidth = plist$sim_median_line$linewidth, na.rm= TRUE)} +
-    {if(type == "cont" && nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
+    {if(nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
                                              color = plist$sim_pi_line$color,
                                              linewidth = plist$sim_pi_line$linewidth, na.rm= TRUE)} +
     {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                      fill = sim_cilab_cent),
                                                         alpha = plist$sim_median_ci$alpha, na.rm= TRUE)}+
-    {if(type == "cont" && nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                              fill = sim_cilab_pi),
                                                 alpha = plist$sim_pi_ci$alpha, na.rm= TRUE)}+
-    {if(type == "cont" && nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
                                                                   fill = sim_pilab),
                                                      alpha = plist$sim_pi_area$alpha, na.rm= TRUE)}+
     {if (isTRUE(nlist$obs_point)) ggplot2::scale_shape_manual(name = "Points",

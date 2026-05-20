@@ -53,8 +53,4 @@ For GOF-style overlay plots — multiple cent layers with different y-vars
 \code{aes()} contracts (inherited/fixed color vs. literal-label color routed
 through \code{scale_color_manual()}) and intentionally are not unified.
 }
-\examples{
-#
-
-}
 \keyword{internal}

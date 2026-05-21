@@ -1,84 +1,116 @@
-# Customized Concentration-time theme with pmxhelpr default aesthetics
+# Concentration-time plot theme
 
-Customized Concentration-time theme with pmxhelpr default aesthetics
+Constructor and factory for `plot_dvtime` plot aesthetics. Call with no
+arguments to view defaults. Pass element overrides to customize. Use
+role-level shortcuts `obs` and `cent` with
+[`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
+to set shared aesthetics (e.g., color, alpha) for both point and line
+elements at once.
 
 ## Usage
 
 ``` r
-plot_dvtime_theme(update = NULL)
+plot_dvtime_theme(
+  obs_point = NULL,
+  obs_line = NULL,
+  cent_point = NULL,
+  cent_line = NULL,
+  cent_errorbar = NULL,
+  ref_line = NULL,
+  loq_line = NULL,
+  obs = NULL,
+  cent = NULL
+)
 ```
 
 ## Arguments
 
-- update:
+- obs_point:
 
-  list containing the plot elements to be updated. Run
-  `plot_dvtime_theme()` with no arguments to view defaults.
+  Observed data point aesthetics. See
+  [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md).
+
+- obs_line:
+
+  Observed data line aesthetics (spaghetti). See
+  [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md).
+
+- cent_point:
+
+  Central tendency point aesthetics. See
+  [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md).
+
+- cent_line:
+
+  Central tendency line aesthetics. See
+  [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md).
+
+- cent_errorbar:
+
+  Central tendency error bar aesthetics. See
+  [`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md).
+
+- ref_line:
+
+  Reference line aesthetics (e.g., change-from-baseline). See
+  [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md).
+
+- loq_line:
+
+  LOQ reference line aesthetics. See
+  [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md).
+
+- obs:
+
+  Shortcut: apply shared aesthetics to both `obs_point` and `obs_line`.
+  See
+  [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md).
+
+- cent:
+
+  Shortcut: apply shared aesthetics to both `cent_point` and
+  `cent_line`. See
+  [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md).
 
 ## Value
 
-a named list `list`
+A named list of theme elements
+
+## See also
+
+Other exploratory analysis:
+[`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+[`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
 
 ## Examples
 
 ``` r
 plot_dvtime_theme()
-#> $linewidth_ref
-#> [1] 0.5
-#> 
-#> $linetype_ref
-#> [1] 2
-#> 
-#> $alpha_line_ref
-#> [1] 1
-#> 
-#> $shape_point_obs
-#> [1] 1
-#> 
-#> $size_point_obs
-#> [1] 0.75
-#> 
-#> $alpha_point_obs
-#> [1] 0.5
-#> 
-#> $linewidth_obs
-#> [1] 0.5
-#> 
-#> $linetype_obs
-#> [1] 1
-#> 
-#> $alpha_line_obs
-#> [1] 0.5
-#> 
-#> $shape_point_cent
-#> [1] 16
-#> 
-#> $size_point_cent
-#> [1] 1.25
-#> 
-#> $alpha_point_cent
-#> [1] 1
-#> 
-#> $linewidth_cent
-#> [1] 0.75
-#> 
-#> $linetype_cent
-#> [1] 1
-#> 
-#> $alpha_line_cent
-#> [1] 1
-#> 
-#> $linewidth_errorbar
-#> [1] 0.75
-#> 
-#> $linetype_errorbar
-#> [1] 1
-#> 
-#> $alpha_errorbar
-#> [1] 1
-#> 
-#> $width_errorbar
-#> NULL
-#> 
-new_theme <- plot_dvtime_theme(update = list(linewidth_ref = 1))
+#> <plot_dvtime_theme>
+#>   obs_point     <pmx_point>: shape = 1, size = 0.75, alpha = 0.5
+#>   obs_line      <pmx_line>: linewidth = 0.5, linetype = 1, alpha = 0.5
+#>   cent_point    <pmx_point>: shape = 16, size = 1.25, alpha = 0
+#>   cent_line     <pmx_line>: linewidth = 0.75, linetype = 1, alpha = 1
+#>   cent_errorbar <pmx_errorbar>: linewidth = 0.75, linetype = 1, alpha = 1, width = NULL
+#>   ref_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
+#>   loq_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
+plot_dvtime_theme(obs_point = pmx_point(size = 2), ref_line = pmx_line(linetype = 3))
+#> <plot_dvtime_theme>
+#>   obs_point     <pmx_point>: shape = 1, size = 2, alpha = 0.5
+#>   obs_line      <pmx_line>: linewidth = 0.5, linetype = 1, alpha = 0.5
+#>   cent_point    <pmx_point>: shape = 16, size = 1.25, alpha = 0
+#>   cent_line     <pmx_line>: linewidth = 0.75, linetype = 1, alpha = 1
+#>   cent_errorbar <pmx_errorbar>: linewidth = 0.75, linetype = 1, alpha = 1, width = NULL
+#>   ref_line      <pmx_line>: linewidth = 0.5, linetype = 3, alpha = 1
+#>   loq_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
+plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
+#> <plot_dvtime_theme>
+#>   obs_point     <pmx_point>: shape = 1, size = 0.75, alpha = 0.3
+#>   obs_line      <pmx_line>: linewidth = 0.5, linetype = 1, alpha = 0.3
+#>   cent_point    <pmx_point>: shape = 16, size = 1.25, alpha = 0
+#>   cent_line     <pmx_line>: linewidth = 0.75, linetype = 1, alpha = 1
+#>   cent_errorbar <pmx_errorbar>: linewidth = 0.75, linetype = 1, alpha = 1, width = NULL
+#>   ref_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
+#>   loq_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
 ```

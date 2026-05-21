@@ -11,7 +11,7 @@ data_sad_pkfit
 
 ## Format
 
-### `data.frame` a data frame with 720 rows and 23 columns:
+### `data.frame` a data frame with 720 rows and 25 columns:
 
 - LINE:
 
@@ -39,7 +39,7 @@ data_sad_pkfit
 
 - AMT:
 
-  Actual dose amount administrered (units: mg)
+  Actual dose amount administered (units: mg)
 
 - EVID:
 
@@ -89,7 +89,7 @@ data_sad_pkfit
 
 - WTBL:
 
-  Subject body weight at baseline (units:kg)
+  Subject body weight at baseline (units: kg)
 
 - SCRBL:
 

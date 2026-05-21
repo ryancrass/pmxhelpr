@@ -1,14 +1,16 @@
 # Articles
 
-### All vignettes
+### Articles
 
-- [Standard Model
-  Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/diagnostics-pmxhelpr.md):
-- [Exploratory Data
-  Analysis](https://ryancrass.github.io/pmxhelpr/articles/eda-pmxhelpr.md):
-- [VPC Plots with Exact
-  Bins](https://ryancrass.github.io/pmxhelpr/articles/vpc-exact-bins.md):
-- [VPC Plots with BLQ
-  Censoring](https://ryancrass.github.io/pmxhelpr/articles/vpc-obs-quant-blq-cens.md):
-- [VPC Plot
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/vpc-plot-aesthetics.md):
+- [Getting Started with
+  pmxhelpr](https://ryancrass.github.io/pmxhelpr/articles/getting-started.md):
+- [Exploratory Analyses of PK and PK/PD
+  Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md):
+- [Standard Overlay Goodness-of-Fit
+  Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.md):
+- [Visual Predictive Check
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md):
+- [Dose-Proportionality
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.md):
+- [Plot Themes and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md):

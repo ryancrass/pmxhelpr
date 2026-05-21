@@ -1,26 +1,28 @@
 # Plot a dependent variable versus concentration
 
-Plot a dependent variable versus concentration
+Unlike
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+and
+[`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
+this function does not filter dose rows internally. Pre-filter the input
+to observation rows (typically by `CMT` or `EVID == 0`) before calling —
+see the example below.
 
 ## Usage
 
 ``` r
 plot_dvconc(
   data,
-  dv_var = DV,
-  idv_var = CONC,
+  dv_var = "DV",
+  idv_var = "CONC",
   col_var = NULL,
   col_trend = FALSE,
   loess = TRUE,
   linear = FALSE,
   se_loess = FALSE,
   se_linear = FALSE,
-  cfb = FALSE,
-  cfb_base = 0,
-  ylab = "Response",
-  xlab = "Drug Concentration",
+  ref = NULL,
   log_y = FALSE,
-  log_x = FALSE,
   show_caption = TRUE,
   theme = NULL,
   ...
@@ -31,12 +33,13 @@ plot_dvconc(
 
 - data:
 
-  Input dataset.
+  Input dataset. Must contain only observation rows (no dose records).
+  Filter by `CMT` or `EVID == 0` before passing.
 
 - dv_var:
 
-  Column containing the DV variable in `data`. Accepts bare names or
-  strings.
+  Column containing the dependent variable. Accepts bare names or
+  strings. Default is `DV`.
 
 - idv_var:
 
@@ -73,40 +76,25 @@ plot_dvconc(
   Logical indicating if the standard error should be shown for the
   linear fit. Default is `FALSE`
 
-- cfb:
+- ref:
 
-  Logical indicating if dependent variable is a change from baseline.
-  Plots a reference line at y = cfb_baseline. Default is `FALSE`.
-
-- cfb_base:
-
-  Value for y-intercept when cfb = `TRUE`. Default is 0.
-
-- ylab:
-
-  Character string specifying the y-axis label: Default is `"Response"`.
-
-- xlab:
-
-  Character string specifying the x-axis label: Default is
-  `"Drug Concentration"`
+  Numeric y-intercept for a horizontal reference line, or `NULL` for no
+  reference line. For example, `ref = 0` draws a baseline reference for
+  change-from-baseline data.
 
 - log_y:
 
   Logical indicator for log10 transformation of the y-axis.
 
-- log_x:
-
-  Logical indicator for log10 transformation of the x-axis.
-
 - show_caption:
 
-  Logical indicating if a caption should be show describing the data
+  Logical indicating if a caption should be shown describing the data
   plotted
 
 - theme:
 
-  Named list of aesthetic parameters to be supplied to the plot.
+  Theme object created by
+  [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md).
   Defaults can be viewed by running
   [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md)
   with no arguments.
@@ -120,13 +108,20 @@ plot_dvconc(
 
 A `ggplot2` plot object
 
+## See also
+
+Other exploratory analysis:
+[`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+[`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+
 ## Examples
 
 ``` r
 data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
-#> Joining with `by = join_by(Dose)`
+data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
+#> Warning: `col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.
 #> `geom_smooth()` using formula = 'y ~ x'
 
 ```

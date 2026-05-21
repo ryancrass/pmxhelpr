@@ -1,13 +1,14 @@
-pandoc: 3.1.11
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  diagnostics-pmxhelpr: diagnostics-pmxhelpr.html
-  eda-pmxhelpr: eda-pmxhelpr.html
-  vpc-exact-bins: vpc-exact-bins.html
-  vpc-obs-quant-blq-cens: vpc-obs-quant-blq-cens.html
-  vpc-plot-aesthetics: vpc-plot-aesthetics.html
-last_built: 2026-04-11T19:54Z
+  articles/doseprop-workflow: doseprop-workflow.html
+  articles/eda-pk-pkpd-workflow: eda-pk-pkpd-workflow.html
+  getting-started: getting-started.html
+  articles/gof-diagnostics: gof-diagnostics.html
+  articles/plot-themes: plot-themes.html
+  articles/vpc-workflow: vpc-workflow.html
+last_built: 2026-05-21T20:42Z
 urls:
   reference: https://ryancrass.github.io/pmxhelpr/reference
   article: https://ryancrass.github.io/pmxhelpr/articles

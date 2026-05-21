@@ -7,12 +7,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Helper Functions for Pharmacometrics • pmxhelpr</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Helper Functions for Pharmacometrics">
-<meta name="description" content="Wrapper functions for mrgsolve and vpc package functions and other general helpers to make pharmacometrics workflows more seamless.">
-<meta property="og:description" content="Wrapper functions for mrgsolve and vpc package functions and other general helpers to make pharmacometrics workflows more seamless.">
+<meta name="description" content="Wrapper functions for mrgsolve package functions and other general helpers to make pharmacometrics workflows more seamless.">
+<meta property="og:description" content="Wrapper functions for mrgsolve package functions and other general helpers to make pharmacometrics workflows more seamless.">
 <meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png">
 </head>
 <body>
@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,11 +36,12 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/diagnostics-pmxhelpr.html">Standard Model Diagnostics</a></li>
-    <li><a class="dropdown-item" href="articles/eda-pmxhelpr.html">Exploratory Data Analysis</a></li>
-    <li><a class="dropdown-item" href="articles/vpc-exact-bins.html">VPC Plots with Exact Bins</a></li>
-    <li><a class="dropdown-item" href="articles/vpc-obs-quant-blq-cens.html">VPC Plots with BLQ Censoring</a></li>
-    <li><a class="dropdown-item" href="articles/vpc-plot-aesthetics.html">VPC Plot Aesthetics</a></li>
+<li><a class="dropdown-item" href="articles/getting-started.html">Getting Started with pmxhelpr</a></li>
+    <li><a class="dropdown-item" href="articles/eda-pk-pkpd-workflow.html">Exploratory Analyses of PK and PK/PD Data</a></li>
+    <li><a class="dropdown-item" href="articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
+    <li><a class="dropdown-item" href="articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
+    <li><a class="dropdown-item" href="articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -65,161 +66,254 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of pmxhelpr is to make pharmacometrics workflows more standardized, efficient, and reproducible. This package provides helper and wrapper functions for common steps in the pharmacometrics analysis workflow, such as exploratory data analysis, model development, model evaluation, and model application.</p>
+<p>The goal of pmxhelpr is to make pharmacometrics workflows more standardized, efficient, and reproducible. This package provides helper and wrapper functions for common steps in the modeling analysis workflow, outside of model parameter estimation. Currently, workflows cover key steps in exploratory data analysis and model evaluation.</p>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>Full narrative documentation, including worked examples for every plotting workflow, lives on the <a href="https://ryancrass.github.io/pmxhelpr/">pmxhelpr website</a>. Start with the articles:</p>
+<ul>
+<li>
+<a href="https://ryancrass.github.io/pmxhelpr/articles/getting-started.html">Getting Started with pmxhelpr</a> — a lean tour of every core workflow in one sitting.</li>
+<li><a href="https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html">Exploratory Analyses of PK and PK/PD Data</a></li>
+<li><a href="https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+<li><a href="https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html">Goodness-of-Fit Diagnostics</a></li>
+<li><a href="https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
+<li><a href="https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+</ul>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of pmxhelpr from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the most recent tagged version of pmxhelpr from <a href="https://github.com/ryancrass/pmxhelpr/releases/latest" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ryancrass/pmxhelpr"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ryancrass/pmxhelpr@v0.5.0"</span><span class="op">)</span></span></code></pre></div>
+<p>The README examples use a few packages from <code>Suggests</code> that aren’t installed automatically:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>, <span class="st">"forcats"</span>, <span class="st">"patchwork"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="function-naming-conventions">Function Naming Conventions<a class="anchor" aria-label="anchor" href="#function-naming-conventions"></a>
 </h2>
-<p>Functions in this package use the following naming conventions:</p>
-<ul>
-<li>Wrapper functions: <em>ReturnObject</em>_<em>WrappedFunction</em>_<em>Purpose</em>
+<p>Exported functions follow a <code>ReturnType_Purpose</code> naming convention where the prefix indicates what the function returns:</p>
 <ul>
 <li>
-<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mread.html" class="external-link">mrgsolve::mread_cache()</a></code> to read internal package model files returning an <code>mrgmod</code> object.</li>
+<code>plot_*</code> — returns a <code>ggplot</code> object</li>
 <li>
-<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> wraps <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim()</a></code> to replicate the input data returning a <code>data.frame</code>.</li>
+<code>df_*</code> — returns a <code>data.frame</code>
+</li>
 <li>
-<code><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins()</a></code> wraps <code><a href="https://rdrr.io/pkg/vpc/man/vpc.html" class="external-link">vpc::vpc()</a></code> to generate a VPC plot using exact time bins returning a <code>ggplot</code> object.</li>
+<code>var_*</code> — returns a vector (vectorized helpers for use inside <code>mutate</code>)</li>
+<li>
+<code>pmx_*</code> — returns a theme element constructor (for use with <code>*_theme</code> factories)</li>
+</ul>
+<div class="section level3">
+<h3 id="exploratory-data-analysis">Exploratory Data Analysis<a class="anchor" aria-label="anchor" href="#exploratory-data-analysis"></a>
+</h3>
+<ul>
+<li>Longitudinal PK and PK/PD Analysis:
+<ul>
+<li>
+<code><a href="reference/plot_dvtime.html">plot_dvtime()</a></code> — dependent variable versus time (e.g., concentration-time profiles)</li>
+<li>
+<code><a href="reference/plot_dvconc.html">plot_dvconc()</a></code> — dependent variable versus a continuous independent variable (e.g., response vs concentration)</li>
 </ul>
 </li>
-<li>Helper functions: <em>ReturnObject</em>_<em>Purpose</em>
+<li>Dose Proportionality:
 <ul>
 <li>
-<code>df_addn</code> returns a <code>data.frame</code> with counts of the number of unique values of an ID variable per bin.</li>
+<code><a href="reference/df_doseprop.html">df_doseprop()</a></code> — log-log regression parameters for multiple exposure metrics versus dose</li>
 <li>
-<code>df_addpred</code> returns a <code>data.frame</code> with population model predictions (PRED) appended.</li>
-<li>
-<code>df_doseprop</code> returns a <code>data.frame</code> containing parameters from log-log regression of multiple exposure metrics versus dose</li>
-<li>
-<code>df_loglog</code> returns a <code>data.frame</code> containing parameters from a log-log regression of a single exposure metric versus dose</li>
-<li>
-<code>df_pcdv</code> returns a <code>data.frame</code> containing the prediction-corrected dependent variable.</li>
-<li>
-<code>df_nobsbin</code> returns a summary <code>data.frame</code> with counts of the number of missing and non-missing observations per bin.</li>
-<li>
-<code>mod_loglog</code> returns a <code>lm</code> object from a log-log regression of a single exposure metric versus dose</li>
-<li>
-<code>plot_dvtime</code> returns a <code>ggplot</code> object with a dependent variable plotted versus time</li>
-<li>
-<code>plot_doseprop</code> returns a <code>ggplot</code> object with log-log regression of exposure metrics versus dose</li>
-<li>
-<code>plot_popgof</code> returns a <code>ggplot</code> object with observed, population-predicted, and individual-predicted values plotted versus time</li>
-<li>
-<code>plot_vpclegend</code> returns a <code>ggplot</code> object containing a legend for a VPC plot generated using <code>plot_vpc_exactbins</code>
-</li>
-</ul>
-</li>
-<li>Plot theme lists
-<ul>
-<li>
-<code><a href="reference/plot_dvconc_theme.html">plot_dvconc_theme()</a></code>, <code><a href="reference/plot_dvtime_theme.html">plot_dvtime_theme()</a></code>, <code><a href="reference/plot_popgof_theme.html">plot_popgof_theme()</a></code>, and <code><a href="reference/plot_vpc_theme.html">plot_vpc_theme()</a></code> return a named <code>list</code> with elements of modifiable elements of the plot theme</li>
-</ul>
-</li>
-<li>Data sets
-<ul>
-<li>
-<code>data_sad</code> a dataset for a single ascending dose (SAD) study with parallel food effect cohort formatted for non-linear mixed effects (NMLE) population PK and PK/PD modeling</li>
-<li>
-<code>data_sad_nca</code> a dataset containing PK parameters derived using non-compartmental analysis (NCA)</li>
-<li>
-<code>data_sad_pkfit</code> a dataset consistent with <code>data_sad</code> including individual (IPRED) and population (PRED) PK model predictions</li>
+<code><a href="reference/plot_doseprop.html">plot_doseprop()</a></code> — log-log regression plots of exposure metric(s) versus dose</li>
 </ul>
 </li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="model-evaluation">Model Evaluation<a class="anchor" aria-label="anchor" href="#model-evaluation"></a>
+</h3>
+<ul>
+<li>Overlay Goodness-of-Fit Diagnostics:
+<ul>
+<li>
+<code><a href="reference/plot_gof.html">plot_gof()</a></code> — observed, population-, and individual-predicted values overlaid versus time</li>
+</ul>
+</li>
+<li>Visual Predictive Check (VPC):
+<ul>
+<li>
+<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> — simulated replicates of an input dataset via <code>mrgsolve</code>
+</li>
+<li>
+<code><a href="reference/df_vpcstats.html">df_vpcstats()</a></code> — VPC summary statistics</li>
+<li>
+<code><a href="reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> — VPC plot for continuous data range from simulated data with exact time bins</li>
+<li>
+<code><a href="reference/plot_vpc_cens.html">plot_vpc_cens()</a></code> — VPC plot for censored data range from simulated data with exact time bins</li>
+<li>
+<code><a href="reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> — legend for a VPC plot</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="theme-system">Theme System<a class="anchor" aria-label="anchor" href="#theme-system"></a>
+</h3>
+<p>Plot aesthetics are controlled through theme factories and element constructors. Each plot function has a corresponding <code>plot_*_theme()</code> factory:</p>
+<ul>
+<li>
+<code><a href="reference/plot_dvtime_theme.html">plot_dvtime_theme()</a></code>, <code><a href="reference/plot_dvconc_theme.html">plot_dvconc_theme()</a></code>, <code><a href="reference/plot_doseprop_theme.html">plot_doseprop_theme()</a></code>, <code><a href="reference/plot_gof_theme.html">plot_gof_theme()</a></code>, <code><a href="reference/plot_vpc_theme.html">plot_vpc_theme()</a></code> — return named lists of default element objects for the <code>theme</code> argument of their corresponding plot function</li>
+<li>
+<code><a href="reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> / <code><a href="reference/plot_gof_shown.html">plot_gof_shown()</a></code> — control which VPC / GOF layers are visible via the <code>shown</code> argument</li>
+</ul>
+<p>Element constructors (<code>pmx_*</code>) create typed objects that map to <code>ggplot2</code> geom aesthetics:</p>
+<ul>
+<li>
+<code><a href="reference/pmx_point.html">pmx_point()</a></code> — point aesthetics (shape, size, alpha, color)</li>
+<li>
+<code><a href="reference/pmx_line.html">pmx_line()</a></code> — line aesthetics (linewidth, linetype, alpha, color)</li>
+<li>
+<code><a href="reference/pmx_ribbon.html">pmx_ribbon()</a></code> — ribbon aesthetics (fill, alpha, color, linetype, linewidth)</li>
+<li>
+<code><a href="reference/pmx_errorbar.html">pmx_errorbar()</a></code> — error bar aesthetics (linewidth, linetype, alpha, width)</li>
+<li>
+<code><a href="reference/pmx_trend.html">pmx_trend()</a></code> — trend line aesthetics (linewidth, linetype, color, se_color, se_alpha)</li>
+<li>
+<code><a href="reference/pmx_color.html">pmx_color()</a></code> — GOF overlay color mapping (dv, pred, ipred)</li>
+<li>
+<code><a href="reference/pmx_style.html">pmx_style()</a></code> — convenience shortcut to set shared aesthetics (color, alpha) on both point and line elements of a role</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="s3-class-system">S3 Class System<a class="anchor" aria-label="anchor" href="#s3-class-system"></a>
+</h3>
+<p><code>pmxhelpr</code> returns class-tagged objects for both stats outputs and theme building blocks, with predicates and <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>/<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods for interactive inspection and programmatic validation.</p>
+<ul>
+<li>Stats classes — <code><a href="reference/df_vpcstats.html">df_vpcstats()</a></code> returns a <code>vpc_stats</code> list and <code><a href="reference/df_doseprop.html">df_doseprop()</a></code> returns a <code>doseprop_stats</code> data.frame. Each carries <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> methods plus a predicate (<code><a href="reference/is_vpc_stats.html">is_vpc_stats()</a></code>, <code><a href="reference/is_doseprop_stats.html">is_doseprop_stats()</a></code>).</li>
+<li>Element / theme classes — every <code>pmx_*()</code> element and <code>plot_*_theme()</code> factory is class-tagged (<code>pmx_element</code> and <code>pmx_theme</code> shared, plus per-type tags). Predicates <code><a href="reference/is_pmx_element.html">is_pmx_element()</a></code> and <code><a href="reference/is_pmx_theme.html">is_pmx_theme()</a></code> test class membership; <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> methods render the type and set fields.</li>
+<li>Dual-mode plotting — <code><a href="reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> and <code><a href="reference/plot_doseprop.html">plot_doseprop()</a></code> accept either raw input data or a precomputed stats object. The precomputed path skips the summarization / regression refit, enabling compute-once / replot-many workflows (e.g. flipping <code>pcvpc = TRUE/FALSE</code>, varying <code>theme</code>, trying different <code>min_bin_count</code>). The lower-level renderers <code><a href="reference/plot_build_vpc.html">plot_build_vpc()</a></code> / <code><a href="reference/plot_build_doseprop.html">plot_build_doseprop()</a></code> are exported for custom workflows that produce class-compatible objects outside <code>pmxhelpr</code>.</li>
+</ul>
+<p><code>pmxhelpr</code> returns a class tagged object for VPC plot outputs to warn users via the <code>+.pmx_vpc_plot</code> method when <code>facet_*()</code> layers are added outside the returned object directing users to the correct stratification method using the <code>strat_var</code> argument.</p>
+<p>See the <a href="https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html#inspecting-and-validating-themes">Plot Themes and Aesthetics</a> and <a href="https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html">VPC</a> / <a href="https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html">Dose-Proportionality</a> workflow articles for worked examples.</p>
+</div>
+<div class="section level3">
+<h3 id="vectorized-helpers">Vectorized Helpers<a class="anchor" aria-label="anchor" href="#vectorized-helpers"></a>
+</h3>
+<ul>
+<li>
+<code><a href="reference/var_addn.html">var_addn()</a></code> — factor labels with counts of unique identifiers per group</li>
+<li>
+<code><a href="reference/var_predcorr.html">var_predcorr()</a></code> — prediction-corrected values</li>
+<li>
+<code><a href="reference/var_dosenorm.html">var_dosenorm()</a></code> — dose-normalized values</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="mrgsolve-wrappers">
+<code>mrgsolve</code> Wrappers<a class="anchor" aria-label="anchor" href="#mrgsolve-wrappers"></a>
+</h3>
+<ul>
+<li>
+<code><a href="reference/model_mread_load.html">model_mread_load()</a></code> — reads internal package model files returning an <code>mrgmod</code> object</li>
+<li>
+<code><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> — replicates input data via simulation returning a <code>data.frame</code>
+</li>
+<li>
+<code><a href="reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code> — adds population model predictions (PRED) to the returned <code>data.frame</code>
+</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="internal-datasets">Internal Datasets<a class="anchor" aria-label="anchor" href="#internal-datasets"></a>
+</h3>
+<ul>
+<li>
+<code>data_sad</code> — single ascending dose (SAD) study with parallel food effect cohort formatted for NLME modeling</li>
+<li>
+<code>data_sad_nca</code> — PK parameters derived using non-compartmental analysis (NCA)</li>
+<li>
+<code>data_sad_pkfit</code> — <code>data_sad</code> with individual (IPRED) and population (PRED) PK model predictions</li>
+</ul>
+<p><strong>Note on bundled data.</strong> <code>data_sad</code> and <code>data_sad_pkfit</code> use <code>ODV</code> (original DV), to note that it is provided in original units from the source data. Functions like <code><a href="reference/plot_dvtime.html">plot_dvtime()</a></code> default <code>dv_var = DV</code> to match the standard NONMEM convention; when running examples on the bundled data, one may derive a variable <code>DV</code> or pass the argument <code>dv_var = "ODV"</code> (as every example below does).</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="example-exploratory-data-analysis-workflow">Example Exploratory Data Analysis Workflow<a class="anchor" aria-label="anchor" href="#example-exploratory-data-analysis-workflow"></a>
 </h2>
 <p>This is a basic example which illustrates a simple exploratory data analysis workflow using pmxhelpr:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Read internal analysis-ready dataset for an example Phase 1 study</span></span>
-<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Pre-process data for plotting</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>Regimen <span class="op">=</span> <span class="va">DOSE</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="st">"Regimen"</span>, id_var <span class="op">=</span> <span class="st">"ID"</span>, sep <span class="op">=</span> <span class="st">"mg x1"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>DoseReg <span class="op">=</span> <span class="fu">fct_relevel</span><span class="op">(</span><span class="va">Regimen</span>, <span class="st">"50 mg x1 (n=6)"</span>, after <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Plot drug concentration-time</span></span>
-<span><span class="fu"><a href="reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Regimen"</span>, ylab <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, </span>
-<span>            log_y <span class="op">=</span> <span class="cn">TRUE</span>, obs_dv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Plot drug concentration and biomarker response versus time</span></span>
-<span><span class="fu"><a href="reference/plot_dvtime_dual.html">plot_dvtime_dual</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, dv_var1 <span class="op">=</span> <span class="st">"ODV"</span>, dv_var2 <span class="op">=</span> <span class="st">"CFB"</span>, dvid_var <span class="op">=</span> <span class="st">"CMT"</span>,</span>
-<span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, col_var <span class="op">=</span> <span class="st">"Regimen"</span>, </span>
-<span>            ylab1 <span class="op">=</span> <span class="st">"Drug Conc. (ng/mL)"</span>, ylab2 <span class="op">=</span> <span class="st">"Response (% Change)"</span>, </span>
-<span>            log_y1 <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Plot response versus concentration</span></span>
-<span><span class="fu"><a href="reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>,  </span>
-<span>            col_var <span class="op">=</span> <span class="st">"Regimen"</span>, ylab <span class="op">=</span> <span class="st">"Response (% Change)"</span>, </span>
-<span>            loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Assess dose proportionality in the fasted state</span></span>
-<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">data_sad_nca</span><span class="op">)</span></span>
-<span><span class="va">data_sad_nca_part1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Tabulated dose-proportionality</span></span>
-<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">table</span></span>
-<span></span>
-<span><span class="co">#Visualize dose-proportionality</span></span>
-<span><span class="fu"><a href="reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca_part1</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="example-population-overly-goodness-of-fit-plot-workflow">Example Population Overly Goodness-of-fit Plot Workflow<a class="anchor" aria-label="anchor" href="#example-population-overly-goodness-of-fit-plot-workflow"></a>
-</h2>
-<p>This is a basic example which illustrates a simple model diagnostic workflow using pmxhelpr:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">##Pre-process Data for Plotting</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad_pkfit</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Food <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Fed"</span>, <span class="st">"Fasted"</span><span class="op">)</span>, </span>
-<span>         DoseGroup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="st">" mg "</span>, <span class="va">Food</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="reference/df_addn.html">df_addn</a></span><span class="op">(</span><span class="st">"DoseGroup"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="reference/df_addn.html">df_addn</a></span><span class="op">(</span><span class="st">"Food"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">DoseGroup</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">Food</span><span class="op">)</span></span>
+<span><span class="co">#Read internal analysis-ready dataset for an example Phase 1 study</span></span>
+<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>DoseGroup <span class="op">=</span> <span class="fu">fct_relevel</span><span class="op">(</span><span class="va">DoseGroup</span>, <span class="st">"50 mg Fasted (n=6)"</span>, after <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">DoseGroup</span><span class="op">)</span></span>
+<span><span class="co">#Pre-process data for plotting</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Food <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Fed"</span>, <span class="st">"Fasted"</span><span class="op">)</span>,</span>
+<span>         DoseFood <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>,<span class="st">"mg x1"</span>, <span class="va">Food</span><span class="op">)</span>,</span>
+<span>         Regimen <span class="op">=</span> <span class="fu"><a href="reference/var_addn.html">var_addn</a></span><span class="op">(</span><span class="va">DoseFood</span>, <span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status</span></span>
-<span><span class="fu"><a href="reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Food</span><span class="op">)</span></span>
+<span><span class="co">#Plot drug concentration-time</span></span>
+<span><span class="fu"><a href="reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>,</span>
+<span>            col_var <span class="op">=</span> <span class="st">"Regimen"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            theme <span class="op">=</span> <span class="fu"><a href="reference/plot_dvtime_theme.html">plot_dvtime_theme</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fu"><a href="reference/pmx_point.html">pmx_point</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/plot_popgof.html">plot_popgof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, output_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>DV <span class="op">=</span><span class="st">"ODV"</span><span class="op">)</span>, </span>
-<span>            ylab <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL)"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseGroup</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#Plot response versus concentration</span></span>
+<span><span class="fu"><a href="reference/plot_dvconc.html">plot_dvconc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">CMT</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span>, dv_var <span class="op">=</span> <span class="st">"CFB"</span>, ref <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>            col_var <span class="op">=</span> <span class="st">"Regimen"</span>, loess <span class="op">=</span> <span class="cn">TRUE</span>, linear <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Response (% Change)"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Assess dose proportionality in the fasted state</span></span>
+<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">data_sad_nca</span><span class="op">)</span></span>
+<span><span class="va">data_sad_nca_part1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Tabulated dose-proportionality</span></span>
+<span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/df_doseprop.html">df_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca_part1</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">table</span></span>
+<span></span>
+<span><span class="co">#Visualize dose-proportionality</span></span>
+<span><span class="fu"><a href="reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="va">table</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="va">data_sad_nca_part1</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example-visual-predictive-check-analysis-workflow">Example Visual Predictive Check Analysis Workflow<a class="anchor" aria-label="anchor" href="#example-visual-predictive-check-analysis-workflow"></a>
+<h2 id="example-population-overlay-goodness-of-fit-plot-workflow">Example Population Overlay Goodness-of-Fit Plot Workflow<a class="anchor" aria-label="anchor" href="#example-population-overlay-goodness-of-fit-plot-workflow"></a>
 </h2>
-<p>This is a basic example which illustrates a simple VPC workflow using pmxhelpr:</p>
+<p>This is a basic example which illustrates a simple model diagnostic workflow using pmxhelpr:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ronkeizer/vpc" class="external-link">vpc</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">##Pre-process Data for Plotting</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad_pkfit</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Food <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Fed"</span>, <span class="st">"Fasted"</span><span class="op">)</span>,</span>
+<span>         DoseFood <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">DOSE</span>,<span class="st">"mg x1"</span>, <span class="va">Food</span><span class="op">)</span>,</span>
+<span>         Regimen <span class="op">=</span> <span class="fu"><a href="reference/var_addn.html">var_addn</a></span><span class="op">(</span><span class="va">DoseFood</span>, <span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status</span></span>
+<span><span class="fu"><a href="reference/plot_gof.html">plot_gof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Food</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL)"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/plot_gof.html">plot_gof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Regimen</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example-visual-predictive-check-analysis-workflow">Example Visual Predictive Check Analysis Workflow<a class="anchor" aria-label="anchor" href="#example-visual-predictive-check-analysis-workflow"></a>
+</h2>
+<p>This is a basic example which illustrates a simple VPC workflow using pmxhelpr:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mrgsolve.org/docs/" class="external-link">mrgsolve</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://withr.r-lib.org" class="external-link">withr</a></span><span class="op">)</span></span>
 <span></span>
@@ -227,33 +321,58 @@
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/model_mread_load.html">model_mread_load</a></span><span class="op">(</span><span class="st">"pkmodel"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Process Data</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data_sad</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Food <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">FOOD</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Fed"</span>, <span class="st">"Fasted"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="reference/df_addn.html">df_addn</a></span><span class="op">(</span>grp_var <span class="op">=</span> <span class="st">"Food"</span>, id_var <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Food <span class="op">=</span> <span class="fu"><a href="reference/var_addn.html">var_addn</a></span><span class="op">(</span><span class="va">Food</span>, <span class="va">ID</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#Simulated replicates of the dataset using mrgsim </span></span>
-<span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, model <span class="op">=</span> <span class="va">model</span>,replicates <span class="op">=</span> <span class="fl">100</span>,</span>
+<span><span class="co">#Simulated replicates of the dataset using mrgsim</span></span>
+<span>  <span class="co">#The input `dv_var` is preserved in the output as `OBSDV` (observed) and the</span></span>
+<span>  <span class="co">#simulated values are written to `SIMDV` --- these are the columns `plot_vpc_cont()` reads.</span></span>
+<span>  <span class="co">#Pass any input columns you want carried to the output via `carry_out` (numeric)</span></span>
+<span>  <span class="co">#and `recover` (character / factor), which flow through to `mrgsolve::mrgsim_df()`.</span></span>
+<span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                              dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span>
-<span>                              num_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CMT"</span>, <span class="st">"LLOQ"</span>, <span class="st">"EVID"</span>, <span class="st">"MDV"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span>
-<span>                              char_vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span>, <span class="st">"Food"</span><span class="op">)</span><span class="op">)</span></span>
+<span>                              carry_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOSE"</span>, <span class="st">"FOOD"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span><span class="op">)</span>,</span>
+<span>                              recover  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span>, <span class="st">"Food"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">simout</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Plot output in a Censored Visual Predictive Check (VPC)</span></span>
+<span></span>
+<span><span class="va">plot_obj_cens</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_cens.html">plot_vpc_cens</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">simout</span>,</span>
+<span>  strat_var <span class="op">=</span> <span class="st">"DOSE"</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">24</span>,<span class="fl">72</span>,<span class="fl">120</span>,<span class="fl">168</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Proportion BLQ"</span>, x <span class="op">=</span> <span class="st">"Time (hours)"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plot_obj_cens</span></span>
+<span></span>
+<span><span class="co">#Add Legend</span></span>
+<span><span class="va">shown_cens</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_shown.html">plot_vpc_shown</a></span><span class="op">(</span>obs_pi_line <span class="op">=</span> <span class="cn">FALSE</span>, sim_pi_ci <span class="op">=</span> <span class="cn">FALSE</span>, obs_point <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_cens_leg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>shown <span class="op">=</span> <span class="va">shown_cens</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_cens_leg</span></span>
+<span></span>
+<span><span class="va">plot_obj_cens_wleg</span> <span class="op">&lt;-</span> <span class="va">plot_obj_cens</span> <span class="op">+</span> <span class="va">plot_obj_cens_leg</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_cens_wleg</span></span>
 <span></span>
 <span><span class="co">#Plot output in a Prediction-corrected Visual Predictive Check (VPC)</span></span>
 <span>  <span class="co">#Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics</span></span>
-<span>  <span class="co">#Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE</span></span>
+<span>  <span class="co">#Actual time ("TIME") is used to plot observed data points (prediction-corrected if pcvpc=TRUE)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">plot_obj_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_exactbins.html">plot_vpc_exactbins</a></span><span class="op">(</span></span>
-<span>  sim <span class="op">=</span> <span class="va">simout</span>, </span>
+<span><span class="va">plot_obj_food</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_cont.html">plot_vpc_cont</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">simout</span>, </span>
 <span>  strat_var <span class="op">=</span> <span class="st">"Food"</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">24</span>,<span class="fl">72</span>,<span class="fl">120</span>,<span class="fl">168</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span>guide <span class="op">=</span> <span class="st">"axis_logticks"</span><span class="op">)</span> <span class="op">+</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Pred-corrected Conc. (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time (hours)"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plot_obj_food</span></span>
 <span></span>
 <span><span class="co">#Add Legend</span></span>
-<span><span class="va">plot_obj_leg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpclegend.html">plot_vpclegend</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">plot_obj_leg</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">plot_obj_leg</span></span>
 <span></span>
 <span><span class="va">plot_obj_food_wleg</span> <span class="op">&lt;-</span> <span class="va">plot_obj_food</span> <span class="op">+</span> <span class="va">plot_obj_leg</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>

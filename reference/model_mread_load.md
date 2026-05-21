@@ -24,6 +24,12 @@ model_mread_load(model, ...)
 
 An `mrgsolve` model object.
 
+## See also
+
+Other mrgsolve wrappers:
+[`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md),
+[`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+
 ## Examples
 
 ``` r

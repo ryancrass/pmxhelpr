@@ -2,77 +2,223 @@
 
 The goal of pmxhelpr is to make pharmacometrics workflows more
 standardized, efficient, and reproducible. This package provides helper
-and wrapper functions for common steps in the pharmacometrics analysis
-workflow, such as exploratory data analysis, model development, model
-evaluation, and model application.
+and wrapper functions for common steps in the modeling analysis
+workflow, outside of model parameter estimation. Currently, workflows
+cover key steps in exploratory data analysis and model evaluation.
+
+## Documentation
+
+Full narrative documentation, including worked examples for every
+plotting workflow, lives on the [pmxhelpr
+website](https://ryancrass.github.io/pmxhelpr/). Start with the
+articles:
+
+- [Getting Started with
+  pmxhelpr](https://ryancrass.github.io/pmxhelpr/articles/getting-started.html)
+  — a lean tour of every core workflow in one sitting.
+- [Exploratory Analyses of PK and PK/PD
+  Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.html)
+- [Dose-Proportionality
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
+- [Goodness-of-Fit
+  Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
+- [Visual Predictive Check
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
+- [Plot Themes and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
 
 ## Installation
 
-You can install the development version of pmxhelpr from
-[GitHub](https://github.com/) with:
+You can install the most recent tagged version of pmxhelpr from
+[GitHub](https://github.com/ryancrass/pmxhelpr/releases/latest) with:
 
 ``` r
+
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr")
+devtools::install_github("ryancrass/pmxhelpr@v0.5.0")
+```
+
+The README examples use a few packages from `Suggests` that aren’t
+installed automatically:
+
+``` r
+
+install.packages(c("dplyr", "ggplot2", "forcats", "patchwork"))
 ```
 
 ## Function Naming Conventions
 
-Functions in this package use the following naming conventions:
+Exported functions follow a `ReturnType_Purpose` naming convention where
+the prefix indicates what the function returns:
 
-- Wrapper functions: *ReturnObject*\_*WrappedFunction*\_*Purpose*
-  - [`model_mread_load()`](https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.md)
-    wraps
-    [`mrgsolve::mread_cache()`](https://mrgsolve.org/docs/reference/mread.html)
-    to read internal package model files returning an `mrgmod` object.
+- `plot_*` — returns a `ggplot` object
+- `df_*` — returns a `data.frame`
+- `var_*` — returns a vector (vectorized helpers for use inside
+  `mutate`)
+- `pmx_*` — returns a theme element constructor (for use with `*_theme`
+  factories)
+
+### Exploratory Data Analysis
+
+- Longitudinal PK and PK/PD Analysis:
+  - [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+    — dependent variable versus time (e.g., concentration-time profiles)
+  - [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+    — dependent variable versus a continuous independent variable (e.g.,
+    response vs concentration)
+- Dose Proportionality:
+  - [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+    — log-log regression parameters for multiple exposure metrics versus
+    dose
+  - [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+    — log-log regression plots of exposure metric(s) versus dose
+
+### Model Evaluation
+
+- Overlay Goodness-of-Fit Diagnostics:
+  - [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+    — observed, population-, and individual-predicted values overlaid
+    versus time
+- Visual Predictive Check (VPC):
   - [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
-    wraps
-    [`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
-    to replicate the input data returning a `data.frame`.
-  - [`plot_vpc_exactbins()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_exactbins.md)
-    wraps [`vpc::vpc()`](https://rdrr.io/pkg/vpc/man/vpc.html) to
-    generate a VPC plot using exact time bins returning a `ggplot`
-    object.
-- Helper functions: *ReturnObject*\_*Purpose*
-  - `df_addn` returns a `data.frame` with counts of the number of unique
-    values of an ID variable per bin.
-  - `df_addpred` returns a `data.frame` with population model
-    predictions (PRED) appended.
-  - `df_doseprop` returns a `data.frame` containing parameters from
-    log-log regression of multiple exposure metrics versus dose
-  - `df_loglog` returns a `data.frame` containing parameters from a
-    log-log regression of a single exposure metric versus dose
-  - `df_pcdv` returns a `data.frame` containing the prediction-corrected
-    dependent variable.
-  - `df_nobsbin` returns a summary `data.frame` with counts of the
-    number of missing and non-missing observations per bin.
-  - `mod_loglog` returns a `lm` object from a log-log regression of a
-    single exposure metric versus dose
-  - `plot_dvtime` returns a `ggplot` object with a dependent variable
-    plotted versus time
-  - `plot_doseprop` returns a `ggplot` object with log-log regression of
-    exposure metrics versus dose
-  - `plot_popgof` returns a `ggplot` object with observed,
-    population-predicted, and individual-predicted values plotted versus
-    time
-  - `plot_vpclegend` returns a `ggplot` object containing a legend for a
-    VPC plot generated using `plot_vpc_exactbins`
-- Plot theme lists
-  - [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
-    [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md),
-    [`plot_popgof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_popgof_theme.md),
-    and
-    [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-    return a named `list` with elements of modifiable elements of the
-    plot theme
-- Data sets
-  - `data_sad` a dataset for a single ascending dose (SAD) study with
-    parallel food effect cohort formatted for non-linear mixed effects
-    (NMLE) population PK and PK/PD modeling
-  - `data_sad_nca` a dataset containing PK parameters derived using
-    non-compartmental analysis (NCA)
-  - `data_sad_pkfit` a dataset consistent with `data_sad` including
-    individual (IPRED) and population (PRED) PK model predictions
+    — simulated replicates of an input dataset via `mrgsolve`
+  - [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+    — VPC summary statistics
+  - [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
+    — VPC plot for continuous data range from simulated data with exact
+    time bins
+  - [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md)
+    — VPC plot for censored data range from simulated data with exact
+    time bins
+  - [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+    — legend for a VPC plot
+
+### Theme System
+
+Plot aesthetics are controlled through theme factories and element
+constructors. Each plot function has a corresponding `plot_*_theme()`
+factory:
+
+- [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md),
+  [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
+  [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md),
+  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md),
+  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+  — return named lists of default element objects for the `theme`
+  argument of their corresponding plot function
+- [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
+  /
+  [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
+  — control which VPC / GOF layers are visible via the `shown` argument
+
+Element constructors (`pmx_*`) create typed objects that map to
+`ggplot2` geom aesthetics:
+
+- [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md)
+  — point aesthetics (shape, size, alpha, color)
+- [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md)
+  — line aesthetics (linewidth, linetype, alpha, color)
+- [`pmx_ribbon()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_ribbon.md)
+  — ribbon aesthetics (fill, alpha, color, linetype, linewidth)
+- [`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md)
+  — error bar aesthetics (linewidth, linetype, alpha, width)
+- [`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md)
+  — trend line aesthetics (linewidth, linetype, color, se_color,
+  se_alpha)
+- [`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md)
+  — GOF overlay color mapping (dv, pred, ipred)
+- [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
+  — convenience shortcut to set shared aesthetics (color, alpha) on both
+  point and line elements of a role
+
+### S3 Class System
+
+`pmxhelpr` returns class-tagged objects for both stats outputs and theme
+building blocks, with predicates and
+[`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
+methods for interactive inspection and programmatic validation.
+
+- Stats classes —
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+  returns a `vpc_stats` list and
+  [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  returns a `doseprop_stats` data.frame. Each carries
+  [`print()`](https://rdrr.io/r/base/print.html),
+  [`summary()`](https://rdrr.io/r/base/summary.html), and
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) methods
+  plus a predicate
+  ([`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md),
+  [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md)).
+- Element / theme classes — every `pmx_*()` element and `plot_*_theme()`
+  factory is class-tagged (`pmx_element` and `pmx_theme` shared, plus
+  per-type tags). Predicates
+  [`is_pmx_element()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_element.md)
+  and
+  [`is_pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_theme.md)
+  test class membership; [`print()`](https://rdrr.io/r/base/print.html)
+  methods render the type and set fields.
+- Dual-mode plotting —
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
+  and
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  accept either raw input data or a precomputed stats object. The
+  precomputed path skips the summarization / regression refit, enabling
+  compute-once / replot-many workflows (e.g. flipping
+  `pcvpc = TRUE/FALSE`, varying `theme`, trying different
+  `min_bin_count`). The lower-level renderers
+  [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
+  /
+  [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md)
+  are exported for custom workflows that produce class-compatible
+  objects outside `pmxhelpr`.
+
+`pmxhelpr` returns a class tagged object for VPC plot outputs to warn
+users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added
+outside the returned object directing users to the correct
+stratification method using the `strat_var` argument.
+
+See the [Plot Themes and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html#inspecting-and-validating-themes)
+and
+[VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
+[Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
+workflow articles for worked examples.
+
+### Vectorized Helpers
+
+- [`var_addn()`](https://ryancrass.github.io/pmxhelpr/reference/var_addn.md)
+  — factor labels with counts of unique identifiers per group
+- [`var_predcorr()`](https://ryancrass.github.io/pmxhelpr/reference/var_predcorr.md)
+  — prediction-corrected values
+- [`var_dosenorm()`](https://ryancrass.github.io/pmxhelpr/reference/var_dosenorm.md)
+  — dose-normalized values
+
+### `mrgsolve` Wrappers
+
+- [`model_mread_load()`](https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.md)
+  — reads internal package model files returning an `mrgmod` object
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  — replicates input data via simulation returning a `data.frame`
+- [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md)
+  — adds population model predictions (PRED) to the returned
+  `data.frame`
+
+### Internal Datasets
+
+- `data_sad` — single ascending dose (SAD) study with parallel food
+  effect cohort formatted for NLME modeling
+- `data_sad_nca` — PK parameters derived using non-compartmental
+  analysis (NCA)
+- `data_sad_pkfit` — `data_sad` with individual (IPRED) and population
+  (PRED) PK model predictions
+
+**Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
+(original DV), to note that it is provided in original units from the
+source data. Functions like
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+default `dv_var = DV` to match the standard NONMEM convention; when
+running examples on the bundled data, one may derive a variable `DV` or
+pass the argument `dv_var = "ODV"` (as every example below does).
 
 ## Example Exploratory Data Analysis Workflow
 
@@ -80,78 +226,72 @@ This is a basic example which illustrates a simple exploratory data
 analysis workflow using pmxhelpr:
 
 ``` r
+
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+
 #Read internal analysis-ready dataset for an example Phase 1 study
 glimpse(data_sad)
 
 #Pre-process data for plotting
-data <- data_sad %>% 
-  mutate(Regimen = DOSE) %>% 
-  df_addn(grp_var = "Regimen", id_var = "ID", sep = "mg x1") %>% 
-  mutate(DoseReg = fct_relevel(Regimen, "50 mg x1 (n=6)", after = 1))
+data <- data_sad %>%
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
+         DoseFood = paste(DOSE,"mg x1", Food),
+         Regimen = var_addn(DoseFood, ID))
 
 #Plot drug concentration-time
-plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl", 
-            col_var = "Regimen", ylab = "Concentration (ng/mL)", 
-            log_y = TRUE, obs_dv = FALSE)
-
-#Plot drug concentration and biomarker response versus time
-plot_dvtime_dual(data = data, dv_var1 = "ODV", dv_var2 = "CFB", dvid_var = "CMT",
-            cent = "mean_sdl", col_var = "Regimen", 
-            ylab1 = "Drug Conc. (ng/mL)", ylab2 = "Response (% Change)", 
-            log_y1 = TRUE)
+plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
+            col_var = "Regimen", log_y = TRUE,
+            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+  labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration
-plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB",  
-            col_var = "Regimen", ylab = "Response (% Change)", 
-            loess = TRUE, linear = TRUE)
+plot_dvconc(data = filter(data, CMT == 3), dv_var = "CFB", ref = 0,
+            col_var = "Regimen", loess = TRUE, linear = TRUE) +
+  labs(y = "Response (% Change)")
 
 #Assess dose proportionality in the fasted state
 glimpse(data_sad_nca)
 data_sad_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
 
 #Tabulated dose-proportionality
-table <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+table <- df_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 table
 
 #Visualize dose-proportionality
+plot_doseprop(table)
 plot_doseprop(data_sad_nca_part1, metrics = c("aucinf.obs", "cmax"))
 ```
 
-## Example Population Overly Goodness-of-fit Plot Workflow
+## Example Population Overlay Goodness-of-Fit Plot Workflow
 
 This is a basic example which illustrates a simple model diagnostic
 workflow using pmxhelpr:
 
 ``` r
+
 library(pmxhelpr)
 library(dplyr)
 library(ggplot2)
 library(mrgsolve)
-library(vpc)
 library(patchwork)
 library(withr)
 
 ##Pre-process Data for Plotting
-data <- data_sad_pkfit %>% 
-  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"), 
-         DoseGroup = paste0(DOSE, " mg ", Food)) %>% 
-  df_addn("DoseGroup") %>% 
-  df_addn("Food")
-unique(data$DoseGroup)
-unique(data$Food)
-
-data <- data %>% 
-  mutate(DoseGroup = fct_relevel(DoseGroup, "50 mg Fasted (n=6)", after = 1))
-unique(data$DoseGroup)
+data <- data_sad_pkfit %>%
+  mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
+         DoseFood = paste(DOSE,"mg x1", Food),
+         Regimen = var_addn(DoseFood, ID))
 
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
-plot_popgof(data = data, output_vars = c(DV ="ODV"), dosenorm = TRUE, 
-            ylab = "Dose-normalized Conc. (ng/mL)") +
-  facet_wrap(~Food)
+plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +
+  facet_wrap(~Food) +
+  labs(y = "Dose-normalized Conc. (ng/mL)")
 
-plot_popgof(data = data, output_vars = c(DV ="ODV"), 
-            ylab = "Dose-normalized Conc. (ng/mL)", log_y = TRUE) +
-  facet_wrap(~DoseGroup)
+plot_gof(data = data, dv_var = "ODV", log_y = TRUE) +
+  facet_wrap(~Regimen) +
+  labs(y = "Concentration (ng/mL)")
 ```
 
 ## Example Visual Predictive Check Analysis Workflow
@@ -160,11 +300,11 @@ This is a basic example which illustrates a simple VPC workflow using
 pmxhelpr:
 
 ``` r
+
 library(pmxhelpr)
 library(dplyr)
 library(ggplot2)
 library(mrgsolve)
-library(vpc)
 library(patchwork)
 library(withr)
 
@@ -172,33 +312,58 @@ library(withr)
 model <- model_mread_load("pkmodel")
 
 #Process Data
-data <- data_sad%>% 
+data <- data_sad %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
-  df_addn(grp_var = "Food", id_var = "ID")
+  mutate(Food = var_addn(Food, ID))
 
-#Simulated replicates of the dataset using mrgsim 
-simout <- df_mrgsim_replicate(data = data, model = model,replicates = 100,
+#Simulated replicates of the dataset using mrgsim
+  #The input `dv_var` is preserved in the output as `OBSDV` (observed) and the
+  #simulated values are written to `SIMDV` --- these are the columns `plot_vpc_cont()` reads.
+  #Pass any input columns you want carried to the output via `carry_out` (numeric)
+  #and `recover` (character / factor), which flow through to `mrgsolve::mrgsim_df()`.
+simout <- df_mrgsim_replicate(data = data, model = model, replicates = 100,
                               dv_var = "ODV",
-                              num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-                              char_vars = c("USUBJID", "PART", "Food"))
+                              carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
+                              recover  = c("PART", "Food"))
 glimpse(simout)
+
+#Plot output in a Censored Visual Predictive Check (VPC)
+
+plot_obj_cens <- plot_vpc_cens(
+  data = simout,
+  strat_var = "DOSE"
+) +
+scale_x_continuous(breaks = c(0,24,72,120,168)) +
+labs(y = "Proportion BLQ", x = "Time (hours)")
+
+plot_obj_cens
+
+#Add Legend
+shown_cens <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, obs_point = FALSE)
+plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens)
+plot_obj_cens_leg
+
+plot_obj_cens_wleg <- plot_obj_cens + plot_obj_cens_leg + plot_layout(heights = c(2,1))
+plot_obj_cens_wleg
 
 #Plot output in a Prediction-corrected Visual Predictive Check (VPC)
   #Exact nominal time bins present in data_sad ("NTIME") are used to plot summary statistics
-  #Actual time ("TIME") is used to plot observed data points, which are also prediction-corrected if pcvpc=TRUE
+  #Actual time ("TIME") is used to plot observed data points (prediction-corrected if pcvpc=TRUE)
 
 
-plot_obj_food <- plot_vpc_exactbins(
-  sim = simout, 
+plot_obj_food <- plot_vpc_cont(
+  data = simout, 
   strat_var = "Food",
   pcvpc = TRUE
 ) + 
-  scale_y_log10(guide = "axis_logticks")
+ scale_x_continuous(breaks = c(0,24,72,120,168)) +
+ scale_y_log10(guide = "axis_logticks") +
+ labs(y = "Pred-corrected Conc. (ng/mL)", x = "Time (hours)")
 
 plot_obj_food
 
 #Add Legend
-plot_obj_leg <- plot_vpclegend()
+plot_obj_leg <- plot_vpc_legend()
 plot_obj_leg
 
 plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))

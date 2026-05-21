@@ -7,24 +7,19 @@ Plot a dependent variable versus time
 ``` r
 plot_dvtime(
   data,
-  dv_var = DV,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  timeu = "hours",
+  dv_var = "DV",
+  time_var = "TIME",
+  ntime_var = "NTIME",
   col_var = NULL,
-  grp_var = ID,
-  dose_var = DOSE,
+  id_var = NULL,
+  dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
-  cent = "mean",
-  obs_dv = TRUE,
-  grp_dv = FALSE,
+  cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
-  cfb = FALSE,
-  cfb_base = 0,
-  ylab = "Concentration",
+  ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  n_breaks = 8,
   theme = NULL
 )
 ```
@@ -37,36 +32,30 @@ plot_dvtime(
 
 - dv_var:
 
-  Column containing the DV variable in `data`. Accepts bare names or
-  strings.
+  Column containing the dependent variable. Accepts bare names or
+  strings. Default is `DV`.
 
-- time_vars:
+- time_var:
 
-  Names of actual and nominal time variables. Must be named character
-  vector. Defaults is: c(`TIME`=`"TIME"`, `NTIME`=`"NTIME"`).
+  Column containing the actual time variable. Accepts bare names or
+  strings. Default is `TIME`.
 
-- timeu:
+- ntime_var:
 
-  Character string specifying units for the time variable. Passed to
-  `breaks_time` and assigned to default x-axis label. Options include:
-
-  - "hours" (default)
-
-  - "days"
-
-  - "weeks"
-
-  - "months"
+  Column containing the nominal time variable. Accepts bare names or
+  strings. Default is `NTIME`.
 
 - col_var:
 
   Column to map to the color aesthetic. Accepts bare names or strings.
   Default is `NULL`.
 
-- grp_var:
+- id_var:
 
-  Column to map to the group aesthetic. Accepts bare names or strings.
-  Default is `ID`.
+  Column to group observations for spaghetti lines. Accepts bare names
+  or strings. Default is `NULL` (no spaghetti lines). Specifying a
+  column (e.g., `id_var = ID`) enables spaghetti lines connecting
+  observations within each level of the variable.
 
 - dose_var:
 
@@ -87,10 +76,10 @@ plot_dvtime(
 
   Options are:
 
-      + `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-      + `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+      + No handling: `0` or `"none"`, Plot input dataset `DV` vs `TIME` as is. (default)
+      + Impute Post-dose: `1` or `"postdose"`, Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
          Useful for plotting concentration-time data with some data BLQ on the linear scale
-      + `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+      + Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
          Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 
 - cent:
@@ -112,67 +101,53 @@ plot_dvtime(
 
   - None: `"none"`
 
-- obs_dv:
-
-  Logical indicating if observed data points should be shown. Default is
-  `TRUE`.
-
-- grp_dv:
-
-  Logical indicating if observed data points should be connected within
-  a group (i.e., spaghetti plot). Default is `FALSE`.
-
 - dosenorm:
 
   logical indicating if observed data points should be dose normalized.
   Default is `FALSE`, Requires variable specified in `dose_var` to be
   present in `data`
 
-- cfb:
+- ref:
 
-  Logical indicating if dependent variable is a change from baseline.
-  Plots a reference line at y = cfb_baseline. Default is `FALSE`.
-
-- cfb_base:
-
-  Value for y-intercept when cfb = `TRUE`. Default is 0.
-
-- ylab:
-
-  Character string specifing the y-axis label: Default is
-  `"Concentration"`.
+  Numeric y-intercept for a horizontal reference line, or `NULL` for no
+  reference line. For example, `ref = 0` draws a baseline reference for
+  change-from-baseline data.
 
 - log_y:
 
-  Logical indicator for log10 transformation of the y-axis.
+  Logical indicator for log10 transformation of the y-axis. Also
+  controls whether the caption reports arithmetic or geometric mean when
+  `show_caption = TRUE`.
 
 - show_caption:
 
-  Logical indicating if a caption should be show describing the data
+  Logical indicating if a caption should be shown describing the data
   plotted
-
-- n_breaks:
-
-  Number of breaks requested for x-axis. Default is 8.
 
 - theme:
 
-  Named list of aesthetic parameters to be supplied to the plot.
+  Theme object created by
+  [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md).
   Defaults can be viewed by running
   [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
-  with no arguments. Default `width_errorbar` is 2.5% of maximum
-  `NTIME`.
+  with no arguments. Default error bar width is 2.5% of maximum `NTIME`.
 
 ## Value
 
 A `ggplot2` plot object
 
+## See also
+
+Other exploratory analysis:
+[`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+[`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
+[`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+
 ## Examples
 
 ``` r
 data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
-data <- df_addn(dplyr::mutate(data_sad_pk, Dose = DOSE), grp_var = Dose, sep = "mg")
-#> Joining with `by = join_by(Dose)`
+data <- dplyr::mutate(data_sad_pk, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 #> Warning: Removed 169 rows containing non-finite outside the scale range
 #> (`stat_summary()`).

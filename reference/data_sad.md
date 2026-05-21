@@ -11,11 +11,7 @@ data_sad
 
 ## Format
 
-### `data.frame` a data frame with 720 rows and 23 columns:
-
-- LINE:
-
-  Line number
+### `data.frame` a data frame with 1404 rows and 25 columns:
 
 - ID:
 
@@ -39,7 +35,7 @@ data_sad
 
 - AMT:
 
-  Actual dose amount administrered (units: mg)
+  Actual dose amount administered (units: mg)
 
 - EVID:
 
@@ -61,6 +57,10 @@ data_sad
 
   Time-matched Observed Drug Concentration with BLQ imputed to zero
   (units: ng/mL)
+
+- LINE:
+
+  Line number
 
 - CMT:
 
@@ -98,7 +98,7 @@ data_sad
 
 - WTBL:
 
-  Subject body weight at baseline (units:kg)
+  Subject body weight at baseline (units: kg)
 
 - SCRBL:
 

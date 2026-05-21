@@ -10,7 +10,7 @@ data_sad_nca
 
 ## Format
 
-### `data.frame` a data frame with 720 rows and 23 columns:
+### `data.frame` a data frame with 648 rows and 11 columns:
 
 - ID:
 

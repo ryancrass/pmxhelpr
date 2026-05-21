@@ -4,5 +4,7 @@
 .Ruserdata
 inst/doc
 docs
+pkgdown
 /doc/
 /Meta/
+Rplots.pdf

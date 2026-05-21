@@ -6,48 +6,39 @@
 \usage{
 plot_dvtime(
   data,
-  dv_var = DV,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  timeu = "hours",
+  dv_var = "DV",
+  time_var = "TIME",
+  ntime_var = "NTIME",
   col_var = NULL,
-  grp_var = ID,
-  dose_var = DOSE,
+  id_var = NULL,
+  dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
-  cent = "mean",
-  obs_dv = TRUE,
-  grp_dv = FALSE,
+  cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
-  cfb = FALSE,
-  cfb_base = 0,
-  ylab = "Concentration",
+  ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  n_breaks = 8,
   theme = NULL
 )
 }
 \arguments{
 \item{data}{Input dataset.}
 
-\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
+\item{dv_var}{Column containing the dependent variable. Accepts bare names or strings. Default is \code{DV}.}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
 
-\item{timeu}{Character string specifying units for the time variable.
-Passed to \code{breaks_time} and assigned to default x-axis label.
-Options include:
-\itemize{
-\item "hours" (default)
-\item "days"
-\item "weeks"
-\item "months"
-}}
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
 
 \item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
-\item{grp_var}{Column to map to the group aesthetic. Accepts bare names or strings. Default is \code{ID}.}
+\item{id_var}{Column to group observations for spaghetti lines.
+Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).
+Specifying a column (e.g., \code{id_var = ID}) enables spaghetti lines connecting
+observations within each level of the variable.}
 
 \item{dose_var}{Column to use in dosenormalization when \code{dosenorm} = TRUE.
 Accepts bare names or strings. Default is \code{DOSE}.}
@@ -60,10 +51,10 @@ Specifying this argument implies that \code{DV} is missing in \code{data} where 
 
 Options are:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{+ `0` : No handling. Plot input dataset `DV` vs `TIME` as is. (default)
-+ `1` : Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{+ No handling: `0` or `"none"`, Plot input dataset `DV` vs `TIME` as is. (default)
++ Impute Post-dose: `1` or `"postdose"`, Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
    Useful for plotting concentration-time data with some data BLQ on the linear scale
-+ `2` : Impute all BLQ data at `TIME` <= 0 to 1/2 x `loq` and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
++ Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
    Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 }\if{html}{\out{</div>}}}
 
@@ -79,30 +70,21 @@ Options are:
 \item None: \code{"none"}
 }}
 
-\item{obs_dv}{Logical indicating if observed data points should be shown. Default is \code{TRUE}.}
-
-\item{grp_dv}{Logical indicating if observed data points should be connected within a group (i.e., spaghetti plot).
-Default is \code{FALSE}.}
-
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
-\item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
+\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for
+no reference line. For example, \code{ref = 0} draws a baseline reference for
+change-from-baseline data.}
 
-\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
+\item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
+the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
-\item{ylab}{Character string specifing the y-axis label: Default is \code{"Concentration"}.}
+\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis.}
-
-\item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
-
-\item{n_breaks}{Number of breaks requested for x-axis. Default is 8.}
-
-\item{theme}{Named list of aesthetic parameters to be supplied to the plot.
+\item{theme}{Theme object created by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}.
 Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
-Default \code{width_errorbar} is 2.5\% of maximum \code{NTIME}.}
+Default error bar width is 2.5\% of maximum \code{NTIME}.}
 }
 \value{
 A \code{ggplot2} plot object
@@ -112,7 +94,14 @@ Plot a dependent variable versus time
 }
 \examples{
 data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
-data <- df_addn(dplyr::mutate(data_sad_pk, Dose = DOSE), grp_var = Dose, sep = "mg")
+data <- dplyr::mutate(data_sad_pk, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }
+\seealso{
+Other exploratory analysis: 
+\code{\link{plot_dvconc}()},
+\code{\link{plot_dvconc_theme}()},
+\code{\link{plot_dvtime_theme}()}
+}
+\concept{exploratory analysis}

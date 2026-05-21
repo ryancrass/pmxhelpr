@@ -14,3 +14,6 @@
 ^rproject\.toml$
 ^rv\.lock$
 ^\.Rprofile$
+^\.claude$
+^vignettes/articles$
+^Rplots\.pdf$

@@ -6,47 +6,85 @@
 \usage{
 plot_doseprop(
   data,
-  metrics,
-  metric_var = PPTESTCD,
-  exp_var = PPORRES,
-  dose_var = DOSE,
+  metrics = NULL,
+  metric_name_var = "PPTESTCD",
+  metric_value_var = "PPORRES",
+  dose_var = "DOSE",
   method = "normal",
   ci = 0.9,
   sigdigits = 3,
-  se = TRUE
+  se = TRUE,
+  theme = NULL
 )
 }
 \arguments{
-\item{data}{Input dataset for log-log regression.
-Default expected format is output from \code{PKNCA::pk.nca()} (i.e., SDTM PP formatting)}
+\item{data}{Either raw observation data (data.frame, default expected
+format is output from \code{PKNCA::pk.nca()}) or a \code{doseprop_stats} object
+returned by \code{\link[=df_doseprop]{df_doseprop()}}.}
 
-\item{metrics}{character vector of exposure metrics in \code{data} to plot}
+\item{metrics}{character vector of exposure metrics in \code{data} to plot.
+Required on the raw-data path; ignored when \code{data} is a
+\code{doseprop_stats} object.}
 
-\item{metric_var}{Column in \code{data} containing the values provided in \code{metrics}.
+\item{metric_name_var}{Column in \code{data} containing the metric names listed in \code{metrics}.
 Accepts bare names or strings. Default is \code{PPTESTCD}.}
 
-\item{exp_var}{Column in \code{data} containing the exposure metric (dependent variable).
-Accepts bare names or strings. Default is \code{PPORRES}.}
+\item{metric_value_var}{Column in \code{data} containing the exposure metric values
+(dependent variable). Accepts bare names or strings. Default is \code{PPORRES}.}
 
 \item{dose_var}{Column in \code{data} containing the dose (independent variable).
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{method}{character string specifying the distribution to be used to derived the confidence interval.
-Options are "normal" (default) and "tdist"}
+\item{method}{character string specifying the distribution to be used to derive the confidence interval.
+Options are \code{"normal"} (default) and \code{"tdist"}.}
 
 \item{ci}{confidence interval to be calculated.
-Options 0.90 (default) and 0.95}
+Options \code{0.90} (default) and \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding}
+\item{sigdigits}{number of significant digits for rounding.}
 
-\item{se}{logical to display confidence interval around regression. Default is \code{TRUE}.}
+\item{se}{logical to display confidence interval around regression.
+Default is \code{TRUE}.}
+
+\item{theme}{Named list of aesthetic parameters for the plot created by
+\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}. Defaults can be viewed by running
+\code{plot_doseprop_theme()} with no arguments.}
 }
 \value{
 a \code{ggplot} plot object
 }
 \description{
-Plot a dose-proportionality assessment via power law (log-log) regression
+Dual-mode wrapper that delegates to \code{\link[=df_doseprop]{df_doseprop()}} for computation and
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}} for rendering. Accepts either:
+\itemize{
+\item raw observation data (e.g. PKNCA output) plus a \code{metrics} vector — the
+common one-shot mode; or
+\item a precomputed \code{doseprop_stats} object returned by \code{\link[=df_doseprop]{df_doseprop()}} — skip
+the regression refit and replot with different \code{theme} / \code{se} settings.
+}
+
+On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_name_var},
+\code{metric_value_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) cannot be honored
+because the regression does not run again — passing any of them aborts
+with a message pointing the caller at \code{\link[=df_doseprop]{df_doseprop()}}. Only \code{theme} and
+\code{se} are accepted on both paths.
 }
 \examples{
-plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"), metrics = c("aucinf.obs", "cmax"))
+# Raw-data path
+plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+               metrics = c("aucinf.obs", "cmax"))
+
+# Precomputed path: compute once, replot many times
+stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                      metrics = c("aucinf.obs", "cmax"))
+plot_doseprop(stats)
+plot_doseprop(stats, se = FALSE)
 }
+\seealso{
+Other dose proportionality: 
+\code{\link{df_doseprop}()},
+\code{\link{is_doseprop_stats}()},
+\code{\link{plot_build_doseprop}()},
+\code{\link{plot_doseprop_theme}()}
+}
+\concept{dose proportionality}

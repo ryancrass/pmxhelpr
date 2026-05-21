@@ -8,13 +8,15 @@ df_mrgsim_replicate(
   data,
   model,
   replicates,
-  dv_var = DV,
-  time_vars = c(TIME = "TIME", NTIME = "NTIME"),
-  output_vars = c(PRED = "PRED", IPRED = "IPRED", DV = "DV"),
-  num_vars = NULL,
-  char_vars = NULL,
-  irep_name = SIM,
+  dv_var = "DV",
+  time_var = "TIME",
+  ntime_var = "NTIME",
+  pred_var = "PRED",
+  ipred_var = "IPRED",
+  sim_dv_var = "DV",
+  irep_name = "SIM",
   seed = 123456789,
+  parallel = FALSE,
   ...
 )
 }
@@ -28,40 +30,73 @@ other arguments.}
 
 \item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
 
-\item{time_vars}{Names of actual and nominal time variables. Must be named character vector.
-Defaults is: c(\code{TIME}=\code{"TIME"}, \code{NTIME}=\code{"NTIME"}).}
+\item{time_var}{Column containing the actual time variable.
+Accepts bare names or strings. Default is \code{TIME}.}
 
-\item{output_vars}{Names of model outputs from \code{model}. Must be named character vector.
-Defaults is: c(\code{PRED}= \code{"PRED"}, \code{IPRED} = \code{"IPRED"}, \code{DV}= \code{"DV"}).}
+\item{ntime_var}{Column containing the nominal time variable.
+Accepts bare names or strings. Default is \code{NTIME}.}
 
-\item{num_vars}{Numeric variables in \code{data} or simulation output to recover.
-Must be a character vector of variable names from the simulation output to \code{carry_out}
-and return in output. Defaults are \code{"CMT"}, \code{"EVID"}, \code{"MDV"}, \code{"NTIME"}.}
+\item{pred_var}{Name of population prediction output from \code{model}.
+Accepts bare names or strings. Default is \code{PRED}.}
 
-\item{char_vars}{Character variables in \code{data} or simulation output to recover.
-Must be a character vector of variable names from the simulation output to \code{recover}
-and return in output.}
+\item{ipred_var}{Name of individual prediction output from \code{model}.
+Accepts bare names or strings. Default is \code{IPRED}.}
+
+\item{sim_dv_var}{Name of simulated DV output from \code{model}.
+Accepts bare names or strings. Default is \code{DV}.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
+\item{parallel}{Logical. If \code{TRUE}, replicates run in parallel via
+\code{\link[future.apply:future_lapply]{future.apply::future_lapply()}}. Requires the \code{future.apply} package
+and a parallel plan set by the user (e.g.,
+\code{future::plan(future::multisession, workers = 4)}). Default is \code{FALSE}
+(sequential).}
+
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}, including
+\code{carry_out} and \code{recover} to control which input columns are propagated to
+the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
+\code{OBSDV}, and the population prediction column) is added to whatever the
+user passes to \code{carry_out}.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
-and the output variables in \code{output_vars}, \code{num_vars}, and \code{char_vars}.
+and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus any input
+columns listed in \code{carry_out} / \code{recover}.
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}
 that returns a data.frame containing \code{replicates} iterations of \code{data}
+}
+\details{
+Under \code{parallel = TRUE}, per-replicate RNG streams are generated from \code{seed}
+using L'Ecuyer-CMRG (via \code{future.seed = seed}), so output is reproducible
+given the same \code{seed} and \code{future::plan()}. Output under \code{parallel = TRUE}
+will differ numerically from \code{parallel = FALSE} because the RNG mechanism
+differs, but is statistically equivalent.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
 data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
 simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
 dv_var = ODV,
-num_vars = c("CMT", "LLOQ", "EVID", "MDV", "WTBL", "FOOD"),
-char_vars = c("USUBJID", "PART"),
+carry_out = c("LLOQ", "WTBL", "FOOD"),
+recover = c("USUBJID", "PART"),
 irep_name = SIM)
+
+\dontrun{
+future::plan(future::multisession, workers = 4)
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
+                              replicates = 1000, dv_var = ODV,
+                              parallel = TRUE)
+future::plan(future::sequential)
 }
+}
+\seealso{
+Other mrgsolve wrappers: 
+\code{\link{df_mrgsim_addpred}()},
+\code{\link{model_mread_load}()}
+}
+\concept{mrgsolve wrappers}

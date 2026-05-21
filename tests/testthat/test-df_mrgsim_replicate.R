@@ -22,10 +22,10 @@ test_that("output data.frame contains replicates x nrow(dplyr::filter(data, EVID
                nrow(dplyr::filter(data_sad, EVID ==0 & CMT != 3))*10)
 })
 
-test_that("output data.frame contains variable SIMDV if non-default output_vars option specified for DV", {
+test_that("output data.frame contains variable SIMDV if non-default sim_dv_var specified", {
   expect_named(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 10,
-                                   dv_var = "ODV", output_vars = c(DV = "Y")) |> dplyr::select(SIMDV),
+                                   dv_var = "ODV", sim_dv_var = "Y") |> dplyr::select(SIMDV),
                "SIMDV")
 })
 
@@ -41,6 +41,20 @@ test_that("output data.frame contains variable requested with argument `irep_nam
                                    model=model_mread_load("pkmodel"), replicates = 10,
                                    dv_var = "ODV", irep_name = "IREP") |> dplyr::select(IREP),
                "IREP")
+})
+
+test_that("df_mrgsim_replicate carries user-specified columns via carry_out and recover", {
+  out <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                             model = model_mread_load("pkmodel"),
+                             replicates = 2, dv_var = "ODV",
+                             carry_out = c("WTBL", "DOSE"),
+                             recover  = c("USUBJID"))
+  # Requested columns appear
+  expect_true(all(c("WTBL", "DOSE", "USUBJID") %in% colnames(out)))
+  # Unlisted input columns do not appear
+  expect_false("LLOQ" %in% colnames(out))
+  expect_false("BLQ"  %in% colnames(out))
+  expect_false("PART" %in% colnames(out))
 })
 
 
@@ -63,43 +77,30 @@ test_that("Error if incorrect class for arugmument `replicates`", {
                regexp = "argument `replicates` must be coercible to class `integer`")
 })
 
-test_that("Error if TIME variable specified in time_vars does not exist in `data`", {
+test_that("Error if time_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 1,
-                                   dv_var = "ODV", time_vars = c(TIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+                                   dv_var = "ODV", time_var = "test"),
+               regexp = "argument `time_var` must be variable.*in `data`")
 })
 
-test_that("Error if NTIME variable specified in time_vars does not exist in `data`", {
+test_that("Error if ntime_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   time_vars = c(NTIME = "test")),
-               regexp = "argument `time_vars` must be variables in `data`")
+                                   ntime_var = "test"),
+               regexp = "argument `ntime_var` must be variable.*in `data`")
 })
 
-test_that("No error if TIME and NTIME variables are specified as the same variable in time_vars", {
+test_that("No error if time_var and ntime_var are specified as the same variable", {
   expect_no_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                       model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   time_vars = c(TIME = "NTIME", NTIME = "NTIME")))
+                                   time_var = "NTIME", ntime_var = "NTIME"))
 })
 
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "DV"),
-               regexp = "argument `dv_var` must be variables in `data`")
-})
-
-test_that("Error if variables specified by num_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
-                                   model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   num_vars = "test"))
-})
-
-test_that("Error if variables specified by char_vars do not exist in `data`", {
-  expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
-                                   model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
-                                   char_vars = "test"),
-               regexp = "argument `char_vars` must be variables in `data`")
+               regexp = "argument `dv_var` must be variable.*in `data`")
 })
 
 test_that("Same seed produces identical output", {
@@ -123,11 +124,51 @@ test_that("Error if incorrect class for arugmument `seed`", {
 test_that("df_mrgsim_replicate accepts bare names", {
   model <- model_mread_load(model = "pkmodel")
   s1 <- df_mrgsim_replicate(dplyr::filter(data_sad, CMT != 3), model, replicates = 2,
-                              dv_var = ODV, irep_name = SIM,
-                              num_vars = c("CMT", "EVID", "MDV"),
-                              char_vars = c("USUBJID"))
+                              dv_var = ODV, irep_name = SIM)
   expect_true(nrow(s1) > 0)
   expect_true("SIM" %in% colnames(s1))
+})
+
+test_that("df_mrgsim_replicate errors on zero-row data", {
+  data <- dplyr::filter(data_sad, CMT != 3)[0, ]
+  expect_error(
+    df_mrgsim_replicate(data = data, model = model_mread_load("pkmodel"),
+                        replicates = 2, dv_var = "ODV"),
+    regexp = "must have at least one row"
+  )
+})
+
+## Test parallel argument
+test_that("parallel = FALSE produces identical output to default", {
+  out_default  <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                      model = model_mread_load("pkmodel"),
+                                      replicates = 3, dv_var = "ODV", seed = 42)
+  out_explicit <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                      model = model_mread_load("pkmodel"),
+                                      replicates = 3, dv_var = "ODV", seed = 42,
+                                      parallel = FALSE)
+  expect_identical(out_default, out_explicit)
+})
+
+test_that("parallel = TRUE is reproducible across runs with same seed", {
+  skip_if_not_installed("future.apply")
+  out1 <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                              model = model_mread_load("pkmodel"),
+                              replicates = 3, dv_var = "ODV", seed = 42,
+                              parallel = TRUE)
+  out2 <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                              model = model_mread_load("pkmodel"),
+                              replicates = 3, dv_var = "ODV", seed = 42,
+                              parallel = TRUE)
+  expect_identical(out1$SIMDV, out2$SIMDV)
+})
+
+test_that("Error if parallel is not TRUE/FALSE", {
+  expect_error(df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                   model = model_mread_load("pkmodel"),
+                                   replicates = 2, dv_var = "ODV",
+                                   parallel = "yes"),
+               regexp = "argument `parallel` must be `TRUE` or `FALSE`")
 })
 
 

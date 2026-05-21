@@ -1,61 +1,64 @@
 #' Plot a dependent variable versus concentration
 #'
-#' @param data Input dataset.
+#' Unlike [plot_dvtime()] and [plot_gof()], this function does not filter dose
+#' rows internally. Pre-filter the input to observation rows (typically by
+#' `CMT` or `EVID == 0`) before calling — see the example below.
+#'
+#' @param data Input dataset. Must contain only observation rows (no dose
+#'    records). Filter by `CMT` or `EVID == 0` before passing.
 #' @param idv_var Independent variable column. Accepts bare names or strings. Default is `CONC`.
 #' @param col_trend Logical indicating if the variable specified in `col_var` should be used to stratify trend lines
 #' @param loess Logical indicating if a loess smoother fit should be shown. Default is `TRUE`
 #' @param se_loess Logical indicating if the standard error should be shown for the loess fit. Default is `FALSE`
 #' @param linear Logical indicating if a linear regression fit should be shown. Default is `FALSE`.
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
-#' @param ylab Character string specifying the y-axis label: Default is `"Response"`.
-#' @param xlab Character string specifying the x-axis label: Default is `"Drug Concentration"`
-#' @param log_x Logical indicator for log10 transformation of the x-axis.
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
-#' @param show_caption Logical indicating if a caption should be show describing the data plotted
-#' @param theme Named list of aesthetic parameters to be supplied to the plot.
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted
+#' @param theme Theme object created by [plot_dvconc_theme()].
 #'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
 #' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
 #'
+#' @family exploratory analysis
 #' @return A `ggplot2` plot object
 #'
 #' @export plot_dvconc
 #'
 #' @examples
 #'data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
-#'data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+#'data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 #'plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #'
 
 plot_dvconc <- function(data,
-                        dv_var = DV,
-                        idv_var = CONC,
+                        dv_var = "DV",
+                        idv_var = "CONC",
                         col_var = NULL,
                         col_trend = FALSE,
                         loess = TRUE,
                         linear = FALSE,
                         se_loess = FALSE,
                         se_linear = FALSE,
-                        cfb = FALSE,
-                        cfb_base = 0,
-                        ylab = "Response",
-                        xlab = "Drug Concentration",
+                        ref = NULL,
                         log_y = FALSE,
-                        log_x = FALSE,
                         show_caption = TRUE,
                         theme = NULL,
                         ...){
 
-  dv_var_str  <- rlang::as_name(rlang::ensym(dv_var))
-  idv_var_str <- rlang::as_name(rlang::ensym(idv_var))
-  col_var_str <- capture_col(rlang::enquo(col_var))
+  dv_var_str  <- resolve_var(rlang::enquo(dv_var))
+  idv_var_str <- resolve_var(rlang::enquo(idv_var))
+  col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
+
+  if (!is.null(col_var_str) && !isTRUE(col_trend)) {
+    warning("`col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.", call. = FALSE)
+  }
 
   #Checks
-  check_df(data)
-  check_varsindf(data, dv_var_str)
-  check_varsindf(data, idv_var_str)
-  check_varsindf(data, col_var_str)
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str)}
+  check_df(data, "data")
+  check_varsindf(data, dv_var_str, "data", "dv_var")
+  check_varsindf(data, idv_var_str, "data", "idv_var")
+  check_varsindf(data, col_var_str, "data", "col_var")
+  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
 
   ##Handle DV and IDV Variables
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))
@@ -64,92 +67,40 @@ plot_dvconc <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
 
   #Determine Caption
-  caption <- dvconc_caption(cfb, loess, linear, se_loess, se_linear)
+  caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)
 
   #Determine aesthetics
-  plottheme <- list_update(theme, plot_dvconc_theme())
+  plottheme <- merge_theme(theme, plot_dvconc_theme())
 
 
 ###Plot
 
-  #Initialize Plot Aesthetics
-  if(col_trend == FALSE) {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV))
+  #Initialize Plot
+  if(!isTRUE(col_trend)) {
+    plot <- init_plot(data, "IDV", "DV")
   } else {
-    plot <- ggplot2::ggplot(data, ggplot2::aes(x=IDV, y=DV,
-                                               color = !!rlang::sym(col_var_str), group = !!rlang::sym(col_var_str)))
+    plot <- init_plot(data, "IDV", "DV", col_var_str) +
+      ggplot2::aes(group = .data[[col_var_str]])
   }
 
-  plot <- plot +
-    ggplot2::labs(x=xlab, y=ylab) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   panel.grid.major.x = ggplot2::element_blank())
-
-  #Reference Lines: Y=cfb_base (cfb = TRUE)
-  if(cfb == TRUE) plot <- plot + ggplot2::geom_hline(yintercept = as.numeric(cfb_base),
-                                                     linewidth = plottheme$linewidth_ref,
-                                                     linetype = plottheme$linetype_ref,
-                                                     alpha = plottheme$alpha_line_ref)
+  #Reference Line
+  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
 
 
   #Plot Trend Lines
-  if(col_trend == FALSE) {
-    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_loess,
-                                                          linetype = plottheme$linetype_loess,
-                                                          color = plottheme$color_loess,
-                                                          fill = plottheme$color_se_loess,
-                                                          alpha = plottheme$alpha_se_loess,
-                                                          ...)
-
-    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_linear,
-                                                           linetype = plottheme$linetype_linear,
-                                                           color = plottheme$color_linear,
-                                                           fill = plottheme$color_se_linear,
-                                                           alpha = plottheme$alpha_se_linear)
-  } else {
-    if(loess == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                              color = !!rlang::sym(col_var_str),
-                                                              fill = !!rlang::sym(col_var_str)),
-                                                          method = "loess", se = se_loess,
-                                                          linewidth = plottheme$linewidth_loess,
-                                                          linetype = plottheme$linetype_loess,
-                                                          alpha = plottheme$alpha_se_loess,
-                                                          ...)
-
-    if(linear == TRUE) plot <- plot + ggplot2::geom_smooth(ggplot2::aes(x=IDV, y=DV,
-                                                               color = !!rlang::sym(col_var_str),
-                                                               fill = !!rlang::sym(col_var_str)),
-                                                               method = "lm", se = se_linear,
-                                                           linewidth = plottheme$linewidth_linear,
-                                                           linetype = plottheme$linetype_linear,
-                                                           alpha = plottheme$alpha_se_linear)
-  }
+  plot <- add_trend_layers(plot, "loess", loess, se_loess, plottheme,
+                           col_var_str, col_trend, ...)
+  plot <- add_trend_layers(plot, "lm", linear, se_linear, plottheme,
+                           col_var_str, col_trend, theme_key = "linear")
 
   #Add observations
-  if(is.null(col_var_str)){
-    plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV),
-                          shape=plottheme$shape_point_obs,
-                          size=plottheme$size_point_obs,
-                          alpha = plottheme$alpha_point_obs)
-  } else {
-    plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(x=IDV, y=DV, color = !!rlang::sym(col_var_str)),
-                          shape=plottheme$shape_point_obs,
-                          size=plottheme$size_point_obs,
-                          alpha = plottheme$alpha_point_obs)
-  }
-
+  plot <- add_obs_layers(plot, id_var_str = NULL, plottheme$obs_point, line_el = NULL, col_var_str)
 
   #Log Transform
-  if(log_y == TRUE) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
-  if(log_x == TRUE) plot <- plot + ggplot2::scale_x_log10(guide = "axis_logticks")
+  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
 
   #Caption
-  if(show_caption == TRUE) plot <- plot + ggplot2::labs(caption = caption)
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
   return(plot)
 }
@@ -163,15 +114,12 @@ plot_dvconc <- function(data,
 #' @inheritParams plot_dvconc
 #'
 #' @return a `character` string containing the plot caption
-#' @export dvconc_caption
 #' @keywords internal
-#'
-#' @examples
-#' dvconc_caption(cfb=FALSE, loess = TRUE, linear = FALSE, se_loess = FALSE, se_linear = FALSE)
+#' @noRd
 
-dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
+caption_dvconc <- function(ref, loess, linear, se_loess, se_linear){
 
-  cfb_lab <- "\n Reference line indicates the null response (no change from baseline)"
+  ref_lab <- if (!is.null(ref)) paste0("\n Reference line at y = ", ref) else ""
 
   fit_labels <- list(
     "FALSE.FALSE.FALSE.FALSE" = "",
@@ -188,48 +136,11 @@ dvconc_caption <- function(cfb, loess, linear, se_loess, se_linear){
   key <- paste(loess, linear, se_loess, se_linear, sep = ".")
   fit_lab <- fit_labels[[key]]
 
-  paste("Points are observations",
-        ifelse(cfb == TRUE, cfb_lab, ""),
-        fit_lab)
+  paste("Points are observations", ref_lab, fit_lab)
 }
 
 
 
 
 
-#' Customized Response versus drug concentration theme with pmxhelpr default aesthetics
-#'
-#' @param update list containing the plot elements to be updated.
-#'    Run `plot_dvconc_theme()` with no arguments to view defaults.
-#' @return a named list `list`
-#' @export plot_dvconc_theme
-#'
-#' @examples
-#' plot_dvconc_theme()
-#' new_theme <- plot_dvconc_theme(update = list(linewidth_ref = 1))
-
-
-plot_dvconc_theme <- function(update = NULL){
-  defaults_list <- c(
-    .base_ref_theme,
-    list(
-      shape_point_obs = 1,
-      size_point_obs = 1.25,
-      alpha_point_obs = 0.5,
-
-      linewidth_loess = 1,
-      linetype_loess = 1,
-      linewidth_linear = 1,
-      linetype_linear = 2,
-      color_loess = "black",
-      color_linear = "black",
-      color_se_loess = "lightgrey",
-      color_se_linear = "lightgrey",
-      alpha_se_loess = 0.4,
-      alpha_se_linear = 0.4
-    )
-  )
-
-  list_update(update, defaults_list)
-}
 

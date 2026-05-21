@@ -6,29 +6,26 @@
 \usage{
 plot_dvconc(
   data,
-  dv_var = DV,
-  idv_var = CONC,
+  dv_var = "DV",
+  idv_var = "CONC",
   col_var = NULL,
   col_trend = FALSE,
   loess = TRUE,
   linear = FALSE,
   se_loess = FALSE,
   se_linear = FALSE,
-  cfb = FALSE,
-  cfb_base = 0,
-  ylab = "Response",
-  xlab = "Drug Concentration",
+  ref = NULL,
   log_y = FALSE,
-  log_x = FALSE,
   show_caption = TRUE,
   theme = NULL,
   ...
 )
 }
 \arguments{
-\item{data}{Input dataset.}
+\item{data}{Input dataset. Must contain only observation rows (no dose
+records). Filter by \code{CMT} or \code{EVID == 0} before passing.}
 
-\item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
+\item{dv_var}{Column containing the dependent variable. Accepts bare names or strings. Default is \code{DV}.}
 
 \item{idv_var}{Independent variable column. Accepts bare names or strings. Default is \code{CONC}.}
 
@@ -44,22 +41,15 @@ plot_dvconc(
 
 \item{se_linear}{Logical indicating if the standard error should be shown for the linear fit. Default is \code{FALSE}}
 
-\item{cfb}{Logical indicating if dependent variable is a change from baseline.
-Plots a reference line at y = cfb_baseline. Default is \code{FALSE}.}
-
-\item{cfb_base}{Value for y-intercept when cfb = \code{TRUE}. Default is 0.}
-
-\item{ylab}{Character string specifying the y-axis label: Default is \code{"Response"}.}
-
-\item{xlab}{Character string specifying the x-axis label: Default is \code{"Drug Concentration"}}
+\item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL} for
+no reference line. For example, \code{ref = 0} draws a baseline reference for
+change-from-baseline data.}
 
 \item{log_y}{Logical indicator for log10 transformation of the y-axis.}
 
-\item{log_x}{Logical indicator for log10 transformation of the x-axis.}
+\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
 
-\item{show_caption}{Logical indicating if a caption should be show describing the data plotted}
-
-\item{theme}{Named list of aesthetic parameters to be supplied to the plot.
+\item{theme}{Theme object created by \code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}}.
 Defaults can be viewed by running \code{plot_dvconc_theme()} with no arguments.}
 
 \item{...}{Additional arguments passed to \code{geom_smooth()}}
@@ -68,11 +58,20 @@ Defaults can be viewed by running \code{plot_dvconc_theme()} with no arguments.}
 A \code{ggplot2} plot object
 }
 \description{
-Plot a dependent variable versus concentration
+Unlike \code{\link[=plot_dvtime]{plot_dvtime()}} and \code{\link[=plot_gof]{plot_gof()}}, this function does not filter dose
+rows internally. Pre-filter the input to observation rows (typically by
+\code{CMT} or \code{EVID == 0}) before calling — see the example below.
 }
 \examples{
 data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
-data <- df_addn(dplyr::mutate(data_sad_pd, Dose = DOSE), grp_var = Dose, sep = "mg")
+data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 
 }
+\seealso{
+Other exploratory analysis: 
+\code{\link{plot_dvconc_theme}()},
+\code{\link{plot_dvtime}()},
+\code{\link{plot_dvtime_theme}()}
+}
+\concept{exploratory analysis}

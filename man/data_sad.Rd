@@ -5,21 +5,21 @@
 \alias{data_sad}
 \title{Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single Ascending Dose Study}
 \format{
-\subsection{\code{data.frame} a data frame with 720 rows and 23 columns:}{
+\subsection{\code{data.frame} a data frame with 1404 rows and 25 columns:}{
 
 \describe{
-\item{LINE}{Line number }
 \item{ID}{NONMEM subject identifier}
 \item{TIME}{Actual time since first dose (units: hours)}
 \item{NTIME}{Nominal time since first dose (units: hours)}
 \item{NDAY}{Nominal study day (units: days)}
 \item{DOSE}{Nominal dose assignment (units: mg)}
-\item{AMT}{Actual dose amount administrered (units: mg)}
+\item{AMT}{Actual dose amount administered (units: mg)}
 \item{EVID}{NONMEM-specific event identifier}
 \item{ODV}{Dependent variable in original units (units: ng/mL cmt=2, \% cmt=3)}
 \item{LDV}{Log-transformed dependent variable (units: log(ng/mL) cmt=2, \% cmt=3)}
 \item{CFB}{Dependent variable change from baseline (units: \%)}
 \item{CONC}{Time-matched Observed Drug Concentration with BLQ imputed to zero (units: ng/mL)}
+\item{LINE}{Line number}
 \item{CMT}{NONMEM-specific compartment variable (values: 1=dose, 2=plasma concentration, 3=response)}
 \item{MDV}{NONMEM-specific missing dependent variable indicator}
 \item{BLQ}{Concentration below the lower limit of quantification flag (values: -1=pre-dose BLQ, 0=not BLQ, 1=post-dose BLQ)}
@@ -28,12 +28,11 @@
 \item{SEXF}{Subject of female sex (values: 0=male, 1=female)}
 \item{RACE}{Subject race}
 \item{AGEBL}{Subject age at baseline (units: years)}
-\item{WTBL}{Subject body weight at baseline (units:kg)}
+\item{WTBL}{Subject body weight at baseline (units: kg)}
 \item{SCRBL}{Subject serum creatinine at baseline (units: g/dL)}
 \item{CRCLBL}{Subject creatinine clearance at baseline (units: mL/min)}
 \item{USUBJID}{Study subject identifier}
 \item{PART}{Study part}
-...
 }
 }
 }

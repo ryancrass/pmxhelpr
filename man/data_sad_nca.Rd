@@ -5,7 +5,7 @@
 \alias{data_sad_nca}
 \title{Example NCA Parameter Dataset Output from PKNCA}
 \format{
-\subsection{\code{data.frame} a data frame with 720 rows and 23 columns:}{
+\subsection{\code{data.frame} a data frame with 648 rows and 11 columns:}{
 
 \describe{
 \item{ID}{NONMEM subject identifier}
@@ -19,7 +19,6 @@
 \item{units_dose}{Dose units}
 \item{units_conc}{Concentration units}
 \item{units_time}{Time units}
-...
 }
 }
 }

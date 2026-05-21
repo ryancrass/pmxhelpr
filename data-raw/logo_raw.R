@@ -14,7 +14,7 @@ simout <- data_sad %>%
   filter(DOSE %in% c(10, 50, 100, 200)) %>%
   df_mrgsim_replicate(model = model, replicates = 100,
                               output_vars = c(DV = "ODV"),
-                              num_vars = c("CMT", "EVID", "MDV", "NTIME", "LLOQ", "WTBL", "FOOD"))
+                              carry_out = c("LLOQ", "WTBL", "FOOD"))
 
 
 #####Plot VPC#####
@@ -23,11 +23,11 @@ vpc_theme <-  new_vpc_theme(list(
   sim_median_fill = "white", sim_median_alpha = 0.5,
   bin_separators_color = NA))
 
-vpc_plot <- plot_vpc_exactbins(
+vpc_plot <- plot_vpc_cont(
   sim = simout,
   pcvpc = TRUE,
   pi = c(0.05, 0.95),
-  ci = c(0.05, 0.95),
+  ci = 0.90,
   log_y = TRUE,
   vpc_theme = vpc_theme)+
   theme_classic()+

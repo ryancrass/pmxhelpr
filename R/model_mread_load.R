@@ -6,6 +6,7 @@
 #' @param model Model file name. Must be a string.
 #' @param ... Additional arguments passed to [mrgsolve::mread_cache()].
 #'
+#' @family mrgsolve wrappers
 #' @return An `mrgsolve` model object.
 #' @export model_mread_load
 #'

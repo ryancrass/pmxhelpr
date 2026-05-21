@@ -3,6 +3,6 @@ bibentry(
   title    = "pmxhelpr: an R package of helper functions for pharmacometrics applications",
   author   = person("Ryan L. Crass"),
   address  = "Ann Arbor, Michigan, United States",
-  year     = 2024,
+  year     = format(Sys.Date(), "%Y"),
   url      = "https://github.com/ryancrass/pmxhelpr"
 )

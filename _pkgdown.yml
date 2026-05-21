@@ -2,3 +2,119 @@ url: https://ryancrass.github.io/pmxhelpr/
 template:
   bootstrap: 5
 
+repo:
+  url:
+    home: https://github.com/ryancrass/pmxhelpr/
+    source: https://github.com/ryancrass/pmxhelpr/blob/main/
+    issue: https://github.com/ryancrass/pmxhelpr/issues/
+    user: https://github.com/
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - matches("getting-started")
+      - matches("articles/eda-pk-pkpd-workflow")
+      - matches("articles/gof-diagnostics")
+      - matches("articles/vpc-workflow")
+      - matches("articles/doseprop-workflow")
+      - matches("articles/plot-themes")
+
+reference:
+  - title: Plot Functions
+    desc: Top-level functions returning a `ggplot` object.
+    contents:
+      - plot_dvtime
+      - plot_dvconc
+      - plot_gof
+      - plot_vpc_cont
+      - plot_vpc_cens
+      - plot_doseprop
+      - plot_vpc_legend
+
+  - title: Plot Builders
+    desc: Lower-level renderers that draw plots from precomputed stats objects.
+    contents:
+      - plot_build_vpc
+      - plot_build_doseprop
+
+  - title: Theme Factories
+    desc: Per-plot-family factories that return default theme objects for the `theme` argument.
+    contents:
+      - plot_dvtime_theme
+      - plot_dvconc_theme
+      - plot_gof_theme
+      - plot_doseprop_theme
+      - plot_vpc_theme
+
+  - title: Element Constructors
+    desc: Typed constructors for `theme` overrides; map to `ggplot2` geom aesthetics.
+    contents:
+      - pmx_point
+      - pmx_line
+      - pmx_ribbon
+      - pmx_errorbar
+      - pmx_trend
+      - pmx_style
+      - pmx_color
+
+  - title: Layer Visibility
+    desc: Constructors for the `shown` argument of plot functions.
+    contents:
+      - plot_vpc_shown
+      - plot_gof_shown
+
+  - title: VPC Statistics
+    desc: Compute observed and simulated quantile summaries for VPC plotting.
+    contents:
+      - df_vpcstats
+
+  - title: Dose-Proportionality Statistics
+    desc: Power law (log-log) regression helpers.
+    contents:
+      - df_doseprop
+
+  - title: Vectorized Helpers
+    desc: Vectorized utilities intended for use inside `dplyr::mutate()`.
+    contents:
+      - var_addn
+      - var_dosenorm
+      - var_predcorr
+
+  - title: mrgsolve Wrappers
+    desc: Convenience wrappers around `mrgsolve` model loading and simulation.
+    contents:
+      - model_mread_load
+      - df_mrgsim_replicate
+      - df_mrgsim_addpred
+
+  - title: S3 Class System
+    desc: Predicates, constructors, operators, and methods for the shared `pmx_stats` / `pmx_theme` base classes and their `vpc_stats`, `doseprop_stats`, and `pmx_element` siblings.
+    contents:
+      - pmx_stats
+      - pmx_theme
+      - is_pmx_stats
+      - is_pmx_vpc_plot
+      - is_vpc_stats
+      - is_doseprop_stats
+      - is_pmx_element
+      - is_pmx_theme
+      - "`+.pmx_vpc_plot`"
+      - "`+.pmx_theme`"
+      - "`+.pmx_element`"
+      - print.pmx_stats
+      - summary.pmx_stats
+      - as.data.frame.pmx_stats
+      - print.vpc_stats
+      - summary.vpc_stats
+      - print.doseprop_stats
+      - summary.doseprop_stats
+      - print.pmx_element
+      - print.pmx_theme
+
+  - title: Datasets
+    desc: Internal example datasets used in vignettes and worked examples.
+    contents:
+      - data_sad
+      - data_sad_nca
+      - data_sad_pkfit

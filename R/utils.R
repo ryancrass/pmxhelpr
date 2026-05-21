@@ -85,35 +85,35 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
   }
 
   data <- data |>
-    dplyr::mutate(LOQ = ifelse(is.null(loq), LLOQ, loq))
+    dplyr::mutate(LOQ = ifelse(is.null(loq), .data$LLOQ, loq))
 
   if(loq_method == 1) {
     data <- data |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                           MDV == 0 ~ DV,
-                                           TIME <= 0 ~ 0,
-                                           TIME > 0 ~ 0.5 * LOQ))
+      dplyr::mutate(DV = dplyr::case_when(.data$EVID != 0 ~ NA_real_,
+                                           .data$MDV == 0 ~ .data$DV,
+                                           .data$TIME <= 0 ~ 0,
+                                           .data$TIME > 0 ~ 0.5 * .data$LOQ))
     for(v in pred_vars) {
       data <- data |>
         dplyr::mutate("{v}" := dplyr::case_when(
-          EVID != 0 ~ NA_real_,
-          TIME <= 0 ~ 0,
-          .data[[v]] >= LOQ ~ .data[[v]],
-          .data[[v]] < LOQ ~ 0.5 * LOQ))
+          .data$EVID != 0 ~ NA_real_,
+          .data$TIME <= 0 ~ 0,
+          .data[[v]] >= .data$LOQ ~ .data[[v]],
+          .data[[v]] < .data$LOQ ~ 0.5 * .data$LOQ))
     }
   }
 
   if(loq_method == 2) {
     data <- data |>
-      dplyr::mutate(DV = dplyr::case_when(EVID != 0 ~ NA_real_,
-                                           MDV == 0 ~ DV,
-                                           MDV == 1 ~ 0.5 * LOQ))
+      dplyr::mutate(DV = dplyr::case_when(.data$EVID != 0 ~ NA_real_,
+                                           .data$MDV == 0 ~ .data$DV,
+                                           .data$MDV == 1 ~ 0.5 * .data$LOQ))
     for(v in pred_vars) {
       data <- data |>
         dplyr::mutate("{v}" := dplyr::case_when(
-          EVID != 0 ~ NA_real_,
-          .data[[v]] >= LOQ ~ .data[[v]],
-          .data[[v]] < LOQ ~ 0.5 * LOQ))
+          .data$EVID != 0 ~ NA_real_,
+          .data[[v]] >= .data$LOQ ~ .data[[v]],
+          .data[[v]] < .data$LOQ ~ 0.5 * .data$LOQ))
     }
   }
 
@@ -198,7 +198,7 @@ df_prep_dvtime <- function(data,
     data[[col_var_str]] <- factor(data[[col_var_str]])
   }
 
-  data <- dplyr::filter(data, EVID == 0)
+  data <- dplyr::filter(data, .data$EVID == 0)
   check_single_cmt(data)
 
   pred_vars <- if (blq_mode == "all") {

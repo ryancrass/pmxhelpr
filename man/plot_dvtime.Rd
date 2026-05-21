@@ -6,12 +6,12 @@
 \usage{
 plot_dvtime(
   data,
-  dv_var = DV,
-  time_var = TIME,
-  ntime_var = NTIME,
+  dv_var = "DV",
+  time_var = "TIME",
+  ntime_var = "NTIME",
   col_var = NULL,
   id_var = NULL,
-  dose_var = DOSE,
+  dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),

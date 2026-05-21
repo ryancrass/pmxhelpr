@@ -93,7 +93,7 @@ plot_vpc_legend <- function(ci = 0.90,
   }
 
   df <- data.frame(x=NA_real_, y=NA_real_)
-  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(x,y))
+  plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(.data$x, .data$y))
 
   ## Named-vector construction for the manual scales: pairs each legend label
   ## (the data value mapped in the geom aes()) with its aesthetic value. Names
@@ -139,13 +139,13 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
                                              color = plist$sim_pi_line$color,
                                              linewidth = plist$sim_pi_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
                                                                      fill = sim_cilab_cent),
                                                         alpha = plist$sim_median_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
                                                              fill = sim_cilab_pi),
                                                 alpha = plist$sim_pi_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = x, ymin = y, xmax = x, ymax = y,
+    {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
                                                                   fill = sim_pilab),
                                                      alpha = plist$sim_pi_area$alpha, na.rm= TRUE)}+
     {if (isTRUE(nlist$obs_point)) ggplot2::scale_shape_manual(name = "Points",

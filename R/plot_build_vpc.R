@@ -303,7 +303,7 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
   ## Obs scatter.
   if (isTRUE(shown$obs_point) && nrow(obs) > 0) {
     plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = TIME),
+      ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = .data$TIME),
                           data = obs, inherit.aes = FALSE,
                           shape = vpctheme$obs_point$shape,
                           alpha = vpctheme$obs_point$alpha,

@@ -7,9 +7,9 @@
 df_doseprop(
   data,
   metrics,
-  metric_name_var = PPTESTCD,
-  metric_value_var = PPORRES,
-  dose_var = DOSE,
+  metric_name_var = "PPTESTCD",
+  metric_value_var = "PPORRES",
+  dose_var = "DOSE",
   method = "normal",
   ci = 0.9,
   sigdigits = 3

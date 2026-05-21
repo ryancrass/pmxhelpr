@@ -21,7 +21,7 @@
 #'
 df_mrgsim_addpred <- function(data,
                        model,
-                       output_var = IPRED,
+                       output_var = "IPRED",
                        ...){
 
   output_var_str <- resolve_var(rlang::enquo(output_var))

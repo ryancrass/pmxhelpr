@@ -96,8 +96,8 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
                                               SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
-  data <- dplyr::rename(data, !!BIN_MID_VAR := NTIME)
-  data <- dplyr::filter(data, EVID == 0)
+  data <- dplyr::rename(data, !!BIN_MID_VAR := "NTIME")
+  data <- dplyr::filter(data, .data$EVID == 0)
   check_single_cmt(data)
 
   loq_col <- if ("LOQ" %in% colnames(data)) data$LOQ else NULL
@@ -167,20 +167,20 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
   sim_quant <- stage1 |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
-      obs_n     = dplyr::first(obs_n),
-      obs_n_blq = dplyr::first(obs_n_blq),
-      sim_low_low  = stats::quantile(sim_low, probs = ci_bounds[1], na.rm = TRUE),
-      sim_low_med  = stats::quantile(sim_low, probs = 0.5,          na.rm = TRUE),
-      sim_low_hi   = stats::quantile(sim_low, probs = ci_bounds[2], na.rm = TRUE),
-      sim_med_low  = stats::quantile(sim_med, probs = ci_bounds[1], na.rm = TRUE),
-      sim_med_med  = stats::quantile(sim_med, probs = 0.5,          na.rm = TRUE),
-      sim_med_hi   = stats::quantile(sim_med, probs = ci_bounds[2], na.rm = TRUE),
-      sim_hi_low   = stats::quantile(sim_hi,  probs = ci_bounds[1], na.rm = TRUE),
-      sim_hi_med   = stats::quantile(sim_hi,  probs = 0.5,          na.rm = TRUE),
-      sim_hi_hi    = stats::quantile(sim_hi,  probs = ci_bounds[2], na.rm = TRUE),
-      sim_prop_blq_low = stats::quantile(sim_prop_blq, probs = ci_bounds[1], na.rm = TRUE),
-      sim_prop_blq_med = stats::quantile(sim_prop_blq, probs = 0.5,          na.rm = TRUE),
-      sim_prop_blq_hi  = stats::quantile(sim_prop_blq, probs = ci_bounds[2], na.rm = TRUE),
+      obs_n     = dplyr::first(.data$obs_n),
+      obs_n_blq = dplyr::first(.data$obs_n_blq),
+      sim_low_low  = stats::quantile(.data$sim_low, probs = ci_bounds[1], na.rm = TRUE),
+      sim_low_med  = stats::quantile(.data$sim_low, probs = 0.5,          na.rm = TRUE),
+      sim_low_hi   = stats::quantile(.data$sim_low, probs = ci_bounds[2], na.rm = TRUE),
+      sim_med_low  = stats::quantile(.data$sim_med, probs = ci_bounds[1], na.rm = TRUE),
+      sim_med_med  = stats::quantile(.data$sim_med, probs = 0.5,          na.rm = TRUE),
+      sim_med_hi   = stats::quantile(.data$sim_med, probs = ci_bounds[2], na.rm = TRUE),
+      sim_hi_low   = stats::quantile(.data$sim_hi,  probs = ci_bounds[1], na.rm = TRUE),
+      sim_hi_med   = stats::quantile(.data$sim_hi,  probs = 0.5,          na.rm = TRUE),
+      sim_hi_hi    = stats::quantile(.data$sim_hi,  probs = ci_bounds[2], na.rm = TRUE),
+      sim_prop_blq_low = stats::quantile(.data$sim_prop_blq, probs = ci_bounds[1], na.rm = TRUE),
+      sim_prop_blq_med = stats::quantile(.data$sim_prop_blq, probs = 0.5,          na.rm = TRUE),
+      sim_prop_blq_hi  = stats::quantile(.data$sim_prop_blq, probs = ci_bounds[2], na.rm = TRUE),
       .groups = "drop"
     )
   if (!isTRUE(has_loq)) {
@@ -303,8 +303,8 @@ df_vpccompute <- function(data,
   if ("CMT" %in% colnames(data_pc)) pc_group_vars <- c(bin_var, "CMT", strat_var)
   data_pc <- data_pc |>
     dplyr::group_by(dplyr::across(dplyr::all_of(pc_group_vars))) |>
-    dplyr::mutate(OBSDV = var_predcorr(OBSDV, PRED, lower_bound),
-                  SIMDV = var_predcorr(SIMDV, PRED, lower_bound)) |>
+    dplyr::mutate(OBSDV = var_predcorr(.data$OBSDV, .data$PRED, lower_bound),
+                  SIMDV = var_predcorr(.data$SIMDV, .data$PRED, lower_bound)) |>
     dplyr::ungroup()
   ## Pass has_loq = FALSE for pc so compute_vpcstat doesn't emit
   ## sim_prop_blq_* (LOQ has no meaning on the pc scale).
@@ -342,7 +342,7 @@ df_vpccompute <- function(data,
   data_full <- data_std
   data_full[["PC_OBSDV"]] <- data_pc$OBSDV
   obs <- data_full |>
-    dplyr::filter(.data[[irep_name]] == 1 & MDV == 0)
+    dplyr::filter(.data[[irep_name]] == 1 & .data$MDV == 0)
 
   pmx_stats(
     stats  = stats,

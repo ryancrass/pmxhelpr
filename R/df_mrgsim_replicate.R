@@ -43,7 +43,7 @@
 #'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus any input
 #'    columns listed in `carry_out` / `recover`.
 #'
-#' @importFrom rlang := %||%
+#' @importFrom rlang := %||% .data
 #' @export df_mrgsim_replicate
 #'
 #' @examples
@@ -66,13 +66,13 @@
 df_mrgsim_replicate <- function(data,
                     model,
                     replicates,
-                    dv_var = DV,
-                    time_var = TIME,
-                    ntime_var = NTIME,
-                    pred_var = PRED,
-                    ipred_var = IPRED,
-                    sim_dv_var = DV,
-                    irep_name = SIM,
+                    dv_var = "DV",
+                    time_var = "TIME",
+                    ntime_var = "NTIME",
+                    pred_var = "PRED",
+                    ipred_var = "IPRED",
+                    sim_dv_var = "DV",
+                    irep_name = "SIM",
                     seed = 123456789,
                     parallel = FALSE,
                     ...) {
@@ -147,8 +147,8 @@ df_mrgsim_replicate <- function(data,
     dplyr::rename(dplyr::any_of(c(PRED  = pred_var_str,
                                   IPRED = ipred_var_str,
                                   SIMDV = sim_dv_var_str))) |>
-    dplyr::select(ID, TIME, NTIME,
-                  PRED, IPRED, SIMDV, OBSDV,
+    dplyr::select("ID", "TIME", "NTIME",
+                  "PRED", "IPRED", "SIMDV", "OBSDV",
                   dplyr::everything())
 
   return(simout)

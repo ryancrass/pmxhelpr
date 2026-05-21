@@ -6,8 +6,8 @@
 \usage{
 plot_dvconc(
   data,
-  dv_var = DV,
-  idv_var = CONC,
+  dv_var = "DV",
+  idv_var = "CONC",
   col_var = NULL,
   col_trend = FALSE,
   loess = TRUE,

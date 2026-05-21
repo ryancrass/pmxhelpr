@@ -30,7 +30,7 @@ add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
 
   if (cent == "none") return(plot)
 
-  mapping <- ggplot2::aes(x = NTIME, y = .data[[y_var]])
+  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]])
 
   is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
   stat_fun <- if (is_mean) "mean" else "median"
@@ -110,7 +110,7 @@ add_cent_layers_manual <- function(plot, cent, y_var, point_el, line_el, eb_el,
 
   if (cent == "none") return(plot)
 
-  mapping <- ggplot2::aes(x = NTIME, y = .data[[y_var]], color = color_aes)
+  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]], color = color_aes)
 
   is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
   stat_fun <- if (is_mean) "mean" else "median"
@@ -196,10 +196,10 @@ add_obs_layers <- function(plot, id_var_str, point_el, line_el,
 
   if (!is.null(id_var_str)) {
     line_mapping <- if (color_mapped) {
-      ggplot2::aes(x = TIME, y = DV, color = .data[[col_var_str]],
+      ggplot2::aes(x = .data$TIME, y = .data$DV, color = .data[[col_var_str]],
                    group = .data[[id_var_str]])
     } else {
-      ggplot2::aes(x = TIME, y = DV, group = .data[[id_var_str]])
+      ggplot2::aes(x = .data$TIME, y = .data$DV, group = .data[[id_var_str]])
     }
     plot <- plot + build_layer(ggplot2::geom_line,
       args = list(mapping = line_mapping,
@@ -241,7 +241,7 @@ add_obs_layers_manual <- function(plot, id_var_str, point_el, line_el, color_aes
   )
 
   if (!is.null(id_var_str)) {
-    line_aes <- ggplot2::aes(x = TIME, y = DV, color = color_aes,
+    line_aes <- ggplot2::aes(x = .data$TIME, y = .data$DV, color = color_aes,
                              group = .data[[id_var_str]])
     plot <- plot + ggplot2::geom_line(
       mapping   = line_aes,

@@ -4,7 +4,7 @@
 \alias{df_mrgsim_addpred}
 \title{Add population predictions (\code{PRED}) to a data.frame}
 \usage{
-df_mrgsim_addpred(data, model, output_var = IPRED, ...)
+df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
 }
 \arguments{
 \item{data}{Input dataset.}

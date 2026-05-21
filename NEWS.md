@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.5.0
 
 This release simplifies plotting function interfaces, harmonizes naming across
 the package, replaces the flat theme list with a system of theme and element

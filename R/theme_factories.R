@@ -167,6 +167,39 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
 }
 
 
+#' Forest plot theme
+#'
+#' Constructor and factory for `plot_forest` plot aesthetics.
+#' Call with no arguments to view defaults. Pass element overrides to customize.
+#'
+#' @param point Point aesthetics for the central estimate. See [pmx_point()].
+#' @param errorbar Confidence-interval line aesthetics (rendered as a horizontal
+#'   `geom_linerange`; the element's `width` field is unused). See [pmx_errorbar()].
+#' @param ref_line Vertical no-effect reference line aesthetics. See [pmx_line()].
+#' @param ref_band Shaded equivalence-interval ribbon aesthetics. See [pmx_ribbon()].
+#'
+#' @family forest plot
+#' @return A named list of theme elements
+#' @export
+#'
+#' @examples
+#' plot_forest_theme()
+#' plot_forest_theme(point = pmx_point(shape = 18, size = 3))
+#' plot_forest_theme(ref_band = pmx_ribbon(fill = "skyblue", alpha = 0.2))
+plot_forest_theme <- function(point = NULL, errorbar = NULL,
+                              ref_line = NULL, ref_band = NULL) {
+  defaults <- list(
+    point    = pmx_point(shape = 16, size = 2, alpha = 1, color = "black"),
+    errorbar = pmx_errorbar(linewidth = 0.6, linetype = 1, alpha = 1, color = "black"),
+    ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1, color = "grey40"),
+    ref_band = pmx_ribbon(fill = "grey80", alpha = 0.3, color = NA)
+  )
+  user <- compact(list(point = point, errorbar = errorbar,
+                       ref_line = ref_line, ref_band = ref_band))
+  pmx_theme(merge_theme(user, defaults), subclass = "plot_forest_theme")
+}
+
+
 #' VPC plot theme
 #'
 #' Constructor and factory for `plot_vpc_cont` plot aesthetics.

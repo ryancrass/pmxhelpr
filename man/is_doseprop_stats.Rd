@@ -28,10 +28,10 @@ is_doseprop_stats(stats)             # TRUE
 is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame
 }
 \seealso{
-Other dose proportionality: 
-\code{\link{df_doseprop}()},
-\code{\link{plot_build_doseprop}()},
-\code{\link{plot_doseprop}()},
-\code{\link{plot_doseprop_theme}()}
+Other dose proportionality:
+\code{\link[=df_doseprop]{df_doseprop()}},
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}},
+\code{\link[=plot_doseprop]{plot_doseprop()}},
+\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}
 }
 \concept{dose proportionality}

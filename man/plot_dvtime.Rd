@@ -99,9 +99,9 @@ plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc}()},
-\code{\link{plot_dvconc_theme}()},
-\code{\link{plot_dvtime_theme}()}
+Other exploratory analysis:
+\code{\link[=plot_dvconc]{plot_dvconc()}},
+\code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}},
+\code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}
 }
 \concept{exploratory analysis}

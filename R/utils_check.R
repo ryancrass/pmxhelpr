@@ -236,3 +236,24 @@ check_single_cmt <- function(data, name = "data") {
   ))
   invisible(NULL)
 }
+
+check_forest_args <- function(statistic, ci, sigdigits) {
+  if (!statistic %in% c("median", "mean", "geo_mean")) {
+    rlang::abort(message = 'argument `statistic` must be `median`, `mean`, or `geo_mean`')
+  }
+  if (!is.numeric(ci) || length(ci) != 1L || is.na(ci) || ci <= 0 || ci >= 1) {
+    rlang::abort(message = "argument `ci` must be a single numeric value between 0 and 1")
+  }
+  check_integer(sigdigits, "sigdigits")
+}
+
+check_ref_band <- function(ref_band) {
+  if (is.null(ref_band)) return(invisible(NULL))
+  if (!is.numeric(ref_band) || length(ref_band) != 2L || any(is.na(ref_band))) {
+    rlang::abort(message = "argument `ref_band` must be a length-2 numeric vector with no NAs")
+  }
+  if (ref_band[1] >= ref_band[2]) {
+    rlang::abort(message = "argument `ref_band` must be ordered: ref_band[1] < ref_band[2]")
+  }
+  invisible(NULL)
+}

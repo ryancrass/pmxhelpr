@@ -27,8 +27,8 @@ plot_gof_shown()
 plot_gof_shown(pred = FALSE)
 }
 \seealso{
-Other goodness-of-fit: 
-\code{\link{plot_gof}()},
-\code{\link{plot_gof_theme}()}
+Other goodness-of-fit:
+\code{\link[=plot_gof]{plot_gof()}},
+\code{\link[=plot_gof_theme]{plot_gof_theme()}}
 }
 \concept{goodness-of-fit}

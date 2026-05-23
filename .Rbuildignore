@@ -17,3 +17,4 @@
 ^\.claude$
 ^vignettes/articles$
 ^Rplots\.pdf$
+^\.positai$

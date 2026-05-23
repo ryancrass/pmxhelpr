@@ -1,3 +1,46 @@
+# pmxhelpr (development version)
+
+## New features
+
+### New functions
+
+* `plot_forest()` generates a forest plot of test/reference comparisons
+  for visualizing PK/PD relationships and covariate impact across one or
+  more PK parameters. Returns a plain `ggplot` object (composable with
+  `+ geom_*()` / `+ theme()` / `+ coord_*()`); numeric `est [lo, hi]`
+  annotation is concatenated into y-axis tick labels rather than a side
+  table.
+* `df_forest()` aggregates replicate draws into per-group point and CI
+  estimates, or passes through pre-summarized rows. Returns a
+  `forest_stats` / `pmx_stats` container with canonical `est`, `lo`,
+  `hi`, `ci_label`, and `y_label` columns.
+* `plot_build_forest()` renders a forest ggplot from any `forest_stats`
+  container; most users still go through `plot_forest()`.
+* `plot_forest_theme()` is a theme factory for `plot_forest()` with keys
+  `point`, `errorbar`, `ref_line`, and `ref_band`.
+* `is_forest_stats()` predicate for the new `forest_stats` subclass.
+
+### New datasets
+
+* `data_sad_pkforest` and `data_sad_pkforest_sum` ship as long-form
+  example data for `df_forest()` / `plot_forest()`: per-replicate
+  bootstrap-PK draws and the corresponding pre-summarized median + 90%
+  CI of absolute and test/reference PK metrics across body-weight and
+  food-effect covariate scenarios. Column defaults of `df_forest()` /
+  `plot_forest()` (`metric`, `cov_var`, `cov_val`, `value`) match these
+  datasets for drop-in use.
+
+### Dual-mode pipelines (replot without recompute)
+
+* `plot_forest()` accepts the `forest_stats` container returned by
+  `df_forest()` directly. Pass a precomputed result to skip aggregation
+  and re-plot with different `theme`, `ref`, `ref_band`, or
+  `annotate_ci` settings. Pipeline arguments (`metric_var`,
+  `cov_name_var`, `cov_level_var`, `value_var`, `replicate_var`,
+  `est_var`, `lo_var`, `hi_var`, `statistic`, `ci`, `sigdigits`) cannot
+  be honored on the precomputed path and error with a clear message.
+
+
 # pmxhelpr 0.5.0
 
 This release simplifies plotting function interfaces, harmonizes naming across

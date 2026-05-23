@@ -26,10 +26,10 @@ plot_doseprop_theme(linear = pmx_trend(color = "red"))
 plot_doseprop_theme(obs = pmx_style(alpha = 0.3))
 }
 \seealso{
-Other dose proportionality: 
-\code{\link{df_doseprop}()},
-\code{\link{is_doseprop_stats}()},
-\code{\link{plot_build_doseprop}()},
-\code{\link{plot_doseprop}()}
+Other dose proportionality:
+\code{\link[=df_doseprop]{df_doseprop()}},
+\code{\link[=is_doseprop_stats]{is_doseprop_stats()}},
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}},
+\code{\link[=plot_doseprop]{plot_doseprop()}}
 }
 \concept{dose proportionality}

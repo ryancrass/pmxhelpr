@@ -58,8 +58,8 @@ plot_gof_theme(cent_color = pmx_color(pred = "purple"))
 plot_gof_theme(cent = pmx_style(alpha = 0.8))
 }
 \seealso{
-Other goodness-of-fit: 
-\code{\link{plot_gof}()},
-\code{\link{plot_gof_shown}()}
+Other goodness-of-fit:
+\code{\link[=plot_gof]{plot_gof()}},
+\code{\link[=plot_gof_shown]{plot_gof_shown()}}
 }
 \concept{goodness-of-fit}

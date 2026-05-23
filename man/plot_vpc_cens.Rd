@@ -117,14 +117,14 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
 cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 }
 \seealso{
-Other vpc: 
-\code{\link{df_vpcstats}()},
-\code{\link{is_pmx_vpc_plot}()},
-\code{\link{is_vpc_stats}()},
-\code{\link{plot_build_vpc}()},
-\code{\link{plot_vpc_cont}()},
-\code{\link{plot_vpc_legend}()},
-\code{\link{plot_vpc_shown}()},
-\code{\link{plot_vpc_theme}()}
+Other vpc:
+\code{\link[=df_vpcstats]{df_vpcstats()}},
+\code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
+\code{\link[=is_vpc_stats]{is_vpc_stats()}},
+\code{\link[=plot_build_vpc]{plot_build_vpc()}},
+\code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
+\code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
+\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}
 }
 \concept{vpc}

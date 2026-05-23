@@ -52,9 +52,9 @@ plot_dvtime_theme(obs_point = pmx_point(size = 2), ref_line = pmx_line(linetype 
 plot_dvtime_theme(obs = pmx_style(alpha = 0.3))
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc}()},
-\code{\link{plot_dvconc_theme}()},
-\code{\link{plot_dvtime}()}
+Other exploratory analysis:
+\code{\link[=plot_dvconc]{plot_dvconc()}},
+\code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}},
+\code{\link[=plot_dvtime]{plot_dvtime()}}
 }
 \concept{exploratory analysis}

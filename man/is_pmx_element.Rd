@@ -26,8 +26,8 @@ is_pmx_element(list(shape = 1))          # FALSE
 inherits(pmx_point(), "pmx_point")       # TRUE -- specific-type check
 }
 \seealso{
-Other pmx theme class: 
-\code{\link{is_pmx_theme}()},
-\code{\link{pmx_theme}()}
+Other pmx theme class:
+\code{\link[=is_pmx_theme]{is_pmx_theme()}},
+\code{\link[=pmx_theme]{pmx_theme()}}
 }
 \concept{pmx theme class}

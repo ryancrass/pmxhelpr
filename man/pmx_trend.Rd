@@ -33,12 +33,12 @@ Trend line aesthetics (dvconc loess/linear)
 pmx_trend(linewidth = 1.2, color = "darkblue", se_color = "lightgrey")
 }
 \seealso{
-Other element constructors: 
-\code{\link{pmx_color}()},
-\code{\link{pmx_errorbar}()},
-\code{\link{pmx_line}()},
-\code{\link{pmx_point}()},
-\code{\link{pmx_ribbon}()},
-\code{\link{pmx_style}()}
+Other element constructors:
+\code{\link[=pmx_color]{pmx_color()}},
+\code{\link[=pmx_errorbar]{pmx_errorbar()}},
+\code{\link[=pmx_line]{pmx_line()}},
+\code{\link[=pmx_point]{pmx_point()}},
+\code{\link[=pmx_ribbon]{pmx_ribbon()}},
+\code{\link[=pmx_style]{pmx_style()}}
 }
 \concept{element constructors}

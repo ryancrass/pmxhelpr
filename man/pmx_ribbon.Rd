@@ -34,12 +34,12 @@ interval and median CI ribbons in VPC plots.
 pmx_ribbon(fill = "skyblue", alpha = 0.3)
 }
 \seealso{
-Other element constructors: 
-\code{\link{pmx_color}()},
-\code{\link{pmx_errorbar}()},
-\code{\link{pmx_line}()},
-\code{\link{pmx_point}()},
-\code{\link{pmx_style}()},
-\code{\link{pmx_trend}()}
+Other element constructors:
+\code{\link[=pmx_color]{pmx_color()}},
+\code{\link[=pmx_errorbar]{pmx_errorbar()}},
+\code{\link[=pmx_line]{pmx_line()}},
+\code{\link[=pmx_point]{pmx_point()}},
+\code{\link[=pmx_style]{pmx_style()}},
+\code{\link[=pmx_trend]{pmx_trend()}}
 }
 \concept{element constructors}

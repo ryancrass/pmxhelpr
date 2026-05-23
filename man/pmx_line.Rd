@@ -26,12 +26,12 @@ spaghetti lines, and central tendency lines across all plot types.
 pmx_line(linewidth = 1, linetype = "dashed", color = "red")
 }
 \seealso{
-Other element constructors: 
-\code{\link{pmx_color}()},
-\code{\link{pmx_errorbar}()},
-\code{\link{pmx_point}()},
-\code{\link{pmx_ribbon}()},
-\code{\link{pmx_style}()},
-\code{\link{pmx_trend}()}
+Other element constructors:
+\code{\link[=pmx_color]{pmx_color()}},
+\code{\link[=pmx_errorbar]{pmx_errorbar()}},
+\code{\link[=pmx_point]{pmx_point()}},
+\code{\link[=pmx_ribbon]{pmx_ribbon()}},
+\code{\link[=pmx_style]{pmx_style()}},
+\code{\link[=pmx_trend]{pmx_trend()}}
 }
 \concept{element constructors}

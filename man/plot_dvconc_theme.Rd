@@ -36,9 +36,9 @@ plot_dvconc_theme(loess = pmx_trend(color = "red"))
 plot_dvconc_theme(obs = pmx_style(alpha = 0.3))
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc}()},
-\code{\link{plot_dvtime}()},
-\code{\link{plot_dvtime_theme}()}
+Other exploratory analysis:
+\code{\link[=plot_dvconc]{plot_dvconc()}},
+\code{\link[=plot_dvtime]{plot_dvtime()}},
+\code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}
 }
 \concept{exploratory analysis}

@@ -92,6 +92,12 @@ the prefix indicates what the function returns:
     data with exact time bins
   - `plot_vpc_legend()` — legend for a VPC plot
 
+### Model Application
+
+- Forest Plots:
+  - `df_forest()` — Forest plot summary statistics
+  - `plot_forest()` — Forest plot of covariate impact
+
 ### Theme System
 
 Plot aesthetics are controlled through theme factories and element
@@ -179,6 +185,10 @@ workflow articles for worked examples.
   analysis (NCA)
 - `data_sad_pkfit` — `data_sad` with individual (IPRED) and population
   (PRED) PK model predictions
+- `data_sad_forest` — `data_sad` PK model simulation metrics by
+  replicate for a forest plot
+- `data_sad_forest_sum` — `data_sad` Summary statistics for
+  visualization in a forest plot
 
 **Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
 (original DV), to note that it is provided in original units from the
@@ -332,4 +342,30 @@ plot_obj_leg
 
 plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))
 plot_obj_food_wleg
+```
+
+## Example Forest Plot Workflow
+
+This is a basic example which illustrates a forest plot workflow using
+pmxhelpr:
+
+``` r
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+library(mrgsolve)
+library(patchwork)
+library(withr)
+
+#Read View Internal Datasets
+glimpse(data_sad_pkforest)
+glimpse(data_sad_pkforest_sum)
+
+#Generate the summary dataset using df_forest()
+sum <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+
+#Plot Ratios
+ratio_metrics <- filter(data_sad_pkforest, metric %in% c("AUCRATIO", "CMAXRATIO"))
+plot_forest(ratio_metrics, replicate_var = "SIM", ref_band = c(0.8, 1.25)) + 
+scale_x_continuous(limits = c(0, 2.6), breaks = c(0, 0.5, 1, 1.5, 2, 2.5))
 ```

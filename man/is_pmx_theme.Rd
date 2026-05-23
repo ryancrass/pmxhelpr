@@ -32,8 +32,8 @@ is_pmx_theme(list(obs_point = 1))                     # FALSE
 inherits(plot_vpc_theme(), "plot_vpc_theme")          # TRUE -- specific-type check
 }
 \seealso{
-Other pmx theme class: 
-\code{\link{is_pmx_element}()},
-\code{\link{pmx_theme}()}
+Other pmx theme class:
+\code{\link[=is_pmx_element]{is_pmx_element()}},
+\code{\link[=pmx_theme]{pmx_theme()}}
 }
 \concept{pmx theme class}

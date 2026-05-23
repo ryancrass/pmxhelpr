@@ -2,7 +2,10 @@
 
 ##Load Model Files
 pkmod <- mrgsolve::mread(system.file("models", "pkmodel.cpp", package="pmxhelpr"))
+pkmod_th <- mrgsolve::param(pkmod)@data %>% as.data.frame()
 pdmod <- mrgsolve::mread(system.file("models", "pdmodel.cpp", package="pmxhelpr"))
+pdmod_th <- mrgsolve::param(pdmod)
+
 
 #####Create `data_sad` internal NONMEM analysis-ready dataset for a SAD study#####
 
@@ -116,19 +119,19 @@ withr::with_seed(
   pdsimout <- df_mrgsim_replicate(data_sad_pk, pdmod, replicates = 1, dv_var = "ODV", carry_out = "LINE")
 )
 
-pd_data <- data_sad_pk %>%
-  filter(CMT == 2) %>%
-  left_join(select(pdsimout, LINE, IPRED, IPREDPK)) %>%
-  mutate(CMT = 3,
+pd_data <- data_sad_pk |>
+  dplyr::filter(CMT == 2) |>
+  dplyr::left_join(dplyr::select(pdsimout, LINE, IPRED, IPREDPK)) %>%
+  dplyr::mutate(CMT = 3,
          CONC = ifelse(is.na(ODV), 0 , ODV),
          ODV = IPRED,
          LDV = IPRED,
-         CFB = ODV-100) %>%
-  select(-IPRED, -IPREDPK)
+         CFB = ODV-100) |>
+  dplyr::select(-IPRED, -IPREDPK)
 
-data_sad <- bind_rows(data_sad_pk, pd_data) %>%
-  arrange(ID, TIME, CMT) %>%
-  select(ID:LDV,CFB, CONC, everything())
+data_sad <- dplyr::bind_rows(data_sad_pk, pd_data) %>%
+  dplyr::arrange(ID, TIME, CMT) %>%
+  dplyr::select(ID:LDV,CFB, CONC, everything())
 
 
 usethis::use_data(data_sad, overwrite = TRUE)
@@ -192,7 +195,97 @@ withr::with_seed(
 )
 
 data_sad_pkfit <- data_sad_pk %>%
-  left_join(select(pkfit, LINE, IPRED, PRED))
+  dplyr::left_join(dplyr::select(pkfit, LINE, IPRED, PRED))
 
 usethis::use_data(data_sad_pkfit, overwrite = TRUE)
 
+
+#####Create `data_sad_pkforest` internal dataset of PK model parameters bootstrapped
+
+#Identify parameter set
+pkmod_th_expand <- pkmod_th[rep(1, 500), ]
+
+pkmod_th_expand <- lapply(pkmod_th_expand, function(x) {
+  if(is.numeric(x)) {
+    return(x * runif(length(x), 1 - 0.2, 1 + 0.2))
+  }
+  return(x)
+}) |>
+  as.data.frame() |>
+  dplyr::mutate(PARSET = 1,
+         PARSET = cumsum(PARSET))
+
+# Identify simulation dataset
+forest_sim <- data.frame(
+  OID = 1:4,
+  TIME = 0,
+  AMT = 200,
+  CMT = 1,
+  EVID = 1,
+  WT = c(70, 70, 50, 90),
+  FOOD = c(0, 1, 0, 0),
+  II = 24,
+  SS = 1
+)
+
+parset_grid <- data.frame(OID = 1, ID = 1:500) |>
+  dplyr::bind_rows(data.frame(OID = 2, ID = 1:500)) |>
+  dplyr::bind_rows(data.frame(OID = 3, ID = 1:500)) |>
+  dplyr::bind_rows(data.frame(OID = 4, ID = 1:500))
+
+forest_sim <- dplyr::left_join(parset_grid, forest_sim)
+
+forest_grid <- mrgsolve::tgrid(start = 0, end = 24, delta = 0.1)
+
+# Run Simulation
+withr::with_seed(
+  seed = 987654321,
+  pkforest_fit <- mrgsolve::mrgsim_df(mrgsolve::zero_re(pkmod),
+                                      data = forest_sim,
+                                      idata = pkmod_th_expand,
+                                      tgrid = forest_grid,
+                                      carry_out = c("FOOD", "WT", "DOSE", "OID"),
+                                      obsonly = TRUE)
+)
+
+# Post-process Simulation
+pkforest_sum <- pkforest_fit |>
+  dplyr::rename(SIM = ID, ID = OID, WTBL = WT)|>
+  dplyr::group_by(ID, SIM, WTBL, FOOD) |>
+  dplyr::summarize(CMAX = max(IPRED),
+            CMIN = dplyr::last(IPRED),
+            AUC = PKNCA::pk.calc.auc.last(IPRED, TIME),
+            CAVG = AUC/24) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(SIM) |>
+  dplyr::mutate(CMAXRATIO = CMAX/CMAX[ID == 1],
+                CMINRATIO = CMIN/CMIN[ID == 1],
+                AUCRATIO = AUC/AUC[ID == 1],
+                CAVGRATIO = CAVG/CAVG[ID == 1]) |>
+  dplyr::ungroup()
+
+#Pivot and Join Labels
+
+id_cov_lookup <- data.frame(
+  ID     = c(1, 2, 3, 4),
+  cov_var    = c("REF", "FOOD", "WTBL", "WTBL"),
+  cov_val = c("REF","Fed", "50 kg", "90 kg")
+)
+
+data_sad_pkforest <- pkforest_sum |>
+  tidyr::pivot_longer(CMAX:CAVGRATIO, names_to = "metric", values_to = "value") |>
+  dplyr::left_join(id_cov_lookup) |>
+  dplyr::ungroup()
+
+
+# Summarize Simulation
+data_sad_pkforest_sum <- data_sad_pkforest |>
+  dplyr::group_by(ID, WTBL, FOOD, metric, cov_var, cov_val) |>
+  dplyr::summarise(P50 = median(value),
+                   P05 = unname(quantile(value, 0.05)),
+                   P95 = unname(quantile(value, 0.95))) |>
+  dplyr::ungroup()
+
+
+usethis::use_data(data_sad_pkforest, overwrite = TRUE)
+usethis::use_data(data_sad_pkforest_sum, overwrite = TRUE)

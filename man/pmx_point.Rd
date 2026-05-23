@@ -26,12 +26,12 @@ central tendency points across all plot types.
 pmx_point(shape = 1, size = 2, color = "blue")
 }
 \seealso{
-Other element constructors: 
-\code{\link{pmx_color}()},
-\code{\link{pmx_errorbar}()},
-\code{\link{pmx_line}()},
-\code{\link{pmx_ribbon}()},
-\code{\link{pmx_style}()},
-\code{\link{pmx_trend}()}
+Other element constructors:
+\code{\link[=pmx_color]{pmx_color()}},
+\code{\link[=pmx_errorbar]{pmx_errorbar()}},
+\code{\link[=pmx_line]{pmx_line()}},
+\code{\link[=pmx_ribbon]{pmx_ribbon()}},
+\code{\link[=pmx_style]{pmx_style()}},
+\code{\link[=pmx_trend]{pmx_trend()}}
 }
 \concept{element constructors}

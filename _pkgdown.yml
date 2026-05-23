@@ -30,6 +30,7 @@ reference:
       - plot_vpc_cont
       - plot_vpc_cens
       - plot_doseprop
+      - plot_forest
       - plot_vpc_legend
 
   - title: Plot Builders
@@ -37,6 +38,7 @@ reference:
     contents:
       - plot_build_vpc
       - plot_build_doseprop
+      - plot_build_forest
 
   - title: Theme Factories
     desc: Per-plot-family factories that return default theme objects for the `theme` argument.
@@ -45,6 +47,7 @@ reference:
       - plot_dvconc_theme
       - plot_gof_theme
       - plot_doseprop_theme
+      - plot_forest_theme
       - plot_vpc_theme
 
   - title: Element Constructors
@@ -74,6 +77,11 @@ reference:
     contents:
       - df_doseprop
 
+  - title: Forest Plot Statistics
+    desc: Test/reference comparison summaries for forest plots.
+    contents:
+      - df_forest
+
   - title: Vectorized Helpers
     desc: Vectorized utilities intended for use inside `dplyr::mutate()`.
     contents:
@@ -97,6 +105,7 @@ reference:
       - is_pmx_vpc_plot
       - is_vpc_stats
       - is_doseprop_stats
+      - is_forest_stats
       - is_pmx_element
       - is_pmx_theme
       - "`+.pmx_vpc_plot`"
@@ -109,6 +118,8 @@ reference:
       - summary.vpc_stats
       - print.doseprop_stats
       - summary.doseprop_stats
+      - print.forest_stats
+      - summary.forest_stats
       - print.pmx_element
       - print.pmx_theme
 
@@ -118,3 +129,5 @@ reference:
       - data_sad
       - data_sad_nca
       - data_sad_pkfit
+      - data_sad_pkforest
+      - data_sad_pkforest_sum

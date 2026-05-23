@@ -69,9 +69,9 @@ plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALS
 
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc_theme}()},
-\code{\link{plot_dvtime}()},
-\code{\link{plot_dvtime_theme}()}
+Other exploratory analysis:
+\code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}},
+\code{\link[=plot_dvtime]{plot_dvtime()}},
+\code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}
 }
 \concept{exploratory analysis}

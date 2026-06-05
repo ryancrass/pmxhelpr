@@ -15,7 +15,7 @@ plot_forest(
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
-  cov_name_ref = "REF",
+  cov_name_ref = "Reference",
   cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
@@ -65,20 +65,20 @@ quantiles. Default \code{0.9}.}
 \item{cov_name_ref}{Character scalar identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
 \code{cov_name_ref} are sorted to the top of the rendered plot (first facet
-row). Default \code{"REF"} (matches the bundled \code{data_sad_pkforest}
-convention). Pass \code{NULL} to disable REF-first sorting; rows then
+row). Default \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
+convention). Pass \code{NULL} to disable Reference-first sorting; rows then
 appear in data order. Not to be confused with \code{ref} in
 \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}, which is the numeric
 x-intercept of the no-effect vertical reference line.}
 
 \item{cov_level_ref}{Optional named atomic vector mapping \code{cov_name_var}
 values to the per-covariate reference label to display when the
-REF row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+Reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
 For example, \code{c(FOOD = "Fasted", WTBL = "70 kg")}. Default \code{NULL}
-(REF row renders in its own facet at the top, no dispersal).
+(Reference row renders in its own facet at the top, no dispersal).
 \code{df_forest()} builds the canonical \code{cov_ref} column inside
 \code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
-receive \code{NA} (those panels show no dispersed REF row). The
+receive \code{NA} (those panels show no dispersed Reference row). The
 mapping is stored in \code{config$cov_level_ref} for the renderer.
 
 Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
@@ -86,7 +86,7 @@ it is used directly (per-row reference labels) and \code{cov_level_ref} is
 ignored with an informational \code{message()}. This is the preferred form
 when reference labels can't be reduced to a single value per
 \code{cov_name_var} — for example, when a study has multiple dosing
-cohorts sharing one covariate dimension but different REF doses.}
+cohorts sharing one covariate dimension but different Reference doses.}
 
 \item{ref}{Numeric scalar specifying the x-intercept of the no-effect
 vertical reference line. Default \code{1} (the ratio-scale no-effect

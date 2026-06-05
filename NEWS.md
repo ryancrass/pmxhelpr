@@ -13,17 +13,17 @@
   a side table; the primary y-axis carries the covariate level only. Covariate name is a grouping dimension
   (`facet_grid` row with left-side strip label) and the designated
   reference row (controlled by the `cov_name_ref` argument, default
-  `"REF"`) always sorts to the top. Optionally, supply the `cov_level_ref`
+  `"Reference"`) always sorts to the top. Optionally, supply the `cov_level_ref`
   argument — a named vector mapping covariate names to their
   per-covariate reference labels (e.g.,
-  `c(FOOD = "Fasted", WTBL = "70 kg")`) — to disperse the REF row into
-  each non-REF panel under that label instead of rendering as a
+  `c(FOOD = "Fasted", WTBL = "70 kg")`) — to disperse the Reference row into
+  each non-Reference panel under that label instead of rendering as a
   standalone facet. Covariates not named in `cov_level_ref` show no
-  dispersed REF row in their panel. Within each panel, the
+  dispersed Reference row in their panel. Within each panel, the
   y-axis tick labels are auto-sorted: numeric-parseable labels (e.g.,
   `"50 kg"`, `"70 kg"`, `"90 kg"`) sort in ascending numerical order
   so the highest value lands at the top; non-numeric labels (e.g.,
-  `"Fasted"`, `"Fed"`) keep the reverse data-encounter order (REF row
+  `"Fasted"`, `"Fed"`) keep the reverse data-encounter order (Reference row
   on top). Select which exposure
   metric to render via the `metric` argument; if `stats` carries
   exactly one metric, it is picked automatically.

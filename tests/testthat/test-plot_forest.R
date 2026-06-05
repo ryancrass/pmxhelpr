@@ -1,3 +1,10 @@
+# data_sad_pkforest ships with a `cov_ref` column that auto-triggers the
+# dispersal path in df_forest(). Tests that exercise the no-`cov_ref` path
+# use this stripped copy.
+data_sad_pkforest_nocovref <- data_sad_pkforest
+data_sad_pkforest_nocovref$cov_ref <- NULL
+
+
 #####df_forest -- draws path#####
 
 ##Test Output
@@ -325,17 +332,17 @@ test_that("plot_build_forest() applies coord_cartesian(clip = 'off') and an exte
 #####plot_build_forest -- y-axis ordering#####
 
 test_that("Y axis factor levels sort numerically within numeric panels, rev-data-order within categorical", {
-  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  stats <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   # Expected per-panel ordering, concatenated in panel order:
-  # REF panel  → ["REF"]            (non-numeric, single row)
+  # Reference panel  → ["Reference"]      (non-numeric, single row)
   # FOOD panel → ["Fed"]            (non-numeric, single row)
   # WTBL panel → ["50 kg", "90 kg"] (numeric ascending; 90 ends up on top)
-  expect_equal(levels(p$data$y_label), c("REF", "Fed", "50 kg", "90 kg"))
+  expect_equal(levels(p$data$y_label), c("Reference", "Fed", "50 kg", "90 kg"))
   expect_false(any(grepl("\\[", levels(p$data$y_label))))
 })
 
-test_that("Numeric covariates with dispersal: ref value sorts in numerical order with non-REF rows", {
+test_that("Numeric covariates with dispersal: ref value sorts in numerical order with non-Reference rows", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   p <- plot_build_forest(stats, metric = "AUCRATIO")
@@ -441,9 +448,9 @@ test_that("plot_build_forest() applies the forest_panel variant (panel.ontop uns
 
 #####df_forest -- cov_name_ref#####
 
-test_that("cov_name_ref defaults to 'REF' and round-trips through config", {
+test_that("cov_name_ref defaults to 'Reference' and round-trips through config", {
   out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
-  expect_equal(out$config$cov_name_ref, "REF")
+  expect_equal(out$config$cov_name_ref, "Reference")
 })
 
 test_that("cov_name_ref can be overridden", {
@@ -460,7 +467,7 @@ test_that("cov_name_ref = NULL stores NULL in config", {
 
 test_that("check_forest_args() rejects malformed cov_name_ref", {
   expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
-                         cov_name_ref = c("REF", "Baseline")),
+                         cov_name_ref = c("Reference", "Baseline")),
                regexp = "must be a single non-empty character string")
   expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
                          cov_name_ref = NA_character_),
@@ -474,25 +481,25 @@ test_that("check_forest_args() rejects malformed cov_name_ref", {
 })
 
 
-#####plot_build_forest -- REF sorts to top#####
+#####plot_build_forest -- Reference sorts to top#####
 
-test_that("REF row sorts to the top via cov_name factor relevel", {
-  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+test_that("Reference row sorts to the top via cov_name factor relevel", {
+  stats <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_equal(levels(p$data$cov_var)[1], "REF")
+  expect_equal(levels(p$data$cov_var)[1], "Reference")
 })
 
 test_that("cov_name_ref with no matching row is silent and preserves data order", {
-  # data_sad_pkforest has cov_var levels c("REF", "FOOD", "WTBL"); "NOMATCH" hits none
-  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "NOMATCH")
+  # data_sad_pkforest has cov_var levels c("Reference", "FOOD", "WTBL"); "NOMATCH" hits none
+  stats <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM", cov_name_ref = "NOMATCH")
   expect_silent(p <- plot_build_forest(stats, metric = "AUCRATIO"))
   expect_false("NOMATCH" %in% levels(p$data$cov_var))
   expect_setequal(levels(p$data$cov_var),
                   unique(as.character(stats$stats$cov_var[stats$stats$metric == "AUCRATIO"])))
 })
 
-test_that("cov_name_ref = NULL preserves data order with no REF-first sort", {
-  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = NULL)
+test_that("cov_name_ref = NULL preserves data order with no Reference-first sort", {
+  stats <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM", cov_name_ref = NULL)
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_equal(levels(p$data$cov_var),
                unique(as.character(stats$stats$cov_var[stats$stats$metric == "AUCRATIO"])))
@@ -502,14 +509,14 @@ test_that("cov_name_ref = NULL preserves data order with no REF-first sort", {
 #####plot_forest -- cov_name_ref on pipeline path / precomputed path#####
 
 test_that("plot_forest() forwards cov_name_ref on the raw-data path", {
-  p <- plot_forest(data_sad_pkforest, replicate_var = "SIM",
-                   cov_name_ref = "REF", metric = "AUCRATIO")
-  expect_equal(levels(p$data$cov_var)[1], "REF")
+  p <- plot_forest(data_sad_pkforest_nocovref, replicate_var = "SIM",
+                   cov_name_ref = "Reference", metric = "AUCRATIO")
+  expect_equal(levels(p$data$cov_var)[1], "Reference")
 })
 
 test_that("plot_forest() aborts when cov_name_ref is passed on the precomputed path", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
-  expect_error(plot_forest(stats, cov_name_ref = "REF"),
+  expect_error(plot_forest(stats, cov_name_ref = "Reference"),
                regexp = "cannot accept pipeline arguments")
 })
 
@@ -517,21 +524,21 @@ test_that("plot_forest() aborts when cov_name_ref is passed on the precomputed p
 #####df_forest + plot_build_forest -- cov_level_ref dispersal#####
 
 test_that("df_forest() builds canonical cov_ref column from cov_level_ref and round-trips through config", {
-  out <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+  out <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM",
                    cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   expect_true("cov_ref" %in% colnames(out$stats))
   expect_equal(out$config$cov_level_ref, c(FOOD = "Fasted", WTBL = "70 kg"))
-  # FOOD rows get "Fasted", WTBL rows get "70 kg", REF rows get NA
+  # FOOD rows get "Fasted", WTBL rows get "70 kg", Reference rows get NA
   food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
   wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
-  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "REF"])
+  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "Reference"])
   expect_equal(food_ref, "Fasted")
   expect_equal(wtbl_ref, "70 kg")
   expect_true(all(is.na(ref_ref)))
 })
 
 test_that("df_forest() leaves cov_ref out of stats when cov_level_ref is NULL (default)", {
-  out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  out <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM")
   expect_false("cov_ref" %in% colnames(out$stats))
   expect_null(out$config$cov_level_ref)
 })
@@ -557,34 +564,34 @@ test_that("df_forest() rejects malformed cov_level_ref", {
 })
 
 test_that("cov_level_ref names absent from data are ignored (no error); existing names take effect", {
-  out <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+  out <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM",
                    cov_level_ref = c(FOOD = "Fasted", SEX = "Male"))
   # SEX is not in cov_var anywhere; FOOD rows still receive "Fasted"
   food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
   wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
   expect_equal(food_ref, "Fasted")
-  # WTBL not named in cov_level_ref → NA → no dispersed REF in that panel
+  # WTBL not named in cov_level_ref → NA → no dispersed Reference in that panel
   expect_true(all(is.na(wtbl_ref)))
 })
 
-test_that("plot_build_forest() disperses REF into each non-REF cov_name panel", {
+test_that("plot_build_forest() disperses Reference into each non-Reference cov_name panel", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  # REF panel is gone
-  expect_false("REF" %in% as.character(unique(p$data$cov_var)))
-  # FOOD panel carries the dispersed REF as cov_val == "Fasted"
+  # Reference panel is gone
+  expect_false("Reference" %in% as.character(unique(p$data$cov_var)))
+  # FOOD panel carries the dispersed Reference as cov_val == "Fasted"
   food_levels <- as.character(p$data$cov_val[p$data$cov_var == "FOOD"])
   expect_true("Fasted" %in% food_levels)
-  # WTBL panel carries the dispersed REF as cov_val == "70 kg"
+  # WTBL panel carries the dispersed Reference as cov_val == "70 kg"
   wtbl_levels <- as.character(p$data$cov_val[p$data$cov_var == "WTBL"])
   expect_true("70 kg" %in% wtbl_levels)
 })
 
-test_that("dispersed REF row inherits est/lo/hi from the original REF row", {
+test_that("dispersed Reference row inherits est/lo/hi from the original Reference row", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
-  ref_stats <- stats$stats[stats$stats$cov_var == "REF" &
+  ref_stats <- stats$stats[stats$stats$cov_var == "Reference" &
                            stats$stats$metric  == "AUCRATIO", ]
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   row_fasted <- p$data[p$data$cov_var == "FOOD" & p$data$cov_val == "Fasted", ]
@@ -593,7 +600,7 @@ test_that("dispersed REF row inherits est/lo/hi from the original REF row", {
   expect_equal(row_fasted$hi,  ref_stats$hi)
 })
 
-test_that("dispersed REF row sorts to top of its panel via y-axis factor order", {
+test_that("dispersed Reference row sorts to top of its panel via y-axis factor order", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   p <- plot_build_forest(stats, metric = "AUCRATIO")
@@ -603,7 +610,7 @@ test_that("dispersed REF row sorts to top of its panel via y-axis factor order",
   expect_gt(which(y_levels == "Fasted"), which(y_levels == "Fed"))
 })
 
-test_that("plot_build_forest() aborts when cov_level_ref set but no matching REF row exists for the metric", {
+test_that("plot_build_forest() aborts when cov_level_ref set but no matching Reference row exists for the metric", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
                      cov_name_ref = "NOMATCH")
@@ -616,14 +623,14 @@ test_that("plot_build_forest() aborts when cov_name_ref is NULL but cov_level_re
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
                      cov_name_ref = NULL)
   expect_error(plot_build_forest(stats, metric = "AUCRATIO"),
-               regexp = "cannot disperse REF row when `cov_name_ref` is NULL")
+               regexp = "cannot disperse the reference row when `cov_name_ref` is NULL")
 })
 
 test_that("plot_forest() forwards cov_level_ref on the raw-data path", {
   p <- plot_forest(data_sad_pkforest, replicate_var = "SIM",
                    cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
                    metric = "AUCRATIO")
-  expect_false("REF" %in% as.character(unique(p$data$cov_var)))
+  expect_false("Reference" %in% as.character(unique(p$data$cov_var)))
 })
 
 test_that("plot_forest() aborts when cov_level_ref is passed on the precomputed path", {
@@ -649,7 +656,7 @@ test_that("df_forest() draws path reads cov_ref from a column on `data`", {
   expect_null(out$config$cov_level_ref)
   food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
   wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
-  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "REF"])
+  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "Reference"])
   expect_equal(food_ref, "Fasted")
   expect_equal(wtbl_ref, "70 kg")
   expect_true(all(is.na(ref_ref)))
@@ -664,8 +671,8 @@ test_that("cov_ref column dispersal produces same dispersed structure as cov_lev
   p_arg <- plot_build_forest(stats_arg, metric = "AUCRATIO")
   # Same dispersed y-axis factor levels
   expect_equal(levels(p_col$data$y_label), levels(p_arg$data$y_label))
-  # REF panel dropped, Fasted in FOOD panel, 70 kg in WTBL panel
-  expect_false("REF" %in% as.character(unique(p_col$data$cov_var)))
+  # Reference panel dropped, Fasted in FOOD panel, 70 kg in WTBL panel
+  expect_false("Reference" %in% as.character(unique(p_col$data$cov_var)))
   expect_true ("Fasted" %in% as.character(p_col$data$cov_val[p_col$data$cov_var == "FOOD"]))
   expect_true ("70 kg"  %in% as.character(p_col$data$cov_val[p_col$data$cov_var == "WTBL"]))
 })
@@ -688,7 +695,7 @@ test_that("plot_build_forest() aborts when cov_ref column is present but cov_nam
   d <- attach_cov_ref(data_sad_pkforest)
   stats <- df_forest(d, replicate_var = "SIM", cov_name_ref = NULL)
   expect_error(plot_build_forest(stats, metric = "AUCRATIO"),
-               regexp = "cannot disperse REF row when `cov_name_ref` is NULL")
+               regexp = "cannot disperse the reference row when `cov_name_ref` is NULL")
 })
 
 test_that("non-character cov_ref column is coerced to character", {

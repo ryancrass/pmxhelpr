@@ -14,8 +14,8 @@
 \item{FOOD}{Co-administration with food (values: 0=fasted, 1=high-fat meal)}
 \item{metric}{PK exposure metric name — absolute (\code{CMAX}, \code{CMIN}, \code{AUC}, \code{CAVG}) or test/reference ratio (\code{CMAXRATIO}, \code{CMINRATIO}, \code{AUCRATIO}, \code{CAVGRATIO})}
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
-\item{cov_var}{Covariate column name (values: \code{REF}, \code{FOOD}, \code{WTBL})}
-\item{cov_val}{Covariate level label (values: \code{REF}, \code{Fed}, \verb{50 kg}, \verb{90 kg})}
+\item{cov_var}{Covariate column name (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
+\item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{90 kg})}
 }
 }
 }

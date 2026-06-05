@@ -41,19 +41,19 @@
 #' @param cov_name_ref Character scalar identifying the reference row(s) in the
 #'    `cov_name_var` column. Rows whose `cov_name_var` value equals
 #'    `cov_name_ref` are sorted to the top of the rendered plot (first facet
-#'    row). Default `"REF"` (matches the bundled `data_sad_pkforest`
-#'    convention). Pass `NULL` to disable REF-first sorting; rows then
+#'    row). Default `"Reference"` (matches the bundled `data_sad_pkforest`
+#'    convention). Pass `NULL` to disable Reference-first sorting; rows then
 #'    appear in data order. Not to be confused with `ref` in
 #'    [plot_build_forest()] / [plot_forest()], which is the numeric
 #'    x-intercept of the no-effect vertical reference line.
 #' @param cov_level_ref Optional named atomic vector mapping `cov_name_var`
 #'    values to the per-covariate reference label to display when the
-#'    REF row is dispersed into each panel (see [plot_build_forest()]).
+#'    Reference row is dispersed into each panel (see [plot_build_forest()]).
 #'    For example, `c(FOOD = "Fasted", WTBL = "70 kg")`. Default `NULL`
-#'    (REF row renders in its own facet at the top, no dispersal).
+#'    (Reference row renders in its own facet at the top, no dispersal).
 #'    `df_forest()` builds the canonical `cov_ref` column inside
 #'    `stats$stats` from this mapping; names absent from `cov_level_ref`
-#'    receive `NA` (those panels show no dispersed REF row). The
+#'    receive `NA` (those panels show no dispersed Reference row). The
 #'    mapping is stored in `config$cov_level_ref` for the renderer.
 #'
 #'    Alternative input mode: if `data` already carries a `cov_ref` column,
@@ -61,7 +61,7 @@
 #'    ignored with an informational `message()`. This is the preferred form
 #'    when reference labels can't be reduced to a single value per
 #'    `cov_name_var` — for example, when a study has multiple dosing
-#'    cohorts sharing one covariate dimension but different REF doses.
+#'    cohorts sharing one covariate dimension but different Reference doses.
 #'
 #' @family forest plot
 #' @return A `forest_stats` container (subclass of `pmx_stats`) with three
@@ -91,10 +91,10 @@
 #'   replicate_var = "SIM"
 #' )
 #'
-#' # Custom reference level (default is "REF")
-#' df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "REF")
+#' # Custom reference level (default is "Reference")
+#' df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "Reference")
 #'
-#' # Per-covariate reference labels (dispersed REF in each panel)
+#' # Per-covariate reference labels (dispersed Reference in each panel)
 #' df_forest(
 #'   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
 #'   replicate_var = "SIM",
@@ -103,7 +103,7 @@
 #'
 #' # Alternative input: per-row `cov_ref` column already attached to `data`
 #' d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
-#' d$cov_ref <- c(FOOD = "Fasted", WTBL = "70 kg", REF = NA)[
+#' d$cov_ref <- c(FOOD = "Fasted", WTBL = "70 kg", Reference = NA)[
 #'   as.character(d$cov_var)
 #' ]
 #' df_forest(d, replicate_var = "SIM")
@@ -117,7 +117,7 @@ df_forest <- function(data,
                       statistic        = "median",
                       ci               = 0.9,
                       sigdigits        = 3,
-                      cov_name_ref     = "REF",
+                      cov_name_ref     = "Reference",
                       cov_level_ref    = NULL) {
 
   metric_name_var_str  <- resolve_var(rlang::enquo(metric_name_var))
@@ -307,7 +307,7 @@ plot_build_forest <- function(stats,
 
   if (disperse_ref && is.null(cov_name_ref)) {
     rlang::abort(message = paste0(
-      "cannot disperse REF row when `cov_name_ref` is NULL. ",
+      "cannot disperse the reference row when `cov_name_ref` is NULL. ",
       "Set a non-NULL `cov_name_ref` in `df_forest()`, or remove the `cov_ref` ",
       "column from `data` / omit `cov_level_ref`."
     ))
@@ -345,7 +345,7 @@ plot_build_forest <- function(stats,
     ref_rows <- plot_data[as.character(plot_data[[cov_name_var_str]]) == cov_name_ref, , drop = FALSE]
     if (nrow(ref_rows) == 0L) {
       rlang::abort(message = paste0(
-        "cannot disperse REF row: no rows with `", cov_name_var_str, " == \"",
+        "cannot disperse `", cov_name_ref, "` row: no rows with `", cov_name_var_str, " == \"",
         cov_name_ref, "\"` were found for metric `", metric, "`."
       ))
     }
@@ -362,7 +362,7 @@ plot_build_forest <- function(stats,
         rlang::abort(message = paste0(
           "covariate `", cn, "` has multiple distinct `cov_ref` values (",
           paste(vals, collapse = ", "), "). ",
-          "Each non-REF covariate must declare a single reference label."
+          "Each non-`", cov_name_ref, "` covariate must declare a single reference label."
         ))
       }
       row <- ref_row
@@ -532,7 +532,7 @@ plot_forest <- function(data,
                         statistic        = "median",
                         ci               = 0.9,
                         sigdigits        = 3,
-                        cov_name_ref     = "REF",
+                        cov_name_ref     = "Reference",
                         cov_level_ref    = NULL,
                         ref              = 1,
                         ref_band         = NULL,

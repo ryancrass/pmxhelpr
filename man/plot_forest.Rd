@@ -109,8 +109,8 @@ a \code{ggplot} plot object
 Dual-mode wrapper that delegates to \code{\link[=df_forest]{df_forest()}} for aggregation and
 \code{\link[=plot_build_forest]{plot_build_forest()}} for rendering. Accepts either:
 \itemize{
-\item raw replicate-draws or pre-summarized data plus column-name arguments —
-the common one-shot mode; or
+\item raw replicate-draws data plus column-name arguments — the common
+one-shot mode; or
 \item a precomputed \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}} — skip
 the aggregation and replot with different \code{theme} / \code{ref} / \code{ref_band}
 settings.

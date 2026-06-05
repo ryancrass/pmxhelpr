@@ -85,7 +85,7 @@
 #' @export df_forest
 #'
 #' @examples
-#' # Draws path: aggregate replicate simulations to point estimate + 90% CI
+#' # Aggregate replicate simulations to point estimate + 90% CI
 #' df_forest(
 #'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
 #'   replicate_var = "SIM"
@@ -479,8 +479,8 @@ plot_build_forest <- function(stats,
 #' Dual-mode wrapper that delegates to [df_forest()] for aggregation and
 #' [plot_build_forest()] for rendering. Accepts either:
 #'
-#' * raw replicate-draws or pre-summarized data plus column-name arguments —
-#'   the common one-shot mode; or
+#' * raw replicate-draws data plus column-name arguments — the common
+#'   one-shot mode; or
 #' * a precomputed `forest_stats` object returned by [df_forest()] — skip
 #'   the aggregation and replot with different `theme` / `ref` / `ref_band`
 #'   settings.

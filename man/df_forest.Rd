@@ -113,7 +113,7 @@ estimate is computed via \code{statistic} and \code{lo}/\code{hi} are the \code{
 \code{1-(1-ci)/2} quantiles of the draws.
 }
 \examples{
-# Draws path: aggregate replicate simulations to point estimate + 90\% CI
+# Aggregate replicate simulations to point estimate + 90\% CI
 df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
   replicate_var = "SIM"

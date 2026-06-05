@@ -28,11 +28,11 @@
   metric to render via the `metric` argument; if `stats` carries
   exactly one metric, it is picked automatically.
 * `df_forest()` aggregates replicate draws into per-group point and CI
-  estimates, or passes through pre-summarized rows. Returns a
-  `forest_stats` / `pmx_stats` container with canonical `est`, `lo`,
-  `hi`, `ci_label`, and `y_label` columns. The `y_label` carries
-  `cov_level` and `ci_label` on two lines (the covariate name lives in
-  the facet strip).
+  estimates. Returns a `forest_stats` / `pmx_stats` container with
+  canonical `est`, `lo`, `hi`, `ci_label`, and `y_label` columns.
+  `y_label` carries the covariate level (the covariate name lives in
+  the facet strip; `ci_label` is rendered as a right-side secondary-axis
+  text layer by `plot_build_forest()`).
 * `plot_build_forest()` renders a forest ggplot from any `forest_stats`
   container; most users still go through `plot_forest()`.
 * `plot_forest_theme()` is a theme factory for `plot_forest()` with keys

@@ -82,19 +82,19 @@ test_that("Pre-summarized path passes est/lo/hi through unchanged", {
   expect_equal(out$stats$hi,  data_sad_pkforest_sum$P95)
 })
 
-test_that("Pre-summarized path config records est_var/lo_var/hi_var and NULL value_var", {
+test_that("Pre-summarized path config records est_var/lo_var/hi_var and NULL metric_value_var", {
   out <- df_forest(data_sad_pkforest_sum,
                    est_var = "P50", lo_var = "P05", hi_var = "P95")
   expect_equal(out$config$est_var, "P50")
   expect_equal(out$config$lo_var,  "P05")
   expect_equal(out$config$hi_var,  "P95")
-  expect_null(out$config$value_var)
+  expect_null(out$config$metric_value_var)
   expect_null(out$config$replicate_var)
 })
 
-test_that("Draws path config records value_var/replicate_var and NULL est_var/lo_var/hi_var", {
+test_that("Draws path config records metric_value_var/replicate_var and NULL est_var/lo_var/hi_var", {
   out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
-  expect_equal(out$config$value_var,     "value")
+  expect_equal(out$config$metric_value_var,     "value")
   expect_equal(out$config$replicate_var, "SIM")
   expect_null(out$config$est_var)
   expect_null(out$config$lo_var)
@@ -111,13 +111,14 @@ test_that("`ci_label` is formatted as `est [lo, hi]` with `sigdigits`", {
   expect_match(out$stats$ci_label, "^.+ \\[.+, .+\\]$", all = TRUE)
 })
 
-test_that("`y_label` concatenates cov_name, cov_level, and ci_label", {
+test_that("`y_label` mirrors cov_level (no CI concat; CI lives in ci_label only)", {
   out <- df_forest(data_sad_pkforest_sum,
                    est_var = "P50", lo_var = "P05", hi_var = "P95")
   row <- out$stats[out$stats$cov_var == "WTBL" &
                    out$stats$cov_val == "50 kg" &
                    out$stats$metric  == "AUCRATIO", ]
-  expect_match(row$y_label, "^WTBL: 50 kg - ")
+  expect_equal(row$y_label, "50 kg")
+  expect_false(grepl("\\[", row$y_label))
 })
 
 test_that("`sigdigits` controls numeric formatting of ci_label", {
@@ -173,14 +174,14 @@ test_that("Error if `sigdigits` is not coercible to an integer", {
                regexp = "argument `sigdigits` must be coercible to class `integer`")
 })
 
-test_that("Error if metric_var/cov_name_var/cov_level_var columns missing", {
+test_that("Error if metric_name_var/cov_name_var/cov_level_var columns missing", {
   d <- data_sad_pkforest
   d$metric <- NULL
   expect_error(df_forest(d, replicate_var = "SIM"),
                regexp = "not found: 'metric'")
 })
 
-test_that("Error if value_var column missing on draws path", {
+test_that("Error if metric_value_var column missing on draws path", {
   d <- data_sad_pkforest
   d$value <- NULL
   expect_error(df_forest(d, replicate_var = "SIM"),
@@ -284,7 +285,7 @@ test_that("plot_forest_theme() honors user element overrides", {
 test_that("plot_build_forest() returns a ggplot object", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  expect_s3_class(plot_build_forest(stats), "ggplot")
+  expect_s3_class(plot_build_forest(stats, metric = "AUCRATIO"), "ggplot")
 })
 
 test_that("plot_build_forest() rejects non-forest_stats input", {
@@ -295,7 +296,7 @@ test_that("plot_build_forest() rejects non-forest_stats input", {
 test_that("plot_build_forest() maps `est` to x and the y_label column to y", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  p <- plot_build_forest(stats)
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_equal(rlang::quo_name(p$mapping$x), "est")
   expect_equal(rlang::quo_name(p$mapping$y), "y_label")
 })
@@ -303,12 +304,22 @@ test_that("plot_build_forest() maps `est` to x and the y_label column to y", {
 
 #####plot_build_forest -- facets#####
 
-test_that("plot_build_forest() facets by `metric_var`", {
+test_that("plot_build_forest() facet_grid uses cov_name rows only (no metric facet)", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  p <- plot_build_forest(stats)
-  facet_vars <- names(p$facet$params$facets)
-  expect_equal(facet_vars, "metric")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_s3_class(p$facet, "FacetGrid")
+  row_vars <- vapply(p$facet$params$rows, rlang::as_name, character(1))
+  expect_equal(unname(row_vars), "cov_var")
+  expect_length(p$facet$params$cols, 0L)
+  expect_true(isTRUE(p$facet$params$space_free$y))
+})
+
+test_that("plot_build_forest() sets the title to the rendered metric value", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(p$labels$title, "AUCRATIO")
 })
 
 
@@ -322,8 +333,8 @@ test_that("ref_band = NULL produces no rect layer; setting it adds one", {
                function(L) inherits(L$geom, "GeomRect"),
                logical(1)))
   }
-  p_off <- plot_build_forest(stats, ref_band = NULL)
-  p_on  <- plot_build_forest(stats, ref_band = c(0.8, 1.25))
+  p_off <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = NULL)
+  p_on  <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
   expect_false(has_rect(p_off))
   expect_true(has_rect(p_on))
 })
@@ -336,75 +347,94 @@ test_that("ref = NULL suppresses the vline; setting it adds one", {
                function(L) inherits(L$geom, "GeomVline"),
                logical(1)))
   }
-  expect_false(has_vline(plot_build_forest(stats, ref = NULL)))
-  expect_true (has_vline(plot_build_forest(stats, ref = 1)))
+  expect_false(has_vline(plot_build_forest(stats, metric = "AUCRATIO", ref = NULL)))
+  expect_true (has_vline(plot_build_forest(stats, metric = "AUCRATIO", ref = 1)))
 })
 
 test_that("Error if ref_band is not a length-2 numeric", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  expect_error(plot_build_forest(stats, ref_band = c(1, 2, 3)),
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(1, 2, 3)),
                regexp = "must be a length-2 numeric")
-  expect_error(plot_build_forest(stats, ref_band = c(1.25, 0.8)),
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(1.25, 0.8)),
                regexp = "must be ordered")
 })
 
 test_that("Error if ref is not numeric", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  expect_error(plot_build_forest(stats, ref = "one"),
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref = "one"),
                regexp = "argument `ref` must be class `numeric`")
 })
 
-test_that("Error if annotate_ci is not boolean", {
+#####plot_build_forest -- right-side ci_label annotation#####
+
+test_that("ci_label is rendered as a right-side GeomText layer; y-axis carries cov_level only", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  expect_error(plot_build_forest(stats, annotate_ci = "yes"),
-               regexp = "argument `annotate_ci` must be `TRUE` or `FALSE`")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  has_text <- any(vapply(p$layers,
+                         function(L) inherits(L$geom, "GeomText"),
+                         logical(1)))
+  expect_true(has_text)
+  # primary y-axis only carries cov_level values (no CI text)
+  expect_false(any(grepl("\\[", levels(p$data$y_label))))
+  expect_true("ci_label" %in% colnames(stats$stats))
 })
 
-
-#####plot_build_forest -- annotate_ci toggle#####
-
-test_that("annotate_ci = FALSE drops CI text from y-axis labels", {
+test_that("plot_build_forest() applies coord_cartesian(clip = 'off') and an extended right plot.margin", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  p_on  <- plot_build_forest(stats, annotate_ci = TRUE)
-  p_off <- plot_build_forest(stats, annotate_ci = FALSE)
-  on_levels  <- levels(p_on$data$y_label)
-  off_levels <- levels(p_off$data$y_plain)
-  expect_true(any(grepl("\\[.*\\]", on_levels)))
-  expect_false(any(grepl("\\[.*\\]", off_levels)))
-  expect_true("ci_label" %in% colnames(stats$stats))
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(p$coordinates$clip, "off")
+  expect_true(as.numeric(p$theme$plot.margin)[2] > 20)
 })
 
 
 #####plot_build_forest -- y-axis ordering#####
 
-test_that("Y axis factor levels are reversed input order (top row plots first)", {
+test_that("Y axis factor levels sort numerically within numeric panels, rev-data-order within categorical", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  p <- plot_build_forest(stats)
-  expected <- rev(unique(stats$stats$y_label))
-  expect_equal(levels(p$data$y_label), expected)
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  # Expected per-panel ordering, concatenated in panel order:
+  # REF panel  → ["REF"]            (non-numeric, single row)
+  # FOOD panel → ["Fed"]            (non-numeric, single row)
+  # WTBL panel → ["50 kg", "90 kg"] (numeric ascending; 90 ends up on top)
+  expect_equal(levels(p$data$y_label), c("REF", "Fed", "50 kg", "90 kg"))
+  expect_false(any(grepl("\\[", levels(p$data$y_label))))
+})
+
+test_that("Numeric covariates with dispersal: ref value sorts in numerical order with non-REF rows", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  wtbl_levels <- levels(p$data$y_label)
+  wtbl_idx <- which(wtbl_levels %in% c("50 kg", "70 kg", "90 kg"))
+  # Within WTBL: factor levels low→high = 50, 70, 90 → on the discrete y axis
+  # 90 lands at the top, 70 in the middle, 50 at the bottom
+  expect_equal(wtbl_levels[wtbl_idx], c("50 kg", "70 kg", "90 kg"))
 })
 
 
 #####plot_forest -- dual-mode dispatch#####
 
 test_that("plot_forest() raw-data path returns a ggplot", {
-  expect_s3_class(plot_forest(data_sad_pkforest, replicate_var = "SIM"), "ggplot")
+  expect_s3_class(plot_forest(data_sad_pkforest, replicate_var = "SIM",
+                              metric = "AUCRATIO"),
+                  "ggplot")
 })
 
 test_that("plot_forest() precomputed-stats path returns a ggplot", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  expect_s3_class(plot_forest(stats), "ggplot")
+  expect_s3_class(plot_forest(stats, metric = "AUCRATIO"), "ggplot")
 })
 
 test_that("plot_forest() pre-summarized raw-data path returns a ggplot", {
   expect_s3_class(plot_forest(data_sad_pkforest_sum,
-                              est_var = "P50", lo_var = "P05", hi_var = "P95"),
+                              est_var = "P50", lo_var = "P05", hi_var = "P95",
+                              metric = "AUCRATIO"),
                   "ggplot")
 })
 
@@ -417,10 +447,355 @@ test_that("plot_forest() aborts when pipeline args are passed on the precomputed
                regexp = "cannot accept pipeline arguments")
 })
 
-test_that("plot_forest() honors theme/ref/ref_band/annotate_ci on the precomputed path", {
+test_that("plot_forest() honors theme/ref/ref_band on the precomputed path", {
   stats <- df_forest(data_sad_pkforest_sum,
                      est_var = "P50", lo_var = "P05", hi_var = "P95")
-  p <- plot_forest(stats, theme = plot_forest_theme(point = pmx_point(shape = 18)),
-                   ref = 0, ref_band = c(0.5, 2), annotate_ci = FALSE)
+  p <- plot_forest(stats,
+                   metric = "AUCRATIO",
+                   theme = plot_forest_theme(point = pmx_point(shape = 18)),
+                   ref = 0, ref_band = c(0.5, 2))
   expect_s3_class(p, "ggplot")
 })
+
+
+#####plot_build_forest -- metric arg behavior#####
+
+test_that("plot_build_forest() aborts when metric = NULL and stats has multiple metrics", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_error(plot_build_forest(stats),
+               regexp = "argument `metric` is required")
+})
+
+test_that("plot_build_forest() picks the single metric automatically when metric = NULL", {
+  stats <- df_forest(dplyr::filter(data_sad_pkforest_sum, metric == "AUCRATIO"),
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  p <- plot_build_forest(stats)
+  expect_equal(p$labels$title, "AUCRATIO")
+  expect_true(all(as.character(p$data$metric) == "AUCRATIO"))
+})
+
+test_that("plot_build_forest() filters stats to the named metric", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  p <- plot_build_forest(stats, metric = "CMAXRATIO")
+  expect_true(all(as.character(p$data$metric) == "CMAXRATIO"))
+  expect_equal(p$labels$title, "CMAXRATIO")
+})
+
+test_that("plot_build_forest() aborts when metric is not in stats", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_error(plot_build_forest(stats, metric = "NOPE"),
+               regexp = "not found in `metric`")
+})
+
+test_that("plot_build_forest() aborts on malformed metric arg", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_error(plot_build_forest(stats, metric = c("AUCRATIO", "CMAXRATIO")),
+               regexp = "must be a single non-empty character string")
+  expect_error(plot_build_forest(stats, metric = NA_character_),
+               regexp = "must be a single non-empty character string")
+  expect_error(plot_build_forest(stats, metric = ""),
+               regexp = "must be a single non-empty character string")
+})
+
+
+#####plot_forest_theme -- refined defaults#####
+
+test_that("plot_forest_theme() default sizes are bumped (point 2.5, errorbar 0.7)", {
+  th <- plot_forest_theme()
+  expect_equal(th$point$size, 2.5)
+  expect_equal(th$errorbar$linewidth, 0.7)
+})
+
+
+#####plot_build_forest -- forest_panel theme variant#####
+
+test_that("plot_build_forest() applies the forest_panel variant (panel.ontop unset, strip outside)", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  # facet_grid rows + strip-on-side now provide the cov_name grouping; panel.ontop is no longer needed
+  expect_false(isTRUE(p$theme$panel.ontop))
+  expect_equal(p$theme$strip.placement, "outside")
+  expect_s3_class(p$theme$strip.background, "element_blank")
+})
+
+
+#####df_forest -- cov_name_ref#####
+
+test_that("cov_name_ref defaults to 'REF' and round-trips through config", {
+  out <- df_forest(data_sad_pkforest_sum,
+                   est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_equal(out$config$cov_name_ref, "REF")
+})
+
+test_that("cov_name_ref can be overridden", {
+  out <- df_forest(data_sad_pkforest_sum,
+                   est_var = "P50", lo_var = "P05", hi_var = "P95",
+                   cov_name_ref = "Baseline")
+  expect_equal(out$config$cov_name_ref, "Baseline")
+})
+
+test_that("cov_name_ref = NULL stores NULL in config", {
+  out <- df_forest(data_sad_pkforest_sum,
+                   est_var = "P50", lo_var = "P05", hi_var = "P95",
+                   cov_name_ref = NULL)
+  expect_null(out$config$cov_name_ref)
+})
+
+test_that("check_forest_args() rejects malformed cov_name_ref", {
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_name_ref = c("REF", "Baseline")),
+               regexp = "must be a single non-empty character string")
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_name_ref = NA_character_),
+               regexp = "must be a single non-empty character string")
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_name_ref = ""),
+               regexp = "must be a single non-empty character string")
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_name_ref = 1L),
+               regexp = "must be a single non-empty character string")
+})
+
+
+#####plot_build_forest -- REF sorts to top#####
+
+test_that("REF row sorts to the top via cov_name factor relevel", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(levels(p$data$cov_var)[1], "REF")
+})
+
+test_that("cov_name_ref with no matching row is silent and preserves data order", {
+  # data_sad_pkforest has cov_var levels c("REF", "FOOD", "WTBL"); "NOMATCH" hits none
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "NOMATCH")
+  expect_silent(p <- plot_build_forest(stats, metric = "AUCRATIO"))
+  expect_false("NOMATCH" %in% levels(p$data$cov_var))
+  expect_setequal(levels(p$data$cov_var),
+                  unique(as.character(stats$stats$cov_var[stats$stats$metric == "AUCRATIO"])))
+})
+
+test_that("cov_name_ref = NULL preserves data order with no REF-first sort", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = NULL)
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(levels(p$data$cov_var),
+               unique(as.character(stats$stats$cov_var[stats$stats$metric == "AUCRATIO"])))
+})
+
+
+#####plot_forest -- cov_name_ref on pipeline path / precomputed path#####
+
+test_that("plot_forest() forwards cov_name_ref on the raw-data path", {
+  p <- plot_forest(data_sad_pkforest, replicate_var = "SIM",
+                   cov_name_ref = "REF", metric = "AUCRATIO")
+  expect_equal(levels(p$data$cov_var)[1], "REF")
+})
+
+test_that("plot_forest() aborts when cov_name_ref is passed on the precomputed path", {
+  stats <- df_forest(data_sad_pkforest_sum,
+                     est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_error(plot_forest(stats, cov_name_ref = "REF"),
+               regexp = "cannot accept pipeline arguments")
+})
+
+
+#####df_forest + plot_build_forest -- cov_level_ref dispersal#####
+
+test_that("df_forest() builds canonical cov_ref column from cov_level_ref and round-trips through config", {
+  out <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  expect_true("cov_ref" %in% colnames(out$stats))
+  expect_equal(out$config$cov_level_ref, c(FOOD = "Fasted", WTBL = "70 kg"))
+  # FOOD rows get "Fasted", WTBL rows get "70 kg", REF rows get NA
+  food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
+  wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
+  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "REF"])
+  expect_equal(food_ref, "Fasted")
+  expect_equal(wtbl_ref, "70 kg")
+  expect_true(all(is.na(ref_ref)))
+})
+
+test_that("df_forest() leaves cov_ref out of stats when cov_level_ref is NULL (default)", {
+  out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  expect_false("cov_ref" %in% colnames(out$stats))
+  expect_null(out$config$cov_level_ref)
+})
+
+test_that("df_forest() rejects malformed cov_level_ref", {
+  # unnamed vector
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_level_ref = c("Fasted", "70 kg")),
+               regexp = "must be a non-empty named vector")
+  # empty named entry
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_level_ref = stats::setNames(c("Fasted", "70 kg"),
+                                                      c("FOOD", ""))),
+               regexp = "must be a non-empty named vector")
+  # duplicate names
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_level_ref = c(FOOD = "Fasted", FOOD = "Other")),
+               regexp = "duplicate names")
+  # list (not atomic)
+  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_level_ref = list(FOOD = "Fasted")),
+               regexp = "named atomic vector")
+})
+
+test_that("cov_level_ref names absent from data are ignored (no error); existing names take effect", {
+  out <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                   cov_level_ref = c(FOOD = "Fasted", SEX = "Male"))
+  # SEX is not in cov_var anywhere; FOOD rows still receive "Fasted"
+  food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
+  wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
+  expect_equal(food_ref, "Fasted")
+  # WTBL not named in cov_level_ref → NA → no dispersed REF in that panel
+  expect_true(all(is.na(wtbl_ref)))
+})
+
+test_that("plot_build_forest() disperses REF into each non-REF cov_name panel", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  # REF panel is gone
+  expect_false("REF" %in% as.character(unique(p$data$cov_var)))
+  # FOOD panel carries the dispersed REF as cov_val == "Fasted"
+  food_levels <- as.character(p$data$cov_val[p$data$cov_var == "FOOD"])
+  expect_true("Fasted" %in% food_levels)
+  # WTBL panel carries the dispersed REF as cov_val == "70 kg"
+  wtbl_levels <- as.character(p$data$cov_val[p$data$cov_var == "WTBL"])
+  expect_true("70 kg" %in% wtbl_levels)
+})
+
+test_that("dispersed REF row inherits est/lo/hi from the original REF row", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  ref_stats <- stats$stats[stats$stats$cov_var == "REF" &
+                           stats$stats$metric  == "AUCRATIO", ]
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  row_fasted <- p$data[p$data$cov_var == "FOOD" & p$data$cov_val == "Fasted", ]
+  expect_equal(row_fasted$est, ref_stats$est)
+  expect_equal(row_fasted$lo,  ref_stats$lo)
+  expect_equal(row_fasted$hi,  ref_stats$hi)
+})
+
+test_that("dispersed REF row sorts to top of its panel via y-axis factor order", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  y_levels <- levels(p$data$y_label)
+  expect_true("Fasted" %in% y_levels)
+  expect_true("Fed"    %in% y_levels)
+  expect_gt(which(y_levels == "Fasted"), which(y_levels == "Fed"))
+})
+
+test_that("plot_build_forest() aborts when cov_level_ref set but no matching REF row exists for the metric", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
+                     cov_name_ref = "NOMATCH")
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO"),
+               regexp = "no rows with")
+})
+
+test_that("plot_build_forest() aborts when cov_name_ref is NULL but cov_level_ref is set", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
+                     cov_name_ref = NULL)
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO"),
+               regexp = "cannot disperse REF row when `cov_name_ref` is NULL")
+})
+
+test_that("plot_forest() forwards cov_level_ref on the raw-data path", {
+  p <- plot_forest(data_sad_pkforest, replicate_var = "SIM",
+                   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
+                   metric = "AUCRATIO")
+  expect_false("REF" %in% as.character(unique(p$data$cov_var)))
+})
+
+test_that("plot_forest() aborts when cov_level_ref is passed on the precomputed path", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  expect_error(plot_forest(stats, cov_level_ref = c(FOOD = "Fasted")),
+               regexp = "cannot accept pipeline arguments")
+})
+
+
+#####df_forest -- cov_ref column input mode#####
+
+# Helper: attach a per-row cov_ref column to data_sad_pkforest based on cov_var
+attach_cov_ref <- function(d, mapping = c(FOOD = "Fasted", WTBL = "70 kg")) {
+  d$cov_ref <- unname(mapping[as.character(d$cov_var)])
+  d
+}
+
+test_that("df_forest() draws path reads cov_ref from a column on `data`", {
+  d <- attach_cov_ref(data_sad_pkforest)
+  out <- df_forest(d, replicate_var = "SIM")
+  expect_true("cov_ref" %in% colnames(out$stats))
+  expect_null(out$config$cov_level_ref)
+  food_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"])
+  wtbl_ref <- unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"])
+  ref_ref  <- unique(out$stats$cov_ref[out$stats$cov_var == "REF"])
+  expect_equal(food_ref, "Fasted")
+  expect_equal(wtbl_ref, "70 kg")
+  expect_true(all(is.na(ref_ref)))
+})
+
+test_that("df_forest() pre-summarized path reads cov_ref from a column on `data`", {
+  d <- attach_cov_ref(data_sad_pkforest_sum)
+  out <- df_forest(d, est_var = "P50", lo_var = "P05", hi_var = "P95")
+  expect_true("cov_ref" %in% colnames(out$stats))
+  expect_null(out$config$cov_level_ref)
+  expect_equal(unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"]), "Fasted")
+  expect_equal(unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"]), "70 kg")
+})
+
+test_that("cov_ref column dispersal produces same dispersed structure as cov_level_ref arg", {
+  d <- attach_cov_ref(data_sad_pkforest)
+  stats_col <- df_forest(d, replicate_var = "SIM")
+  stats_arg <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  p_col <- plot_build_forest(stats_col, metric = "AUCRATIO")
+  p_arg <- plot_build_forest(stats_arg, metric = "AUCRATIO")
+  # Same dispersed y-axis factor levels
+  expect_equal(levels(p_col$data$y_label), levels(p_arg$data$y_label))
+  # REF panel dropped, Fasted in FOOD panel, 70 kg in WTBL panel
+  expect_false("REF" %in% as.character(unique(p_col$data$cov_var)))
+  expect_true ("Fasted" %in% as.character(p_col$data$cov_val[p_col$data$cov_var == "FOOD"]))
+  expect_true ("70 kg"  %in% as.character(p_col$data$cov_val[p_col$data$cov_var == "WTBL"]))
+})
+
+test_that("df_forest() messages and uses the column when both cov_ref and cov_level_ref are supplied", {
+  d <- attach_cov_ref(data_sad_pkforest,
+                      mapping = c(FOOD = "Fasted", WTBL = "70 kg"))
+  expect_message(
+    out <- df_forest(d, replicate_var = "SIM",
+                     cov_level_ref = c(FOOD = "OVERRIDDEN", WTBL = "OVERRIDDEN")),
+    regexp = "Inheriting per-row `cov_ref` from `cov_ref` column"
+  )
+  # Column values win; config records NULL (the arg was discarded)
+  expect_null(out$config$cov_level_ref)
+  expect_equal(unique(out$stats$cov_ref[out$stats$cov_var == "FOOD"]), "Fasted")
+  expect_equal(unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"]), "70 kg")
+})
+
+test_that("plot_build_forest() aborts when cov_ref column is present but cov_name_ref is NULL", {
+  d <- attach_cov_ref(data_sad_pkforest)
+  stats <- df_forest(d, replicate_var = "SIM", cov_name_ref = NULL)
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO"),
+               regexp = "cannot disperse REF row when `cov_name_ref` is NULL")
+})
+
+test_that("non-character cov_ref column is coerced to character", {
+  # Edge case: numeric cov_ref values that should be carried through as character
+  d <- data_sad_pkforest
+  d$cov_ref <- ifelse(d$cov_var == "WTBL", 70, NA_real_)
+  out <- df_forest(d, replicate_var = "SIM")
+  expect_type(out$stats$cov_ref, "character")
+  expect_equal(unique(out$stats$cov_ref[out$stats$cov_var == "WTBL"]), "70")
+})
+
+

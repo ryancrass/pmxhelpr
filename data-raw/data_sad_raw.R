@@ -267,9 +267,9 @@ pkforest_sum <- pkforest_fit |>
 #Pivot and Join Labels
 
 id_cov_lookup <- data.frame(
-  ID     = c(1, 2, 3, 4),
-  cov_var    = c("REF", "FOOD", "WTBL", "WTBL"),
-  cov_val = c("REF","Fed", "50 kg", "90 kg")
+  ID      = c(1, 2, 3, 4),
+  cov_var = c("REF", "FOOD", "WTBL", "WTBL"),
+  cov_val = c("REF", "Fed", "50 kg", "90 kg")
 )
 
 data_sad_pkforest <- pkforest_sum |>

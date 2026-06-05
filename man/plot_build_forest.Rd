@@ -4,13 +4,7 @@
 \alias{plot_build_forest}
 \title{Build a forest plot ggplot from a \code{forest_stats} object}
 \usage{
-plot_build_forest(
-  stats,
-  theme = NULL,
-  ref = 1,
-  ref_band = NULL,
-  annotate_ci = TRUE
-)
+plot_build_forest(stats, theme = NULL, ref = 1, ref_band = NULL, metric = NULL)
 }
 \arguments{
 \item{stats}{A \code{forest_stats} object (typically the output of
@@ -22,17 +16,20 @@ plot_build_forest(
 
 \item{ref}{Numeric scalar specifying the x-intercept of the no-effect
 vertical reference line. Default \code{1} (the ratio-scale no-effect
-value). Pass \code{NULL} to suppress the reference line.}
+value). Pass \code{NULL} to suppress the reference line. Distinct from
+\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to
+sort to the top of the plot.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
 interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
 (no shaded band).}
 
-\item{annotate_ci}{Logical. When \code{TRUE} (default), the y-axis tick labels
-concatenate the row's covariate name, level, and formatted
-\code{est [lo, hi]} text. When \code{FALSE}, labels show only
-\code{cov_name: cov_level}; the \code{ci_label} column is still available in
-\code{stats$stats} for custom downstream annotation.}
+\item{metric}{Character scalar identifying which row of \code{metric_name_var} to
+render. \code{plot_forest()} renders one metric per call (no metric
+facet); the covariate name is the only facet dimension. If \code{NULL}
+(default) and \code{stats$stats} contains exactly one unique value of
+\code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
+are present, aborts and asks the caller to pick one.}
 }
 \value{
 a \code{ggplot} plot object
@@ -41,7 +38,7 @@ a \code{ggplot} plot object
 Constructs a covariate forest plot from a \code{\link[=df_forest]{df_forest()}} result (or any
 object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
-a no-effect vertical reference line; facets across \code{metric_var}.
+a no-effect vertical reference line; facets across \code{metric_name_var}.
 
 Returns a plain \code{ggplot} object so callers can compose additional layers,
 themes, and scales with the standard \code{+} operator.
@@ -57,9 +54,11 @@ stats <- df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
   replicate_var = "SIM"
 )
-plot_build_forest(stats)
-plot_build_forest(stats, ref_band = c(0.8, 1.25))
-plot_build_forest(stats, annotate_ci = FALSE)
+plot_build_forest(stats, metric = "AUCRATIO")
+plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+# Log x-axis: compose with ggplot2 directly
+plot_build_forest(stats, metric = "AUCRATIO") +
+  ggplot2::scale_x_log10(guide = "axis_logticks")
 }
 \seealso{
 Other forest plot:

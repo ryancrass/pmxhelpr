@@ -6,23 +6,25 @@
 \usage{
 df_forest(
   data,
-  metric_var = "metric",
+  metric_name_var = "metric",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  value_var = "value",
+  metric_value_var = "value",
   replicate_var = NULL,
   est_var = NULL,
   lo_var = NULL,
   hi_var = NULL,
   statistic = "median",
   ci = 0.9,
-  sigdigits = 3
+  sigdigits = 3,
+  cov_name_ref = "REF",
+  cov_level_ref = NULL
 )
 }
 \arguments{
 \item{data}{Input data.frame.}
 
-\item{metric_var}{Column in \code{data} naming the PK/PD parameter (drives
+\item{metric_name_var}{Column in \code{data} naming the PK/PD parameter (drives
 facet panels in the plot). Accepts bare names or strings. Default
 \code{metric}.}
 
@@ -33,7 +35,7 @@ facet panels in the plot). Accepts bare names or strings. Default
 covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
 \code{cov_val}.}
 
-\item{value_var}{Column in \code{data} containing replicate draws of the
+\item{metric_value_var}{Column in \code{data} containing replicate draws of the
 test/reference comparison statistic. Accepts bare names or strings.
 Required on the draws path; ignored on the pre-summarized path.
 Default \code{value}.}
@@ -59,16 +61,47 @@ Default \code{0.9}.}
 
 \item{sigdigits}{Number of significant digits used to format the
 \code{ci_label} and \code{y_label} columns. Default \code{3}.}
+
+\item{cov_name_ref}{Character scalar identifying the reference row(s) in the
+\code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
+\code{cov_name_ref} are sorted to the top of the rendered plot (first facet
+row). Default \code{"REF"} (matches the bundled \code{data_sad_pkforest}
+convention). Pass \code{NULL} to disable REF-first sorting; rows then
+appear in data order. Not to be confused with \code{ref} in
+\code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}, which is the numeric
+x-intercept of the no-effect vertical reference line.}
+
+\item{cov_level_ref}{Optional named atomic vector mapping \code{cov_name_var}
+values to the per-covariate reference label to display when the
+REF row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+For example, \code{c(FOOD = "Fasted", WTBL = "70 kg")}. Default \code{NULL}
+(REF row renders in its own facet at the top, no dispersal).
+\code{df_forest()} builds the canonical \code{cov_ref} column inside
+\code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
+receive \code{NA} (those panels show no dispersed REF row). The
+mapping is stored in \code{config$cov_level_ref} for the renderer.
+
+Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
+it is used directly (per-row reference labels) and \code{cov_level_ref} is
+ignored with an informational \code{message()}. This is the preferred form
+when reference labels can't be reduced to a single value per
+\code{cov_name_var} — for example, when a study has multiple dosing
+cohorts sharing one covariate dimension but different REF doses.}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three
 slots:
 \describe{
 \item{\code{stats}}{One row per \verb{(metric × cov_name × cov_level)} group
-with columns named in \code{metric_var} / \code{cov_name_var} /
+with columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est}, \code{lo}, \code{hi},
 and character columns \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"})
-and \code{y_label} (e.g. \code{"WTBL: > 70 kg — 1.12 [0.95, 1.32]"}).}
+and \code{y_label} (a stable canonical name for the y-axis tick
+text; equal to the row's \code{cov_level_var} value as character).
+The \code{cov_name_var} value drives the per-row facet strip; the
+\code{cov_level_var} value drives the y-axis tick label;
+\code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as a right-side
+secondary-axis text layer.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{statistic}, \code{ci},
 and \code{sigdigits}.}
@@ -89,7 +122,7 @@ Two input modes are supported. The function switches on whether
 \code{replicate_var} is \code{NULL}:
 \itemize{
 \item \strong{Draws path} (\code{replicate_var} non-\code{NULL}): \code{data} is long-form with a
-numeric \code{value_var} column (e.g., test/reference ratios per replicate)
+numeric \code{metric_value_var} column (e.g., test/reference ratios per replicate)
 and a replicate index in \code{replicate_var}. Per \verb{(metric × cov_name × cov_level)} group, the point estimate is computed via \code{statistic} and
 \code{lo}/\code{hi} are the \code{(1-ci)/2} and \code{1-(1-ci)/2} quantiles of the draws.
 \item \strong{Pre-summarized path} (\code{replicate_var} \code{NULL}): \code{data} already has
@@ -111,6 +144,23 @@ df_forest(
   dplyr::filter(data_sad_pkforest_sum, grepl("RATIO$", metric)),
   est_var = "P50", lo_var = "P05", hi_var = "P95"
 )
+
+# Custom reference level (default is "REF")
+df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "REF")
+
+# Per-covariate reference labels (dispersed REF in each panel)
+df_forest(
+  dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+  replicate_var = "SIM",
+  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+)
+
+# Alternative input: per-row `cov_ref` column already attached to `data`
+d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
+d$cov_ref <- c(FOOD = "Fasted", WTBL = "70 kg", REF = NA)[
+  as.character(d$cov_var)
+]
+df_forest(d, replicate_var = "SIM")
 }
 \seealso{
 Other forest plot:

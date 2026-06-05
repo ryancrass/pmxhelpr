@@ -4,7 +4,7 @@
 \alias{apply_panel_theme}
 \title{Internal helper: Apply unified panel theme to a ggplot}
 \usage{
-apply_panel_theme(plot, white_panel = FALSE)
+apply_panel_theme(plot, white_panel = FALSE, forest_panel = FALSE)
 }
 \arguments{
 \item{plot}{A ggplot2 object.}
@@ -12,15 +12,25 @@ apply_panel_theme(plot, white_panel = FALSE)
 \item{white_panel}{Logical. When \code{TRUE}, sets \code{panel.background} to a
 white rectangle with a thin black border. Default is \code{FALSE}. Used by
 the VPC family.}
+
+\item{forest_panel}{Logical. When \code{TRUE}, applies the forest-family
+panel variant (faint major.x ruler, blanked major.y, transparent
+panel with grey border, and outside-placed bold horizontal y-strips).
+Default is \code{FALSE}.}
 }
 \value{
 A ggplot2 object with the unified panel theme applied.
 }
 \description{
-All plot families blank \code{panel.grid.minor} and \code{panel.grid.major.x}. The
-VPC family additionally uses a white panel rather than \code{theme_bw()}'s grey
-(toggled via \code{white_panel}). This helper centralizes the panel theme
-application so each family picks its variant via parameters rather than
-re-stating an inline \code{theme()} block.
+Continuous-family default blanks \code{panel.grid.minor} and
+\code{panel.grid.major.x}. The VPC family additionally uses a white panel
+rather than \code{theme_bw()}'s grey (\code{white_panel = TRUE}). The forest family
+inverts the gridline orientation — keeps \code{panel.grid.major.x} as a faint
+visual ruler aligned with point estimates and blanks \code{panel.grid.major.y}
+(replaced by \code{facet_grid()} rows that group rows by covariate name) —
+and uses a transparent panel background with a thin grey border. Strip
+styling is also adjusted for the cov_name row strips: placed outside the
+y-axis (paired with \code{switch = "y"} on the facet), no background fill,
+bold horizontal text right-aligned to the panel (\code{forest_panel = TRUE}).
 }
 \keyword{internal}

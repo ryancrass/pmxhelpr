@@ -27,10 +27,10 @@
 #' draws$VALUE <- rlnorm(nrow(draws), 0, 0.2)
 #' stats <- df_forest(
 #'   draws,
-#'   metric_var    = "METRIC",
+#'   metric_name_var    = "METRIC",
 #'   cov_name_var  = "COV",
 #'   cov_level_var = "COVLVL",
-#'   value_var     = "VALUE",
+#'   metric_value_var     = "VALUE",
 #'   replicate_var = "REP"
 #' )
 #' is_forest_stats(stats)                  # TRUE
@@ -48,7 +48,7 @@ is_forest_stats <- function(x, strict = FALSE) {
 #'
 #' @description
 #' Focused summary of a [df_forest()] result: object dimensions, the
-#' configuration values (`metric_var`, `cov_name_var`, `cov_level_var`,
+#' configuration values (`metric_name_var`, `cov_name_var`, `cov_level_var`,
 #' `statistic`, `ci`), and the per-row stats body. Inspect the underlying
 #' frame directly via `x$stats`; inspect run config via `x$config`.
 #'
@@ -63,8 +63,8 @@ print.forest_stats <- function(x, ...) {
   cat("<forest_stats>\n")
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  config: metric_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
-              format(x$config$metric_var),
+  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
+              format(x$config$metric_name_var),
               format(x$config$cov_name_var),
               format(x$config$cov_level_var),
               format(x$config$statistic),
@@ -97,19 +97,19 @@ summary.forest_stats <- function(object, ...) {
   cat("<forest_stats>\n")
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(object$stats), ncol(object$stats)))
-  cat(sprintf("  config: metric_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
-              format(object$config$metric_var),
+  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
+              format(object$config$metric_name_var),
               format(object$config$cov_name_var),
               format(object$config$cov_level_var),
               format(object$config$statistic),
               format(object$config$ci)))
   path <- if (!is.null(object$config$replicate_var)) "draws" else "pre-summarized"
   cat(sprintf("  path:   %s\n", path))
-  metric_var_str <- object$config$metric_var
+  metric_name_var_str <- object$config$metric_name_var
   cat("\n  per-row:\n")
   for (i in seq_len(nrow(object$stats))) {
     cat(sprintf("    [%s] %s\n",
-                object$stats[[metric_var_str]][i],
+                object$stats[[metric_name_var_str]][i],
                 object$stats$y_label[i]))
   }
   invisible(object)

@@ -34,26 +34,44 @@
 
 #' Internal helper: Apply unified panel theme to a ggplot
 #'
-#' All plot families blank `panel.grid.minor` and `panel.grid.major.x`. The
-#' VPC family additionally uses a white panel rather than `theme_bw()`'s grey
-#' (toggled via `white_panel`). This helper centralizes the panel theme
-#' application so each family picks its variant via parameters rather than
-#' re-stating an inline `theme()` block.
+#' Continuous-family default blanks `panel.grid.minor` and
+#' `panel.grid.major.x`. The VPC family additionally uses a white panel
+#' rather than `theme_bw()`'s grey (`white_panel = TRUE`). The forest family
+#' inverts the gridline orientation — keeps `panel.grid.major.x` as a faint
+#' visual ruler aligned with point estimates and blanks `panel.grid.major.y`
+#' (replaced by `facet_grid()` rows that group rows by covariate name) —
+#' and uses a transparent panel background with a thin grey border. Strip
+#' styling is also adjusted for the cov_name row strips: placed outside the
+#' y-axis (paired with `switch = "y"` on the facet), no background fill,
+#' bold horizontal text right-aligned to the panel (`forest_panel = TRUE`).
 #'
 #' @param plot A ggplot2 object.
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a
 #'    white rectangle with a thin black border. Default is `FALSE`. Used by
 #'    the VPC family.
+#' @param forest_panel Logical. When `TRUE`, applies the forest-family
+#'    panel variant (faint major.x ruler, blanked major.y, transparent
+#'    panel with grey border, and outside-placed bold horizontal y-strips).
+#'    Default is `FALSE`.
 #'
 #' @return A ggplot2 object with the unified panel theme applied.
 #' @keywords internal
-apply_panel_theme <- function(plot, white_panel = FALSE) {
-  args <- list(panel.grid.minor = ggplot2::element_blank(),
-               panel.grid.major.x = ggplot2::element_blank())
-  if (isTRUE(white_panel)) {
-    args$panel.background <- ggplot2::element_rect(fill = "white",
-                                                   linewidth = 0.5,
-                                                   color = "black")
+apply_panel_theme <- function(plot, white_panel = FALSE, forest_panel = FALSE) {
+  args <- list(panel.grid.minor = ggplot2::element_blank())
+  if (isTRUE(forest_panel)) {
+    args$panel.background   <- ggplot2::element_rect(fill = NA, color = "grey80")
+    args$panel.grid.major.x <- ggplot2::element_line(color = "grey85", linewidth = 0.3)
+    args$panel.grid.major.y <- ggplot2::element_blank()
+    args$strip.background   <- ggplot2::element_blank()
+    args$strip.placement    <- "outside"
+    args$strip.text.y.left  <- ggplot2::element_text(angle = 0, face = "bold", hjust = 1)
+  } else {
+    args$panel.grid.major.x <- ggplot2::element_blank()
+    if (isTRUE(white_panel)) {
+      args$panel.background <- ggplot2::element_rect(fill = "white",
+                                                     linewidth = 0.5,
+                                                     color = "black")
+    }
   }
   plot + do.call(ggplot2::theme, args)
 }
@@ -63,23 +81,27 @@ apply_panel_theme <- function(plot, white_panel = FALSE) {
 #'
 #' Creates a ggplot object with the base theme (`theme_bw`) and the unified
 #' panel theme via [apply_panel_theme()] (continuous-family defaults: minor
-#' and major.x gridlines blanked).
+#' and major.x gridlines blanked). Pass `forest_panel = TRUE` to apply the
+#' forest-family panel variant instead.
 #'
 #' @param data data.frame to plot
 #' @param x_var String name of the x-axis variable
 #' @param y_var String name of the y-axis variable
 #' @param col_var_str String name of the color variable, or `NULL`
+#' @param forest_panel Logical. Forwarded to [apply_panel_theme()]. Default
+#'    is `FALSE`.
 #'
 #' @return A ggplot object with base theme applied
 #' @keywords internal
-init_plot <- function(data, x_var, y_var, col_var_str = NULL) {
+init_plot <- function(data, x_var, y_var, col_var_str = NULL,
+                      forest_panel = FALSE) {
   if (is.null(col_var_str)) {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]]))
   } else {
     plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[x_var]], y = .data[[y_var]],
                                                 color = .data[[col_var_str]]))
   }
-  apply_panel_theme(plot + ggplot2::theme_bw())
+  apply_panel_theme(plot + ggplot2::theme_bw(), forest_panel = forest_panel)
 }
 
 

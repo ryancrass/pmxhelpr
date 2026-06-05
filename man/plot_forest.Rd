@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_forest.R
 \name{plot_forest}
 \alias{plot_forest}
-\title{Plot a forest plot of test/reference comparisons}
+\title{Plot a forest plot of test and reference comparisons}
 \usage{
 plot_forest(
   data,
@@ -33,49 +33,43 @@ facet); the covariate name is the only facet dimension. If \code{NULL}
 \code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
 are present, aborts and asks the caller to pick one.}
 
-\item{metric_name_var}{Column in \code{data} naming the PK/PD parameter (drives
-facet panels in the plot). Accepts bare names or strings. Default
-\code{metric}.}
+\item{metric_name_var}{Column in \code{data} contain metric variable names.
+Accepts bare names or strings. Default is \code{metric}.}
 
-\item{cov_name_var}{Column in \code{data} naming the covariate (e.g., \code{WTBL},
-\code{FOOD}). Accepts bare names or strings. Default \code{cov_var}.}
+\item{cov_name_var}{Column in \code{data} containing covariate variable names.
+(e.g., \code{WTBL},\code{FOOD}, etc).
+Accepts bare names or strings. Default is \code{cov_var}.}
 
-\item{cov_level_var}{Column in \code{data} naming the level within each
-covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
-\code{cov_val}.}
+\item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
+Accepts bare names or strings. Default is \code{cov_val}.}
 
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic. Accepts bare names or strings.
-Default \code{value}.}
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings.
-Required.}
+Accepts bare names or strings. Default is \code{SIM}.}
 
-\item{statistic}{Central-tendency statistic. One of \code{"median"} (default),
-\code{"mean"}, or \code{"geo_mean"}.}
+\item{statistic}{Central-tendency statistic.
+One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
-width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles. Default \code{0.9}.}
+width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
 \code{ci_label} and \code{y_label} columns. Default \code{3}.}
 
-\item{cov_name_ref}{Character scalar identifying the reference row(s) in the
+\item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
-\code{cov_name_ref} are sorted to the top of the rendered plot (first facet
-row). Default \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
-convention). Pass \code{NULL} to disable Reference-first sorting; rows then
-appear in data order. Not to be confused with \code{ref} in
-\code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}, which is the numeric
-x-intercept of the no-effect vertical reference line.}
+Default is \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
+convention).
+Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
+which is the numeric value of the x-intercept for the verticle reference line.}
 
-\item{cov_level_ref}{Optional named atomic vector mapping \code{cov_name_var}
+\item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label to display when the
-Reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
-For example, \code{c(FOOD = "Fasted", WTBL = "70 kg")}. Default \code{NULL}
-(Reference row renders in its own facet at the top, no dispersal).
+reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+Default is \code{NULL} (Reference row renders in its own facet at the top).
 \code{df_forest()} builds the canonical \code{cov_ref} column inside
 \code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
 receive \code{NA} (those panels show no dispersed Reference row). The
@@ -85,10 +79,9 @@ Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
 it is used directly (per-row reference labels) and \code{cov_level_ref} is
 ignored with an informational \code{message()}. This is the preferred form
 when reference labels can't be reduced to a single value per
-\code{cov_name_var} — for example, when a study has multiple dosing
-cohorts sharing one covariate dimension but different Reference doses.}
+\code{cov_name_var}.}
 
-\item{ref}{Numeric scalar specifying the x-intercept of the no-effect
+\item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
 value). Pass \code{NULL} to suppress the reference line. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to

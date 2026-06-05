@@ -14,7 +14,7 @@ plot_build_forest(stats, theme = NULL, ref = 1, ref_band = NULL, metric = NULL)
 \code{\link[=plot_forest_theme]{plot_forest_theme()}}. Defaults can be viewed by running
 \code{plot_forest_theme()} with no arguments.}
 
-\item{ref}{Numeric scalar specifying the x-intercept of the no-effect
+\item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
 value). Pass \code{NULL} to suppress the reference line. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to
@@ -38,7 +38,7 @@ a \code{ggplot} plot object
 Constructs a covariate forest plot from a \code{\link[=df_forest]{df_forest()}} result (or any
 object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
-a no-effect vertical reference line; facets across \code{metric_name_var}.
+a vertical reference line; facets across \code{metric_name_var}.
 
 Returns a plain \code{ggplot} object so callers can compose additional layers,
 themes, and scales with the standard \code{+} operator.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_forest.R
 \name{df_forest}
 \alias{df_forest}
-\title{Compute test/reference comparison statistics for a forest plot}
+\title{Compute Summary Statistics for Covariate Forest Plots}
 \usage{
 df_forest(
   data,
@@ -10,7 +10,7 @@ df_forest(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  replicate_var = NULL,
+  replicate_var = "SIM",
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -19,51 +19,45 @@ df_forest(
 )
 }
 \arguments{
-\item{data}{Input data.frame.}
+\item{data}{Input data.frame. Replicate level long format dataset.}
 
-\item{metric_name_var}{Column in \code{data} naming the PK/PD parameter (drives
-facet panels in the plot). Accepts bare names or strings. Default
-\code{metric}.}
+\item{metric_name_var}{Column in \code{data} contain metric variable names.
+Accepts bare names or strings. Default is \code{metric}.}
 
-\item{cov_name_var}{Column in \code{data} naming the covariate (e.g., \code{WTBL},
-\code{FOOD}). Accepts bare names or strings. Default \code{cov_var}.}
+\item{cov_name_var}{Column in \code{data} containing covariate variable names.
+(e.g., \code{WTBL},\code{FOOD}, etc).
+Accepts bare names or strings. Default is \code{cov_var}.}
 
-\item{cov_level_var}{Column in \code{data} naming the level within each
-covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
-\code{cov_val}.}
+\item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
+Accepts bare names or strings. Default is \code{cov_val}.}
 
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic. Accepts bare names or strings.
-Default \code{value}.}
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings.
-Required.}
+Accepts bare names or strings. Default is \code{SIM}.}
 
-\item{statistic}{Central-tendency statistic. One of \code{"median"} (default),
-\code{"mean"}, or \code{"geo_mean"}.}
+\item{statistic}{Central-tendency statistic.
+One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
-width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles. Default \code{0.9}.}
+width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
 \code{ci_label} and \code{y_label} columns. Default \code{3}.}
 
-\item{cov_name_ref}{Character scalar identifying the reference row(s) in the
+\item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
-\code{cov_name_ref} are sorted to the top of the rendered plot (first facet
-row). Default \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
-convention). Pass \code{NULL} to disable Reference-first sorting; rows then
-appear in data order. Not to be confused with \code{ref} in
-\code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}, which is the numeric
-x-intercept of the no-effect vertical reference line.}
+Default is \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
+convention).
+Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
+which is the numeric value of the x-intercept for the verticle reference line.}
 
-\item{cov_level_ref}{Optional named atomic vector mapping \code{cov_name_var}
+\item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label to display when the
-Reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
-For example, \code{c(FOOD = "Fasted", WTBL = "70 kg")}. Default \code{NULL}
-(Reference row renders in its own facet at the top, no dispersal).
+reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+Default is \code{NULL} (Reference row renders in its own facet at the top).
 \code{df_forest()} builds the canonical \code{cov_ref} column inside
 \code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
 receive \code{NA} (those panels show no dispersed Reference row). The
@@ -73,8 +67,7 @@ Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
 it is used directly (per-row reference labels) and \code{cov_level_ref} is
 ignored with an informational \code{message()}. This is the preferred form
 when reference labels can't be reduced to a single value per
-\code{cov_name_var} — for example, when a study has multiple dosing
-cohorts sharing one covariate dimension but different Reference doses.}
+\code{cov_name_var}.}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three
@@ -97,20 +90,15 @@ and \code{sigdigits}.}
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.
 }
 \description{
-Aggregates replicate draws into a cacheable, replottable container
-suitable for a covariate forest plot. Returns a \code{\link[=pmx_stats]{pmx_stats()}} container
-with class \code{c("forest_stats", "pmx_stats")} and three slots — \code{stats}
-(per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label},
-\code{y_label} columns), \code{obs} (always \code{NULL}; no scatter overlay), and
-\code{config} (column names + CI configuration) — so that \code{\link[=plot_forest]{plot_forest()}} /
-\code{\link[=plot_build_forest]{plot_build_forest()}} can render directly from this object without
-re-aggregating.
-
-\code{data} is long-form with a numeric \code{metric_value_var} column (e.g.,
-test/reference ratios per replicate) and a replicate index in
-\code{replicate_var}. Per \verb{(metric × cov_name × cov_level)} group, the point
-estimate is computed via \code{statistic} and \code{lo}/\code{hi} are the \code{(1-ci)/2} and
-\code{1-(1-ci)/2} quantiles of the draws.
+Aggregates a dataset with replicate level data into a cacheable, replottable
+container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stats]{pmx_stats()}}
+container with class \code{c("forest_stats", "pmx_stats")} and three slots:
+\itemize{
+\item \code{stats}(per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label},
+\item \code{y_label} columns),
+\item \code{obs} (always \code{NULL}; no scatter overlay),
+\item \code{config} (column names + CI configuration)
+}
 }
 \examples{
 # Aggregate replicate simulations to point estimate + 90\% CI

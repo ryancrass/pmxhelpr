@@ -117,11 +117,6 @@ test_that("Error if `data` is not a data.frame", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error if `replicate_var` is not supplied", {
-  expect_error(df_forest(data_sad_pkforest),
-               regexp = "argument `replicate_var` is required")
-})
-
 test_that("Error if `ci` is not numeric in (0, 1)", {
   expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM", ci = 1.5),
                regexp = "argument `ci` must be a single numeric value between 0 and 1")

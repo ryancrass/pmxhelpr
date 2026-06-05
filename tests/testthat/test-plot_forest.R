@@ -16,7 +16,7 @@ test_that("Output is a `forest_stats` / `pmx_stats` container (draws path)", {
 
 test_that("Output stats slot contains canonical columns", {
   out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
-  expect_true(all(c("est", "lo", "hi", "ci_label", "y_label") %in% colnames(out$stats)))
+  expect_true(all(c("est", "lo", "hi", "ci_label") %in% colnames(out$stats)))
   expect_true(all(c("metric", "cov_var", "cov_val") %in% colnames(out$stats)))
 })
 
@@ -87,20 +87,11 @@ test_that("Config records metric_value_var and replicate_var", {
 })
 
 
-#####ci_label / y_label formatting#####
+#####ci_label formatting#####
 
 test_that("`ci_label` is formatted as `est [lo, hi]` with `sigdigits`", {
   out <- df_forest(data_sad_pkforest, replicate_var = "SIM", sigdigits = 3)
   expect_match(out$stats$ci_label, "^.+ \\[.+, .+\\]$", all = TRUE)
-})
-
-test_that("`y_label` mirrors cov_level (no CI concat; CI lives in ci_label only)", {
-  out <- df_forest(data_sad_pkforest, replicate_var = "SIM")
-  row <- out$stats[out$stats$cov_var == "WTBL" &
-                   out$stats$cov_val == "50 kg" &
-                   out$stats$metric  == "AUCRATIO", ]
-  expect_equal(row$y_label, "50 kg")
-  expect_false(grepl("\\[", row$y_label))
 })
 
 test_that("`sigdigits` controls numeric formatting of ci_label", {
@@ -235,11 +226,11 @@ test_that("plot_build_forest() rejects non-forest_stats input", {
                regexp = "must be a `forest_stats` object")
 })
 
-test_that("plot_build_forest() maps `est` to x and the y_label column to y", {
+test_that("plot_build_forest() maps `est` to x and the cov_level column to y", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_equal(rlang::quo_name(p$mapping$x), "est")
-  expect_equal(rlang::quo_name(p$mapping$y), "y_label")
+  expect_equal(rlang::quo_name(p$mapping$y), "cov_val")
 })
 
 
@@ -312,7 +303,7 @@ test_that("ci_label is rendered as a right-side GeomText layer; y-axis carries c
                          logical(1)))
   expect_true(has_text)
   # primary y-axis only carries cov_level values (no CI text)
-  expect_false(any(grepl("\\[", levels(p$data$y_label))))
+  expect_false(any(grepl("\\[", levels(p$data$cov_val))))
   expect_true("ci_label" %in% colnames(stats$stats))
 })
 
@@ -333,15 +324,15 @@ test_that("Y axis factor levels sort numerically within numeric panels, rev-data
   # Reference panel  → ["Reference"]      (non-numeric, single row)
   # FOOD panel → ["Fed"]            (non-numeric, single row)
   # WTBL panel → ["50 kg", "90 kg"] (numeric ascending; 90 ends up on top)
-  expect_equal(levels(p$data$y_label), c("Reference", "Fed", "50 kg", "90 kg"))
-  expect_false(any(grepl("\\[", levels(p$data$y_label))))
+  expect_equal(levels(p$data$cov_val), c("Reference", "Fed", "50 kg", "90 kg"))
+  expect_false(any(grepl("\\[", levels(p$data$cov_val))))
 })
 
 test_that("Numeric covariates with dispersal: ref value sorts in numerical order with non-Reference rows", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  wtbl_levels <- levels(p$data$y_label)
+  wtbl_levels <- levels(p$data$cov_val)
   wtbl_idx <- which(wtbl_levels %in% c("50 kg", "70 kg", "90 kg"))
   # Within WTBL: factor levels low→high = 50, 70, 90 → on the discrete y axis
   # 90 lands at the top, 70 in the middle, 50 at the bottom
@@ -599,7 +590,7 @@ test_that("dispersed Reference row sorts to top of its panel via y-axis factor o
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM",
                      cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  y_levels <- levels(p$data$y_label)
+  y_levels <- levels(p$data$cov_val)
   expect_true("Fasted" %in% y_levels)
   expect_true("Fed"    %in% y_levels)
   expect_gt(which(y_levels == "Fasted"), which(y_levels == "Fed"))
@@ -665,7 +656,7 @@ test_that("cov_ref column dispersal produces same dispersed structure as cov_lev
   p_col <- plot_build_forest(stats_col, metric = "AUCRATIO")
   p_arg <- plot_build_forest(stats_arg, metric = "AUCRATIO")
   # Same dispersed y-axis factor levels
-  expect_equal(levels(p_col$data$y_label), levels(p_arg$data$y_label))
+  expect_equal(levels(p_col$data$cov_val), levels(p_arg$data$cov_val))
   # Reference panel dropped, Fasted in FOOD panel, 70 kg in WTBL panel
   expect_false("Reference" %in% as.character(unique(p_col$data$cov_var)))
   expect_true ("Fasted" %in% as.character(p_col$data$cov_val[p_col$data$cov_var == "FOOD"]))

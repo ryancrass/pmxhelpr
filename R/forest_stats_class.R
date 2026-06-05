@@ -81,7 +81,7 @@ print.forest_stats <- function(x, ...) {
 #' @description
 #' Compact summary of a [df_forest()] result: the same header shown by
 #' [print.forest_stats()], but the body is condensed to one line per row
-#' using the `y_label` column. Suitable for vignette output and test
+#' using the covariate level column. Suitable for vignette output and test
 #' snapshots.
 #'
 #' @param object A `forest_stats` object.
@@ -102,11 +102,12 @@ summary.forest_stats <- function(object, ...) {
               format(object$config$statistic),
               format(object$config$ci)))
   metric_name_var_str <- object$config$metric_name_var
+  cov_level_var_str <- object$config$cov_level_var
   cat("\n  per-row:\n")
   for (i in seq_len(nrow(object$stats))) {
     cat(sprintf("    [%s] %s\n",
                 object$stats[[metric_name_var_str]][i],
-                object$stats$y_label[i]))
+                as.character(object$stats[[cov_level_var_str]][i])))
   }
   invisible(object)
 }

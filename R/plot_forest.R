@@ -5,8 +5,8 @@
 #' container suitable for a covariate forest plots. Returns a [pmx_stats()]
 #' container with class `c("forest_stats", "pmx_stats")` and three slots:
 #'
-#'   + `stats`(per-row summary frame with canonical `est`, `lo`, `hi`, `ci_label`,
-#'   + `y_label` columns),
+#'   + `stats` (per-row summary frame with canonical `est`, `lo`, `hi`, `ci_label`
+#'      columns),
 #'   + `obs` (always `NULL`; no scatter overlay),
 #'   + `config` (column names + CI configuration)
 #'
@@ -28,7 +28,7 @@
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
 #' @param sigdigits Number of significant digits used to format the
-#'    `ci_label` and `y_label` columns. Default `3`.
+#'    `ci_label` column. Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
 #'    `cov_name_var` column. Rows whose `cov_name_var` value equals
 #'    Default is `"Reference"` (matches the bundled `data_sad_pkforest`
@@ -57,9 +57,7 @@
 #'      \item{`stats`}{One row per `(metric × cov_name × cov_level)` group
 #'        with columns named in `metric_name_var` / `cov_name_var` /
 #'        `cov_level_var`, canonical numeric columns `est`, `lo`, `hi`,
-#'        and character columns `ci_label` (e.g. `"1.12 [0.95, 1.32]"`)
-#'        and `y_label` (a stable canonical name for the y-axis tick
-#'        text; equal to the row's `cov_level_var` value as character).
+#'        and the character column `ci_label` (e.g. `"1.12 [0.95, 1.32]"`).
 #'        The `cov_name_var` value drives the per-row facet strip; the
 #'        `cov_level_var` value drives the y-axis tick label;
 #'        [plot_build_forest()] renders `ci_label` as a right-side
@@ -185,8 +183,7 @@ df_forest <- function(
         ", ",
         signif(.data$hi, sigdigits),
         "]"
-      ),
-      y_label = as.character(.data[[cov_level_var_str]])
+      )
     )
 
   pmx_stats(
@@ -229,7 +226,7 @@ validate_forest_stats <- function(x) {
     )
   }
   validate_pmx_stats(x)
-  required_cols <- c("est", "lo", "hi", "ci_label", "y_label")
+  required_cols <- c("est", "lo", "hi", "ci_label")
   missing_cols <- setdiff(required_cols, colnames(x$stats))
   if (length(missing_cols) > 0) {
     rlang::abort(paste0(
@@ -456,7 +453,6 @@ plot_build_forest <- function(
       row <- ref_row
       row[[cov_name_var_str]] <- cn
       row[[cov_level_var_str]] <- vals
-      row$y_label <- vals
       synth_rows_list[[cn]] <- row
     }
     synth_rows <- if (length(synth_rows_list)) {
@@ -481,15 +477,17 @@ plot_build_forest <- function(
     cov_names_ordered <- cov_names_unique
   }
 
-  # Per-panel y_label ordering: parse cov_level as numeric when possible
+  plot_data[[cov_level_var_str]] <- as.character(plot_data[[cov_level_var_str]])
+
+  # Per-panel y-axis ordering: parse cov_level as numeric when possible
   # (so e.g. WTBL levels "50 kg"/"70 kg"/"90 kg" sort ascending → 90 on top of
   # the discrete y-axis). Falls back to reverse-data-encounter order for
   # categorical labels (so e.g. FOOD "Fasted" stays above "Fed").
   y_levels <- character(0)
   for (cn in cov_names_ordered) {
-    panel_labels <- unique(as.character(
-      plot_data$y_label[as.character(plot_data[[cov_name_var_str]]) == cn]
-    ))
+    panel_labels <- unique(
+      plot_data[[cov_level_var_str]][as.character(plot_data[[cov_name_var_str]]) == cn]
+    )
     if (length(panel_labels) == 0L) {
       next
     }
@@ -505,7 +503,10 @@ plot_build_forest <- function(
     }
     y_levels <- c(y_levels, panel_order)
   }
-  plot_data$y_label <- factor(plot_data$y_label, levels = y_levels)
+  plot_data[[cov_level_var_str]] <- factor(
+    plot_data[[cov_level_var_str]],
+    levels = y_levels
+  )
 
   plot_data[[cov_name_var_str]] <- factor(
     plot_data[[cov_name_var_str]],
@@ -515,7 +516,7 @@ plot_build_forest <- function(
   base <- init_plot(
     plot_data,
     x_var = "est",
-    y_var = "y_label",
+    y_var = cov_level_var_str,
     forest_panel = TRUE
   )
 

@@ -45,7 +45,7 @@ One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} and \code{y_label} columns. Default \code{3}.}
+\code{ci_label} column. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
@@ -76,9 +76,7 @@ slots:
 \item{\code{stats}}{One row per \verb{(metric × cov_name × cov_level)} group
 with columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est}, \code{lo}, \code{hi},
-and character columns \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"})
-and \code{y_label} (a stable canonical name for the y-axis tick
-text; equal to the row's \code{cov_level_var} value as character).
+and the character column \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"}).
 The \code{cov_name_var} value drives the per-row facet strip; the
 \code{cov_level_var} value drives the y-axis tick label;
 \code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as a right-side
@@ -94,8 +92,8 @@ Aggregates a dataset with replicate level data into a cacheable, replottable
 container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stats]{pmx_stats()}}
 container with class \code{c("forest_stats", "pmx_stats")} and three slots:
 \itemize{
-\item \code{stats}(per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label},
-\item \code{y_label} columns),
+\item \code{stats} (per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label}
+columns),
 \item \code{obs} (always \code{NULL}; no scatter overlay),
 \item \code{config} (column names + CI configuration)
 }

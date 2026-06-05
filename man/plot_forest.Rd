@@ -57,7 +57,7 @@ One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} and \code{y_label} columns. Default \code{3}.}
+\code{ci_label} column. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals

@@ -29,8 +29,8 @@
   exactly one metric, it is picked automatically.
 * `df_forest()` aggregates replicate draws into per-group point and CI
   estimates. Returns a `forest_stats` / `pmx_stats` container with
-  canonical `est`, `lo`, `hi`, `ci_label`, and `y_label` columns.
-  `y_label` carries the covariate level (the covariate name lives in
+  canonical `est`, `lo`, `hi`, and `ci_label` columns. The `cov_level_var`
+  column drives the y-axis tick label (the covariate name lives in
   the facet strip; `ci_label` is rendered as a right-side secondary-axis
   text layer by `plot_build_forest()`).
 * `plot_build_forest()` renders a forest ggplot from any `forest_stats`

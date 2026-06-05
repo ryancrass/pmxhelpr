@@ -41,13 +41,13 @@
 
 ### New datasets
 
-* `data_sad_pkforest` and `data_sad_pkforest_sum` ship as long-form
-  example data for `df_forest()` / `plot_forest()`: per-replicate
-  bootstrap-PK draws and the corresponding pre-summarized median + 90%
-  CI of absolute and test/reference PK metrics across body-weight and
-  food-effect covariate scenarios. Column defaults of `df_forest()` /
-  `plot_forest()` (`metric`, `cov_var`, `cov_val`, `value`) match these
-  datasets for drop-in use.
+* `data_sad_pkforest` ships as long-form example data for `df_forest()` /
+  `plot_forest()`: per-replicate bootstrap-PK draws of absolute and
+  test/reference PK metrics across body-weight and food-effect covariate
+  scenarios. Column defaults of `df_forest()` / `plot_forest()`
+  (`metric`, `cov_var`, `cov_val`, `value`) match this dataset for
+  drop-in use; pipe through `df_forest(replicate_var = "SIM")` to
+  produce a `forest_stats` container.
 
 ### Dual input for per-covariate reference labels
 
@@ -64,13 +64,19 @@
 * `plot_forest()` accepts the `forest_stats` container returned by
   `df_forest()` directly. Pass a precomputed result to skip aggregation
   and re-plot with different `theme`, `ref`, or `ref_band` settings.
-  Pipeline arguments (`metric_name_var`,
-  `cov_name_var`, `cov_level_var`, `metric_value_var`, `replicate_var`,
-  `est_var`, `lo_var`, `hi_var`, `statistic`, `ci`, `sigdigits`,
-  `cov_name_ref`, `cov_level_ref`) cannot be honored on the precomputed path
-  and error with a clear message. The plot-only `metric` argument is
+  Pipeline arguments (`metric_name_var`, `cov_name_var`, `cov_level_var`,
+  `metric_value_var`, `replicate_var`, `statistic`, `ci`, `sigdigits`,
+  `cov_name_ref`, `cov_level_ref`) cannot be honored on the precomputed
+  path and error with a clear message. The plot-only `metric` argument is
   accepted on both paths so a single `forest_stats` container can be
   re-rendered for different exposure metrics.
+
+* `df_forest()` is draws-only: the replicate-aggregation path is the
+  function's sole purpose. Arguments for an externally pre-summarized
+  input (`est_var`, `lo_var`, `hi_var`) are removed; `replicate_var` is
+  required. Users with pre-summarized data from external pipelines build
+  a `forest_stats` container manually and render via
+  `plot_build_forest()`.
 
 
 # pmxhelpr 0.5.0

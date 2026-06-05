@@ -12,9 +12,6 @@ plot_forest(
   cov_level_var = "cov_val",
   metric_value_var = "value",
   replicate_var = NULL,
-  est_var = NULL,
-  lo_var = NULL,
-  hi_var = NULL,
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -49,27 +46,18 @@ covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
 
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
 test/reference comparison statistic. Accepts bare names or strings.
-Required on the draws path; ignored on the pre-summarized path.
 Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings, or
-\code{NULL}. When non-\code{NULL}, selects the draws path. Default \code{NULL}.}
+posterior/bootstrap draw id). Accepts bare names or strings.
+Required.}
 
-\item{est_var, lo_var, hi_var}{Columns in \code{data} containing the point
-estimate and lower / upper bounds of the pre-computed confidence
-interval. Accept bare names or strings. All three required together
-on the pre-summarized path; \code{NULL} selects the draws path. Defaults
-\code{NULL}.}
-
-\item{statistic}{Central-tendency statistic on the draws path. One of
-\code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}. Ignored on the
-pre-summarized path.}
+\item{statistic}{Central-tendency statistic. One of \code{"median"} (default),
+\code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles on the draws path. Ignored on the pre-summarized path.
-Default \code{0.9}.}
+quantiles. Default \code{0.9}.}
 
 \item{sigdigits}{Number of significant digits used to format the
 \code{ci_label} and \code{y_label} columns. Default \code{3}.}
@@ -129,12 +117,11 @@ settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
-\code{cov_level_var}, \code{metric_value_var}, \code{replicate_var}, \code{est_var}, \code{lo_var},
-\code{hi_var}, \code{statistic}, \code{ci}, \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref})
-cannot be honored because the aggregation does not run again — passing
-any of them aborts with a message pointing the caller at \code{\link[=df_forest]{df_forest()}}.
-Only \code{theme}, \code{ref}, \code{ref_band}, and \code{metric} are accepted on both
-paths.
+\code{cov_level_var}, \code{metric_value_var}, \code{replicate_var}, \code{statistic}, \code{ci},
+\code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
+the aggregation does not run again — passing any of them aborts with a
+message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{theme}, \code{ref},
+\code{ref_band}, and \code{metric} are accepted on both paths.
 }
 \examples{
 # Raw-data path: one metric per call

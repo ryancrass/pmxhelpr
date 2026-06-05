@@ -359,7 +359,6 @@ library(withr)
 
 #Read View Internal Datasets
 glimpse(data_sad_pkforest)
-glimpse(data_sad_pkforest_sum)
 
 #Generate the summary dataset using df_forest()
 sum <- df_forest(data_sad_pkforest, replicate_var = "SIM")

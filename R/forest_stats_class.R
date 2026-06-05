@@ -69,8 +69,6 @@ print.forest_stats <- function(x, ...) {
               format(x$config$cov_level_var),
               format(x$config$statistic),
               format(x$config$ci)))
-  path <- if (!is.null(x$config$replicate_var)) "draws" else "pre-summarized"
-  cat(sprintf("  path:   %s\n", path))
   cat("\n  stats body:\n")
   print(x$stats, ...)
   invisible(x)
@@ -103,8 +101,6 @@ summary.forest_stats <- function(object, ...) {
               format(object$config$cov_level_var),
               format(object$config$statistic),
               format(object$config$ci)))
-  path <- if (!is.null(object$config$replicate_var)) "draws" else "pre-summarized"
-  cat(sprintf("  path:   %s\n", path))
   metric_name_var_str <- object$config$metric_name_var
   cat("\n  per-row:\n")
   for (i in seq_len(nrow(object$stats))) {

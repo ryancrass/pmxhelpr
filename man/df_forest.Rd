@@ -11,9 +11,6 @@ df_forest(
   cov_level_var = "cov_val",
   metric_value_var = "value",
   replicate_var = NULL,
-  est_var = NULL,
-  lo_var = NULL,
-  hi_var = NULL,
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -37,27 +34,18 @@ covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
 
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
 test/reference comparison statistic. Accepts bare names or strings.
-Required on the draws path; ignored on the pre-summarized path.
 Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings, or
-\code{NULL}. When non-\code{NULL}, selects the draws path. Default \code{NULL}.}
+posterior/bootstrap draw id). Accepts bare names or strings.
+Required.}
 
-\item{est_var, lo_var, hi_var}{Columns in \code{data} containing the point
-estimate and lower / upper bounds of the pre-computed confidence
-interval. Accept bare names or strings. All three required together
-on the pre-summarized path; \code{NULL} selects the draws path. Defaults
-\code{NULL}.}
-
-\item{statistic}{Central-tendency statistic on the draws path. One of
-\code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}. Ignored on the
-pre-summarized path.}
+\item{statistic}{Central-tendency statistic. One of \code{"median"} (default),
+\code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles on the draws path. Ignored on the pre-summarized path.
-Default \code{0.9}.}
+quantiles. Default \code{0.9}.}
 
 \item{sigdigits}{Number of significant digits used to format the
 \code{ci_label} and \code{y_label} columns. Default \code{3}.}
@@ -109,40 +97,26 @@ and \code{sigdigits}.}
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.
 }
 \description{
-Aggregates replicate draws (or accepts pre-summarized estimates) into a
-cacheable, replottable container suitable for a covariate forest plot.
-Returns a \code{\link[=pmx_stats]{pmx_stats()}} container with class
-\code{c("forest_stats", "pmx_stats")} and three slots — \code{stats} (per-row
-summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label}, \code{y_label}
-columns), \code{obs} (always \code{NULL}; no scatter overlay), and \code{config} (column
-names + CI configuration) — so that \code{\link[=plot_forest]{plot_forest()}} / \code{\link[=plot_build_forest]{plot_build_forest()}}
-can render directly from this object without re-aggregating.
+Aggregates replicate draws into a cacheable, replottable container
+suitable for a covariate forest plot. Returns a \code{\link[=pmx_stats]{pmx_stats()}} container
+with class \code{c("forest_stats", "pmx_stats")} and three slots — \code{stats}
+(per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label},
+\code{y_label} columns), \code{obs} (always \code{NULL}; no scatter overlay), and
+\code{config} (column names + CI configuration) — so that \code{\link[=plot_forest]{plot_forest()}} /
+\code{\link[=plot_build_forest]{plot_build_forest()}} can render directly from this object without
+re-aggregating.
 
-Two input modes are supported. The function switches on whether
-\code{replicate_var} is \code{NULL}:
-\itemize{
-\item \strong{Draws path} (\code{replicate_var} non-\code{NULL}): \code{data} is long-form with a
-numeric \code{metric_value_var} column (e.g., test/reference ratios per replicate)
-and a replicate index in \code{replicate_var}. Per \verb{(metric × cov_name × cov_level)} group, the point estimate is computed via \code{statistic} and
-\code{lo}/\code{hi} are the \code{(1-ci)/2} and \code{1-(1-ci)/2} quantiles of the draws.
-\item \strong{Pre-summarized path} (\code{replicate_var} \code{NULL}): \code{data} already has
-per-row point estimates in \code{est_var}, \code{lo_var}, \code{hi_var}. These are
-passed through unchanged after a rename to canonical \code{est}/\code{lo}/\code{hi}.
-}
-
-Passing arguments from both paths in the same call aborts.
+\code{data} is long-form with a numeric \code{metric_value_var} column (e.g.,
+test/reference ratios per replicate) and a replicate index in
+\code{replicate_var}. Per \verb{(metric × cov_name × cov_level)} group, the point
+estimate is computed via \code{statistic} and \code{lo}/\code{hi} are the \code{(1-ci)/2} and
+\code{1-(1-ci)/2} quantiles of the draws.
 }
 \examples{
 # Draws path: aggregate replicate simulations to point estimate + 90\% CI
 df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
   replicate_var = "SIM"
-)
-
-# Pre-summarized path: pass precomputed estimates through unchanged
-df_forest(
-  dplyr::filter(data_sad_pkforest_sum, grepl("RATIO$", metric)),
-  est_var = "P50", lo_var = "P05", hi_var = "P95"
 )
 
 # Custom reference level (default is "REF")

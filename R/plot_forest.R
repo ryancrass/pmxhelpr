@@ -1,29 +1,20 @@
 #' Compute test/reference comparison statistics for a forest plot
 #'
 #' @description
-#' Aggregates replicate draws (or accepts pre-summarized estimates) into a
-#' cacheable, replottable container suitable for a covariate forest plot.
-#' Returns a [pmx_stats()] container with class
-#' `c("forest_stats", "pmx_stats")` and three slots — `stats` (per-row
-#' summary frame with canonical `est`, `lo`, `hi`, `ci_label`, `y_label`
-#' columns), `obs` (always `NULL`; no scatter overlay), and `config` (column
-#' names + CI configuration) — so that [plot_forest()] / [plot_build_forest()]
-#' can render directly from this object without re-aggregating.
+#' Aggregates replicate draws into a cacheable, replottable container
+#' suitable for a covariate forest plot. Returns a [pmx_stats()] container
+#' with class `c("forest_stats", "pmx_stats")` and three slots — `stats`
+#' (per-row summary frame with canonical `est`, `lo`, `hi`, `ci_label`,
+#' `y_label` columns), `obs` (always `NULL`; no scatter overlay), and
+#' `config` (column names + CI configuration) — so that [plot_forest()] /
+#' [plot_build_forest()] can render directly from this object without
+#' re-aggregating.
 #'
-#' Two input modes are supported. The function switches on whether
-#' `replicate_var` is `NULL`:
-#'
-#' * **Draws path** (`replicate_var` non-`NULL`): `data` is long-form with a
-#'   numeric `metric_value_var` column (e.g., test/reference ratios per replicate)
-#'   and a replicate index in `replicate_var`. Per `(metric × cov_name ×
-#'   cov_level)` group, the point estimate is computed via `statistic` and
-#'   `lo`/`hi` are the `(1-ci)/2` and `1-(1-ci)/2` quantiles of the draws.
-#'
-#' * **Pre-summarized path** (`replicate_var` `NULL`): `data` already has
-#'   per-row point estimates in `est_var`, `lo_var`, `hi_var`. These are
-#'   passed through unchanged after a rename to canonical `est`/`lo`/`hi`.
-#'
-#' Passing arguments from both paths in the same call aborts.
+#' `data` is long-form with a numeric `metric_value_var` column (e.g.,
+#' test/reference ratios per replicate) and a replicate index in
+#' `replicate_var`. Per `(metric × cov_name × cov_level)` group, the point
+#' estimate is computed via `statistic` and `lo`/`hi` are the `(1-ci)/2` and
+#' `1-(1-ci)/2` quantiles of the draws.
 #'
 #' @param data Input data.frame.
 #' @param metric_name_var Column in `data` naming the PK/PD parameter (drives
@@ -36,23 +27,15 @@
 #'    `cov_val`.
 #' @param metric_value_var Column in `data` containing replicate draws of the
 #'    test/reference comparison statistic. Accepts bare names or strings.
-#'    Required on the draws path; ignored on the pre-summarized path.
 #'    Default `value`.
 #' @param replicate_var Column in `data` indexing the replicate (e.g.,
-#'    posterior/bootstrap draw id). Accepts bare names or strings, or
-#'    `NULL`. When non-`NULL`, selects the draws path. Default `NULL`.
-#' @param est_var,lo_var,hi_var Columns in `data` containing the point
-#'    estimate and lower / upper bounds of the pre-computed confidence
-#'    interval. Accept bare names or strings. All three required together
-#'    on the pre-summarized path; `NULL` selects the draws path. Defaults
-#'    `NULL`.
-#' @param statistic Central-tendency statistic on the draws path. One of
-#'    `"median"` (default), `"mean"`, or `"geo_mean"`. Ignored on the
-#'    pre-summarized path.
+#'    posterior/bootstrap draw id). Accepts bare names or strings.
+#'    Required.
+#' @param statistic Central-tendency statistic. One of `"median"` (default),
+#'    `"mean"`, or `"geo_mean"`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI). Used to derive symmetric
-#'    quantiles on the draws path. Ignored on the pre-summarized path.
-#'    Default `0.9`.
+#'    quantiles. Default `0.9`.
 #' @param sigdigits Number of significant digits used to format the
 #'    `ci_label` and `y_label` columns. Default `3`.
 #' @param cov_name_ref Character scalar identifying the reference row(s) in the
@@ -108,12 +91,6 @@
 #'   replicate_var = "SIM"
 #' )
 #'
-#' # Pre-summarized path: pass precomputed estimates through unchanged
-#' df_forest(
-#'   dplyr::filter(data_sad_pkforest_sum, grepl("RATIO$", metric)),
-#'   est_var = "P50", lo_var = "P05", hi_var = "P95"
-#' )
-#'
 #' # Custom reference level (default is "REF")
 #' df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "REF")
 #'
@@ -132,34 +109,34 @@
 #' df_forest(d, replicate_var = "SIM")
 
 df_forest <- function(data,
-                      metric_name_var    = "metric",
-                      cov_name_var  = "cov_var",
-                      cov_level_var = "cov_val",
-                      metric_value_var     = "value",
-                      replicate_var = NULL,
-                      est_var       = NULL,
-                      lo_var        = NULL,
-                      hi_var        = NULL,
-                      statistic     = "median",
-                      ci            = 0.9,
-                      sigdigits     = 3,
+                      metric_name_var  = "metric",
+                      cov_name_var     = "cov_var",
+                      cov_level_var    = "cov_val",
+                      metric_value_var = "value",
+                      replicate_var    = NULL,
+                      statistic        = "median",
+                      ci               = 0.9,
+                      sigdigits        = 3,
                       cov_name_ref     = "REF",
                       cov_level_ref    = NULL) {
 
-  metric_name_var_str    <- resolve_var(rlang::enquo(metric_name_var))
-  cov_name_var_str  <- resolve_var(rlang::enquo(cov_name_var))
-  cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-  metric_value_var_str     <- resolve_var(rlang::enquo(metric_value_var),     nullable = TRUE)
-  replicate_var_str <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
-  est_var_str       <- resolve_var(rlang::enquo(est_var),       nullable = TRUE)
-  lo_var_str        <- resolve_var(rlang::enquo(lo_var),        nullable = TRUE)
-  hi_var_str        <- resolve_var(rlang::enquo(hi_var),        nullable = TRUE)
+  metric_name_var_str  <- resolve_var(rlang::enquo(metric_name_var))
+  cov_name_var_str     <- resolve_var(rlang::enquo(cov_name_var))
+  cov_level_var_str    <- resolve_var(rlang::enquo(cov_level_var))
+  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
+  replicate_var_str    <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
 
   check_df(data, "data")
   check_forest_args(statistic, ci, sigdigits, cov_name_ref)
   check_cov_level_ref(cov_level_ref)
   check_varsindf(data, c(metric_name_var_str, cov_name_var_str, cov_level_var_str),
                  "data", "metric_name_var/cov_name_var/cov_level_var")
+
+  if (is.null(replicate_var_str)) {
+    rlang::abort(message = "argument `replicate_var` is required")
+  }
+  check_varsindf(data, c(metric_value_var_str, replicate_var_str),
+                 "data", "metric_value_var/replicate_var")
 
   if ("cov_ref" %in% colnames(data)) {
     if (!is.null(cov_level_ref)) {
@@ -173,74 +150,23 @@ df_forest <- function(data,
     ))
   }
 
-  draws_path  <- !is.null(replicate_var_str)
-  presum_args <- c(est_var_str, lo_var_str, hi_var_str)
-  presum_path <- length(presum_args) > 0L
+  probs <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
+  stats_fn <- switch(statistic,
+    median   = function(x) stats::median(x, na.rm = TRUE),
+    mean     = function(x) mean(x, na.rm = TRUE),
+    geo_mean = function(x) exp(mean(log(x), na.rm = TRUE))
+  )
 
-  if (draws_path && presum_path) {
-    rlang::abort(message = paste0(
-      "argument `replicate_var` cannot be combined with `est_var`/`lo_var`/`hi_var`. ",
-      "Use the draws path (replicate_var + metric_value_var) OR the pre-summarized path ",
-      "(est_var + lo_var + hi_var), not both."
-    ))
-  }
-  if (!draws_path && !presum_path) {
-    rlang::abort(message = paste0(
-      "argument `replicate_var` or `est_var`/`lo_var`/`hi_var` must be supplied. ",
-      "Use the draws path (replicate_var + metric_value_var) to aggregate replicate draws, ",
-      "or the pre-summarized path (est_var + lo_var + hi_var) to pass through ",
-      "precomputed estimates."
-    ))
-  }
-
-  if (draws_path) {
-    if (is.null(metric_value_var_str)) {
-      rlang::abort(message = "argument `metric_value_var` is required on the draws path (`replicate_var` non-`NULL`)")
-    }
-    check_varsindf(data, c(metric_value_var_str, replicate_var_str),
-                   "data", "metric_value_var/replicate_var")
-
-    probs <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-    stats_fn <- switch(statistic,
-      median   = function(x) stats::median(x, na.rm = TRUE),
-      mean     = function(x) mean(x, na.rm = TRUE),
-      geo_mean = function(x) exp(mean(log(x), na.rm = TRUE))
+  grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str,
+                if ("cov_ref" %in% colnames(data)) "cov_ref")
+  stats <- data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grp_vars))) |>
+    dplyr::summarise(
+      est = stats_fn(.data[[metric_value_var_str]]),
+      lo  = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
+      hi  = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
+      .groups = "drop"
     )
-
-    grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str,
-                  if ("cov_ref" %in% colnames(data)) "cov_ref")
-    stats <- data |>
-      dplyr::group_by(dplyr::across(dplyr::all_of(grp_vars))) |>
-      dplyr::summarise(
-        est = stats_fn(.data[[metric_value_var_str]]),
-        lo  = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
-        hi  = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
-        .groups = "drop"
-      )
-  } else {
-    missing_presum <- c(
-      if (is.null(est_var_str)) "est_var",
-      if (is.null(lo_var_str))  "lo_var",
-      if (is.null(hi_var_str))  "hi_var"
-    )
-    if (length(missing_presum) > 0L) {
-      rlang::abort(message = paste0(
-        "pre-summarized path requires all of `est_var`, `lo_var`, `hi_var`. ",
-        "Missing: ", paste(missing_presum, collapse = ", ")
-      ))
-    }
-    check_varsindf(data, c(est_var_str, lo_var_str, hi_var_str),
-                   "data", "est_var/lo_var/hi_var")
-
-    keep_cols <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str,
-                   est_var_str, lo_var_str, hi_var_str,
-                   if ("cov_ref" %in% colnames(data)) "cov_ref")
-    stats <- data |>
-      dplyr::select(dplyr::all_of(keep_cols)) |>
-      dplyr::rename(dplyr::any_of(c(est = est_var_str,
-                                    lo  = lo_var_str,
-                                    hi  = hi_var_str)))
-  }
 
   stats <- stats |>
     dplyr::mutate(
@@ -254,17 +180,14 @@ df_forest <- function(data,
     stats  = as.data.frame(stats),
     obs    = NULL,
     config = list(
-      metric_name_var    = metric_name_var_str,
-      cov_name_var  = cov_name_var_str,
-      cov_level_var = cov_level_var_str,
-      metric_value_var     = if (draws_path) metric_value_var_str else NULL,
-      replicate_var = replicate_var_str,
-      est_var       = if (!draws_path) est_var_str else NULL,
-      lo_var        = if (!draws_path) lo_var_str  else NULL,
-      hi_var        = if (!draws_path) hi_var_str  else NULL,
-      statistic     = statistic,
-      ci            = ci,
-      sigdigits     = sigdigits,
+      metric_name_var  = metric_name_var_str,
+      cov_name_var     = cov_name_var_str,
+      cov_level_var    = cov_level_var_str,
+      metric_value_var = metric_value_var_str,
+      replicate_var    = replicate_var_str,
+      statistic        = statistic,
+      ci               = ci,
+      sigdigits        = sigdigits,
       cov_name_ref     = cov_name_ref,
       cov_level_ref    = cov_level_ref
     ),
@@ -563,12 +486,11 @@ plot_build_forest <- function(stats,
 #'   settings.
 #'
 #' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
-#' `cov_level_var`, `metric_value_var`, `replicate_var`, `est_var`, `lo_var`,
-#' `hi_var`, `statistic`, `ci`, `sigdigits`, `cov_name_ref`, `cov_level_ref`)
-#' cannot be honored because the aggregation does not run again — passing
-#' any of them aborts with a message pointing the caller at [df_forest()].
-#' Only `theme`, `ref`, `ref_band`, and `metric` are accepted on both
-#' paths.
+#' `cov_level_var`, `metric_value_var`, `replicate_var`, `statistic`, `ci`,
+#' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
+#' the aggregation does not run again — passing any of them aborts with a
+#' message pointing the caller at [df_forest()]. Only `theme`, `ref`,
+#' `ref_band`, and `metric` are accepted on both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
@@ -607,9 +529,6 @@ plot_forest <- function(data,
                         cov_level_var    = "cov_val",
                         metric_value_var = "value",
                         replicate_var    = NULL,
-                        est_var          = NULL,
-                        lo_var           = NULL,
-                        hi_var           = NULL,
                         statistic        = "median",
                         ci               = 0.9,
                         sigdigits        = 3,
@@ -629,28 +548,22 @@ plot_forest <- function(data,
                              ref_band = ref_band, metric = metric))
   }
 
-  metric_name_var_str    <- resolve_var(rlang::enquo(metric_name_var))
-  cov_name_var_str  <- resolve_var(rlang::enquo(cov_name_var))
-  cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-  metric_value_var_str     <- resolve_var(rlang::enquo(metric_value_var),     nullable = TRUE)
-  replicate_var_str <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
-  est_var_str       <- resolve_var(rlang::enquo(est_var),       nullable = TRUE)
-  lo_var_str        <- resolve_var(rlang::enquo(lo_var),        nullable = TRUE)
-  hi_var_str        <- resolve_var(rlang::enquo(hi_var),        nullable = TRUE)
+  metric_name_var_str  <- resolve_var(rlang::enquo(metric_name_var))
+  cov_name_var_str     <- resolve_var(rlang::enquo(cov_name_var))
+  cov_level_var_str    <- resolve_var(rlang::enquo(cov_level_var))
+  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
+  replicate_var_str    <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
 
   stats <- df_forest(
     data,
-    metric_name_var    = metric_name_var_str,
-    cov_name_var  = cov_name_var_str,
-    cov_level_var = cov_level_var_str,
-    metric_value_var     = metric_value_var_str,
-    replicate_var = replicate_var_str,
-    est_var       = est_var_str,
-    lo_var        = lo_var_str,
-    hi_var        = hi_var_str,
-    statistic     = statistic,
-    ci            = ci,
-    sigdigits     = sigdigits,
+    metric_name_var  = metric_name_var_str,
+    cov_name_var     = cov_name_var_str,
+    cov_level_var    = cov_level_var_str,
+    metric_value_var = metric_value_var_str,
+    replicate_var    = replicate_var_str,
+    statistic        = statistic,
+    ci               = ci,
+    sigdigits        = sigdigits,
     cov_name_ref     = cov_name_ref,
     cov_level_ref    = cov_level_ref
   )

@@ -15,6 +15,7 @@
 \item{metric}{PK exposure metric name — absolute (\code{CMAX}, \code{CMIN}, \code{AUC}, \code{CAVG}) or test/reference ratio (\code{CMAXRATIO}, \code{CMINRATIO}, \code{AUCRATIO}, \code{CAVGRATIO})}
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
 \item{cov_var}{Covariate column name (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
+\item{cov_var_desc}{Covariate description corresponding to \code{cov_var} (values: \code{Reference}, \code{Food}, \code{Weight})}
 \item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{90 kg})}
 \item{cov_ref}{Per-row reference label for dispersal in \code{\link[=plot_forest]{plot_forest()}} (values: \code{NA} for \code{Reference} rows, \code{"Fasted"} for \code{FOOD} rows, \code{"70 kg"} for \code{WTBL} rows). Consumed by \code{\link[=df_forest]{df_forest()}} when present on \code{data}; in that case \code{cov_level_ref} is ignored with an informational message.}
 }

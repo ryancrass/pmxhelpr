@@ -36,7 +36,7 @@
 * `plot_build_forest()` renders a forest ggplot from any `forest_stats`
   container; most users still go through `plot_forest()`.
 * `plot_forest_theme()` is a theme factory for `plot_forest()` with keys
-  `point`, `errorbar`, `ref_line`, and `ref_band`.
+  `point`, `errorbar`, `ref_line`, `ref_band`, and `panel_color`.
 * `is_forest_stats()` predicate for the new `forest_stats` subclass.
 
 ### New datasets
@@ -58,6 +58,25 @@
   named-vector form can't express); `cov_level_ref` is then ignored with
   an informational `message()`. Existing `cov_level_ref` callers are
   unaffected.
+
+### Per-covariate coloring in forest plots
+
+* `plot_forest_theme()` gains a `panel_color` argument (a [`pmx_color()`])
+  that maps each covariate to a color. When supplied with at least one
+  named entry, `plot_forest()` colors point and errorbar layers by
+  covariate (facet) via `scale_color_manual()` and suppresses the legend,
+  since facet strips already label each covariate. Covariates absent from
+  the palette render in `grey50` and trigger a warning. Default is an
+  empty `pmx_color()` (no per-covariate coloring), preserving the prior
+  single-color behavior.
+
+### Generalized `pmx_color()`
+
+* `pmx_color()` is now variadic and accepts arbitrary named arguments,
+  mapping any discrete level to a color. Existing
+  `pmx_color(dv = ..., pred = ..., ipred = ...)` usage in `plot_gof_theme()`
+  is unchanged; the generalization enables `plot_forest_theme(panel_color = ...)`
+  per-covariate mapping.
 
 ### Dual-mode pipelines (replot without recompute)
 

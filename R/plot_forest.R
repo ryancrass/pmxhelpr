@@ -552,28 +552,47 @@ plot_build_forest <- function(
       )
   }
 
+  pc <- plottheme$panel_color
+  has_panel_color <- inherits(pc, "pmx_color") && length(pc) > 0
+
   eb <- plottheme$errorbar
+  eb_color <- if (has_panel_color) NULL else eb$color
+  eb_mapping <- if (has_panel_color) {
+    ggplot2::aes(
+      xmin = .data$lo, xmax = .data$hi,
+      color = .data[[cov_name_var_str]]
+    )
+  } else {
+    ggplot2::aes(xmin = .data$lo, xmax = .data$hi)
+  }
   base <- base +
     do.call(
       ggplot2::geom_linerange,
       compact(list(
-        mapping = ggplot2::aes(xmin = .data$lo, xmax = .data$hi),
+        mapping = eb_mapping,
         linewidth = eb$linewidth,
         linetype = eb$linetype,
         alpha = eb$alpha,
-        color = eb$color
+        color = eb_color
       ))
     )
 
   pt <- plottheme$point
+  pt_color <- if (has_panel_color) NULL else pt$color
+  pt_mapping <- if (has_panel_color) {
+    ggplot2::aes(color = .data[[cov_name_var_str]])
+  } else {
+    NULL
+  }
   base <- base +
     do.call(
       ggplot2::geom_point,
       compact(list(
+        mapping = pt_mapping,
         shape = pt$shape,
         size = pt$size,
         alpha = pt$alpha,
-        color = pt$color
+        color = pt_color
       ))
     )
 
@@ -597,7 +616,7 @@ plot_build_forest <- function(
       )
     )
 
-  base +
+  base <- base +
     ggplot2::facet_grid(
       rows = ggplot2::vars(!!rlang::sym(cov_name_var_str)),
       scales = "free_y",
@@ -605,6 +624,24 @@ plot_build_forest <- function(
       switch = "y"
     ) +
     ggplot2::labs(xlab = "Value", ylab = NULL, title = metric)
+
+  if (has_panel_color) {
+    palette <- unlist(pc)
+    cov_levels <- levels(plot_data[[cov_name_var_str]])
+    missing <- setdiff(cov_levels, names(palette))
+    if (length(missing) > 0) {
+      rlang::warn(paste0(
+        "`panel_color` is missing entries for: ",
+        paste(missing, collapse = ", "),
+        ". These covariates will render in grey50."
+      ))
+    }
+    base <- base +
+      ggplot2::scale_color_manual(values = palette, na.value = "grey50") +
+      ggplot2::guides(color = "none")
+  }
+
+  base
 }
 
 

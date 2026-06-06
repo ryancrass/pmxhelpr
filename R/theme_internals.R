@@ -26,7 +26,14 @@ compact <- function(x) x[!vapply(x, is.null, logical(1))]
 #'
 merge_element <- function(user, default) {
   if (is.null(user)) return(default)
+  if (is.null(default)) return(user)
   cls <- class(default)[1]
+  if (cls == "pmx_color") {
+    out <- default
+    for (nm in names(user)) out[[nm]] <- user[[nm]]
+    class(out) <- class(default)
+    return(out)
+  }
   valid <- element_fields(cls)
   if (length(valid) == 0) valid <- names(default)
   out <- default
@@ -51,7 +58,6 @@ element_fields <- function(cls) {
     pmx_errorbar = c("linewidth", "linetype", "alpha", "color", "width"),
     pmx_trend    = c("linewidth", "linetype", "color", "se_color", "se_alpha"),
     pmx_style    = c("color", "alpha"),
-    pmx_color    = c("dv", "pred", "ipred"),
     character(0)
   )
 }

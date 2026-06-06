@@ -8,7 +8,8 @@ plot_forest_theme(
   point = NULL,
   errorbar = NULL,
   ref_line = NULL,
-  ref_band = NULL
+  ref_band = NULL,
+  panel_color = NULL
 )
 }
 \arguments{
@@ -20,6 +21,14 @@ plot_forest_theme(
 \item{ref_line}{Vertical no-effect reference line aesthetics. See \code{\link[=pmx_line]{pmx_line()}}.}
 
 \item{ref_band}{Shaded equivalence-interval ribbon aesthetics. See \code{\link[=pmx_ribbon]{pmx_ribbon()}}.}
+
+\item{panel_color}{Optional per-covariate color mapping. See \code{\link[=pmx_color]{pmx_color()}}.
+When supplied with at least one named entry, point and errorbar layers
+are colored by covariate (facet); the legend is suppressed since facet
+strips already label each covariate. Default is an empty \code{\link[=pmx_color]{pmx_color()}}
+(no per-covariate coloring), which keeps the single-color behavior from
+\code{point$color} / \code{errorbar$color}. Covariates absent from the palette
+render in grey50 and trigger a warning.}
 }
 \value{
 A named list of theme elements
@@ -32,6 +41,9 @@ Call with no arguments to view defaults. Pass element overrides to customize.
 plot_forest_theme()
 plot_forest_theme(point = pmx_point(shape = 18, size = 3))
 plot_forest_theme(ref_band = pmx_ribbon(fill = "skyblue", alpha = 0.2))
+plot_forest_theme(panel_color = pmx_color(
+  FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"
+))
 }
 \seealso{
 Other forest plot:

@@ -275,26 +275,31 @@ pmx_trend <- function(linewidth = NULL, linetype = NULL, color = NULL,
 }
 
 
-#' GOF overlay color aesthetics
+#' Discrete-level color aesthetics
 #'
-#' Creates a color element for [plot_gof_theme()] controlling the manual
-#' color scale for DV, PRED, and IPRED overlay lines.
+#' Creates a color element that maps named discrete levels to colors. Used by
+#' [plot_gof_theme()] for the DV/PRED/IPRED overlay scale and by
+#' [plot_forest_theme()] (via `panel_color`) for per-covariate facet coloring.
+#' Accepts any named arguments — each name becomes a level in the resulting
+#' manual color scale.
 #'
-#' @param dv Color for DV central tendency. Default `"blue"`.
-#' @param pred Color for PRED central tendency. Default `"red"`.
-#' @param ipred Color for IPRED central tendency. Default `"green"`.
+#' @param ... Named color arguments mapping level → color (e.g.,
+#'   `dv = "blue"`, `FOOD = "red"`). All arguments must be named.
 #'
 #' @family element constructors
 #' @return A `pmx_color` element object
 #' @export
 #' @examples
 #' pmx_color(dv = "black", pred = "purple", ipred = "darkgreen")
-pmx_color <- function(dv = NULL, pred = NULL, ipred = NULL) {
-  check_color(dv, "dv")
-  check_color(pred, "pred")
-  check_color(ipred, "ipred")
+#' pmx_color(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20")
+pmx_color <- function(...) {
+  args <- list(...)
+  if (length(args) > 0 && (is.null(names(args)) || any(!nzchar(names(args))))) {
+    rlang::abort("All arguments to `pmx_color()` must be named.")
+  }
+  for (nm in names(args)) check_color(args[[nm]], nm)
   structure(
-    compact(list(dv = dv, pred = pred, ipred = ipred)),
+    compact(args),
     class = c("pmx_color", "pmx_element")
   )
 }

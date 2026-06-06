@@ -32,6 +32,32 @@ test_that("per-type classes are mutually exclusive across element types", {
 })
 
 
+##### pmx_color() variadic #####
+
+test_that("pmx_color() accepts arbitrary named entries", {
+  pc <- pmx_color(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20")
+  expect_s3_class(pc, "pmx_color")
+  expect_equal(pc$FOOD, "firebrick")
+  expect_equal(pc$WTBL, "steelblue")
+  expect_equal(pc$Reference, "grey20")
+})
+
+test_that("pmx_color() preserves the legacy dv/pred/ipred form", {
+  pc <- pmx_color(dv = "blue", pred = "red", ipred = "green")
+  expect_equal(pc$dv, "blue")
+  expect_equal(pc$pred, "red")
+  expect_equal(pc$ipred, "green")
+})
+
+test_that("pmx_color() rejects unnamed arguments", {
+  expect_error(pmx_color("red", "blue"), regexp = "must be named")
+})
+
+test_that("pmx_color() validates color strings", {
+  expect_error(pmx_color(FOOD = "not_a_color"))
+})
+
+
 ##### print.pmx_element #####
 
 test_that("print.pmx_element() writes a banner and the set fields", {

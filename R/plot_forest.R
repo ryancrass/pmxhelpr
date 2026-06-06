@@ -486,7 +486,9 @@ plot_build_forest <- function(
   y_levels <- character(0)
   for (cn in cov_names_ordered) {
     panel_labels <- unique(
-      plot_data[[cov_level_var_str]][as.character(plot_data[[cov_name_var_str]]) == cn]
+      plot_data[[cov_level_var_str]][
+        as.character(plot_data[[cov_name_var_str]]) == cn
+      ]
     )
     if (length(panel_labels) == 0L) {
       next
@@ -575,6 +577,9 @@ plot_build_forest <- function(
       ))
     )
 
+  # ~5 pt per char at geom_text size=3mm; buffer absorbs hjust=-0.1 + font-metric variation.
+  label_right_pt <- max(nchar(plot_data$ci_label), 0L) * 5 + 15
+
   base <- base +
     ggplot2::geom_text(
       mapping = ggplot2::aes(x = Inf, label = .data$ci_label),
@@ -584,7 +589,12 @@ plot_build_forest <- function(
     ) +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme(
-      plot.margin = ggplot2::margin(t = 5.5, r = 80, b = 5.5, l = 5.5)
+      plot.margin = ggplot2::margin(
+        t = 5.5,
+        r = label_right_pt,
+        b = 5.5,
+        l = 5.5
+      )
     )
 
   base +
@@ -594,9 +604,7 @@ plot_build_forest <- function(
       space = "free_y",
       switch = "y"
     ) +
-    ggplot2::xlab("Test / Reference") +
-    ggplot2::ylab(NULL) +
-    ggplot2::ggtitle(metric)
+    ggplot2::labs(xlab = "Value", ylab = NULL, title = metric)
 }
 
 

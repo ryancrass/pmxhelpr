@@ -262,12 +262,12 @@ test_that("plot_build_forest() facet_grid uses cov_name rows only (no metric fac
   expect_true(isTRUE(p$facet$params$space_free$y))
 })
 
-test_that("plot_build_forest() leaves x, y, and title labels NULL by default", {
+test_that("plot_build_forest() leaves x and y labels NULL; title carries the metric name", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_null(p$labels$x)
   expect_null(p$labels$y)
-  expect_null(p$labels$title)
+  expect_equal(p$labels$title, "AUCRATIO")
 })
 
 
@@ -339,10 +339,13 @@ test_that("Y axis factor levels sort numerically within numeric panels, rev-data
   stats <- df_forest(data_sad_pkforest_nocovref, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   # Expected per-panel ordering, concatenated in panel order:
-  # Reference panel  → ["Reference"]      (non-numeric, single row)
-  # FOOD panel → ["Fed"]            (non-numeric, single row)
-  # WTBL panel → ["50 kg", "90 kg"] (numeric ascending; 90 ends up on top)
-  expect_equal(levels(p$data$cov_val), c("Reference", "Fed", "50 kg", "90 kg"))
+  # Reference panel  → ["Reference"]                          (non-numeric, single row)
+  # FOOD panel → ["Fed"]                                      (non-numeric, single row)
+  # WTBL panel → ["50 kg", "60 kg", "80 kg", "90 kg"]         (numeric ascending; 90 ends up on top)
+  expect_equal(
+    levels(p$data$cov_val),
+    c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg")
+  )
   expect_false(any(grepl("\\[", levels(p$data$cov_val))))
 })
 

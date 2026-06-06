@@ -4,7 +4,7 @@
 \alias{init_plot}
 \title{Internal helper: Initialize a ggplot with standard theme}
 \usage{
-init_plot(data, x_var, y_var, col_var_str = NULL)
+init_plot(data, x_var, y_var, col_var_str = NULL, forest_panel = FALSE)
 }
 \arguments{
 \item{data}{data.frame to plot}
@@ -14,6 +14,9 @@ init_plot(data, x_var, y_var, col_var_str = NULL)
 \item{y_var}{String name of the y-axis variable}
 
 \item{col_var_str}{String name of the color variable, or \code{NULL}}
+
+\item{forest_panel}{Logical. Forwarded to \code{\link[=apply_panel_theme]{apply_panel_theme()}}. Default
+is \code{FALSE}.}
 }
 \value{
 A ggplot object with base theme applied
@@ -21,6 +24,7 @@ A ggplot object with base theme applied
 \description{
 Creates a ggplot object with the base theme (\code{theme_bw}) and the unified
 panel theme via \code{\link[=apply_panel_theme]{apply_panel_theme()}} (continuous-family defaults: minor
-and major.x gridlines blanked).
+and major.x gridlines blanked). Pass \code{forest_panel = TRUE} to apply the
+forest-family panel variant instead.
 }
 \keyword{internal}

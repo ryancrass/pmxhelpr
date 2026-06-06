@@ -1,9 +1,17 @@
 #####Read model files#####
 
 ##Load Model Files
-pkmod <- mrgsolve::mread(system.file("models", "pkmodel.cpp", package="pmxhelpr"))
+pkmod <- mrgsolve::mread(system.file(
+  "models",
+  "pkmodel.cpp",
+  package = "pmxhelpr"
+))
 pkmod_th <- mrgsolve::param(pkmod)@data %>% as.data.frame()
-pdmod <- mrgsolve::mread(system.file("models", "pdmodel.cpp", package="pmxhelpr"))
+pdmod <- mrgsolve::mread(system.file(
+  "models",
+  "pdmodel.cpp",
+  package = "pmxhelpr"
+))
 pdmod_th <- mrgsolve::param(pdmod)
 
 
@@ -13,26 +21,27 @@ pdmod_th <- mrgsolve::param(pdmod)
 doses <- c(10, 50, 100, 100, 200, 400) #Dose levels in mg
 n_doses <- length(doses)
 n_subj_per_dose <- 6 #Standard SAD Cohort: 6 active, 2 placebo
-n_subj_total <- n_doses*n_subj_per_dose
+n_subj_total <- n_doses * n_subj_per_dose
 lloq <- 1 #ng/mL
-times <- c(mrgsolve::tgrid(0,2,0.5),
-           mrgsolve::tgrid(3,5,1),
-           mrgsolve::tgrid(8,16,4),
-           mrgsolve::tgrid(24,36,12),
-           mrgsolve::tgrid(48,168,24))
+times <- c(
+  mrgsolve::tgrid(0, 2, 0.5),
+  mrgsolve::tgrid(3, 5, 1),
+  mrgsolve::tgrid(8, 16, 4),
+  mrgsolve::tgrid(24, 36, 12),
+  mrgsolve::tgrid(48, 168, 24)
+)
 
 
 ##Create Dosing Data
-dose_data <- data.frame(id = 1:n_subj_total, time=0, amt = doses) |>
+dose_data <- data.frame(id = 1:n_subj_total, time = 0, amt = doses) |>
   dplyr::arrange(amt) |>
-  dplyr::mutate(id = 1,
-         evid = 1,
-         cmt = 1,
-         id = cumsum(id)) |>
+  dplyr::mutate(id = 1, evid = 1, cmt = 1, id = cumsum(id)) |>
   dplyr::group_by(amt) |>
-  dplyr::mutate(tmp = 1,
-         tmp = cumsum(tmp),
-         food = ifelse(tmp > n_subj_per_dose, 1, 0)) |>
+  dplyr::mutate(
+    tmp = 1,
+    tmp = cumsum(tmp),
+    food = ifelse(tmp > n_subj_per_dose, 1, 0)
+  ) |>
   dplyr::select(-tmp) |>
   dplyr::ungroup()
 
@@ -41,23 +50,31 @@ dose_data <- data.frame(id = 1:n_subj_total, time=0, amt = doses) |>
 withr::with_seed(
   seed = 123456789,
 
-  cov_data <- data.frame(id = 1:n_subj_total,
-                         sexf = sample(c(0,1), n_subj_total, replace=T),
-                         race = sample(c(1,2,3), n_subj_total, replace=T,
-                                       prob=c(0.6,0.2, 0.2)),
-                         agebl = sample(c(18:35), n_subj_total,replace=T),
-                         wtbl = round(
-                           sample(rnorm(1000, 75, 15), n_subj_total, replace=F),
-                           digits = 1),
-                         scrbl = round(
-                           sample(rnorm(1000, 0.9, 0.2), n_subj_total, replace=F),
-                           digits=2)
+  cov_data <- data.frame(
+    id = 1:n_subj_total,
+    sexf = sample(c(0, 1), n_subj_total, replace = T),
+    race = sample(
+      c(1, 2, 3),
+      n_subj_total,
+      replace = T,
+      prob = c(0.6, 0.2, 0.2)
+    ),
+    agebl = sample(c(18:35), n_subj_total, replace = T),
+    wtbl = round(
+      sample(rnorm(1000, 75, 15), n_subj_total, replace = F),
+      digits = 1
+    ),
+    scrbl = round(
+      sample(rnorm(1000, 0.9, 0.2), n_subj_total, replace = F),
+      digits = 2
+    )
   ) |>
     dplyr::mutate(
-      crclbl = signif(((140-agebl)/scrbl)*(wtbl/72)*ifelse(sexf==1, 0.85,1),
-                      digits = 3)
+      crclbl = signif(
+        ((140 - agebl) / scrbl) * (wtbl / 72) * ifelse(sexf == 1, 0.85, 1),
+        digits = 3
+      )
     )
-
 )
 
 
@@ -69,21 +86,28 @@ colnames(sim_input_data) <- toupper(colnames(sim_input_data))
 ##Run PK Simulation
 withr::with_seed(
   seed = 123456789,
-  simout <- mrgsolve::mrgsim_df(x = pkmod, data = sim_input_data, tgrid = times, obsonly=TRUE)
+  simout <- mrgsolve::mrgsim_df(
+    x = pkmod,
+    data = sim_input_data,
+    tgrid = times,
+    obsonly = TRUE
+  )
 )
 
 
 ##Create Concentration Data
 conc_data <- simout |>
   dplyr::select(ID, NTIME = TIME, DV) |>
-  dplyr::mutate(DV = round(DV, digits = 2),
-         DV = ifelse(DV < lloq, NA_real_, DV),
-         LDV = round(log(DV), digits = 4),
-         MDV = as.numeric(is.na(DV)),
-         CMT = 2,
-         EVID = 0,
-         BLQ = ifelse(NTIME == 0, -1, MDV),
-         LLOQ = lloq) |>
+  dplyr::mutate(
+    DV = round(DV, digits = 2),
+    DV = ifelse(DV < lloq, NA_real_, DV),
+    LDV = round(log(DV), digits = 4),
+    MDV = as.numeric(is.na(DV)),
+    CMT = 2,
+    EVID = 0,
+    BLQ = ifelse(NTIME == 0, -1, MDV),
+    LLOQ = lloq
+  ) |>
   dplyr::rename(ODV = DV)
 
 
@@ -94,104 +118,149 @@ withr::with_seed(
   data_sad_pk <-
     dplyr::bind_rows(
       dplyr::rename(sim_input_data, NTIME = TIME),
-      conc_data) |>
-    dplyr::mutate(DOSE = AMT,
-           TIME = dplyr::case_when(NTIME == 0 ~ 0,
-                            .default = round(jitter(NTIME, factor = 2), digits=2)),
-           NDAY = floor(NTIME/24) + 1) |>
+      conc_data
+    ) |>
+    dplyr::mutate(
+      DOSE = AMT,
+      TIME = dplyr::case_when(
+        NTIME == 0 ~ 0,
+        .default = round(jitter(NTIME, factor = 2), digits = 2)
+      ),
+      NDAY = floor(NTIME / 24) + 1
+    ) |>
     dplyr::group_by(ID) |>
     tidyr::fill(DOSE, FOOD, SEXF:CRCLBL) |>
     dplyr::ungroup() |>
     dplyr::arrange(ID, TIME, NTIME, EVID) |>
-    dplyr::mutate(LINE = 1,
-           LINE = cumsum(LINE),
-           USUBJID = paste0("STUDYNUM-SITENUM-", ID),
-           PART = ifelse(FOOD == 0, "Part 1-SAD", "Part 2-FE")) |>
-    dplyr::select(LINE, ID, TIME, NTIME, NDAY, DOSE, AMT, EVID, ODV, LDV, CMT, MDV, BLQ, LLOQ,
-           FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL,
-           USUBJID, PART)
+    dplyr::mutate(
+      LINE = 1,
+      LINE = cumsum(LINE),
+      USUBJID = paste0("STUDYNUM-SITENUM-", ID),
+      PART = ifelse(FOOD == 0, "Part 1-SAD", "Part 2-FE")
+    ) |>
+    dplyr::select(
+      LINE,
+      ID,
+      TIME,
+      NTIME,
+      NDAY,
+      DOSE,
+      AMT,
+      EVID,
+      ODV,
+      LDV,
+      CMT,
+      MDV,
+      BLQ,
+      LLOQ,
+      FOOD,
+      SEXF,
+      RACE,
+      AGEBL,
+      WTBL,
+      SCRBL,
+      CRCLBL,
+      USUBJID,
+      PART
+    )
 )
 
 
 ##Run PD Simulation
 withr::with_seed(
   seed = 123456789,
-  pdsimout <- df_mrgsim_replicate(data_sad_pk, pdmod, replicates = 1, dv_var = "ODV", carry_out = "LINE")
+  pdsimout <- df_mrgsim_replicate(
+    data_sad_pk,
+    pdmod,
+    replicates = 1,
+    dv_var = "ODV",
+    carry_out = "LINE"
+  )
 )
 
 pd_data <- data_sad_pk |>
   dplyr::filter(CMT == 2) |>
   dplyr::left_join(dplyr::select(pdsimout, LINE, IPRED, IPREDPK)) %>%
-  dplyr::mutate(CMT = 3,
-         CONC = ifelse(is.na(ODV), 0 , ODV),
-         ODV = IPRED,
-         LDV = IPRED,
-         CFB = ODV-100) |>
+  dplyr::mutate(
+    CMT = 3,
+    CONC = ifelse(is.na(ODV), 0, ODV),
+    ODV = IPRED,
+    LDV = IPRED,
+    CFB = ODV - 100
+  ) |>
   dplyr::select(-IPRED, -IPREDPK)
 
 data_sad <- dplyr::bind_rows(data_sad_pk, pd_data) %>%
   dplyr::arrange(ID, TIME, CMT) %>%
-  dplyr::select(ID:LDV,CFB, CONC, everything())
+  dplyr::select(ID:LDV, CFB, CONC, everything())
 
 
 usethis::use_data(data_sad, overwrite = TRUE)
 
 
-
-
-
 #####Create `data_sad_nca` internal dataset of NCA parameters for `data_sad`#####
 
 ##Set NCA options
-PKNCA::PKNCA.options(conc.blq = list("first" = "keep",
-                              "middle" = unique(data_sad$LLOQ[!is.na(data_sad$LLOQ)]),
-                              "last" = "drop"),
-              allow.tmax.in.half.life = FALSE,
-              min.hl.r.squared = 0.9)
+PKNCA::PKNCA.options(
+  conc.blq = list(
+    "first" = "keep",
+    "middle" = unique(data_sad$LLOQ[!is.na(data_sad$LLOQ)]),
+    "last" = "drop"
+  ),
+  allow.tmax.in.half.life = FALSE,
+  min.hl.r.squared = 0.9
+)
 
 ##Calculation Intervals and Requested Parameters
 intervals <-
-  data.frame(start = 0,
-             end = Inf,
-             auclast = TRUE,
-             aucinf.obs = TRUE,
-             aucpext.obs = TRUE,
-             half.life = TRUE,
-             cmax = TRUE,
-             vz.obs = TRUE,
-             cl.obs = TRUE
+  data.frame(
+    start = 0,
+    end = Inf,
+    auclast = TRUE,
+    aucinf.obs = TRUE,
+    aucpext.obs = TRUE,
+    half.life = TRUE,
+    cmax = TRUE,
+    vz.obs = TRUE,
+    cl.obs = TRUE
   )
 
 #Impute BLQ concentrations to 0 (PKNCA formatting)
 data_sad_nca_input <- data_sad |>
-  dplyr::filter(CMT %in% c(1,2)) |>
-  dplyr::mutate(CONC = ifelse(is.na(ODV), 0, ODV),
-                AMT = AMT/1000) #convert from mg to ug. Concentration in ng/mL = ug/L
+  dplyr::filter(CMT %in% c(1, 2)) |>
+  dplyr::mutate(CONC = ifelse(is.na(ODV), 0, ODV), AMT = AMT / 1000) #convert from mg to ug. Concentration in ng/mL = ug/L
 
 
 #Build PKNCA objects for concentration and dose including relevant strata
-conc_obj <- PKNCA::PKNCAconc(dplyr::filter(data_sad_nca_input, EVID==0), CONC~TIME|ID+DOSE+PART)
-dose_obj <- PKNCA::PKNCAdose(dplyr::filter(data_sad_nca_input, EVID==1), AMT~TIME|ID+PART)
+conc_obj <- PKNCA::PKNCAconc(
+  dplyr::filter(data_sad_nca_input, EVID == 0),
+  CONC ~ TIME | ID + DOSE + PART
+)
+dose_obj <- PKNCA::PKNCAdose(
+  dplyr::filter(data_sad_nca_input, EVID == 1),
+  AMT ~ TIME | ID + PART
+)
 nca_data_obj <- PKNCA::PKNCAdata(conc_obj, dose_obj, intervals = intervals)
 nca_results_obj <- as.data.frame(PKNCA::pk.nca(nca_data_obj))
 
 #Add Units
 data_sad_nca <- nca_results_obj |>
-  dplyr::mutate(units_dose = "mg",
-                units_conc = "ng/mL",
-                units_time = "hours")
+  dplyr::mutate(units_dose = "mg", units_conc = "ng/mL", units_time = "hours")
 
 usethis::use_data(data_sad_nca, overwrite = TRUE)
-
-
-
 
 
 #####Create `data_sad_pkfit` internal dataset of PK model outputs for `data_sad` using `model`
 
 withr::with_seed(
   seed = 987654321,
-  pkfit <- df_mrgsim_replicate(data_sad_pk, pkmod, replicates = 1, dv_var = "ODV", carry_out = "LINE")
+  pkfit <- df_mrgsim_replicate(
+    data_sad_pk,
+    pkmod,
+    replicates = 1,
+    dv_var = "ODV",
+    carry_out = "LINE"
+  )
 )
 
 data_sad_pkfit <- data_sad_pk %>%
@@ -206,14 +275,13 @@ usethis::use_data(data_sad_pkfit, overwrite = TRUE)
 pkmod_th_expand <- pkmod_th[rep(1, 500), ]
 
 pkmod_th_expand <- lapply(pkmod_th_expand, function(x) {
-  if(is.numeric(x)) {
+  if (is.numeric(x)) {
     return(x * runif(length(x), 1 - 0.2, 1 + 0.2))
   }
   return(x)
 }) |>
   as.data.frame() |>
-  dplyr::mutate(PARSET = 1,
-         PARSET = cumsum(PARSET))
+  dplyr::mutate(PARSET = 1, PARSET = cumsum(PARSET))
 
 # Identify simulation dataset
 forest_sim <- data.frame(
@@ -240,52 +308,52 @@ forest_grid <- mrgsolve::tgrid(start = 0, end = 24, delta = 0.1)
 # Run Simulation
 withr::with_seed(
   seed = 987654321,
-  pkforest_fit <- mrgsolve::mrgsim_df(mrgsolve::zero_re(pkmod),
-                                      data = forest_sim,
-                                      idata = pkmod_th_expand,
-                                      tgrid = forest_grid,
-                                      carry_out = c("FOOD", "WT", "DOSE", "OID"),
-                                      obsonly = TRUE)
+  pkforest_fit <- mrgsolve::mrgsim_df(
+    mrgsolve::zero_re(pkmod),
+    data = forest_sim,
+    idata = pkmod_th_expand,
+    tgrid = forest_grid,
+    carry_out = c("FOOD", "WT", "DOSE", "OID"),
+    obsonly = TRUE
+  )
 )
 
 # Post-process Simulation
 pkforest_sum <- pkforest_fit |>
-  dplyr::rename(SIM = ID, ID = OID, WTBL = WT)|>
+  dplyr::rename(SIM = ID, ID = OID, WTBL = WT) |>
   dplyr::group_by(ID, SIM, WTBL, FOOD) |>
-  dplyr::summarize(CMAX = max(IPRED),
-            CMIN = dplyr::last(IPRED),
-            AUC = PKNCA::pk.calc.auc.last(IPRED, TIME),
-            CAVG = AUC/24) |>
+  dplyr::summarize(
+    CMAX = max(IPRED),
+    CMIN = dplyr::last(IPRED),
+    AUC = PKNCA::pk.calc.auc.last(IPRED, TIME),
+    CAVG = AUC / 24
+  ) |>
   dplyr::ungroup() |>
   dplyr::group_by(SIM) |>
-  dplyr::mutate(CMAXRATIO = CMAX/CMAX[ID == 1],
-                CMINRATIO = CMIN/CMIN[ID == 1],
-                AUCRATIO = AUC/AUC[ID == 1],
-                CAVGRATIO = CAVG/CAVG[ID == 1]) |>
+  dplyr::mutate(
+    CMAXRATIO = CMAX / CMAX[ID == 1],
+    CMINRATIO = CMIN / CMIN[ID == 1],
+    AUCRATIO = AUC / AUC[ID == 1],
+    CAVGRATIO = CAVG / CAVG[ID == 1]
+  ) |>
   dplyr::ungroup()
 
 #Pivot and Join Labels
 
 id_cov_lookup <- data.frame(
-  ID     = c(1, 2, 3, 4),
-  cov_var    = c("REF", "FOOD", "WTBL", "WTBL"),
-  cov_val = c("REF","Fed", "50 kg", "90 kg")
+  ID = c(1, 2, 3, 4),
+  cov_var = c("Reference", "FOOD", "WTBL", "WTBL"),
+  cov_val = c("Reference", "Fed", "50 kg", "90 kg"),
+  cov_ref = c(NA_character_, "Fasted", "70 kg", "70 kg")
 )
 
 data_sad_pkforest <- pkforest_sum |>
-  tidyr::pivot_longer(CMAX:CAVGRATIO, names_to = "metric", values_to = "value") |>
+  tidyr::pivot_longer(
+    CMAX:CAVGRATIO,
+    names_to = "metric",
+    values_to = "value"
+  ) |>
   dplyr::left_join(id_cov_lookup) |>
   dplyr::ungroup()
 
-
-# Summarize Simulation
-data_sad_pkforest_sum <- data_sad_pkforest |>
-  dplyr::group_by(ID, WTBL, FOOD, metric, cov_var, cov_val) |>
-  dplyr::summarise(P50 = median(value),
-                   P05 = unname(quantile(value, 0.05)),
-                   P95 = unname(quantile(value, 0.95))) |>
-  dplyr::ungroup()
-
-
 usethis::use_data(data_sad_pkforest, overwrite = TRUE)
-usethis::use_data(data_sad_pkforest_sum, overwrite = TRUE)

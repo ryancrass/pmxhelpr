@@ -17,6 +17,6 @@
 \description{
 Compact summary of a \code{\link[=df_forest]{df_forest()}} result: the same header shown by
 \code{\link[=print.forest_stats]{print.forest_stats()}}, but the body is condensed to one line per row
-using the \code{y_label} column. Suitable for vignette output and test
+using the covariate level column. Suitable for vignette output and test
 snapshots.
 }

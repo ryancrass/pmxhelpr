@@ -2,24 +2,23 @@
 % Please edit documentation in R/plot_forest.R
 \name{plot_forest}
 \alias{plot_forest}
-\title{Plot a forest plot of test/reference comparisons}
+\title{Plot a forest plot of test and reference comparisons}
 \usage{
 plot_forest(
   data,
-  metric_var = "metric",
+  metric = NULL,
+  metric_name_var = "metric",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  value_var = "value",
+  metric_value_var = "value",
   replicate_var = NULL,
-  est_var = NULL,
-  lo_var = NULL,
-  hi_var = NULL,
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
+  cov_name_ref = "Reference",
+  cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
-  annotate_ci = TRUE,
   theme = NULL
 )
 }
@@ -27,57 +26,70 @@ plot_forest(
 \item{data}{Either raw observation/draws data (data.frame) or a
 \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}}.}
 
-\item{metric_var}{Column in \code{data} naming the PK/PD parameter (drives
-facet panels in the plot). Accepts bare names or strings. Default
-\code{metric}.}
+\item{metric}{Character scalar identifying which row of \code{metric_name_var} to
+render. \code{plot_forest()} renders one metric per call (no metric
+facet); the covariate name is the only facet dimension. If \code{NULL}
+(default) and \code{stats$stats} contains exactly one unique value of
+\code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
+are present, aborts and asks the caller to pick one.}
 
-\item{cov_name_var}{Column in \code{data} naming the covariate (e.g., \code{WTBL},
-\code{FOOD}). Accepts bare names or strings. Default \code{cov_var}.}
+\item{metric_name_var}{Column in \code{data} contain metric variable names.
+Accepts bare names or strings. Default is \code{metric}.}
 
-\item{cov_level_var}{Column in \code{data} naming the level within each
-covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
-\code{cov_val}.}
+\item{cov_name_var}{Column in \code{data} containing covariate variable names.
+(e.g., \code{WTBL},\code{FOOD}, etc).
+Accepts bare names or strings. Default is \code{cov_var}.}
 
-\item{value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic. Accepts bare names or strings.
-Required on the draws path; ignored on the pre-summarized path.
-Default \code{value}.}
+\item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
+Accepts bare names or strings. Default is \code{cov_val}.}
+
+\item{metric_value_var}{Column in \code{data} containing replicate draws of the
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings, or
-\code{NULL}. When non-\code{NULL}, selects the draws path. Default \code{NULL}.}
+Accepts bare names or strings. Default is \code{SIM}.}
 
-\item{est_var, lo_var, hi_var}{Columns in \code{data} containing the point
-estimate and lower / upper bounds of the pre-computed confidence
-interval. Accept bare names or strings. All three required together
-on the pre-summarized path; \code{NULL} selects the draws path. Defaults
-\code{NULL}.}
-
-\item{statistic}{Central-tendency statistic on the draws path. One of
-\code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}. Ignored on the
-pre-summarized path.}
+\item{statistic}{Central-tendency statistic.
+One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
-width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles on the draws path. Ignored on the pre-summarized path.
-Default \code{0.9}.}
+width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} and \code{y_label} columns. Default \code{3}.}
+\code{ci_label} column. Default \code{3}.}
 
-\item{ref}{Numeric scalar specifying the x-intercept of the no-effect
+\item{cov_name_ref}{Character string identifying the reference row(s) in the
+\code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
+Default is \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
+convention).
+Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
+which is the numeric value of the x-intercept for the verticle reference line.}
+
+\item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
+values to the per-covariate reference label to display when the
+reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+Default is \code{NULL} (Reference row renders in its own facet at the top).
+\code{df_forest()} builds the canonical \code{cov_ref} column inside
+\code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
+receive \code{NA} (those panels show no dispersed Reference row). The
+mapping is stored in \code{config$cov_level_ref} for the renderer.
+
+Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
+it is used directly (per-row reference labels) and \code{cov_level_ref} is
+ignored with an informational \code{message()}. This is the preferred form
+when reference labels can't be reduced to a single value per
+\code{cov_name_var}.}
+
+\item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
-value). Pass \code{NULL} to suppress the reference line.}
+value). Pass \code{NULL} to suppress the reference line. Distinct from
+\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to
+sort to the top of the plot.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
 interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
 (no shaded band).}
-
-\item{annotate_ci}{Logical. When \code{TRUE} (default), the y-axis tick labels
-concatenate the row's covariate name, level, and formatted
-\code{est [lo, hi]} text. When \code{FALSE}, labels show only
-\code{cov_name: cov_level}; the \code{ci_label} column is still available in
-\code{stats$stats} for custom downstream annotation.}
 
 \item{theme}{Named list of aesthetic parameters for the plot created by
 \code{\link[=plot_forest_theme]{plot_forest_theme()}}. Defaults can be viewed by running
@@ -90,34 +102,34 @@ a \code{ggplot} plot object
 Dual-mode wrapper that delegates to \code{\link[=df_forest]{df_forest()}} for aggregation and
 \code{\link[=plot_build_forest]{plot_build_forest()}} for rendering. Accepts either:
 \itemize{
-\item raw replicate-draws or pre-summarized data plus column-name arguments —
-the common one-shot mode; or
+\item raw replicate-draws data plus column-name arguments — the common
+one-shot mode; or
 \item a precomputed \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}} — skip
 the aggregation and replot with different \code{theme} / \code{ref} / \code{ref_band}
-/ \code{annotate_ci} settings.
+settings.
 }
 
-On the precomputed path, pipeline arguments (\code{metric_var}, \code{cov_name_var},
-\code{cov_level_var}, \code{value_var}, \code{replicate_var}, \code{est_var}, \code{lo_var},
-\code{hi_var}, \code{statistic}, \code{ci}, \code{sigdigits}) cannot be honored because the
-aggregation does not run again — passing any of them aborts with a
+On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
+\code{cov_level_var}, \code{metric_value_var}, \code{replicate_var}, \code{statistic}, \code{ci},
+\code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
+the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{theme}, \code{ref},
-\code{ref_band}, and \code{annotate_ci} are accepted on both paths.
+\code{ref_band}, and \code{metric} are accepted on both paths.
 }
 \examples{
-# Raw-data path
+# Raw-data path: one metric per call
 plot_forest(
-  dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
+  dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
   replicate_var = "SIM"
 )
 
-# Precomputed path: compute once, replot many times
+# Precomputed path: compute once, render different metrics from the same stats
 stats <- df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
   replicate_var = "SIM"
 )
-plot_forest(stats)
-plot_forest(stats, ref_band = c(0.8, 1.25))
+plot_forest(stats, metric = "AUCRATIO")
+plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
 }
 \seealso{
 Other forest plot:

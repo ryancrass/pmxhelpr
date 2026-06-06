@@ -189,8 +189,8 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
 plot_forest_theme <- function(point = NULL, errorbar = NULL,
                               ref_line = NULL, ref_band = NULL) {
   defaults <- list(
-    point    = pmx_point(shape = 16, size = 2, alpha = 1, color = "black"),
-    errorbar = pmx_errorbar(linewidth = 0.6, linetype = 1, alpha = 1, color = "black"),
+    point    = pmx_point(shape = 16, size = 2.5, alpha = 1, color = "black"),
+    errorbar = pmx_errorbar(linewidth = 0.7, linetype = 1, alpha = 1, color = "black"),
     ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1, color = "grey40"),
     ref_band = pmx_ribbon(fill = "grey80", alpha = 0.3, color = NA)
   )

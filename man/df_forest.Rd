@@ -2,73 +2,85 @@
 % Please edit documentation in R/plot_forest.R
 \name{df_forest}
 \alias{df_forest}
-\title{Compute test/reference comparison statistics for a forest plot}
+\title{Compute Summary Statistics for Covariate Forest Plots}
 \usage{
 df_forest(
   data,
-  metric_var = "metric",
+  metric_name_var = "metric",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  value_var = "value",
-  replicate_var = NULL,
-  est_var = NULL,
-  lo_var = NULL,
-  hi_var = NULL,
+  metric_value_var = "value",
+  replicate_var = "SIM",
   statistic = "median",
   ci = 0.9,
-  sigdigits = 3
+  sigdigits = 3,
+  cov_name_ref = "Reference",
+  cov_level_ref = NULL
 )
 }
 \arguments{
-\item{data}{Input data.frame.}
+\item{data}{Input data.frame. Replicate level long format dataset.}
 
-\item{metric_var}{Column in \code{data} naming the PK/PD parameter (drives
-facet panels in the plot). Accepts bare names or strings. Default
-\code{metric}.}
+\item{metric_name_var}{Column in \code{data} contain metric variable names.
+Accepts bare names or strings. Default is \code{metric}.}
 
-\item{cov_name_var}{Column in \code{data} naming the covariate (e.g., \code{WTBL},
-\code{FOOD}). Accepts bare names or strings. Default \code{cov_var}.}
+\item{cov_name_var}{Column in \code{data} containing covariate variable names.
+(e.g., \code{WTBL},\code{FOOD}, etc).
+Accepts bare names or strings. Default is \code{cov_var}.}
 
-\item{cov_level_var}{Column in \code{data} naming the level within each
-covariate (e.g., \verb{> 70 kg}). Accepts bare names or strings. Default
-\code{cov_val}.}
+\item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
+Accepts bare names or strings. Default is \code{cov_val}.}
 
-\item{value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic. Accepts bare names or strings.
-Required on the draws path; ignored on the pre-summarized path.
-Default \code{value}.}
+\item{metric_value_var}{Column in \code{data} containing replicate draws of the
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
 
 \item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-posterior/bootstrap draw id). Accepts bare names or strings, or
-\code{NULL}. When non-\code{NULL}, selects the draws path. Default \code{NULL}.}
+Accepts bare names or strings. Default is \code{SIM}.}
 
-\item{est_var, lo_var, hi_var}{Columns in \code{data} containing the point
-estimate and lower / upper bounds of the pre-computed confidence
-interval. Accept bare names or strings. All three required together
-on the pre-summarized path; \code{NULL} selects the draws path. Defaults
-\code{NULL}.}
-
-\item{statistic}{Central-tendency statistic on the draws path. One of
-\code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}. Ignored on the
-pre-summarized path.}
+\item{statistic}{Central-tendency statistic.
+One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
-width (e.g., \code{0.9} for 90\% CI). Used to derive symmetric
-quantiles on the draws path. Ignored on the pre-summarized path.
-Default \code{0.9}.}
+width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} and \code{y_label} columns. Default \code{3}.}
+\code{ci_label} column. Default \code{3}.}
+
+\item{cov_name_ref}{Character string identifying the reference row(s) in the
+\code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
+Default is \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
+convention).
+Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
+which is the numeric value of the x-intercept for the verticle reference line.}
+
+\item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
+values to the per-covariate reference label to display when the
+reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
+Default is \code{NULL} (Reference row renders in its own facet at the top).
+\code{df_forest()} builds the canonical \code{cov_ref} column inside
+\code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
+receive \code{NA} (those panels show no dispersed Reference row). The
+mapping is stored in \code{config$cov_level_ref} for the renderer.
+
+Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
+it is used directly (per-row reference labels) and \code{cov_level_ref} is
+ignored with an informational \code{message()}. This is the preferred form
+when reference labels can't be reduced to a single value per
+\code{cov_name_var}.}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three
 slots:
 \describe{
 \item{\code{stats}}{One row per \verb{(metric × cov_name × cov_level)} group
-with columns named in \code{metric_var} / \code{cov_name_var} /
+with columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est}, \code{lo}, \code{hi},
-and character columns \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"})
-and \code{y_label} (e.g. \code{"WTBL: > 70 kg — 1.12 [0.95, 1.32]"}).}
+and the character column \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"}).
+The \code{cov_name_var} value drives the per-row facet strip; the
+\code{cov_level_var} value drives the y-axis tick label;
+\code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as a right-side
+secondary-axis text layer.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{statistic}, \code{ci},
 and \code{sigdigits}.}
@@ -76,41 +88,39 @@ and \code{sigdigits}.}
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.
 }
 \description{
-Aggregates replicate draws (or accepts pre-summarized estimates) into a
-cacheable, replottable container suitable for a covariate forest plot.
-Returns a \code{\link[=pmx_stats]{pmx_stats()}} container with class
-\code{c("forest_stats", "pmx_stats")} and three slots — \code{stats} (per-row
-summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label}, \code{y_label}
-columns), \code{obs} (always \code{NULL}; no scatter overlay), and \code{config} (column
-names + CI configuration) — so that \code{\link[=plot_forest]{plot_forest()}} / \code{\link[=plot_build_forest]{plot_build_forest()}}
-can render directly from this object without re-aggregating.
-
-Two input modes are supported. The function switches on whether
-\code{replicate_var} is \code{NULL}:
+Aggregates a dataset with replicate level data into a cacheable, replottable
+container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stats]{pmx_stats()}}
+container with class \code{c("forest_stats", "pmx_stats")} and three slots:
 \itemize{
-\item \strong{Draws path} (\code{replicate_var} non-\code{NULL}): \code{data} is long-form with a
-numeric \code{value_var} column (e.g., test/reference ratios per replicate)
-and a replicate index in \code{replicate_var}. Per \verb{(metric × cov_name × cov_level)} group, the point estimate is computed via \code{statistic} and
-\code{lo}/\code{hi} are the \code{(1-ci)/2} and \code{1-(1-ci)/2} quantiles of the draws.
-\item \strong{Pre-summarized path} (\code{replicate_var} \code{NULL}): \code{data} already has
-per-row point estimates in \code{est_var}, \code{lo_var}, \code{hi_var}. These are
-passed through unchanged after a rename to canonical \code{est}/\code{lo}/\code{hi}.
+\item \code{stats} (per-row summary frame with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label}
+columns),
+\item \code{obs} (always \code{NULL}; no scatter overlay),
+\item \code{config} (column names + CI configuration)
 }
-
-Passing arguments from both paths in the same call aborts.
 }
 \examples{
-# Draws path: aggregate replicate simulations to point estimate + 90\% CI
+# Aggregate replicate simulations to point estimate + 90\% CI
 df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
   replicate_var = "SIM"
 )
 
-# Pre-summarized path: pass precomputed estimates through unchanged
+# Custom reference level (default is "Reference")
+df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "Reference")
+
+# Per-covariate reference labels (dispersed Reference in each panel)
 df_forest(
-  dplyr::filter(data_sad_pkforest_sum, grepl("RATIO$", metric)),
-  est_var = "P50", lo_var = "P05", hi_var = "P95"
+  dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+  replicate_var = "SIM",
+  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
+
+# Alternative input: per-row `cov_ref` column already attached to `data`
+d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
+d$cov_ref <- c(FOOD = "Fasted", WTBL = "70 kg", Reference = NA)[
+  as.character(d$cov_var)
+]
+df_forest(d, replicate_var = "SIM")
 }
 \seealso{
 Other forest plot:

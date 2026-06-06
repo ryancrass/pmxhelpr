@@ -237,7 +237,7 @@ check_single_cmt <- function(data, name = "data") {
   invisible(NULL)
 }
 
-check_forest_args <- function(statistic, ci, sigdigits) {
+check_forest_args <- function(statistic, ci, sigdigits, cov_name_ref) {
   if (!statistic %in% c("median", "mean", "geo_mean")) {
     rlang::abort(message = 'argument `statistic` must be `median`, `mean`, or `geo_mean`')
   }
@@ -245,6 +245,31 @@ check_forest_args <- function(statistic, ci, sigdigits) {
     rlang::abort(message = "argument `ci` must be a single numeric value between 0 and 1")
   }
   check_integer(sigdigits, "sigdigits")
+  if (!is.null(cov_name_ref)) {
+    if (!is.character(cov_name_ref) || length(cov_name_ref) != 1L ||
+        is.na(cov_name_ref) || !nzchar(cov_name_ref)) {
+      rlang::abort(message = "argument `cov_name_ref` must be a single non-empty character string, or `NULL`")
+    }
+  }
+}
+
+check_cov_level_ref <- function(cov_level_ref) {
+  if (is.null(cov_level_ref)) return(invisible(NULL))
+  if (!is.vector(cov_level_ref) || is.list(cov_level_ref)) {
+    rlang::abort(message = "argument `cov_level_ref` must be a named atomic vector (or `NULL`)")
+  }
+  nms <- names(cov_level_ref)
+  if (length(cov_level_ref) == 0L || is.null(nms) ||
+      any(is.na(nms)) || any(!nzchar(nms))) {
+    rlang::abort(message = "argument `cov_level_ref` must be a non-empty named vector with non-empty names")
+  }
+  if (anyDuplicated(nms)) {
+    rlang::abort(message = paste0(
+      "argument `cov_level_ref` has duplicate names: ",
+      paste(unique(nms[duplicated(nms)]), collapse = ", ")
+    ))
+  }
+  invisible(NULL)
 }
 
 check_ref_band <- function(ref_band) {

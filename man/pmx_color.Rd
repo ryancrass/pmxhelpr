@@ -2,26 +2,27 @@
 % Please edit documentation in R/pmx_element_class.R
 \name{pmx_color}
 \alias{pmx_color}
-\title{GOF overlay color aesthetics}
+\title{Discrete-level color aesthetics}
 \usage{
-pmx_color(dv = NULL, pred = NULL, ipred = NULL)
+pmx_color(...)
 }
 \arguments{
-\item{dv}{Color for DV central tendency. Default \code{"blue"}.}
-
-\item{pred}{Color for PRED central tendency. Default \code{"red"}.}
-
-\item{ipred}{Color for IPRED central tendency. Default \code{"green"}.}
+\item{...}{Named color arguments mapping level → color (e.g.,
+\code{dv = "blue"}, \code{FOOD = "red"}). All arguments must be named.}
 }
 \value{
 A \code{pmx_color} element object
 }
 \description{
-Creates a color element for \code{\link[=plot_gof_theme]{plot_gof_theme()}} controlling the manual
-color scale for DV, PRED, and IPRED overlay lines.
+Creates a color element that maps named discrete levels to colors. Used by
+\code{\link[=plot_gof_theme]{plot_gof_theme()}} for the DV/PRED/IPRED overlay scale and by
+\code{\link[=plot_forest_theme]{plot_forest_theme()}} (via \code{panel_color}) for per-covariate facet coloring.
+Accepts any named arguments — each name becomes a level in the resulting
+manual color scale.
 }
 \examples{
 pmx_color(dv = "black", pred = "purple", ipred = "darkgreen")
+pmx_color(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20")
 }
 \seealso{
 Other element constructors:

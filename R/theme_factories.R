@@ -177,6 +177,13 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
 #'   `geom_linerange`; the element's `width` field is unused). See [pmx_errorbar()].
 #' @param ref_line Vertical no-effect reference line aesthetics. See [pmx_line()].
 #' @param ref_band Shaded equivalence-interval ribbon aesthetics. See [pmx_ribbon()].
+#' @param panel_color Optional per-covariate color mapping. See [pmx_color()].
+#'   When supplied with at least one named entry, point and errorbar layers
+#'   are colored by covariate (facet); the legend is suppressed since facet
+#'   strips already label each covariate. Default is an empty [pmx_color()]
+#'   (no per-covariate coloring), which keeps the single-color behavior from
+#'   `point$color` / `errorbar$color`. Covariates absent from the palette
+#'   render in grey50 and trigger a warning.
 #'
 #' @family forest plot
 #' @return A named list of theme elements
@@ -186,16 +193,22 @@ plot_doseprop_theme <- function(obs_point = NULL, linear = NULL, obs = NULL) {
 #' plot_forest_theme()
 #' plot_forest_theme(point = pmx_point(shape = 18, size = 3))
 #' plot_forest_theme(ref_band = pmx_ribbon(fill = "skyblue", alpha = 0.2))
+#' plot_forest_theme(panel_color = pmx_color(
+#'   FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"
+#' ))
 plot_forest_theme <- function(point = NULL, errorbar = NULL,
-                              ref_line = NULL, ref_band = NULL) {
+                              ref_line = NULL, ref_band = NULL,
+                              panel_color = NULL) {
   defaults <- list(
-    point    = pmx_point(shape = 16, size = 2.5, alpha = 1, color = "black"),
-    errorbar = pmx_errorbar(linewidth = 0.7, linetype = 1, alpha = 1, color = "black"),
-    ref_line = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1, color = "grey40"),
-    ref_band = pmx_ribbon(fill = "grey80", alpha = 0.3, color = NA)
+    point       = pmx_point(shape = 16, size = 2.5, alpha = 1, color = "black"),
+    errorbar    = pmx_errorbar(linewidth = 0.7, linetype = 1, alpha = 1, color = "black"),
+    ref_line    = pmx_line(linewidth = 0.5, linetype = 2, alpha = 1, color = "grey40"),
+    ref_band    = pmx_ribbon(fill = "grey80", alpha = 0.3, color = NA),
+    panel_color = pmx_color()
   )
   user <- compact(list(point = point, errorbar = errorbar,
-                       ref_line = ref_line, ref_band = ref_band))
+                       ref_line = ref_line, ref_band = ref_band,
+                       panel_color = panel_color))
   pmx_theme(merge_theme(user, defaults), subclass = "plot_forest_theme")
 }
 

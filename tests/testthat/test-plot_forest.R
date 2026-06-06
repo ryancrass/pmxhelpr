@@ -213,6 +213,22 @@ test_that("plot_forest_theme() honors user element overrides", {
   expect_equal(th$point$size,  4)
 })
 
+test_that("plot_forest_theme() default panel_color is an empty pmx_color (opt-out)", {
+  th <- plot_forest_theme()
+  expect_s3_class(th$panel_color, "pmx_color")
+  expect_length(th$panel_color, 0L)
+})
+
+test_that("plot_forest_theme(panel_color = pmx_color(...)) stores the palette", {
+  th <- plot_forest_theme(panel_color = pmx_color(
+    FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"
+  ))
+  expect_s3_class(th$panel_color, "pmx_color")
+  expect_equal(th$panel_color$FOOD, "firebrick")
+  expect_equal(th$panel_color$WTBL, "steelblue")
+  expect_equal(th$panel_color$Reference, "grey20")
+})
+
 
 #####plot_build_forest -- output class#####
 
@@ -246,10 +262,12 @@ test_that("plot_build_forest() facet_grid uses cov_name rows only (no metric fac
   expect_true(isTRUE(p$facet$params$space_free$y))
 })
 
-test_that("plot_build_forest() sets the title to the rendered metric value", {
+test_that("plot_build_forest() leaves x, y, and title labels NULL by default", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_equal(p$labels$title, "AUCRATIO")
+  expect_null(p$labels$x)
+  expect_null(p$labels$y)
+  expect_null(p$labels$title)
 })
 
 
@@ -383,7 +401,6 @@ test_that("plot_build_forest() picks the single metric automatically when metric
   stats <- df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
                      replicate_var = "SIM")
   p <- plot_build_forest(stats)
-  expect_equal(p$labels$title, "AUCRATIO")
   expect_true(all(as.character(p$data$metric) == "AUCRATIO"))
 })
 
@@ -391,7 +408,6 @@ test_that("plot_build_forest() filters stats to the named metric", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "CMAXRATIO")
   expect_true(all(as.character(p$data$metric) == "CMAXRATIO"))
-  expect_equal(p$labels$title, "CMAXRATIO")
 })
 
 test_that("plot_build_forest() aborts when metric is not in stats", {
@@ -417,6 +433,46 @@ test_that("plot_forest_theme() default sizes are bumped (point 2.5, errorbar 0.7
   th <- plot_forest_theme()
   expect_equal(th$point$size, 2.5)
   expect_equal(th$errorbar$linewidth, 0.7)
+})
+
+
+#####plot_build_forest -- panel_color (per-covariate coloring)#####
+
+test_that("plot_build_forest() adds no colour scale when panel_color is empty (default)", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
+  expect_false("colour" %in% scale_aes)
+  expect_null(p$guides$guides$colour)
+})
+
+test_that("plot_build_forest() adds scale_color_manual when panel_color is non-empty", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(
+    stats, metric = "AUCRATIO",
+    theme = plot_forest_theme(panel_color = pmx_color(
+      Reference = "grey20", FOOD = "firebrick", WTBL = "steelblue"
+    ))
+  )
+  scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
+  expect_true("colour" %in% scale_aes)
+  color_scale <- p$scales$scales[[which(scale_aes == "colour")]]
+  expect_equal(
+    color_scale$palette(3),
+    c(Reference = "grey20", FOOD = "firebrick", WTBL = "steelblue")
+  )
+  expect_equal(p$guides$guides$colour, "none")
+})
+
+test_that("plot_build_forest() warns when panel_color is missing entries for present covariates", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  expect_warning(
+    plot_build_forest(
+      stats, metric = "AUCRATIO",
+      theme = plot_forest_theme(panel_color = pmx_color(FOOD = "red"))
+    ),
+    regexp = "panel_color.*missing entries"
+  )
 })
 
 

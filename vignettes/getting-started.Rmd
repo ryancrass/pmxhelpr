@@ -104,6 +104,14 @@ data_gof <- data_sad_pkfit %>%
   mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1))
 ```
 
+## `data_sad_pkforest`
+
+`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across four covariate scenarios (reference, fed, low body weight, high body weight). The per-row `cov_ref` column is already populated so that `df_forest()` will auto-disperse the reference into each covariate panel.
+
+```{r data-pkforest}
+glimpse(data_sad_pkforest)
+```
+
 
 # Longitudinal concentration and response with `plot_dvtime()`
 
@@ -220,6 +228,34 @@ plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
 ```
 
 See the [Goodness-of-Fit Diagnostics](gof-diagnostics.html) article for specifying central tendency, BLQ handling, and theme customization.
+
+# Forest plots of covariate impact with `df_forest()` and `plot_forest()`
+
+`df_forest()` aggregates values across simulation or bootstrap replicates into a point estimate and confidence interval for each covariate level, returning a class-tagged `forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats` and `vpc_stats`).
+
+```{r forest-stats}
+forest_stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+forest_stats
+```
+
+`plot_forest()` is dual-mode: it can take the raw replicate data (one-stage, calling `df_forest()` internally) or a precomputed `forest_stats` object (two-stage). The two-stage workflow below renders one metric at a time and composes with `ggplot2` for axis customization.
+
+```{r plot-forest-default, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+plot_forest(forest_stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
+  scale_x_log10(limits = c(0.5, 5))
+```
+
+Per-covariate panel colors can be applied via `plot_forest_theme(panel_color = pmx_color(...))`, where `pmx_color()` maps each covariate name (matching the `cov_var` column) to a color. Covariate names omitted from the mapping retain the default point/errorbar color.
+
+```{r plot-forest-themed, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+new_forest_theme <- plot_forest_theme(
+  panel_color = pmx_color(FOOD = "darkgreen", WTBL = "darkblue")
+)
+
+plot_forest(forest_stats, metric = "AUCRATIO",
+            ref_band = c(0.8, 1.25), theme = new_forest_theme) +
+  scale_x_log10(limits = c(0.5, 5))
+```
 
 # VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 

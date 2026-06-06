@@ -203,8 +203,14 @@ test_that("pmx_color partial override", {
   expect_null(el$ipred)
 })
 
-test_that("pmx_color rejects unknown arguments", {
-  expect_error(pmx_color(obs = "black"), regexp = "unused argument")
+test_that("pmx_color accepts arbitrary named arguments (variadic)", {
+  el <- pmx_color(obs = "black", FOOD = "red")
+  expect_equal(el$obs, "black")
+  expect_equal(el$FOOD, "red")
+})
+
+test_that("pmx_color rejects unnamed arguments", {
+  expect_error(pmx_color("black"), regexp = "must be named")
 })
 
 #####pmx_* input validation####

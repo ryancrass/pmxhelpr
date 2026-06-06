@@ -559,7 +559,8 @@ plot_build_forest <- function(
   eb_color <- if (has_panel_color) NULL else eb$color
   eb_mapping <- if (has_panel_color) {
     ggplot2::aes(
-      xmin = .data$lo, xmax = .data$hi,
+      xmin = .data$lo,
+      xmax = .data$hi,
       color = .data[[cov_name_var_str]]
     )
   } else {
@@ -608,6 +609,7 @@ plot_build_forest <- function(
     ) +
     ggplot2::coord_cartesian(clip = "off") +
     ggplot2::theme(
+      plot.title = ggplot2::element_text(face = "bold"),
       plot.margin = ggplot2::margin(
         t = 5.5,
         r = label_right_pt,
@@ -623,7 +625,7 @@ plot_build_forest <- function(
       space = "free_y",
       switch = "y"
     ) +
-    ggplot2::labs(xlab = "Value", ylab = NULL, title = metric)
+    ggplot2::labs(x = NULL, y = NULL, title = metric)
 
   if (has_panel_color) {
     palette <- unlist(pc)

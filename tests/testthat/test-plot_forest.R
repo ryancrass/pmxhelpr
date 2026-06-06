@@ -262,10 +262,12 @@ test_that("plot_build_forest() facet_grid uses cov_name rows only (no metric fac
   expect_true(isTRUE(p$facet$params$space_free$y))
 })
 
-test_that("plot_build_forest() sets the title to the rendered metric value", {
+test_that("plot_build_forest() leaves x, y, and title labels NULL by default", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_equal(p$labels$title, "AUCRATIO")
+  expect_null(p$labels$x)
+  expect_null(p$labels$y)
+  expect_null(p$labels$title)
 })
 
 
@@ -399,7 +401,6 @@ test_that("plot_build_forest() picks the single metric automatically when metric
   stats <- df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
                      replicate_var = "SIM")
   p <- plot_build_forest(stats)
-  expect_equal(p$labels$title, "AUCRATIO")
   expect_true(all(as.character(p$data$metric) == "AUCRATIO"))
 })
 
@@ -407,7 +408,6 @@ test_that("plot_build_forest() filters stats to the named metric", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "CMAXRATIO")
   expect_true(all(as.character(p$data$metric) == "CMAXRATIO"))
-  expect_equal(p$labels$title, "CMAXRATIO")
 })
 
 test_that("plot_build_forest() aborts when metric is not in stats", {

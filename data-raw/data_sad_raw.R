@@ -285,13 +285,13 @@ pkmod_th_expand <- lapply(pkmod_th_expand, function(x) {
 
 # Identify simulation dataset
 forest_sim <- data.frame(
-  OID = 1:4,
+  OID = 1:6,
   TIME = 0,
   AMT = 200,
   CMT = 1,
   EVID = 1,
-  WT = c(70, 70, 50, 90),
-  FOOD = c(0, 1, 0, 0),
+  WT = c(70, 70, 50, 60, 80, 90),
+  FOOD = c(0, 1, 0, 0, 0, 0),
   II = 24,
   SS = 1
 )
@@ -299,7 +299,9 @@ forest_sim <- data.frame(
 parset_grid <- data.frame(OID = 1, ID = 1:500) |>
   dplyr::bind_rows(data.frame(OID = 2, ID = 1:500)) |>
   dplyr::bind_rows(data.frame(OID = 3, ID = 1:500)) |>
-  dplyr::bind_rows(data.frame(OID = 4, ID = 1:500))
+  dplyr::bind_rows(data.frame(OID = 4, ID = 1:500)) |>
+  dplyr::bind_rows(data.frame(OID = 5, ID = 1:500)) |>
+  dplyr::bind_rows(data.frame(OID = 6, ID = 1:500))
 
 forest_sim <- dplyr::left_join(parset_grid, forest_sim)
 
@@ -341,10 +343,11 @@ pkforest_sum <- pkforest_fit |>
 #Pivot and Join Labels
 
 id_cov_lookup <- data.frame(
-  ID = c(1, 2, 3, 4),
-  cov_var = c("Reference", "FOOD", "WTBL", "WTBL"),
-  cov_val = c("Reference", "Fed", "50 kg", "90 kg"),
-  cov_ref = c(NA_character_, "Fasted", "70 kg", "70 kg")
+  ID = c(1, 2, 3, 4, 5, 6),
+  cov_var = c("Reference", "FOOD", rep("WTBL", 4)),
+  cov_var_desc = c("Reference", "Food", rep("Weight", 4)),
+  cov_val = c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg"),
+  cov_ref = c(NA_character_, "Fasted", rep("70 kg", 4))
 )
 
 data_sad_pkforest <- pkforest_sum |>

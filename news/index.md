@@ -1,5 +1,7 @@
 # Changelog
 
+## pmxhelpr 0.5.1
+
 ## pmxhelpr 0.5.0
 
 This release simplifies plotting function interfaces, harmonizes naming

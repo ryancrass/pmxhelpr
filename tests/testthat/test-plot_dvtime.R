@@ -127,6 +127,18 @@ test_that("plot_dvtime dosenorm = TRUE suppresses LOQ hline but keeps BLQ captio
   expect_match(p$labels$caption, "imputed to 1/2 LLOQ")
 })
 
+test_that("plot_dvtime loq_method character aliases add the LOQ hline and BLQ caption", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  for (alias in c("postdose", "all")) {
+    p <- plot_dvtime(d, dv_var = "ODV", loq = 0.5, loq_method = alias)
+    has_hline <- any(vapply(p$layers,
+                             function(l) inherits(l$geom, "GeomHline"),
+                             logical(1)))
+    expect_true(has_hline)
+    expect_match(p$labels$caption, "imputed to 1/2 LLOQ")
+  }
+})
+
 ##Test dosenorm branch
 test_that("plot_dvtime dosenorm = TRUE divides DV by dose", {
   d <- dplyr::filter(data_sad, CMT != 3)

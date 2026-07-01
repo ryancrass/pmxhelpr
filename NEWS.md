@@ -1,5 +1,9 @@
 # pmxhelpr 0.5.1
 
+* Bug fix in `plot_dvtime()` which was masking reference line, legend, and 
+caption layers when character aliases where passed to argument `loq_method` in 
+place of numeric values.
+
 # pmxhelpr 0.5.0
 
 This release simplifies plotting function interfaces, harmonizes naming across

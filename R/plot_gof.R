@@ -108,6 +108,7 @@ plot_gof <- function(data,
   )
   data <- prep$data
   lloq <- prep$lloq
+  loq_method <- prep$loq_method
 
   env <- prep_plot_env(data, cent, log_y, theme, plot_gof_theme)
   caption   <- env$caption

@@ -215,7 +215,7 @@ df_prep_dvtime <- function(data,
     if (!is.null(ipred_var_str)) data$IPRED <- var_dosenorm(data$IPRED, data$DOSE)
   }
 
-  list(data = data, lloq = lloq)
+  list(data = data, lloq = lloq, loq_method = loq_method)
 }
 
 

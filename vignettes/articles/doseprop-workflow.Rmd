@@ -186,31 +186,32 @@ is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 ```
 
 
-# Theming
+# Styling
 
-Plot aesthetics are customized via the `theme` argument and the `plot_doseprop_theme()` constructor. The factory exposes two keys:
+Plot aesthetics are customized via the `style` argument and the `style_doseprop()` preset, which returns a `ggstylekit::style_spec()`. The relevant roles are:
 
-  + `obs_point` — observation point aesthetics (constructed via `pmx_point()`)
-  + `linear` — regression line and SE ribbon aesthetics (constructed via `pmx_trend()`)
+  + `obs_point` — observation point aesthetics
+  + `linear` — regression line (`colors`/`linewidths`/`linetypes`) and SE ribbon (base `line_fill`, ribbon alpha via the `linear` entry of `alphas`)
 
-It also accepts an `obs` role-level shortcut via `pmx_style()` for setting shared aesthetics on the points.
-
-```{r theme-defaults}
-plot_doseprop_theme()
+```{r style-defaults}
+style_doseprop()
 ```
 
 A typical override:
 
-```{r plot-themed, fig.height=4, fig.width=6, warning=FALSE}
+```{r plot-styled, fig.height=4, fig.width=6, warning=FALSE}
 plot_doseprop(
   dose_prop_obj,
-  theme = plot_doseprop_theme(
-    obs_point = pmx_point(shape = 19, color = "black", alpha = 0.8, size = 1),
-    linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.2))
+  style = style_doseprop(
+    shapes    = c(obs_point = 19),
+    colors    = c(obs_point = "black", linear = "firebrick"),
+    alphas    = c(obs_point = 0.8, linear = 0.2),
+    sizes     = c(obs_point = 1),
+    line_fill = "firebrick")
 )
 ```
 
-For a deeper treatment of the theme system — element constructors, role shortcuts, the `pmx_element` / `pmx_theme` class system, and predicates for theme validation — see the [Plot Themes and Aesthetics](plot-themes.html) vignette.
+For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Themes and Aesthetics](plot-themes.html) vignette.
 
 # See also
 

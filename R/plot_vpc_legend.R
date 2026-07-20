@@ -10,8 +10,9 @@
 #'    with the theme's `loq_line` linetype. Pass `compute_out$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
-#' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
-#'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling legend aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments. Should match the `style` passed to [plot_vpc_cont()].
 #' @param type One of `"cont"` (default) or `"cens"`. Selects the labels and
 #'    layer set the legend describes. Under `"cont"`, the central-tendency
 #'    entries are labeled `"Obs Med"`, `"Sim Med"`, and `"Sim <ci>% CI Med"`
@@ -44,14 +45,25 @@ plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
-                        theme = NULL,
+                        style = NULL,
                         type = c("cont", "cens"),
                         ...){
 
   type <- match.arg(type)
 
-  #aesthetics for legend based on settings in plot_vpc_theme
-  plist <- merge_theme(theme, plot_vpc_theme())
+  ## Legend aesthetics from the style. Reshape the style's per-series maps into
+  ## a per-role list (with American-spelled `color`) so the proxy-geom /
+  ## manual-scale construction below reads `plist$<role>$<field>` directly.
+  vpcstyle <- if (is.null(style)) style_vpc() else style
+  .roles <- c("obs_point", "obs_median_line", "obs_pi_line", "sim_pi_line",
+              "sim_median_line", "loq_line", "sim_median_ci", "sim_pi_ci",
+              "sim_pi_area")
+  plist <- lapply(.roles, function(r) {
+    a <- series_aes(vpcstyle, r)
+    list(color = a$colour, fill = a$fill, alpha = a$alpha, shape = a$shape,
+         size = a$size, linetype = a$linetype, linewidth = a$linewidth)
+  })
+  names(plist) <- .roles
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())

@@ -9,7 +9,7 @@ model_mread_load(model, ...)
 \arguments{
 \item{model}{Model file name. Must be a string.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mread]{mrgsolve::mread_cache()}}.}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mread_cache]{mrgsolve::mread_cache()}}.}
 }
 \value{
 An \code{mrgsolve} model object.
@@ -22,8 +22,8 @@ model library in \code{pmxhelpr}
 model <- model_mread_load("pkmodel")
 }
 \seealso{
-Other mrgsolve wrappers: 
-\code{\link{df_mrgsim_addpred}()},
-\code{\link{df_mrgsim_replicate}()}
+Other mrgsolve wrappers:
+\code{\link[=df_mrgsim_addpred]{df_mrgsim_addpred()}},
+\code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}}
 }
 \concept{mrgsolve wrappers}

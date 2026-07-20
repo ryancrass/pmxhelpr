@@ -2,25 +2,26 @@
 % Please edit documentation in R/theme_internals.R
 \name{merge_element}
 \alias{merge_element}
-\title{Internal helper: Merge user element overrides into a complete default element}
+\title{Internal helper: Merge user overrides into a complete default named list}
 \usage{
 merge_element(user, default)
 }
 \arguments{
-\item{user}{User-supplied element with partial overrides, or \code{NULL}.}
+\item{user}{User-supplied list with partial overrides, or \code{NULL}.}
 
-\item{default}{Complete default element.}
+\item{default}{Complete default list.}
 }
 \value{
-A merged element with the same class as \code{default}
+A merged list with the same class as \code{default}
 }
 \description{
-Iterates over names in the user-supplied element and overwrites matching
-fields in the default. Warns on unrecognized field names.
+Iterates over names in the user-supplied list and overwrites matching entries
+in the default. Warns on unrecognized names. Used to merge the layer
+visibility lists from \code{\link[=plot_gof_shown]{plot_gof_shown()}} / \code{\link[=plot_vpc_shown]{plot_vpc_shown()}} over their
+defaults.
 }
 \examples{
-defaults <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
-pmxhelpr:::merge_element(pmx_point(size = 2), defaults)
+pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
 
 }
 \keyword{internal}

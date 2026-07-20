@@ -3,7 +3,7 @@
 #' Creates a population overlay plot showing central tendency lines for
 #' observed (DV), population predicted (PRED), and individual predicted (IPRED)
 #' values. Colors and aesthetics for each variable are controlled through the
-#' `theme` argument via [plot_gof_theme()]. Use the `shown` argument to
+#' `style` argument via [style_gof()]. Use the `shown` argument to
 #' selectively hide variables.
 #'
 #' @param data Input dataset.
@@ -46,9 +46,12 @@
 #'    when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown
 #'    describing the data plotted.
-#' @param theme Theme object created by [plot_gof_theme()].
-#'    Defaults can be viewed by running `plot_gof_theme()` with no arguments.
-#'    Default error bar width is 2.5% of maximum `NTIME`.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
+#'    with no arguments. The DV/PRED/IPRED (and OBS) overlays are colored by the
+#'    `colors` map keyed by those labels.
+#' @param errorbar_width Numeric error bar cap width. Default `NULL` uses 2.5%
+#'    of maximum `NTIME`.
 #'
 #' @family goodness-of-fit
 #' @return A `ggplot2` plot object
@@ -76,7 +79,8 @@ plot_gof <- function(data,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
-                        theme = NULL){
+                        style = NULL,
+                        errorbar_width = NULL){
 
   cent <- match.arg(cent)
   blq_mode <- match.arg(blq_mode)
@@ -110,10 +114,20 @@ plot_gof <- function(data,
   lloq <- prep$lloq
   loq_method <- prep$loq_method
 
-  env <- prep_plot_env(data, cent, log_y, theme, plot_gof_theme)
-  caption   <- env$caption
-  plottheme <- env$plottheme
-  width     <- env$width
+  caption <- caption_dvtime(cent, log_y)
+
+  #Resolve style (log_y drives the y axis; color channel is handled manually
+  #below via scale_color_manual, so colors are stripped from the style passed
+  #to style_plot()).
+  plotstyle <- if (is.null(style)) style_gof() else style
+
+  #Error bar cap width (builder-computed; no style_spec field).
+  ebw <- errorbar_width
+  if (is.null(ebw)) {
+    ebw <- if ("NTIME" %in% names(data) && any(!is.na(data$NTIME))) {
+      max(data$NTIME, na.rm = TRUE) * 0.025
+    } else NA_real_
+  }
 
   #Determine which variables to show
   shown <- merge_element(shown, plot_gof_shown())
@@ -123,54 +137,50 @@ plot_gof <- function(data,
     rlang::warn("`shown` has no active elements; the resulting GOF plot will have no overlay layers")
   }
 
-  #Derive output colors from theme
-  color_map <- c(OBS = plottheme$obs_point$color,
-                 DV = plottheme$cent_color$dv,
-                 IPRED = plottheme$cent_color$ipred,
-                 PRED = plottheme$cent_color$pred)
-  output_colors <- color_map[active]
+  #Manual overlay color scale, ordered and restricted to active layers.
+  legend_order <- c("OBS", "DV", "IPRED", "PRED")
+  ord <- legend_order[legend_order %in% active]
+  output_colors <- plotstyle$colors[ord]
 
 
 ###Plot
 
   #Initialize Plot
-  plot <- init_plot(data, "TIME", "DV") +
-    ggplot2::labs(color = "Legend")
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]]))
 
   #Reference Lines
-  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
+  plot <- add_ref_layer_style(plot, ref)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = TRUE)
+  blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
+                             plotstyle, show_legend = TRUE)
   plot <- blq$plot
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
   if ("OBS" %in% active) {
-    plot <- add_obs_layers_manual(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, color_aes = "OBS")
+    plot <- add_obs_layers_gof_style(plot, id_var_str, plotstyle, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers_manual(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "DV")
+    plot <- add_cent_layers_gof_style(plot, cent, "DV", plotstyle, ebw, color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers_manual(plot, cent, "IPRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_gof_style(plot, cent, "IPRED", plotstyle, ebw, color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers_manual(plot, cent, "PRED", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_gof_style(plot, cent, "PRED", plotstyle, ebw, color_aes = "PRED", show_errorbars = FALSE)
   }
 
-  #Log Transform
-  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
-
   #Define Manual Legend
-  legend_order <- c("OBS", "DV", "IPRED", "PRED")
   plot <- plot +
-    ggplot2::scale_color_manual(values = output_colors,
-                                breaks = legend_order[legend_order %in% active])
+    ggplot2::scale_color_manual(name = "Legend",
+                                values = output_colors, breaks = ord)
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
-  return(plot)
+  #Finalize: house theme, log axis; color handled manually above.
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y), colors = NULL)
+  ggstylekit::style_plot(plot, plotstyle)
 }

@@ -116,7 +116,7 @@ pk_plot <- plot_dvtime(
   cent = "mean_sdl",
   col_var = Regimen,
   log_y = TRUE,
-  theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))
+  style = style_dvtime(alphas = c(obs_point = 0))
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 pk_plot
@@ -128,7 +128,7 @@ pd_plot <- plot_dvtime(
   dv_var = "CFB",
   cent = "mean_sdl",
   col_var = Regimen,
-  theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))
+  style = style_dvtime(alphas = c(obs_point = 0))
 ) +
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
@@ -341,31 +341,32 @@ vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend +
 
 See the [Visual Predictive Check Workflow](vpc-workflow.html) article for stratification controls, BLQ handling options, multi-LLOQ pooling, `shown`/`theme` customization, and pairing pcVPC with cens VPC.
 
-# Theme system overview
+# Styling overview
 
-Every `plot_*()` function has a paired `plot_*_theme()` factory that returns a named list of default element keys that follow a `datalayer_geom` pattern. Elements are built with typed constructors (`pmx_point()`, `pmx_line()`, `pmx_ribbon()`, `pmx_trend()`, `pmx_errorbar()`, `pmx_style()`, `pmx_color()`) and passed to keys within the factory function. The factory functions merges user-supplied overrides and override only the values passed leaves the rest at their default values.
+pmxhelpr styles its plots with [ggstylekit](https://github.com/A2-ai/ggstylekit). Every `plot_*()` function has a paired `style_*()` preset that returns a `ggstylekit::style_spec()` pre-filled with the family's defaults. Styling is keyed by the plot's *roles* (e.g. `obs_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`): the per-series maps (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are keyed by role, and partial overrides merge onto the defaults (so setting one role leaves the others untouched).
 
-```{r theme-defaults}
-plot_dvtime_theme()
+```{r style-defaults}
+style_dvtime()
 
-new_dvtime_theme <- plot_dvtime_theme(
-    obs_point = pmx_point(alpha = 0),
-    cent_line = pmx_line(linewidth = 1.5),
-    cent_errorbar = pmx_errorbar(linewidth = 1.5)
+new_dvtime_style <- style_dvtime(
+    alphas     = c(obs_point = 0),
+    linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
 ```
 
-```{r plot-dvtime-themed, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+```{r plot-dvtime-styled, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 plot_dvtime(
   data = data_pk,
   dv_var = ODV,
   cent = "mean_sdl",
   col_var = "Regimen",
   log_y = TRUE,
-  theme = new_dvtime_theme
+  style = new_dvtime_style
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
+
+A finished plot can also be restyled after the fact with `ggstylekit::restyle_plot()`, or a hidden covariate surfaced with `ggstylekit::reveal()`.
 
 See the [Plot Themes and Aesthetics](plot-themes.html) article for the full theme catalog, element-constructor reference, and the class system that backs them.
 

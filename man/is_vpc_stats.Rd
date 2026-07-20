@@ -30,14 +30,14 @@ is_vpc_stats(out)        # TRUE
 is_vpc_stats(out$stats)  # FALSE — that's the inner data.frame
 }
 \seealso{
-Other vpc: 
-\code{\link{df_vpcstats}()},
-\code{\link{is_pmx_vpc_plot}()},
-\code{\link{plot_build_vpc}()},
-\code{\link{plot_vpc_cens}()},
-\code{\link{plot_vpc_cont}()},
-\code{\link{plot_vpc_legend}()},
-\code{\link{plot_vpc_shown}()},
-\code{\link{plot_vpc_theme}()}
+Other vpc:
+\code{\link[=df_vpcstats]{df_vpcstats()}},
+\code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
+\code{\link[=plot_build_vpc]{plot_build_vpc()}},
+\code{\link[=plot_vpc_cens]{plot_vpc_cens()}},
+\code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
+\code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

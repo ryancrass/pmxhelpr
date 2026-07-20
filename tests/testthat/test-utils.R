@@ -240,20 +240,6 @@ test_that("df_prep_dvtime messages when inheriting loq from LLOQ column", {
   )
 })
 
-#####prep_plot_env####
-
-test_that("prep_plot_env returns list with expected elements", {
-  df <- data.frame(NTIME = c(0, 1, 2, 4, 8))
-  result <- pmxhelpr:::prep_plot_env(df, cent = "mean", log_y = FALSE,
-                                     theme = NULL,
-                                     theme_fn = pmxhelpr::plot_dvtime_theme)
-  expect_true(is.list(result))
-  expect_named(result, c("caption", "plottheme", "width"))
-  expect_true(is.character(result$caption))
-  expect_true(is.list(result$plottheme))
-  expect_true(is.numeric(result$width))
-})
-
 #####check_color####
 
 test_that("check_color accepts valid color names and hex strings", {

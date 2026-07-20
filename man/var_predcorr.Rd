@@ -39,8 +39,8 @@ data <- data |>
 
 }
 \seealso{
-Other vectorized helpers: 
-\code{\link{var_addn}()},
-\code{\link{var_dosenorm}()}
+Other vectorized helpers:
+\code{\link[=var_addn]{var_addn()}},
+\code{\link[=var_dosenorm]{var_dosenorm()}}
 }
 \concept{vectorized helpers}

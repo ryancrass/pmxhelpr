@@ -209,12 +209,12 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
   facet_wrap(~PART)
 ```
 
-The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be hidden by setting `obs_point = pmx_point(alpha = 0)` in the theme.
+The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be hidden by setting `alphas = c(obs_point = 0)` in the style.
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl",log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+            style = style_dvtime(alphas = c(obs_point = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -225,7 +225,7 @@ For data with high variability visualized on a linear y-axis, the error bars may
 ```{r plot-dvtime_part-meansdl-upper, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl_upper",
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+            style = style_dvtime(alphas = c(obs_point = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -236,7 +236,7 @@ For small samples or non-normally (or log-normally) distributed data, the median
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "median_iqr",log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+            style = style_dvtime(alphas = c(obs_point = 0))) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -323,27 +323,26 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean"
   facet_wrap(~PART)
 ```
 
-## Adjusting the Plot Theme with `plot_dvtime_theme()`
+## Adjusting Plot Style with `style_dvtime()`
 
-The default aesthetics for Response-Time plots are controlled via `plot_dvtime_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing Response-Time aesthetics.
+The default aesthetics for Response-Time plots are controlled via `style_dvtime()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Time aesthetics.
 
-```{r theme}
-plot_dvtime_theme()
+```{r style}
+style_dvtime()
 ```
 
-Say we want to update the errorbar cap width to be more visible in our prior geometric mean +/- geometric SD plot with the interaction of dose and food passed to the color aesthetic. This can be done by defining a new theme and passing that to the `theme` argument of `plot_dvtime()`.
+Say we want to update the errorbar cap width to be more visible in our prior geometric mean +/- geometric SD plot with the interaction of dose and food passed to the color aesthetic. Error bar cap width is a builder argument (`errorbar_width`), while the other aesthetics come from the style.
 
-```{r new-theme}
-dvtime_new_theme <- plot_dvtime_theme(
-  obs_point = pmx_point(alpha = 0),
-  cent_errorbar  = pmx_errorbar(width = 10)
+```{r new-style}
+dvtime_new_style <- style_dvtime(
+  alphas = c(obs_point = 0)
 )
 ```
 
-```{r plot-dvtime-blq-dn-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
+```{r plot-dvtime-blq-dn-new-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl",log_y = TRUE,
-            theme = dvtime_new_theme) +
+            style = dvtime_new_style, errorbar_width = 10) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -543,26 +542,27 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 ```
 
 
-## Adjusting the Plot Theme with `plot_dvconc_theme()`
+## Adjusting Plot Style with `style_dvconc()`
 
-The default aesthetics for Response-Concentration plots are controlled via `plot_dvconc_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing Response-Concentration aesthetics.
+The default aesthetics for Response-Concentration plots are controlled via `style_dvconc()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Concentration aesthetics.
 
-```{r theme-dvconc}
-plot_dvconc_theme()
+```{r style-dvconc}
+style_dvconc()
 ```
 
-Say we want to update the color of the trend line and standard error. This can be done by defining a new theme and passing that to the `theme` argument of `plot_dvconc()`.
+Say we want to update the color of the trend line and its standard-error ribbon. The line color is the `loess` entry of `colors`; the SE-ribbon fill is the base `line_fill`.
 
-```{r new-theme-dvconc}
-dvconc_new_theme <- plot_dvconc_theme(
-  loess = pmx_trend(color = "darkred", se_color = "darkred")
+```{r new-style-dvconc}
+dvconc_new_style <- style_dvconc(
+  colors    = c(loess = "darkred"),
+  line_fill = "darkred"
 )
 ```
 
-```{r plot-dvconc-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-dvconc-new-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
             loess = TRUE, linear = FALSE, se_loess = TRUE, se_linear = FALSE,
-            theme = dvconc_new_theme) +
+            style = dvconc_new_style) +
   labs(x = "Drug Concentration (ng/mL)", y = "Response (% Change from Baseline)")
 ```
 

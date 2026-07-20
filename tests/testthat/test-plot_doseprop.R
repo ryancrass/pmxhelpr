@@ -146,13 +146,12 @@ test_that("plot_doseprop accepts bare names", {
     "ggplot")
 })
 
-test_that("plot_doseprop accepts theme argument and applies overrides", {
-  custom_theme <- plot_doseprop_theme(
-    obs_point = pmx_point(color = "red"),
-    linear = pmx_trend(color = "navy"))
+test_that("plot_doseprop accepts style argument and applies overrides", {
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
   p <- plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                      metrics = c("aucinf.obs", "cmax"),
-                     theme = custom_theme)
+                     style = custom_style)
   expect_s3_class(p, "ggplot")
 })
 
@@ -224,13 +223,12 @@ test_that("plot_build_doseprop honors se = FALSE", {
   expect_false(p$layers[[2]]$stat_params$se)
 })
 
-test_that("plot_build_doseprop honors theme overrides", {
+test_that("plot_build_doseprop honors style overrides", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))
-  custom_theme <- plot_doseprop_theme(
-    obs_point = pmx_point(color = "red"),
-    linear = pmx_trend(color = "navy"))
-  p <- plot_build_doseprop(stats, theme = custom_theme)
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
+  p <- plot_build_doseprop(stats, style = custom_style)
   expect_s3_class(p, "ggplot")
 })
 
@@ -275,8 +273,8 @@ test_that("plot_doseprop aborts when pipeline args are passed on the precomputed
 test_that("plot_doseprop accepts plot-only args on the precomputed path", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))
-  custom_theme <- plot_doseprop_theme(obs_point = pmx_point(color = "red"))
-  expect_s3_class(plot_doseprop(stats, theme = custom_theme), "ggplot")
+  custom_style <- style_doseprop(colors = c(obs_point = "red"))
+  expect_s3_class(plot_doseprop(stats, style = custom_style), "ggplot")
   expect_s3_class(plot_doseprop(stats, se = FALSE), "ggplot")
 })
 

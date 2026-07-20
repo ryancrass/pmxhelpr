@@ -48,8 +48,9 @@
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
 #'    Defaults can be viewed by running `plot_vpc_shown()` with no arguments.
 #'
-#' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
-#'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param ci Numeric scalar in `(0, 1)` for simulation interval (e.g., `0.90` for 90% CI). Default is `0.90`.
@@ -106,7 +107,7 @@ plot_vpc_cont <- function(data,
                           lower_bound = 0,
                           mode = c("auto", "rank", "drop"),
                           shown = NULL,
-                          theme = NULL,
+                          style = NULL,
                           pi = c(0.05, 0.95),
                           ci = 0.90) {
 
@@ -115,13 +116,13 @@ plot_vpc_cont <- function(data,
   ## from the container's $config slot. Pipeline args (strat_var, loq, mode,
   ## pi, ci, column-name args) cannot be honored on this path because the
   ## pipeline doesn't run again; the wrapper aborts if any are passed.
-  ## Plot-only args (min_bin_count, show_rep, shown, theme, pcvpc) are
+  ## Plot-only args (min_bin_count, show_rep, shown, style, pcvpc) are
   ## accepted on both paths.
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       call           = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
-                         "theme", "pcvpc"),
+                         "style", "pcvpc"),
       fn_name        = "plot_vpc_cont"
     )
     return(plot_build_vpc(
@@ -129,7 +130,7 @@ plot_vpc_cont <- function(data,
       min_bin_count = min_bin_count,
       show_rep      = show_rep,
       shown         = shown,
-      theme         = theme,
+      style         = style,
       pcvpc         = pcvpc,
       bin_var       = BIN_MID_VAR
     ))
@@ -161,7 +162,7 @@ plot_vpc_cont <- function(data,
     min_bin_count = min_bin_count,
     show_rep = show_rep,
     shown = shown,
-    theme = theme,
+    style = style,
     pcvpc = pcvpc,
     bin_var = BIN_MID_VAR
   )

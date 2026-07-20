@@ -41,9 +41,9 @@
 #'    the simulated median line is off by default. Pass
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it.
 #'
-#' @param theme Named list of aesthetic parameters created by
-#'    [plot_vpc_theme()]. The cens builder reads the same four keys listed
-#'    above (`obs_point`, `obs_median_line`, `sim_median_line`,
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics
+#'    (defaults to [style_vpc()]). The cens builder reads the same four keys
+#'    listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
 #'    `sim_median_ci`); other keys are ignored.
 #'
 #' @param ci Numeric scalar in `(0, 1)` for the simulated CI bound on the BLQ
@@ -97,7 +97,7 @@ plot_vpc_cens <- function(data,
                           min_bin_count = 1,
                           show_rep = TRUE,
                           shown = NULL,
-                          theme = NULL,
+                          style = NULL,
                           ci = 0.90) {
 
   ## Precomputed-stats path: caller passed the container returned by
@@ -108,7 +108,7 @@ plot_vpc_cens <- function(data,
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       call           = match.call(),
-      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "theme"),
+      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
       fn_name        = "plot_vpc_cens"
     )
     return(plot_build_vpc(
@@ -117,7 +117,7 @@ plot_vpc_cens <- function(data,
       min_bin_count = min_bin_count,
       show_rep      = show_rep,
       shown         = shown,
-      theme         = theme,
+      style         = style,
       bin_var       = BIN_MID_VAR
     ))
   }
@@ -149,7 +149,7 @@ plot_vpc_cens <- function(data,
     min_bin_count = min_bin_count,
     show_rep      = show_rep,
     shown         = shown,
-    theme         = theme,
+    style         = style,
     bin_var       = BIN_MID_VAR
   )
 }

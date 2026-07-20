@@ -38,5 +38,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Ryan Crass \email{ryancrass@gmail.com} (\href{https://orcid.org/0000-0001-5403-4730}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Ryan Crass \email{ryancrass@gmail.com} (\href{https://orcid.org/0000-0001-5403-4730}{ORCID}) [copyright holder]
+}
+
 }
 \keyword{internal}

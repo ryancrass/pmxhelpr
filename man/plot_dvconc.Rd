@@ -17,7 +17,7 @@ plot_dvconc(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL,
+  style = NULL,
   ...
 )
 }
@@ -49,8 +49,10 @@ change-from-baseline data.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
 
-\item{theme}{Theme object created by \code{\link[=plot_dvconc_theme]{plot_dvconc_theme()}}.
-Defaults can be viewed by running \code{plot_dvconc_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_dvconc]{style_dvconc()}}; view the defaults by running \code{style_dvconc()}
+with no arguments. Customize by passing \code{style = style_dvconc(...)}, or
+restyle the returned plot with \code{\link[ggstylekit:restyle_plot]{ggstylekit::restyle_plot()}}.}
 
 \item{...}{Additional arguments passed to \code{geom_smooth()}}
 }
@@ -69,9 +71,9 @@ plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALS
 
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc_theme}()},
-\code{\link{plot_dvtime}()},
-\code{\link{plot_dvtime_theme}()}
+Other exploratory analysis:
+\code{\link[=plot_dvtime]{plot_dvtime()}},
+\code{\link[=style_dvconc]{style_dvconc()}},
+\code{\link[=style_dvtime]{style_dvtime()}}
 }
 \concept{exploratory analysis}

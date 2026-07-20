@@ -19,7 +19,8 @@ plot_dvtime(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL
+  style = NULL,
+  errorbar_width = NULL
 )
 }
 \arguments{
@@ -82,9 +83,13 @@ the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
 
-\item{theme}{Theme object created by \code{\link[=plot_dvtime_theme]{plot_dvtime_theme()}}.
-Defaults can be viewed by running \code{plot_dvtime_theme()} with no arguments.
-Default error bar width is 2.5\% of maximum \code{NTIME}.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_dvtime]{style_dvtime()}}; view the defaults by running \code{style_dvtime()}
+with no arguments. Customize by passing \code{style = style_dvtime(...)}, or
+restyle the returned plot with \code{\link[ggstylekit:restyle_plot]{ggstylekit::restyle_plot()}}.}
+
+\item{errorbar_width}{Numeric error bar cap width. Default \code{NULL} uses 2.5\%
+of maximum \code{NTIME}.}
 }
 \value{
 A \code{ggplot2} plot object
@@ -99,9 +104,9 @@ plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
 
 }
 \seealso{
-Other exploratory analysis: 
-\code{\link{plot_dvconc}()},
-\code{\link{plot_dvconc_theme}()},
-\code{\link{plot_dvtime_theme}()}
+Other exploratory analysis:
+\code{\link[=plot_dvconc]{plot_dvconc()}},
+\code{\link[=style_dvconc]{style_dvconc()}},
+\code{\link[=style_dvtime]{style_dvtime()}}
 }
 \concept{exploratory analysis}

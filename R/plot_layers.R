@@ -1,370 +1,287 @@
-#' Internal helper: Add central tendency point, line, and error bar layers
-#'
-#' Use this variant when color is either fixed (from theme) or inherited from
-#' a global `col_var` aesthetic set in [init_plot()]. The layers do not
-#' contribute to a `scale_color_manual` legend.
-#'
-#' For GOF-style overlay plots — multiple cent layers with different y-vars
-#' (DV / PRED / IPRED) sharing a manual color legend — use
-#' [add_cent_layers_manual()] instead. The two helpers implement different
-#' `aes()` contracts (inherited/fixed color vs. literal-label color routed
-#' through `scale_color_manual()`) and intentionally are not unified.
+# ===========================================================================
+# ggstylekit-based layer builders
+#
+# These `*_style()` helpers emit bare geoms tagged with
+# `ggstylekit::series_layer()` (for entity geoms styled by `style_plot()`) or
+# with inline aesthetics read from the style via `series_aes()` (for non-entity
+# geoms like error bars). Series names are the plot role keys. They replace the
+# `pmx_element`-reading helpers above as each family migrates.
+# ===========================================================================
+
+
+#' Internal helper: add a horizontal reference line (style pattern)
 #'
 #' @param plot ggplot object to modify.
-#' @param cent Character string specifying the central tendency measure.
-#'    One of `"mean"`, `"mean_sdl"`, `"mean_sdl_upper"`, `"median"`, `"median_iqr"`, or `"none"`.
-#' @param y_var Character string specifying the y variable name (e.g., `"DV"`).
-#' @param point_el A `pmx_point` element with point aesthetics.
-#' @param line_el A `pmx_line` element with line aesthetics.
-#' @param eb_el A `pmx_errorbar` element with error bar aesthetics.
-#' @param width Numeric error bar cap width.
-#' @param color_mapped Logical indicating whether color is mapped via
-#'    a global aesthetic (e.g., `col_var`). When `TRUE`, fixed theme colors
-#'    are suppressed to allow inheritance.
-#' @param show_errorbars Logical indicating whether to add error bar layers.
+#' @param ref Numeric y-intercept, or `NULL` for no line.
 #'
-#' @return A modified ggplot object with central tendency layers added
+#' @return The (possibly modified) ggplot object, with the reference line tagged
+#'   as the `"ref_line"` series for [ggstylekit::style_plot()].
 #' @keywords internal
-add_cent_layers <- function(plot, cent, y_var, point_el, line_el, eb_el, width,
-                            color_mapped = FALSE, show_errorbars = TRUE) {
-
-  if (cent == "none") return(plot)
-
-  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]])
-
-  is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
-  stat_fun <- if (is_mean) "mean" else "median"
-
-  # Central Tendency Points
-  plot <- plot + build_layer(ggplot2::stat_summary,
-    args = list(mapping = mapping, fun = stat_fun, geom = "point",
-                size = point_el$size, shape = point_el$shape, alpha = point_el$alpha),
-    color = point_el$color, color_mapped = color_mapped)
-
-  # Central Tendency Lines
-  plot <- plot + build_layer(ggplot2::stat_summary,
-    args = list(mapping = mapping, fun = stat_fun, geom = "line",
-                linewidth = line_el$linewidth, linetype = line_el$linetype,
-                alpha = line_el$alpha),
-    color = line_el$color, color_mapped = color_mapped)
-
-  # Error Bars
-  if (show_errorbars) {
-    eb_args <- list(mapping = mapping, geom = "errorbar",
-                    linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-                    alpha = eb_el$alpha, width = width)
-
-    if (cent == "mean_sdl") {
-      plot <- plot + build_layer(ggplot2::stat_summary,
-        args = c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_args),
-        color = eb_el$color, color_mapped = color_mapped)
-    }
-
-    if (cent == "mean_sdl_upper") {
-      plot <- plot + build_layer(ggplot2::stat_summary,
-        args = c(list(fun.max = function(x){mean(x) + stats::sd(x)},
-                      fun.min = function(x){NA_real_}), eb_args),
-        color = eb_el$color, color_mapped = color_mapped)
-      plot <- plot + build_layer(ggplot2::stat_summary,
-        args = list(mapping = mapping, geom = "linerange",
-                    fun.max = function(x){mean(x) + stats::sd(x)},
-                    fun.min = function(x){mean(x)},
-                    linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-                    alpha = eb_el$alpha, show.legend = FALSE),
-        color = eb_el$color, color_mapped = color_mapped)
-    }
-
-    if (cent == "median_iqr") {
-      plot <- plot + build_layer(ggplot2::stat_summary,
-        args = c(list(fun.max = function(x){stats::quantile(x, 0.75)},
-                      fun.min = function(x){stats::quantile(x, 0.25)}), eb_args),
-        color = eb_el$color, color_mapped = color_mapped)
-    }
-  }
-
-  return(plot)
+add_ref_layer_style <- function(plot, ref) {
+  if (is.null(ref)) return(plot)
+  plot + ggstylekit::series_layer(
+    ggplot2::geom_hline(yintercept = as.numeric(ref)), "ref_line")
 }
 
 
-#' Add central tendency layers for GOF overlay plots
+#' Internal helper: add observed points and spaghetti lines (style pattern)
 #'
-#' Use this variant for GOF-style overlay plots where multiple cent layers
-#' with different y-vars (DV / PRED / IPRED) share a single manual color
-#' legend. The layer's `color` is set to the literal string `color_aes`
-#' inside `aes()` so ggplot treats it as a discrete level, then
-#' `scale_color_manual()` (added by the calling plot function) maps each
-#' level to a color. Fixed theme colors are never applied.
+#' Color may be inherited from the plot's global `aes()` (as [plot_dvtime()]
+#' does, leaving `col_var_str = NULL`) or mapped at the layer level via
+#' `col_var_str` (as [plot_dvconc()] does, so only the points are colored while
+#' trend lines stay unstratified). The `obs_point`/`obs_line` series aesthetics
+#' are filled by [ggstylekit::style_plot()].
 #'
-#' For single-y plots where color is inherited from a global `col_var`
-#' aesthetic or fixed from the theme, use [add_cent_layers()]. The two
-#' helpers implement different `aes()` contracts and intentionally are not
-#' unified.
+#' @param plot ggplot object.
+#' @param id_var_str Column name for spaghetti grouping, or `NULL` for no lines.
+#' @param col_var_str Column name to map to color at the layer level, or `NULL`
+#'   to inherit color from the plot's global mapping.
 #'
-#' @inheritParams add_cent_layers
-#' @param color_aes String label for color aesthetic (e.g., `"DV"`, `"PRED"`).
-#'
-#' @return A modified ggplot object with central tendency layers added
+#' @return Modified ggplot object.
 #' @keywords internal
-add_cent_layers_manual <- function(plot, cent, y_var, point_el, line_el, eb_el,
-                                   width, color_aes, show_errorbars = TRUE) {
-
-  if (cent == "none") return(plot)
-
-  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]], color = color_aes)
-
-  is_mean <- cent %in% c("mean", "mean_sdl", "mean_sdl_upper")
-  stat_fun <- if (is_mean) "mean" else "median"
-
-  # Central Tendency Points
-  plot <- plot + ggplot2::stat_summary(mapping,
-    fun = stat_fun, geom = "point",
-    size = point_el$size, shape = point_el$shape, alpha = point_el$alpha)
-
-  # Central Tendency Lines
-  plot <- plot + ggplot2::stat_summary(mapping,
-    fun = stat_fun, geom = "line",
-    linewidth = line_el$linewidth, linetype = line_el$linetype,
-    alpha = line_el$alpha)
-
-  # Error Bars
-  if (show_errorbars) {
-    if (cent == "mean_sdl") {
-      plot <- plot + ggplot2::stat_summary(mapping,
-        fun.data = "mean_sdl", fun.args = list(mult = 1), geom = "errorbar",
-        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-        alpha = eb_el$alpha, width = width)
-    }
-
-    if (cent == "mean_sdl_upper") {
-      plot <- plot + ggplot2::stat_summary(mapping,
-        fun.max = function(x){mean(x) + stats::sd(x)},
-        fun.min = function(x){NA_real_}, geom = "errorbar",
-        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-        alpha = eb_el$alpha, width = width)
-      plot <- plot + ggplot2::stat_summary(mapping,
-        fun.max = function(x){mean(x) + stats::sd(x)},
-        fun.min = function(x){mean(x)}, geom = "linerange",
-        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-        alpha = eb_el$alpha, show.legend = FALSE)
-    }
-
-    if (cent == "median_iqr") {
-      plot <- plot + ggplot2::stat_summary(mapping,
-        fun.max = function(x){stats::quantile(x, 0.75)},
-        fun.min = function(x){stats::quantile(x, 0.25)}, geom = "errorbar",
-        linewidth = eb_el$linewidth, linetype = eb_el$linetype,
-        alpha = eb_el$alpha, width = width)
-    }
+add_obs_layers_style <- function(plot, id_var_str, col_var_str = NULL) {
+  point <- if (is.null(col_var_str)) {
+    ggplot2::geom_point()
+  } else {
+    ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]))
   }
-
-  return(plot)
-}
-
-
-#' Add observed data point and spaghetti line layers to a plot
-#'
-#' Adds a \code{geom_point} layer for observed data (visibility controlled by
-#' theme alpha) and optionally a \code{geom_line} layer connecting observations
-#' within groups when `id_var_str` is specified. Color is mapped to a data
-#' column when `col_var_str` is provided.
-#'
-#' Use this variant when color is column-mapped, inherited from a global
-#' aesthetic, or fixed from the theme. For GOF-style overlay plots that
-#' route color through `scale_color_manual()` via a literal label, use
-#' [add_obs_layers_manual()] instead. The two helpers implement different
-#' `aes()` contracts and intentionally are not unified.
-#'
-#' @param plot ggplot object
-#' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
-#' @param point_el A `pmx_point` element with point aesthetics.
-#' @param line_el A `pmx_line` element with line aesthetics.
-#' @param col_var_str optional string column name for color aesthetic, or `NULL`
-#'
-#' @return modified ggplot object
-#' @keywords internal
-add_obs_layers <- function(plot, id_var_str, point_el, line_el,
-                           col_var_str = NULL) {
-
-  color_mapped <- !is.null(col_var_str)
-  point_mapping <- if (color_mapped) ggplot2::aes(color = .data[[col_var_str]]) else NULL
-
-  plot <- plot + build_layer(ggplot2::geom_point,
-    args = compact(list(mapping = point_mapping,
-                        shape = point_el$shape, size = point_el$size,
-                        alpha = point_el$alpha)),
-    color = point_el$color, color_mapped = color_mapped)
+  plot <- plot + ggstylekit::series_layer(point, "obs_point")
 
   if (!is.null(id_var_str)) {
-    line_mapping <- if (color_mapped) {
-      ggplot2::aes(x = .data$TIME, y = .data$DV, color = .data[[col_var_str]],
-                   group = .data[[id_var_str]])
+    line_mapping <- if (is.null(col_var_str)) {
+      ggplot2::aes(group = .data[[id_var_str]])
     } else {
-      ggplot2::aes(x = .data$TIME, y = .data$DV, group = .data[[id_var_str]])
+      ggplot2::aes(color = .data[[col_var_str]], group = .data[[id_var_str]])
     }
-    plot <- plot + build_layer(ggplot2::geom_line,
-      args = list(mapping = line_mapping,
-                  linewidth = line_el$linewidth, linetype = line_el$linetype,
-                  alpha = line_el$alpha),
-      color = line_el$color, color_mapped = color_mapped)
+    plot <- plot + ggstylekit::series_layer(
+      ggplot2::geom_line(line_mapping), "obs_line")
   }
-
-  plot
-}
-
-#' Add observed data layers for GOF plots with manual legend
-#'
-#' Use this variant for GOF-style overlay plots where the obs layer
-#' participates in a manual color legend alongside cent layers for DV /
-#' PRED / IPRED. The layer's `color` is set to the literal string
-#' `color_aes` inside `aes()`, which ggplot treats as a discrete level
-#' that `scale_color_manual()` then maps to a color.
-#'
-#' For column-mapped, inherited, or fixed-from-theme color, use
-#' [add_obs_layers()]. The two helpers implement different `aes()`
-#' contracts and intentionally are not unified.
-#'
-#' @param plot ggplot object
-#' @param id_var_str character column name for spaghetti line grouping, or `NULL` for no lines
-#' @param point_el A `pmx_point` element with point aesthetics.
-#' @param line_el A `pmx_line` element with line aesthetics.
-#' @param color_aes string label for color aesthetic (e.g., "OBS")
-#'
-#' @return modified ggplot object
-#' @keywords internal
-add_obs_layers_manual <- function(plot, id_var_str, point_el, line_el, color_aes) {
-
-  plot <- plot + ggplot2::geom_point(
-    mapping = ggplot2::aes(color = color_aes),
-    shape   = point_el$shape,
-    size    = point_el$size,
-    alpha   = point_el$alpha
-  )
-
-  if (!is.null(id_var_str)) {
-    line_aes <- ggplot2::aes(x = .data$TIME, y = .data$DV, color = color_aes,
-                             group = .data[[id_var_str]])
-    plot <- plot + ggplot2::geom_line(
-      mapping   = line_aes,
-      linewidth = line_el$linewidth,
-      linetype  = line_el$linetype,
-      alpha     = line_el$alpha
-    )
-  }
-
   plot
 }
 
 
-#' Add LOQ reference line and caption to a plot
+#' Internal helper: add a trend line layer (style pattern)
 #'
-#' Conditionally adds an horizontal reference line at the LLOQ and appends
-#' BLQ imputation method text to the plot caption. Under `dosenorm = TRUE`
-#' the horizontal LLOQ line is suppressed (the line has no meaning on the
-#' dose-normalized scale), but the caption is still appended because the
-#' upstream BLQ imputation in `df_prep_blq()` runs before dose normalization.
+#' Adds a `geom_smooth` for `method`, tagged as the `series` name (`"loess"` or
+#' `"linear"`) so [ggstylekit::style_plot()] fills its color, linewidth,
+#' linetype, SE-ribbon fill (base `line_fill`), and SE-ribbon alpha (the
+#' series `alphas` entry). When `col_trend` is `TRUE` and a color variable is
+#' supplied, color and fill are mapped to it instead.
 #'
-#' @param plot ggplot object
-#' @param caption character, current caption string
-#' @param loq_method numeric, 0/1/2
-#' @param loq numeric, lower limit of quantification value
-#' @param dosenorm logical, whether dose normalization is active
-#' @param loq_el A `pmx_line` element with LOQ line aesthetics.
-#' @param show_legend logical, whether to add LLOQ to the linetype legend
+#' @param plot ggplot object.
+#' @param method Smoothing method (`"loess"` or `"lm"`).
+#' @param show Logical; whether to add the layer.
+#' @param se Logical; whether to draw the SE ribbon.
+#' @param series Series/role name for the style (e.g. `"loess"`, `"linear"`).
+#' @param col_var_str Color variable name, or `NULL`.
+#' @param col_trend Logical; stratify the trend by `col_var_str`.
+#' @param ... Passed to [ggplot2::geom_smooth()] (e.g. `formula`, `level`, `span`).
 #'
-#' @return A named list with elements `plot` (modified ggplot) and `caption` (modified string)
+#' @return Modified ggplot object.
 #' @keywords internal
-add_blq_layers <- function(plot, caption, loq_method, loq, dosenorm, loq_el,
-                           show_legend = FALSE) {
+add_trend_layers_style <- function(plot, method, show, se, series,
+                                    col_var_str, col_trend, ...) {
+  if (!isTRUE(show)) return(plot)
+  smooth <- if (isTRUE(col_trend) && !is.null(col_var_str)) {
+    ggplot2::geom_smooth(
+      ggplot2::aes(color = .data[[col_var_str]], fill = .data[[col_var_str]]),
+      method = method, se = se, ...)
+  } else {
+    ggplot2::geom_smooth(method = method, se = se, ...)
+  }
+  plot + ggstylekit::series_layer(smooth, series)
+}
 
+
+#' Internal helper: add LOQ reference line and BLQ caption (style pattern)
+#'
+#' Draws the LLOQ line (suppressed under `dosenorm`) and appends the BLQ
+#' imputation caption. The line's fixed aesthetics come from the `"loq_line"`
+#' series of `style`. When `show_legend` is `TRUE`, the linetype is mapped to a
+#' `"LLOQ = <value>"` label with a manual scale so the line joins the legend;
+#' `style_plot()` preserves this manual scale.
+#'
+#' @param plot ggplot object.
+#' @param caption Current caption string.
+#' @param loq_method Numeric BLQ method (0/1/2).
+#' @param loq Numeric LLOQ value.
+#' @param dosenorm Logical; whether dose normalization is active.
+#' @param style A `ggstylekit_style_spec` supplying the `loq_line` aesthetics.
+#' @param show_legend Logical; whether to add LLOQ to the linetype legend.
+#'
+#' @return A named list with `plot` (modified ggplot) and `caption` (modified
+#'   string).
+#' @keywords internal
+add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
+                                show_legend = FALSE) {
   if (!loq_method %in% c(1, 2)) {
     return(list(plot = plot, caption = caption))
   }
 
   if (!isTRUE(dosenorm)) {
+    el <- series_aes(style, "loq_line")
     if (isTRUE(show_legend)) {
       loq_lab <- paste0(loq)
+      hargs <- compact(list(
+        mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
+        linewidth = el$linewidth, alpha = el$alpha, color = el$colour))
       plot <- plot +
-        build_layer(ggplot2::geom_hline,
-          args = list(mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
-                      linewidth = loq_el$linewidth, alpha = loq_el$alpha),
-          color = loq_el$color) +
+        do.call(ggplot2::geom_hline, hargs) +
         ggplot2::scale_linetype_manual(
           name = "LLOQ",
-          values = stats::setNames(c(loq_el$linetype), loq_lab)) +
+          values = stats::setNames(el$linetype, loq_lab)) +
         ggplot2::guides(color = ggplot2::guide_legend(order = 1),
                         linetype = ggplot2::guide_legend(order = 2))
     } else {
-      plot <- plot +
-        build_layer(ggplot2::geom_hline,
-          args = list(yintercept = loq, linewidth = loq_el$linewidth,
-                      linetype = loq_el$linetype, alpha = loq_el$alpha),
-          color = loq_el$color)
+      hargs <- compact(list(
+        yintercept = loq, linewidth = el$linewidth,
+        linetype = el$linetype, alpha = el$alpha, color = el$colour))
+      plot <- plot + do.call(ggplot2::geom_hline, hargs)
     }
   }
 
   blq_captions <- c(`1` = "Post-dose BLQ observations are imputed to 1/2 LLOQ",
-                     `2` = "All BLQ observations are imputed to 1/2 LLOQ")
+                    `2` = "All BLQ observations are imputed to 1/2 LLOQ")
   caption <- paste0(caption, "\n", blq_captions[[as.character(loq_method)]])
 
   list(plot = plot, caption = caption)
 }
 
 
-#' Internal helper: Add horizontal reference line
+#' Internal helper: add central tendency layers (style pattern)
 #'
-#' Conditionally adds a horizontal reference line at the specified y-intercept.
-#' Draws the line when `ref` is non-NULL.
+#' Central-tendency points and lines are `stat_summary` layers tagged as the
+#' `"cent_point"`/`"cent_line"` series for [ggstylekit::style_plot()]. Error
+#' bars use `GeomErrorbar`/`GeomLinerange`, which are outside ggstylekit's
+#' entity registry, so their aesthetics are set inline from the
+#' `"cent_errorbar"` series via [series_aes()]. Color is inherited from the
+#' plot's global `aes()` when mapped.
 #'
-#' @param plot ggplot object to modify
-#' @param ref Numeric y-intercept for the reference line, or `NULL` for no line.
-#' @param ref_el A `pmx_line` element with reference line aesthetics.
+#' @param plot ggplot object.
+#' @param cent Central tendency measure (see [plot_dvtime()]).
+#' @param y_var Y variable name (e.g. `"DV"`).
+#' @param style A `ggstylekit_style_spec`.
+#' @param width Numeric error bar cap width.
 #'
-#' @return The (possibly modified) ggplot object
+#' @return Modified ggplot object.
 #' @keywords internal
-add_ref_layers <- function(plot, ref, ref_el) {
-  if (is.null(ref)) return(plot)
-  plot + build_layer(ggplot2::geom_hline,
-    args = list(yintercept = as.numeric(ref), linewidth = ref_el$linewidth,
-                linetype = ref_el$linetype, alpha = ref_el$alpha),
-    color = ref_el$color)
+add_cent_layers_style <- function(plot, cent, y_var, style, width) {
+  if (cent == "none") return(plot)
+
+  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]])
+  stat_fun <- if (cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) "mean" else "median"
+
+  plot <- plot + ggstylekit::series_layer(
+    ggplot2::stat_summary(mapping, fun = stat_fun, geom = "point"), "cent_point")
+  plot <- plot + ggstylekit::series_layer(
+    ggplot2::stat_summary(mapping, fun = stat_fun, geom = "line"), "cent_line")
+
+  eb <- series_aes(style, "cent_errorbar")
+  eb_bar <- c(list(mapping = mapping, geom = "errorbar", width = width), eb)
+
+  if (cent == "mean_sdl") {
+    plot <- plot + do.call(ggplot2::stat_summary,
+      c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_bar))
+  }
+  if (cent == "mean_sdl_upper") {
+    plot <- plot + do.call(ggplot2::stat_summary,
+      c(list(fun.max = function(x) mean(x) + stats::sd(x),
+             fun.min = function(x) NA_real_), eb_bar))
+    plot <- plot + do.call(ggplot2::stat_summary,
+      c(list(mapping = mapping, geom = "linerange", show.legend = FALSE,
+             fun.max = function(x) mean(x) + stats::sd(x),
+             fun.min = function(x) mean(x)), eb))
+  }
+  if (cent == "median_iqr") {
+    plot <- plot + do.call(ggplot2::stat_summary,
+      c(list(fun.max = function(x) stats::quantile(x, 0.75),
+             fun.min = function(x) stats::quantile(x, 0.25)), eb_bar))
+  }
+
+  plot
 }
 
 
-#' Internal helper: Add a trend line layer to a DV-vs-concentration plot
+#' Internal helper: observed layers for a GOF overlay (style pattern)
 #'
-#' Adds a `geom_smooth` layer for the specified `method`. When `col_var_str`
-#' is non-NULL and `col_trend` is TRUE, the color and fill aesthetics are
-#' mapped to the grouping variable; otherwise, fixed colors from `plottheme`
-#' are used.
+#' GOF overlays route color through a manual scale keyed by a literal label
+#' (`"OBS"`), so color is mapped via `aes()` rather than styled by
+#' [ggstylekit::style_plot()]. The remaining fixed aesthetics are read inline
+#' from the `obs_point`/`obs_line` series of `style` (no `series_layer()` tag,
+#' so `style_plot()` leaves the color channel to the caller's
+#' `scale_color_manual()`). Mirrors the single-series [add_obs_layers_style()]
+#' but with a literal-label color contract.
 #'
-#' @param plot ggplot object to modify
-#' @param method Character smoothing method (`"loess"` or `"lm"`)
-#' @param show Logical indicating whether to add this trend layer
-#' @param se Logical indicating whether to show the standard error ribbon
-#' @param plottheme Named list of theme aesthetics (must contain element named by `theme_key`)
-#' @param col_var_str String name of the color variable, or `NULL`
-#' @param col_trend Logical indicating if trends should be colored by group
-#' @param ... Additional arguments passed to `geom_smooth` (e.g., `span`)
-#' @param theme_key Character key to look up in `plottheme`. Defaults to `method`.
+#' @param plot ggplot object.
+#' @param id_var_str Column name for spaghetti grouping, or `NULL`.
+#' @param style A `ggstylekit_style_spec`.
+#' @param color_aes Literal color label (e.g. `"OBS"`).
 #'
-#' @return The (possibly modified) ggplot object
+#' @return Modified ggplot object.
 #' @keywords internal
-add_trend_layers <- function(plot, method, show, se, plottheme,
-                              col_var_str, col_trend, ...,
-                              theme_key = method) {
-  if (!isTRUE(show)) return(plot)
-  theme_el <- plottheme[[theme_key]]
-  if (isTRUE(col_trend) && !is.null(col_var_str)) {
-    plot + ggplot2::geom_smooth(
-      ggplot2::aes(color = .data[[col_var_str]], fill = .data[[col_var_str]]),
-      method = method, se = se,
-      linewidth = theme_el$linewidth, linetype = theme_el$linetype,
-      alpha = theme_el$se_alpha, ...)
-  } else {
-    plot + ggplot2::geom_smooth(
-      method = method, se = se,
-      linewidth = theme_el$linewidth, linetype = theme_el$linetype,
-      color = theme_el$color, fill = theme_el$se_color,
-      alpha = theme_el$se_alpha, ...)
+add_obs_layers_gof_style <- function(plot, id_var_str, style, color_aes) {
+  plot <- plot + do.call(ggplot2::geom_point,
+    c(list(mapping = ggplot2::aes(color = color_aes)),
+      series_aes(style, "obs_point")))
+  if (!is.null(id_var_str)) {
+    plot <- plot + do.call(ggplot2::geom_line,
+      c(list(mapping = ggplot2::aes(x = .data$TIME, y = .data$DV,
+                                    color = color_aes,
+                                    group = .data[[id_var_str]])),
+        series_aes(style, "obs_line")))
   }
+  plot
+}
+
+
+#' Internal helper: central tendency layers for a GOF overlay (style pattern)
+#'
+#' Like [add_cent_layers_style()] but for the GOF overlay: color is mapped to a
+#' literal label (`"DV"`/`"PRED"`/`"IPRED"`) for the manual color legend, and
+#' all fixed aesthetics are read inline from `style` (no `series_layer()` tag).
+#'
+#' @inheritParams add_cent_layers_style
+#' @param color_aes Literal color label.
+#' @param show_errorbars Logical; add error bars (DV only in GOF).
+#'
+#' @return Modified ggplot object.
+#' @keywords internal
+add_cent_layers_gof_style <- function(plot, cent, y_var, style, width,
+                                      color_aes, show_errorbars = TRUE) {
+  if (cent == "none") return(plot)
+
+  mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]], color = color_aes)
+  stat_fun <- if (cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) "mean" else "median"
+
+  plot <- plot + do.call(ggplot2::stat_summary,
+    c(list(mapping = mapping, fun = stat_fun, geom = "point"),
+      series_aes(style, "cent_point")))
+  plot <- plot + do.call(ggplot2::stat_summary,
+    c(list(mapping = mapping, fun = stat_fun, geom = "line"),
+      series_aes(style, "cent_line")))
+
+  if (isTRUE(show_errorbars)) {
+    eb <- series_aes(style, "cent_errorbar")
+    eb_bar <- c(list(mapping = mapping, geom = "errorbar", width = width), eb)
+    if (cent == "mean_sdl") {
+      plot <- plot + do.call(ggplot2::stat_summary,
+        c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_bar))
+    }
+    if (cent == "mean_sdl_upper") {
+      plot <- plot + do.call(ggplot2::stat_summary,
+        c(list(fun.max = function(x) mean(x) + stats::sd(x),
+               fun.min = function(x) NA_real_), eb_bar))
+      plot <- plot + do.call(ggplot2::stat_summary,
+        c(list(mapping = mapping, geom = "linerange", show.legend = FALSE,
+               fun.max = function(x) mean(x) + stats::sd(x),
+               fun.min = function(x) mean(x)), eb))
+    }
+    if (cent == "median_iqr") {
+      plot <- plot + do.call(ggplot2::stat_summary,
+        c(list(fun.max = function(x) stats::quantile(x, 0.75),
+               fun.min = function(x) stats::quantile(x, 0.25)), eb_bar))
+    }
+  }
+
+  plot
 }

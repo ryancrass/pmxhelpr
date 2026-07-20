@@ -149,11 +149,15 @@ test_that("Cens obs points inherit color from obs_median_line for color coherenc
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
-  custom_theme <- plot_vpc_theme(
-    obs_median_line = pmx_line(color = "#00AA00", linetype = "solid", linewidth = 1),
-    obs_point       = pmx_point(color = "#FF00FF", size = 2, shape = 16, alpha = 0.9)
+  custom_style <- style_vpc(
+    colors     = c(obs_median_line = "#00AA00", obs_point = "#FF00FF"),
+    linetypes  = c(obs_median_line = "solid"),
+    linewidths = c(obs_median_line = 1),
+    shapes     = c(obs_point = 16),
+    sizes      = c(obs_point = 2),
+    alphas     = c(obs_point = 0.9)
   )
-  p <- plot_vpc_cens(testsim, loq = 1, theme = custom_theme)
+  p <- plot_vpc_cens(testsim, loq = 1, style = custom_style)
   pt_layer <- Filter(function(L) inherits(L$geom, "GeomPoint"), p$layers)[[1]]
   ## Point color follows obs_median_line, NOT obs_point.
   expect_equal(pt_layer$aes_params$colour, "#00AA00")
@@ -163,16 +167,19 @@ test_that("Cens obs points inherit color from obs_median_line for color coherenc
   expect_equal(pt_layer$aes_params$size,  2)
 })
 
-test_that("theme overrides apply to cens layers via mapped keys", {
+test_that("style overrides apply to cens layers via mapped keys", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                  model = model_mread_load("pkmodel"),
                                  replicates = 10,
                                  dv_var = "ODV")
-  custom_theme <- plot_vpc_theme(
-    sim_median_ci   = pmx_ribbon(fill = "#00FF00", alpha = 0.5),
-    obs_median_line = pmx_line(color = "#123456", linetype = "dotted", linewidth = 2)
+  custom_style <- style_vpc(
+    fill       = c(sim_median_ci = "#00FF00"),
+    alphas     = c(sim_median_ci = 0.5),
+    colors     = c(obs_median_line = "#123456"),
+    linetypes  = c(obs_median_line = "dotted"),
+    linewidths = c(obs_median_line = 2)
   )
-  p <- plot_vpc_cens(testsim, loq = 1, theme = custom_theme)
+  p <- plot_vpc_cens(testsim, loq = 1, style = custom_style)
   ribbon_layer <- Filter(function(L) inherits(L$geom, "GeomRibbon"), p$layers)[[1]]
   expect_equal(ribbon_layer$aes_params$fill,  "#00FF00")
   expect_equal(ribbon_layer$aes_params$alpha, 0.5)
@@ -291,7 +298,7 @@ test_that("plot_vpc_cens accepts plot-only args on the precomputed path", {
   out <- df_vpcstats(testsim, loq = 1)
   expect_s3_class(plot_vpc_cens(out, min_bin_count = 2), "ggplot")
   expect_s3_class(plot_vpc_cens(out, show_rep = FALSE), "ggplot")
-  expect_s3_class(plot_vpc_cens(out, theme = plot_vpc_theme()), "ggplot")
+  expect_s3_class(plot_vpc_cens(out, style = style_vpc()), "ggplot")
   expect_s3_class(plot_vpc_cens(out, shown = plot_vpc_shown()), "ggplot")
 })
 

@@ -362,7 +362,7 @@ test_that("plot_vpc_cont accepts plot-only args on the precomputed path", {
   expect_s3_class(plot_vpc_cont(out, pcvpc = TRUE), "ggplot")
   expect_s3_class(plot_vpc_cont(out, min_bin_count = 2), "ggplot")
   expect_s3_class(plot_vpc_cont(out, show_rep = FALSE), "ggplot")
-  expect_s3_class(plot_vpc_cont(out, theme = plot_vpc_theme()), "ggplot")
+  expect_s3_class(plot_vpc_cont(out, style = style_vpc()), "ggplot")
   expect_s3_class(plot_vpc_cont(out, shown = plot_vpc_shown()), "ggplot")
 })
 

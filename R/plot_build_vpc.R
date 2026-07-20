@@ -39,11 +39,12 @@
 #'    `plot_vpc_shown()`: observed proportion line/points and simulated CI
 #'    ribbon are shown; the simulated median line is off by default (pass
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it).
-#' @param theme Aesthetic parameters created by [plot_vpc_theme()]. For
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics,
+#'    defaulting to [style_vpc()]. Series names are the VPC roles. For
 #'    `type = "cens"`, only the keys corresponding to the four cens layers
 #'    above are read; other keys are ignored. The cens `obs_point` color is
 #'    inherited from `obs_median_line` (so points match the obs line); the
-#'    `obs_point` theme key still controls shape/alpha/size.
+#'    `obs_point` style key still controls shape/alpha/size.
 #' @param pcvpc Logical. When `TRUE`, plot the prediction-corrected columns
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC). Only meaningful
@@ -86,7 +87,7 @@ plot_build_vpc <- function(compute_out,
                            min_bin_count = 1,
                            show_rep = TRUE,
                            shown = NULL,
-                           theme = NULL,
+                           style = NULL,
                            pcvpc = FALSE,
                            loq = NULL,
                            strat_var = NULL,
@@ -125,13 +126,13 @@ plot_build_vpc <- function(compute_out,
   if (loq_inherited) loq <- compute_out$config$loq
 
   shown    <- merge_element(shown, plot_vpc_shown())
-  vpctheme <- merge_theme(theme, plot_vpc_theme())
+  vpcstyle <- if (is.null(style)) style_vpc() else style
 
   plot <- switch(type,
-    cont = plot_build_vpc_cont(compute_out, min_bin_count, shown, vpctheme,
+    cont = plot_build_vpc_cont(compute_out, min_bin_count, shown, vpcstyle,
                                pcvpc, loq, loq_inherited,
                                strat_var_str, bin_var),
-    cens = plot_build_vpc_cens(compute_out, min_bin_count, shown, vpctheme,
+    cens = plot_build_vpc_cens(compute_out, min_bin_count, shown, vpcstyle,
                                bin_var)
   )
 
@@ -146,7 +147,9 @@ plot_build_vpc <- function(compute_out,
         "Replicates = ", compute_out$config$n_replicates))
   }
 
-  p <- apply_panel_theme(plot, white_panel = TRUE)
+  ## Finalize with the house theme (white VPC panel) via style_plot(); it
+  ## applies the theme without overriding the layers' inline aesthetics.
+  p <- ggstylekit::style_plot(plot, vpcstyle)
   class(p) <- c("pmx_vpc_plot", class(p))
   p
 }
@@ -158,9 +161,13 @@ plot_build_vpc <- function(compute_out,
 ## the dispatcher.
 ##
 ## @noRd
-plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
+plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
                                 pcvpc, loq, loq_inherited,
                                 strat_var_str, bin_var) {
+
+  ## Per-role aesthetics read inline from the style (VPC geoms are not
+  ## series_layer-tagged; style_plot() applies only the house theme).
+  el <- function(role) series_aes(vpcstyle, role)
 
   ## min_bin_count predicate for cont: only quantifiable obs count
   ## (BLQ-encoded records excluded).
@@ -185,8 +192,8 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = .data[[col("sim_low_med")]],
                      ymax = .data[[col("sim_hi_med")]]),
-        fill = vpctheme$sim_pi_area$fill,
-        alpha = vpctheme$sim_pi_area$alpha
+        fill = el("sim_pi_area")$fill,
+        alpha = el("sim_pi_area")$alpha
       )
   }
 
@@ -195,14 +202,14 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = .data[[col("sim_low_low")]],
                      ymax = .data[[col("sim_low_hi")]]),
-        fill = vpctheme$sim_pi_ci$fill,
-        alpha = vpctheme$sim_pi_ci$alpha
+        fill = el("sim_pi_ci")$fill,
+        alpha = el("sim_pi_ci")$alpha
       ) +
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = .data[[col("sim_hi_low")]],
                      ymax = .data[[col("sim_hi_hi")]]),
-        fill = vpctheme$sim_pi_ci$fill,
-        alpha = vpctheme$sim_pi_ci$alpha
+        fill = el("sim_pi_ci")$fill,
+        alpha = el("sim_pi_ci")$alpha
       )
   }
 
@@ -210,15 +217,15 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = .data[[col("sim_low_med")]]),
-        color = vpctheme$sim_pi_line$color,
-        linetype = vpctheme$sim_pi_line$linetype,
-        linewidth = vpctheme$sim_pi_line$linewidth
+        color = el("sim_pi_line")$colour,
+        linetype = el("sim_pi_line")$linetype,
+        linewidth = el("sim_pi_line")$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(y = .data[[col("sim_hi_med")]]),
-        color = vpctheme$sim_pi_line$color,
-        linetype = vpctheme$sim_pi_line$linetype,
-        linewidth = vpctheme$sim_pi_line$linewidth
+        color = el("sim_pi_line")$colour,
+        linetype = el("sim_pi_line")$linetype,
+        linewidth = el("sim_pi_line")$linewidth
       )
   }
 
@@ -227,8 +234,8 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = .data[[col("sim_med_low")]],
                      ymax = .data[[col("sim_med_hi")]]),
-        fill = vpctheme$sim_median_ci$fill,
-        alpha = vpctheme$sim_median_ci$alpha
+        fill = el("sim_median_ci")$fill,
+        alpha = el("sim_median_ci")$alpha
       )
   }
 
@@ -236,9 +243,9 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = .data[[col("sim_med_med")]]),
-        color = vpctheme$sim_median_line$color,
-        linetype = vpctheme$sim_median_line$linetype,
-        linewidth = vpctheme$sim_median_line$linewidth
+        color = el("sim_median_line")$colour,
+        linetype = el("sim_median_line")$linetype,
+        linewidth = el("sim_median_line")$linewidth
       )
   }
 
@@ -247,9 +254,9 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_med")]]),
         inherit.aes = FALSE,
-        color = vpctheme$obs_median_line$color,
-        linetype = vpctheme$obs_median_line$linetype,
-        linewidth = vpctheme$obs_median_line$linewidth
+        color = el("obs_median_line")$colour,
+        linetype = el("obs_median_line")$linetype,
+        linewidth = el("obs_median_line")$linewidth
       )
   }
 
@@ -258,16 +265,16 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_low")]]),
         inherit.aes = FALSE,
-        color = vpctheme$obs_pi_line$color,
-        linetype = vpctheme$obs_pi_line$linetype,
-        linewidth = vpctheme$obs_pi_line$linewidth
+        color = el("obs_pi_line")$colour,
+        linetype = el("obs_pi_line")$linetype,
+        linewidth = el("obs_pi_line")$linewidth
       ) +
       ggplot2::geom_line(
         ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_hi")]]),
         inherit.aes = FALSE,
-        color = vpctheme$obs_pi_line$color,
-        linetype = vpctheme$obs_pi_line$linetype,
-        linewidth = vpctheme$obs_pi_line$linewidth
+        color = el("obs_pi_line")$colour,
+        linetype = el("obs_pi_line")$linetype,
+        linewidth = el("obs_pi_line")$linewidth
       )
   }
 
@@ -284,31 +291,32 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
         ggplot2::geom_hline(
           data = loq_facet_df,
           mapping = ggplot2::aes(yintercept = .data[["LOQ"]]),
-          color = vpctheme$loq_line$color,
-          linetype = vpctheme$loq_line$linetype,
-          linewidth = vpctheme$loq_line$linewidth,
+          color = el("loq_line")$colour,
+          linetype = el("loq_line")$linetype,
+          linewidth = el("loq_line")$linewidth,
           inherit.aes = FALSE
         )
     } else {
       plot <- plot +
         ggplot2::geom_hline(
           yintercept = loq,
-          color = vpctheme$loq_line$color,
-          linetype = vpctheme$loq_line$linetype,
-          linewidth = vpctheme$loq_line$linewidth
+          color = el("loq_line")$colour,
+          linetype = el("loq_line")$linetype,
+          linewidth = el("loq_line")$linewidth
         )
     }
   }
 
   ## Obs scatter.
   if (isTRUE(shown$obs_point) && nrow(obs) > 0) {
+    op <- el("obs_point")
     plot <- plot +
       ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = .data$TIME),
                           data = obs, inherit.aes = FALSE,
-                          shape = vpctheme$obs_point$shape,
-                          alpha = vpctheme$obs_point$alpha,
-                          size = vpctheme$obs_point$size,
-                          color = vpctheme$obs_point$color)
+                          shape = op$shape,
+                          alpha = op$alpha,
+                          size = op$size,
+                          color = op$colour)
   }
 
   plot
@@ -320,8 +328,10 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpctheme,
 ## panel theme, and class are added by the dispatcher.
 ##
 ## @noRd
-plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpctheme,
+plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpcstyle,
                                 bin_var) {
+
+  el <- function(role) series_aes(vpcstyle, role)
 
   ## min_bin_count predicate for cens: applied to total obs. BLQ-heavy bins
   ## are the most informative on a cens VPC and are retained.
@@ -339,8 +349,8 @@ plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpctheme,
       ggplot2::geom_ribbon(
         ggplot2::aes(ymin = .data[["sim_prop_blq_low"]],
                      ymax = .data[["sim_prop_blq_hi"]]),
-        fill = vpctheme$sim_median_ci$fill,
-        alpha = vpctheme$sim_median_ci$alpha
+        fill = el("sim_median_ci")$fill,
+        alpha = el("sim_median_ci")$alpha
       )
   }
 
@@ -348,9 +358,9 @@ plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpctheme,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = .data[["sim_prop_blq_med"]]),
-        color = vpctheme$sim_median_line$color,
-        linetype = vpctheme$sim_median_line$linetype,
-        linewidth = vpctheme$sim_median_line$linewidth
+        color = el("sim_median_line")$colour,
+        linetype = el("sim_median_line")$linetype,
+        linewidth = el("sim_median_line")$linewidth
       )
   }
 
@@ -358,23 +368,24 @@ plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpctheme,
     plot <- plot +
       ggplot2::geom_line(
         ggplot2::aes(y = .data[["obs_prop_blq"]]),
-        color = vpctheme$obs_median_line$color,
-        linetype = vpctheme$obs_median_line$linetype,
-        linewidth = vpctheme$obs_median_line$linewidth
+        color = el("obs_median_line")$colour,
+        linetype = el("obs_median_line")$linetype,
+        linewidth = el("obs_median_line")$linewidth
       )
   }
 
   if (isTRUE(shown$obs_point)) {
     ## Cens obs points represent the same per-bin statistic as the obs
     ## line, so inherit the line color (obs_median_line) for color
-    ## coherence. The obs_point theme key still controls shape/alpha/size.
+    ## coherence. The obs_point style key still controls shape/alpha/size.
+    op <- el("obs_point")
     plot <- plot +
       ggplot2::geom_point(
         ggplot2::aes(y = .data[["obs_prop_blq"]]),
-        shape = vpctheme$obs_point$shape,
-        alpha = vpctheme$obs_point$alpha,
-        size  = vpctheme$obs_point$size,
-        color = vpctheme$obs_median_line$color
+        shape = op$shape,
+        alpha = op$alpha,
+        size  = op$size,
+        color = el("obs_median_line")$colour
       )
   }
 

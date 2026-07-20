@@ -14,8 +14,10 @@
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
 #' @param show_caption Logical indicating if a caption should be shown describing the data plotted
-#' @param theme Theme object created by [plot_dvconc_theme()].
-#'    Defaults can be viewed by running `plot_dvconc_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_dvconc()]; view the defaults by running `style_dvconc()`
+#'    with no arguments. Customize by passing `style = style_dvconc(...)`, or
+#'    restyle the returned plot with [ggstylekit::restyle_plot()].
 #' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
 #'
@@ -42,7 +44,7 @@ plot_dvconc <- function(data,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
-                        theme = NULL,
+                        style = NULL,
                         ...){
 
   dv_var_str  <- resolve_var(rlang::enquo(dv_var))
@@ -69,40 +71,41 @@ plot_dvconc <- function(data,
   #Determine Caption
   caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)
 
-  #Determine aesthetics
-  plottheme <- merge_theme(theme, plot_dvconc_theme())
+  #Resolve style (log_y arg drives the y axis)
+  plotstyle <- if (is.null(style)) style_dvconc() else style
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
 
 
 ###Plot
 
-  #Initialize Plot
-  if(!isTRUE(col_trend)) {
-    plot <- init_plot(data, "IDV", "DV")
+  # Initialize plot. Color is mapped globally only when trends are stratified
+  # (`col_trend`); otherwise `col_var` colors observations at the layer level so
+  # trend lines stay unstratified.
+  base_aes <- if (isTRUE(col_trend) && !is.null(col_var_str)) {
+    ggplot2::aes(x = .data[["IDV"]], y = .data[["DV"]],
+                 color = .data[[col_var_str]], group = .data[[col_var_str]])
   } else {
-    plot <- init_plot(data, "IDV", "DV", col_var_str) +
-      ggplot2::aes(group = .data[[col_var_str]])
+    ggplot2::aes(x = .data[["IDV"]], y = .data[["DV"]])
   }
+  plot <- ggplot2::ggplot(data, base_aes)
 
   #Reference Line
-  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
-
+  plot <- add_ref_layer_style(plot, ref)
 
   #Plot Trend Lines
-  plot <- add_trend_layers(plot, "loess", loess, se_loess, plottheme,
-                           col_var_str, col_trend, ...)
-  plot <- add_trend_layers(plot, "lm", linear, se_linear, plottheme,
-                           col_var_str, col_trend, theme_key = "linear")
+  plot <- add_trend_layers_style(plot, "loess", loess, se_loess, "loess",
+                                 col_var_str, col_trend, ...)
+  plot <- add_trend_layers_style(plot, "lm", linear, se_linear, "linear",
+                                 col_var_str, col_trend)
 
-  #Add observations
-  plot <- add_obs_layers(plot, id_var_str = NULL, plottheme$obs_point, line_el = NULL, col_var_str)
-
-  #Log Transform
-  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
+  #Add observations (color at the layer level unless trends are stratified)
+  plot <- add_obs_layers_style(plot, id_var_str = NULL,
+                               col_var_str = if (isTRUE(col_trend)) NULL else col_var_str)
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
-  return(plot)
+  ggstylekit::style_plot(plot, plotstyle)
 }
 
 

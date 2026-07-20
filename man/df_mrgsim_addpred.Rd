@@ -14,7 +14,7 @@ df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
 \item{output_var}{Name of output from \code{model} to be captured as \code{PRED}
 after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}. Accepts bare names or strings. Default is \code{IPRED}.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}.}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}.}
 }
 \value{
 A data.frame with the same number of rows as \code{data} and on additional
@@ -22,7 +22,7 @@ numeric variable \code{PRED}.
 }
 \description{
 \code{df_mrgsim_addpred()} is a wrapper function for
-\code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}} and \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}} that returns
+\code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}} and \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}} that returns
 a data.frame with the addition of a new variable (\code{PRED}).
 }
 \examples{
@@ -31,8 +31,8 @@ data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmo
 
 }
 \seealso{
-Other mrgsolve wrappers: 
-\code{\link{df_mrgsim_replicate}()},
-\code{\link{model_mread_load}()}
+Other mrgsolve wrappers:
+\code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}},
+\code{\link[=model_mread_load]{model_mread_load()}}
 }
 \concept{mrgsolve wrappers}

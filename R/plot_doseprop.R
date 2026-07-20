@@ -213,9 +213,9 @@ validate_doseprop_stats <- function(x) {
 #'    [df_doseprop()]). Must contain `$obs` and `$config` slots with
 #'    `metric_name_var`, `metric_value_var`, `dose_var`, and `ci`. Validated by
 #'    `validate_doseprop_stats()` at entry.
-#' @param theme Named list of aesthetic parameters for the plot created by
-#'    [plot_doseprop_theme()]. Defaults can be viewed by running
-#'    `plot_doseprop_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_doseprop()]; view the defaults by running
+#'    `style_doseprop()` with no arguments.
 #' @param se logical to display confidence interval around regression. Default
 #'    is `TRUE`.
 #'
@@ -230,7 +230,7 @@ validate_doseprop_stats <- function(x) {
 #' plot_build_doseprop(stats, se = FALSE)
 
 plot_build_doseprop <- function(stats,
-                                theme = NULL,
+                                style = NULL,
                                 se = TRUE) {
 
   validate_doseprop_stats(stats)
@@ -241,24 +241,22 @@ plot_build_doseprop <- function(stats,
   ci             <- stats$config$ci
   obs            <- stats$obs
 
-  plottheme <- merge_theme(theme, plot_doseprop_theme())
+  plotstyle <- if (is.null(style)) style_doseprop() else style
 
   tab <- stats$stats
   tab$label <- paste0(tab[[metric_name_var_str]], "\n", tab$PowerCI)
 
   plot_data <- dplyr::left_join(obs, tab, by = metric_name_var_str)
 
-  base <- init_plot(plot_data, dose_var_str, metric_value_var_str)
+  base <- ggplot2::ggplot(plot_data, ggplot2::aes(
+    x = .data[[dose_var_str]], y = .data[[metric_value_var_str]]))
 
-  plot <- add_obs_layers(base, id_var_str = NULL,
-                         point_el = plottheme$obs_point,
-                         line_el = NULL)
-  plot <- add_trend_layers(plot, method = "lm", show = TRUE, se = se,
-                           plottheme = plottheme,
-                           col_var_str = NULL, col_trend = FALSE,
-                           formula = y ~ x, level = ci,
-                           theme_key = "linear")
-  plot +
+  plot <- add_obs_layers_style(base, id_var_str = NULL)
+  plot <- add_trend_layers_style(plot, method = "lm", show = TRUE, se = se,
+                                 series = "linear",
+                                 col_var_str = NULL, col_trend = FALSE,
+                                 formula = y ~ x, level = ci)
+  plot <- plot +
     ggplot2::labs(x = "Dose", y = "Exposure") +
     ggplot2::scale_x_log10(
       guide  = "axis_logticks",
@@ -271,6 +269,8 @@ plot_build_doseprop <- function(stats,
       expand = ggplot2::expansion(mult = 0.02)
     ) +
     ggplot2::facet_wrap(~label, scales = "free")
+
+  ggstylekit::style_plot(plot, plotstyle)
 }
 
 
@@ -288,7 +288,7 @@ plot_build_doseprop <- function(stats,
 #' On the precomputed path, pipeline arguments (`metrics`, `metric_name_var`,
 #' `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
 #' because the regression does not run again — passing any of them aborts
-#' with a message pointing the caller at [df_doseprop()]. Only `theme` and
+#' with a message pointing the caller at [df_doseprop()]. Only `style` and
 #' `se` are accepted on both paths.
 #'
 #' @param data Either raw observation data (data.frame, default expected
@@ -299,9 +299,9 @@ plot_build_doseprop <- function(stats,
 #'    `doseprop_stats` object.
 #' @param se logical to display confidence interval around regression.
 #'    Default is `TRUE`.
-#' @param theme Named list of aesthetic parameters for the plot created by
-#'    [plot_doseprop_theme()]. Defaults can be viewed by running
-#'    `plot_doseprop_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_doseprop()]; view the defaults by running
+#'    `style_doseprop()` with no arguments.
 #' @inheritParams df_doseprop
 #'
 #' @family dose proportionality
@@ -328,15 +328,15 @@ plot_doseprop <- function(data,
                           ci = 0.9,
                           sigdigits = 3,
                           se = TRUE,
-                          theme = NULL) {
+                          style = NULL) {
 
   if (inherits(data, "doseprop_stats")) {
     check_pipeline_args_dropped(
       call           = match.call(),
-      plot_only_args = c("data", "theme", "se"),
+      plot_only_args = c("data", "style", "se"),
       fn_name        = "plot_doseprop"
     )
-    return(plot_build_doseprop(data, theme = theme, se = se))
+    return(plot_build_doseprop(data, style = style, se = se))
   }
 
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
@@ -349,5 +349,5 @@ plot_doseprop <- function(data,
                        dose_var = dose_var_str,
                        method = method, ci = ci, sigdigits = sigdigits)
 
-  plot_build_doseprop(stats, theme = theme, se = se)
+  plot_build_doseprop(stats, style = style, se = se)
 }

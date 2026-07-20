@@ -682,34 +682,32 @@ plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 ```
 
 
-# Adjusting the Plot Theme with `plot_vpc_theme()`
+# Adjusting Plot Style with `style_vpc()`
 
-The default aesthetics for VPC plots are controlled via `plot_vpc_theme()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the theme system, element constructors, and examples of customizing VPC aesthetics.
+The default aesthetics for VPC plots are controlled via `style_vpc()`. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing VPC aesthetics.
 
-```{r vpc-theme}
-plot_vpc_theme()
+```{r vpc-style}
+style_vpc()
 ```
 
-We can define an alternative theme using a blue / grey color schema using this function and the constructor helpers.
+We can define an alternative style using a blue / grey color schema. VPC roles are keyed in the per-series maps: line/point colors in `colors` and ribbon fills in `fill`.
 
-```{r vpc-new-theme}
-vpc_new_theme <- plot_vpc_theme(
-  obs_point = pmx_point(color = "#000000"),
-  obs_median_line = pmx_line(color = "#000000"),
-  obs_pi_line = pmx_line(color = "#000000"),
-  sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-  sim_pi_ci = pmx_ribbon(fill = "#3388cc")
+```{r vpc-new-style}
+vpc_new_style <- style_vpc(
+  colors = c(obs_point = "#000000", obs_median_line = "#000000",
+             obs_pi_line = "#000000"),
+  fill   = c(sim_median_ci = "#3388cc", sim_pi_ci = "#3388cc")
 )
 ```
 
-Regenerating our BLQ quantile censored plot stratified by part with the new theme yields the following plot
+Regenerating our BLQ quantile censored plot stratified by part with the new style yields the following plot
 
-```{r plot-vpc-blq-obs-cens-newtheme, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+```{r plot-vpc-blq-obs-cens-newstyle, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc2 <- plot_vpc_cont(
   data = sim100,
   strat_var = PART,
   loq = 1,
-  theme = vpc_new_theme
+  style = vpc_new_style
 ) +
   vpc_scales_labs
 
@@ -745,7 +743,7 @@ plot_vpc_cens(
 
 The ribbon is the non-parametric CI of the simulated BLQ proportion across replicates (controlled by `ci`), and the solid red line and points show the observed proportion per bin. A well-fitting model places the observed line inside the simulated CI band. The simulated median line is hidden by default. It can be enabled via `shown = plot_vpc_shown(sim_median_line = TRUE)`.
 
-`plot_vpc_cens()` reuses `plot_vpc_shown()` and `plot_vpc_theme()` — only the keys `obs_point`, `obs_median_line`, `sim_median_line`, and `sim_median_ci` are read with other keys ignored.
+`plot_vpc_cens()` reuses `plot_vpc_shown()` and `style_vpc()` — only the keys `obs_point`, `obs_median_line`, `sim_median_line`, and `sim_median_ci` are read with other keys ignored.
 
 ## Dropping small sample bins
 
@@ -829,16 +827,16 @@ shown_elements <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE)
 plot_vpc_legend(shown = shown_elements)
 ```
 
-## Updating the Continuous Range Legend Theme with `plot_vpc_legend()`
+## Updating the Continuous Range Legend Style with `plot_vpc_legend()`
 
-The legend can also be updated with the updated VPC plot theme elements. This is easiest to do by setting a new theme object, which we did previously when we created `vpc_new_theme` with `plot_vpc_theme()`. We can use this same theme list object to generate the VPC plot with `plot_vpc_cont()` and the VPC legend with `plot_vpc_legend()`, again passing `lloq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
+The legend can also be updated with the same VPC style. This is easiest to do by reusing the `vpc_new_style` object we created earlier with `style_vpc()`. We pass the same style to both `plot_vpc_cont()` and `plot_vpc_legend()`, again passing `lloq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
 
 ```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_new_legend <- plot_vpc_legend(lloq = 1, theme = vpc_new_theme)
+vpc_new_legend <- plot_vpc_legend(lloq = 1, style = vpc_new_style)
 vpc_new_legend
 ```
 
-The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair `vpc_new_legend` (which uses `vpc_new_theme`) with `vpc2` (the same VPC plot rendered with `vpc_new_theme` earlier).
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair `vpc_new_legend` (which uses `vpc_new_style`) with `vpc2` (the same VPC plot rendered with `vpc_new_style` earlier).
 
 ```{r plot-vpc-pcvpc-w-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_wleg2 <- vpc2 + vpc_new_legend + plot_layout(heights = c(2.5, 1))
@@ -848,49 +846,49 @@ vpc_wleg2
 
 ## Updating the censored range legend elements and theme with `plot_vpc_shown()` and `plot_vpc_legend(type = "cens")`
 
-By default `sim_median_line` is hidden (`plot_vpc_shown()` sets it to `FALSE`) and `sim_median_ci` inherits the same red fill as `obs_median_line` from `plot_vpc_theme()`. This is fine when only the ribbon is shown, but enabling the simulated median line on top of the default theme places a black dashed line over a red ribbon next to a red observed line. With these aesthetics, the red observed line could easily be mistaken for a simulation element given color homology with the simulated interval. 
+By default `sim_median_line` is hidden (`plot_vpc_shown()` sets it to `FALSE`) and `sim_median_ci` inherits the same red fill as `obs_median_line` from `style_vpc()`. This is fine when only the ribbon is shown, but enabling the simulated median line on top of the default style places a black dashed line over a red ribbon next to a red observed line. With these aesthetics, the red observed line could easily be mistaken for a simulation element given color homology with the simulated interval.
 
 A practical convention is to (a) enable `sim_median_line` so the simulated central tendency is visible alongside its CI, and (b) recolor the simulated layers together so the line and ribbon read as one element, with the observed layers in a contrasting color.
 
-`plot_vpc_cens()` reads four `shown` keys (`obs_point`, `obs_median_line`, `sim_median_line`, `sim_median_ci`) and the four corresponding `theme` keys. Build matching `cens_shown` and `cens_theme` objects so the change is explicit and reusable:
+`plot_vpc_cens()` reads four `shown` keys (`obs_point`, `obs_median_line`, `sim_median_line`, `sim_median_ci`) and the corresponding style roles. Build matching `cens_shown` and `cens_style` objects so the change is explicit and reusable:
 
-```{r vpc-cens-shown-theme}
+```{r vpc-cens-shown-style}
 cens_shown <- plot_vpc_shown(sim_median_line = TRUE)
 
-cens_theme <- plot_vpc_theme(
-  obs_point       = pmx_point(color = "#000000"),
-  obs_median_line = pmx_line(color = "#000000"),
-  sim_median_line = pmx_line(color = "#3388cc", linetype = "solid"),
-  sim_median_ci   = pmx_ribbon(fill = "#3388cc")
+cens_style <- style_vpc(
+  colors    = c(obs_point = "#000000", obs_median_line = "#000000",
+                sim_median_line = "#3388cc"),
+  linetypes = c(sim_median_line = "solid"),
+  fill      = c(sim_median_ci = "#3388cc")
 )
 ```
 
 Re-render the cens VPC with both objects applied. The simulated median sits inside its 90% CI ribbon (both blue), while the observed proportion is drawn in black for visual separation.
 
-```{r plot-vpc-cens-themed, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
-cens_vpc_themed <- plot_vpc_cens(
+```{r plot-vpc-cens-styled, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+cens_vpc_styled <- plot_vpc_cens(
   data = sim100,
   strat_var = PART,
   loq = 1,
   shown = cens_shown,
-  theme = cens_theme
+  style = cens_style
 ) +
   vpc_cens_scales_labs
 
-cens_vpc_themed
+cens_vpc_styled
 ```
 
-`plot_vpc_legend()` accepts the same `shown` and `theme` objects, so passing them alongside `type = "cens"` keeps the legend in sync with whatever combination of visibility toggles and aesthetic overrides was used for the panel. The `Sim Prop BLQ` entry now appears (because `sim_median_line` is on) and both simulated entries adopt the unified blue.
+`plot_vpc_legend()` accepts the same `shown` and `style` objects, so passing them alongside `type = "cens"` keeps the legend in sync with whatever combination of visibility toggles and aesthetic overrides was used for the panel. The `Sim Prop BLQ` entry now appears (because `sim_median_line` is on) and both simulated entries adopt the unified blue.
 
-```{r vpc-cens-legend-themed, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-cens_legend_themed <- plot_vpc_legend(
+```{r vpc-cens-legend-styled, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
+cens_legend_styled <- plot_vpc_legend(
   type = "cens",
   lloq = 1,
   shown = cens_shown,
-  theme = cens_theme
+  style = cens_style
 )
 
-cens_vpc_themed + cens_legend_themed + plot_layout(heights = c(2.5, 1))
+cens_vpc_styled + cens_legend_styled + plot_layout(heights = c(2.5, 1))
 ```
 
 

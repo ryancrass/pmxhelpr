@@ -28,7 +28,7 @@ plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
 #'
 #' Constructor and factory for controlling which VPC layers are displayed.
 #' Call with no arguments to view defaults. Pass overrides to customize.
-#' Each element maps 1:1 with a [plot_vpc_theme()] aesthetic key.
+#' Each element maps 1:1 with a [style_vpc()] role/series key.
 #'
 #' @param obs_point Show observed data points. Default is `TRUE`.
 #' @param obs_pi_line Show observed quantile lines. Default is `TRUE`.

@@ -258,27 +258,29 @@ In short: pick `blq_mode = "obs"` (default) when you want to see how well the mo
 `loq_method = 1` is also available: it imputes only the post-dose BLQ records to `0.5 * LOQ` and pre-dose BLQ to `0` — useful for plotting on linear scales. See [`plot_dvtime()`](eda-pk-pkpd-workflow.html) for the full method semantics.
 
 
-## Adjusting the Plot Theme with `plot_gof_theme()`
+## Adjusting Plot Style with `style_gof()`
 
 `plot_gof()` aesthetic control arguments are not reviewed in detail in this vignette. See the [Plot Themes and Aesthetics](plot-themes.html) vignette for details on customizing plot appearance.
 
-The theme constructor factory function for `plot_gof()` is `plot_gof_theme()`. 
+The style preset for `plot_gof()` is `style_gof()`.
 
-```{r theme}
-plot_gof_theme()
+```{r style}
+style_gof()
 ```
 
-Say we want to add points at the binned values for the central tendency lines. The points are suppressed by default `alpha=0`. We can accomplish this theme change by defining a new theme and passing that to the `theme` argument of `plot_gof()`.
+Say we want to add points at the binned values for the central tendency lines. The points are suppressed by default (`alpha = 0`). We can accomplish this by defining a new style and passing it to the `style` argument of `plot_gof()`.
 
-```{r new-theme}
-gof_new_theme <- plot_gof_theme(
-  cent_point = pmx_point(shape = 16, alpha = 1, size = 1.5)
+```{r new-style}
+gof_new_style <- style_gof(
+  shapes = c(cent_point = 16),
+  alphas = c(cent_point = 1),
+  sizes  = c(cent_point = 1.5)
 )
 ```
 
-```{r plot-popgof-new-theme, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r plot-popgof-new-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean",
-            log_y = TRUE, theme = gof_new_theme) +
+            log_y = TRUE, style = gof_new_style) +
   scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~`Dose and Food`, scales = "free") 

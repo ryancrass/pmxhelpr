@@ -31,9 +31,9 @@ test_that("plot_vpc_legend sim_pi_line = TRUE adds a line-geom layer when sim_pi
   expect_gt(count_lines(p_on), count_lines(p_off))
 })
 
-##Test theme update
-test_that("Custom theme override via theme argument is reflected in the obs point layer", {
-  p <- plot_vpc_legend(theme = plot_vpc_theme(obs_point = pmx_point(color = "#000000")))
+##Test style update
+test_that("Custom style override via style argument is reflected in the obs point layer", {
+  p <- plot_vpc_legend(style = style_vpc(colors = c(obs_point = "#000000")))
   obs_layer <- p$layers[vapply(p$layers,
                                  function(l) inherits(l$geom, "GeomPoint"),
                                  logical(1))][[1]]

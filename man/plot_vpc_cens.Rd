@@ -17,7 +17,7 @@ plot_vpc_cens(
   min_bin_count = 1,
   show_rep = TRUE,
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   ci = 0.9
 )
 }
@@ -73,9 +73,9 @@ the observed proportion line/points and simulated CI ribbon are shown;
 the simulated median line is off by default. Pass
 \code{plot_vpc_shown(sim_median_line = TRUE)} to enable it.}
 
-\item{theme}{Named list of aesthetic parameters created by
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. The cens builder reads the same four keys listed
-above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics
+(defaults to \code{\link[=style_vpc]{style_vpc()}}). The cens builder reads the same four keys
+listed above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
 \code{sim_median_ci}); other keys are ignored.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for the simulated CI bound on the BLQ
@@ -117,14 +117,14 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
 cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 }
 \seealso{
-Other vpc: 
-\code{\link{df_vpcstats}()},
-\code{\link{is_pmx_vpc_plot}()},
-\code{\link{is_vpc_stats}()},
-\code{\link{plot_build_vpc}()},
-\code{\link{plot_vpc_cont}()},
-\code{\link{plot_vpc_legend}()},
-\code{\link{plot_vpc_shown}()},
-\code{\link{plot_vpc_theme}()}
+Other vpc:
+\code{\link[=df_vpcstats]{df_vpcstats()}},
+\code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
+\code{\link[=is_vpc_stats]{is_vpc_stats()}},
+\code{\link[=plot_build_vpc]{plot_build_vpc()}},
+\code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
+\code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

@@ -45,9 +45,12 @@
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.
 #'    Accepts bare names or strings. Default is `NTIME`.
-#' @param theme Theme object created by [plot_dvtime_theme()].
-#'    Defaults can be viewed by running `plot_dvtime_theme()` with no arguments.
-#'    Default error bar width is 2.5% of maximum `NTIME`.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_dvtime()]; view the defaults by running `style_dvtime()`
+#'    with no arguments. Customize by passing `style = style_dvtime(...)`, or
+#'    restyle the returned plot with [ggstylekit::restyle_plot()].
+#' @param errorbar_width Numeric error bar cap width. Default `NULL` uses 2.5%
+#'    of maximum `NTIME`.
 #'
 #' @family exploratory analysis
 #' @return A `ggplot2` plot object
@@ -75,7 +78,8 @@ plot_dvtime <- function(data,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
-                        theme = NULL){
+                        style = NULL,
+                        errorbar_width = NULL){
 
   cent <- match.arg(cent)
 
@@ -105,36 +109,49 @@ plot_dvtime <- function(data,
   lloq <- prep$lloq
   loq_method <- prep$loq_method
 
-  env <- prep_plot_env(data, cent, log_y, theme, plot_dvtime_theme)
-  caption   <- env$caption
-  plottheme <- env$plottheme
-  width     <- env$width
+  caption <- caption_dvtime(cent, log_y)
+
+  # Resolve style: preset default, with the log_y arg driving the y axis.
+  plotstyle <- if (is.null(style)) style_dvtime() else style
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
+
+  # Error bar cap width (builder-computed; no style_spec field).
+  ebw <- errorbar_width
+  if (is.null(ebw)) {
+    ebw <- if ("NTIME" %in% names(data) && any(!is.na(data$NTIME))) {
+      max(data$NTIME, na.rm = TRUE) * 0.025
+    } else NA_real_
+  }
 
 ###Plot
 
-  #Initialize Plot
-  plot <- init_plot(data, "TIME", "DV", col_var_str)
+  # Initialize plot; color is mapped globally when `col_var` is supplied so
+  # observed and central-tendency layers inherit it.
+  base_aes <- if (is.null(col_var_str)) {
+    ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]])
+  } else {
+    ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]], color = .data[[col_var_str]])
+  }
+  plot <- ggplot2::ggplot(data, base_aes)
 
   #Reference Lines
-  plot <- add_ref_layers(plot, ref, plottheme$ref_line)
+  plot <- add_ref_layer_style(plot, ref)
 
-  blq <- add_blq_layers(plot, caption, loq_method, loq = lloq, dosenorm, plottheme$loq_line, show_legend = TRUE)
+  blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
+                             plotstyle, show_legend = TRUE)
   plot <- blq$plot
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers(plot, id_var_str, plottheme$obs_point, plottheme$obs_line, col_var_str)
+  plot <- add_obs_layers_style(plot, id_var_str)
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers(plot, cent, "DV", plottheme$cent_point, plottheme$cent_line, plottheme$cent_errorbar, width, color_mapped = !is.null(col_var_str))
-
-  #Log Transform
-  if(isTRUE(log_y)) plot <- plot + ggplot2::scale_y_log10(guide = "axis_logticks")
+  plot <- add_cent_layers_style(plot, cent, "DV", plotstyle, ebw)
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
-  return(plot)
+  ggstylekit::style_plot(plot, plotstyle)
 }
 
 

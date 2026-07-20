@@ -68,10 +68,10 @@ re-fitting any regressions.
 df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
 }
 \seealso{
-Other dose proportionality: 
-\code{\link{is_doseprop_stats}()},
-\code{\link{plot_build_doseprop}()},
-\code{\link{plot_doseprop}()},
-\code{\link{plot_doseprop_theme}()}
+Other dose proportionality:
+\code{\link[=is_doseprop_stats]{is_doseprop_stats()}},
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}},
+\code{\link[=plot_doseprop]{plot_doseprop()}},
+\code{\link[=style_doseprop]{style_doseprop()}}
 }
 \concept{dose proportionality}

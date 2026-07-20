@@ -38,25 +38,18 @@ reference:
       - plot_build_vpc
       - plot_build_doseprop
 
-  - title: Theme Factories
-    desc: Per-plot-family factories that return default theme objects for the `theme` argument.
+  - title: Style Presets
+    desc: >
+      Per-plot-family presets returning a `ggstylekit::style_spec()` for the
+      `style` argument. Customize by passing fields (e.g.
+      `style_dvtime(shapes = ...)`) or restyle a finished plot with
+      `ggstylekit::restyle_plot()`.
     contents:
-      - plot_dvtime_theme
-      - plot_dvconc_theme
-      - plot_gof_theme
-      - plot_doseprop_theme
-      - plot_vpc_theme
-
-  - title: Element Constructors
-    desc: Typed constructors for `theme` overrides; map to `ggplot2` geom aesthetics.
-    contents:
-      - pmx_point
-      - pmx_line
-      - pmx_ribbon
-      - pmx_errorbar
-      - pmx_trend
-      - pmx_style
-      - pmx_color
+      - style_dvtime
+      - style_dvconc
+      - style_gof
+      - style_doseprop
+      - style_vpc
 
   - title: Layer Visibility
     desc: Constructors for the `shown` argument of plot functions.
@@ -89,19 +82,14 @@ reference:
       - df_mrgsim_addpred
 
   - title: S3 Class System
-    desc: Predicates, constructors, operators, and methods for the shared `pmx_stats` / `pmx_theme` base classes and their `vpc_stats`, `doseprop_stats`, and `pmx_element` siblings.
+    desc: Predicates, constructors, operators, and methods for the shared `pmx_stats` base class and its `vpc_stats` and `doseprop_stats` siblings, plus the `pmx_vpc_plot` ggplot subclass.
     contents:
       - pmx_stats
-      - pmx_theme
       - is_pmx_stats
       - is_pmx_vpc_plot
       - is_vpc_stats
       - is_doseprop_stats
-      - is_pmx_element
-      - is_pmx_theme
       - "`+.pmx_vpc_plot`"
-      - "`+.pmx_theme`"
-      - "`+.pmx_element`"
       - print.pmx_stats
       - summary.pmx_stats
       - as.data.frame.pmx_stats
@@ -109,8 +97,6 @@ reference:
       - summary.vpc_stats
       - print.doseprop_stats
       - summary.doseprop_stats
-      - print.pmx_element
-      - print.pmx_theme
 
   - title: Datasets
     desc: Internal example datasets used in vignettes and worked examples.

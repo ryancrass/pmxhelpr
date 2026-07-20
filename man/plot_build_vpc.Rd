@@ -10,7 +10,7 @@ plot_build_vpc(
   min_bin_count = 1,
   show_rep = TRUE,
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   pcvpc = FALSE,
   loq = NULL,
   strat_var = NULL,
@@ -46,11 +46,12 @@ For \code{type = "cens"}, only the \code{obs_point}, \code{obs_median_line},
 ribbon are shown; the simulated median line is off by default (pass
 \code{plot_vpc_shown(sim_median_line = TRUE)} to enable it).}
 
-\item{theme}{Aesthetic parameters created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. For
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics,
+defaulting to \code{\link[=style_vpc]{style_vpc()}}. Series names are the VPC roles. For
 \code{type = "cens"}, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens \code{obs_point} color is
 inherited from \code{obs_median_line} (so points match the obs line); the
-\code{obs_point} theme key still controls shape/alpha/size.}
+\code{obs_point} style key still controls shape/alpha/size.}
 
 \item{pcvpc}{Logical. When \code{TRUE}, plot the prediction-corrected columns
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
@@ -108,14 +109,14 @@ out <- df_vpcstats(simout, strat_var = FOOD)
 p <- plot_build_vpc(out, pcvpc = FALSE)
 }
 \seealso{
-Other vpc: 
-\code{\link{df_vpcstats}()},
-\code{\link{is_pmx_vpc_plot}()},
-\code{\link{is_vpc_stats}()},
-\code{\link{plot_vpc_cens}()},
-\code{\link{plot_vpc_cont}()},
-\code{\link{plot_vpc_legend}()},
-\code{\link{plot_vpc_shown}()},
-\code{\link{plot_vpc_theme}()}
+Other vpc:
+\code{\link[=df_vpcstats]{df_vpcstats()}},
+\code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
+\code{\link[=is_vpc_stats]{is_vpc_stats()}},
+\code{\link[=plot_vpc_cens]{plot_vpc_cens()}},
+\code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
+\code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

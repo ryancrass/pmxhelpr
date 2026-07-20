@@ -4,7 +4,7 @@
 \alias{plot_build_doseprop}
 \title{Build a dose-proportionality ggplot from a \code{doseprop_stats} object}
 \usage{
-plot_build_doseprop(stats, theme = NULL, se = TRUE)
+plot_build_doseprop(stats, style = NULL, se = TRUE)
 }
 \arguments{
 \item{stats}{A \code{doseprop_stats} object (typically the output of
@@ -12,9 +12,9 @@ plot_build_doseprop(stats, theme = NULL, se = TRUE)
 \code{metric_name_var}, \code{metric_value_var}, \code{dose_var}, and \code{ci}. Validated by
 \code{validate_doseprop_stats()} at entry.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by
-\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}. Defaults can be viewed by running
-\code{plot_doseprop_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
+\code{style_doseprop()} with no arguments.}
 
 \item{se}{logical to display confidence interval around regression. Default
 is \code{TRUE}.}
@@ -44,10 +44,10 @@ plot_build_doseprop(stats)
 plot_build_doseprop(stats, se = FALSE)
 }
 \seealso{
-Other dose proportionality: 
-\code{\link{df_doseprop}()},
-\code{\link{is_doseprop_stats}()},
-\code{\link{plot_doseprop}()},
-\code{\link{plot_doseprop_theme}()}
+Other dose proportionality:
+\code{\link[=df_doseprop]{df_doseprop()}},
+\code{\link[=is_doseprop_stats]{is_doseprop_stats()}},
+\code{\link[=plot_doseprop]{plot_doseprop()}},
+\code{\link[=style_doseprop]{style_doseprop()}}
 }
 \concept{dose proportionality}

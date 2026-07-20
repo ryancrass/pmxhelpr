@@ -92,54 +92,42 @@ the prefix indicates what the function returns:
     data with exact time bins
   - `plot_vpc_legend()` — legend for a VPC plot
 
-### Theme System
+### Styling
 
-Plot aesthetics are controlled through theme factories and element
-constructors. Each plot function has a corresponding `plot_*_theme()`
-factory:
+Plot aesthetics are controlled with
+[ggstylekit](https://github.com/A2-ai/ggstylekit). Each plot function
+has a corresponding `style_*()` preset that returns a
+`ggstylekit::style_spec()` pre-filled with the family’s defaults:
 
-- `plot_dvtime_theme()`, `plot_dvconc_theme()`, `plot_doseprop_theme()`,
-  `plot_gof_theme()`, `plot_vpc_theme()` — return named lists of default
-  element objects for the `theme` argument of their corresponding plot
+- `style_dvtime()`, `style_dvconc()`, `style_doseprop()`, `style_gof()`,
+  `style_vpc()` — pass one to the `style` argument of the matching plot
   function
 - `plot_vpc_shown()` / `plot_gof_shown()` — control which VPC / GOF
   layers are visible via the `shown` argument
 
-Element constructors (`pmx_*`) create typed objects that map to
-`ggplot2` geom aesthetics:
-
-- `pmx_point()` — point aesthetics (shape, size, alpha, color)
-- `pmx_line()` — line aesthetics (linewidth, linetype, alpha, color)
-- `pmx_ribbon()` — ribbon aesthetics (fill, alpha, color, linetype,
-  linewidth)
-- `pmx_errorbar()` — error bar aesthetics (linewidth, linetype, alpha,
-  width)
-- `pmx_trend()` — trend line aesthetics (linewidth, linetype, color,
-  se_color, se_alpha)
-- `pmx_color()` — GOF overlay color mapping (dv, pred, ipred)
-- `pmx_style()` — convenience shortcut to set shared aesthetics (color,
-  alpha) on both point and line elements of a role
+Styling is keyed by each plot’s *roles* (e.g. `obs_point`, `cent_line`,
+`cent_errorbar`, `ref_line`, `loq_line`). The per-series maps (`colors`,
+`shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are keyed by
+role; a partial override merges onto the defaults,
+e.g. `style_dvtime(alphas = c(obs_point = 0))`. A finished plot can be
+restyled after the fact with `ggstylekit::restyle_plot()`, or a hidden
+covariate surfaced with `ggstylekit::reveal()`.
 
 ### S3 Class System
 
-`pmxhelpr` returns class-tagged objects for both stats outputs and theme
-building blocks, with predicates and `print()`/`summary()` methods for
-interactive inspection and programmatic validation.
+`pmxhelpr` returns class-tagged objects for stats outputs, with
+predicates and `print()`/`summary()` methods for interactive inspection
+and programmatic validation.
 
 - Stats classes — `df_vpcstats()` returns a `vpc_stats` list and
   `df_doseprop()` returns a `doseprop_stats` data.frame. Each carries
   `print()`, `summary()`, and `as.data.frame()` methods plus a predicate
   (`is_vpc_stats()`, `is_doseprop_stats()`).
-- Element / theme classes — every `pmx_*()` element and `plot_*_theme()`
-  factory is class-tagged (`pmx_element` and `pmx_theme` shared, plus
-  per-type tags). Predicates `is_pmx_element()` and `is_pmx_theme()`
-  test class membership; `print()` methods render the type and set
-  fields.
 - Dual-mode plotting — `plot_vpc_cont()` and `plot_doseprop()` accept
   either raw input data or a precomputed stats object. The precomputed
   path skips the summarization / regression refit, enabling compute-once
   / replot-many workflows (e.g. flipping `pcvpc = TRUE/FALSE`, varying
-  `theme`, trying different `min_bin_count`). The lower-level renderers
+  `style`, trying different `min_bin_count`). The lower-level renderers
   `plot_build_vpc()` / `plot_build_doseprop()` are exported for custom
   workflows that produce class-compatible objects outside `pmxhelpr`.
 
@@ -209,7 +197,7 @@ data <- data_sad %>%
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
             col_var = "Regimen", log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+            style = style_dvtime(alphas = c(obs_point = 0))) +
   labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration

@@ -20,7 +20,7 @@ plot_vpc_cont(
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   pi = c(0.05, 0.95),
   ci = 0.9
 )
@@ -95,8 +95,9 @@ historical behavior.}
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
-Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
+with no arguments.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
@@ -131,14 +132,14 @@ pi = c(0.05, 0.95),
 ci = 0.90)
 }
 \seealso{
-Other vpc: 
-\code{\link{df_vpcstats}()},
-\code{\link{is_pmx_vpc_plot}()},
-\code{\link{is_vpc_stats}()},
-\code{\link{plot_build_vpc}()},
-\code{\link{plot_vpc_cens}()},
-\code{\link{plot_vpc_legend}()},
-\code{\link{plot_vpc_shown}()},
-\code{\link{plot_vpc_theme}()}
+Other vpc:
+\code{\link[=df_vpcstats]{df_vpcstats()}},
+\code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
+\code{\link[=is_vpc_stats]{is_vpc_stats()}},
+\code{\link[=plot_build_vpc]{plot_build_vpc()}},
+\code{\link[=plot_vpc_cens]{plot_vpc_cens()}},
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
+\code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

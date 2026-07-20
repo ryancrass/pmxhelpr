@@ -1,3 +1,69 @@
+# pmxhelpr (development version)
+
+# pmxhelpr 0.6.0
+
+Plot styling is now powered by the
+[ggstylekit](https://github.com/A2-ai/ggstylekit) package, replacing the
+bespoke `pmx_*` element/theme system introduced in 0.5.0. This gives a
+consistent styling vocabulary shared across packages and adds post-hoc
+restyling and covariate reveal.
+
+## New features
+
+* Plot aesthetics are controlled with `ggstylekit::style_spec()`. Each plot
+  family has a `style_*()` preset — `style_dvtime()`, `style_gof()`,
+  `style_dvconc()`, `style_doseprop()`, and `style_vpc()` — that returns a
+  pre-filled style spec for the new `style` argument. Partial overrides merge
+  onto the defaults (e.g. `style_dvtime(alphas = c(obs_point = 0))` leaves the
+  other roles unchanged).
+* Finished plots can be adjusted after the fact with
+  `ggstylekit::restyle_plot()`, and a covariate present in the data but not
+  shown can be surfaced with `ggstylekit::reveal()`.
+* `plot_dvtime()` and `plot_gof()` gain an `errorbar_width` argument.
+* `ggstylekit` is a new dependency (Imports).
+
+## Breaking changes
+
+### Removed functions
+
+* The `pmx_*` element constructors are removed: `pmx_point()`, `pmx_line()`,
+  `pmx_ribbon()`, `pmx_errorbar()`, `pmx_trend()`, `pmx_style()`, and
+  `pmx_color()`.
+* The theme factories are removed: `plot_dvtime_theme()`,
+  `plot_dvconc_theme()`, `plot_gof_theme()`, `plot_doseprop_theme()`, and
+  `plot_vpc_theme()`. Use the corresponding `style_*()` preset instead.
+* The theme class system is removed: `pmx_theme()`, `is_pmx_element()`,
+  `is_pmx_theme()`, and the `+` / `print` methods for `pmx_element` and
+  `pmx_theme`.
+
+### Renamed and changed arguments
+
+* The `theme` argument of `plot_dvtime()`, `plot_dvconc()`, `plot_gof()`,
+  `plot_doseprop()`, `plot_vpc_cont()`, `plot_vpc_cens()`, `plot_build_vpc()`,
+  `plot_build_doseprop()`, and `plot_vpc_legend()` is renamed to `style` and now
+  takes a `ggstylekit::style_spec()` (typically from a `style_*()` preset).
+* Error bar cap width moved out of the theme (previously
+  `pmx_errorbar(width = ...)`) to the new `errorbar_width` argument of
+  `plot_dvtime()` and `plot_gof()`.
+
+## Migration
+
+Replace `theme = plot_<fn>_theme(<role> = pmx_*(<field> = <value>))` with
+`style = style_<fn>(<map> = c(<role> = <value>))`, where `<map>` is the
+ggstylekit per-series map for that aesthetic (`colors`, `fill`, `shapes`,
+`sizes`, `linetypes`, `linewidths`, `alphas`):
+
+``` r
+# before (0.5.x)
+plot_dvtime(data, theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0)))
+
+# after (0.6.0)
+plot_dvtime(data, style = style_dvtime(alphas = c(obs_point = 0)))
+```
+
+See the *Plot Themes and Aesthetics* vignette for the role vocabulary and
+per-family defaults.
+
 # pmxhelpr 0.5.1
 
 * Bug fix in `plot_dvtime()` which was masking reference line, legend, and 

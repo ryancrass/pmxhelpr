@@ -7,6 +7,9 @@
 element_fields(cls)
 }
 \description{
-Valid fields for each element class
+Retained as a lookup used by \code{\link[=merge_element]{merge_element()}}; returns \code{character(0)} for
+non-\code{pmx_element} inputs (e.g. the plain visibility lists from
+\code{\link[=plot_gof_shown]{plot_gof_shown()}} / \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}), so \code{merge_element()} falls back to
+the default's own names.
 }
 \keyword{internal}

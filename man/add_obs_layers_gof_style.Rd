@@ -4,14 +4,12 @@
 \alias{add_obs_layers_gof_style}
 \title{Internal helper: observed layers for a GOF overlay (style pattern)}
 \usage{
-add_obs_layers_gof_style(plot, id_var_str, style, color_aes)
+add_obs_layers_gof_style(plot, id_var_str, color_aes)
 }
 \arguments{
 \item{plot}{ggplot object.}
 
 \item{id_var_str}{Column name for spaghetti grouping, or \code{NULL}.}
-
-\item{style}{A \code{ggstylekit_style_spec}.}
 
 \item{color_aes}{Literal color label (e.g. \code{"OBS"}).}
 }
@@ -20,11 +18,11 @@ Modified ggplot object.
 }
 \description{
 GOF overlays route color through a manual scale keyed by a literal label
-(\code{"OBS"}), so color is mapped via \code{aes()} rather than styled by
-\code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}. The remaining fixed aesthetics are read inline
-from the \code{obs_point}/\code{obs_line} series of \code{style} (no \code{series_layer()} tag,
-so \code{style_plot()} leaves the color channel to the caller's
-\code{scale_color_manual()}). Mirrors the single-series \code{\link[=add_obs_layers_style]{add_obs_layers_style()}}
+(\code{"OBS"}), so color is mapped via \code{aes()} while the layer is tagged with
+\code{\link[ggstylekit:series_layer]{ggstylekit::series_layer()}} under its role name. \code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}
+then fills the role-keyed fixed aesthetics (shape/size/linewidth/linetype/
+alpha) and skips the mapped color channel, leaving it to the caller's
+\code{scale_color_manual()}. Mirrors the single-series \code{\link[=add_obs_layers_style]{add_obs_layers_style()}}
 but with a literal-label color contract.
 }
 \keyword{internal}

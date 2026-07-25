@@ -94,6 +94,51 @@ test_that("plot_gof warns when shown has no active elements", {
   shown <- plot_gof_shown(obs = FALSE, dv = FALSE, pred = FALSE, ipred = FALSE)
   expect_warning(plot_gof(data_sad_pkfit, dv_var = "ODV", shown = shown),
                  regexp = "no overlay layers")
+  # empty active set must still yield a buildable ggplot (empty color scale).
+  suppressWarnings(
+    p <- plot_gof(data_sad_pkfit, dv_var = "ODV", shown = shown))
+  expect_s3_class(p, "ggplot")
+})
+
+
+##Test color styling contract (ggstylekit style$colors is the single source)
+# `style_plot()` injects `style$colors` into the placeholder-valued manual
+# scale, while `series_layer` fills the role-keyed fixed aesthetics and leaves
+# the mapped color channel to that scale. `ggplot_build()` trains the scale;
+# the benign data-driven "Removed rows" warnings are unrelated and suppressed.
+colour_scale <- function(p) {
+  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
+}
+
+test_that("plot_gof color legend is driven by style$colors", {
+  sg <- style_gof()
+  p  <- plot_gof(data_sad_pkfit, dv_var = "ODV")
+  sc <- colour_scale(p)
+  brk <- as.character(sc$get_breaks())
+
+  expect_equal(brk, c("OBS", "DV", "IPRED", "PRED"))
+  expect_equal(unname(sc$map(brk)), unname(sg$colors[brk]))
+  expect_equal(sc$name, "Legend")
+
+  # role-keyed fixed aesthetics (shape/alpha) coexist with label-keyed color
+  b   <- suppressWarnings(ggplot2::ggplot_build(p))
+  idx <- which(vapply(b$plot$layers, function(L)
+    inherits(L$geom, "GeomPoint") && inherits(L$stat, "StatIdentity"),
+    logical(1)))[1]
+  obs <- b$data[[idx]]
+  expect_equal(unique(obs$colour), unname(sg$colors["OBS"]))
+  expect_equal(unique(obs$shape),  unname(sg$shapes["obs_point"]))
+  expect_equal(unique(obs$alpha),  unname(sg$alphas["obs_point"]))
+})
+
+test_that("plot_gof honors style_gof(colors=) overrides through the style", {
+  p    <- plot_gof(data_sad_pkfit, dv_var = "ODV",
+                   style = style_gof(colors = c(DV = "black")))
+  sc   <- colour_scale(p)
+  brk  <- as.character(sc$get_breaks())
+  vals <- stats::setNames(sc$map(brk), brk)
+  expect_equal(unname(vals["DV"]),  "black")     # override flows through
+  expect_equal(unname(vals["OBS"]), "darkgrey")  # other roles keep defaults
 })
 
 

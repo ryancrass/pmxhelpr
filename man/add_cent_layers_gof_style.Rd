@@ -34,7 +34,11 @@ Modified ggplot object.
 }
 \description{
 Like \code{\link[=add_cent_layers_style]{add_cent_layers_style()}} but for the GOF overlay: color is mapped to a
-literal label (\code{"DV"}/\code{"PRED"}/\code{"IPRED"}) for the manual color legend, and
-all fixed aesthetics are read inline from \code{style} (no \code{series_layer()} tag).
+literal label (\code{"DV"}/\code{"PRED"}/\code{"IPRED"}) for the manual color legend. The
+point and line layers are tagged with \code{\link[ggstylekit:series_layer]{ggstylekit::series_layer()}} so
+\code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}} fills their role-keyed fixed aesthetics while
+leaving the mapped color channel to the caller's scale. Error bars and
+linerange are not ggstylekit entities, so their fixed aesthetics are still set
+inline via \code{\link[=series_aes]{series_aes()}} (their color arrives from the mapped scale).
 }
 \keyword{internal}

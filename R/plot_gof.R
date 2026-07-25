@@ -116,9 +116,9 @@ plot_gof <- function(data,
 
   caption <- caption_dvtime(cent, log_y)
 
-  #Resolve style (log_y drives the y axis; color channel is handled manually
-  #below via scale_color_manual, so colors are stripped from the style passed
-  #to style_plot()).
+  #Resolve style. `style$colors` is the single source of color truth: the
+  #manual scale_color_manual() below supplies only the legend name/breaks/order
+  #(with placeholder values), and style_plot() injects style$colors into it.
   plotstyle <- if (is.null(style)) style_gof() else style
 
   #Error bar cap width (builder-computed; no style_spec field).
@@ -140,7 +140,6 @@ plot_gof <- function(data,
   #Manual overlay color scale, ordered and restricted to active layers.
   legend_order <- c("OBS", "DV", "IPRED", "PRED")
   ord <- legend_order[legend_order %in% active]
-  output_colors <- plotstyle$colors[ord]
 
 
 ###Plot
@@ -158,7 +157,7 @@ plot_gof <- function(data,
 
   #Show Observed Data Points / Connect within Group
   if ("OBS" %in% active) {
-    plot <- add_obs_layers_gof_style(plot, id_var_str, plotstyle, color_aes = "OBS")
+    plot <- add_obs_layers_gof_style(plot, id_var_str, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)
@@ -172,15 +171,17 @@ plot_gof <- function(data,
     plot <- add_cent_layers_gof_style(plot, cent, "PRED", plotstyle, ebw, color_aes = "PRED", show_errorbars = FALSE)
   }
 
-  #Define Manual Legend
+  #Define Manual Legend. Values are placeholders keyed by `ord`; style_plot()
+  #injects plotstyle$colors into this scale (breaks/order/name are preserved).
   plot <- plot +
-    ggplot2::scale_color_manual(name = "Legend",
-                                values = output_colors, breaks = ord)
+    ggplot2::scale_color_manual(
+      name = "Legend", breaks = ord,
+      values = stats::setNames(rep(NA_character_, length(ord)), ord))
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
-  #Finalize: house theme, log axis; color handled manually above.
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y), colors = NULL)
+  #Finalize: house theme, log axis; colors come from plotstyle via style_plot().
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
   ggstylekit::style_plot(plot, plotstyle)
 }

@@ -205,30 +205,27 @@ add_cent_layers_style <- function(plot, cent, y_var, style, width) {
 #' Internal helper: observed layers for a GOF overlay (style pattern)
 #'
 #' GOF overlays route color through a manual scale keyed by a literal label
-#' (`"OBS"`), so color is mapped via `aes()` rather than styled by
-#' [ggstylekit::style_plot()]. The remaining fixed aesthetics are read inline
-#' from the `obs_point`/`obs_line` series of `style` (no `series_layer()` tag,
-#' so `style_plot()` leaves the color channel to the caller's
-#' `scale_color_manual()`). Mirrors the single-series [add_obs_layers_style()]
+#' (`"OBS"`), so color is mapped via `aes()` while the layer is tagged with
+#' [ggstylekit::series_layer()] under its role name. [ggstylekit::style_plot()]
+#' then fills the role-keyed fixed aesthetics (shape/size/linewidth/linetype/
+#' alpha) and skips the mapped color channel, leaving it to the caller's
+#' `scale_color_manual()`. Mirrors the single-series [add_obs_layers_style()]
 #' but with a literal-label color contract.
 #'
 #' @param plot ggplot object.
 #' @param id_var_str Column name for spaghetti grouping, or `NULL`.
-#' @param style A `ggstylekit_style_spec`.
 #' @param color_aes Literal color label (e.g. `"OBS"`).
 #'
 #' @return Modified ggplot object.
 #' @keywords internal
-add_obs_layers_gof_style <- function(plot, id_var_str, style, color_aes) {
-  plot <- plot + do.call(ggplot2::geom_point,
-    c(list(mapping = ggplot2::aes(color = color_aes)),
-      series_aes(style, "obs_point")))
+add_obs_layers_gof_style <- function(plot, id_var_str, color_aes) {
+  plot <- plot + ggstylekit::series_layer(
+    ggplot2::geom_point(ggplot2::aes(color = color_aes)), "obs_point")
   if (!is.null(id_var_str)) {
-    plot <- plot + do.call(ggplot2::geom_line,
-      c(list(mapping = ggplot2::aes(x = .data$TIME, y = .data$DV,
-                                    color = color_aes,
-                                    group = .data[[id_var_str]])),
-        series_aes(style, "obs_line")))
+    plot <- plot + ggstylekit::series_layer(
+      ggplot2::geom_line(ggplot2::aes(x = .data$TIME, y = .data$DV,
+                                      color = color_aes,
+                                      group = .data[[id_var_str]])), "obs_line")
   }
   plot
 }
@@ -237,8 +234,12 @@ add_obs_layers_gof_style <- function(plot, id_var_str, style, color_aes) {
 #' Internal helper: central tendency layers for a GOF overlay (style pattern)
 #'
 #' Like [add_cent_layers_style()] but for the GOF overlay: color is mapped to a
-#' literal label (`"DV"`/`"PRED"`/`"IPRED"`) for the manual color legend, and
-#' all fixed aesthetics are read inline from `style` (no `series_layer()` tag).
+#' literal label (`"DV"`/`"PRED"`/`"IPRED"`) for the manual color legend. The
+#' point and line layers are tagged with [ggstylekit::series_layer()] so
+#' [ggstylekit::style_plot()] fills their role-keyed fixed aesthetics while
+#' leaving the mapped color channel to the caller's scale. Error bars and
+#' linerange are not ggstylekit entities, so their fixed aesthetics are still set
+#' inline via [series_aes()] (their color arrives from the mapped scale).
 #'
 #' @inheritParams add_cent_layers_style
 #' @param color_aes Literal color label.
@@ -253,12 +254,10 @@ add_cent_layers_gof_style <- function(plot, cent, y_var, style, width,
   mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]], color = color_aes)
   stat_fun <- if (cent %in% c("mean", "mean_sdl", "mean_sdl_upper")) "mean" else "median"
 
-  plot <- plot + do.call(ggplot2::stat_summary,
-    c(list(mapping = mapping, fun = stat_fun, geom = "point"),
-      series_aes(style, "cent_point")))
-  plot <- plot + do.call(ggplot2::stat_summary,
-    c(list(mapping = mapping, fun = stat_fun, geom = "line"),
-      series_aes(style, "cent_line")))
+  plot <- plot + ggstylekit::series_layer(
+    ggplot2::stat_summary(mapping, fun = stat_fun, geom = "point"), "cent_point")
+  plot <- plot + ggstylekit::series_layer(
+    ggplot2::stat_summary(mapping, fun = stat_fun, geom = "line"), "cent_line")
 
   if (isTRUE(show_errorbars)) {
     eb <- series_aes(style, "cent_errorbar")

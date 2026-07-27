@@ -61,8 +61,8 @@ the prefix indicates what the function returns:
 - `df_*` — returns a `data.frame`
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
-- `pmx_*` — returns a theme element constructor (for use with `*_theme`
-  factories)
+- `style_*` — returns a `ggstylekit::style_spec` (plot-family style
+  preset)
 
 ### Exploratory Data Analysis
 

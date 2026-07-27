@@ -8,7 +8,9 @@ style_dvtime(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below wholesale (e.g. \code{shapes = c(obs_point = 16)}, \code{title = "..."}).}
+defaults below. Per-series maps (\code{colors}, \code{fill}, \code{shapes}, \code{sizes},
+\code{linetypes}, \code{linewidths}, \code{alphas}) merge entry-wise onto the defaults, so
+setting one role leaves the others unchanged (e.g. \code{shapes = c(obs_point = 16)}); all other fields replace their default wholesale (e.g. \code{title = "..."}).}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

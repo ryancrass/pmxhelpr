@@ -3,9 +3,10 @@
 #
 # Each `style_*()` returns a `ggstylekit::style_spec` pre-filled with a plot
 # family's pmxhelpr domain defaults, keyed by the family's role/series names.
-# Pass any `style_spec()` field via `...` to override a default wholesale (a
-# whole per-series map is replaced, matching `ggstylekit::set_style()`); for
-# entry-wise tweaks on a finished plot use `ggstylekit::restyle_plot()`.
+# Pass any `style_spec()` field via `...` to override a default. Per-series maps
+# (`colors`, `fill`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`)
+# merge entry-wise onto the preset defaults, so setting one role leaves the
+# others unchanged; all other fields replace their default wholesale.
 #
 # Replaces the retired `plot_*_theme()` / `pmx_*` element system.
 # ---------------------------------------------------------------------------
@@ -18,7 +19,10 @@
 #' `cent_errorbar`, `ref_line`, `loq_line`.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below wholesale (e.g. `shapes = c(obs_point = 16)`, `title = "..."`).
+#'   defaults below. Per-series maps (`colors`, `fill`, `shapes`, `sizes`,
+#'   `linetypes`, `linewidths`, `alphas`) merge entry-wise onto the defaults, so
+#'   setting one role leaves the others unchanged (e.g. `shapes = c(obs_point =
+#'   16)`); all other fields replace their default wholesale (e.g. `title = "..."`).
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -48,8 +52,10 @@ style_dvtime <- function(...) {
 #' OBS) overlays are colour-mapped by label via the `colors` map; the remaining
 #' fixed aesthetics use the role series names as in [style_dvtime()].
 #'
-#' @param ... Fields passed to [ggstylekit::style_spec()], overriding defaults
-#'   wholesale (e.g. `colors = c(DV = "black")`).
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   defaults below. Per-series maps merge entry-wise (e.g. `colors = c(DV =
+#'   "black")` leaves the other overlay colors unchanged); all other fields
+#'   replace their default wholesale.
 #'
 #' @family goodness-of-fit
 #' @return A `ggstylekit_style_spec` object.
@@ -81,8 +87,9 @@ style_gof <- function(...) {
 #' are `geom_smooth` (line entity); their SE ribbon fill/alpha come from
 #' `line_fill`/`fill_alpha`.
 #'
-#' @param ... Fields passed to [ggstylekit::style_spec()], overriding defaults
-#'   wholesale.
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   other fields replace their default wholesale.
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -111,8 +118,9 @@ style_dvconc <- function(...) {
 #' `obs_point`, `linear`. Log-log axes and per-metric facets are set by the
 #' builder via `logx`/`logy`/`facet` fields.
 #'
-#' @param ... Fields passed to [ggstylekit::style_spec()], overriding defaults
-#'   wholesale.
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   other fields replace their default wholesale.
 #'
 #' @family dose proportionality
 #' @return A `ggstylekit_style_spec` object.
@@ -144,8 +152,9 @@ style_doseprop <- function(...) {
 #' (outside ggstylekit's entity registry), so their `fill`/`alpha` are set
 #' inline by the builder, read from these maps via `series_aes()`.
 #'
-#' @param ... Fields passed to [ggstylekit::style_spec()], overriding defaults
-#'   wholesale.
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   other fields replace their default wholesale.
 #'
 #' @family vpc
 #' @return A `ggstylekit_style_spec` object.

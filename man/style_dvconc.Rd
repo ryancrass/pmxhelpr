@@ -7,8 +7,9 @@
 style_dvconc(...)
 }
 \arguments{
-\item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding defaults
-wholesale.}
+\item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
+defaults below. Per-series maps merge entry-wise onto the defaults; all
+other fields replace their default wholesale.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

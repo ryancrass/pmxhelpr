@@ -167,3 +167,36 @@ test_that("plot_dvtime warns when input has multiple CMT values after EVID filte
   expect_warning(plot_dvtime(data_sad, dv_var = "ODV"),
                  regexp = "Multiple unique values of `CMT`")
 })
+
+
+##Test ggstylekit fixed-aesthetic styling contract
+# style_plot() must fill the per-series fixed aesthetics (shape/size/alpha/
+# linewidth/...) on series_layer-tagged, non-data-mapped role layers, sourced
+# from the style_*() preset maps keyed by role name. A ggstylekit regression
+# (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults; this guard
+# fails loudly if that recurs. Expected values mirror R/style_presets.R.
+styled_layer <- function(p, geom, stat = NULL) {
+  b   <- suppressWarnings(ggplot2::ggplot_build(p))
+  idx <- which(vapply(b$plot$layers, function(L)
+    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
+    logical(1)))[1]
+  expect_false(is.na(idx))
+  b$data[[idx]]
+}
+
+test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
+  sd <- style_dvtime()
+  p  <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")
+
+  obs <- styled_layer(p, "GeomPoint", "StatIdentity")
+  expect_equal(unique(obs$shape), unname(sd$shapes["obs_point"]))
+  expect_equal(unique(obs$size),  unname(sd$sizes["obs_point"]))
+  expect_equal(unique(obs$alpha), unname(sd$alphas["obs_point"]))
+
+  cent_pt <- styled_layer(p, "GeomPoint", "StatSummary")
+  expect_equal(unique(cent_pt$shape), unname(sd$shapes["cent_point"]))
+  expect_equal(unique(cent_pt$size),  unname(sd$sizes["cent_point"]))
+
+  cent_ln <- styled_layer(p, "GeomLine", "StatSummary")
+  expect_equal(unique(cent_ln$linewidth), unname(sd$linewidths["cent_line"]))
+})

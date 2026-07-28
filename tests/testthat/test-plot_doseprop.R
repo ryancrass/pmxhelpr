@@ -348,3 +348,33 @@ test_that("plot_build_doseprop facet limits are full log10 decades with 2% paddi
     expect_gte(round(panel$x.range)[2], log10(dose_max))
   }
 })
+
+
+##Test ggstylekit fixed-aesthetic styling contract
+# style_plot() must fill the per-series fixed aesthetics on series_layer-tagged,
+# non-data-mapped role layers from the style_doseprop() preset maps. A ggstylekit
+# regression (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults;
+# for the linear trend line that meant the line colour flipped to ggplot2's
+# geom_smooth default (#3366FF). Expected values mirror R/style_presets.R.
+styled_layer <- function(p, geom, stat = NULL) {
+  b   <- suppressWarnings(ggplot2::ggplot_build(p))
+  idx <- which(vapply(b$plot$layers, function(L)
+    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
+    logical(1)))[1]
+  expect_false(is.na(idx))
+  b$data[[idx]]
+}
+
+test_that("plot_doseprop fills role-keyed fixed aesthetics from style_doseprop()", {
+  sd <- style_doseprop()
+  p  <- plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+
+  obs <- styled_layer(p, "GeomPoint", "StatIdentity")
+  expect_equal(unique(obs$shape), unname(sd$shapes["obs_point"]))
+  expect_equal(unique(obs$size),  unname(sd$sizes["obs_point"]))
+  expect_equal(unique(obs$alpha), unname(sd$alphas["obs_point"]))
+
+  trend <- styled_layer(p, "GeomSmooth")            # linear (lm)
+  expect_equal(unique(trend$colour),    unname(sd$colors["linear"]))
+  expect_equal(unique(trend$linewidth), unname(sd$linewidths["linear"]))
+})

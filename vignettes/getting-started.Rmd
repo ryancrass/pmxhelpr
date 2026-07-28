@@ -15,16 +15,21 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette is a lean tour of every core `pmxhelpr` workflow in a single sitting. Each section ends with a link to the corresponding deep-dive article on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/) for users who want more depth.
+This vignette is a lean tour of every core `pmxhelpr` workflow in a single 
+sitting. Each section ends with a link to the corresponding deep-dive article
+on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/).
 
 Exported functions follow a `ReturnType_Purpose` naming convention:
 
 - `plot_*` — returns a `ggplot` object
 - `df_*` — returns a `data.frame` (often class-tagged)
 - `var_*` — returns a vector (vectorized helpers for use inside `mutate()`)
-- `pmx_*` — returns a theme element constructor
+- `style_*` — returns a `ggstylekit::style_spec()` theme object
 
-The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original DV). Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight the non-standard evaluation (NSE) of dataset column name variables which may be specified as strings or bare names to override defaults in `pmxhelpr` functions. 
+The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original DV). 
+Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight the 
+non-standard evaluation (NSE) of dataset column name variables which may be 
+specified as strings or bare names to override defaults in `pmxhelpr` functions. 
 
 ```{r setup, echo=TRUE, warning=FALSE, message=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -40,7 +45,9 @@ library(mrgsolve, warn.conflicts = FALSE)
 
 ## `data_sad`
 
-`data_sad` is a NLME modeling analysis-ready dataset for single ascending dose (SAD) study with a parallel food-effect (FE) cohort. It contains one oral dose input (`EVID=1`, `CMT=1`) and two observation types (`EVID=0`): 
+`data_sad` is a NLME modeling analysis-ready dataset for single ascending dose
+(SAD) study with a parallel food-effect (FE) cohort. It contains one oral dose
+input (`EVID=1`, `CMT=1`) and two observation types (`EVID=0`): 
 
   + Drug concentration in `CMT=2` (original units: ng/mL)
   + Response in `CMT=3` (original units: percentage of baseline)
@@ -49,33 +56,27 @@ library(mrgsolve, warn.conflicts = FALSE)
 glimpse(data_sad)
 ```
 
-The preprocessing step below labels each participant with a dosing regimen and per-group subject count using `var_addn()`. We will also define separate PK and PD sets for use in downstream plotting functions.
+The pre-processing step below creates a new variable combining dose, frequency,
+and food status into a single dosing regimen variable with per-group subject 
+counts appended using `var_addn()`. Separate datasets are also defined for 
+exploration of PK and PD data.
 
 ```{r data-addn}
 data <- data_sad %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE, "mg x1", Food),
          Regimen = var_addn(DoseFood, ID))
+
+data_pk <- data %>% filter(CMT %in% c(1,2))
+data_pd <- data %>% filter(CMT %in% c(1,3))
+
 unique(data$Regimen)
-```
-
-The resulting factor variable is inspected, and then re-leveled with `forcats::fct_relevel()` to preserve dose order for plotting.
-
-```{r data-relevel}
-data <- data %>% 
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1))
-unique(data$Regimen)
-
-data_pk <- data %>%
-  filter(CMT %in% c(1,2))
-
-data_pd <- data %>% 
-  filter(CMT %in% c(1,3))
 ```
 
 ## `data_sad_nca`
 
-`data_sad_nca` contains pharmacokinetic parameters and exposure metrics from a non-compartmental analysis (NCA) of `data_sad` using the `PKNCA` package.
+`data_sad_nca` contains PK parameters and exposure metrics from a 
+non-compartmental analysis (NCA) of `data_sad` using the `PKNCA` package.
 
 We will filter to Part 1 fasted conditions only for use in dose-proportionality assessment.
 
@@ -86,28 +87,31 @@ data_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
 
 ## `data_sad_pkfit`
 
-`data_sad_pkfit` is a model output dataset version of `data_sad` (`CMT` 1 and 2) with two additional variables (`PRED` and `IPRED`) appended to the `data_sad`.  
-
-These variables are derived from the internal PK model `pkmodel`.
+`data_sad_pkfit` is a model output dataset version of `data_sad` (`CMT`=1, 2)
+with two additional variables (`PRED` and `IPRED`) appended.  These variables 
+are derived from the internal PK model `pkmodel`.
 
 ```{r vpc-model, message=FALSE, warning=FALSE}
 pkmodel <- model_mread_load("pkmodel")
 see(pkmodel)
 ```
-We will process this dataset in a manner analogous to `data_sad` for plotting, but adding subject counts to a derived dosing regimen variable.
+We will process this dataset in a manner analogous to `data_sad`.
 
 ```{r data-gof}
 data_gof <- data_sad_pkfit %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE, "mg x1", Food),
-         Regimen = var_addn(DoseFood, ID)) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1))
+         Regimen = var_addn(DoseFood, ID)) 
 ```
 
 
 # Longitudinal concentration and response with `plot_dvtime()`
 
-`plot_dvtime()` produces a longitudinal observed-versus-time plot with central-tendency overlays, which can be used for any longitudinal repeated measures continuous variable, including both concentration `CMT = 2`) and response (`CMT = 3`).
+`plot_dvtime()` produces a longitudinal plot of a repeated measures, continuous
+variable versus time. This plotting function can be used for longitudinal 
+exploratory analysis of both concentration (`CMT = 2`) and response (`CMT = 3`)
+over time, with functionality for central tendency, variability, and BLQ 
+handling.
 
 ```{r plot-dvtime-pk, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 pk_plot <- plot_dvtime(
@@ -133,18 +137,22 @@ pd_plot <- plot_dvtime(
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
 ```
-
-The two plots can be composed into a single paneled figure using the `patchwork` package, aligned vertically with the shared time axis.
+The two plots can be composed into a single paneled figure using the 
+`patchwork` package, aligned vertically with the shared time axis.
 
 ```{r plot-dvtime-patchwork, fig.width=8, fig.height=7, warning=FALSE, message=FALSE}
 (pk_plot / pd_plot) + plot_layout(guides = "collect")
 ```
 
-See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) article for central tendency controls, BLQ imputation options, dose-normalization, and other visual controls.
+See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html)
+article for additional details on exploratory data analyses with `pmxhelpr`.
 
 # Response versus concentration with `plot_dvconc()`
 
-`plot_dvconc()` plots a dependent variable against a continuous independent variable. The most common use case is visualizing a biomarker value or change metric of response against drug concentration. Trend line options include both linear (`linear`/`se_linear`) and non-linear (`loess`/`se_loess`) logical toggles to control the central tendency layer displayed.
+`plot_dvconc()` plots a continuous dependent variable versus a continuous
+independent variable. The most common use case is visualizing a pharmacodynamic
+response versus drug concentration. Trend line options include both linear
+(`linear`/`se_linear`) and non-linear (`loess`/`se_loess`) logical toggles.
 
 A dashed black reference line is drawn at `y = ref` when `ref` is specified.
 
@@ -161,7 +169,8 @@ plot_dvconc(
   labs(y = "Response (% Change from Baseline)", x = "Concentration (ng/mL)")
 ```
 
-By default the trend lines are not grouped by the variable passed to `col_var`; however, this can be toggled on by `col_trend=TRUE`.
+By default the trend lines are not grouped by the variable passed to `col_var`;
+however, this can be toggled on with `col_trend=TRUE`.
 
 ```{r plot-dvconc-coltrend, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 plot_dvconc(
@@ -178,18 +187,21 @@ plot_dvconc(
   labs(y = "Response (% Change from Baseline)", x = "Concentration (ng/mL)")
 ```
 
-See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) article for theme customization and other trend customization options.
+See the [Exploratory Analyses of PK and PK/PD Data](eda-pk-pkpd-workflow.html) 
+article for additional details on exploratory data analyses with `pmxhelpr`.
 
 # Dose-proportionality with `df_doseprop()` and `plot_doseprop()`
 
-`df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and AUC) versus dose and returns a class-tagged `doseprop_stats` data frame.
+`df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and 
+AUC) versus dose and returns a class-tagged `doseprop_stats` data frame.
 
 ```{r doseprop-stats}
 tab <- df_doseprop(data_nca_part1, metrics = c("aucinf.obs", "cmax"))
 tab
 ```
 
-`plot_doseprop()` can directly process an NCA input dataset (1-stage) or accept a previously processed `doseprop_stats` object (2-stage)
+`plot_doseprop()` can directly process an NCA input dataset (1-stage) or accept
+a previously processed `doseprop_stats` object (2-stage)
 
   1. One-stage: raw NCA `data.frame` input (`df_doseprop()` called internally)
   
@@ -203,14 +215,22 @@ plot_doseprop(data_nca_part1, metrics = c("aucinf.obs", "cmax"))
 plot_doseprop(tab)
 ```
 
-See the [Dose-Proportionality Workflow](doseprop-workflow.html) article for confidence-interval interpretation, multi-metric layouts, and theme customization.
-
+See the [Dose-Proportionality Workflow](doseprop-workflow.html) article for
+additional details on dose-proportionality assessment with `pmxhelpr`.
 
 # Model diagnostics with `plot_gof()`
 
-`plot_gof()` produces a population overlay goodness-of-fit (GOF) plot depicting binned central tendency layers of observed values (`dv`), individual predictions (`ipred`), and population predictions (`pred`) over time along with underlying observed data scatter layer (`obs`).
+`plot_gof()` produces a population overlay goodness-of-fit (GOF) plot depicting
+binned central tendency layers of observed values (`dv`), individual predictions
+(`ipred`), and population predictions (`pred`) over time along with the 
+underlying observed data (`obs`) scatter.
 
-In most cases, these plots will be drawn using model output tables directly from estimation engines (e.g., NONMEM), which will only include predictions at timepoints non-missing and included in parameter estimation (e.g., MDV=0). Our input dataset `data_gof` (derived from `data_sad_pkfit`) includes model predictions from `mrgsim` at all timepoints; therefore, we will filter on input to mimic this common scenario.
+In most cases, these plots will be drawn using model output tables directly 
+from estimation engines (e.g., NONMEM), which will only include predictions at 
+non-missing timepoints included in parameter estimation (e.g., MDV=0). The input
+dataset `data_gof` (derived from `data_sad_pkfit`) includes model predictions 
+from `mrgsolve::mrgsim()` at all timepoints; therefore, we will filter on input
+to mimic this common scenario.
 
 ```{r plot-gof, fig.width=8, fig.height=5, warning=FALSE, message=FALSE}
 plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
@@ -219,35 +239,42 @@ plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-See the [Goodness-of-Fit Diagnostics](gof-diagnostics.html) article for specifying central tendency, BLQ handling, and theme customization.
+See the [Goodness-of-Fit Diagnostics](gof-diagnostics.html) article for 
+additional details on GOF diagnostics.
 
 # VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 
-The VPC process has been fully built as a workflow within `pmxhelpr`, starting from the a fitted model that has been translated to an `mrgsolve` model format (`mrgmod`).
+The VPC workflow is an end to end process within `pmxhelpr`, starting from a 
+fitted model that has been translated to an `mrgsolve` model format (`mrgmod`).
 
-From a validated model file, the VPC pipeline includes:
-    + replication of the input dataset via simulation with `df_mrgsim_replicate()`
-    + derivation of within and across trial replicate summary statistics with `df_vpcstats`
-    + plot building with `plot_build_vpc()` (both continuous and censored `type` available)
+From a validated model file, the VPC pipeline includes functionality to:
 
+  1. replicate the input dataset with `df_mrgsim_replicate()`
+  2. derive summary statistics within and across replicates with `df_vpcstats()`
+  3. build plots with `plot_vpc_cont()` / `plot_vpc_cens()`
 
 ## Run the simulation with `df_mrgsim_replicate()`
 
- `df_mrgsim_replicate()` is a wrapper function for `mrgsim_df()`, which uses `lapply()` (or `future.apply::future_lapply()` when `parallel = TRUE` and a corresponding `future::plan()` in place) to iterate the simulation over integers from 1 to the value passed to the argument `replicates`.
+`df_mrgsim_replicate()` is a wrapper function for `mrgsim::mrgsim_df()`, 
+which uses `lapply()` to iterate from 1 to the integer value passed to 
+`replicates`. This can be parallelized using `future.apply::future_lapply()` 
+when `parallel = TRUE` and a corresponding `future::plan()` is in place.
 
-There are 3 required arguments to `df_mrgsim_replicate()`
+There are 3 required arguments to `df_mrgsim_replicate()`:
 
   - `data`, a `data.frame` modeling analysis dataset
   - `model`, a `mrgmod` model object
-  - `replicates`, numeric number of replicates to perform.
+  - `replicates`, integer number of replicates to perform.
   
-The are optional arguments specifying key dataset variables to be input into the simulation or captured in output. These include: 
+The are optional arguments specifying key dataset variables to be input into 
+the simulation or captured in output. These include: 
+
   - `dv_var` = DV, dependent variable
   - `time_var` = TIME, actual time variable
   - `ntime_var` = NTIME, nominal time variable
-  - `pred_var` = PRED, population prediction variable (fixed effects only)
-  - `ipred_var` = IPRED, individual prediction variable (fixed + level 1 random effects)
-  - `sim_dv_var` = DV, dependent variable captured in the simulated output (fixed + level 1 and 2 random effects)
+  - `pred_var` = PRED, population prediction variable
+  - `ipred_var` = IPRED, individual prediction variable 
+  - `sim_dv_var` = DV, dependent variable captured in the simulated output
 
 ```{r vpc-simulate, message=FALSE, warning=FALSE}
 simout <- df_mrgsim_replicate(
@@ -264,9 +291,18 @@ glimpse(simout)
 
 ## Calculate summary statistics with `df_vpcstats()`
 
-`df_vpcstats` performs the input data validation and summary statistic calculations for the VPC, returning a `pmx_stats`, `vpc_stats` S3 container including `$stats` (`data.frame` of summary statistics), `$obs` observed data for scatter plot overlay, `$config` configuration information (e.g., replicates, loq, stratifying variable).
+`df_vpcstats` performs the input data validation and summary statistic 
+calculations for the VPC, returning a `vpc_stats` S3 container including:
 
-`vpc_stats` objects contain both standard, prediction-correction, and proportion BLQ statistics and may be passed directly to `plot_vpc_cont()` or `plot_vpc_cens()` following a 2-stage workflow. Both plotting functions can also take in the raw simulated output and call `df_vpcstats()` internally for a one-stage workflow; however, the summary calculation computation cost is paid in every plot.
+ + `$stats` (`data.frame` of summary statistics)
+ + `$obs` observed data for scatter plot overlay
+ + `$config` configuration info (e.g., replicates, loq, stratifying variable).
+
+`vpc_stats` objects contain both standard, prediction-correction, and proportion
+BLQ statistics and may be passed directly to `plot_vpc_cont()` or 
+`plot_vpc_cens()` following a 2-stage workflow. Both plotting functions can 
+also take in the raw simulated output and call `df_vpcstats()` internally in a
+one-stage workflow.
 
 ```{r vpc-stats}
 vpcstats_obj_part <- df_vpcstats(simout, strat_var = PART)
@@ -277,9 +313,11 @@ vpcstats_obj_part
 
 ## Plotting the continuous data range with `plot_vpc_cont`
 
-`plot_vpc_cont()` builds standard or prediction-corrected VPCs of the continuous, quantifiable range above the LLOQ.
+`plot_vpc_cont()` builds standard or prediction-corrected VPCs of the 
+continuous, quantifiable range above the LLOQ.
 
-The example below is a standard (non-prediction-corrected) VPC stratified by `Regimen`.
+The example below is a standard (non-prediction-corrected) VPC stratified by
+`Regimen`.
 
 ```{r plot-vpc-cont-std, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 vpc_regimen <- plot_vpc_cont(
@@ -307,9 +345,15 @@ pcvpc_part
 ```
 ## Plotting the censored data range with `plot_vpc_cens`
 
-`plot_vpc_cens()` is the companion diagnostic for the censored portion of the range — the per-bin BLQ proportion. It mirrors `plot_vpc_cont()` but plots `obs_prop_blq` and the empirical confidence band of `sim_prop_blq` across replicates, and requires a LOQ source.
+`plot_vpc_cens()` is the companion diagnostic for the censored portion of the 
+data range. It mirrors `plot_vpc_cont()` but plots `obs_prop_blq` and the 
+non-parametric confidence band of `sim_prop_blq` across replicates. VPC plots 
+of the censored data range should be generated prior to prediction-corrected 
+VPCs (pcVPCs) to ensure that the model is adequately predictive of the censored
+data range prior to generating pcVPCs of the quantifiable data range.
 
-The most relevant censored VPC is that stratified by dose and food status, which are combined in the `Regimen` variable.
+The most relevant censored VPC is that stratified by dose and food status, 
+which are combined in the `Regimen` variable.
 
 ```{r plot-vpc-cens-regimen, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 cens_vpc_regimen <- plot_vpc_cens(
@@ -323,36 +367,66 @@ cens_vpc_regimen
 ```
 
 ## Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
-`plot_vpc_legend()` returns a legend that can be patchworked beneath the VPC panel(s). The four row layout below stacks the continuous and censored VPCs with legends. The two-stage plot building from `vpc_stats` objects is also demonstrated, highlighting the potential efficiency of reusing a precomputed object in such a workflow.
+
+`plot_vpc_legend()` returns a legend that can be combined with the VPC plots
+using the `patwork` package. The four row layout below stacks the continuous 
+and censored VPCs with their corresponding legends. 
+
+The two-stage plot building from a`vpc_stats` objects is also demonstrated, 
+highlighting the potential efficiencies of reusing a pre-computed object.
 
 ```{r plot-vpc-patchwork, fig.width=8, fig.height=7, warning=FALSE, message=FALSE}
 vpc_plot_cont <- plot_vpc_cont(vpcstats_obj_regimen) + 
   scale_x_continuous(breaks = seq(0, 168, 24)) +
   scale_y_log10(guide = "axis_logticks") +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)")
+
 vpc_plot_cens <- plot_vpc_cens(vpcstats_obj_regimen) +
   scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(x = "Time (hours)", y = "Proportion BLQ")
+
 cont_legend <- plot_vpc_legend()
 cens_legend <- plot_vpc_legend(type = "cens", shown = plot_vpc_shown(obs_point = FALSE))
+
 vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend + 
   plot_layout(heights = c(2, 0.5, 1, 0.5))
 ```
 
-See the [Visual Predictive Check Workflow](vpc-workflow.html) article for stratification controls, BLQ handling options, multi-LLOQ pooling, `shown`/`theme` customization, and pairing pcVPC with cens VPC.
+See the [Visual Predictive Check Workflow](vpc-workflow.html) article for 
+additional details on the VPC toolchain with `pmxhelpr`.
 
-# Styling overview
+# Plot themes with `ggstylekit`
 
-pmxhelpr styles its plots with [ggstylekit](https://github.com/A2-ai/ggstylekit). Every `plot_*()` function has a paired `style_*()` preset that returns a `ggstylekit::style_spec()` pre-filled with the family's defaults. Styling is keyed by the plot's *roles* (e.g. `obs_point`, `cent_line`, `cent_errorbar`, `ref_line`, `loq_line`): the per-series maps (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are keyed by role, and partial overrides merge onto the defaults (so setting one role leaves the others untouched).
+`pmxhelpr` leverages the functionality of the `ggstylekit` package to control
+the styling of plot elements.
+
+Every `plot_*()` function ships with a compaion `style_*()` helper function
+that returns a `ggstylekit::style_spec()` object pre-filled with the defaults. 
+The defaults styling for each plot type can be visualized by calling the 
+function with no arguments
 
 ```{r style-defaults}
 style_dvtime()
+```
 
+Styling is keyed by  *roles* (e.g. `obs_point`, `cent_line`, `cent_errorbar`,
+`ref_line`, `loq_line`). The *values* for each key are individual plot 
+aesthetics (e.g, `colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, 
+`alphas`) with partial overrides merge onto the defaults so setting one role 
+leaves the others untouched.
+
+New styles can be defined as an object and recycled across plots. This revised
+style object removes the observed points and increases the linewidth of the 
+central tendency line and error bars.
+
+```{r style-new}
 new_dvtime_style <- style_dvtime(
     alphas     = c(obs_point = 0),
     linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
+new_dvtime_style
 ```
+The 
 
 ```{r plot-dvtime-styled, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 plot_dvtime(
@@ -366,9 +440,12 @@ plot_dvtime(
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-A finished plot can also be restyled after the fact with `ggstylekit::restyle_plot()`, or a hidden covariate surfaced with `ggstylekit::reveal()`.
+A finished plot object can also be restyled after the fact with 
+`ggstylekit::restyle_plot()`. Additionally, hidden covariates can be surfaced 
+after the fact with `ggstylekit::reveal()`.
 
-See the [Plot Themes and Aesthetics](plot-themes.html) article for the full theme catalog, element-constructor reference, and the class system that backs them.
+See the [Plot Themes and Aesthetics](plot-themes.html)  article for additional 
+details on plot themeing with `pmxhelpr`.
 
 # Where to go next
 

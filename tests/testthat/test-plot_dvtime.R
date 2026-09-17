@@ -200,3 +200,47 @@ test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
   cent_ln <- styled_layer(p, "GeomLine", "StatSummary")
   expect_equal(unique(cent_ln$linewidth), unname(sd$linewidths["cent_line"]))
 })
+
+
+##Test col_var legend order / per-series value contract with ggstylekit (>= 0.3.0)
+# Discrete legends and per-series values follow the factor's declared level
+# order. `ggplot_build()` trains the scale; benign "Removed rows" warnings from
+# BLQ/NA data are unrelated and suppressed.
+colour_scale <- function(p) {
+  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
+}
+
+test_that("plot_dvtime legend follows factor level order regardless of row order", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  d <- dplyr::mutate(d, Dose = var_addn(DOSE, ID, sep = "mg"))
+  d <- d[order(-d$DOSE), ]   # reverse-sort rows: first-appearance != level order
+  sc <- colour_scale(plot_dvtime(d, dv_var = "ODV", cent = "median", col_var = "Dose"))
+  expect_equal(as.character(sc$get_breaks()), levels(d$Dose))
+})
+
+test_that("plot_dvtime pins named series colors and leaves others on the palette", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  d <- dplyr::mutate(d, Dose = var_addn(DOSE, ID, sep = "mg"))
+  lo <- levels(d$Dose)[1]
+  hi <- levels(d$Dose)[length(levels(d$Dose))]
+  sty <- style_dvtime(colors = stats::setNames(c("#111111", "#999999"), c(lo, hi)))
+  sc  <- colour_scale(plot_dvtime(d, dv_var = "ODV", cent = "median",
+                                  col_var = "Dose", style = sty))
+  brk  <- as.character(sc$get_breaks())
+  vals <- stats::setNames(sc$map(brk), brk)
+  expect_equal(unname(vals[lo]), "#111111")            # pin lands on its series
+  expect_equal(unname(vals[hi]), "#999999")
+  others <- vals[setdiff(brk, c(lo, hi))]
+  expect_false(any(others %in% c("#111111", "#999999")))  # pins don't shift others
+  expect_equal(length(unique(others)), length(others))    # un-pinned stay distinct
+})
+
+test_that("plot_dvtime orders a numeric-labelled character col_var by value", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  d <- dplyr::mutate(d, DoseChr = paste(DOSE, "mg"))
+  d <- d[order(-d$DOSE), ]   # rows reverse-sorted to isolate the ordering rule
+  sc <- colour_scale(plot_dvtime(d, dv_var = "ODV", cent = "median", col_var = "DoseChr"))
+  # numeric-aware, not lexicographic ("100 mg" would sort before "50 mg")
+  expect_equal(as.character(sc$get_breaks()),
+               c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg"))
+})

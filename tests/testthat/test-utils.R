@@ -457,3 +457,47 @@ test_that("check_single_cmt is silent on empty data", {
   df <- data.frame(CMT = integer(0), EVID = integer(0))
   expect_no_warning(pmxhelpr:::check_single_cmt(df))
 })
+
+
+##Test order_col_factor(): factor level order feeds ggstylekit (>= 0.3.0)
+test_that("order_col_factor preserves an existing factor's declared levels", {
+  f <- factor(c("b", "a", "b"), levels = c("b", "a"))
+  expect_equal(levels(pmxhelpr:::order_col_factor(f)), c("b", "a"))
+})
+
+test_that("order_col_factor sorts numeric col_var by magnitude, not input order", {
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c(100, 20, 5, 400, 50))),
+    c("5", "20", "50", "100", "400")
+  )
+})
+
+test_that("order_col_factor orders numeric-labelled character col_var by value", {
+  # dose-like labels sort by the leading number, not lexicographically
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("200 mg", "5 mg", "20 mg", "100 mg"))),
+    c("5 mg", "20 mg", "100 mg", "200 mg")
+  )
+  # trailing text (e.g. var_addn "(n=)" counts) does not disturb the ordering
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("100 mg (n=6)", "20 mg (n=12)", "5 mg (n=3)"))),
+    c("5 mg (n=3)", "20 mg (n=12)", "100 mg (n=6)")
+  )
+  # decimals
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("2.5 mg", "10 mg", "0.5 mg"))),
+    c("0.5 mg", "2.5 mg", "10 mg")
+  )
+})
+
+test_that("order_col_factor falls back to first-appearance for non-numeric labels", {
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("High", "Low", "Medium"))),
+    c("High", "Low", "Medium")
+  )
+  # mixed numeric / non-numeric is ambiguous -> first-appearance, never lexicographic
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Placebo", "20 mg", "5 mg"))),
+    c("Placebo", "20 mg", "5 mg")
+  )
+})

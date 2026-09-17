@@ -66,7 +66,7 @@ plot_dvconc <- function(data,
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))
 
   ##Coerce Color Variable to a Factor
-  if(!is.null(col_var_str)){data[[col_var_str]] <- factor(data[[col_var_str]])}
+  if(!is.null(col_var_str)){data[[col_var_str]] <- order_col_factor(data[[col_var_str]])}
 
   #Determine Caption
   caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)

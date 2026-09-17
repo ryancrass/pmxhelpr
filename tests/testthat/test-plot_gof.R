@@ -141,6 +141,14 @@ test_that("plot_gof honors style_gof(colors=) overrides through the style", {
   expect_equal(unname(vals["OBS"]), "darkgrey")  # other roles keep defaults
 })
 
+test_that("plot_gof legend is restricted to the active `shown` layers", {
+  p  <- plot_gof(data_sad_pkfit, dv_var = "ODV",
+                 shown = plot_gof_shown(obs = FALSE, ipred = FALSE))
+  sc <- colour_scale(p)
+  # OBS and IPRED hidden -> only DV and PRED keep their keys, order preserved
+  expect_equal(as.character(sc$get_breaks()), c("DV", "PRED"))
+})
+
 
 ##Test BLQ handling
 test_that("plot_gof accepts loq_method = 1 and renders the LOQ ref line", {

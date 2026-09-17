@@ -23,6 +23,24 @@ test_that("style preset non-map fields replace wholesale", {
   expect_equal(s$title, "My Title")
 })
 
+test_that("a palette function replaces a preset's default per-series map", {
+  # Palettes carry no names, so they cannot merge entry-wise onto a set default
+  # (`style_gof()` ships a `colors` map); they replace it instead.
+  pal <- function(n) grDevices::hcl.colors(n, "Viridis")
+  s <- style_gof(colors = pal)
+  expect_true(is.function(s$colors))
+  expect_null(names(s$colors))
+
+  # A preset whose default for that map is unset behaves the same way.
+  expect_true(is.function(style_dvtime(colors = pal)$colors))
+
+  # Other maps still merge entry-wise alongside the palette.
+  s2 <- style_vpc(fill = pal, alphas = c(obs_point = 0.2))
+  expect_true(is.function(s2$fill))
+  expect_equal(s2$alphas[["obs_point"]], 0.2)
+  expect_equal(s2$alphas[["sim_pi_ci"]], 0.15)
+})
+
 test_that("build_style rejects unnamed overrides", {
   expect_error(pmxhelpr:::build_style(list(colors = c(a = "red")), list("red")),
                regexp = "must be named")

@@ -23,6 +23,10 @@
 #'   `linetypes`, `linewidths`, `alphas`) merge entry-wise onto the defaults, so
 #'   setting one role leaves the others unchanged (e.g. `shapes = c(obs_point =
 #'   16)`); all other fields replace their default wholesale (e.g. `title = "..."`).
+#'   A per-series map may instead be a palette `function(n)` (e.g.
+#'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
+#'   with the number of mapped groups; a palette has no entries to merge, so it
+#'   replaces the default map.
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -56,6 +60,10 @@ style_dvtime <- function(...) {
 #'   defaults below. Per-series maps merge entry-wise (e.g. `colors = c(DV =
 #'   "black")` leaves the other overlay colors unchanged); all other fields
 #'   replace their default wholesale.
+#'   A per-series map may instead be a palette `function(n)` (e.g.
+#'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
+#'   with the number of mapped groups; a palette has no entries to merge, so it
+#'   replaces the default map.
 #'
 #' @family goodness-of-fit
 #' @return A `ggstylekit_style_spec` object.
@@ -90,6 +98,10 @@ style_gof <- function(...) {
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   defaults below. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
+#'   A per-series map may instead be a palette `function(n)` (e.g.
+#'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
+#'   with the number of mapped groups; a palette has no entries to merge, so it
+#'   replaces the default map.
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -121,6 +133,10 @@ style_dvconc <- function(...) {
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   defaults below. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
+#'   A per-series map may instead be a palette `function(n)` (e.g.
+#'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
+#'   with the number of mapped groups; a palette has no entries to merge, so it
+#'   replaces the default map.
 #'
 #' @family dose proportionality
 #' @return A `ggstylekit_style_spec` object.
@@ -155,6 +171,10 @@ style_doseprop <- function(...) {
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   defaults below. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
+#'   A per-series map may instead be a palette `function(n)` (e.g.
+#'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
+#'   with the number of mapped groups; a palette has no entries to merge, so it
+#'   replaces the default map.
 #'
 #' @family vpc
 #' @return A `ggstylekit_style_spec` object.

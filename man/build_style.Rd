@@ -19,7 +19,10 @@ Each \verb{style_*()} preset supplies a named list of default \code{style_spec} 
 Per-series map fields (\code{colors}, \code{fill}, \code{linetypes}, \code{alphas}, \code{shapes},
 \code{sizes}, \code{linewidths}) are merged entry-wise onto the defaults so that a
 partial override (e.g. \code{colors = c(obs_point = "red")}) keeps the other
-roles' default values; all other fields replace their default wholesale. The
-merged fields are passed to \code{ggstylekit::style_spec()}.
+roles' default values; all other fields replace their default wholesale. A
+per-series map may also be given as a palette \verb{function(n)} (e.g.
+\code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
+with the number of mapped groups; a palette has no entries to merge, so it
+replaces the default map wholesale. The merged fields are passed to \code{ggstylekit::style_spec()}.
 }
 \keyword{internal}

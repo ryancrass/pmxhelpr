@@ -9,7 +9,11 @@ style_gof(...)
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
 defaults below. Per-series maps merge entry-wise (e.g. \code{colors = c(DV = "black")} leaves the other overlay colors unchanged); all other fields
-replace their default wholesale.}
+replace their default wholesale.
+A per-series map may instead be a palette \verb{function(n)} (e.g.
+\code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
+with the number of mapped groups; a palette has no entries to merge, so it
+replaces the default map.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

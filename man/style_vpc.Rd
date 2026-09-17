@@ -9,7 +9,11 @@ style_vpc(...)
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
 defaults below. Per-series maps merge entry-wise onto the defaults; all
-other fields replace their default wholesale.}
+other fields replace their default wholesale.
+A per-series map may instead be a palette \verb{function(n)} (e.g.
+\code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
+with the number of mapped groups; a palette has no entries to merge, so it
+replaces the default map.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

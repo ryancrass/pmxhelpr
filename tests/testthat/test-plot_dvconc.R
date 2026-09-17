@@ -124,3 +124,14 @@ test_that("plot_dvconc fills role-keyed fixed aesthetics from style_dvconc()", {
   expect_equal(unique(trend$colour),    unname(sd$colors["loess"]))
   expect_equal(unique(trend$linewidth), unname(sd$linewidths["loess"]))
 })
+
+
+##Test col_var legend order contract with ggstylekit (>= 0.3.0)
+test_that("plot_dvconc (col_trend) legend follows factor level order, not row order", {
+  d <- dplyr::mutate(data_sad, Dose = var_addn(DOSE, ID, sep = "mg"))
+  d <- d[order(-d$DOSE), ]   # reverse-sort rows: first-appearance != level order
+  p <- suppressWarnings(plot_dvconc(d, dv_var = "ODV", idv_var = "CONC",
+                                    col_var = "Dose", col_trend = TRUE))
+  sc <- suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
+  expect_equal(as.character(sc$get_breaks()), levels(d$Dose))
+})

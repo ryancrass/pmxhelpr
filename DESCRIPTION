@@ -17,7 +17,7 @@ Depends:
 Imports:
     dplyr,
     ggplot2,
-    ggstylekit,
+    ggstylekit (>= 0.3.0),
     mrgsolve,
     rlang,
     stats,

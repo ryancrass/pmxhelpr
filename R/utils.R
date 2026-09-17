@@ -195,7 +195,7 @@ df_prep_dvtime <- function(data,
   }
 
   if (!is.null(col_var_str)) {
-    data[[col_var_str]] <- factor(data[[col_var_str]])
+    data[[col_var_str]] <- order_col_factor(data[[col_var_str]])
   }
 
   data <- dplyr::filter(data, .data$EVID == 0)
@@ -325,6 +325,42 @@ var_addn <- function(grp_var,
   ordered_counts <- unname(counts[as.character(ordered_grp)])
   ordered_levels <- paste(ordered_parts, paste0("(n=", ordered_counts, ")"))
   factor(labels, levels = ordered_levels)
+}
+
+
+
+
+#' Internal Helper: Coerce a color/stratification variable to an ordered factor
+#'
+#' @description Since ggstylekit (>= 0.3.0) drives discrete legends and per-series
+#'    value assignment from a factor's declared level order, `col_var` needs a
+#'    sensible order before it is mapped. The rule is:
+#'
+#'    + Existing factor: levels preserved (drop unused). Use [var_addn()] or a
+#'       pre-releveled factor to control order deliberately.
+#'    + Numeric: `factor()` default, i.e. ascending by magnitude.
+#'    + Character where every label begins with a number (e.g. dose labels like
+#'       `"200 mg"`): ordered numerically by that leading number, so `"5 mg"`
+#'       sorts before `"20 mg"` before `"200 mg"` rather than lexicographically.
+#'       Ties keep first-appearance order.
+#'    + Any other character (including mixed numeric / non-numeric labels such as
+#'       `c("Placebo", "5 mg")`, where placement is ambiguous): first-appearance
+#'       order. Never lexicographic.
+#'
+#' @param x A vector to coerce to a factor.
+#'
+#' @return A factor with levels ordered per the rule above.
+#' @keywords internal
+#' @noRd
+order_col_factor <- function(x) {
+  if (is.factor(x))  return(factor(x))
+  if (is.numeric(x)) return(factor(x))
+  lev <- unique(as.character(x))
+  num <- suppressWarnings(as.numeric(sub("^\\s*(-?[0-9]+\\.?[0-9]*).*$", "\\1", lev)))
+  if (all(grepl("^\\s*-?[0-9]", lev)) && !anyNA(num)) {
+    lev <- lev[order(num, seq_along(lev))]
+  }
+  factor(x, levels = lev)
 }
 
 

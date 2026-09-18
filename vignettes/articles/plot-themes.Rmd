@@ -81,11 +81,12 @@ model <- model_mread_load("pkmodel")
 
 # Plot Styling with `ggstylekit` in `pmxhelpr`
 
-`pmxhelpr` re-exports three functions from `ggstylekit`:
+`pmxhelpr` re-exports four functions from `ggstylekit`:
 
   + `reveal()`: map a new data variable to an aesthetic or facet, then re-style
   + `restyle_plot()`: adjust a plot style after it has been styled.
-  + `combine_styles_plots()`: combine styled plots and collect legends
+  + `combine_styled_plots()`: combine styled plots and collect legends
+  + `legend_spec()`: describe one legend, for the `legends` style field
   
 Additionally, `pmxhelpr` includes **style preset** functions which return a
 `ggstylekit::style_spec()` object for each `plot_*()` function containing the 
@@ -270,12 +271,12 @@ plot_dvconc(
 
 
 
-# Styling lengends with `ggstylekit::legend_spec()`
+# Styling legends with `legend_spec()`
 
 
 ## Overview
 
-The `legends` **map** is accepts a `ggstylekit::legend_spec()` object or list
+The `legends` **map** accepts a `legend_spec()` object or list
 of legend spec objects. A legend spec describes one legend, keyed either by the 
 data column displayed (`col`) or by the plot **map** channel (`channel`). 
 

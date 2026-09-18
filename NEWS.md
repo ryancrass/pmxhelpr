@@ -9,8 +9,8 @@ bespoke `pmx_*` element/theme system introduced in 0.5.0.
   family has a `style_*()` preset — `style_dvtime()`, `style_gof()`,
   `style_dvconc()`, `style_doseprop()`, and `style_vpc()` — that returns a
   pre-filled style spec for the new `style` argument. 
-* `restyle_plot()`, `reveal()`, and `combine_styled_plots()` are re-exported
-  from ggstylekit.
+* `restyle_plot()`, `reveal()`, `combine_styled_plots()`, and `legend_spec()`
+  are re-exported from ggstylekit.
 * `plot_dvtime()` and `plot_gof()` gain an `errorbar_width` argument.
 * `ggstylekit` is a new dependency (Imports).
 

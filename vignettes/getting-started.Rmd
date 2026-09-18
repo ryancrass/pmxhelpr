@@ -440,9 +440,9 @@ plot_dvtime(
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-A finished plot object can also be restyled after the fact with 
-`ggstylekit::restyle_plot()`. Additionally, hidden covariates can be surfaced 
-after the fact with `ggstylekit::reveal()`.
+A finished plot object can also be restyled after the fact with
+`restyle_plot()`. Additionally, variables can be surfaced and mapped to
+aesthetics after the fact with `reveal()`. Both are re-exported from ggstylekit.
 
 See the [Plot Themes and Aesthetics](plot-themes.html)  article for additional 
 details on plot themeing with `pmxhelpr`.

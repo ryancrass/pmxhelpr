@@ -1,24 +1,16 @@
 # pmxhelpr (development version)
 
-# pmxhelpr 0.6.0
-
-Plot styling is now powered by the
-[ggstylekit](https://github.com/A2-ai/ggstylekit) package, replacing the
-bespoke `pmx_*` element/theme system introduced in 0.5.0. This gives a
-consistent styling vocabulary shared across packages and adds post-hoc
-restyling and covariate reveal.
+Plot styling is now powered by the`ggstylekit` package, replacing the
+bespoke `pmx_*` element/theme system introduced in 0.5.0. 
 
 ## New features
 
 * Plot aesthetics are controlled with `ggstylekit::style_spec()`. Each plot
   family has a `style_*()` preset — `style_dvtime()`, `style_gof()`,
   `style_dvconc()`, `style_doseprop()`, and `style_vpc()` — that returns a
-  pre-filled style spec for the new `style` argument. Partial overrides merge
-  onto the defaults (e.g. `style_dvtime(alphas = c(obs_point = 0))` leaves the
-  other roles unchanged).
-* Finished plots can be adjusted after the fact with
-  `ggstylekit::restyle_plot()`, and a covariate present in the data but not
-  shown can be surfaced with `ggstylekit::reveal()`.
+  pre-filled style spec for the new `style` argument. 
+* `restyle_plot()`, `reveal()`, and `combine_styled_plots()` are re-exported
+  from ggstylekit.
 * `plot_dvtime()` and `plot_gof()` gain an `errorbar_width` argument.
 * `ggstylekit` is a new dependency (Imports).
 
@@ -41,10 +33,10 @@ restyling and covariate reveal.
 * The `theme` argument of `plot_dvtime()`, `plot_dvconc()`, `plot_gof()`,
   `plot_doseprop()`, `plot_vpc_cont()`, `plot_vpc_cens()`, `plot_build_vpc()`,
   `plot_build_doseprop()`, and `plot_vpc_legend()` is renamed to `style` and now
-  takes a `ggstylekit::style_spec()` (typically from a `style_*()` preset).
-* Error bar cap width moved out of the theme (previously
-  `pmx_errorbar(width = ...)`) to the new `errorbar_width` argument of
-  `plot_dvtime()` and `plot_gof()`.
+  takes a `ggstylekit::style_spec()` object, typically from a `style_*()` 
+  preset.
+* Error bar cap width moved out of the theme (`pmx_errorbar(width = ...)`) 
+  to the new `errorbar_width` argument of `plot_dvtime()` and `plot_gof()`.
 
 ## Migration
 

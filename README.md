@@ -97,7 +97,7 @@ the prefix indicates what the function returns:
 Plot aesthetics are controlled with
 [ggstylekit](https://github.com/A2-ai/ggstylekit). Each plot function
 has a corresponding `style_*()` preset that returns a
-`ggstylekit::style_spec()` pre-filled with the family’s defaults:
+`ggstylekit::style_spec()` pre-filled with the plot family defaults:
 
 - `style_dvtime()`, `style_dvconc()`, `style_doseprop()`, `style_gof()`,
   `style_vpc()` — pass one to the `style` argument of the matching plot
@@ -105,13 +105,14 @@ has a corresponding `style_*()` preset that returns a
 - `plot_vpc_shown()` / `plot_gof_shown()` — control which VPC / GOF
   layers are visible via the `shown` argument
 
-Styling is keyed by each plot’s *roles* (e.g. `obs_point`, `cent_line`,
-`cent_errorbar`, `ref_line`, `loq_line`). The per-series maps (`colors`,
-`shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are keyed by
-role; a partial override merges onto the defaults,
-e.g. `style_dvtime(alphas = c(obs_point = 0))`. A finished plot can be
-restyled after the fact with `ggstylekit::restyle_plot()`, or a hidden
-covariate surfaced with `ggstylekit::reveal()`.
+Styling is based on *keys* for plot elements to style and *roles* in the
+output plot (e.g. `obs_point`, `cent_line`, `cent_errorbar`, `ref_line`,
+`loq_line`). The per-series *keys* (`colors`, `shapes`, `sizes`,
+`linetypes`, `linewidths`, `alphas`) are mapped by *role*, so only
+*roles* specified override the defaults with others unchanged.
+
+A finished plot can be restyled after the fact with `restyle_plot()`,
+and additional variables in the dataset can be surfaced with `reveal()`.
 
 ### S3 Class System
 

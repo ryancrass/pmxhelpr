@@ -552,6 +552,50 @@ p2
 ```
 
 
+## Targeting specific layers with `on`
+
+By default, `reveal()` maps the variable onto every layer that can display the
+channel. The `on` argument narrows this to an **entity** — `"point"`, `"line"`,
+`"bar"`, `"area"`, or `"box"` — or to a named **series**.
+
+Here the central tendency line and its error bars are mapped to food status,
+while the observed points are left unmapped.
+
+```{r reveal-on-line, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+p_sdl <- plot_dvtime(data_pk, dv_var = ODV, cent = "mean_sdl", log_y = TRUE,
+                     style = style_dvtime(xlabel = "Time (hours)",
+                                          ylabel = "Concentration (ng/mL)",
+                                          xbreaks = seq(0, 168, 24)))
+
+reveal(p_sdl, `Food Status`, as = "colors", on = "line")
+```
+
+Error bars belong to the `"line"` entity, so they are summarized and colored
+with the central tendency line they annotate.
+
+Targeting `"point"` instead maps the observed and central tendency points,
+leaving the central tendency line and error bars unmapped.
+
+```{r reveal-on-point, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+reveal(p_sdl, `Food Status`, as = "colors", on = "point")
+```
+
+Values are supplied with `on` exactly as they are without it.
+
+```{r reveal-on-values, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+reveal(p_sdl, `Food Status`, on = "line",
+       colors = c(Fasted = "#3388cc", Fed = "firebrick"),
+       labels = c(Fasted = "Fasted (overnight)", Fed = "Fed (high-fat)"))
+```
+
+`on` is also how a channel that is already in use is revealed onto. A plot built
+with `col_var` already maps color, and revealing a second variable onto color
+without `on` returns the plot unchanged, with a message naming the entities and
+series available to target. Two variables sharing one channel are drawn in a
+single legend, so revealing onto a free channel — `as = "shapes"`,
+`as = "linetypes"`, `as = "facet"` — is usually the clearer choice.
+
+
 
 # Combining plots with `combine_styled_plots`
 
@@ -593,19 +637,23 @@ continue to work. Here the collected legend is re-titled and moved to the
 bottom of the figure:
 
 ```{r combine-restyle, fig.height=5, fig.width=9, message=FALSE, warning=FALSE}
-restyle_plot(p_combo, legends = legend_spec(`Food Status`, title = "Meal Status"), 
+restyle_plot(p_combo, 
+             legends = legend_spec(`Food Status`, title = "Meal Status",
+                                   labels = c(Fasted = "Fasted (overnight)", 
+                                              Fed = "Fed (high-fat)")),
              colors = c(Fasted = "#3388cc", Fed = "firebrick"),
-             labels = c(Fasted = "Fasted (overnight)", Fed = "Fed (high-fat)")) 
+             legend.position = "bottom")
 ```
 
-`restyle_plot()` applies style fields **panel by panel**, so `legend.position`
-cannot move a *collected* legend, as`patchwork` places the collected guide from
-the theme of the combined figure, not from the individual panel themes. 
+`legend.position` moves the collected legend on the combined figure, as
+`restyle_plot()` reaches the assembled figure and not only the individual
+panels. Note that `labels` is not a style field: legend entries are relabeled
+through the `labels` argument of `legend_spec()`, as above.
 
-The collected legend can be moved using the `&` operator in `patchwork`
-(or `patchwork::plot_annotation(theme = )`) starting from the combined object
-**after** `restyle_plot()`, as a plot modified with `+`/`&` from `patchwork`
-can no longer be restyled.
+A combined plot can also be modified with the `&` operator in `patchwork` (or
+`patchwork::plot_annotation(theme = )`). Make those changes **after**
+`restyle_plot()`, as a plot modified with `+`/`&` from `patchwork` can no longer
+be restyled.
 
 Panels do not have to come from the same plot family; however, legends need 
 to be **identical** and drawn from the same layer sets. Here concentration vs

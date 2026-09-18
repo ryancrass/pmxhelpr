@@ -44,6 +44,8 @@ style_dvtime <- function(...) {
                    ref_line = 0.5, loq_line = 0.5),
     linetypes  = c(obs_line = "solid", cent_line = "solid",
                    ref_line = "dashed", loq_line = "dashed"),
+    # Legend titles above the keys, the house look for bottom/top legends.
+    legend.title.position = "top",
     theme      = pmx_house_theme()
   )
   build_style(defaults, list(...))
@@ -82,6 +84,8 @@ style_gof <- function(...) {
                    ref_line = 0.5, loq_line = 0.5),
     linetypes  = c(obs_line = "solid", cent_line = "solid",
                    ref_line = "dashed", loq_line = "dashed"),
+    # Legend titles above the keys, the house look for bottom/top legends.
+    legend.title.position = "top",
     theme      = pmx_house_theme()
   )
   build_style(defaults, list(...))
@@ -118,6 +122,8 @@ style_dvconc <- function(...) {
     linewidths = c(ref_line = 0.5, loess = 1, linear = 1),
     linetypes  = c(ref_line = "dashed", loess = "solid", linear = "dashed"),
     line_fill  = "lightgrey",
+    # Legend titles above the keys, the house look for bottom/top legends.
+    legend.title.position = "top",
     theme      = pmx_house_theme()
   )
   build_style(defaults, list(...))
@@ -153,6 +159,8 @@ style_doseprop <- function(...) {
     linewidths = c(linear = 1),
     linetypes  = c(linear = "solid"),
     line_fill  = "lightgrey",
+    # Legend titles above the keys, the house look for bottom/top legends.
+    legend.title.position = "top",
     theme      = pmx_house_theme()
   )
   build_style(defaults, list(...))
@@ -197,6 +205,8 @@ style_vpc <- function(...) {
     linetypes  = c(obs_median_line = "solid", obs_pi_line = "dashed",
                    sim_pi_line = "dotted", sim_median_line = "dashed",
                    loq_line = "dashed"),
+    # Legend titles above the keys, the house look for bottom/top legends.
+    legend.title.position = "top",
     theme      = pmx_house_theme(white_panel = TRUE)
   )
   build_style(defaults, list(...))

@@ -19,5 +19,5 @@ dependencies = [
     "devtools",
     "future.apply",
     "withr",
-    "ggstylekit"
+    {name = "ggstylekit", git = "https://github.com/a2-ai/ggstylekit.git", branch = "update-reveal"}
 ]

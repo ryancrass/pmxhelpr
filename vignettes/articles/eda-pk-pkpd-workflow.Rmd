@@ -570,4 +570,4 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 # See also
 
   + [Dose-proportionality Assessment workflow](doseprop-workflow.html) — statistical assessment of dose-proportionality of exposure using power law (log-log) regression
-  + [Plot Themes and Aesthetics](plot-themes.html) — element constructors, theme factories, and class system for customizing plot output.
+  + [Plot Themes and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.

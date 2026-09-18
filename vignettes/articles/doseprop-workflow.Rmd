@@ -216,4 +216,4 @@ For a deeper treatment of the styling system — `style_spec()` fields, per-role
 # See also
 
   + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.
-  + [Plot Themes and Aesthetics](plot-themes.html) — element constructors, theme factories, and class system for customizing plot output.
+  + [Plot Themes and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.

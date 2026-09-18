@@ -591,7 +591,7 @@ Passing `out_multi$config$loq` directly to `plot_vpc_legend()` keeps the legend 
 
 ## Reusing precomputed stats
 
-`plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `theme` — without paying the summarization cost on every call.
+`plot_vpc_cont()` also accepts the list returned by `df_vpcstats()` directly. This skips the preprocess + compute steps and is useful when you want to inspect the summary statistics and then plot the same data multiple times — for example, flipping between the standard and prediction-corrected views, or rendering with a different `min_bin_count`, `shown`, or `style` — without paying the summarization cost on every call.
 
 The `df_vpcstats()` return is class-tagged `"vpc_stats"` (see [Inspecting the `vpc_stats` object](#inspecting-the-vpc_stats-object) above for `print()` / `summary()` / `as.data.frame()` / `is_vpc_stats()` usage). Use `out$stats` and `out$obs` to access the underlying frames directly.
 
@@ -607,7 +607,7 @@ plot_vpc_cont(out, pcvpc = TRUE) +
   labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
-When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) **cannot** be honored — those decisions were already made when `df_vpcstats()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_vpcstats()`. Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`) are accepted on this path; to change a pipeline setting, re-run `df_vpcstats()` and pass the new result.
+When `data` is a precomputed `df_vpcstats()` result, the pipeline arguments (`strat_var`, `loq`, `mode`, `pi`, `ci`, column-name args) **cannot** be honored — those decisions were already made when `df_vpcstats()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_vpcstats()`. Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`) are accepted on this path; to change a pipeline setting, re-run `df_vpcstats()` and pass the new result.
 
 `plot_vpc_cont` censors quantiles of the observed data displayed as lines when the corresponding quantile of observations is BLQ. This is done automatically if the variable `LLOQ` is present in the input simulated dataset.
 
@@ -675,7 +675,7 @@ plot_vpc_cont(
 
 ## Building plots from a `vpc_stats` object directly
 
-For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var` and `loq` inherit from the container's `$config` slot when not passed explicitly.
+For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). `strat_var` and `loq` inherit from the container's `$config` slot when not passed explicitly.
 
 ```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
 plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
@@ -811,7 +811,7 @@ vpc_legend <- plot_vpc_legend(lloq = 1)
 vpc_legend
 ```
 
-The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair the default-theme legend with `vpc` (the LOQ-censored, PART-stratified plot from the [BLQ handling](#blq-handling) section, which also uses the default theme).
+The legend can then be combined with the ggplot object returned from `plot_vpc_cont()` into a single plot object with the `patchwork` package. We pair the default-style legend with `vpc` (the LOQ-censored, PART-stratified plot from the [BLQ handling](#blq-handling) section, which also uses the default style).
 
 ```{r plot-vpc-pcvpc-w-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 vpc_wleg <- vpc + vpc_legend + plot_layout(heights = c(2.5, 1))
@@ -844,7 +844,7 @@ vpc_wleg2
 ```
 
 
-## Updating the censored range legend elements and theme with `plot_vpc_shown()` and `plot_vpc_legend(type = "cens")`
+## Updating the censored range legend elements and style with `plot_vpc_shown()` and `plot_vpc_legend(type = "cens")`
 
 By default `sim_median_line` is hidden (`plot_vpc_shown()` sets it to `FALSE`) and `sim_median_ci` inherits the same red fill as `obs_median_line` from `style_vpc()`. This is fine when only the ribbon is shown, but enabling the simulated median line on top of the default style places a black dashed line over a red ribbon next to a red observed line. With these aesthetics, the red observed line could easily be mistaken for a simulation element given color homology with the simulated interval.
 

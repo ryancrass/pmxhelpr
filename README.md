@@ -32,7 +32,7 @@ articles:
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
-- [Plot Themes and
+- [Plot Styling and
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
 
 ## Installation
@@ -108,10 +108,12 @@ Styling is based on *maps* for plot aesthetics, which are keyed by
 *roles* in the output plot (e.g. `obs_point`, `cent_line`,
 `cent_errorbar`, `ref_line`, `loq_line`). The per-series *maps*
 (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are
-keyed by *role*, and only *roles* specified are override the defaults.
+keyed by *role*, and only the *roles* specified override the defaults.
 
 A finished plot can be restyled after the fact with `restyle_plot()`,
-and additional variables in the dataset can be surfaced with `reveal()`.
+additional variables in the dataset can be surfaced with `reveal()`,
+legends are described with `legend_spec()`, and styled plots are
+assembled with `combine_styled_plots()`.
 
 ### S3 Class System
 
@@ -136,8 +138,8 @@ users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added
 outside the returned object directing users to the correct
 stratification method using the `strat_var` argument.
 
-See the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html#inspecting-and-validating-themes)
+See the [Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
 and
 [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
 [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)

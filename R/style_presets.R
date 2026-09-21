@@ -18,8 +18,12 @@
 #' plot roles: `obs_point`, `obs_line` (spaghetti), `cent_point`, `cent_line`,
 #' `cent_errorbar`, `ref_line`, `loq_line`.
 #'
+#' Like every pmxhelpr preset, it places legend titles above the keys
+#' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
+#' theme.
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below. Per-series maps (`colors`, `fill`, `shapes`, `sizes`,
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps (`colors`, `fill`, `shapes`, `sizes`,
 #'   `linetypes`, `linewidths`, `alphas`) merge entry-wise onto the defaults, so
 #'   setting one role leaves the others unchanged (e.g. `shapes = c(obs_point =
 #'   16)`); all other fields replace their default wholesale (e.g. `title = "..."`).
@@ -58,8 +62,12 @@ style_dvtime <- function(...) {
 #' OBS) overlays are colour-mapped by label via the `colors` map; the remaining
 #' fixed aesthetics use the role series names as in [style_dvtime()].
 #'
+#' Like every pmxhelpr preset, it places legend titles above the keys
+#' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
+#' theme.
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below. Per-series maps merge entry-wise (e.g. `colors = c(DV =
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise (e.g. `colors = c(DV =
 #'   "black")` leaves the other overlay colors unchanged); all other fields
 #'   replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
@@ -99,8 +107,12 @@ style_gof <- function(...) {
 #' are `geom_smooth` (line entity); their SE ribbon fill/alpha come from
 #' `line_fill`/`fill_alpha`.
 #'
+#' Like every pmxhelpr preset, it places legend titles above the keys
+#' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
+#' theme.
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
@@ -112,6 +124,7 @@ style_gof <- function(...) {
 #' @export
 #' @examples
 #' style_dvconc()
+#' style_dvconc(colors = c(loess = "blue", linear = "red"))
 style_dvconc <- function(...) {
   defaults <- list(
     shapes     = c(obs_point = 1),
@@ -138,8 +151,12 @@ style_dvconc <- function(...) {
 #' ignored; the facet layout fields `facet_scales` (default `"free"`),
 #' `facet_nrow`, and `facet_ncol` are honored.
 #'
+#' Like every pmxhelpr preset, it places legend titles above the keys
+#' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
+#' theme.
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
@@ -151,6 +168,7 @@ style_dvconc <- function(...) {
 #' @export
 #' @examples
 #' style_doseprop()
+#' style_doseprop(colors = c(linear = "navy"), facet_ncol = 1)
 style_doseprop <- function(...) {
   defaults <- list(
     shapes     = c(obs_point = 1),
@@ -180,10 +198,15 @@ style_doseprop <- function(...) {
 #'
 #' Stratification facets are built by the VPC plotting functions from
 #' `strat_var` (not by `style_plot()`), but the `facet_scales`, `facet_nrow`,
-#' and `facet_ncol` fields are honored; `facet` itself is ignored.
+#' and `facet_ncol` fields are honored; `facet` is ignored when `strat_var` is
+#' supplied.
+#'
+#' Like every pmxhelpr preset, it places legend titles above the keys
+#' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
+#' theme.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
-#'   defaults below. Per-series maps merge entry-wise onto the defaults; all
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
@@ -195,6 +218,7 @@ style_doseprop <- function(...) {
 #' @export
 #' @examples
 #' style_vpc()
+#' style_vpc(fill = c(sim_pi_ci = "#3388cc"), facet_scales = "free_y")
 style_vpc <- function(...) {
   defaults <- list(
     colors     = c(obs_point = "#0000FF", obs_median_line = "#FF0000",

@@ -14,7 +14,9 @@ plot_build_doseprop(stats, style = NULL, se = TRUE)
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
-\code{style_doseprop()} with no arguments. The per-metric facet layout is
+\code{style_doseprop()} with no arguments. Customize by passing
+\code{style = style_doseprop(...)}, or restyle the returned plot with
+\code{\link[=restyle_plot]{restyle_plot()}}. The per-metric facet layout is
 taken from the style's \code{facet_scales} (default \code{"free"}), \code{facet_nrow},
 and \code{facet_ncol}; the \code{facet}, \code{logx}, and \code{logy} fields are ignored
 because the builder sets the facet and log-log axes itself.}

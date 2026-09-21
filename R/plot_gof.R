@@ -48,8 +48,9 @@
 #'    describing the data plotted.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
-#'    with no arguments. The DV/PRED/IPRED (and OBS) overlays are colored by the
-#'    `colors` map keyed by those labels.
+#'    with no arguments. Customize by passing `style = style_gof(...)`, or
+#'    restyle the returned plot with [restyle_plot()]. The DV/PRED/IPRED (and
+#'    OBS) overlays are colored by the `colors` map keyed by those labels.
 #' @param errorbar_width Numeric error bar cap width. Default `NULL` uses 2.5%
 #'    of maximum `NTIME`.
 #'

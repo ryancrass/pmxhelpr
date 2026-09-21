@@ -8,7 +8,7 @@ style_doseprop(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below. Per-series maps merge entry-wise onto the defaults; all
+preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 other fields replace their default wholesale.
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
@@ -25,8 +25,14 @@ per-metric facet itself, so the \code{logx}, \code{logy}, and \code{facet} field
 ignored; the facet layout fields \code{facet_scales} (default \code{"free"}),
 \code{facet_nrow}, and \code{facet_ncol} are honored.
 }
+\details{
+Like every pmxhelpr preset, it places legend titles above the keys
+(\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
+theme.
+}
 \examples{
 style_doseprop()
+style_doseprop(colors = c(linear = "navy"), facet_ncol = 1)
 }
 \seealso{
 Other dose proportionality:

@@ -48,7 +48,9 @@ Default is \code{TRUE}.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
-\code{style_doseprop()} with no arguments. The per-metric facet layout is
+\code{style_doseprop()} with no arguments. Customize by passing
+\code{style = style_doseprop(...)}, or restyle the returned plot with
+\code{\link[=restyle_plot]{restyle_plot()}}. The per-metric facet layout is
 taken from the style's \code{facet_scales} (default \code{"free"}), \code{facet_nrow},
 and \code{facet_ncol}; the \code{facet}, \code{logx}, and \code{logy} fields are ignored
 because the builder sets the facet and log-log axes itself.}
@@ -63,7 +65,7 @@ Dual-mode wrapper that delegates to \code{\link[=df_doseprop]{df_doseprop()}} fo
 \item raw observation data (e.g. PKNCA output) plus a \code{metrics} vector — the
 common one-shot mode; or
 \item a precomputed \code{doseprop_stats} object returned by \code{\link[=df_doseprop]{df_doseprop()}} — skip
-the regression refit and replot with different \code{theme} / \code{se} settings.
+the regression refit and replot with different \code{style} / \code{se} settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_name_var},

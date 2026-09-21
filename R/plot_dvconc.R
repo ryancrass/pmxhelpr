@@ -17,7 +17,7 @@
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_dvconc()]; view the defaults by running `style_dvconc()`
 #'    with no arguments. Customize by passing `style = style_dvconc(...)`, or
-#'    restyle the returned plot with [ggstylekit::restyle_plot()].
+#'    restyle the returned plot with [restyle_plot()].
 #' @param ... Additional arguments passed to `geom_smooth()`
 #' @inheritParams plot_dvtime
 #'

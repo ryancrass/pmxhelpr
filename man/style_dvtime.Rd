@@ -8,7 +8,7 @@ style_dvtime(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below. Per-series maps (\code{colors}, \code{fill}, \code{shapes}, \code{sizes},
+preset defaults; call the preset with no arguments to view them. Per-series maps (\code{colors}, \code{fill}, \code{shapes}, \code{sizes},
 \code{linetypes}, \code{linewidths}, \code{alphas}) merge entry-wise onto the defaults, so
 setting one role leaves the others unchanged (e.g. \code{shapes = c(obs_point = 16)}); all other fields replace their default wholesale (e.g. \code{title = "..."}).
 A per-series map may instead be a palette \verb{function(n)} (e.g.
@@ -23,6 +23,11 @@ A \code{ggstylekit_style_spec} object.
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_dvtime]{plot_dvtime()}}. Series names are the
 plot roles: \code{obs_point}, \code{obs_line} (spaghetti), \code{cent_point}, \code{cent_line},
 \code{cent_errorbar}, \code{ref_line}, \code{loq_line}.
+}
+\details{
+Like every pmxhelpr preset, it places legend titles above the keys
+(\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
+theme.
 }
 \examples{
 style_dvtime()

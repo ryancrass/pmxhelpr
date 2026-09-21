@@ -8,7 +8,7 @@ style_vpc(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below. Per-series maps merge entry-wise onto the defaults; all
+preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 other fields replace their default wholesale.
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
@@ -29,10 +29,16 @@ inline by the builder, read from these maps via \code{series_aes()}.
 \details{
 Stratification facets are built by the VPC plotting functions from
 \code{strat_var} (not by \code{style_plot()}), but the \code{facet_scales}, \code{facet_nrow},
-and \code{facet_ncol} fields are honored; \code{facet} itself is ignored.
+and \code{facet_ncol} fields are honored; \code{facet} is ignored when \code{strat_var} is
+supplied.
+
+Like every pmxhelpr preset, it places legend titles above the keys
+(\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
+theme.
 }
 \examples{
 style_vpc()
+style_vpc(fill = c(sim_pi_ci = "#3388cc"), facet_scales = "free_y")
 }
 \seealso{
 Other vpc:

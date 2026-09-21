@@ -97,11 +97,11 @@ defaults for the plotting family. These functions
   + `style_doseprop()`/`plot_doseprop()`, 
   + `style_vpc()` / `plot_vpc_cont()` / `plot_vpc_cens()` 
   
-These style presents are passed to the `style` argument of plotting functions 
+These style presets are passed to the `style` argument of plotting functions 
 and use the following syntax:`style_<fn>(<map> = c(<role> = <value>))`.
 
 Unique **roles** in `pmxhelpr` plot families can be passed to 
-**per-series maps** in the style presents. These elements are overridden based 
+**per-series maps** in the style presets. These elements are overridden based 
 on the **roles** specified, with remaining **roles** inheriting  the defaults.
 
 ```{r overview, eval=FALSE}
@@ -192,7 +192,8 @@ it. Where the two overlap, the builder argument wins:
   width as a function of the time range (default = 2.5% the max(NTIME)).
   + **`plot_doseprop()` axes and facets**: this plotting family applies its own
   log-log `scale_*_log10()` and per-metric `facet_wrap()`, so the style spec's
-  `logx`/`logy`/`xbreaks`/`facet` fields are overwritten.
+  `logx`/`logy`/`xbreaks`/`facet` fields are ignored. The facet *layout* fields
+  (`facet_scales`, default `"free"`; `facet_nrow`; `facet_ncol`) are honored.
   + **Visibility**: `plot_gof_shown()` / `plot_vpc_shown()` control which 
   layers are *built* and the style spec controls how the built layers *look*. 
   Setting `style_vpc(alphas = c(obs_point = 0))` draws an invisible layer and 
@@ -243,7 +244,7 @@ plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
 ### Error bar cap width
 
 Error bar cap width is a builder argument, not part of the style, since it 
-depends on the the values of the nominal time variable:
+depends on the values of the nominal time variable:
 
 ```{r ex-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
@@ -253,10 +254,10 @@ plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
 ```
 
 
-## Labeling with symbols using `byquote()`
+## Labeling with symbols using `bquote()`
 
 The label keys `title`, `xlabel`, and `ylabel` accept `bquote()`, which is the 
-practical way to symbols and subscripts into an label:
+practical way to put symbols and subscripts into a label:
 
 ```{r ex-bquote, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvconc(
@@ -383,7 +384,7 @@ plot_dvtime(
 
 
 
-# **Per-series maps** in `pmxhelpr` style presents
+# **Per-series maps** in `pmxhelpr` style presets
 
 
 ## Palette functions
@@ -423,6 +424,19 @@ plot_dvconc(
   labs(x = "Concentration (ng/mL)", y = "Response (% CFB)")
 ```
 
+## Dose-proportionality facet layout (`plot_doseprop()`)
+
+`plot_doseprop()` facets by exposure metric, so the style's `facet_ncol`,
+`facet_nrow`, and `facet_scales` fields control that layout. Here the two
+metrics are stacked in a single column.
+
+```{r ex-doseprop, fig.height=6, fig.width=5, message=FALSE, warning=FALSE}
+plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+              metrics = c("aucinf.obs", "cmax"),
+              style = style_doseprop(colors = c(linear = "navy"),
+                                     facet_ncol = 1))
+```
+
 ## GOF overlay colors (`plot_gof()`)
 
 The DV (OBS), PRED, and PRED central tendency lines are the **role** keys for
@@ -453,7 +467,7 @@ pcvpc_style <- style_vpc(
   ylabel = "PRED-corrected Conc. (ng/mL)",
   xlabel = "Time (hours)",
   xbreaks = seq(0, 168, 24),
-  xlim = c(0, 168)
+  xlims = c(0, 168)
 )
 
 plot_vpc_cont(sim, loq = 1, pcvpc = TRUE,
@@ -467,7 +481,7 @@ plot_vpc_cont(sim, loq = 1, pcvpc = TRUE,
 As discussed in [Visual Predictive Check Workflow](vpc-workflow.html), VPC
 plots should *ONLY* be facetted via the `strat_var` argument and *SHOULD NOT* 
 be facetted post-hoc with `facet_wrap`. This is to ensure that the summary 
-statistics from the simulation are also calculated stratied by the faceting 
+statistics from the simulation are also calculated stratified by the faceting 
 variable.
 
 However, because the `facet_wrap` call is internal to the VPC plotting
@@ -490,7 +504,7 @@ plot_vpc_cont(sim, loq = 1, strat_var = DOSE,
               style = vpc_style_facet)
 ```
 
-## VPC plot color scheme (`plot_vpc_cont()`)
+## VPC legend (`plot_vpc_legend()`)
 
 The VPC plotting functions do not generate a legend. `plot_vpc_legend()` builds 
 a standalone legend plot intended to be combined with the VPC plot into a 

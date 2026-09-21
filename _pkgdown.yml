@@ -38,18 +38,20 @@ reference:
       - plot_build_vpc
       - plot_build_doseprop
 
-  - title: Style Presets
+  - title: Styling
     desc: >
       Per-plot-family presets returning a `ggstylekit::style_spec()` for the
-      `style` argument. Customize by passing fields (e.g.
-      `style_dvtime(shapes = ...)`) or restyle a finished plot with
-      `ggstylekit::restyle_plot()`.
+      `style` argument (customize by passing fields, e.g.
+      `style_dvtime(shapes = ...)`), plus the `ggstylekit` verbs re-exported
+      for adjusting a finished plot: `restyle_plot()`, `reveal()`,
+      `combine_styled_plots()`, and `legend_spec()`.
     contents:
       - style_dvtime
       - style_dvconc
       - style_gof
       - style_doseprop
       - style_vpc
+      - reexports
 
   - title: Layer Visibility
     desc: Constructors for the `shown` argument of plot functions.

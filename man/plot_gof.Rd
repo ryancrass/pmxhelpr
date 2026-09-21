@@ -86,8 +86,9 @@ describing the data plotted.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_gof]{style_gof()}}; view the defaults by running \code{style_gof()}
-with no arguments. The DV/PRED/IPRED (and OBS) overlays are colored by the
-\code{colors} map keyed by those labels.}
+with no arguments. Customize by passing \code{style = style_gof(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The DV/PRED/IPRED (and
+OBS) overlays are colored by the \code{colors} map keyed by those labels.}
 
 \item{errorbar_width}{Numeric error bar cap width. Default \code{NULL} uses 2.5\%
 of maximum \code{NTIME}.}

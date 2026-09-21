@@ -8,7 +8,7 @@ style_dvconc(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below. Per-series maps merge entry-wise onto the defaults; all
+preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults; all
 other fields replace their default wholesale.
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
@@ -24,8 +24,14 @@ Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{
 are \code{geom_smooth} (line entity); their SE ribbon fill/alpha come from
 \code{line_fill}/\code{fill_alpha}.
 }
+\details{
+Like every pmxhelpr preset, it places legend titles above the keys
+(\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
+theme.
+}
 \examples{
 style_dvconc()
+style_dvconc(colors = c(loess = "blue", linear = "red"))
 }
 \seealso{
 Other exploratory analysis:

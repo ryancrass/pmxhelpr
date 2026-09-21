@@ -1,6 +1,6 @@
 # pmxhelpr (development version)
 
-Plot styling is now powered by the`ggstylekit` package, replacing the
+Plot styling is now powered by the `ggstylekit` package, replacing the
 bespoke `pmx_*` element/theme system introduced in 0.5.0. 
 
 ## New features
@@ -12,7 +12,20 @@ bespoke `pmx_*` element/theme system introduced in 0.5.0.
 * `restyle_plot()`, `reveal()`, `combine_styled_plots()`, and `legend_spec()`
   are re-exported from ggstylekit.
 * `plot_dvtime()` and `plot_gof()` gain an `errorbar_width` argument.
-* `ggstylekit` is a new dependency (Imports).
+* `plot_vpc_cont()`, `plot_vpc_cens()`, and `plot_doseprop()` take their facet
+  layout from the style (`facet_scales`, `facet_nrow`, `facet_ncol`). These
+  builders facet internally (by `strat_var` or by metric), so the style's
+  `facet` field is ignored when they do.
+* `plot_vpc_legend()` honors `legend.title.position` and `legend.title.hjust`
+  from the style, so the standalone legend matches its plot.
+* All `style_*()` presets place legend titles above the keys
+  (`legend.title.position = "top"`).
+* Plot functions abort early with an informative message when `style` is not
+  a `ggstylekit::style_spec()` object.
+* Character `col_var` values with numeric labels (e.g. `"5 mg"`, `"20 mg"`,
+  `"100 mg"`) are ordered by value, not alphabetically, in legends and
+  per-series color assignment (`plot_dvtime()`, `plot_dvconc()`).
+* `ggstylekit (>= 0.3.0)` is a new dependency (Imports).
 
 ## Breaking changes
 
@@ -53,8 +66,8 @@ plot_dvtime(data, theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0)))
 plot_dvtime(data, style = style_dvtime(alphas = c(obs_point = 0)))
 ```
 
-See the *Plot Themes and Aesthetics* vignette for the role vocabulary and
-per-family defaults.
+See the *Plot Styling and Aesthetics* vignette for the role vocabulary; call
+any `style_*()` preset with no arguments to view its defaults.
 
 # pmxhelpr 0.5.1
 

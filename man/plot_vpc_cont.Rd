@@ -70,7 +70,7 @@ quantile calculation.
 + If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{data}, filter to
 \code{MDV==0} since \code{loq} is unknown.
 Dashed horizontal line plotted at each unique LLOQ value by default for
-standard VPCs (controlled via \code{theme}); suppressed for \code{pcvpc = TRUE}
+standard VPCs (styled via the \code{loq_line} role); suppressed for \code{pcvpc = TRUE}
 since \code{loq} has no meaning on the prediction-corrected scale.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
@@ -99,7 +99,9 @@ Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
-with no arguments.}
+with no arguments. Customize by passing \code{style = style_vpc(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Pass the same style to
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 

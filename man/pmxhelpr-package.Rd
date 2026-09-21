@@ -18,8 +18,9 @@ Recommended entry points by task:
 \item Goodness-of-fit diagnostics -- \code{\link[=plot_gof]{plot_gof()}}
 \item Visual predictive checks -- \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=df_vpcstats]{df_vpcstats()}}
 \item Dose-proportionality assessment -- \code{\link[=plot_doseprop]{plot_doseprop()}}, \code{\link[=df_doseprop]{df_doseprop()}}
-\item Plot theme customization -- \verb{plot_*_theme()} factories with \verb{pmx_*()}
-element constructors
+\item Plot styling -- \verb{style_*()} presets returning a \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}
+for the \code{style} argument; adjust finished plots with \code{\link[=restyle_plot]{restyle_plot()}},
+\code{\link[=reveal]{reveal()}}, and \code{\link[=combine_styled_plots]{combine_styled_plots()}}
 }
 
 Full narrative documentation with worked examples lives on the package

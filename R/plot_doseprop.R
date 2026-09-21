@@ -215,7 +215,9 @@ validate_doseprop_stats <- function(x) {
 #'    `validate_doseprop_stats()` at entry.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments. The per-metric facet layout is
+#'    `style_doseprop()` with no arguments. Customize by passing
+#'    `style = style_doseprop(...)`, or restyle the returned plot with
+#'    [restyle_plot()]. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.
@@ -292,7 +294,7 @@ plot_build_doseprop <- function(stats,
 #' * raw observation data (e.g. PKNCA output) plus a `metrics` vector — the
 #'   common one-shot mode; or
 #' * a precomputed `doseprop_stats` object returned by [df_doseprop()] — skip
-#'   the regression refit and replot with different `theme` / `se` settings.
+#'   the regression refit and replot with different `style` / `se` settings.
 #'
 #' On the precomputed path, pipeline arguments (`metrics`, `metric_name_var`,
 #' `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
@@ -310,7 +312,9 @@ plot_build_doseprop <- function(stats,
 #'    Default is `TRUE`.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments. The per-metric facet layout is
+#'    `style_doseprop()` with no arguments. Customize by passing
+#'    `style = style_doseprop(...)`, or restyle the returned plot with
+#'    [restyle_plot()]. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.

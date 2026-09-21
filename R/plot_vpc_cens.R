@@ -43,8 +43,11 @@
 #'    the simulated median line is off by default. Pass
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it.
 #'
-#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics
-#'    (defaults to [style_vpc()]). The cens builder reads the same four keys
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
+#'    restyle the returned plot with [restyle_plot()]. Pass the same style to
+#'    [plot_vpc_legend()] so the legend matches. The cens builder reads the same four keys
 #'    listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
 #'    `sim_median_ci`); other keys are ignored.
 #'

@@ -52,7 +52,7 @@ change-from-baseline data.}
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvconc]{style_dvconc()}}; view the defaults by running \code{style_dvconc()}
 with no arguments. Customize by passing \code{style = style_dvconc(...)}, or
-restyle the returned plot with \code{\link[ggstylekit:restyle_plot]{ggstylekit::restyle_plot()}}.}
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}.}
 
 \item{...}{Additional arguments passed to \code{geom_smooth()}}
 }

@@ -24,7 +24,7 @@ Exported functions follow a `ReturnType_Purpose` naming convention:
 - `plot_*` — returns a `ggplot` object
 - `df_*` — returns a `data.frame` (often class-tagged)
 - `var_*` — returns a vector (vectorized helpers for use inside `mutate()`)
-- `style_*` — returns a `ggstylekit::style_spec()` theme object
+- `style_*` — returns a `ggstylekit::style_spec()` style object
 
 The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original DV). 
 Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight the 
@@ -400,7 +400,7 @@ additional details on the VPC toolchain with `pmxhelpr`.
 `pmxhelpr` leverages the functionality of the `ggstylekit` package to control
 the styling of plot elements.
 
-Every `plot_*()` function ships with a compaion `style_*()` helper function
+Every `plot_*()` function ships with a companion `style_*()` helper function
 that returns a `ggstylekit::style_spec()` object pre-filled with the defaults. 
 The defaults styling for each plot type can be visualized by calling the 
 function with no arguments
@@ -426,7 +426,6 @@ new_dvtime_style <- style_dvtime(
   )
 new_dvtime_style
 ```
-The 
 
 ```{r plot-dvtime-styled, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 plot_dvtime(
@@ -444,8 +443,8 @@ A finished plot object can also be restyled after the fact with
 `restyle_plot()`. Additionally, variables can be surfaced and mapped to
 aesthetics after the fact with `reveal()`. Both are re-exported from ggstylekit.
 
-See the [Plot Themes and Aesthetics](plot-themes.html)  article for additional 
-details on plot themeing with `pmxhelpr`.
+See the [Plot Styling and Aesthetics](plot-themes.html)  article for additional 
+details on plot styling with `pmxhelpr`.
 
 # Where to go next
 
@@ -453,4 +452,4 @@ details on plot themeing with `pmxhelpr`.
 - [Dose-Proportionality Workflow](doseprop-workflow.html)
 - [Goodness-of-Fit Diagnostics](gof-diagnostics.html)
 - [Visual Predictive Check Workflow](vpc-workflow.html)
-- [Plot Themes and Aesthetics](plot-themes.html)
+- [Plot Styling and Aesthetics](plot-themes.html)

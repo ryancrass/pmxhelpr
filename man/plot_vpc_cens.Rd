@@ -75,8 +75,11 @@ the observed proportion line/points and simulated CI ribbon are shown;
 the simulated median line is off by default. Pass
 \code{plot_vpc_shown(sim_median_line = TRUE)} to enable it.}
 
-\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics
-(defaults to \code{\link[=style_vpc]{style_vpc()}}). The cens builder reads the same four keys
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
+with no arguments. Customize by passing \code{style = style_vpc(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Pass the same style to
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches. The cens builder reads the same four keys
 listed above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
 \code{sim_median_ci}); other keys are ignored.}
 

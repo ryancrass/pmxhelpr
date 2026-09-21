@@ -39,8 +39,10 @@
 #'    `plot_vpc_shown()`: observed proportion line/points and simulated CI
 #'    ribbon are shown; the simulated median line is off by default (pass
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it).
-#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics,
-#'    defaulting to [style_vpc()]. Series names are the VPC roles. For
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
+#'    restyle the returned plot with [restyle_plot()]. Series names are the VPC roles. For
 #'    `type = "cens"`, only the keys corresponding to the four cens layers
 #'    above are read; other keys are ignored. The cens `obs_point` color is
 #'    inherited from `obs_median_line` (so points match the obs line); the

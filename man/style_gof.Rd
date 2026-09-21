@@ -8,7 +8,7 @@ style_gof(...)
 }
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
-defaults below. Per-series maps merge entry-wise (e.g. \code{colors = c(DV = "black")} leaves the other overlay colors unchanged); all other fields
+preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise (e.g. \code{colors = c(DV = "black")} leaves the other overlay colors unchanged); all other fields
 replace their default wholesale.
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
@@ -22,6 +22,11 @@ A \code{ggstylekit_style_spec} object.
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_gof]{plot_gof()}}. The DV/PRED/IPRED (and
 OBS) overlays are colour-mapped by label via the \code{colors} map; the remaining
 fixed aesthetics use the role series names as in \code{\link[=style_dvtime]{style_dvtime()}}.
+}
+\details{
+Like every pmxhelpr preset, it places legend titles above the keys
+(\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
+theme.
 }
 \examples{
 style_gof()

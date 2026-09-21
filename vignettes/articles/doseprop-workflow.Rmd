@@ -113,9 +113,9 @@ dose_prop_obj_95ci_tdist
 plot_doseprop(data_nca1, metrics = c("aucinf.obs", "cmax"))
 ```
 
-The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `theme` argument (see [Theming](#theming) below).
+The default appearance uses open circles at `alpha = 0.7` for the observation points and a black regression line with a grey SE ribbon. This matches the package design language for exploratory plots. To restore filled black circles with full opacity, override `obs_point` via the `style` argument (see [Styling](#styling) below).
 
-## Adjusting the summary statistics
+## Passing summary-statistic arguments through `plot_doseprop()`
 
 The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
 
@@ -144,7 +144,7 @@ plot_doseprop(dose_prop_obj)
 plot_doseprop(dose_prop_obj, se = FALSE)
 ```
 
-When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`theme`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
+When `data` is a precomputed `doseprop_stats` result, the pipeline arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions were already made when `df_doseprop()` ran, and re-passing them on the cached path would silently shadow the original values. Passing any of them aborts with a message pointing the caller back at `df_doseprop()`. Only plot-only arguments (`style`, `se`) are accepted on this path; to change a regression setting, re-run `df_doseprop()` and pass the new result.
 
 
 
@@ -211,9 +211,9 @@ plot_doseprop(
 )
 ```
 
-For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Themes and Aesthetics](plot-themes.html) vignette.
+For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Styling and Aesthetics](plot-themes.html) vignette.
 
 # See also
 
   + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.
-  + [Plot Themes and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.
+  + [Plot Styling and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.

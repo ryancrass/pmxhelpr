@@ -30,7 +30,7 @@
 #'      + If `loq=NULL` and `LLOQ` is NOT present in `data`, filter to
 #'      `MDV==0` since `loq` is unknown.
 #'    Dashed horizontal line plotted at each unique LLOQ value by default for
-#'    standard VPCs (controlled via `theme`); suppressed for `pcvpc = TRUE`
+#'    standard VPCs (styled via the `loq_line` role); suppressed for `pcvpc = TRUE`
 #'    since `loq` has no meaning on the prediction-corrected scale.
 #' @param min_bin_count Minimum number of quantifiable observations
 #'    (`obs_n - obs_n_blq` in the summary statistics frame) per exact bin
@@ -52,7 +52,9 @@
 #'
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
-#'    with no arguments.
+#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
+#'    restyle the returned plot with [restyle_plot()]. Pass the same style to
+#'    [plot_vpc_legend()] so the legend matches.
 #'
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles. Default is `c(0.05, 0.95)`.
 #' @param ci Numeric scalar in `(0, 1)` for simulation interval (e.g., `0.90` for 90% CI). Default is `0.90`.

@@ -240,52 +240,6 @@ test_that("df_prep_dvtime messages when inheriting loq from LLOQ column", {
   )
 })
 
-#####check_color####
-
-test_that("check_color accepts valid color names and hex strings", {
-  expect_no_error(pmxhelpr:::check_color("red", "color"))
-  expect_no_error(pmxhelpr:::check_color("#FF0000", "color"))
-})
-
-test_that("check_color accepts NULL", {
-  expect_no_error(pmxhelpr:::check_color(NULL, "color"))
-})
-
-test_that("check_color errors on invalid color name", {
-  expect_error(pmxhelpr:::check_color("saalmon", "color"),
-               regexp = "must be a valid color name or hex string")
-})
-
-#####check_size####
-
-test_that("check_size accepts non-negative numeric and NULL", {
-  expect_no_error(pmxhelpr:::check_size(1.5, "size"))
-  expect_no_error(pmxhelpr:::check_size(0, "size"))   # zero is the "hide layer" idiom
-  expect_no_error(pmxhelpr:::check_size(NULL, "size"))
-})
-
-test_that("check_size errors on negative or NA", {
-  expect_error(pmxhelpr:::check_size(-1, "size"), regexp = "non-negative numeric")
-  expect_error(pmxhelpr:::check_size(NA_real_, "size"), regexp = "non-negative numeric")
-})
-
-#####check_shape####
-
-test_that("check_shape accepts integer in 0:25, character, and NULL", {
-  expect_no_error(pmxhelpr:::check_shape(16, "shape"))
-  expect_no_error(pmxhelpr:::check_shape("circle", "shape"))
-  expect_no_error(pmxhelpr:::check_shape(NULL, "shape"))
-})
-
-test_that("check_shape errors on out-of-range integer", {
-  expect_error(pmxhelpr:::check_shape(99, "shape"), regexp = "integer in 0:25")
-  expect_error(pmxhelpr:::check_shape(-1, "shape"), regexp = "integer in 0:25")
-})
-
-test_that("check_shape errors on logical input", {
-  expect_error(pmxhelpr:::check_shape(TRUE, "shape"), regexp = "integer in 0:25 or a character")
-})
-
 #####check_quantile_pair####
 
 test_that("check_quantile_pair accepts ordered length-2 numeric in [0,1]", {
@@ -421,16 +375,16 @@ test_that("check_loglog_args accepts valid arguments silently", {
 })
 
 test_that("check_pipeline_args_dropped accepts plot-only args silently", {
-  fake_call <- quote(plot_vpc_cont(data = stats_obj, theme = my_theme))
+  fake_call <- quote(plot_vpc_cont(data = stats_obj, style = my_style))
   expect_silent(pmxhelpr:::check_pipeline_args_dropped(
-    fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"))
+    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"))
 })
 
 test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, loq = 1, mode = "drop"))
   expect_error(
     pmxhelpr:::check_pipeline_args_dropped(
-      fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"),
+      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"),
     regexp = "loq|mode"
   )
 })

@@ -72,7 +72,7 @@ plot_dvconc <- function(data,
   caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)
 
   #Resolve style (log_y arg drives the y axis)
-  plotstyle <- if (is.null(style)) style_dvconc() else style
+  plotstyle <- resolve_style(style, style_dvconc)
   plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
 
 

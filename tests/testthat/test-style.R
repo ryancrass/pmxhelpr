@@ -79,3 +79,22 @@ test_that("merge_element merges a partial shown list over defaults", {
   expect_false(out$obs)
   expect_true(out$dv)
 })
+
+##resolve_style: default on NULL, pass-through on a spec, abort otherwise
+test_that("resolve_style returns the preset default when style is NULL", {
+  s <- pmxhelpr:::resolve_style(NULL, style_dvtime)
+  expect_s3_class(s, "ggstylekit_style_spec")
+  expect_equal(s$shapes, style_dvtime()$shapes)
+})
+
+test_that("resolve_style passes a style_spec through unchanged", {
+  s <- style_vpc(colors = c(obs_point = "#000000"))
+  expect_identical(pmxhelpr:::resolve_style(s, style_dvtime), s)
+})
+
+test_that("resolve_style aborts on a non-style_spec `style`", {
+  expect_error(pmxhelpr:::resolve_style(list(colors = "red"), style_dvtime),
+               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object.*got <list>")
+  expect_error(pmxhelpr:::resolve_style("blue", style_dvtime),
+               regexp = "got <character>")
+})

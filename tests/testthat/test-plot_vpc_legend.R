@@ -182,3 +182,9 @@ test_that("type = 'cens' suppresses pi-related geom layers regardless of shown",
 })
 
 ##Test Arguments
+
+##Test style validation
+test_that("plot_vpc_legend aborts early on a non-style_spec `style`", {
+  expect_error(plot_vpc_legend(style = list(colors = c(obs_point = "red"))),
+               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
+})

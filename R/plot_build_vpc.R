@@ -127,7 +127,7 @@ plot_build_vpc <- function(compute_out,
   if (loq_inherited) loq <- compute_out$config$loq
 
   shown    <- merge_element(shown, plot_vpc_shown())
-  vpcstyle <- if (is.null(style)) style_vpc() else style
+  vpcstyle <- resolve_style(style, style_vpc)
 
   plot <- switch(type,
     cont = plot_build_vpc_cont(compute_out, min_bin_count, shown, vpcstyle,

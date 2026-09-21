@@ -112,7 +112,7 @@ plot_dvtime <- function(data,
   caption <- caption_dvtime(cent, log_y)
 
   # Resolve style: preset default, with the log_y arg driving the y axis.
-  plotstyle <- if (is.null(style)) style_dvtime() else style
+  plotstyle <- resolve_style(style, style_dvtime)
   plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
 
   # Error bar cap width (builder-computed; no style_spec field).

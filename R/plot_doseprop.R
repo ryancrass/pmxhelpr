@@ -241,7 +241,7 @@ plot_build_doseprop <- function(stats,
   ci             <- stats$config$ci
   obs            <- stats$obs
 
-  plotstyle <- if (is.null(style)) style_doseprop() else style
+  plotstyle <- resolve_style(style, style_doseprop)
 
   tab <- stats$stats
   tab$label <- paste0(tab[[metric_name_var_str]], "\n", tab$PowerCI)

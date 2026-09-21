@@ -244,3 +244,10 @@ test_that("plot_dvtime orders a numeric-labelled character col_var by value", {
   expect_equal(as.character(sc$get_breaks()),
                c("10 mg", "50 mg", "100 mg", "200 mg", "400 mg"))
 })
+
+##Test style validation
+test_that("plot_dvtime aborts early on a non-style_spec `style`", {
+  expect_error(plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                           style = list(alphas = c(obs_point = 0))),
+               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
+})

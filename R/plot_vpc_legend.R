@@ -54,7 +54,7 @@ plot_vpc_legend <- function(ci = 0.90,
   ## Legend aesthetics from the style. Reshape the style's per-series maps into
   ## a per-role list (with American-spelled `color`) so the proxy-geom /
   ## manual-scale construction below reads `plist$<role>$<field>` directly.
-  vpcstyle <- if (is.null(style)) style_vpc() else style
+  vpcstyle <- resolve_style(style, style_vpc)
   .roles <- c("obs_point", "obs_median_line", "obs_pi_line", "sim_pi_line",
               "sim_median_line", "loq_line", "sim_median_ci", "sim_pi_ci",
               "sim_pi_area")

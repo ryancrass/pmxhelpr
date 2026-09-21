@@ -119,7 +119,7 @@ plot_gof <- function(data,
   #Resolve style. `style$colors` is the single source of color truth: the
   #manual scale_color_manual() below supplies only the legend name/breaks/order
   #(with placeholder values), and style_plot() injects style$colors into it.
-  plotstyle <- if (is.null(style)) style_gof() else style
+  plotstyle <- resolve_style(style, style_gof)
 
   #Error bar cap width (builder-computed; no style_spec field).
   ebw <- errorbar_width

@@ -346,7 +346,7 @@ dependencies = [
 [[packages]]
 name = "ggstylekit"
 version = "0.3.0.9000"
-source = { git = "https://github.com/a2-ai/ggstylekit.git", sha = "4b52483885160caf10631d5a472f9d57af62cc48", branch = "update-reveal" }
+source = { git = "https://github.com/a2-ai/ggstylekit.git", sha = "21d22124d354c45eed3c0f726319d019aa9dbdc6", branch = "update-reveal" }
 force_source = true
 dependencies = [
     { name = "ggplot2", requirement = "(>= 3.5.2)" },

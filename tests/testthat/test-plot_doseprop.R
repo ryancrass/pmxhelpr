@@ -378,3 +378,21 @@ test_that("plot_doseprop fills role-keyed fixed aesthetics from style_doseprop()
   expect_equal(unique(trend$colour),    unname(sd$colors["linear"]))
   expect_equal(unique(trend$linewidth), unname(sd$linewidths["linear"]))
 })
+
+test_that("plot_build_doseprop takes its facet layout from the style", {
+  stats <- df_doseprop(
+    dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+    metrics = c("aucinf.obs", "cmax")
+  )
+  ## Default: free scales, layout left to facet_wrap()
+  p_default <- plot_build_doseprop(stats)
+  expect_true(p_default$facet$params$free$x)
+  expect_true(p_default$facet$params$free$y)
+  expect_null(p_default$facet$params$ncol)
+
+  p_style <- plot_build_doseprop(
+    stats, style = style_doseprop(facet_ncol = 1, facet_scales = "fixed"))
+  expect_false(p_style$facet$params$free$x)
+  expect_false(p_style$facet$params$free$y)
+  expect_equal(p_style$facet$params$ncol, 1)
+})

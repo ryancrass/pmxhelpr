@@ -133,8 +133,10 @@ style_dvconc <- function(...) {
 #' Dose-proportionality plot style (`plot_doseprop`)
 #'
 #' Default [ggstylekit::style_spec()] for [plot_doseprop()]. Series names:
-#' `obs_point`, `linear`. Log-log axes and per-metric facets are set by the
-#' builder via `logx`/`logy`/`facet` fields.
+#' `obs_point`, `linear`. The builder draws the log-log axes and the
+#' per-metric facet itself, so the `logx`, `logy`, and `facet` fields are
+#' ignored; the facet layout fields `facet_scales` (default `"free"`),
+#' `facet_nrow`, and `facet_ncol` are honored.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   defaults below. Per-series maps merge entry-wise onto the defaults; all

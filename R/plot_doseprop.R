@@ -215,7 +215,10 @@ validate_doseprop_stats <- function(x) {
 #'    `validate_doseprop_stats()` at entry.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments.
+#'    `style_doseprop()` with no arguments. The per-metric facet layout is
+#'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
+#'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
+#'    because the builder sets the facet and log-log axes itself.
 #' @param se logical to display confidence interval around regression. Default
 #'    is `TRUE`.
 #'
@@ -268,7 +271,13 @@ plot_build_doseprop <- function(stats,
       limits = function(x) c(10^floor(log10(x[1])), 10^ceiling(log10(x[2]))),
       expand = ggplot2::expansion(mult = 0.02)
     ) +
-    ggplot2::facet_wrap(~label, scales = "free")
+    ## The per-metric facet is built here (its label carries the fitted power
+    ## text), so ggstylekit's own facet path is bypassed; the style's facet
+    ## layout fields are forwarded explicitly, as in plot_build_vpc().
+    ggplot2::facet_wrap(~label,
+                        nrow   = plotstyle$facet_nrow,
+                        ncol   = plotstyle$facet_ncol,
+                        scales = plotstyle$facet_scales %||% "free")
 
   ggstylekit::style_plot(plot, plotstyle)
 }
@@ -301,7 +310,10 @@ plot_build_doseprop <- function(stats,
 #'    Default is `TRUE`.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments.
+#'    `style_doseprop()` with no arguments. The per-metric facet layout is
+#'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
+#'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
+#'    because the builder sets the facet and log-log axes itself.
 #' @inheritParams df_doseprop
 #'
 #' @family dose proportionality

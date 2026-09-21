@@ -338,3 +338,21 @@ test_that("plot_build_vpc(type = 'cens') errors when LOQ source is absent", {
   expect_error(plot_build_vpc(out_no_loq, type = "cens"),
                regexp = "requires a LOQ source")
 })
+
+##Test style facet layout fields reach the internal facet_wrap()
+test_that("plot_vpc_cens takes its stratification facet layout from the style", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 carry_out = "FOOD")
+  p_fixed <- plot_vpc_cens(testsim, loq = 1, strat_var = FOOD)
+  expect_true("FacetWrap" %in% class(p_fixed$facet))
+  expect_false(p_fixed$facet$params$free$y)
+
+  p_free <- plot_vpc_cens(testsim, loq = 1, strat_var = FOOD,
+                          style = style_vpc(facet_scales = "free_y",
+                                            facet_ncol = 1))
+  expect_true(p_free$facet$params$free$y)
+  expect_equal(p_free$facet$params$ncol, 1)
+})

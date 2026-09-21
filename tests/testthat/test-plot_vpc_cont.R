@@ -236,10 +236,12 @@ test_that("style facet_scales/nrow/ncol control the stratification facets", {
 
   p_free <- plot_vpc_cont(data = testsim, strat_var = FOOD_f,
                           style = style_vpc(facet_scales = "free_y",
-                                            facet_nrow = 2))
+                                            facet_nrow = 2,
+                                            facet_ncol = 1))
   expect_false(p_free$facet$params$free$x)
   expect_true(p_free$facet$params$free$y)
   expect_equal(p_free$facet$params$nrow, 2)
+  expect_equal(p_free$facet$params$ncol, 1)
 })
 
 ##Test min_bin_count filtering (plot-layer-only filter)

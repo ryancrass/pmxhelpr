@@ -177,7 +177,7 @@ check_loglog_args <- function(method, ci, sigdigits) {
 #' @param call A `call` object, typically `match.call()` evaluated in the
 #'    wrapper's frame.
 #' @param plot_only_args Character vector of argument names that ARE honored
-#'    on the precomputed-stats path (e.g. `"theme"`, `"shown"`, `"pcvpc"`).
+#'    on the precomputed-stats path (e.g. `"style"`, `"shown"`, `"pcvpc"`).
 #'    The matched data argument should also be included.
 #' @param fn_name Character scalar, the wrapper's name, used in the error
 #'    message.

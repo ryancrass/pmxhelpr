@@ -456,3 +456,45 @@ normalize_time_unit <- function(var, name = "unit") {
   }
   unname(out)
 }
+
+
+#' Internal helper: Remove NULL entries from a list
+#'
+#' @param x A named list potentially containing NULL values.
+#'
+#' @return A list with all NULL entries removed
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::compact(list(a = 1, b = NULL, c = 3))
+#'
+compact <- function(x) x[!vapply(x, is.null, logical(1))]
+
+
+#' Internal helper: Merge user overrides into a complete default named list
+#'
+#' Iterates over names in the user-supplied list and overwrites matching entries
+#' in the default. Warns on unrecognized names. Used to merge the layer
+#' visibility lists from [plot_gof_shown()] / [plot_vpc_shown()] over their
+#' defaults.
+#'
+#' @param user User-supplied list with partial overrides, or `NULL`.
+#' @param default Complete default list.
+#'
+#' @return A merged list with the same class as `default`
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
+#'
+merge_element <- function(user, default) {
+  if (is.null(user)) return(default)
+  out <- default
+  for (nm in names(user)) {
+    if (!nm %in% names(default)) {
+      warning(paste0("`", nm, "` is not a valid field of ", class(default)[1]))
+    } else {
+      out[[nm]] <- user[[nm]]
+    }
+  }
+  class(out) <- class(default)
+  out
+}

@@ -14,7 +14,10 @@ plot_build_doseprop(stats, style = NULL, se = TRUE)
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
-\code{style_doseprop()} with no arguments.}
+\code{style_doseprop()} with no arguments. The per-metric facet layout is
+taken from the style's \code{facet_scales} (default \code{"free"}), \code{facet_nrow},
+and \code{facet_ncol}; the \code{facet}, \code{logx}, and \code{logy} fields are ignored
+because the builder sets the facet and log-log axes itself.}
 
 \item{se}{logical to display confidence interval around regression. Default
 is \code{TRUE}.}

@@ -12,7 +12,7 @@ check_pipeline_args_dropped(call, plot_only_args, fn_name)
 wrapper's frame.}
 
 \item{plot_only_args}{Character vector of argument names that ARE honored
-on the precomputed-stats path (e.g. \code{"theme"}, \code{"shown"}, \code{"pcvpc"}).
+on the precomputed-stats path (e.g. \code{"style"}, \code{"shown"}, \code{"pcvpc"}).
 The matched data argument should also be included.}
 
 \item{fn_name}{Character scalar, the wrapper's name, used in the error

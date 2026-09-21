@@ -20,8 +20,10 @@ A \code{ggstylekit_style_spec} object.
 }
 \description{
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_doseprop]{plot_doseprop()}}. Series names:
-\code{obs_point}, \code{linear}. Log-log axes and per-metric facets are set by the
-builder via \code{logx}/\code{logy}/\code{facet} fields.
+\code{obs_point}, \code{linear}. The builder draws the log-log axes and the
+per-metric facet itself, so the \code{logx}, \code{logy}, and \code{facet} fields are
+ignored; the facet layout fields \code{facet_scales} (default \code{"free"}),
+\code{facet_nrow}, and \code{facet_ncol} are honored.
 }
 \examples{
 style_doseprop()

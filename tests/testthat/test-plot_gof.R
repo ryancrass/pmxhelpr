@@ -211,3 +211,13 @@ test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
     expect_true(all(prepped$IPRED[ipred_below] == 0.5 * loq_val))
   }
 })
+
+##Test errorbar_width
+test_that("plot_gof errorbar_width reaches the errorbar layer", {
+  p <- plot_gof(data_sad_pkfit, dv_var = "ODV", cent = "mean_sdl", errorbar_width = 12)
+  eb <- Filter(function(l) inherits(l$geom, "GeomErrorbar"), p$layers)[[1]]
+  width <- eb$aes_params$width %||% eb$geom_params$width %||% eb$stat_params$width
+  expect_equal(width, 12)
+  expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", errorbar_width = "wide"),
+               regexp = "argument `errorbar_width`")
+})

@@ -251,3 +251,23 @@ test_that("plot_dvtime aborts early on a non-style_spec `style`", {
                            style = list(alphas = c(obs_point = 0))),
                regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
 })
+
+##Test errorbar_width
+test_that("resolve_errorbar_width defaults to 2.5% of max NTIME, NA without NTIME", {
+  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(NTIME = c(0, 100))), 2.5)
+  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(NTIME = NA_real_)), NA_real_)
+  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(TIME = 1)), NA_real_)
+  expect_equal(pmxhelpr:::resolve_errorbar_width(7, data.frame(NTIME = 100)), 7)
+  expect_error(pmxhelpr:::resolve_errorbar_width("wide", data.frame(NTIME = 100)),
+               regexp = "argument `errorbar_width` must be a single non-negative numeric")
+  expect_error(pmxhelpr:::resolve_errorbar_width(-1, data.frame(NTIME = 100)),
+               regexp = "non-negative")
+})
+
+test_that("plot_dvtime errorbar_width reaches the errorbar layer", {
+  p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                   cent = "mean_sdl", errorbar_width = 12)
+  eb <- Filter(function(l) inherits(l$geom, "GeomErrorbar"), p$layers)[[1]]
+  width <- eb$aes_params$width %||% eb$geom_params$width %||% eb$stat_params$width
+  expect_equal(width, 12)
+})

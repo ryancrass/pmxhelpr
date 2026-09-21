@@ -122,12 +122,7 @@ plot_gof <- function(data,
   plotstyle <- resolve_style(style, style_gof)
 
   #Error bar cap width (builder-computed; no style_spec field).
-  ebw <- errorbar_width
-  if (is.null(ebw)) {
-    ebw <- if ("NTIME" %in% names(data) && any(!is.na(data$NTIME))) {
-      max(data$NTIME, na.rm = TRUE) * 0.025
-    } else NA_real_
-  }
+  ebw <- resolve_errorbar_width(errorbar_width, data)
 
   #Determine which variables to show
   shown <- merge_element(shown, plot_gof_shown())

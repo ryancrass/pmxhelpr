@@ -4,8 +4,7 @@
 # These `*_style()` helpers emit bare geoms tagged with
 # `ggstylekit::series_layer()` (for entity geoms styled by `style_plot()`) or
 # with inline aesthetics read from the style via `series_aes()` (for non-entity
-# geoms like error bars). Series names are the plot role keys. They replace the
-# `pmx_element`-reading helpers above as each family migrates.
+# geoms like error bars). Series names are the plot role keys.
 # ===========================================================================
 
 
@@ -145,6 +144,33 @@ add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
   caption <- paste0(caption, "\n", blq_captions[[as.character(loq_method)]])
 
   list(plot = plot, caption = caption)
+}
+
+
+#' Internal helper: resolve the error bar cap width
+#'
+#' Shared by [plot_dvtime()] and [plot_gof()]. The cap width is a builder
+#' argument rather than a `style_spec()` field because it is a data-scale
+#' quantity: when `errorbar_width` is `NULL` it defaults to 2.5% of the maximum
+#' `NTIME` in `data`, or `NA` (ggplot2's default width) when `NTIME` is absent
+#' or all `NA`.
+#'
+#' @param errorbar_width `NULL` or a single non-negative numeric value.
+#' @param data The plot data, checked for an `NTIME` column.
+#'
+#' @return A numeric scalar cap width (possibly `NA_real_`).
+#' @keywords internal
+resolve_errorbar_width <- function(errorbar_width, data) {
+  if (!is.null(errorbar_width)) {
+    if (!is.numeric(errorbar_width) || length(errorbar_width) != 1L ||
+        is.na(errorbar_width) || errorbar_width < 0) {
+      rlang::abort("argument `errorbar_width` must be a single non-negative numeric value")
+    }
+    return(errorbar_width)
+  }
+  if ("NTIME" %in% names(data) && any(!is.na(data$NTIME))) {
+    max(data$NTIME, na.rm = TRUE) * 0.025
+  } else NA_real_
 }
 
 

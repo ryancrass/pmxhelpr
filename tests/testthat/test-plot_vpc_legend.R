@@ -188,3 +188,25 @@ test_that("plot_vpc_legend aborts early on a non-style_spec `style`", {
   expect_error(plot_vpc_legend(style = list(colors = c(obs_point = "red"))),
                regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
 })
+
+##Test legend-title fields follow the style
+test_that("plot_vpc_legend places legend titles per the style", {
+  p_default <- plot_vpc_legend()
+  expect_equal(p_default$theme$legend.title.position, "top")
+
+  p_left <- plot_vpc_legend(style = style_vpc(legend.title.position = "left",
+                                              legend.title.hjust = "right"))
+  expect_equal(p_left$theme$legend.title.position, "left")
+  expect_equal(p_left$theme$legend.title$hjust, 1)
+  expect_equal(p_left$theme$legend.title$size, 10)   # base sizing retained
+
+  ## `...` still overrides the style
+  p_dots <- plot_vpc_legend(legend.title.position = "bottom")
+  expect_equal(p_dots$theme$legend.title.position, "bottom")
+})
+
+test_that("legend_style_theme is empty when the style sets neither field", {
+  th <- pmxhelpr:::legend_style_theme(style_vpc(legend.title.position = NULL))
+  expect_s3_class(th, "theme")
+  expect_null(th$legend.title.position)
+})

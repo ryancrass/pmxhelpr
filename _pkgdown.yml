@@ -2,6 +2,9 @@ url: https://ryancrass.github.io/pmxhelpr/
 template:
   bootstrap: 5
 
+redirects:
+  - ["articles/plot-themes.html", "articles/plot-styling.html"]
+
 repo:
   url:
     home: https://github.com/ryancrass/pmxhelpr/
@@ -18,7 +21,7 @@ articles:
       - matches("articles/gof-diagnostics")
       - matches("articles/vpc-workflow")
       - matches("articles/doseprop-workflow")
-      - matches("articles/plot-themes")
+      - matches("articles/plot-styling")
 
 reference:
   - title: Plot Functions

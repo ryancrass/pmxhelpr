@@ -325,7 +325,7 @@ plot_dvtime(plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent = "mean"
 
 ## Adjusting Plot Style with `style_dvtime()`
 
-The default aesthetics for Response-Time plots are controlled via `style_dvtime()`. See the [Plot Styling and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Time aesthetics.
+The default aesthetics for Response-Time plots are controlled via `style_dvtime()`. See the [Plot Styling and Aesthetics](plot-styling.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Time aesthetics.
 
 ```{r style}
 style_dvtime()
@@ -544,7 +544,7 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 
 ## Adjusting Plot Style with `style_dvconc()`
 
-The default aesthetics for Response-Concentration plots are controlled via `style_dvconc()`. See the [Plot Styling and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Concentration aesthetics.
+The default aesthetics for Response-Concentration plots are controlled via `style_dvconc()`. See the [Plot Styling and Aesthetics](plot-styling.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing Response-Concentration aesthetics.
 
 ```{r style-dvconc}
 style_dvconc()
@@ -570,4 +570,4 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
 # See also
 
   + [Dose-proportionality Assessment workflow](doseprop-workflow.html) — statistical assessment of dose-proportionality of exposure using power law (log-log) regression
-  + [Plot Styling and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.
+  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.

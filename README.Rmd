@@ -30,7 +30,7 @@ Full narrative documentation, including worked examples for every plotting workf
 - [Dose-Proportionality Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
 - [Goodness-of-Fit Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
-- [Plot Styling and Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
+- [Plot Styling and Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 
 ## Installation
 
@@ -99,7 +99,7 @@ A finished plot can be restyled after the fact with `restyle_plot()`, additional
 
 `pmxhelpr` returns a class tagged object for VPC plot outputs to warn users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added outside the returned object directing users to the correct stratification method using the `strat_var` argument.
 
-See the [Plot Styling and Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html) and [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) / [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html) workflow articles for worked examples.
+See the [Plot Styling and Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html) and [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) / [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html) workflow articles for worked examples.
 
 ### Vectorized Helpers
 

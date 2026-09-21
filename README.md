@@ -33,7 +33,7 @@ articles:
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
 - [Plot Styling and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 
 ## Installation
 
@@ -139,7 +139,7 @@ outside the returned object directing users to the correct
 stratification method using the `strat_var` argument.
 
 See the [Plot Styling and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 and
 [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
 [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)

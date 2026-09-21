@@ -684,7 +684,7 @@ plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 
 # Adjusting Plot Style with `style_vpc()`
 
-The default aesthetics for VPC plots are controlled via `style_vpc()`. See the [Plot Styling and Aesthetics](plot-themes.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing VPC aesthetics.
+The default aesthetics for VPC plots are controlled via `style_vpc()`. See the [Plot Styling and Aesthetics](plot-styling.html) vignette for details on the styling system, the `style_spec()` fields, and examples of customizing VPC aesthetics.
 
 ```{r vpc-style}
 style_vpc()

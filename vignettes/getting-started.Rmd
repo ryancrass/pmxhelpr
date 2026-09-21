@@ -443,7 +443,7 @@ A finished plot object can also be restyled after the fact with
 `restyle_plot()`. Additionally, variables can be surfaced and mapped to
 aesthetics after the fact with `reveal()`. Both are re-exported from ggstylekit.
 
-See the [Plot Styling and Aesthetics](plot-themes.html)  article for additional 
+See the [Plot Styling and Aesthetics](plot-styling.html)  article for additional 
 details on plot styling with `pmxhelpr`.
 
 # Where to go next
@@ -452,4 +452,4 @@ details on plot styling with `pmxhelpr`.
 - [Dose-Proportionality Workflow](doseprop-workflow.html)
 - [Goodness-of-Fit Diagnostics](gof-diagnostics.html)
 - [Visual Predictive Check Workflow](vpc-workflow.html)
-- [Plot Styling and Aesthetics](plot-themes.html)
+- [Plot Styling and Aesthetics](plot-styling.html)

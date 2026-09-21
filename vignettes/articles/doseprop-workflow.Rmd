@@ -211,9 +211,9 @@ plot_doseprop(
 )
 ```
 
-For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Styling and Aesthetics](plot-themes.html) vignette.
+For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Styling and Aesthetics](plot-styling.html) vignette.
 
 # See also
 
   + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.
-  + [Plot Styling and Aesthetics](plot-themes.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.
+  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.

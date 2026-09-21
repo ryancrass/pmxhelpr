@@ -176,6 +176,10 @@ style_doseprop <- function(...) {
 #' (outside ggstylekit's entity registry), so their `fill`/`alpha` are set
 #' inline by the builder, read from these maps via `series_aes()`.
 #'
+#' Stratification facets are built by the VPC plotting functions from
+#' `strat_var` (not by `style_plot()`), but the `facet_scales`, `facet_nrow`,
+#' and `facet_ncol` fields are honored; `facet` itself is ignored.
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   defaults below. Per-series maps merge entry-wise onto the defaults; all
 #'   other fields replace their default wholesale.

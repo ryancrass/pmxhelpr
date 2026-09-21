@@ -45,7 +45,9 @@ Accepts bare names or strings. Default is \code{SIMDV}.}
 Accepts bare names or strings. Default is \code{OBSDV}.}
 
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
-Currently, only a single stratifying variable is supported.}
+Currently, only a single stratifying variable is supported.
+Facet layout is taken from the \code{style}: \code{facet_scales}, \code{facet_nrow},
+and \code{facet_ncol}.}
 
 \item{loq}{Numeric scalar, or \code{NULL}. Lower limit of quantification (LLOQ).
 Either \code{loq} or an \code{LLOQ} column in \code{data} is \strong{required} — without a

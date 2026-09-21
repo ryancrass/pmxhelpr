@@ -220,6 +220,28 @@ test_that("Stratified VPC produces a faceted plot", {
   expect_true("FacetWrap" %in% class(p$facet))
 })
 
+##Test style facet layout fields reach the internal facet_wrap()
+test_that("style facet_scales/nrow/ncol control the stratification facets", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10,
+                                 dv_var = "ODV",
+                                 carry_out = "FOOD")
+  testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
+
+  # Default: fixed scales, layout left to facet_wrap()
+  p_fixed <- plot_vpc_cont(data = testsim, strat_var = FOOD_f)
+  expect_false(p_fixed$facet$params$free$x)
+  expect_false(p_fixed$facet$params$free$y)
+
+  p_free <- plot_vpc_cont(data = testsim, strat_var = FOOD_f,
+                          style = style_vpc(facet_scales = "free_y",
+                                            facet_nrow = 2))
+  expect_false(p_free$facet$params$free$x)
+  expect_true(p_free$facet$params$free$y)
+  expect_equal(p_free$facet$params$nrow, 2)
+})
+
 ##Test min_bin_count filtering (plot-layer-only filter)
 test_that("min_bin_count is a plot-layer arg; df_vpcstats returns unfiltered", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),

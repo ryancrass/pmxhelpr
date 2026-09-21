@@ -68,7 +68,8 @@
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. When `NULL`, the value is read from
 #'    `compute_out$config$strat_var` so output of [df_vpcstats()] is
-#'    handled automatically.
+#'    handled automatically. Facet layout is taken from the `style`:
+#'    `facet_scales`, `facet_nrow`, and `facet_ncol`.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #'
 #' @family vpc
@@ -136,9 +137,15 @@ plot_build_vpc <- function(compute_out,
                                bin_var)
   )
 
+  ## Stratification facets are built here rather than by ggstylekit (the
+  ## strat var must match the summary stats), so the style's facet layout
+  ## fields are read off the spec and forwarded explicitly.
   if (!is.null(strat_var_str)) {
     plot <- plot +
-      ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var_str]]))
+      ggplot2::facet_wrap(ggplot2::vars(.data[[strat_var_str]]),
+                          nrow   = vpcstyle$facet_nrow,
+                          ncol   = vpcstyle$facet_ncol,
+                          scales = vpcstyle$facet_scales %||% "fixed")
   }
 
   if (isTRUE(show_rep)) {

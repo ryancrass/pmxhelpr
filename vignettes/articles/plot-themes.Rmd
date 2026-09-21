@@ -22,7 +22,6 @@ which provides a uniform approach to styling plots.
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
-library(ggstylekit)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
 library(Hmisc, warn.conflicts = FALSE)
@@ -461,6 +460,36 @@ plot_vpc_cont(sim, loq = 1, pcvpc = TRUE,
               style = pcvpc_style) + 
   scale_y_log10(guide = "axis_logticks")
 ```
+
+
+## Faceted VPC plot with free scales (`plot_vpc_cont()`)
+
+As discussed in [Visual Predictive Check Workflow](vpc-workflow.html), VPC
+plots should *ONLY* be facetted via the `strat_var` argument and *SHOULD NOT* 
+be facetted post-hoc with `facet_wrap`. This is to ensure that the summary 
+statistics from the simulation are also calculated stratied by the faceting 
+variable.
+
+However, because the `facet_wrap` call is internal to the VPC plotting
+functions, the user is not able to change the `scales` argument from the 
+`"fixed"` preset to `"free_y"`. This can be accomplished in the style.
+
+```{r ex-vpc-facet, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+sim <- df_mrgsim_replicate(data = data_pk, model = model, replicates = 100,
+                           dv_var = ODV, carry_out = c("LLOQ", "FOOD", "DOSE"))
+
+vpc_style_facet <- style_vpc(
+  ylabel = "Concentration (ng/mL)",
+  xlabel = "Time (hours)",
+  xbreaks = seq(0, 168, 24),
+  xlims = c(0, 168), 
+  facet_scales = "free_y"
+)
+
+plot_vpc_cont(sim, loq = 1, strat_var = DOSE,
+              style = vpc_style_facet)
+```
+
 ## VPC plot color scheme (`plot_vpc_cont()`)
 
 The VPC plotting functions do not generate a legend. `plot_vpc_legend()` builds 
@@ -527,7 +556,10 @@ One of the most powerful features of `ggstylekit` is the `reveal()` function.
 `reveal()` maps a variable present in the underlying plot dataset that is not
 currently mapped to a graphical channel (or a facet). 
 
-Use `as =` to inheret that channel's default values.
+
+## Mapping to all layers with `as = `
+
+Use `as =` to inherit that channel's default values.
 
 ```{r reveal, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 reveal(p, `Food Status`, as = "colors")
@@ -551,39 +583,28 @@ p2 <- reveal(p, `Food Status`, as = "facet",
 p2
 ```
 
-
 ## Targeting specific layers with `on`
 
 By default, `reveal()` maps the variable onto every layer that can display the
 channel. The `on` argument narrows this to an **entity** — `"point"`, `"line"`,
 `"bar"`, `"area"`, or `"box"` — or to a named **series**.
 
-Here the central tendency line and its error bars are mapped to food status,
-while the observed points are left unmapped.
+Here the central tendency line and its error bars are left unmapped, reflecting
+the totality of the data, while the points are mapped to food status with `on`
 
-```{r reveal-on-line, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+```{r reveal-on-point, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 p_sdl <- plot_dvtime(data_pk, dv_var = ODV, cent = "mean_sdl", log_y = TRUE,
                      style = style_dvtime(xlabel = "Time (hours)",
                                           ylabel = "Concentration (ng/mL)",
                                           xbreaks = seq(0, 168, 24)))
 
-reveal(p_sdl, `Food Status`, as = "colors", on = "line")
-```
-
-Error bars belong to the `"line"` entity, so they are summarized and colored
-with the central tendency line they annotate.
-
-Targeting `"point"` instead maps the observed and central tendency points,
-leaving the central tendency line and error bars unmapped.
-
-```{r reveal-on-point, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 reveal(p_sdl, `Food Status`, as = "colors", on = "point")
 ```
 
 Values are supplied with `on` exactly as they are without it.
 
 ```{r reveal-on-values, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-reveal(p_sdl, `Food Status`, on = "line",
+reveal(p_sdl, `Food Status`, on = "point",
        colors = c(Fasted = "#3388cc", Fed = "firebrick"),
        labels = c(Fasted = "Fasted (overnight)", Fed = "Fed (high-fat)"))
 ```
@@ -595,8 +616,6 @@ series available to target. Two variables sharing one channel are drawn in a
 single legend, so revealing onto a free channel — `as = "shapes"`,
 `as = "linetypes"`, `as = "facet"` — is usually the clearer choice.
 
-
-
 # Combining plots with `combine_styled_plots`
 
 `combine_styled_plots()` arranges several styled plots into one figure with a
@@ -604,23 +623,28 @@ single legend, so revealing onto a free channel — `as = "shapes"`,
 
 Build the panels with a shared style so the collected legend is meaningful.
 
-`ggstylekit::set_style()` returns an updated copy of a finished style, 
-which is the tidy way to vary one field per plot panel
-
 ```{r combine-panels, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-panel_style <- style_dvtime(
+panel_style_gm <- style_dvtime(
   alphas = c(obs_point = 0.3),
   xlabel = "Time (hours)",
-  ylabel = "Concentration (ng/mL)"
+  ylabel = "Concentration (ng/mL)",
+  title = "Geometric Mean"
+)
+
+panel_style_med <- style_dvtime(
+  alphas = c(obs_point = 0.3),
+  xlabel = "Time (hours)",
+  ylabel = "Concentration (ng/mL)",
+  title = "Median"
 )
 
 p_mean <- plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
                       cent = "mean", log_y = TRUE,
-                      style = set_style(panel_style, title = "Geometric mean"))
+                      style = panel_style_gm)
 
 p_median <- plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
                         cent = "median", log_y = TRUE,
-                        style = set_style(panel_style, title = "Median"))
+                        style = panel_style_med)
 ```
 
 Then combine them. Unnamed arguments are the plots. Named arguments pass through
@@ -649,11 +673,6 @@ restyle_plot(p_combo,
 `restyle_plot()` reaches the assembled figure and not only the individual
 panels. Note that `labels` is not a style field: legend entries are relabeled
 through the `labels` argument of `legend_spec()`, as above.
-
-A combined plot can also be modified with the `&` operator in `patchwork` (or
-`patchwork::plot_annotation(theme = )`). Make those changes **after**
-`restyle_plot()`, as a plot modified with `+`/`&` from `patchwork` can no longer
-be restyled.
 
 Panels do not have to come from the same plot family; however, legends need 
 to be **identical** and drawn from the same layer sets. Here concentration vs

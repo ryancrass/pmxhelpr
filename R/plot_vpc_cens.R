@@ -20,6 +20,8 @@
 #'    raw data when you need pipeline control.
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Currently, only a single stratifying variable is supported.
+#'    Facet layout is taken from the `style`: `facet_scales`, `facet_nrow`,
+#'    and `facet_ncol`.
 #' @param loq Numeric scalar, or `NULL`. Lower limit of quantification (LLOQ).
 #'    Either `loq` or an `LLOQ` column in `data` is **required** — without a
 #'    LOQ source, `df_vpcstats()` does not emit the `sim_prop_blq_*` columns

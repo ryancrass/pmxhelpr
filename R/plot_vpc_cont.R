@@ -8,6 +8,8 @@
 #' @param data Input dataset. `
 #' @param strat_var Stratification variable.
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
+#'    Facet layout is taken from the `style`: `facet_scales`, `facet_nrow`,
+#'    and `facet_ncol`.
 #' @param pcvpc logical for prediction correction. Default is `FALSE`.
 #' @param loq Numeric scalar, or `NULL`. Lower limit of quantification (LLOQ).
 #'    When `NULL` and column `LLOQ` is present in `data`, per-row `LLOQ`

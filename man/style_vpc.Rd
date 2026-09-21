@@ -26,6 +26,11 @@ roles (\code{sim_pi_ci}, \code{sim_pi_area}, \code{sim_median_ci}) are \code{geo
 (outside ggstylekit's entity registry), so their \code{fill}/\code{alpha} are set
 inline by the builder, read from these maps via \code{series_aes()}.
 }
+\details{
+Stratification facets are built by the VPC plotting functions from
+\code{strat_var} (not by \code{style_plot()}), but the \code{facet_scales}, \code{facet_nrow},
+and \code{facet_ncol} fields are honored; \code{facet} itself is ignored.
+}
 \examples{
 style_vpc()
 }

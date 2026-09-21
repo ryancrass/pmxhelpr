@@ -78,7 +78,8 @@ scale).}
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. When \code{NULL}, the value is read from
 \code{compute_out$config$strat_var} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
-handled automatically.}
+handled automatically. Facet layout is taken from the \code{style}:
+\code{facet_scales}, \code{facet_nrow}, and \code{facet_ncol}.}
 
 \item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 }

@@ -23,6 +23,13 @@ test_that("style preset non-map fields replace wholesale", {
   expect_equal(s$title, "My Title")
 })
 
+test_that("errorbar_width is an unset-by-default wholesale field on the errorbar presets", {
+  expect_null(style_dvtime()$errorbar_width)
+  expect_null(style_gof()$errorbar_width)
+  expect_equal(style_dvtime(errorbar_width = 10)$errorbar_width, 10)
+  expect_equal(style_gof(errorbar_width = 10)$errorbar_width, 10)
+})
+
 test_that("a palette function replaces a preset's default per-series map", {
   # Palettes carry no names, so they cannot merge entry-wise onto a set default
   # (`style_gof()` ships a `colors` map); they replace it instead.

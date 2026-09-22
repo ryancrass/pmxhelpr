@@ -24,6 +24,10 @@ OBS) overlays are colour-mapped by label via the \code{colors} map; the remainin
 fixed aesthetics use the role series names as in \code{\link[=style_dvtime]{style_dvtime()}}.
 }
 \details{
+The error bar cap width is the \code{errorbar_width} field (e.g.
+\code{style_gof(errorbar_width = 10)}, in x-axis units). The preset leaves it
+unset, and \code{\link[=plot_gof]{plot_gof()}} then defaults it to 2.5\% of the maximum nominal time.
+
 Like every pmxhelpr preset, it places legend titles above the keys
 (\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
 theme.

@@ -11,7 +11,7 @@ series_aes(spec, series)
 fields \code{colors}, \code{fill}, \code{alphas}, \code{shapes}, \code{sizes}, \code{linetypes},
 \code{linewidths}).}
 
-\item{series}{Character scalar series/role name (e.g. \code{"cent_errorbar"},
+\item{series}{Character scalar series/role name (e.g. \code{"loq_line"},
 \code{"sim_pi_ci"}).}
 }
 \value{
@@ -20,9 +20,9 @@ dropped), using ggplot2 aesthetic names (\code{colour}, \code{fill}, \code{alpha
 \code{shape}, \code{size}, \code{linetype}, \code{linewidth}).
 }
 \description{
-\code{ggstylekit::style_plot()} only resolves fixed aesthetics for geoms in its
-entity registry (point/line/bar/area/box). Error bars and \code{geom_ribbon} are
-not entities, so the builder sets their aesthetics inline, sourcing the
-values from the style_spec's per-series maps keyed by \code{series}.
+Layers the builders set inline rather than tagging with
+\code{ggstylekit::series_layer()} (VPC ribbons, the LLOQ line, and the
+\code{plot_vpc_legend()} proxies) source their aesthetics from the style_spec's
+per-series maps keyed by \code{series} through this reader.
 }
 \keyword{internal}

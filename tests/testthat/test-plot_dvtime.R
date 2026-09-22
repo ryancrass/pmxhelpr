@@ -252,22 +252,47 @@ test_that("plot_dvtime aborts early on a non-style_spec `style`", {
                regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
 })
 
-##Test errorbar_width
-test_that("resolve_errorbar_width defaults to 2.5% of max NTIME, NA without NTIME", {
-  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(NTIME = c(0, 100))), 2.5)
-  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(NTIME = NA_real_)), NA_real_)
-  expect_equal(pmxhelpr:::resolve_errorbar_width(NULL, data.frame(TIME = 1)), NA_real_)
-  expect_equal(pmxhelpr:::resolve_errorbar_width(7, data.frame(NTIME = 100)), 7)
-  expect_error(pmxhelpr:::resolve_errorbar_width("wide", data.frame(NTIME = 100)),
-               regexp = "argument `errorbar_width` must be a single non-negative numeric")
-  expect_error(pmxhelpr:::resolve_errorbar_width(-1, data.frame(NTIME = 100)),
-               regexp = "non-negative")
+##Test errorbar_width (style field, data-defaulted when unset)
+test_that("style_errorbar_width back-fills 2.5% of max NTIME only when unset", {
+  s <- style_dvtime()
+  expect_null(s$errorbar_width)
+  expect_equal(pmxhelpr:::style_errorbar_width(s, data.frame(NTIME = c(0, 100)))$errorbar_width, 2.5)
+  # NTIME all NA or absent: leave unset (NA is not a valid errorbar_width)
+  expect_null(pmxhelpr:::style_errorbar_width(s, data.frame(NTIME = NA_real_))$errorbar_width)
+  expect_null(pmxhelpr:::style_errorbar_width(s, data.frame(TIME = 1))$errorbar_width)
+  # a width set in the style wins over the data default
+  s7 <- style_dvtime(errorbar_width = 7)
+  expect_equal(pmxhelpr:::style_errorbar_width(s7, data.frame(NTIME = 100))$errorbar_width, 7)
 })
 
-test_that("plot_dvtime errorbar_width reaches the errorbar layer", {
-  p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
-                   cent = "mean_sdl", errorbar_width = 12)
-  eb <- Filter(function(l) inherits(l$geom, "GeomErrorbar"), p$layers)[[1]]
-  width <- eb$aes_params$width %||% eb$geom_params$width %||% eb$stat_params$width
-  expect_equal(width, 12)
+test_that("style_dvtime rejects an invalid errorbar_width", {
+  expect_error(style_dvtime(errorbar_width = "wide"), regexp = "non-negative number")
+  expect_error(style_dvtime(errorbar_width = -1), regexp = "non-negative number")
+})
+
+test_that("plot_dvtime errorbar_width from the style reaches the errorbar layer", {
+  p  <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                    cent = "mean_sdl", style = style_dvtime(errorbar_width = 12))
+  eb <- styled_layer(p, "GeomErrorbar", "StatSummary")
+  expect_equal(eb$xmax - eb$xmin, rep(12, nrow(eb)))
+})
+
+test_that("plot_dvtime defaults the cap width to 2.5% of max NTIME", {
+  d  <- dplyr::filter(data_sad, CMT != 3)
+  p  <- plot_dvtime(d, dv_var = "ODV", cent = "mean_sdl")
+  eb <- styled_layer(p, "GeomErrorbar", "StatSummary")
+  expect_equal(eb$xmax - eb$xmin, rep(max(d$NTIME, na.rm = TRUE) * 0.025, nrow(eb)))
+})
+
+test_that("plot_dvtime fills cent_errorbar aesthetics from the style", {
+  sd <- style_dvtime(linewidths = c(cent_errorbar = 1.5), alphas = c(cent_errorbar = 0.4))
+  p  <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                    cent = "mean_sdl_upper", style = sd)
+  eb <- styled_layer(p, "GeomErrorbar", "StatSummary")
+  expect_equal(unique(eb$linewidth), 1.5)
+  expect_equal(unique(eb$alpha), 0.4)
+  # the upper-only linerange shares the cent_errorbar role
+  lr <- styled_layer(p, "GeomLinerange", "StatSummary")
+  expect_equal(unique(lr$linewidth), 1.5)
+  expect_equal(unique(lr$alpha), 0.4)
 })

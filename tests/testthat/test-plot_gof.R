@@ -212,12 +212,16 @@ test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
   }
 })
 
-##Test errorbar_width
-test_that("plot_gof errorbar_width reaches the errorbar layer", {
-  p <- plot_gof(data_sad_pkfit, dv_var = "ODV", cent = "mean_sdl", errorbar_width = 12)
-  eb <- Filter(function(l) inherits(l$geom, "GeomErrorbar"), p$layers)[[1]]
-  width <- eb$aes_params$width %||% eb$geom_params$width %||% eb$stat_params$width
-  expect_equal(width, 12)
-  expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", errorbar_width = "wide"),
-               regexp = "argument `errorbar_width`")
+##Test errorbar_width (style field)
+test_that("plot_gof errorbar_width from the style reaches the errorbar layer", {
+  p <- plot_gof(data_sad_pkfit, dv_var = "ODV", cent = "mean_sdl",
+                style = style_gof(errorbar_width = 12, linewidths = c(cent_errorbar = 1.5)))
+  b   <- suppressWarnings(ggplot2::ggplot_build(p))
+  idx <- which(vapply(b$plot$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1)))[1]
+  eb  <- b$data[[idx]]
+  expect_equal(eb$xmax - eb$xmin, rep(12, nrow(eb)))
+  expect_equal(unique(eb$linewidth), 1.5)
+  # colour stays with the manual overlay scale (style$colors["DV"])
+  expect_equal(unique(eb$colour), unname(style_gof()$colors["DV"]))
+  expect_error(style_gof(errorbar_width = "wide"), regexp = "non-negative number")
 })

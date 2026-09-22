@@ -22,9 +22,9 @@ A \code{ggstylekit_style_spec} object.
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for the VPC family. Line/point roles
 (\code{obs_point}, \code{obs_median_line}, \code{obs_pi_line}, \code{sim_pi_line},
 \code{sim_median_line}, \code{loq_line}) are styled by \code{style_plot()}. The three ribbon
-roles (\code{sim_pi_ci}, \code{sim_pi_area}, \code{sim_median_ci}) are \code{geom_ribbon}
-(outside ggstylekit's entity registry), so their \code{fill}/\code{alpha} are set
-inline by the builder, read from these maps via \code{series_aes()}.
+roles (\code{sim_pi_ci}, \code{sim_pi_area}, \code{sim_median_ci}) are \code{geom_ribbon} layers
+whose \code{fill}/\code{alpha} the VPC builder sets inline, read from these maps via
+\code{series_aes()} (inline aesthetics take precedence over the \verb{area_*} fields).
 }
 \details{
 Stratification facets are built by the VPC plotting functions from

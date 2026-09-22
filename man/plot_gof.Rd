@@ -22,8 +22,7 @@ plot_gof(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  style = NULL,
-  errorbar_width = NULL
+  style = NULL
 )
 }
 \arguments{
@@ -88,10 +87,9 @@ describing the data plotted.}
 Defaults to \code{\link[=style_gof]{style_gof()}}; view the defaults by running \code{style_gof()}
 with no arguments. Customize by passing \code{style = style_gof(...)}, or
 restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The DV/PRED/IPRED (and
-OBS) overlays are colored by the \code{colors} map keyed by those labels.}
-
-\item{errorbar_width}{Numeric error bar cap width. Default \code{NULL} uses 2.5\%
-of maximum \code{NTIME}.}
+OBS) overlays are colored by the \code{colors} map keyed by those labels. The
+error bar cap width is the style's \code{errorbar_width} field; when unset it
+defaults to 2.5\% of the maximum nominal time (\code{ntime_var}).}
 }
 \value{
 A \code{ggplot2} plot object

@@ -4,7 +4,7 @@
 \alias{add_cent_layers_style}
 \title{Internal helper: add central tendency layers (style pattern)}
 \usage{
-add_cent_layers_style(plot, cent, y_var, style, width)
+add_cent_layers_style(plot, cent, y_var)
 }
 \arguments{
 \item{plot}{ggplot object.}
@@ -12,20 +12,17 @@ add_cent_layers_style(plot, cent, y_var, style, width)
 \item{cent}{Central tendency measure (see \code{\link[=plot_dvtime]{plot_dvtime()}}).}
 
 \item{y_var}{Y variable name (e.g. \code{"DV"}).}
-
-\item{style}{A \code{ggstylekit_style_spec}.}
-
-\item{width}{Numeric error bar cap width.}
 }
 \value{
 Modified ggplot object.
 }
 \description{
-Central-tendency points and lines are \code{stat_summary} layers tagged as the
-\code{"cent_point"}/\code{"cent_line"} series for \code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}. Error
-bars use \code{GeomErrorbar}/\code{GeomLinerange}, which are outside ggstylekit's
-entity registry, so their aesthetics are set inline from the
-\code{"cent_errorbar"} series via \code{\link[=series_aes]{series_aes()}}. Color is inherited from the
-plot's global \code{aes()} when mapped.
+Central-tendency points, lines, and error bars are \code{stat_summary} layers
+tagged as the \code{"cent_point"}/\code{"cent_line"}/\code{"cent_errorbar"} series for
+\code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}, which fills their role-keyed fixed aesthetics.
+Error bars are ggstylekit's errorbar entity (\code{GeomErrorbar}/\code{GeomLinerange}),
+so the cap width comes from the style's \code{errorbar_width} field (see
+\code{\link[=style_errorbar_width]{style_errorbar_width()}}). Color is inherited from the plot's global \code{aes()}
+when mapped.
 }
 \keyword{internal}

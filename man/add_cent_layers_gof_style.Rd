@@ -4,15 +4,7 @@
 \alias{add_cent_layers_gof_style}
 \title{Internal helper: central tendency layers for a GOF overlay (style pattern)}
 \usage{
-add_cent_layers_gof_style(
-  plot,
-  cent,
-  y_var,
-  style,
-  width,
-  color_aes,
-  show_errorbars = TRUE
-)
+add_cent_layers_gof_style(plot, cent, y_var, color_aes, show_errorbars = TRUE)
 }
 \arguments{
 \item{plot}{ggplot object.}
@@ -20,10 +12,6 @@ add_cent_layers_gof_style(
 \item{cent}{Central tendency measure (see \code{\link[=plot_dvtime]{plot_dvtime()}}).}
 
 \item{y_var}{Y variable name (e.g. \code{"DV"}).}
-
-\item{style}{A \code{ggstylekit_style_spec}.}
-
-\item{width}{Numeric error bar cap width.}
 
 \item{color_aes}{Literal color label.}
 
@@ -35,10 +23,9 @@ Modified ggplot object.
 \description{
 Like \code{\link[=add_cent_layers_style]{add_cent_layers_style()}} but for the GOF overlay: color is mapped to a
 literal label (\code{"DV"}/\code{"PRED"}/\code{"IPRED"}) for the manual color legend. The
-point and line layers are tagged with \code{\link[ggstylekit:series_layer]{ggstylekit::series_layer()}} so
-\code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}} fills their role-keyed fixed aesthetics while
-leaving the mapped color channel to the caller's scale. Error bars and
-linerange are not ggstylekit entities, so their fixed aesthetics are still set
-inline via \code{\link[=series_aes]{series_aes()}} (their color arrives from the mapped scale).
+point, line, and error bar layers are tagged with
+\code{\link[ggstylekit:series_layer]{ggstylekit::series_layer()}} so \code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}} fills their
+role-keyed fixed aesthetics while leaving the mapped color channel to the
+caller's scale.
 }
 \keyword{internal}

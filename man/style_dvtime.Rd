@@ -25,6 +25,11 @@ plot roles: \code{obs_point}, \code{obs_line} (spaghetti), \code{cent_point}, \c
 \code{cent_errorbar}, \code{ref_line}, \code{loq_line}.
 }
 \details{
+The error bar cap width is the \code{errorbar_width} field (e.g.
+\code{style_dvtime(errorbar_width = 10)}, in x-axis units). The preset leaves it
+unset, and \code{\link[=plot_dvtime]{plot_dvtime()}} then defaults it to 2.5\% of the maximum nominal
+time so the caps scale with the time axis.
+
 Like every pmxhelpr preset, it places legend titles above the keys
 (\code{legend.title.position = "top"}) and applies the house \code{theme_bw()}-derived
 theme.
@@ -32,6 +37,7 @@ theme.
 \examples{
 style_dvtime()
 style_dvtime(shapes = c(obs_point = 16, cent_point = 16))
+style_dvtime(errorbar_width = 10)
 }
 \seealso{
 Other exploratory analysis:

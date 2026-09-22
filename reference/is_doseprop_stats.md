@@ -38,7 +38,7 @@ Other dose proportionality:
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
 [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md),
 [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
-[`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
+[`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
 
 ## Examples
 

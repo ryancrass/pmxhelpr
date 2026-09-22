@@ -19,7 +19,7 @@ compatible columns and attributes.
 ## Usage
 
 ``` r
-plot_build_doseprop(stats, theme = NULL, se = TRUE)
+plot_build_doseprop(stats, style = NULL, se = TRUE)
 ```
 
 ## Arguments
@@ -33,13 +33,21 @@ plot_build_doseprop(stats, theme = NULL, se = TRUE)
   [`validate_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_doseprop_stats.md)
   at entry.
 
-- theme:
+- style:
 
-  Named list of aesthetic parameters for the plot created by
-  [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md).
-  Defaults can be viewed by running
-  [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
-  with no arguments.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md);
+  view the defaults by running
+  [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
+  with no arguments. Customize by passing `style = style_doseprop(...)`,
+  or restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  The per-metric facet layout is taken from the style's `facet_scales`
+  (default `"free"`), `facet_nrow`, and `facet_ncol`; the `facet`,
+  `logx`, and `logy` fields are ignored because the builder sets the
+  facet and log-log axes itself.
 
 - se:
 
@@ -56,7 +64,7 @@ Other dose proportionality:
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
 [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md),
 [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
-[`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
+[`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
 
 ## Examples
 

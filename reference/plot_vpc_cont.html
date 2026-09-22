@@ -13,7 +13,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,7 +29,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -72,7 +72,7 @@ construction.</p>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"rank"</span>, <span class="st">"drop"</span><span class="op">)</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fl">0.9</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -113,7 +113,9 @@ Accepts bare names or strings. Default is <code>OBSDV</code>.</p></dd>
 
 <dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
 <dd><p>Stratification variable.
-Accepts bare names or strings. Currently, only a single stratifying variable is supported.</p></dd>
+Accepts bare names or strings. Currently, only a single stratifying variable is supported.
+Facet layout is taken from the <code>style</code>: <code>facet_scales</code>, <code>facet_nrow</code>,
+and <code>facet_ncol</code>.</p></dd>
 
 
 <dt id="arg-pcvpc">pcvpc<a class="anchor" aria-label="anchor" href="#arg-pcvpc"></a></dt>
@@ -138,7 +140,7 @@ quantile calculation.
 + If <code>loq=NULL</code> and <code>LLOQ</code> is NOT present in <code>data</code>, filter to
 <code>MDV==0</code> since <code>loq</code> is unknown.
 Dashed horizontal line plotted at each unique LLOQ value by default for
-standard VPCs (controlled via <code>theme</code>); suppressed for <code>pcvpc = TRUE</code>
+standard VPCs (styled via the <code>loq_line</code> role); suppressed for <code>pcvpc = TRUE</code>
 since <code>loq</code> has no meaning on the prediction-corrected scale.</p></dd>
 
 
@@ -178,9 +180,12 @@ historical behavior.</p></dd>
 Defaults can be viewed by running <code><a href="plot_vpc_shown.html">plot_vpc_shown()</a></code> with no arguments.</p></dd>
 
 
-<dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
-<dd><p>Named list of aesthetic parameters for the plot created by <code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code>.
-Defaults can be viewed by running <code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code> with no arguments.</p></dd>
+<dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
+<dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
+Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
+restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Pass the same style to
+<code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> so the legend matches.</p></dd>
 
 
 <dt id="arg-pi">pi<a class="anchor" aria-label="anchor" href="#arg-pi"></a></dt>
@@ -208,7 +213,7 @@ as stratification must be specified via <code>strat_var</code> at call time.</p>
 <code><a href="plot_vpc_cens.html">plot_vpc_cens()</a></code>,
 <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code>,
 <code><a href="plot_vpc_shown.html">plot_vpc_shown()</a></code>,
-<code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code></p></div>
+<code><a href="style_vpc.html">style_vpc()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -239,7 +244,7 @@ as stratification must be specified via <code>strat_var</code> at call time.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

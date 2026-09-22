@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -258,9 +258,10 @@ text.</p>
 for the observation points and a black regression line with a grey SE
 ribbon. This matches the package design language for exploratory plots.
 To restore filled black circles with full opacity, override
-<code>obs_point</code> via the <code>theme</code> argument (see <a href="#theming">Theming</a> below).</p>
+<code>obs_point</code> via the <code>style</code> argument (see <a href="#styling">Styling</a> below).</p>
 <div class="section level3">
-<h3 id="adjusting-the-summary-statistics-1">Adjusting the summary statistics<a class="anchor" aria-label="anchor" href="#adjusting-the-summary-statistics-1"></a>
+<h3 id="passing-summary-statistic-arguments-through-plot_doseprop">Passing summary-statistic arguments through
+<code>plot_doseprop()</code><a class="anchor" aria-label="anchor" href="#passing-summary-statistic-arguments-through-plot_doseprop"></a>
 </h3>
 <p>The summary statistics calculated from the log-log regression of
 exposure versus dose can be customized using the following
@@ -314,7 +315,7 @@ decisions were already made when <code><a href="../reference/df_doseprop.html">d
 re-passing them on the cached path would silently shadow the original
 values. Passing any of them aborts with a message pointing the caller
 back at <code><a href="../reference/df_doseprop.html">df_doseprop()</a></code>. Only plot-only arguments
-(<code>theme</code>, <code>se</code>) are accepted on this path; to
+(<code>style</code>, <code>se</code>) are accepted on this path; to
 change a regression setting, re-run <code><a href="../reference/df_doseprop.html">df_doseprop()</a></code> and pass
 the new result.</p>
 </div>
@@ -396,39 +397,101 @@ integrity.</p>
 <span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="theming">Theming<a class="anchor" aria-label="anchor" href="#theming"></a>
+<h2 id="styling">Styling<a class="anchor" aria-label="anchor" href="#styling"></a>
 </h2>
-<p>Plot aesthetics are customized via the <code>theme</code> argument
-and the <code><a href="../reference/plot_doseprop_theme.html">plot_doseprop_theme()</a></code> constructor. The factory
-exposes two keys:</p>
+<p>Plot aesthetics are customized via the <code>style</code> argument
+and the <code><a href="../reference/style_doseprop.html">style_doseprop()</a></code> preset, which returns a
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code>. The relevant roles are:</p>
 <ul>
 <li>
-<code>obs_point</code> — observation point aesthetics (constructed
-via <code><a href="../reference/pmx_point.html">pmx_point()</a></code>)</li>
+<code>obs_point</code> — observation point aesthetics</li>
 <li>
-<code>linear</code> — regression line and SE ribbon aesthetics
-(constructed via <code><a href="../reference/pmx_trend.html">pmx_trend()</a></code>)</li>
+<code>linear</code> — regression line
+(<code>colors</code>/<code>linewidths</code>/<code>linetypes</code>) and
+SE ribbon (base <code>line_fill</code>, ribbon alpha via the
+<code>linear</code> entry of <code>alphas</code>)</li>
 </ul>
-<p>It also accepts an <code>obs</code> role-level shortcut via
-<code><a href="../reference/pmx_style.html">pmx_style()</a></code> for setting shared aesthetics on the
-points.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop_theme.html">plot_doseprop_theme</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;plot_doseprop_theme&gt;</span></span>
-<span><span class="co">#&gt;   obs_point &lt;pmx_point&gt;: shape = 1, size = 2, alpha = 0.7</span></span>
-<span><span class="co">#&gt;   linear    &lt;pmx_trend&gt;: linewidth = 1, linetype = 1, color = black, se_color = lightgrey, se_alpha = 0.4</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/style_doseprop.html">style_doseprop</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;ggstylekit_style_spec&gt;</span></span>
+<span><span class="co">#&gt;   colors                 black</span></span>
+<span><span class="co">#&gt;   fill                   NULL</span></span>
+<span><span class="co">#&gt;   linetypes              solid</span></span>
+<span><span class="co">#&gt;   alphas                 0.7, 0.4</span></span>
+<span><span class="co">#&gt;   shapes                 1</span></span>
+<span><span class="co">#&gt;   sizes                  2</span></span>
+<span><span class="co">#&gt;   linewidths             1</span></span>
+<span><span class="co">#&gt;   point_color            NULL</span></span>
+<span><span class="co">#&gt;   point_alpha            NULL</span></span>
+<span><span class="co">#&gt;   point_size             NULL</span></span>
+<span><span class="co">#&gt;   point_shape            NULL</span></span>
+<span><span class="co">#&gt;   line_color             NULL</span></span>
+<span><span class="co">#&gt;   line_alpha             NULL</span></span>
+<span><span class="co">#&gt;   line_linetype          NULL</span></span>
+<span><span class="co">#&gt;   line_linewidth         NULL</span></span>
+<span><span class="co">#&gt;   line_fill              lightgrey</span></span>
+<span><span class="co">#&gt;   errorbar_color         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_alpha         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_linetype      NULL</span></span>
+<span><span class="co">#&gt;   errorbar_linewidth     NULL</span></span>
+<span><span class="co">#&gt;   errorbar_width         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_fill          NULL</span></span>
+<span><span class="co">#&gt;   bar_fill               NULL</span></span>
+<span><span class="co">#&gt;   bar_color              NULL</span></span>
+<span><span class="co">#&gt;   bar_alpha              NULL</span></span>
+<span><span class="co">#&gt;   bar_linewidth          NULL</span></span>
+<span><span class="co">#&gt;   area_fill              NULL</span></span>
+<span><span class="co">#&gt;   area_color             NULL</span></span>
+<span><span class="co">#&gt;   area_alpha             NULL</span></span>
+<span><span class="co">#&gt;   area_linewidth         NULL</span></span>
+<span><span class="co">#&gt;   box_fill               NULL</span></span>
+<span><span class="co">#&gt;   box_color              NULL</span></span>
+<span><span class="co">#&gt;   box_alpha              NULL</span></span>
+<span><span class="co">#&gt;   box_linewidth          NULL</span></span>
+<span><span class="co">#&gt;   title                  NULL</span></span>
+<span><span class="co">#&gt;   xlabel                 NULL</span></span>
+<span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   xlims                  NULL</span></span>
+<span><span class="co">#&gt;   ylims                  NULL</span></span>
+<span><span class="co">#&gt;   logx                   NULL</span></span>
+<span><span class="co">#&gt;   logy                   NULL</span></span>
+<span><span class="co">#&gt;   xbreaks                NULL</span></span>
+<span><span class="co">#&gt;   ybreaks                NULL</span></span>
+<span><span class="co">#&gt;   xminor_breaks          NULL</span></span>
+<span><span class="co">#&gt;   yminor_breaks          NULL</span></span>
+<span><span class="co">#&gt;   xtick_labels           NULL</span></span>
+<span><span class="co">#&gt;   ytick_labels           NULL</span></span>
+<span><span class="co">#&gt;   xorder                 NULL</span></span>
+<span><span class="co">#&gt;   yorder                 NULL</span></span>
+<span><span class="co">#&gt;   equal_axis             NULL</span></span>
+<span><span class="co">#&gt;   legends                NULL</span></span>
+<span><span class="co">#&gt;   legend.position        NULL</span></span>
+<span><span class="co">#&gt;   legend.title.position  top</span></span>
+<span><span class="co">#&gt;   legend_nrow            NULL</span></span>
+<span><span class="co">#&gt;   legend_ncol            NULL</span></span>
+<span><span class="co">#&gt;   legend.title.hjust     NULL</span></span>
+<span><span class="co">#&gt;   caption_hjust          NULL</span></span>
+<span><span class="co">#&gt;   fill_alpha             NULL</span></span>
+<span><span class="co">#&gt;   facet                  NULL</span></span>
+<span><span class="co">#&gt;   facet_scales           NULL</span></span>
+<span><span class="co">#&gt;   facet_nrow             NULL</span></span>
+<span><span class="co">#&gt;   facet_ncol             NULL</span></span>
+<span><span class="co">#&gt;   theme                  &lt;ggplot2 theme&gt;</span></span></code></pre></div>
 <p>A typical override:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span></span>
 <span>  <span class="va">dose_prop_obj</span>,</span>
-<span>  theme <span class="op">=</span> <span class="fu"><a href="../reference/plot_doseprop_theme.html">plot_doseprop_theme</a></span><span class="op">(</span></span>
-<span>    obs_point <span class="op">=</span> <span class="fu"><a href="../reference/pmx_point.html">pmx_point</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">19</span>, color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    linear    <span class="op">=</span> <span class="fu"><a href="../reference/pmx_trend.html">pmx_trend</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"firebrick"</span>, se_color <span class="op">=</span> <span class="st">"firebrick"</span>, se_alpha <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  style <span class="op">=</span> <span class="fu"><a href="../reference/style_doseprop.html">style_doseprop</a></span><span class="op">(</span></span>
+<span>    shapes    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">19</span><span class="op">)</span>,</span>
+<span>    colors    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="st">"black"</span>, linear <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
+<span>    alphas    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0.8</span>, linear <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
+<span>    sizes     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    line_fill <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="doseprop-workflow_files/figure-html/plot-themed-1.png" class="r-plt" alt="" width="100%"></p>
-<p>For a deeper treatment of the theme system — element constructors,
-role shortcuts, the <code>pmx_element</code> / <code>pmx_theme</code>
-class system, and predicates for theme validation — see the <a href="plot-themes.html">Plot Themes and Aesthetics</a> vignette.</p>
+<p><img src="doseprop-workflow_files/figure-html/plot-styled-1.png" class="r-plt" alt="" width="100%"></p>
+<p>For a deeper treatment of the styling system —
+<code>style_spec()</code> fields, per-role maps, and post-hoc
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> / <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> — see the <a href="plot-styling.html">Plot Styling and Aesthetics</a> vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
@@ -439,9 +502,10 @@ class system, and predicates for theme validation — see the <a href="plot-them
 exploratory analysis of continuous longitudinal concentration-time data,
 response-time, and response-concentration data.</li>
 <li>
-<a href="plot-themes.html">Plot Themes and Aesthetics</a> — element
-constructors, theme factories, and class system for customizing plot
-output.</li>
+<a href="plot-styling.html">Plot Styling and Aesthetics</a> — the
+<code>style_*()</code> presets, <code>style_spec()</code> fields and
+per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> /
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot output.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -455,7 +519,7 @@ output.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

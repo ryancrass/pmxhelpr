@@ -27,7 +27,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -90,7 +90,7 @@ source is available are the sole source of plot data.</p>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ci <span class="op">=</span> <span class="fl">0.9</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -135,7 +135,9 @@ Accepts bare names or strings. Default is <code>OBSDV</code>.</p></dd>
 
 <dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
 <dd><p>Stratification variable. Accepts bare names or strings.
-Currently, only a single stratifying variable is supported.</p></dd>
+Currently, only a single stratifying variable is supported.
+Facet layout is taken from the <code>style</code>: <code>facet_scales</code>, <code>facet_nrow</code>,
+and <code>facet_ncol</code>.</p></dd>
 
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
@@ -174,10 +176,13 @@ the simulated median line is off by default. Pass
 <code>plot_vpc_shown(sim_median_line = TRUE)</code> to enable it.</p></dd>
 
 
-<dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
-<dd><p>Named list of aesthetic parameters created by
-<code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code>. The cens builder reads the same four keys listed
-above (<code>obs_point</code>, <code>obs_median_line</code>, <code>sim_median_line</code>,
+<dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
+<dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
+Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
+restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Pass the same style to
+<code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> so the legend matches. The cens builder reads the same four keys
+listed above (<code>obs_point</code>, <code>obs_median_line</code>, <code>sim_median_line</code>,
 <code>sim_median_ci</code>); other keys are ignored.</p></dd>
 
 
@@ -207,7 +212,7 @@ inspect the <code>obs_prop_blq</code> and <code>sim_prop_blq_*</code> columns of
 <code><a href="plot_vpc_cont.html">plot_vpc_cont()</a></code>,
 <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code>,
 <code><a href="plot_vpc_shown.html">plot_vpc_shown()</a></code>,
-<code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code></p></div>
+<code><a href="style_vpc.html">style_vpc()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -233,7 +238,7 @@ inspect the <code>obs_prop_blq</code> and <code>sim_prop_blq_*</code> columns of
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

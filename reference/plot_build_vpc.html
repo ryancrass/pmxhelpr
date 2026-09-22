@@ -31,7 +31,7 @@ compatible columns."><meta property="og:image" content="https://ryancrass.github
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ compatible columns."><meta property="og:image" content="https://ryancrass.github
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -89,7 +89,7 @@ compatible columns.</p>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -139,12 +139,15 @@ ribbon are shown; the simulated median line is off by default (pass
 <code>plot_vpc_shown(sim_median_line = TRUE)</code> to enable it).</p></dd>
 
 
-<dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
-<dd><p>Aesthetic parameters created by <code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code>. For
+<dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
+<dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
+Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
+restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Series names are the VPC roles. For
 <code>type = "cens"</code>, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens <code>obs_point</code> color is
 inherited from <code>obs_median_line</code> (so points match the obs line); the
-<code>obs_point</code> theme key still controls shape/alpha/size.</p></dd>
+<code>obs_point</code> style key still controls shape/alpha/size.</p></dd>
 
 
 <dt id="arg-pcvpc">pcvpc<a class="anchor" aria-label="anchor" href="#arg-pcvpc"></a></dt>
@@ -177,7 +180,8 @@ scale).</p></dd>
 <dd><p>Stratification variable. Accepts bare names or strings.
 Default is <code>NULL</code>. When <code>NULL</code>, the value is read from
 <code>compute_out$config$strat_var</code> so output of <code><a href="df_vpcstats.html">df_vpcstats()</a></code> is
-handled automatically.</p></dd>
+handled automatically. Facet layout is taken from the <code>style</code>:
+<code>facet_scales</code>, <code>facet_nrow</code>, and <code>facet_ncol</code>.</p></dd>
 
 
 <dt id="arg-bin-var">bin_var<a class="anchor" aria-label="anchor" href="#arg-bin-var"></a></dt>
@@ -198,7 +202,7 @@ handled automatically.</p></dd>
 <code><a href="plot_vpc_cont.html">plot_vpc_cont()</a></code>,
 <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code>,
 <code><a href="plot_vpc_shown.html">plot_vpc_shown()</a></code>,
-<code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code></p></div>
+<code><a href="style_vpc.html">style_vpc()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -223,7 +227,7 @@ handled automatically.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

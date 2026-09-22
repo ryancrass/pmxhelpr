@@ -3,8 +3,8 @@
 Constructor and factory for controlling which VPC layers are displayed.
 Call with no arguments to view defaults. Pass overrides to customize.
 Each element maps 1:1 with a
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-aesthetic key.
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+role/series key.
 
 ## Usage
 
@@ -69,7 +69,7 @@ Other vpc:
 [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 
 ## Examples
 

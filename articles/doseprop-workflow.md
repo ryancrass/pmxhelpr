@@ -205,9 +205,9 @@ The default appearance uses open circles at `alpha = 0.7` for the
 observation points and a black regression line with a grey SE ribbon.
 This matches the package design language for exploratory plots. To
 restore filled black circles with full opacity, override `obs_point` via
-the `theme` argument (see [Theming](#theming) below).
+the `style` argument (see [Styling](#styling) below).
 
-### Adjusting the summary statistics
+### Passing summary-statistic arguments through `plot_doseprop()`
 
 The summary statistics calculated from the log-log regression of
 exposure versus dose can be customized using the following arguments:
@@ -267,7 +267,7 @@ ran, and re-passing them on the cached path would silently shadow the
 original values. Passing any of them aborts with a message pointing the
 caller back at
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md).
-Only plot-only arguments (`theme`, `se`) are accepted on this path; to
+Only plot-only arguments (`style`, `se`) are accepted on this path; to
 change a regression setting, re-run
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
 and pass the new result.
@@ -360,27 +360,86 @@ is_doseprop_stats(plain)  # FALSE -- coerced to a plain data.frame
 #> [1] FALSE
 ```
 
-## Theming
+## Styling
 
-Plot aesthetics are customized via the `theme` argument and the
-[`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
-constructor. The factory exposes two keys:
+Plot aesthetics are customized via the `style` argument and the
+[`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
+preset, which returns a
+[`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html).
+The relevant roles are:
 
-- `obs_point` — observation point aesthetics (constructed via
-  [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md))
-- `linear` — regression line and SE ribbon aesthetics (constructed via
-  [`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md))
-
-It also accepts an `obs` role-level shortcut via
-[`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
-for setting shared aesthetics on the points.
+- `obs_point` — observation point aesthetics
+- `linear` — regression line (`colors`/`linewidths`/`linetypes`) and SE
+  ribbon (base `line_fill`, ribbon alpha via the `linear` entry of
+  `alphas`)
 
 ``` r
 
-plot_doseprop_theme()
-#> <plot_doseprop_theme>
-#>   obs_point <pmx_point>: shape = 1, size = 2, alpha = 0.7
-#>   linear    <pmx_trend>: linewidth = 1, linetype = 1, color = black, se_color = lightgrey, se_alpha = 0.4
+style_doseprop()
+#> <ggstylekit_style_spec>
+#>   colors                 black
+#>   fill                   NULL
+#>   linetypes              solid
+#>   alphas                 0.7, 0.4
+#>   shapes                 1
+#>   sizes                  2
+#>   linewidths             1
+#>   point_color            NULL
+#>   point_alpha            NULL
+#>   point_size             NULL
+#>   point_shape            NULL
+#>   line_color             NULL
+#>   line_alpha             NULL
+#>   line_linetype          NULL
+#>   line_linewidth         NULL
+#>   line_fill              lightgrey
+#>   errorbar_color         NULL
+#>   errorbar_alpha         NULL
+#>   errorbar_linetype      NULL
+#>   errorbar_linewidth     NULL
+#>   errorbar_width         NULL
+#>   errorbar_fill          NULL
+#>   bar_fill               NULL
+#>   bar_color              NULL
+#>   bar_alpha              NULL
+#>   bar_linewidth          NULL
+#>   area_fill              NULL
+#>   area_color             NULL
+#>   area_alpha             NULL
+#>   area_linewidth         NULL
+#>   box_fill               NULL
+#>   box_color              NULL
+#>   box_alpha              NULL
+#>   box_linewidth          NULL
+#>   title                  NULL
+#>   xlabel                 NULL
+#>   ylabel                 NULL
+#>   xlims                  NULL
+#>   ylims                  NULL
+#>   logx                   NULL
+#>   logy                   NULL
+#>   xbreaks                NULL
+#>   ybreaks                NULL
+#>   xminor_breaks          NULL
+#>   yminor_breaks          NULL
+#>   xtick_labels           NULL
+#>   ytick_labels           NULL
+#>   xorder                 NULL
+#>   yorder                 NULL
+#>   equal_axis             NULL
+#>   legends                NULL
+#>   legend.position        NULL
+#>   legend.title.position  top
+#>   legend_nrow            NULL
+#>   legend_ncol            NULL
+#>   legend.title.hjust     NULL
+#>   caption_hjust          NULL
+#>   fill_alpha             NULL
+#>   facet                  NULL
+#>   facet_scales           NULL
+#>   facet_nrow             NULL
+#>   facet_ncol             NULL
+#>   theme                  <ggplot2 theme>
 ```
 
 A typical override:
@@ -389,18 +448,23 @@ A typical override:
 
 plot_doseprop(
   dose_prop_obj,
-  theme = plot_doseprop_theme(
-    obs_point = pmx_point(shape = 19, color = "black", alpha = 0.8, size = 1),
-    linear    = pmx_trend(color = "firebrick", se_color = "firebrick", se_alpha = 0.2))
+  style = style_doseprop(
+    shapes    = c(obs_point = 19),
+    colors    = c(obs_point = "black", linear = "firebrick"),
+    alphas    = c(obs_point = 0.8, linear = 0.2),
+    sizes     = c(obs_point = 1),
+    line_fill = "firebrick")
 )
 ```
 
-![](doseprop-workflow_files/figure-html/plot-themed-1.png)
+![](doseprop-workflow_files/figure-html/plot-styled-1.png)
 
-For a deeper treatment of the theme system — element constructors, role
-shortcuts, the `pmx_element` / `pmx_theme` class system, and predicates
-for theme validation — see the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
+For a deeper treatment of the styling system — `style_spec()` fields,
+per-role maps, and post-hoc
+[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
+/ [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) — see the
+[Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
 vignette.
 
 ## See also
@@ -409,7 +473,10 @@ vignette.
   workflow](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md)
   — exploratory analysis of continuous longitudinal concentration-time
   data, response-time, and response-concentration data.
-- [Plot Themes and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
-  — element constructors, theme factories, and class system for
+- [Plot Styling and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
+  — the `style_*()` presets, `style_spec()` fields and per-role maps,
+  and post-hoc
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
+  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
   customizing plot output.

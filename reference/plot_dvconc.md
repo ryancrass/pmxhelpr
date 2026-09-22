@@ -24,7 +24,7 @@ plot_dvconc(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL,
+  style = NULL,
   ...
 )
 ```
@@ -91,13 +91,17 @@ plot_dvconc(
   Logical indicating if a caption should be shown describing the data
   plotted
 
-- theme:
+- style:
 
-  Theme object created by
-  [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md).
-  Defaults can be viewed by running
-  [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md)
-  with no arguments.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md);
+  view the defaults by running
+  [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md)
+  with no arguments. Customize by passing `style = style_dvconc(...)`,
+  or restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
 
 - ...:
 
@@ -111,9 +115,9 @@ A `ggplot2` plot object
 ## See also
 
 Other exploratory analysis:
-[`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
-[`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+[`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md),
+[`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
 
 ## Examples
 
@@ -122,6 +126,7 @@ data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
 #> Warning: `col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.
+#> `geom_smooth()` using formula = 'y ~ x'
 #> `geom_smooth()` using formula = 'y ~ x'
 
 ```

@@ -3,8 +3,7 @@
 This vignette is a lean tour of every core `pmxhelpr` workflow in a
 single sitting. Each section ends with a link to the corresponding
 deep-dive article on the [pmxhelpr
-website](https://ryancrass.github.io/pmxhelpr/) for users who want more
-depth.
+website](https://ryancrass.github.io/pmxhelpr/).
 
 Exported functions follow a `ReturnType_Purpose` naming convention:
 
@@ -12,7 +11,9 @@ Exported functions follow a `ReturnType_Purpose` naming convention:
 - `df_*` — returns a `data.frame` (often class-tagged)
 - `var_*` — returns a vector (vectorized helpers for use inside
   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html))
-- `pmx_*` — returns a theme element constructor
+- `style_*` — returns a
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  style object
 
 The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original
 DV). Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight
@@ -75,11 +76,11 @@ glimpse(data_sad)
 #> $ PART    <chr> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part …
 ```
 
-The preprocessing step below labels each participant with a dosing
-regimen and per-group subject count using
+The pre-processing step below creates a new variable combining dose,
+frequency, and food status into a single dosing regimen variable with
+per-group subject counts appended using
 [`var_addn()`](https://ryancrass.github.io/pmxhelpr/reference/var_addn.md).
-We will also define separate PK and PD sets for use in downstream
-plotting functions.
+Separate datasets are also defined for exploration of PK and PD data.
 
 ``` r
 
@@ -87,36 +88,20 @@ data <- data_sad %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE, "mg x1", Food),
          Regimen = var_addn(DoseFood, ID))
+
+data_pk <- data %>% filter(CMT %in% c(1,2))
+data_pd <- data %>% filter(CMT %in% c(1,3))
+
 unique(data$Regimen)
 #> [1] 10 mg x1 Fasted (n=6)  50 mg x1 Fasted (n=6)  100 mg x1 Fasted (n=6)
 #> [4] 100 mg x1 Fed (n=6)    200 mg x1 Fasted (n=6) 400 mg x1 Fasted (n=6)
 #> 6 Levels: 10 mg x1 Fasted (n=6) ... 400 mg x1 Fasted (n=6)
-```
-
-The resulting factor variable is inspected, and then re-leveled with
-[`forcats::fct_relevel()`](https://forcats.tidyverse.org/reference/fct_relevel.html)
-to preserve dose order for plotting.
-
-``` r
-
-data <- data %>% 
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1))
-unique(data$Regimen)
-#> [1] 10 mg x1 Fasted (n=6)  50 mg x1 Fasted (n=6)  100 mg x1 Fasted (n=6)
-#> [4] 100 mg x1 Fed (n=6)    200 mg x1 Fasted (n=6) 400 mg x1 Fasted (n=6)
-#> 6 Levels: 10 mg x1 Fasted (n=6) ... 400 mg x1 Fasted (n=6)
-
-data_pk <- data %>%
-  filter(CMT %in% c(1,2))
-
-data_pd <- data %>% 
-  filter(CMT %in% c(1,3))
 ```
 
 ### `data_sad_nca`
 
-`data_sad_nca` contains pharmacokinetic parameters and exposure metrics
-from a non-compartmental analysis (NCA) of `data_sad` using the `PKNCA`
+`data_sad_nca` contains PK parameters and exposure metrics from a
+non-compartmental analysis (NCA) of `data_sad` using the `PKNCA`
 package.
 
 We will filter to Part 1 fasted conditions only for use in
@@ -143,11 +128,10 @@ data_nca_part1 <- filter(data_sad_nca, PART == "Part 1-SAD")
 
 ### `data_sad_pkfit`
 
-`data_sad_pkfit` is a model output dataset version of `data_sad` (`CMT`
-1 and 2) with two additional variables (`PRED` and `IPRED`) appended to
-the `data_sad`.
-
-These variables are derived from the internal PK model `pkmodel`.
+`data_sad_pkfit` is a model output dataset version of `data_sad`
+(`CMT`=1, 2) with two additional variables (`PRED` and `IPRED`)
+appended. These variables are derived from the internal PK model
+`pkmodel`.
 
 ``` r
 
@@ -205,26 +189,24 @@ see(pkmodel)
 #> capture Y = DV;
 ```
 
-We will process this dataset in a manner analogous to `data_sad` for
-plotting, but adding subject counts to a derived dosing regimen
-variable.
+We will process this dataset in a manner analogous to `data_sad`.
 
 ``` r
 
 data_gof <- data_sad_pkfit %>%
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted"),
          DoseFood = paste(DOSE, "mg x1", Food),
-         Regimen = var_addn(DoseFood, ID)) %>%
-  mutate(Regimen = fct_relevel(Regimen, "50 mg x1 Fasted (n=6)", after = 1))
+         Regimen = var_addn(DoseFood, ID)) 
 ```
 
 ## Longitudinal concentration and response with `plot_dvtime()`
 
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
-produces a longitudinal observed-versus-time plot with central-tendency
-overlays, which can be used for any longitudinal repeated measures
-continuous variable, including both concentration `CMT = 2`) and
-response (`CMT = 3`).
+produces a longitudinal plot of a repeated measures, continuous variable
+versus time. This plotting function can be used for longitudinal
+exploratory analysis of both concentration (`CMT = 2`) and response
+(`CMT = 3`) over time, with functionality for central tendency,
+variability, and BLQ handling.
 
 ``` r
 
@@ -234,7 +216,7 @@ pk_plot <- plot_dvtime(
   cent = "mean_sdl",
   col_var = Regimen,
   log_y = TRUE,
-  theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))
+  style = style_dvtime(alphas = c(obs_point = 0))
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 pk_plot
@@ -249,16 +231,15 @@ pd_plot <- plot_dvtime(
   dv_var = "CFB",
   cent = "mean_sdl",
   col_var = Regimen,
-  theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))
+  style = style_dvtime(alphas = c(obs_point = 0))
 ) +
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
 ```
 
-![](getting-started_files/figure-html/plot-dvtime-pd-1.png)
-
-The two plots can be composed into a single paneled figure using the
-`patchwork` package, aligned vertically with the shared time axis.
+![](getting-started_files/figure-html/plot-dvtime-pd-1.png) The two
+plots can be composed into a single paneled figure using the `patchwork`
+package, aligned vertically with the shared time axis.
 
 ``` r
 
@@ -269,18 +250,17 @@ The two plots can be composed into a single paneled figure using the
 
 See the [Exploratory Analyses of PK and PK/PD
 Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md)
-article for central tendency controls, BLQ imputation options,
-dose-normalization, and other visual controls.
+article for additional details on exploratory data analyses with
+`pmxhelpr`.
 
 ## Response versus concentration with `plot_dvconc()`
 
 [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
-plots a dependent variable against a continuous independent variable.
-The most common use case is visualizing a biomarker value or change
-metric of response against drug concentration. Trend line options
-include both linear (`linear`/`se_linear`) and non-linear
-(`loess`/`se_loess`) logical toggles to control the central tendency
-layer displayed.
+plots a continuous dependent variable versus a continuous independent
+variable. The most common use case is visualizing a pharmacodynamic
+response versus drug concentration. Trend line options include both
+linear (`linear`/`se_linear`) and non-linear (`loess`/`se_loess`)
+logical toggles.
 
 A dashed black reference line is drawn at `y = ref` when `ref` is
 specified.
@@ -302,7 +282,7 @@ plot_dvconc(
 ![](getting-started_files/figure-html/plot-dvconc-1.png)
 
 By default the trend lines are not grouped by the variable passed to
-`col_var`; however, this can be toggled on by `col_trend=TRUE`.
+`col_var`; however, this can be toggled on with `col_trend=TRUE`.
 
 ``` r
 
@@ -324,7 +304,8 @@ plot_dvconc(
 
 See the [Exploratory Analyses of PK and PK/PD
 Data](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md)
-article for theme customization and other trend customization options.
+article for additional details on exploratory data analyses with
+`pmxhelpr`.
 
 ## Dose-proportionality with `df_doseprop()` and `plot_doseprop()`
 
@@ -379,8 +360,8 @@ plot_doseprop(tab)
 
 See the [Dose-Proportionality
 Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.md)
-article for confidence-interval interpretation, multi-metric layouts,
-and theme customization.
+article for additional details on dose-proportionality assessment with
+`pmxhelpr`.
 
 ## Model diagnostics with `plot_gof()`
 
@@ -388,15 +369,16 @@ and theme customization.
 produces a population overlay goodness-of-fit (GOF) plot depicting
 binned central tendency layers of observed values (`dv`), individual
 predictions (`ipred`), and population predictions (`pred`) over time
-along with underlying observed data scatter layer (`obs`).
+along with the underlying observed data (`obs`) scatter.
 
 In most cases, these plots will be drawn using model output tables
 directly from estimation engines (e.g., NONMEM), which will only include
-predictions at timepoints non-missing and included in parameter
-estimation (e.g., MDV=0). Our input dataset `data_gof` (derived from
-`data_sad_pkfit`) includes model predictions from `mrgsim` at all
-timepoints; therefore, we will filter on input to mimic this common
-scenario.
+predictions at non-missing timepoints included in parameter estimation
+(e.g., MDV=0). The input dataset `data_gof` (derived from
+`data_sad_pkfit`) includes model predictions from
+[`mrgsolve::mrgsim()`](https://mrgsolve.org/docs/reference/mrgsim.html)
+at all timepoints; therefore, we will filter on input to mimic this
+common scenario.
 
 ``` r
 
@@ -410,50 +392,52 @@ plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
 
 See the [Goodness-of-Fit
 Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.md)
-article for specifying central tendency, BLQ handling, and theme
-customization.
+article for additional details on GOF diagnostics.
 
 ## VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 
-The VPC process has been fully built as a workflow within `pmxhelpr`,
-starting from the a fitted model that has been translated to an
-`mrgsolve` model format (`mrgmod`).
+The VPC workflow is an end to end process within `pmxhelpr`, starting
+from a fitted model that has been translated to an `mrgsolve` model
+format (`mrgmod`).
 
-From a validated model file, the VPC pipeline includes: + replication of
-the input dataset via simulation with
-[`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md) +
-derivation of within and across trial replicate summary statistics with
-`df_vpcstats` + plot building with
-[`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
-(both continuous and censored `type` available)
+From a validated model file, the VPC pipeline includes functionality to:
+
+1.  replicate the input dataset with
+    [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+2.  derive summary statistics within and across replicates with
+    [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+3.  build plots with
+    [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
+    /
+    [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md)
 
 ### Run the simulation with `df_mrgsim_replicate()`
 
 [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
-is a wrapper function for
-[`mrgsim_df()`](https://mrgsolve.org/docs/reference/mrgsim.html), which
-uses [`lapply()`](https://rdrr.io/r/base/lapply.html) (or
+is a wrapper function for `mrgsim::mrgsim_df()`, which uses
+[`lapply()`](https://rdrr.io/r/base/lapply.html) to iterate from 1 to
+the integer value passed to `replicates`. This can be parallelized using
 [`future.apply::future_lapply()`](https://future.apply.futureverse.org/reference/future_lapply.html)
 when `parallel = TRUE` and a corresponding
 [`future::plan()`](https://future.futureverse.org/reference/plan.html)
-in place) to iterate the simulation over integers from 1 to the value
-passed to the argument `replicates`.
+is in place.
 
 There are 3 required arguments to
-[`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+[`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md):
 
 - `data`, a `data.frame` modeling analysis dataset
 - `model`, a `mrgmod` model object
-- `replicates`, numeric number of replicates to perform.
+- `replicates`, integer number of replicates to perform.
 
 The are optional arguments specifying key dataset variables to be input
-into the simulation or captured in output. These include: - `dv_var` =
-DV, dependent variable - `time_var` = TIME, actual time variable -
-`ntime_var` = NTIME, nominal time variable - `pred_var` = PRED,
-population prediction variable (fixed effects only) - `ipred_var` =
-IPRED, individual prediction variable (fixed + level 1 random effects) -
-`sim_dv_var` = DV, dependent variable captured in the simulated output
-(fixed + level 1 and 2 random effects)
+into the simulation or captured in output. These include:
+
+- `dv_var` = DV, dependent variable
+- `time_var` = TIME, actual time variable
+- `ntime_var` = NTIME, nominal time variable
+- `pred_var` = PRED, population prediction variable
+- `ipred_var` = IPRED, individual prediction variable
+- `sim_dv_var` = DV, dependent variable captured in the simulated output
 
 ``` r
 
@@ -497,10 +481,13 @@ glimpse(simout)
 ### Calculate summary statistics with `df_vpcstats()`
 
 `df_vpcstats` performs the input data validation and summary statistic
-calculations for the VPC, returning a `pmx_stats`, `vpc_stats` S3
-container including `$stats` (`data.frame` of summary statistics),
-`$obs` observed data for scatter plot overlay, `$config` configuration
-information (e.g., replicates, loq, stratifying variable).
+calculations for the VPC, returning a `vpc_stats` S3 container
+including:
+
+- `$stats` (`data.frame` of summary statistics)
+- `$obs` observed data for scatter plot overlay
+- `$config` configuration info (e.g., replicates, loq, stratifying
+  variable).
 
 `vpc_stats` objects contain both standard, prediction-correction, and
 proportion BLQ statistics and may be passed directly to
@@ -510,8 +497,7 @@ or
 following a 2-stage workflow. Both plotting functions can also take in
 the raw simulated output and call
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
-internally for a one-stage workflow; however, the summary calculation
-computation cost is paid in every plot.
+internally in a one-stage workflow.
 
 ``` r
 
@@ -595,11 +581,14 @@ pcvpc_part
 Plotting the censored data range with `plot_vpc_cens`
 
 [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md)
-is the companion diagnostic for the censored portion of the range — the
-per-bin BLQ proportion. It mirrors
+is the companion diagnostic for the censored portion of the data range.
+It mirrors
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
-but plots `obs_prop_blq` and the empirical confidence band of
-`sim_prop_blq` across replicates, and requires a LOQ source.
+but plots `obs_prop_blq` and the non-parametric confidence band of
+`sim_prop_blq` across replicates. VPC plots of the censored data range
+should be generated prior to prediction-corrected VPCs (pcVPCs) to
+ensure that the model is adequately predictive of the censored data
+range prior to generating pcVPCs of the quantifiable data range.
 
 The most relevant censored VPC is that stratified by dose and food
 status, which are combined in the `Regimen` variable.
@@ -621,11 +610,13 @@ cens_vpc_regimen
 ### Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
 
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-returns a legend that can be patchworked beneath the VPC panel(s). The
-four row layout below stacks the continuous and censored VPCs with
-legends. The two-stage plot building from `vpc_stats` objects is also
-demonstrated, highlighting the potential efficiency of reusing a
-precomputed object in such a workflow.
+returns a legend that can be combined with the VPC plots using the
+`patwork` package. The four row layout below stacks the continuous and
+censored VPCs with their corresponding legends.
+
+The two-stage plot building from a`vpc_stats` objects is also
+demonstrated, highlighting the potential efficiencies of reusing a
+pre-computed object.
 
 ``` r
 
@@ -633,11 +624,14 @@ vpc_plot_cont <- plot_vpc_cont(vpcstats_obj_regimen) +
   scale_x_continuous(breaks = seq(0, 168, 24)) +
   scale_y_log10(guide = "axis_logticks") +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)")
+
 vpc_plot_cens <- plot_vpc_cens(vpcstats_obj_regimen) +
   scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(x = "Time (hours)", y = "Proportion BLQ")
+
 cont_legend <- plot_vpc_legend()
 cens_legend <- plot_vpc_legend(type = "cens", shown = plot_vpc_shown(obs_point = FALSE))
+
 vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend + 
   plot_layout(heights = c(2, 0.5, 1, 0.5))
 ```
@@ -646,42 +640,169 @@ vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend +
 
 See the [Visual Predictive Check
 Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md)
-article for stratification controls, BLQ handling options, multi-LLOQ
-pooling, `shown`/`theme` customization, and pairing pcVPC with cens VPC.
+article for additional details on the VPC toolchain with `pmxhelpr`.
 
-## Theme system overview
+## Plot themes with `ggstylekit`
 
-Every `plot_*()` function has a paired `plot_*_theme()` factory that
-returns a named list of default element keys that follow a
-`datalayer_geom` pattern. Elements are built with typed constructors
-([`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md),
-[`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md),
-[`pmx_ribbon()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_ribbon.md),
-[`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md),
-[`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md),
-[`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md),
-[`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md))
-and passed to keys within the factory function. The factory functions
-merges user-supplied overrides and override only the values passed
-leaves the rest at their default values.
+`pmxhelpr` leverages the functionality of the `ggstylekit` package to
+control the styling of plot elements.
+
+Every `plot_*()` function ships with a companion `style_*()` helper
+function that returns a
+[`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+object pre-filled with the defaults. The defaults styling for each plot
+type can be visualized by calling the function with no arguments
 
 ``` r
 
-plot_dvtime_theme()
-#> <plot_dvtime_theme>
-#>   obs_point     <pmx_point>: shape = 1, size = 0.75, alpha = 0.5
-#>   obs_line      <pmx_line>: linewidth = 0.5, linetype = 1, alpha = 0.5
-#>   cent_point    <pmx_point>: shape = 16, size = 1.25, alpha = 0
-#>   cent_line     <pmx_line>: linewidth = 0.75, linetype = 1, alpha = 1
-#>   cent_errorbar <pmx_errorbar>: linewidth = 0.75, linetype = 1, alpha = 1, width = NULL
-#>   ref_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
-#>   loq_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
+style_dvtime()
+#> <ggstylekit_style_spec>
+#>   colors                 NULL
+#>   fill                   NULL
+#>   linetypes              solid , solid , dashed, dashed
+#>   alphas                 0.5, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0
+#>   shapes                  1, 16
+#>   sizes                  0.75, 1.25
+#>   linewidths             0.50, 0.75, 0.75, 0.50, 0.50
+#>   point_color            NULL
+#>   point_alpha            NULL
+#>   point_size             NULL
+#>   point_shape            NULL
+#>   line_color             NULL
+#>   line_alpha             NULL
+#>   line_linetype          NULL
+#>   line_linewidth         NULL
+#>   line_fill              NULL
+#>   errorbar_color         NULL
+#>   errorbar_alpha         NULL
+#>   errorbar_linetype      NULL
+#>   errorbar_linewidth     NULL
+#>   errorbar_width         NULL
+#>   errorbar_fill          NULL
+#>   bar_fill               NULL
+#>   bar_color              NULL
+#>   bar_alpha              NULL
+#>   bar_linewidth          NULL
+#>   area_fill              NULL
+#>   area_color             NULL
+#>   area_alpha             NULL
+#>   area_linewidth         NULL
+#>   box_fill               NULL
+#>   box_color              NULL
+#>   box_alpha              NULL
+#>   box_linewidth          NULL
+#>   title                  NULL
+#>   xlabel                 NULL
+#>   ylabel                 NULL
+#>   xlims                  NULL
+#>   ylims                  NULL
+#>   logx                   NULL
+#>   logy                   NULL
+#>   xbreaks                NULL
+#>   ybreaks                NULL
+#>   xminor_breaks          NULL
+#>   yminor_breaks          NULL
+#>   xtick_labels           NULL
+#>   ytick_labels           NULL
+#>   xorder                 NULL
+#>   yorder                 NULL
+#>   equal_axis             NULL
+#>   legends                NULL
+#>   legend.position        NULL
+#>   legend.title.position  top
+#>   legend_nrow            NULL
+#>   legend_ncol            NULL
+#>   legend.title.hjust     NULL
+#>   caption_hjust          NULL
+#>   fill_alpha             NULL
+#>   facet                  NULL
+#>   facet_scales           NULL
+#>   facet_nrow             NULL
+#>   facet_ncol             NULL
+#>   theme                  <ggplot2 theme>
+```
 
-new_dvtime_theme <- plot_dvtime_theme(
-    obs_point = pmx_point(alpha = 0),
-    cent_line = pmx_line(linewidth = 1.5),
-    cent_errorbar = pmx_errorbar(linewidth = 1.5)
+Styling is keyed by *roles* (e.g. `obs_point`, `cent_line`,
+`cent_errorbar`, `ref_line`, `loq_line`). The *values* for each key are
+individual plot aesthetics (e.g, `colors`, `shapes`, `sizes`,
+`linetypes`, `linewidths`, `alphas`) with partial overrides merge onto
+the defaults so setting one role leaves the others untouched.
+
+New styles can be defined as an object and recycled across plots. This
+revised style object removes the observed points and increases the
+linewidth of the central tendency line and error bars.
+
+``` r
+
+new_dvtime_style <- style_dvtime(
+    alphas     = c(obs_point = 0),
+    linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
+new_dvtime_style
+#> <ggstylekit_style_spec>
+#>   colors                 NULL
+#>   fill                   NULL
+#>   linetypes              solid , solid , dashed, dashed
+#>   alphas                 0.0, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0
+#>   shapes                  1, 16
+#>   sizes                  0.75, 1.25
+#>   linewidths             0.5, 1.5, 1.5, 0.5, 0.5
+#>   point_color            NULL
+#>   point_alpha            NULL
+#>   point_size             NULL
+#>   point_shape            NULL
+#>   line_color             NULL
+#>   line_alpha             NULL
+#>   line_linetype          NULL
+#>   line_linewidth         NULL
+#>   line_fill              NULL
+#>   errorbar_color         NULL
+#>   errorbar_alpha         NULL
+#>   errorbar_linetype      NULL
+#>   errorbar_linewidth     NULL
+#>   errorbar_width         NULL
+#>   errorbar_fill          NULL
+#>   bar_fill               NULL
+#>   bar_color              NULL
+#>   bar_alpha              NULL
+#>   bar_linewidth          NULL
+#>   area_fill              NULL
+#>   area_color             NULL
+#>   area_alpha             NULL
+#>   area_linewidth         NULL
+#>   box_fill               NULL
+#>   box_color              NULL
+#>   box_alpha              NULL
+#>   box_linewidth          NULL
+#>   title                  NULL
+#>   xlabel                 NULL
+#>   ylabel                 NULL
+#>   xlims                  NULL
+#>   ylims                  NULL
+#>   logx                   NULL
+#>   logy                   NULL
+#>   xbreaks                NULL
+#>   ybreaks                NULL
+#>   xminor_breaks          NULL
+#>   yminor_breaks          NULL
+#>   xtick_labels           NULL
+#>   ytick_labels           NULL
+#>   xorder                 NULL
+#>   yorder                 NULL
+#>   equal_axis             NULL
+#>   legends                NULL
+#>   legend.position        NULL
+#>   legend.title.position  top
+#>   legend_nrow            NULL
+#>   legend_ncol            NULL
+#>   legend.title.hjust     NULL
+#>   caption_hjust          NULL
+#>   fill_alpha             NULL
+#>   facet                  NULL
+#>   facet_scales           NULL
+#>   facet_nrow             NULL
+#>   facet_ncol             NULL
+#>   theme                  <ggplot2 theme>
 ```
 
 ``` r
@@ -692,17 +813,23 @@ plot_dvtime(
   cent = "mean_sdl",
   col_var = "Regimen",
   log_y = TRUE,
-  theme = new_dvtime_theme
+  style = new_dvtime_style
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-![](getting-started_files/figure-html/plot-dvtime-themed-1.png)
+![](getting-started_files/figure-html/plot-dvtime-styled-1.png)
 
-See the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
-article for the full theme catalog, element-constructor reference, and
-the class system that backs them.
+A finished plot object can also be restyled after the fact with
+[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+Additionally, variables can be surfaced and mapped to aesthetics after
+the fact with
+[`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html). Both are
+re-exported from ggstylekit.
+
+See the [Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
+article for additional details on plot styling with `pmxhelpr`.
 
 ## Where to go next
 
@@ -714,5 +841,5 @@ the class system that backs them.
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.md)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md)
-- [Plot Themes and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
+- [Plot Styling and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)

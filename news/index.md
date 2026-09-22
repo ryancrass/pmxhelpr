@@ -1,5 +1,115 @@
 # Changelog
 
+## pmxhelpr 0.6.0
+
+Plot styling is now powered by the `ggstylekit` package, replacing the
+bespoke `pmx_*` element/theme system introduced in 0.5.0.
+
+### New features
+
+- Plot aesthetics are controlled with
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html).
+  Each plot family has a `style_*()` preset —
+  [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md),
+  [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md),
+  [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md),
+  [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md),
+  and
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  — that returns a pre-filled style spec for the new `style` argument
+  (replaces `theme`).
+- [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html),
+  [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html),
+  and
+  [`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html)
+  are re-exported from ggstylekit.
+- Error bar cap width is a style field:
+  `style_dvtime(errorbar_width = ...)` and
+  `style_gof(errorbar_width = ...)`. When unset,
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  default it to 2.5% of the maximum nominal time.
+- [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  and
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  take their facet layout from the style (`facet_scales`, `facet_nrow`,
+  `facet_ncol`). These builders facet internally (by `strat_var` or by
+  metric), so the style’s `facet` field is ignored when they do.
+- [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  honors `legend.title.position` and `legend.title.hjust` from the
+  style, so the standalone legend matches its plot.
+- All `style_*()` presets place legend titles above the keys
+  (`legend.title.position = "top"`).
+- Plot functions abort early with an informative message when `style` is
+  not a
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  object.
+- Character `col_var` values with numeric labels (e.g. `"5 mg"`,
+  `"20 mg"`, `"100 mg"`) are ordered by value, not alphabetically, in
+  legends and per-series color assignment
+  ([`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)).
+- `ggstylekit (>= 0.4.0)` is a new dependency (Imports).
+
+### Breaking changes
+
+#### Removed functions
+
+- The `pmx_*` element constructors are removed: `pmx_point()`,
+  `pmx_line()`, `pmx_ribbon()`, `pmx_errorbar()`, `pmx_trend()`,
+  `pmx_style()`, and `pmx_color()`.
+- The theme factories are removed: `plot_dvtime_theme()`,
+  `plot_dvconc_theme()`, `plot_gof_theme()`, `plot_doseprop_theme()`,
+  and `plot_vpc_theme()`. Use the corresponding `style_*()` preset
+  instead.
+- The theme class system is removed: `pmx_theme()`, `is_pmx_element()`,
+  `is_pmx_theme()`, and the `+` / `print` methods for `pmx_element` and
+  `pmx_theme`.
+
+#### Renamed and changed arguments
+
+- The `theme` argument of
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md),
+  [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md),
+  and
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  is renamed to `style` and now takes a
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  object, typically from a `style_*()` preset.
+- Error bar cap width moved out of the theme
+  (`pmx_errorbar(width = ...)`) to the `errorbar_width` field of
+  [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
+  and
+  [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md).
+
+### Migration
+
+Replace `theme = plot_<fn>_theme(<role> = pmx_*(<field> = <value>))`
+with `style = style_<fn>(<map> = c(<role> = <value>))`, where `<map>` is
+the ggstylekit per-series map for that aesthetic (`colors`, `fill`,
+`shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`):
+
+``` r
+
+# before (0.5.x)
+plot_dvtime(data, theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0)))
+
+# after (0.6.0)
+plot_dvtime(data, style = style_dvtime(alphas = c(obs_point = 0)))
+```
+
+See the *Plot Styling and Aesthetics* vignette for the role vocabulary;
+call any `style_*()` preset with no arguments to view its defaults.
+
 ## pmxhelpr 0.5.1
 
 - Bug fix in
@@ -45,8 +155,7 @@ proportion of data BLQ over time.
   [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md).
 - `plot_popgof()` / `plot_popgof_theme()` are renamed to
   [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
-  /
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md).
+  / `plot_gof_theme()`.
 - `plot_vpc_exactbins()` is renamed to
   [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
   (arguments revised — see “Removed and renamed arguments”).
@@ -78,10 +187,7 @@ proportion of data BLQ over time.
   `cfb = TRUE, cfb_base = 0` becomes `ref = 0`.
 - [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md):
   `output_colors` is removed — overlay colors for DV, PRED, and IPRED
-  are now set via
-  [`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md)
-  in
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md).
+  are now set via `pmx_color()` in `plot_gof_theme()`.
 - [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md):
   `update` is renamed to `theme`, aligning with the theme-argument
   convention used by the other plot functions.
@@ -153,8 +259,7 @@ proportion of data BLQ over time.
   renders a dose-proportionality ggplot from any `doseprop_stats`
   container; most users still go through
   [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md).
-- [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
-  is a theme factory for
+- `plot_doseprop_theme()` is a theme factory for
   [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
   with keys `obs_point` and `linear`.
 - [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
@@ -237,34 +342,23 @@ proportion of data BLQ over time.
 
 #### Theme system
 
-- New
-  [`pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_theme.md)
-  factory and `pmx_*()` element constructors —
-  [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md),
-  [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md),
-  [`pmx_ribbon()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_ribbon.md),
-  [`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md),
-  and
-  [`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md)
-  — replace the previous flat list of role- and geometry-based theme
-  elements.
+- New `pmx_theme()` factory and `pmx_*()` element constructors —
+  `pmx_point()`, `pmx_line()`, `pmx_ribbon()`, `pmx_errorbar()`, and
+  `pmx_trend()` — replace the previous flat list of role- and
+  geometry-based theme elements.
 - Theme factory keys follow a `layer_element` convention
   (e.g. `obs_point`, `cent_errorbar`, `ref_line`, `loq_line`). VPC keys
   follow an `element_statistic` convention aligned with the `shown`
   argument (e.g. `obs_median_line`, `sim_pi_ci`).
-- New
-  [`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md)
-  constructor sets overlay colors for DV, PRED, and IPRED in
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md)
-  — e.g. `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`.
-- New
-  [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
-  convenience constructor applies shared aesthetics (color, alpha) to
-  both point and line elements of a role —
+- New `pmx_color()` constructor sets overlay colors for DV, PRED, and
+  IPRED in `plot_gof_theme()` —
+  e.g. `plot_gof_theme(cent_color = pmx_color(pred = "purple"))`.
+- New `pmx_style()` convenience constructor applies shared aesthetics
+  (color, alpha) to both point and line elements of a role —
   e.g. `plot_dvtime_theme(obs = pmx_style(alpha = 0.3))`.
 - `+.pmx_theme()` and `+.pmx_element()` methods compose partial themes;
-  [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
-  shortcuts are applied first and explicit element-level overrides win.
+  `pmx_style()` shortcuts are applied first and explicit element-level
+  overrides win.
 
 #### S3 classes and predicates
 
@@ -291,9 +385,9 @@ proportion of data BLQ over time.
   argument instead.
 - Predicates
   [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md),
-  [`is_pmx_element()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_element.md),
+  `is_pmx_element()`,
   [`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md),
-  [`is_pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_theme.md),
+  `is_pmx_theme()`,
   [`is_pmx_vpc_plot()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_vpc_plot.md),
   and
   [`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md)

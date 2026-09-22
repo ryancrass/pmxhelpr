@@ -24,7 +24,7 @@ plot_vpc_cont(
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   pi = c(0.05, 0.95),
   ci = 0.9
 )
@@ -64,7 +64,8 @@ plot_vpc_cont(
 - strat_var:
 
   Stratification variable. Accepts bare names or strings. Currently,
-  only a single stratifying variable is supported.
+  only a single stratifying variable is supported. Facet layout is taken
+  from the `style`: `facet_scales`, `facet_nrow`, and `facet_ncol`.
 
 - pcvpc:
 
@@ -89,9 +90,9 @@ plot_vpc_cont(
   censored in the same way before quantile calculation. + If `loq=NULL`
   and `LLOQ` is NOT present in `data`, filter to `MDV==0` since `loq` is
   unknown. Dashed horizontal line plotted at each unique LLOQ value by
-  default for standard VPCs (controlled via `theme`); suppressed for
-  `pcvpc = TRUE` since `loq` has no meaning on the prediction-corrected
-  scale.
+  default for standard VPCs (styled via the `loq_line` role); suppressed
+  for `pcvpc = TRUE` since `loq` has no meaning on the
+  prediction-corrected scale.
 
 - irep_name:
 
@@ -134,13 +135,20 @@ plot_vpc_cont(
   [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
   with no arguments.
 
-- theme:
+- style:
 
-  Named list of aesthetic parameters for the plot created by
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
-  Defaults can be viewed by running
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-  with no arguments.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
+  view the defaults by running
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  with no arguments. Customize by passing `style = style_vpc(...)`, or
+  restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  Pass the same style to
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  so the legend matches.
 
 - pi:
 
@@ -174,7 +182,7 @@ Other vpc:
 [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
 [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md),
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 
 ## Examples
 

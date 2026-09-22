@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -121,53 +121,9 @@
         </dt>
         <dd>Build a dose-proportionality ggplot from a <code>doseprop_stats</code> object</dd>
       </dl></div><div class="section level2">
-      <h2 id="theme-factories">Theme Factories<a class="anchor" aria-label="anchor" href="#theme-factories"></a></h2>
+      <h2 id="styling">Styling<a class="anchor" aria-label="anchor" href="#styling"></a></h2>
 
-      <div class="section-desc"><p>Per-plot-family factories that return default theme objects for the <code>theme</code> argument.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="plot_dvtime_theme.html">plot_dvtime_theme()</a></code>
-
-        </dt>
-        <dd>Concentration-time plot theme</dd>
-
-        <dt>
-
-          <code><a href="plot_dvconc_theme.html">plot_dvconc_theme()</a></code>
-
-        </dt>
-        <dd>Response versus concentration plot theme</dd>
-
-        <dt>
-
-          <code><a href="plot_gof_theme.html">plot_gof_theme()</a></code>
-
-        </dt>
-        <dd>Population overlay GOF plot theme</dd>
-
-        <dt>
-
-          <code><a href="plot_doseprop_theme.html">plot_doseprop_theme()</a></code>
-
-        </dt>
-        <dd>Dose-proportionality plot theme</dd>
-
-        <dt>
-
-          <code><a href="plot_vpc_theme.html">plot_vpc_theme()</a></code>
-
-        </dt>
-        <dd>VPC plot theme</dd>
-      </dl></div><div class="section level2">
-      <h2 id="element-constructors">Element Constructors<a class="anchor" aria-label="anchor" href="#element-constructors"></a></h2>
-
-      <div class="section-desc"><p>Typed constructors for <code>theme</code> overrides; map to <code>ggplot2</code> geom aesthetics.</p></div>
+      <div class="section-desc"><p>Per-plot-family presets returning a <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> for the <code>style</code> argument (customize by passing fields, e.g. <code>style_dvtime(shapes = ...)</code>), plus the <code>ggstylekit</code> verbs re-exported for adjusting a finished plot: <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>, and <code><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec()</a></code>.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -176,52 +132,45 @@
 
       <dl><dt>
 
-          <code><a href="pmx_point.html">pmx_point()</a></code>
+          <code><a href="style_dvtime.html">style_dvtime()</a></code>
 
         </dt>
-        <dd>Point aesthetics</dd>
+        <dd>Concentration-time plot style (<code>plot_dvtime</code>)</dd>
 
         <dt>
 
-          <code><a href="pmx_line.html">pmx_line()</a></code>
+          <code><a href="style_dvconc.html">style_dvconc()</a></code>
 
         </dt>
-        <dd>Line aesthetics</dd>
+        <dd>Response versus concentration plot style (<code>plot_dvconc</code>)</dd>
 
         <dt>
 
-          <code><a href="pmx_ribbon.html">pmx_ribbon()</a></code>
+          <code><a href="style_gof.html">style_gof()</a></code>
 
         </dt>
-        <dd>Ribbon aesthetics</dd>
+        <dd>Population overlay GOF plot style (<code>plot_gof</code>)</dd>
 
         <dt>
 
-          <code><a href="pmx_errorbar.html">pmx_errorbar()</a></code>
+          <code><a href="style_doseprop.html">style_doseprop()</a></code>
 
         </dt>
-        <dd>Error bar aesthetics</dd>
+        <dd>Dose-proportionality plot style (<code>plot_doseprop</code>)</dd>
 
         <dt>
 
-          <code><a href="pmx_trend.html">pmx_trend()</a></code>
+          <code><a href="style_vpc.html">style_vpc()</a></code>
 
         </dt>
-        <dd>Trend line aesthetics (dvconc loess/linear)</dd>
+        <dd>VPC plot style (<code>plot_vpc_cont</code> / <code>plot_vpc_cens</code>)</dd>
 
         <dt>
 
-          <code><a href="pmx_style.html">pmx_style()</a></code>
+          <code><a href="reexports.html">reexports</a></code> <code><a href="reexports.html">restyle_plot</a></code> <code><a href="reexports.html">reveal</a></code> <code><a href="reexports.html">combine_styled_plots</a></code> <code><a href="reexports.html">legend_spec</a></code>
 
         </dt>
-        <dd>Shared style for point and line layers</dd>
-
-        <dt>
-
-          <code><a href="pmx_color.html">pmx_color()</a></code>
-
-        </dt>
-        <dd>GOF overlay color aesthetics</dd>
+        <dd>Objects exported from other packages</dd>
       </dl></div><div class="section level2">
       <h2 id="layer-visibility">Layer Visibility<a class="anchor" aria-label="anchor" href="#layer-visibility"></a></h2>
 
@@ -340,7 +289,7 @@
       </dl></div><div class="section level2">
       <h2 id="s-class-system">S3 Class System<a class="anchor" aria-label="anchor" href="#s-class-system"></a></h2>
 
-      <div class="section-desc"><p>Predicates, constructors, operators, and methods for the shared <code>pmx_stats</code> / <code>pmx_theme</code> base classes and their <code>vpc_stats</code>, <code>doseprop_stats</code>, and <code>pmx_element</code> siblings.</p></div>
+      <div class="section-desc"><p>Predicates, constructors, operators, and methods for the shared <code>pmx_stats</code> base class and its <code>vpc_stats</code> and <code>doseprop_stats</code> siblings, plus the <code>pmx_vpc_plot</code> ggplot subclass.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -353,13 +302,6 @@
 
         </dt>
         <dd>Construct a <code>pmx_stats</code> container</dd>
-
-        <dt>
-
-          <code><a href="pmx_theme.html">pmx_theme()</a></code>
-
-        </dt>
-        <dd>Construct a <code>pmx_theme</code></dd>
 
         <dt>
 
@@ -391,38 +333,10 @@
 
         <dt>
 
-          <code><a href="is_pmx_element.html">is_pmx_element()</a></code>
-
-        </dt>
-        <dd>Test whether an object is a pmx theme element</dd>
-
-        <dt>
-
-          <code><a href="is_pmx_theme.html">is_pmx_theme()</a></code>
-
-        </dt>
-        <dd>Test whether an object is a pmx plot theme</dd>
-
-        <dt>
-
           <code><a href="plus-.pmx_vpc_plot.html">`+`(<i>&lt;pmx_vpc_plot&gt;</i>)</a></code>
 
         </dt>
         <dd>Add a layer to a <code>pmx_vpc_plot</code> with a facet warning</dd>
-
-        <dt>
-
-          <code><a href="plus-.pmx_theme.html">`+`(<i>&lt;pmx_theme&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Combine two pmx plot themes</dd>
-
-        <dt>
-
-          <code><a href="plus-.pmx_element.html">`+`(<i>&lt;pmx_element&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Combine two pmx theme elements</dd>
 
         <dt>
 
@@ -472,20 +386,6 @@
 
         </dt>
         <dd>Summary method for <code>doseprop_stats</code></dd>
-
-        <dt>
-
-          <code><a href="print.pmx_element.html">print(<i>&lt;pmx_element&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print method for pmx theme elements</dd>
-
-        <dt>
-
-          <code><a href="print.pmx_theme.html">print(<i>&lt;pmx_theme&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Print method for pmx plot themes</dd>
       </dl></div><div class="section level2">
       <h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a></h2>
 
@@ -526,7 +426,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

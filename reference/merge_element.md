@@ -1,7 +1,12 @@
-# Internal helper: Merge user element overrides into a complete default element
+# Internal helper: Merge user overrides into a complete default named list
 
-Iterates over names in the user-supplied element and overwrites matching
-fields in the default. Warns on unrecognized field names.
+Iterates over names in the user-supplied list and overwrites matching
+entries in the default. Warns on unrecognized names. Used to merge the
+layer visibility lists from
+[`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
+/
+[`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
+over their defaults.
 
 ## Usage
 
@@ -13,21 +18,30 @@ merge_element(user, default)
 
 - user:
 
-  User-supplied element with partial overrides, or `NULL`.
+  User-supplied list with partial overrides, or `NULL`.
 
 - default:
 
-  Complete default element.
+  Complete default list.
 
 ## Value
 
-A merged element with the same class as `default`
+A merged list with the same class as `default`
 
 ## Examples
 
 ``` r
-defaults <- pmx_point(shape = 1, size = 0.75, alpha = 0.5)
-pmxhelpr:::merge_element(pmx_point(size = 2), defaults)
-#> <pmx_point>
-#>   shape = 1, size = 2, alpha = 0.5
+pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
+#> $obs
+#> [1] FALSE
+#> 
+#> $dv
+#> [1] TRUE
+#> 
+#> $pred
+#> [1] TRUE
+#> 
+#> $ipred
+#> [1] TRUE
+#> 
 ```

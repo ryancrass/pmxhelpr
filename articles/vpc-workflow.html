@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -1239,7 +1239,7 @@ steps and is useful when you want to inspect the summary statistics and
 then plot the same data multiple times — for example, flipping between
 the standard and prediction-corrected views, or rendering with a
 different <code>min_bin_count</code>, <code>shown</code>, or
-<code>theme</code> — without paying the summarization cost on every
+<code>style</code> — without paying the summarization cost on every
 call.</p>
 <p>The <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> return is class-tagged
 <code>"vpc_stats"</code> (see <a href="#inspecting-the-vpc_stats-object">Inspecting the
@@ -1270,7 +1270,7 @@ them on the cached path would silently shadow the original values.
 Passing any of them aborts with a message pointing the caller back at
 <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>. Only plot-only arguments
 (<code>min_bin_count</code>, <code>show_rep</code>, <code>shown</code>,
-<code>theme</code>, <code>pcvpc</code>) are accepted on this path; to
+<code>style</code>, <code>pcvpc</code>) are accepted on this path; to
 change a pipeline setting, re-run <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> and pass
 the new result.</p>
 <p><code>plot_vpc_cont</code> censors quantiles of the observed data
@@ -1390,7 +1390,7 @@ arms in early phase trials.</p>
 <code><a href="../reference/plot_build_vpc.html">plot_build_vpc()</a></code> is exported as the public renderer. It is
 the same engine that <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> uses internally and
 accepts the same plot-only arguments (<code>min_bin_count</code>,
-<code>show_rep</code>, <code>shown</code>, <code>theme</code>,
+<code>show_rep</code>, <code>shown</code>, <code>style</code>,
 <code>pcvpc</code>). <code>strat_var</code> and <code>loq</code> inherit
 from the container’s <code>$config</code> slot when not passed
 explicitly.</p>
@@ -1400,47 +1400,101 @@ explicitly.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="adjusting-the-plot-theme-with-plot_vpc_theme">Adjusting the Plot Theme with <code>plot_vpc_theme()</code><a class="anchor" aria-label="anchor" href="#adjusting-the-plot-theme-with-plot_vpc_theme"></a>
+<h2 id="adjusting-plot-style-with-style_vpc">Adjusting Plot Style with <code>style_vpc()</code><a class="anchor" aria-label="anchor" href="#adjusting-plot-style-with-style_vpc"></a>
 </h2>
 <p>The default aesthetics for VPC plots are controlled via
-<code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code>. See the <a href="plot-themes.html">Plot
-Themes and Aesthetics</a> vignette for details on the theme system,
-element constructors, and examples of customizing VPC aesthetics.</p>
+<code><a href="../reference/style_vpc.html">style_vpc()</a></code>. See the <a href="plot-styling.html">Plot
+Styling and Aesthetics</a> vignette for details on the styling system,
+the <code>style_spec()</code> fields, and examples of customizing VPC
+aesthetics.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_vpc_theme.html">plot_vpc_theme</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;plot_vpc_theme&gt;</span></span>
-<span><span class="co">#&gt;   obs_point       &lt;pmx_point&gt;: shape = 1, size = 1, alpha = 0.7, color = #0000FF</span></span>
-<span><span class="co">#&gt;   obs_median_line &lt;pmx_line&gt;: linewidth = 1, linetype = solid, color = #FF0000</span></span>
-<span><span class="co">#&gt;   obs_pi_line     &lt;pmx_line&gt;: linewidth = 0.5, linetype = dashed, color = #0000FF</span></span>
-<span><span class="co">#&gt;   sim_pi_line     &lt;pmx_line&gt;: linewidth = 1, linetype = dotted, color = #000000</span></span>
-<span><span class="co">#&gt;   sim_pi_ci       &lt;pmx_ribbon&gt;: fill = #0000FF, alpha = 0.15</span></span>
-<span><span class="co">#&gt;   sim_pi_area     &lt;pmx_ribbon&gt;: fill = #0000FF, alpha = 0.15</span></span>
-<span><span class="co">#&gt;   sim_median_line &lt;pmx_line&gt;: linewidth = 1, linetype = dashed, color = #000000</span></span>
-<span><span class="co">#&gt;   sim_median_ci   &lt;pmx_ribbon&gt;: fill = #FF0000, alpha = 0.3</span></span>
-<span><span class="co">#&gt;   loq_line        &lt;pmx_line&gt;: linewidth = 0.5, linetype = dashed, color = #990000</span></span></code></pre></div>
-<p>We can define an alternative theme using a blue / grey color schema
-using this function and the constructor helpers.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/style_vpc.html">style_vpc</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;ggstylekit_style_spec&gt;</span></span>
+<span><span class="co">#&gt;   colors                 #0000FF, #FF0000, #0000FF, #000000, #000000, #990000</span></span>
+<span><span class="co">#&gt;   fill                   #0000FF, #0000FF, #FF0000</span></span>
+<span><span class="co">#&gt;   linetypes              solid , dashed, dotted, dashed, dashed</span></span>
+<span><span class="co">#&gt;   alphas                 0.70, 0.15, 0.15, 0.30</span></span>
+<span><span class="co">#&gt;   shapes                 1</span></span>
+<span><span class="co">#&gt;   sizes                  1</span></span>
+<span><span class="co">#&gt;   linewidths             1.0, 0.5, 1.0, 1.0, 0.5</span></span>
+<span><span class="co">#&gt;   point_color            NULL</span></span>
+<span><span class="co">#&gt;   point_alpha            NULL</span></span>
+<span><span class="co">#&gt;   point_size             NULL</span></span>
+<span><span class="co">#&gt;   point_shape            NULL</span></span>
+<span><span class="co">#&gt;   line_color             NULL</span></span>
+<span><span class="co">#&gt;   line_alpha             NULL</span></span>
+<span><span class="co">#&gt;   line_linetype          NULL</span></span>
+<span><span class="co">#&gt;   line_linewidth         NULL</span></span>
+<span><span class="co">#&gt;   line_fill              NULL</span></span>
+<span><span class="co">#&gt;   errorbar_color         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_alpha         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_linetype      NULL</span></span>
+<span><span class="co">#&gt;   errorbar_linewidth     NULL</span></span>
+<span><span class="co">#&gt;   errorbar_width         NULL</span></span>
+<span><span class="co">#&gt;   errorbar_fill          NULL</span></span>
+<span><span class="co">#&gt;   bar_fill               NULL</span></span>
+<span><span class="co">#&gt;   bar_color              NULL</span></span>
+<span><span class="co">#&gt;   bar_alpha              NULL</span></span>
+<span><span class="co">#&gt;   bar_linewidth          NULL</span></span>
+<span><span class="co">#&gt;   area_fill              NULL</span></span>
+<span><span class="co">#&gt;   area_color             NULL</span></span>
+<span><span class="co">#&gt;   area_alpha             NULL</span></span>
+<span><span class="co">#&gt;   area_linewidth         NULL</span></span>
+<span><span class="co">#&gt;   box_fill               NULL</span></span>
+<span><span class="co">#&gt;   box_color              NULL</span></span>
+<span><span class="co">#&gt;   box_alpha              NULL</span></span>
+<span><span class="co">#&gt;   box_linewidth          NULL</span></span>
+<span><span class="co">#&gt;   title                  NULL</span></span>
+<span><span class="co">#&gt;   xlabel                 NULL</span></span>
+<span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   xlims                  NULL</span></span>
+<span><span class="co">#&gt;   ylims                  NULL</span></span>
+<span><span class="co">#&gt;   logx                   NULL</span></span>
+<span><span class="co">#&gt;   logy                   NULL</span></span>
+<span><span class="co">#&gt;   xbreaks                NULL</span></span>
+<span><span class="co">#&gt;   ybreaks                NULL</span></span>
+<span><span class="co">#&gt;   xminor_breaks          NULL</span></span>
+<span><span class="co">#&gt;   yminor_breaks          NULL</span></span>
+<span><span class="co">#&gt;   xtick_labels           NULL</span></span>
+<span><span class="co">#&gt;   ytick_labels           NULL</span></span>
+<span><span class="co">#&gt;   xorder                 NULL</span></span>
+<span><span class="co">#&gt;   yorder                 NULL</span></span>
+<span><span class="co">#&gt;   equal_axis             NULL</span></span>
+<span><span class="co">#&gt;   legends                NULL</span></span>
+<span><span class="co">#&gt;   legend.position        NULL</span></span>
+<span><span class="co">#&gt;   legend.title.position  top</span></span>
+<span><span class="co">#&gt;   legend_nrow            NULL</span></span>
+<span><span class="co">#&gt;   legend_ncol            NULL</span></span>
+<span><span class="co">#&gt;   legend.title.hjust     NULL</span></span>
+<span><span class="co">#&gt;   caption_hjust          NULL</span></span>
+<span><span class="co">#&gt;   fill_alpha             NULL</span></span>
+<span><span class="co">#&gt;   facet                  NULL</span></span>
+<span><span class="co">#&gt;   facet_scales           NULL</span></span>
+<span><span class="co">#&gt;   facet_nrow             NULL</span></span>
+<span><span class="co">#&gt;   facet_ncol             NULL</span></span>
+<span><span class="co">#&gt;   theme                  &lt;ggplot2 theme&gt;</span></span></code></pre></div>
+<p>We can define an alternative style using a blue / grey color schema.
+VPC roles are keyed in the per-series maps: line/point colors in
+<code>colors</code> and ribbon fills in <code>fill</code>.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_new_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_theme.html">plot_vpc_theme</a></span><span class="op">(</span></span>
-<span>  obs_point <span class="op">=</span> <span class="fu"><a href="../reference/pmx_point.html">pmx_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
-<span>  obs_median_line <span class="op">=</span> <span class="fu"><a href="../reference/pmx_line.html">pmx_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
-<span>  obs_pi_line <span class="op">=</span> <span class="fu"><a href="../reference/pmx_line.html">pmx_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
-<span>  sim_median_ci <span class="op">=</span> <span class="fu"><a href="../reference/pmx_ribbon.html">pmx_ribbon</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span>,</span>
-<span>  sim_pi_ci <span class="op">=</span> <span class="fu"><a href="../reference/pmx_ribbon.html">pmx_ribbon</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_new_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/style_vpc.html">style_vpc</a></span><span class="op">(</span></span>
+<span>  colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="st">"#000000"</span>, obs_median_line <span class="op">=</span> <span class="st">"#000000"</span>,</span>
+<span>             obs_pi_line <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
+<span>  fill   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sim_median_ci <span class="op">=</span> <span class="st">"#3388cc"</span>, sim_pi_ci <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Regenerating our BLQ quantile censored plot stratified by part with
-the new theme yields the following plot</p>
+the new style yields the following plot</p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_cont.html">plot_vpc_cont</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">sim100</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="va">PART</span>,</span>
 <span>  loq <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  theme <span class="op">=</span> <span class="va">vpc_new_theme</span></span>
+<span>  style <span class="op">=</span> <span class="va">vpc_new_style</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">vpc_scales_labs</span></span>
 <span></span>
 <span><span class="va">vpc2</span></span></code></pre></div>
-<p><img src="vpc-workflow_files/figure-html/plot-vpc-blq-obs-cens-newtheme-1.png" class="r-plt" alt="" width="100%"></p>
+<p><img src="vpc-workflow_files/figure-html/plot-vpc-blq-obs-cens-newstyle-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="section level3">
 <h3 id="modifying-axes-and-labels">Modifying Axes and Labels<a class="anchor" aria-label="anchor" href="#modifying-axes-and-labels"></a>
 </h3>
@@ -1494,7 +1548,7 @@ model places the observed line inside the simulated CI band. The
 simulated median line is hidden by default. It can be enabled via
 <code>shown = plot_vpc_shown(sim_median_line = TRUE)</code>.</p>
 <p><code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code> reuses <code><a href="../reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> and
-<code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code> — only the keys <code>obs_point</code>,
+<code><a href="../reference/style_vpc.html">style_vpc()</a></code> — only the keys <code>obs_point</code>,
 <code>obs_median_line</code>, <code>sim_median_line</code>, and
 <code>sim_median_ci</code> are read with other keys ignored.</p>
 <div class="section level3">
@@ -1598,9 +1652,9 @@ reference line drawn by <code><a href="../reference/plot_vpc_cont.html">plot_vpc
 <p><img src="vpc-workflow_files/figure-html/vpc-legend-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The legend can then be combined with the ggplot object returned from
 <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> into a single plot object with the
-<code>patchwork</code> package. We pair the default-theme legend with
+<code>patchwork</code> package. We pair the default-style legend with
 <code>vpc</code> (the LOQ-censored, PART-stratified plot from the <a href="#blq-handling">BLQ handling</a> section, which also uses the
-default theme).</p>
+default style).</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_wleg</span> <span class="op">&lt;-</span> <span class="va">vpc</span> <span class="op">+</span> <span class="va">vpc_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_wleg</span></span></code></pre></div>
@@ -1623,96 +1677,94 @@ by both the plot and the legend.</p>
 <p><img src="vpc-workflow_files/figure-html/vpc-legend-medonly-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level3">
-<h3 id="updating-the-continuous-range-legend-theme-with-plot_vpc_legend">Updating the Continuous Range Legend Theme with
-<code>plot_vpc_legend()</code><a class="anchor" aria-label="anchor" href="#updating-the-continuous-range-legend-theme-with-plot_vpc_legend"></a>
+<h3 id="updating-the-continuous-range-legend-style-with-plot_vpc_legend">Updating the Continuous Range Legend Style with
+<code>plot_vpc_legend()</code><a class="anchor" aria-label="anchor" href="#updating-the-continuous-range-legend-style-with-plot_vpc_legend"></a>
 </h3>
-<p>The legend can also be updated with the updated VPC plot theme
-elements. This is easiest to do by setting a new theme object, which we
-did previously when we created <code>vpc_new_theme</code> with
-<code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code>. We can use this same theme list object to
-generate the VPC plot with <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> and the VPC
-legend with <code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code>, again passing
-<code>lloq = 1</code> to keep the legend in sync with the LLOQ ref line
-on <code>vpc2</code>.</p>
+<p>The legend can also be updated with the same VPC style. This is
+easiest to do by reusing the <code>vpc_new_style</code> object we
+created earlier with <code><a href="../reference/style_vpc.html">style_vpc()</a></code>. We pass the same style to
+both <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> and <code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code>,
+again passing <code>lloq = 1</code> to keep the legend in sync with the
+LLOQ ref line on <code>vpc2</code>.</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>lloq <span class="op">=</span> <span class="fl">1</span>, theme <span class="op">=</span> <span class="va">vpc_new_theme</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_new_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>lloq <span class="op">=</span> <span class="fl">1</span>, style <span class="op">=</span> <span class="va">vpc_new_style</span><span class="op">)</span></span>
 <span><span class="va">vpc_new_legend</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/vpc-legend2-1.png" class="r-plt" alt="" width="100%"></p>
 <p>The legend can then be combined with the ggplot object returned from
 <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> into a single plot object with the
 <code>patchwork</code> package. We pair <code>vpc_new_legend</code>
-(which uses <code>vpc_new_theme</code>) with <code>vpc2</code> (the same
-VPC plot rendered with <code>vpc_new_theme</code> earlier).</p>
+(which uses <code>vpc_new_style</code>) with <code>vpc2</code> (the same
+VPC plot rendered with <code>vpc_new_style</code> earlier).</p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_wleg2</span> <span class="op">&lt;-</span> <span class="va">vpc2</span> <span class="op">+</span> <span class="va">vpc_new_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">vpc_wleg2</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/plot-vpc-pcvpc-w-legend2-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level3">
-<h3 id="updating-the-censored-range-legend-elements-and-theme-with-plot_vpc_shown-and-plot_vpc_legendtype-cens">Updating the censored range legend elements and theme with
+<h3 id="updating-the-censored-range-legend-elements-and-style-with-plot_vpc_shown-and-plot_vpc_legendtype-cens">Updating the censored range legend elements and style with
 <code>plot_vpc_shown()</code> and
-<code>plot_vpc_legend(type = "cens")</code><a class="anchor" aria-label="anchor" href="#updating-the-censored-range-legend-elements-and-theme-with-plot_vpc_shown-and-plot_vpc_legendtype-cens"></a>
+<code>plot_vpc_legend(type = "cens")</code><a class="anchor" aria-label="anchor" href="#updating-the-censored-range-legend-elements-and-style-with-plot_vpc_shown-and-plot_vpc_legendtype-cens"></a>
 </h3>
 <p>By default <code>sim_median_line</code> is hidden
 (<code><a href="../reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> sets it to <code>FALSE</code>) and
 <code>sim_median_ci</code> inherits the same red fill as
-<code>obs_median_line</code> from <code><a href="../reference/plot_vpc_theme.html">plot_vpc_theme()</a></code>. This is
-fine when only the ribbon is shown, but enabling the simulated median
-line on top of the default theme places a black dashed line over a red
-ribbon next to a red observed line. With these aesthetics, the red
-observed line could easily be mistaken for a simulation element given
-color homology with the simulated interval.</p>
+<code>obs_median_line</code> from <code><a href="../reference/style_vpc.html">style_vpc()</a></code>. This is fine
+when only the ribbon is shown, but enabling the simulated median line on
+top of the default style places a black dashed line over a red ribbon
+next to a red observed line. With these aesthetics, the red observed
+line could easily be mistaken for a simulation element given color
+homology with the simulated interval.</p>
 <p>A practical convention is to (a) enable <code>sim_median_line</code>
 so the simulated central tendency is visible alongside its CI, and (b)
 recolor the simulated layers together so the line and ribbon read as one
 element, with the observed layers in a contrasting color.</p>
 <p><code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code> reads four <code>shown</code> keys
 (<code>obs_point</code>, <code>obs_median_line</code>,
-<code>sim_median_line</code>, <code>sim_median_ci</code>) and the four
-corresponding <code>theme</code> keys. Build matching
-<code>cens_shown</code> and <code>cens_theme</code> objects so the
-change is explicit and reusable:</p>
+<code>sim_median_line</code>, <code>sim_median_ci</code>) and the
+corresponding style roles. Build matching <code>cens_shown</code> and
+<code>cens_style</code> objects so the change is explicit and
+reusable:</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cens_shown</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_shown.html">plot_vpc_shown</a></span><span class="op">(</span>sim_median_line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cens_theme</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_theme.html">plot_vpc_theme</a></span><span class="op">(</span></span>
-<span>  obs_point       <span class="op">=</span> <span class="fu"><a href="../reference/pmx_point.html">pmx_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
-<span>  obs_median_line <span class="op">=</span> <span class="fu"><a href="../reference/pmx_line.html">pmx_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#000000"</span><span class="op">)</span>,</span>
-<span>  sim_median_line <span class="op">=</span> <span class="fu"><a href="../reference/pmx_line.html">pmx_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#3388cc"</span>, linetype <span class="op">=</span> <span class="st">"solid"</span><span class="op">)</span>,</span>
-<span>  sim_median_ci   <span class="op">=</span> <span class="fu"><a href="../reference/pmx_ribbon.html">pmx_ribbon</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span></span>
+<span><span class="va">cens_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/style_vpc.html">style_vpc</a></span><span class="op">(</span></span>
+<span>  colors    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="st">"#000000"</span>, obs_median_line <span class="op">=</span> <span class="st">"#000000"</span>,</span>
+<span>                sim_median_line <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span>,</span>
+<span>  linetypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sim_median_line <span class="op">=</span> <span class="st">"solid"</span><span class="op">)</span>,</span>
+<span>  fill      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sim_median_ci <span class="op">=</span> <span class="st">"#3388cc"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Re-render the cens VPC with both objects applied. The simulated
 median sits inside its 90% CI ribbon (both blue), while the observed
 proportion is drawn in black for visual separation.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cens_vpc_themed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_cens.html">plot_vpc_cens</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cens_vpc_styled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_cens.html">plot_vpc_cens</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">sim100</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="va">PART</span>,</span>
 <span>  loq <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  shown <span class="op">=</span> <span class="va">cens_shown</span>,</span>
-<span>  theme <span class="op">=</span> <span class="va">cens_theme</span></span>
+<span>  style <span class="op">=</span> <span class="va">cens_style</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">vpc_cens_scales_labs</span></span>
 <span></span>
-<span><span class="va">cens_vpc_themed</span></span></code></pre></div>
-<p><img src="vpc-workflow_files/figure-html/plot-vpc-cens-themed-1.png" class="r-plt" alt="" width="100%"></p>
+<span><span class="va">cens_vpc_styled</span></span></code></pre></div>
+<p><img src="vpc-workflow_files/figure-html/plot-vpc-cens-styled-1.png" class="r-plt" alt="" width="100%"></p>
 <p><code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> accepts the same <code>shown</code>
-and <code>theme</code> objects, so passing them alongside
+and <code>style</code> objects, so passing them alongside
 <code>type = "cens"</code> keeps the legend in sync with whatever
 combination of visibility toggles and aesthetic overrides was used for
 the panel. The <code>Sim Prop BLQ</code> entry now appears (because
 <code>sim_median_line</code> is on) and both simulated entries adopt the
 unified blue.</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cens_legend_themed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">cens_legend_styled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="st">"cens"</span>,</span>
 <span>  lloq <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  shown <span class="op">=</span> <span class="va">cens_shown</span>,</span>
-<span>  theme <span class="op">=</span> <span class="va">cens_theme</span></span>
+<span>  style <span class="op">=</span> <span class="va">cens_style</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">cens_vpc_themed</span> <span class="op">+</span> <span class="va">cens_legend_themed</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="vpc-workflow_files/figure-html/vpc-cens-legend-themed-1.png" class="r-plt" alt="" width="100%"></p>
+<span><span class="va">cens_vpc_styled</span> <span class="op">+</span> <span class="va">cens_legend_styled</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="vpc-workflow_files/figure-html/vpc-cens-legend-styled-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level3">
 <h3 id="patchworked-legend-with-plot_vpc_legendtype-cens">Patchworked legend with
@@ -1771,7 +1823,7 @@ response-time, and response-concentration data.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

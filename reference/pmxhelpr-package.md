@@ -24,8 +24,12 @@ Recommended entry points by task:
   [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
   [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
 
-- Plot theme customization – `plot_*_theme()` factories with `pmx_*()`
-  element constructors
+- Plot styling – `style_*()` presets returning a
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  for the `style` argument; adjust finished plots with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html), and
+  [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html)
 
 Full narrative documentation with worked examples lives on the package
 website at <https://ryancrass.github.io/pmxhelpr/>.
@@ -44,3 +48,8 @@ Useful links:
 
 **Maintainer**: Ryan Crass <ryancrass@gmail.com>
 ([ORCID](https://orcid.org/0000-0001-5403-4730)) \[copyright holder\]
+
+Authors:
+
+- Ryan Crass <ryancrass@gmail.com>
+  ([ORCID](https://orcid.org/0000-0001-5403-4730)) \[copyright holder\]

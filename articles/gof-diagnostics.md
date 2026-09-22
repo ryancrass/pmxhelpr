@@ -483,56 +483,113 @@ linear scales. See
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md)
 for the full method semantics.
 
-### Adjusting the Plot Theme with `plot_gof_theme()`
+### Adjusting Plot Style with `style_gof()`
 
 [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
 aesthetic control arguments are not reviewed in detail in this vignette.
-See the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
+See the [Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
 vignette for details on customizing plot appearance.
 
-The theme constructor factory function for
+The style preset for
 [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
 is
-[`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md).
+[`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md).
 
 ``` r
 
-plot_gof_theme()
-#> <plot_gof_theme>
-#>   obs_point     <pmx_point>: shape = 1, size = 0.75, alpha = 0.5, color = darkgrey
-#>   obs_line      <pmx_line>: linewidth = 0.5, linetype = 1, alpha = 0.75, color = darkgrey
-#>   cent_point    <pmx_point>: shape = 16, size = 1.25, alpha = 0
-#>   cent_line     <pmx_line>: linewidth = 0.75, linetype = 1, alpha = 1
-#>   cent_errorbar <pmx_errorbar>: linewidth = 0.75, linetype = 1, alpha = 1, width = NULL
-#>   ref_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
-#>   loq_line      <pmx_line>: linewidth = 0.5, linetype = 2, alpha = 1
-#>   cent_color    <pmx_color>: dv = blue, pred = red, ipred = green
+style_gof()
+#> <ggstylekit_style_spec>
+#>   colors                 darkgrey, blue    , red     , green   
+#>   fill                   NULL
+#>   linetypes              solid , solid , dashed, dashed
+#>   alphas                 0.50, 0.75, 0.00, 1.00, 1.00, 1.00, 1.00
+#>   shapes                  1, 16
+#>   sizes                  0.75, 1.25
+#>   linewidths             0.50, 0.75, 0.75, 0.50, 0.50
+#>   point_color            NULL
+#>   point_alpha            NULL
+#>   point_size             NULL
+#>   point_shape            NULL
+#>   line_color             NULL
+#>   line_alpha             NULL
+#>   line_linetype          NULL
+#>   line_linewidth         NULL
+#>   line_fill              NULL
+#>   errorbar_color         NULL
+#>   errorbar_alpha         NULL
+#>   errorbar_linetype      NULL
+#>   errorbar_linewidth     NULL
+#>   errorbar_width         NULL
+#>   errorbar_fill          NULL
+#>   bar_fill               NULL
+#>   bar_color              NULL
+#>   bar_alpha              NULL
+#>   bar_linewidth          NULL
+#>   area_fill              NULL
+#>   area_color             NULL
+#>   area_alpha             NULL
+#>   area_linewidth         NULL
+#>   box_fill               NULL
+#>   box_color              NULL
+#>   box_alpha              NULL
+#>   box_linewidth          NULL
+#>   title                  NULL
+#>   xlabel                 NULL
+#>   ylabel                 NULL
+#>   xlims                  NULL
+#>   ylims                  NULL
+#>   logx                   NULL
+#>   logy                   NULL
+#>   xbreaks                NULL
+#>   ybreaks                NULL
+#>   xminor_breaks          NULL
+#>   yminor_breaks          NULL
+#>   xtick_labels           NULL
+#>   ytick_labels           NULL
+#>   xorder                 NULL
+#>   yorder                 NULL
+#>   equal_axis             NULL
+#>   legends                NULL
+#>   legend.position        NULL
+#>   legend.title.position  top
+#>   legend_nrow            NULL
+#>   legend_ncol            NULL
+#>   legend.title.hjust     NULL
+#>   caption_hjust          NULL
+#>   fill_alpha             NULL
+#>   facet                  NULL
+#>   facet_scales           NULL
+#>   facet_nrow             NULL
+#>   facet_ncol             NULL
+#>   theme                  <ggplot2 theme>
 ```
 
 Say we want to add points at the binned values for the central tendency
-lines. The points are suppressed by default `alpha=0`. We can accomplish
-this theme change by defining a new theme and passing that to the
-`theme` argument of
+lines. The points are suppressed by default (`alpha = 0`). We can
+accomplish this by defining a new style and passing it to the `style`
+argument of
 [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md).
 
 ``` r
 
-gof_new_theme <- plot_gof_theme(
-  cent_point = pmx_point(shape = 16, alpha = 1, size = 1.5)
+gof_new_style <- style_gof(
+  shapes = c(cent_point = 16),
+  alphas = c(cent_point = 1),
+  sizes  = c(cent_point = 1.5)
 )
 ```
 
 ``` r
 
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean",
-            log_y = TRUE, theme = gof_new_theme) +
+            log_y = TRUE, style = gof_new_style) +
   scale_x_continuous(breaks = c(0, 24, 72, 120, 168)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~`Dose and Food`, scales = "free") 
 ```
 
-![](gof-diagnostics_files/figure-html/plot-popgof-new-theme-1.png)
+![](gof-diagnostics_files/figure-html/plot-popgof-new-style-1.png)
 
 ## Individual Concentration-time plots
 
@@ -631,7 +688,10 @@ lapply(1:n_pgs, function(n_pg) {
   workflow](https://ryancrass.github.io/pmxhelpr/articles/eda-pk-pkpd-workflow.md)
   — exploratory analysis of continuous longitudinal concentration-time
   data, response-time, and response-concentration data.
-- [Plot Themes and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
-  — element constructors, theme factories, and class system for
+- [Plot Styling and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
+  — the `style_*()` presets, `style_spec()` fields and per-role maps,
+  and post-hoc
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
+  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
   customizing plot output.

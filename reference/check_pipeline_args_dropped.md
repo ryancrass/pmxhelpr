@@ -28,7 +28,7 @@ check_pipeline_args_dropped(call, plot_only_args, fn_name)
 - plot_only_args:
 
   Character vector of argument names that ARE honored on the
-  precomputed-stats path (e.g. `"theme"`, `"shown"`, `"pcvpc"`). The
+  precomputed-stats path (e.g. `"style"`, `"shown"`, `"pcvpc"`). The
   matched data argument should also be included.
 
 - fn_name:

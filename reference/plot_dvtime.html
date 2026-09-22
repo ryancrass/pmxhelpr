@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -62,7 +62,7 @@
 <span>  ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  theme <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  style <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -151,10 +151,13 @@ the caption reports arithmetic or geometric mean when <code>show_caption = TRUE<
 <dd><p>Logical indicating if a caption should be shown describing the data plotted</p></dd>
 
 
-<dt id="arg-theme">theme<a class="anchor" aria-label="anchor" href="#arg-theme"></a></dt>
-<dd><p>Theme object created by <code><a href="plot_dvtime_theme.html">plot_dvtime_theme()</a></code>.
-Defaults can be viewed by running <code><a href="plot_dvtime_theme.html">plot_dvtime_theme()</a></code> with no arguments.
-Default error bar width is 2.5% of maximum <code>NTIME</code>.</p></dd>
+<dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
+<dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
+Defaults to <code><a href="style_dvtime.html">style_dvtime()</a></code>; view the defaults by running <code><a href="style_dvtime.html">style_dvtime()</a></code>
+with no arguments. Customize by passing <code>style = style_dvtime(...)</code>, or
+restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. The error bar cap width
+is the style's <code>errorbar_width</code> field; when unset it defaults to 2.5% of
+the maximum nominal time (<code>ntime_var</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -165,8 +168,8 @@ Default error bar width is 2.5% of maximum <code>NTIME</code>.</p></dd>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other exploratory analysis:
 <code><a href="plot_dvconc.html">plot_dvconc()</a></code>,
-<code><a href="plot_dvconc_theme.html">plot_dvconc_theme()</a></code>,
-<code><a href="plot_dvtime_theme.html">plot_dvtime_theme()</a></code></p></div>
+<code><a href="style_dvconc.html">style_dvconc()</a></code>,
+<code><a href="style_dvtime.html">style_dvtime()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -193,7 +196,7 @@ Default error bar width is 2.5% of maximum <code>NTIME</code>.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

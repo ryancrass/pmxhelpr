@@ -34,7 +34,7 @@ plot_vpc_cens(
   min_bin_count = 1,
   show_rep = TRUE,
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   ci = 0.9
 )
 ```
@@ -81,7 +81,8 @@ plot_vpc_cens(
 - strat_var:
 
   Stratification variable. Accepts bare names or strings. Currently,
-  only a single stratifying variable is supported.
+  only a single stratifying variable is supported. Facet layout is taken
+  from the `style`: `facet_scales`, `facet_nrow`, and `facet_ncol`.
 
 - loq:
 
@@ -124,13 +125,22 @@ plot_vpc_cens(
   the simulated median line is off by default. Pass
   `plot_vpc_shown(sim_median_line = TRUE)` to enable it.
 
-- theme:
+- style:
 
-  Named list of aesthetic parameters created by
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
-  The cens builder reads the same four keys listed above (`obs_point`,
-  `obs_median_line`, `sim_median_line`, `sim_median_ci`); other keys are
-  ignored.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
+  view the defaults by running
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  with no arguments. Customize by passing `style = style_vpc(...)`, or
+  restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  Pass the same style to
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  so the legend matches. The cens builder reads the same four keys
+  listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
+  `sim_median_ci`); other keys are ignored.
 
 - ci:
 
@@ -160,7 +170,7 @@ Other vpc:
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
 [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md),
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 
 ## Examples
 

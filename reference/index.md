@@ -35,41 +35,50 @@ Lower-level renderers that draw plots from precomputed stats objects.
 
   Build a dose-proportionality ggplot from a `doseprop_stats` object
 
-## Theme Factories
+## Styling
 
-Per-plot-family factories that return default theme objects for the
-`theme` argument.
+Per-plot-family presets returning a
+[`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+for the `style` argument (customize by passing fields,
+e.g. `style_dvtime(shapes = ...)`), plus the `ggstylekit` verbs
+re-exported for adjusting a finished plot:
+[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
+[`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html),
+[`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html),
+and
+[`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html).
 
-- [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
-  : Concentration-time plot theme
-- [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md)
-  : Response versus concentration plot theme
-- [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md)
-  : Population overlay GOF plot theme
-- [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md)
-  : Dose-proportionality plot theme
-- [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-  : VPC plot theme
+- [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
+  :
 
-## Element Constructors
+  Concentration-time plot style (`plot_dvtime`)
 
-Typed constructors for `theme` overrides; map to `ggplot2` geom
-aesthetics.
+- [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md)
+  :
 
-- [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md)
-  : Point aesthetics
-- [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md)
-  : Line aesthetics
-- [`pmx_ribbon()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_ribbon.md)
-  : Ribbon aesthetics
-- [`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md)
-  : Error bar aesthetics
-- [`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md)
-  : Trend line aesthetics (dvconc loess/linear)
-- [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
-  : Shared style for point and line layers
-- [`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md)
-  : GOF overlay color aesthetics
+  Response versus concentration plot style (`plot_dvconc`)
+
+- [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md)
+  :
+
+  Population overlay GOF plot style (`plot_gof`)
+
+- [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
+  :
+
+  Dose-proportionality plot style (`plot_doseprop`)
+
+- [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  :
+
+  VPC plot style (`plot_vpc_cont` / `plot_vpc_cens`)
+
+- [`reexports`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  [`restyle_plot`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  [`reveal`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  [`combine_styled_plots`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  [`legend_spec`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  : Objects exported from other packages
 
 ## Layer Visibility
 
@@ -126,18 +135,13 @@ Convenience wrappers around `mrgsolve` model loading and simulation.
 ## S3 Class System
 
 Predicates, constructors, operators, and methods for the shared
-`pmx_stats` / `pmx_theme` base classes and their `vpc_stats`,
-`doseprop_stats`, and `pmx_element` siblings.
+`pmx_stats` base class and its `vpc_stats` and `doseprop_stats`
+siblings, plus the `pmx_vpc_plot` ggplot subclass.
 
 - [`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md)
   :
 
   Construct a `pmx_stats` container
-
-- [`pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_theme.md)
-  :
-
-  Construct a `pmx_theme`
 
 - [`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md)
   :
@@ -159,22 +163,10 @@ Predicates, constructors, operators, and methods for the shared
 
   Test whether an object is a `doseprop_stats` container
 
-- [`is_pmx_element()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_element.md)
-  : Test whether an object is a pmx theme element
-
-- [`is_pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_theme.md)
-  : Test whether an object is a pmx plot theme
-
 - [`` `+`( ``*`<pmx_vpc_plot>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_vpc_plot.md)
   :
 
   Add a layer to a `pmx_vpc_plot` with a facet warning
-
-- [`` `+`( ``*`<pmx_theme>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_theme.md)
-  : Combine two pmx plot themes
-
-- [`` `+`( ``*`<pmx_element>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_element.md)
-  : Combine two pmx theme elements
 
 - [`print(`*`<pmx_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/print.pmx_stats.md)
   :
@@ -210,12 +202,6 @@ Predicates, constructors, operators, and methods for the shared
   :
 
   Summary method for `doseprop_stats`
-
-- [`print(`*`<pmx_element>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/print.pmx_element.md)
-  : Print method for pmx theme elements
-
-- [`print(`*`<pmx_theme>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/print.pmx_theme.md)
-  : Print method for pmx plot themes
 
 ## Datasets
 

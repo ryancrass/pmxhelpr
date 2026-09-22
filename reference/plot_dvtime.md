@@ -20,7 +20,7 @@ plot_dvtime(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL
+  style = NULL
 )
 ```
 
@@ -124,13 +124,19 @@ plot_dvtime(
   Logical indicating if a caption should be shown describing the data
   plotted
 
-- theme:
+- style:
 
-  Theme object created by
-  [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md).
-  Defaults can be viewed by running
-  [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
-  with no arguments. Default error bar width is 2.5% of maximum `NTIME`.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md);
+  view the defaults by running
+  [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
+  with no arguments. Customize by passing `style = style_dvtime(...)`,
+  or restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  The error bar cap width is the style's `errorbar_width` field; when
+  unset it defaults to 2.5% of the maximum nominal time (`ntime_var`).
 
 ## Value
 
@@ -140,8 +146,8 @@ A `ggplot2` plot object
 
 Other exploratory analysis:
 [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
-[`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
-[`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md)
+[`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md),
+[`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
 
 ## Examples
 

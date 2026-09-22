@@ -12,5 +12,5 @@
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md):
 - [Dose-Proportionality
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.md):
-- [Plot Themes and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md):
+- [Plot Styling and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md):

@@ -36,7 +36,7 @@ A named list of logicals
 
 Other goodness-of-fit:
 [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
-[`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md)
+[`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md)
 
 ## Examples
 

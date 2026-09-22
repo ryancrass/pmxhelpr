@@ -24,18 +24,42 @@ articles:
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
-- [Plot Themes and
-  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html)
+- [Plot Styling and
+  Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 
 ## Installation
 
-You can install the most recent tagged version of pmxhelpr from
-[GitHub](https://github.com/ryancrass/pmxhelpr/releases/latest) with:
+pmxhelpr depends on `ggstylekit`, which is distributed through the PRISM
+package repository rather than CRAN, so the repository must be declared
+alongside the pmxhelpr release.
+
+The recommended way to install pmxhelpr is with
+[rv](https://github.com/A2-ai/rv). Add the `ggstylekit` PRISM repository
+and the most recent [tagged
+release](https://github.com/ryancrass/pmxhelpr/releases/latest) of
+pmxhelpr to your project’s `rproject.toml`, then run `rv sync`:
+
+``` toml
+repositories = [
+    { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/" }
+]
+
+dependencies = [
+    { name = "pmxhelpr", git = "https://github.com/ryancrass/pmxhelpr.git", tag = "v0.6.0" }
+]
+```
+
+Alternatively, install `ggstylekit` from PRISM and then the tagged
+pmxhelpr release from GitHub with `devtools`:
 
 ``` r
 
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr@v0.5.0")
+install.packages("ggstylekit",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0",
+                           getOption("repos")))
+devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
 ```
 
 The README examples use a few packages from `Suggests` that aren’t
@@ -55,8 +79,9 @@ the prefix indicates what the function returns:
 - `df_*` — returns a `data.frame`
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
-- `pmx_*` — returns a theme element constructor (for use with `*_theme`
-  factories)
+- `style_*` — returns a
+  [`ggstylekit::style_spec`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  (plot-family style preset)
 
 ### Exploratory Data Analysis
 
@@ -93,48 +118,43 @@ the prefix indicates what the function returns:
   - [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
     — legend for a VPC plot
 
-### Theme System
+### Styling
 
-Plot aesthetics are controlled through theme factories and element
-constructors. Each plot function has a corresponding `plot_*_theme()`
-factory:
+Plot aesthetics are controlled with `ggstylekit`. Each plot function has
+a corresponding `style_*()` preset that returns a
+[`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+pre-filled with the plot family defaults:
 
-- [`plot_dvtime_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime_theme.md),
-  [`plot_dvconc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc_theme.md),
-  [`plot_doseprop_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop_theme.md),
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md),
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-  — return named lists of default element objects for the `theme`
-  argument of their corresponding plot function
+- [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md),
+  [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md),
+  [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md),
+  [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md),
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  — pass one to the `style` argument of the matching plot function
 - [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
   /
   [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
   — control which VPC / GOF layers are visible via the `shown` argument
 
-Element constructors (`pmx_*`) create typed objects that map to
-`ggplot2` geom aesthetics:
+Styling is based on *maps* for plot aesthetics, which are keyed by
+*roles* in the output plot (e.g. `obs_point`, `cent_line`,
+`cent_errorbar`, `ref_line`, `loq_line`). The per-series *maps*
+(`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are
+keyed by *role*, and only the *roles* specified override the defaults.
 
-- [`pmx_point()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_point.md)
-  — point aesthetics (shape, size, alpha, color)
-- [`pmx_line()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_line.md)
-  — line aesthetics (linewidth, linetype, alpha, color)
-- [`pmx_ribbon()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_ribbon.md)
-  — ribbon aesthetics (fill, alpha, color, linetype, linewidth)
-- [`pmx_errorbar()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_errorbar.md)
-  — error bar aesthetics (linewidth, linetype, alpha, width)
-- [`pmx_trend()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_trend.md)
-  — trend line aesthetics (linewidth, linetype, color, se_color,
-  se_alpha)
-- [`pmx_color()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_color.md)
-  — GOF overlay color mapping (dv, pred, ipred)
-- [`pmx_style()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_style.md)
-  — convenience shortcut to set shared aesthetics (color, alpha) on both
-  point and line elements of a role
+A finished plot can be restyled after the fact with
+[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
+additional variables in the dataset can be surfaced with
+[`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html), legends
+are described with
+[`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html),
+and styled plots are assembled with
+[`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html).
 
 ### S3 Class System
 
-`pmxhelpr` returns class-tagged objects for both stats outputs and theme
-building blocks, with predicates and
+`pmxhelpr` returns class-tagged objects for stats outputs, with
+predicates and
 [`print()`](https://rdrr.io/r/base/print.html)/[`summary()`](https://rdrr.io/r/base/summary.html)
 methods for interactive inspection and programmatic validation.
 
@@ -149,14 +169,6 @@ methods for interactive inspection and programmatic validation.
   plus a predicate
   ([`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md),
   [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md)).
-- Element / theme classes — every `pmx_*()` element and `plot_*_theme()`
-  factory is class-tagged (`pmx_element` and `pmx_theme` shared, plus
-  per-type tags). Predicates
-  [`is_pmx_element()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_element.md)
-  and
-  [`is_pmx_theme()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_theme.md)
-  test class membership; [`print()`](https://rdrr.io/r/base/print.html)
-  methods render the type and set fields.
 - Dual-mode plotting —
   [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
   and
@@ -164,7 +176,7 @@ methods for interactive inspection and programmatic validation.
   accept either raw input data or a precomputed stats object. The
   precomputed path skips the summarization / regression refit, enabling
   compute-once / replot-many workflows (e.g. flipping
-  `pcvpc = TRUE/FALSE`, varying `theme`, trying different
+  `pcvpc = TRUE/FALSE`, varying `style`, trying different
   `min_bin_count`). The lower-level renderers
   [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
   /
@@ -177,8 +189,8 @@ users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added
 outside the returned object directing users to the correct
 stratification method using the `strat_var` argument.
 
-See the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.html#inspecting-and-validating-themes)
+See the [Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 and
 [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
 [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
@@ -243,7 +255,7 @@ data <- data_sad %>%
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
             col_var = "Regimen", log_y = TRUE,
-            theme = plot_dvtime_theme(obs_point = pmx_point(alpha = 0))) +
+            style = style_dvtime(alphas = c(obs_point = 0))) +
   labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration

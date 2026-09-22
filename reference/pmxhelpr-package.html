@@ -11,7 +11,7 @@ diagnostics, ands visual predictive check model evaluation."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,7 +27,7 @@ diagnostics, ands visual predictive check model evaluation."><meta property="og:
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
-    <li><a class="dropdown-item" href="../articles/plot-themes.html">Plot Themes and Aesthetics</a></li>
+    <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -60,8 +60,9 @@ diagnostics, ands visual predictive check model evaluation.</p>
 <li><p>Goodness-of-fit diagnostics – <code><a href="plot_gof.html">plot_gof()</a></code></p></li>
 <li><p>Visual predictive checks – <code><a href="plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="df_vpcstats.html">df_vpcstats()</a></code></p></li>
 <li><p>Dose-proportionality assessment – <code><a href="plot_doseprop.html">plot_doseprop()</a></code>, <code><a href="df_doseprop.html">df_doseprop()</a></code></p></li>
-<li><p>Plot theme customization – <code>plot_*_theme()</code> factories with <code>pmx_*()</code>
-element constructors</p></li>
+<li><p>Plot styling – <code>style_*()</code> presets returning a <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code>
+for the <code>style</code> argument; adjust finished plots with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>,
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code>, and <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code></p></li>
 </ul><p>Full narrative documentation with worked examples lives on the package
 website at <a href="https://ryancrass.github.io/pmxhelpr/">https://ryancrass.github.io/pmxhelpr/</a>.</p>
     </div>
@@ -75,7 +76,8 @@ website at <a href="https://ryancrass.github.io/pmxhelpr/">https://ryancrass.git
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
     <p><strong>Maintainer</strong>: Ryan Crass <a href="mailto:ryancrass@gmail.com">ryancrass@gmail.com</a> (<a href="https://orcid.org/0000-0001-5403-4730" class="external-link">ORCID</a>) [copyright holder]</p>
-    </div>
+<p>Authors:</p><ul><li><p>Ryan Crass <a href="mailto:ryancrass@gmail.com">ryancrass@gmail.com</a> (<a href="https://orcid.org/0000-0001-5403-4730" class="external-link">ORCID</a>) [copyright holder]</p></li>
+</ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -86,7 +88,7 @@ website at <a href="https://ryancrass.github.io/pmxhelpr/">https://ryancrass.git
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

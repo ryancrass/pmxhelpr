@@ -3,8 +3,8 @@
 Creates a population overlay plot showing central tendency lines for
 observed (DV), population predicted (PRED), and individual predicted
 (IPRED) values. Colors and aesthetics for each variable are controlled
-through the `theme` argument via
-[`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md).
+through the `style` argument via
+[`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md).
 Use the `shown` argument to selectively hide variables.
 
 ## Usage
@@ -28,7 +28,7 @@ plot_gof(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL
+  style = NULL
 )
 ```
 
@@ -131,13 +131,21 @@ plot_gof(
   Logical indicating if a caption should be shown describing the data
   plotted.
 
-- theme:
+- style:
 
-  Theme object created by
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md).
-  Defaults can be viewed by running
-  [`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md)
-  with no arguments. Default error bar width is 2.5% of maximum `NTIME`.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling plot aesthetics. Defaults to
+  [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md);
+  view the defaults by running
+  [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md)
+  with no arguments. Customize by passing `style = style_gof(...)`, or
+  restyle the returned plot with
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  The DV/PRED/IPRED (and OBS) overlays are colored by the `colors` map
+  keyed by those labels. The error bar cap width is the style's
+  `errorbar_width` field; when unset it defaults to 2.5% of the maximum
+  nominal time (`ntime_var`).
 
 ## Value
 
@@ -147,7 +155,7 @@ A `ggplot2` plot object
 
 Other goodness-of-fit:
 [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md),
-[`plot_gof_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_theme.md)
+[`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md)
 
 ## Examples
 

@@ -1290,7 +1290,7 @@ directly. This skips the preprocess + compute steps and is useful when
 you want to inspect the summary statistics and then plot the same data
 multiple times — for example, flipping between the standard and
 prediction-corrected views, or rendering with a different
-`min_bin_count`, `shown`, or `theme` — without paying the summarization
+`min_bin_count`, `shown`, or `style` — without paying the summarization
 cost on every call.
 
 The
@@ -1336,7 +1336,7 @@ ran, and re-passing them on the cached path would silently shadow the
 original values. Passing any of them aborts with a message pointing the
 caller back at
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md).
-Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `theme`,
+Only plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `style`,
 `pcvpc`) are accepted on this path; to change a pipeline setting, re-run
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
 and pass the new result.
@@ -1470,7 +1470,7 @@ For downstream code or custom workflows that produce a
 is exported as the public renderer. It is the same engine that
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
 uses internally and accepts the same plot-only arguments
-(`min_bin_count`, `show_rep`, `shown`, `theme`, `pcvpc`). `strat_var`
+(`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). `strat_var`
 and `loq` inherit from the container’s `$config` slot when not passed
 explicitly.
 
@@ -1481,46 +1481,99 @@ plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 
 ![](vpc-workflow_files/figure-html/plot-build-vpc-direct-1.png)
 
-## Adjusting the Plot Theme with `plot_vpc_theme()`
+## Adjusting Plot Style with `style_vpc()`
 
 The default aesthetics for VPC plots are controlled via
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
-See the [Plot Themes and
-Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-themes.md)
-vignette for details on the theme system, element constructors, and
-examples of customizing VPC aesthetics.
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md).
+See the [Plot Styling and
+Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
+vignette for details on the styling system, the `style_spec()` fields,
+and examples of customizing VPC aesthetics.
 
 ``` r
 
-plot_vpc_theme()
-#> <plot_vpc_theme>
-#>   obs_point       <pmx_point>: shape = 1, size = 1, alpha = 0.7, color = #0000FF
-#>   obs_median_line <pmx_line>: linewidth = 1, linetype = solid, color = #FF0000
-#>   obs_pi_line     <pmx_line>: linewidth = 0.5, linetype = dashed, color = #0000FF
-#>   sim_pi_line     <pmx_line>: linewidth = 1, linetype = dotted, color = #000000
-#>   sim_pi_ci       <pmx_ribbon>: fill = #0000FF, alpha = 0.15
-#>   sim_pi_area     <pmx_ribbon>: fill = #0000FF, alpha = 0.15
-#>   sim_median_line <pmx_line>: linewidth = 1, linetype = dashed, color = #000000
-#>   sim_median_ci   <pmx_ribbon>: fill = #FF0000, alpha = 0.3
-#>   loq_line        <pmx_line>: linewidth = 0.5, linetype = dashed, color = #990000
+style_vpc()
+#> <ggstylekit_style_spec>
+#>   colors                 #0000FF, #FF0000, #0000FF, #000000, #000000, #990000
+#>   fill                   #0000FF, #0000FF, #FF0000
+#>   linetypes              solid , dashed, dotted, dashed, dashed
+#>   alphas                 0.70, 0.15, 0.15, 0.30
+#>   shapes                 1
+#>   sizes                  1
+#>   linewidths             1.0, 0.5, 1.0, 1.0, 0.5
+#>   point_color            NULL
+#>   point_alpha            NULL
+#>   point_size             NULL
+#>   point_shape            NULL
+#>   line_color             NULL
+#>   line_alpha             NULL
+#>   line_linetype          NULL
+#>   line_linewidth         NULL
+#>   line_fill              NULL
+#>   errorbar_color         NULL
+#>   errorbar_alpha         NULL
+#>   errorbar_linetype      NULL
+#>   errorbar_linewidth     NULL
+#>   errorbar_width         NULL
+#>   errorbar_fill          NULL
+#>   bar_fill               NULL
+#>   bar_color              NULL
+#>   bar_alpha              NULL
+#>   bar_linewidth          NULL
+#>   area_fill              NULL
+#>   area_color             NULL
+#>   area_alpha             NULL
+#>   area_linewidth         NULL
+#>   box_fill               NULL
+#>   box_color              NULL
+#>   box_alpha              NULL
+#>   box_linewidth          NULL
+#>   title                  NULL
+#>   xlabel                 NULL
+#>   ylabel                 NULL
+#>   xlims                  NULL
+#>   ylims                  NULL
+#>   logx                   NULL
+#>   logy                   NULL
+#>   xbreaks                NULL
+#>   ybreaks                NULL
+#>   xminor_breaks          NULL
+#>   yminor_breaks          NULL
+#>   xtick_labels           NULL
+#>   ytick_labels           NULL
+#>   xorder                 NULL
+#>   yorder                 NULL
+#>   equal_axis             NULL
+#>   legends                NULL
+#>   legend.position        NULL
+#>   legend.title.position  top
+#>   legend_nrow            NULL
+#>   legend_ncol            NULL
+#>   legend.title.hjust     NULL
+#>   caption_hjust          NULL
+#>   fill_alpha             NULL
+#>   facet                  NULL
+#>   facet_scales           NULL
+#>   facet_nrow             NULL
+#>   facet_ncol             NULL
+#>   theme                  <ggplot2 theme>
 ```
 
-We can define an alternative theme using a blue / grey color schema
-using this function and the constructor helpers.
+We can define an alternative style using a blue / grey color schema. VPC
+roles are keyed in the per-series maps: line/point colors in `colors`
+and ribbon fills in `fill`.
 
 ``` r
 
-vpc_new_theme <- plot_vpc_theme(
-  obs_point = pmx_point(color = "#000000"),
-  obs_median_line = pmx_line(color = "#000000"),
-  obs_pi_line = pmx_line(color = "#000000"),
-  sim_median_ci = pmx_ribbon(fill = "#3388cc"),
-  sim_pi_ci = pmx_ribbon(fill = "#3388cc")
+vpc_new_style <- style_vpc(
+  colors = c(obs_point = "#000000", obs_median_line = "#000000",
+             obs_pi_line = "#000000"),
+  fill   = c(sim_median_ci = "#3388cc", sim_pi_ci = "#3388cc")
 )
 ```
 
 Regenerating our BLQ quantile censored plot stratified by part with the
-new theme yields the following plot
+new style yields the following plot
 
 ``` r
 
@@ -1528,14 +1581,14 @@ vpc2 <- plot_vpc_cont(
   data = sim100,
   strat_var = PART,
   loq = 1,
-  theme = vpc_new_theme
+  style = vpc_new_style
 ) +
   vpc_scales_labs
 
 vpc2
 ```
 
-![](vpc-workflow_files/figure-html/plot-vpc-blq-obs-cens-newtheme-1.png)
+![](vpc-workflow_files/figure-html/plot-vpc-blq-obs-cens-newstyle-1.png)
 
 ### Modifying Axes and Labels
 
@@ -1610,7 +1663,7 @@ line is hidden by default. It can be enabled via
 reuses
 [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
 and
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 — only the keys `obs_point`, `obs_median_line`, `sim_median_line`, and
 `sim_median_ci` are read with other keys ignored.
 
@@ -1737,9 +1790,9 @@ vpc_legend
 The legend can then be combined with the ggplot object returned from
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
 into a single plot object with the `patchwork` package. We pair the
-default-theme legend with `vpc` (the LOQ-censored, PART-stratified plot
+default-style legend with `vpc` (the LOQ-censored, PART-stratified plot
 from the [BLQ handling](#blq-handling) section, which also uses the
-default theme).
+default style).
 
 ``` r
 
@@ -1770,22 +1823,21 @@ plot_vpc_legend(shown = shown_elements)
 
 ![](vpc-workflow_files/figure-html/vpc-legend-medonly-1.png)
 
-### Updating the Continuous Range Legend Theme with `plot_vpc_legend()`
+### Updating the Continuous Range Legend Style with `plot_vpc_legend()`
 
-The legend can also be updated with the updated VPC plot theme elements.
-This is easiest to do by setting a new theme object, which we did
-previously when we created `vpc_new_theme` with
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
-We can use this same theme list object to generate the VPC plot with
+The legend can also be updated with the same VPC style. This is easiest
+to do by reusing the `vpc_new_style` object we created earlier with
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md).
+We pass the same style to both
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
-and the VPC legend with
+and
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
 again passing `lloq = 1` to keep the legend in sync with the LLOQ ref
 line on `vpc2`.
 
 ``` r
 
-vpc_new_legend <- plot_vpc_legend(lloq = 1, theme = vpc_new_theme)
+vpc_new_legend <- plot_vpc_legend(lloq = 1, style = vpc_new_style)
 vpc_new_legend
 ```
 
@@ -1794,8 +1846,8 @@ vpc_new_legend
 The legend can then be combined with the ggplot object returned from
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
 into a single plot object with the `patchwork` package. We pair
-`vpc_new_legend` (which uses `vpc_new_theme`) with `vpc2` (the same VPC
-plot rendered with `vpc_new_theme` earlier).
+`vpc_new_legend` (which uses `vpc_new_style`) with `vpc2` (the same VPC
+plot rendered with `vpc_new_style` earlier).
 
 ``` r
 
@@ -1805,15 +1857,15 @@ vpc_wleg2
 
 ![](vpc-workflow_files/figure-html/plot-vpc-pcvpc-w-legend2-1.png)
 
-### Updating the censored range legend elements and theme with `plot_vpc_shown()` and `plot_vpc_legend(type = "cens")`
+### Updating the censored range legend elements and style with `plot_vpc_shown()` and `plot_vpc_legend(type = "cens")`
 
 By default `sim_median_line` is hidden
 ([`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
 sets it to `FALSE`) and `sim_median_ci` inherits the same red fill as
 `obs_median_line` from
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md).
 This is fine when only the ribbon is shown, but enabling the simulated
-median line on top of the default theme places a black dashed line over
+median line on top of the default style places a black dashed line over
 a red ribbon next to a red observed line. With these aesthetics, the red
 observed line could easily be mistaken for a simulation element given
 color homology with the simulated interval.
@@ -1825,19 +1877,19 @@ element, with the observed layers in a contrasting color.
 
 [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md)
 reads four `shown` keys (`obs_point`, `obs_median_line`,
-`sim_median_line`, `sim_median_ci`) and the four corresponding `theme`
-keys. Build matching `cens_shown` and `cens_theme` objects so the change
-is explicit and reusable:
+`sim_median_line`, `sim_median_ci`) and the corresponding style roles.
+Build matching `cens_shown` and `cens_style` objects so the change is
+explicit and reusable:
 
 ``` r
 
 cens_shown <- plot_vpc_shown(sim_median_line = TRUE)
 
-cens_theme <- plot_vpc_theme(
-  obs_point       = pmx_point(color = "#000000"),
-  obs_median_line = pmx_line(color = "#000000"),
-  sim_median_line = pmx_line(color = "#3388cc", linetype = "solid"),
-  sim_median_ci   = pmx_ribbon(fill = "#3388cc")
+cens_style <- style_vpc(
+  colors    = c(obs_point = "#000000", obs_median_line = "#000000",
+                sim_median_line = "#3388cc"),
+  linetypes = c(sim_median_line = "solid"),
+  fill      = c(sim_median_ci = "#3388cc")
 )
 ```
 
@@ -1847,22 +1899,22 @@ is drawn in black for visual separation.
 
 ``` r
 
-cens_vpc_themed <- plot_vpc_cens(
+cens_vpc_styled <- plot_vpc_cens(
   data = sim100,
   strat_var = PART,
   loq = 1,
   shown = cens_shown,
-  theme = cens_theme
+  style = cens_style
 ) +
   vpc_cens_scales_labs
 
-cens_vpc_themed
+cens_vpc_styled
 ```
 
-![](vpc-workflow_files/figure-html/plot-vpc-cens-themed-1.png)
+![](vpc-workflow_files/figure-html/plot-vpc-cens-styled-1.png)
 
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-accepts the same `shown` and `theme` objects, so passing them alongside
+accepts the same `shown` and `style` objects, so passing them alongside
 `type = "cens"` keeps the legend in sync with whatever combination of
 visibility toggles and aesthetic overrides was used for the panel. The
 `Sim Prop BLQ` entry now appears (because `sim_median_line` is on) and
@@ -1870,17 +1922,17 @@ both simulated entries adopt the unified blue.
 
 ``` r
 
-cens_legend_themed <- plot_vpc_legend(
+cens_legend_styled <- plot_vpc_legend(
   type = "cens",
   lloq = 1,
   shown = cens_shown,
-  theme = cens_theme
+  style = cens_style
 )
 
-cens_vpc_themed + cens_legend_themed + plot_layout(heights = c(2.5, 1))
+cens_vpc_styled + cens_legend_styled + plot_layout(heights = c(2.5, 1))
 ```
 
-![](vpc-workflow_files/figure-html/vpc-cens-legend-themed-1.png)
+![](vpc-workflow_files/figure-html/vpc-cens-legend-styled-1.png)
 
 ### Patchworked legend with `plot_vpc_legend(type = "cens")`
 

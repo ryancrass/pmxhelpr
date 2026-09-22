@@ -10,7 +10,7 @@ plot_vpc_legend(
   pi = c(0.05, 0.95),
   shown = NULL,
   lloq = NULL,
-  theme = NULL,
+  style = NULL,
   type = c("cont", "cens"),
   ...
 )
@@ -44,19 +44,26 @@ plot_vpc_legend(
 
   Numeric scalar or vector of LLOQ values to label in the legend, or
   `NULL` to omit. Each unique value becomes one legend entry rendered
-  with the theme's `loq_line` linetype. Pass `compute_out$config$loq`
+  with the style's `loq_line` linetype. Pass `compute_out$config$loq`
   from a
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   result to mirror the reference lines drawn by
   [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md).
 
-- theme:
+- style:
 
-  Named list of aesthetic parameters for the plot created by
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md).
-  Defaults can be viewed by running
-  [`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
-  with no arguments.
+  A
+  [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
+  controlling legend aesthetics. Defaults to
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
+  view the defaults by running
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  with no arguments. Should match the `style` passed to
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md).
+  The per-series maps supply each key's color, fill, shape, linetype,
+  and linewidth; `legend.title.position` and `legend.title.hjust` place
+  the legend titles. Other style fields do not apply to the legend
+  panel.
 
 - type:
 
@@ -73,7 +80,8 @@ plot_vpc_legend(
 - ...:
 
   Other arguments passed to
-  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html).
+  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
+  applied after the style so they override it.
 
 ## Value
 
@@ -89,7 +97,7 @@ Other vpc:
 [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
 [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md),
-[`plot_vpc_theme()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_theme.md)
+[`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 
 ## Examples
 

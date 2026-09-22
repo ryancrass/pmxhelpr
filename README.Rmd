@@ -34,11 +34,35 @@ Full narrative documentation, including worked examples for every plotting workf
 
 ## Installation
 
-You can install the most recent tagged version of pmxhelpr from [GitHub](https://github.com/ryancrass/pmxhelpr/releases/latest) with:
+pmxhelpr depends on `ggstylekit`, which is distributed through the PRISM
+package repository rather than CRAN, so the repository must be declared
+alongside the pmxhelpr release.
+
+The recommended way to install pmxhelpr is with [rv](https://github.com/A2-ai/rv).
+Add the `ggstylekit` PRISM repository and the most recent
+[tagged release](https://github.com/ryancrass/pmxhelpr/releases/latest) of
+pmxhelpr to your project's `rproject.toml`, then run `rv sync`:
+
+``` toml
+repositories = [
+    { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/" }
+]
+
+dependencies = [
+    { name = "pmxhelpr", git = "https://github.com/ryancrass/pmxhelpr.git", tag = "v0.6.0" }
+]
+```
+
+Alternatively, install `ggstylekit` from PRISM and then the tagged pmxhelpr
+release from GitHub with `devtools`:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ryancrass/pmxhelpr@v0.5.0")
+install.packages("ggstylekit",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0",
+                           getOption("repos")))
+devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
 ```
 
 The README examples use a few packages from `Suggests` that aren't installed automatically:

@@ -32,8 +32,11 @@ jobs:
         with:
           use-public-rspm: true
 
+      # ggstylekit is not on CRAN; it is served from the PRISM repository
+      # (same pin as rproject.toml).
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          extra-repositories: https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0
           extra-packages: any::pkgdown, local::.
           needs: website
 

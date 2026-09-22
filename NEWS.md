@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.6.0
 
 Plot styling is now powered by the `ggstylekit` package, replacing the
 bespoke `pmx_*` element/theme system introduced in 0.5.0. 

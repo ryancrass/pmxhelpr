@@ -346,8 +346,8 @@ dependencies = [
 [[packages]]
 name = "ggstylekit"
 version = "0.4.0"
-source = { git = "https://github.com/a2-ai/ggstylekit.git", sha = "b1d2a62af58299ac795125e06837c7d4dd731133", branch = "main" }
-force_source = true
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0" }
+force_source = false
 dependencies = [
     { name = "ggplot2", requirement = "(>= 3.5.2)" },
     "purrr",

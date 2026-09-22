@@ -7,7 +7,7 @@ r_version = "4.6"
 # Example: { alias = "PPM", url = "https://packagemanager.posit.co/cran/latest" },
 repositories = [
     { alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30/" },
-    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.3.0/"}
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/"}
 ]
 
 # A list of packages to install and any additional configuration
@@ -19,5 +19,5 @@ dependencies = [
     "devtools",
     "future.apply",
     "withr",
-    {name = "ggstylekit", git = "https://github.com/a2-ai/ggstylekit.git", branch = "main"}
+    "ggstylekit"
 ]

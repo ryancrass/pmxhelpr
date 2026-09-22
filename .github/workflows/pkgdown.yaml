@@ -26,6 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The tracked .Rprofile activates rv for local development. On the
+      # runner it shadows the ~/.Rprofile that setup-r writes (R loads only
+      # one), which would drop the RSPM mirror and the PRISM repository
+      # from options(repos) and leave pak unable to find ggstylekit.
+      - name: Remove rv project profile
+        run: rm -f .Rprofile
+        shell: bash
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2

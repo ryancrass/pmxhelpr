@@ -40,12 +40,13 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          # ggstylekit is not on CRAN; it is served from the PRISM repository
+          # (same pin as rproject.toml). Repos added here flow into
+          # options(repos), which setup-r-dependencies/pak resolves against.
+          extra-repositories: https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0
 
-      # ggstylekit is not on CRAN; it is served from the PRISM repository
-      # (same pin as rproject.toml).
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-repositories: https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0
           extra-packages: any::rcmdcheck
           needs: check
 

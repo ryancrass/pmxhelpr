@@ -23,7 +23,7 @@ use the subclass-specific predicates \code{\link[=is_vpc_stats]{is_vpc_stats()}}
 \code{\link[=is_doseprop_stats]{is_doseprop_stats()}} when you need to discriminate between pipelines.
 }
 \seealso{
-Other pmx stats class: 
-\code{\link{pmx_stats}()}
+Other pmx stats class:
+\code{\link[=pmx_stats]{pmx_stats()}}
 }
 \concept{pmx stats class}

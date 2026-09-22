@@ -195,7 +195,7 @@ df_prep_dvtime <- function(data,
   }
 
   if (!is.null(col_var_str)) {
-    data[[col_var_str]] <- factor(data[[col_var_str]])
+    data[[col_var_str]] <- order_col_factor(data[[col_var_str]])
   }
 
   data <- dplyr::filter(data, .data$EVID == 0)
@@ -330,6 +330,42 @@ var_addn <- function(grp_var,
 
 
 
+#' Internal Helper: Coerce a color/stratification variable to an ordered factor
+#'
+#' @description Since ggstylekit (>= 0.4.0) drives discrete legends and per-series
+#'    value assignment from a factor's declared level order, `col_var` needs a
+#'    sensible order before it is mapped. The rule is:
+#'
+#'    + Existing factor: levels preserved (drop unused). Use [var_addn()] or a
+#'       pre-releveled factor to control order deliberately.
+#'    + Numeric: `factor()` default, i.e. ascending by magnitude.
+#'    + Character where every label begins with a number (e.g. dose labels like
+#'       `"200 mg"`): ordered numerically by that leading number, so `"5 mg"`
+#'       sorts before `"20 mg"` before `"200 mg"` rather than lexicographically.
+#'       Ties keep first-appearance order.
+#'    + Any other character (including mixed numeric / non-numeric labels such as
+#'       `c("Placebo", "5 mg")`, where placement is ambiguous): first-appearance
+#'       order. Never lexicographic.
+#'
+#' @param x A vector to coerce to a factor.
+#'
+#' @return A factor with levels ordered per the rule above.
+#' @keywords internal
+#' @noRd
+order_col_factor <- function(x) {
+  if (is.factor(x))  return(factor(x))
+  if (is.numeric(x)) return(factor(x))
+  lev <- unique(as.character(x))
+  num <- suppressWarnings(as.numeric(sub("^\\s*(-?[0-9]+\\.?[0-9]*).*$", "\\1", lev)))
+  if (all(grepl("^\\s*-?[0-9]", lev)) && !anyNA(num)) {
+    lev <- lev[order(num, seq_along(lev))]
+  }
+  factor(x, levels = lev)
+}
+
+
+
+
 
 #' Internal Helper: Encode below-the-limit-of-quantification (BLQ) values as -Inf
 #'
@@ -419,4 +455,46 @@ normalize_time_unit <- function(var, name = "unit") {
     )
   }
   unname(out)
+}
+
+
+#' Internal helper: Remove NULL entries from a list
+#'
+#' @param x A named list potentially containing NULL values.
+#'
+#' @return A list with all NULL entries removed
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::compact(list(a = 1, b = NULL, c = 3))
+#'
+compact <- function(x) x[!vapply(x, is.null, logical(1))]
+
+
+#' Internal helper: Merge user overrides into a complete default named list
+#'
+#' Iterates over names in the user-supplied list and overwrites matching entries
+#' in the default. Warns on unrecognized names. Used to merge the layer
+#' visibility lists from [plot_gof_shown()] / [plot_vpc_shown()] over their
+#' defaults.
+#'
+#' @param user User-supplied list with partial overrides, or `NULL`.
+#' @param default Complete default list.
+#'
+#' @return A merged list with the same class as `default`
+#' @keywords internal
+#' @examples
+#' pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
+#'
+merge_element <- function(user, default) {
+  if (is.null(user)) return(default)
+  out <- default
+  for (nm in names(user)) {
+    if (!nm %in% names(default)) {
+      warning(paste0("`", nm, "` is not a valid field of ", class(default)[1]))
+    } else {
+      out[[nm]] <- user[[nm]]
+    }
+  }
+  class(out) <- class(default)
+  out
 }

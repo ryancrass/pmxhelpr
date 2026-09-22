@@ -240,66 +240,6 @@ test_that("df_prep_dvtime messages when inheriting loq from LLOQ column", {
   )
 })
 
-#####prep_plot_env####
-
-test_that("prep_plot_env returns list with expected elements", {
-  df <- data.frame(NTIME = c(0, 1, 2, 4, 8))
-  result <- pmxhelpr:::prep_plot_env(df, cent = "mean", log_y = FALSE,
-                                     theme = NULL,
-                                     theme_fn = pmxhelpr::plot_dvtime_theme)
-  expect_true(is.list(result))
-  expect_named(result, c("caption", "plottheme", "width"))
-  expect_true(is.character(result$caption))
-  expect_true(is.list(result$plottheme))
-  expect_true(is.numeric(result$width))
-})
-
-#####check_color####
-
-test_that("check_color accepts valid color names and hex strings", {
-  expect_no_error(pmxhelpr:::check_color("red", "color"))
-  expect_no_error(pmxhelpr:::check_color("#FF0000", "color"))
-})
-
-test_that("check_color accepts NULL", {
-  expect_no_error(pmxhelpr:::check_color(NULL, "color"))
-})
-
-test_that("check_color errors on invalid color name", {
-  expect_error(pmxhelpr:::check_color("saalmon", "color"),
-               regexp = "must be a valid color name or hex string")
-})
-
-#####check_size####
-
-test_that("check_size accepts non-negative numeric and NULL", {
-  expect_no_error(pmxhelpr:::check_size(1.5, "size"))
-  expect_no_error(pmxhelpr:::check_size(0, "size"))   # zero is the "hide layer" idiom
-  expect_no_error(pmxhelpr:::check_size(NULL, "size"))
-})
-
-test_that("check_size errors on negative or NA", {
-  expect_error(pmxhelpr:::check_size(-1, "size"), regexp = "non-negative numeric")
-  expect_error(pmxhelpr:::check_size(NA_real_, "size"), regexp = "non-negative numeric")
-})
-
-#####check_shape####
-
-test_that("check_shape accepts integer in 0:25, character, and NULL", {
-  expect_no_error(pmxhelpr:::check_shape(16, "shape"))
-  expect_no_error(pmxhelpr:::check_shape("circle", "shape"))
-  expect_no_error(pmxhelpr:::check_shape(NULL, "shape"))
-})
-
-test_that("check_shape errors on out-of-range integer", {
-  expect_error(pmxhelpr:::check_shape(99, "shape"), regexp = "integer in 0:25")
-  expect_error(pmxhelpr:::check_shape(-1, "shape"), regexp = "integer in 0:25")
-})
-
-test_that("check_shape errors on logical input", {
-  expect_error(pmxhelpr:::check_shape(TRUE, "shape"), regexp = "integer in 0:25 or a character")
-})
-
 #####check_quantile_pair####
 
 test_that("check_quantile_pair accepts ordered length-2 numeric in [0,1]", {
@@ -435,16 +375,16 @@ test_that("check_loglog_args accepts valid arguments silently", {
 })
 
 test_that("check_pipeline_args_dropped accepts plot-only args silently", {
-  fake_call <- quote(plot_vpc_cont(data = stats_obj, theme = my_theme))
+  fake_call <- quote(plot_vpc_cont(data = stats_obj, style = my_style))
   expect_silent(pmxhelpr:::check_pipeline_args_dropped(
-    fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"))
+    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"))
 })
 
 test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, loq = 1, mode = "drop"))
   expect_error(
     pmxhelpr:::check_pipeline_args_dropped(
-      fake_call, plot_only_args = c("data", "theme"), fn_name = "plot_vpc_cont"),
+      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"),
     regexp = "loq|mode"
   )
 })
@@ -470,4 +410,48 @@ test_that("check_single_cmt is silent when CMT column is absent", {
 test_that("check_single_cmt is silent on empty data", {
   df <- data.frame(CMT = integer(0), EVID = integer(0))
   expect_no_warning(pmxhelpr:::check_single_cmt(df))
+})
+
+
+##Test order_col_factor(): factor level order feeds ggstylekit (>= 0.3.0)
+test_that("order_col_factor preserves an existing factor's declared levels", {
+  f <- factor(c("b", "a", "b"), levels = c("b", "a"))
+  expect_equal(levels(pmxhelpr:::order_col_factor(f)), c("b", "a"))
+})
+
+test_that("order_col_factor sorts numeric col_var by magnitude, not input order", {
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c(100, 20, 5, 400, 50))),
+    c("5", "20", "50", "100", "400")
+  )
+})
+
+test_that("order_col_factor orders numeric-labelled character col_var by value", {
+  # dose-like labels sort by the leading number, not lexicographically
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("200 mg", "5 mg", "20 mg", "100 mg"))),
+    c("5 mg", "20 mg", "100 mg", "200 mg")
+  )
+  # trailing text (e.g. var_addn "(n=)" counts) does not disturb the ordering
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("100 mg (n=6)", "20 mg (n=12)", "5 mg (n=3)"))),
+    c("5 mg (n=3)", "20 mg (n=12)", "100 mg (n=6)")
+  )
+  # decimals
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("2.5 mg", "10 mg", "0.5 mg"))),
+    c("0.5 mg", "2.5 mg", "10 mg")
+  )
+})
+
+test_that("order_col_factor falls back to first-appearance for non-numeric labels", {
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("High", "Low", "Medium"))),
+    c("High", "Low", "Medium")
+  )
+  # mixed numeric / non-numeric is ambiguous -> first-appearance, never lexicographic
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Placebo", "20 mg", "5 mg"))),
+    c("Placebo", "20 mg", "5 mg")
+  )
 })

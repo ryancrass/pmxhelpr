@@ -14,7 +14,7 @@ plot_doseprop(
   ci = 0.9,
   sigdigits = 3,
   se = TRUE,
-  theme = NULL
+  style = NULL
 )
 }
 \arguments{
@@ -46,9 +46,14 @@ Options \code{0.90} (default) and \code{0.95}.}
 \item{se}{logical to display confidence interval around regression.
 Default is \code{TRUE}.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by
-\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}. Defaults can be viewed by running
-\code{plot_doseprop_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
+\code{style_doseprop()} with no arguments. Customize by passing
+\code{style = style_doseprop(...)}, or restyle the returned plot with
+\code{\link[=restyle_plot]{restyle_plot()}}. The per-metric facet layout is
+taken from the style's \code{facet_scales} (default \code{"free"}), \code{facet_nrow},
+and \code{facet_ncol}; the \code{facet}, \code{logx}, and \code{logy} fields are ignored
+because the builder sets the facet and log-log axes itself.}
 }
 \value{
 a \code{ggplot} plot object
@@ -60,13 +65,13 @@ Dual-mode wrapper that delegates to \code{\link[=df_doseprop]{df_doseprop()}} fo
 \item raw observation data (e.g. PKNCA output) plus a \code{metrics} vector — the
 common one-shot mode; or
 \item a precomputed \code{doseprop_stats} object returned by \code{\link[=df_doseprop]{df_doseprop()}} — skip
-the regression refit and replot with different \code{theme} / \code{se} settings.
+the regression refit and replot with different \code{style} / \code{se} settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metrics}, \code{metric_name_var},
 \code{metric_value_var}, \code{dose_var}, \code{method}, \code{ci}, \code{sigdigits}) cannot be honored
 because the regression does not run again — passing any of them aborts
-with a message pointing the caller at \code{\link[=df_doseprop]{df_doseprop()}}. Only \code{theme} and
+with a message pointing the caller at \code{\link[=df_doseprop]{df_doseprop()}}. Only \code{style} and
 \code{se} are accepted on both paths.
 }
 \examples{
@@ -81,10 +86,10 @@ plot_doseprop(stats)
 plot_doseprop(stats, se = FALSE)
 }
 \seealso{
-Other dose proportionality: 
-\code{\link{df_doseprop}()},
-\code{\link{is_doseprop_stats}()},
-\code{\link{plot_build_doseprop}()},
-\code{\link{plot_doseprop_theme}()}
+Other dose proportionality:
+\code{\link[=df_doseprop]{df_doseprop()}},
+\code{\link[=is_doseprop_stats]{is_doseprop_stats()}},
+\code{\link[=plot_build_doseprop]{plot_build_doseprop()}},
+\code{\link[=style_doseprop]{style_doseprop()}}
 }
 \concept{dose proportionality}

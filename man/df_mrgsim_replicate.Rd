@@ -55,19 +55,19 @@ and a parallel plan set by the user (e.g.,
 \code{future::plan(future::multisession, workers = 4)}). Default is \code{FALSE}
 (sequential).}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}, including
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}, including
 \code{carry_out} and \code{recover} to control which input columns are propagated to
 the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
 \code{OBSDV}, and the population prediction column) is added to whatever the
 user passes to \code{carry_out}.}
 }
 \value{
-A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}})
+A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}})
 and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus any input
 columns listed in \code{carry_out} / \code{recover}.
 }
 \description{
-\code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim]{mrgsolve::mrgsim_df()}}
+\code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}
 that returns a data.frame containing \code{replicates} iterations of \code{data}
 }
 \details{
@@ -95,8 +95,8 @@ future::plan(future::sequential)
 }
 }
 \seealso{
-Other mrgsolve wrappers: 
-\code{\link{df_mrgsim_addpred}()},
-\code{\link{model_mread_load}()}
+Other mrgsolve wrappers:
+\code{\link[=df_mrgsim_addpred]{df_mrgsim_addpred()}},
+\code{\link[=model_mread_load]{model_mread_load()}}
 }
 \concept{mrgsolve wrappers}

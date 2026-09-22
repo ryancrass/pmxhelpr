@@ -31,7 +31,7 @@ run configuration consumed by the plot builders). The class vector is
 \code{\link[=validate_pmx_stats]{validate_pmx_stats()}} at construction time.
 }
 \seealso{
-Other pmx stats class: 
-\code{\link{is_pmx_stats}()}
+Other pmx stats class:
+\code{\link[=is_pmx_stats]{is_pmx_stats()}}
 }
 \concept{pmx stats class}

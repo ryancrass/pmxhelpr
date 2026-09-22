@@ -30,8 +30,8 @@ var_addn(data$DOSE, data$ID, sep = "mg")
 
 }
 \seealso{
-Other vectorized helpers: 
-\code{\link{var_dosenorm}()},
-\code{\link{var_predcorr}()}
+Other vectorized helpers:
+\code{\link[=var_dosenorm]{var_dosenorm()}},
+\code{\link[=var_predcorr]{var_predcorr()}}
 }
 \concept{vectorized helpers}

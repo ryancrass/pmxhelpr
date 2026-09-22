@@ -1,28 +1,3 @@
-#' Internal helper: Compute error bar width
-#'
-#' Returns the user-specified error bar width from the theme, or defaults
-#' to 2.5 percent of the maximum `NTIME` value.
-#'
-#' @param plottheme Named list of theme elements containing `$cent_errorbar$width`.
-#' @param data data.frame containing `NTIME` column.
-#'
-#' @return Numeric error bar width value
-#' @keywords internal
-#' @examples
-#' theme <- plot_dvtime_theme()
-#' data <- data.frame(NTIME = c(0, 1, 2, 4, 8, 24))
-#' pmxhelpr:::errorbar_width(theme, data)
-#'
-errorbar_width <- function(plottheme, data) {
-  if(is.numeric(plottheme$cent_errorbar$width)) return(plottheme$cent_errorbar$width)
-  if (!"NTIME" %in% colnames(data) || nrow(data) == 0L || all(is.na(data$NTIME))) {
-    rlang::warn("cannot compute default errorbar width: `NTIME` is empty or all NA. Returning NA; set `width` via `pmx_errorbar(width = ...)` to suppress this warning.")
-    return(NA_real_)
-  }
-  max(data$NTIME, na.rm = TRUE) * 0.025
-}
-
-
 #' Determine axis breaks automatically for time variables
 #'
 #' @param x Numeric vector of times from which to determine breaks

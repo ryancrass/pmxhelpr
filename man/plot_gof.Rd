@@ -22,7 +22,7 @@ plot_gof(
   ref = NULL,
   log_y = FALSE,
   show_caption = TRUE,
-  theme = NULL
+  style = NULL
 )
 }
 \arguments{
@@ -83,9 +83,13 @@ when \code{show_caption = TRUE}.}
 \item{show_caption}{Logical indicating if a caption should be shown
 describing the data plotted.}
 
-\item{theme}{Theme object created by \code{\link[=plot_gof_theme]{plot_gof_theme()}}.
-Defaults can be viewed by running \code{plot_gof_theme()} with no arguments.
-Default error bar width is 2.5\% of maximum \code{NTIME}.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_gof]{style_gof()}}; view the defaults by running \code{style_gof()}
+with no arguments. Customize by passing \code{style = style_gof(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The DV/PRED/IPRED (and
+OBS) overlays are colored by the \code{colors} map keyed by those labels. The
+error bar cap width is the style's \code{errorbar_width} field; when unset it
+defaults to 2.5\% of the maximum nominal time (\code{ntime_var}).}
 }
 \value{
 A \code{ggplot2} plot object
@@ -94,7 +98,7 @@ A \code{ggplot2} plot object
 Creates a population overlay plot showing central tendency lines for
 observed (DV), population predicted (PRED), and individual predicted (IPRED)
 values. Colors and aesthetics for each variable are controlled through the
-\code{theme} argument via \code{\link[=plot_gof_theme]{plot_gof_theme()}}. Use the \code{shown} argument to
+\code{style} argument via \code{\link[=style_gof]{style_gof()}}. Use the \code{shown} argument to
 selectively hide variables.
 }
 \examples{
@@ -102,8 +106,8 @@ plot_gof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
 
 }
 \seealso{
-Other goodness-of-fit: 
-\code{\link{plot_gof_shown}()},
-\code{\link{plot_gof_theme}()}
+Other goodness-of-fit:
+\code{\link[=plot_gof_shown]{plot_gof_shown()}},
+\code{\link[=style_gof]{style_gof()}}
 }
 \concept{goodness-of-fit}

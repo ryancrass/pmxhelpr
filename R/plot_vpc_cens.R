@@ -20,6 +20,8 @@
 #'    raw data when you need pipeline control.
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Currently, only a single stratifying variable is supported.
+#'    Facet layout is taken from the `style`: `facet_scales`, `facet_nrow`,
+#'    and `facet_ncol`.
 #' @param loq Numeric scalar, or `NULL`. Lower limit of quantification (LLOQ).
 #'    Either `loq` or an `LLOQ` column in `data` is **required** — without a
 #'    LOQ source, `df_vpcstats()` does not emit the `sim_prop_blq_*` columns
@@ -41,9 +43,12 @@
 #'    the simulated median line is off by default. Pass
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it.
 #'
-#' @param theme Named list of aesthetic parameters created by
-#'    [plot_vpc_theme()]. The cens builder reads the same four keys listed
-#'    above (`obs_point`, `obs_median_line`, `sim_median_line`,
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
+#'    restyle the returned plot with [restyle_plot()]. Pass the same style to
+#'    [plot_vpc_legend()] so the legend matches. The cens builder reads the same four keys
+#'    listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
 #'    `sim_median_ci`); other keys are ignored.
 #'
 #' @param ci Numeric scalar in `(0, 1)` for the simulated CI bound on the BLQ
@@ -97,7 +102,7 @@ plot_vpc_cens <- function(data,
                           min_bin_count = 1,
                           show_rep = TRUE,
                           shown = NULL,
-                          theme = NULL,
+                          style = NULL,
                           ci = 0.90) {
 
   ## Precomputed-stats path: caller passed the container returned by
@@ -108,7 +113,7 @@ plot_vpc_cens <- function(data,
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       call           = match.call(),
-      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "theme"),
+      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
       fn_name        = "plot_vpc_cens"
     )
     return(plot_build_vpc(
@@ -117,7 +122,7 @@ plot_vpc_cens <- function(data,
       min_bin_count = min_bin_count,
       show_rep      = show_rep,
       shown         = shown,
-      theme         = theme,
+      style         = style,
       bin_var       = BIN_MID_VAR
     ))
   }
@@ -149,7 +154,7 @@ plot_vpc_cens <- function(data,
     min_bin_count = min_bin_count,
     show_rep      = show_rep,
     shown         = shown,
-    theme         = theme,
+    style         = style,
     bin_var       = BIN_MID_VAR
   )
 }

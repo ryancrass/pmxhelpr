@@ -128,36 +128,29 @@ check_quantile_scalar <- function(x, name) {
   }
 }
 
-check_color <- function(x, name) {
-  if (is.null(x)) return(invisible())
-  ok <- tryCatch({
-    grDevices::col2rgb(x)
-    TRUE
-  }, error = function(e) FALSE)
-  if (!ok) {
-    rlang::abort(paste0("argument `", name, "` must be a valid color name or hex string (got ",
-                        paste0("'", x, "'", collapse = ", "), ")"))
+#' Internal helper: resolve and validate the `style` argument
+#'
+#' Every plot builder accepts `style = NULL` (use the family preset) or a
+#' [ggstylekit::style_spec()] object. This helper applies the default and
+#' aborts early, with a pmxhelpr-branded message, when `style` is anything
+#' else; without it, a bad `style` fails deep inside `ggstylekit` or, for
+#' [plot_vpc_legend()], with an uninformative R error.
+#'
+#' @param style `NULL` or a `ggstylekit_style_spec` object.
+#' @param default A function returning the family preset (e.g. [style_dvtime]),
+#'    called only when `style` is `NULL`.
+#'
+#' @return A `ggstylekit_style_spec` object.
+#' @keywords internal
+resolve_style <- function(style, default) {
+  if (is.null(style)) return(default())
+  if (!inherits(style, "ggstylekit_style_spec")) {
+    rlang::abort(paste0(
+      "argument `style` must be a `ggstylekit::style_spec()` object, ",
+      "typically from a `style_*()` preset (got <",
+      paste(class(style), collapse = "/"), ">)"))
   }
-}
-
-check_size <- function(x, name) {
-  if (is.null(x)) return(invisible())
-  if (!is.numeric(x) || any(is.na(x)) || any(x < 0)) {
-    rlang::abort(paste0("argument `", name, "` must be a non-negative numeric value"))
-  }
-}
-
-check_shape <- function(x, name) {
-  if (is.null(x)) return(invisible())
-  if (is.numeric(x)) {
-    if (any(is.na(x)) || any(x != as.integer(x)) || any(x < 0) || any(x > 25)) {
-      rlang::abort(paste0("argument `", name, "` must be an integer in 0:25 or a character"))
-    }
-    return(invisible())
-  }
-  if (!is.character(x)) {
-    rlang::abort(paste0("argument `", name, "` must be an integer in 0:25 or a character"))
-  }
+  style
 }
 
 check_loglog_args <- function(method, ci, sigdigits) {
@@ -184,7 +177,7 @@ check_loglog_args <- function(method, ci, sigdigits) {
 #' @param call A `call` object, typically `match.call()` evaluated in the
 #'    wrapper's frame.
 #' @param plot_only_args Character vector of argument names that ARE honored
-#'    on the precomputed-stats path (e.g. `"theme"`, `"shown"`, `"pcvpc"`).
+#'    on the precomputed-stats path (e.g. `"style"`, `"shown"`, `"pcvpc"`).
 #'    The matched data argument should also be included.
 #' @param fn_name Character scalar, the wrapper's name, used in the error
 #'    message.

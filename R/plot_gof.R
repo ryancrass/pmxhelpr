@@ -50,9 +50,9 @@
 #'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
 #'    with no arguments. Customize by passing `style = style_gof(...)`, or
 #'    restyle the returned plot with [restyle_plot()]. The DV/PRED/IPRED (and
-#'    OBS) overlays are colored by the `colors` map keyed by those labels.
-#' @param errorbar_width Numeric error bar cap width. Default `NULL` uses 2.5%
-#'    of maximum `NTIME`.
+#'    OBS) overlays are colored by the `colors` map keyed by those labels. The
+#'    error bar cap width is the style's `errorbar_width` field; when unset it
+#'    defaults to 2.5% of the maximum nominal time (`ntime_var`).
 #'
 #' @family goodness-of-fit
 #' @return A `ggplot2` plot object
@@ -80,8 +80,7 @@ plot_gof <- function(data,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
-                        style = NULL,
-                        errorbar_width = NULL){
+                        style = NULL){
 
   cent <- match.arg(cent)
   blq_mode <- match.arg(blq_mode)
@@ -122,8 +121,8 @@ plot_gof <- function(data,
   #(with placeholder values), and style_plot() injects style$colors into it.
   plotstyle <- resolve_style(style, style_gof)
 
-  #Error bar cap width (builder-computed; no style_spec field).
-  ebw <- resolve_errorbar_width(errorbar_width, data)
+  #Error bar cap width: defaulted from the data when the style leaves it unset.
+  plotstyle <- style_errorbar_width(plotstyle, data)
 
   #Determine which variables to show
   shown <- merge_element(shown, plot_gof_shown())
@@ -158,13 +157,13 @@ plot_gof <- function(data,
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "DV", plotstyle, ebw, color_aes = "DV")
+    plot <- add_cent_layers_gof_style(plot, cent, "DV", color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "IPRED", plotstyle, ebw, color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_gof_style(plot, cent, "IPRED", color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "PRED", plotstyle, ebw, color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_gof_style(plot, cent, "PRED", color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Define Manual Legend. Values are placeholders keyed by `ord`; style_plot()

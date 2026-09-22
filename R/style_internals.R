@@ -11,10 +11,11 @@
 # linetypes, ...) are keyed by these names; `style_plot()` fills the aesthetics
 # each tagged layer's geom owns.
 #
-# ggstylekit's entity registry does NOT cover `geom_ribbon` or error bars
-# (`GeomErrorbar`/`GeomLinerange`), so `style_plot()` passes those layers
-# through untouched. Their fixed aesthetics are set inline by the builder,
-# reading values out of the style_spec via `series_aes()`.
+# A few layers are built inline instead of tagged: the VPC ribbons (the builder
+# is all-inline by design), the LLOQ line (its label maps to a manual linetype
+# scale), and the `plot_vpc_legend()` proxies. Their fixed aesthetics are read
+# out of the style_spec via `series_aes()`; inline aesthetics take precedence
+# over ggstylekit's entity base fields, so `style_plot()` leaves them as set.
 # ---------------------------------------------------------------------------
 
 
@@ -44,15 +45,15 @@ pmx_house_theme <- function(white_panel = FALSE) {
 
 #' Internal helper: read a series' aesthetics out of a style_spec
 #'
-#' `ggstylekit::style_plot()` only resolves fixed aesthetics for geoms in its
-#' entity registry (point/line/bar/area/box). Error bars and `geom_ribbon` are
-#' not entities, so the builder sets their aesthetics inline, sourcing the
-#' values from the style_spec's per-series maps keyed by `series`.
+#' Layers the builders set inline rather than tagging with
+#' `ggstylekit::series_layer()` (VPC ribbons, the LLOQ line, and the
+#' `plot_vpc_legend()` proxies) source their aesthetics from the style_spec's
+#' per-series maps keyed by `series` through this reader.
 #'
 #' @param spec A `ggstylekit_style_spec` (or any list with the per-series map
 #'   fields `colors`, `fill`, `alphas`, `shapes`, `sizes`, `linetypes`,
 #'   `linewidths`).
-#' @param series Character scalar series/role name (e.g. `"cent_errorbar"`,
+#' @param series Character scalar series/role name (e.g. `"loq_line"`,
 #'   `"sim_pi_ci"`).
 #'
 #' @return A named list of the aesthetics set for `series` (unset aesthetics are

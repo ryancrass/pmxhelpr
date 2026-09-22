@@ -332,7 +332,7 @@ var_addn <- function(grp_var,
 
 #' Internal Helper: Coerce a color/stratification variable to an ordered factor
 #'
-#' @description Since ggstylekit (>= 0.3.0) drives discrete legends and per-series
+#' @description Since ggstylekit (>= 0.4.0) drives discrete legends and per-series
 #'    value assignment from a factor's declared level order, `col_var` needs a
 #'    sensible order before it is mapped. The rule is:
 #'

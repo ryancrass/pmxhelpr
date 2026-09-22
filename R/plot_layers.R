@@ -2,9 +2,10 @@
 # ggstylekit-based layer builders
 #
 # These `*_style()` helpers emit bare geoms tagged with
-# `ggstylekit::series_layer()` (for entity geoms styled by `style_plot()`) or
-# with inline aesthetics read from the style via `series_aes()` (for non-entity
-# geoms like error bars). Series names are the plot role keys.
+# `ggstylekit::series_layer()` so `style_plot()` fills their role-keyed fixed
+# aesthetics (points, lines, error bars). The LLOQ line reads its aesthetics
+# inline via `series_aes()` because it maps a label to a manual linetype scale.
+# Series names are the plot role keys.
 # ===========================================================================
 
 
@@ -147,51 +148,88 @@ add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
 }
 
 
-#' Internal helper: resolve the error bar cap width
+#' Internal helper: default the error bar cap width from the data
 #'
-#' Shared by [plot_dvtime()] and [plot_gof()]. The cap width is a builder
-#' argument rather than a `style_spec()` field because it is a data-scale
-#' quantity: when `errorbar_width` is `NULL` it defaults to 2.5% of the maximum
-#' `NTIME` in `data`, or `NA` (ggplot2's default width) when `NTIME` is absent
-#' or all `NA`.
+#' Shared by [plot_dvtime()] and [plot_gof()]. The cap width is the
+#' `errorbar_width` field of [ggstylekit::style_spec()], set through
+#' `style_dvtime(errorbar_width = ...)` / `style_gof(errorbar_width = ...)`. The
+#' presets leave it unset because the useful default is a data-scale quantity:
+#' when `style$errorbar_width` is `NULL`, this back-fills 2.5% of the maximum
+#' `NTIME` in `data`. A width set in the style always wins. When `NTIME` is
+#' absent or all `NA` the field stays unset and ggplot2's default width applies
+#' (`NA` is not a valid `errorbar_width`).
 #'
-#' @param errorbar_width `NULL` or a single non-negative numeric value.
+#' @param style A `ggstylekit_style_spec`.
 #' @param data The plot data, checked for an `NTIME` column.
 #'
-#' @return A numeric scalar cap width (possibly `NA_real_`).
+#' @return `style`, with `errorbar_width` filled when it was unset.
 #' @keywords internal
-resolve_errorbar_width <- function(errorbar_width, data) {
-  if (!is.null(errorbar_width)) {
-    if (!is.numeric(errorbar_width) || length(errorbar_width) != 1L ||
-        is.na(errorbar_width) || errorbar_width < 0) {
-      rlang::abort("argument `errorbar_width` must be a single non-negative numeric value")
-    }
-    return(errorbar_width)
-  }
+style_errorbar_width <- function(style, data) {
+  if (!is.null(style$errorbar_width)) return(style)
   if ("NTIME" %in% names(data) && any(!is.na(data$NTIME))) {
-    max(data$NTIME, na.rm = TRUE) * 0.025
-  } else NA_real_
+    ggstylekit::set_style(style,
+                          errorbar_width = max(data$NTIME, na.rm = TRUE) * 0.025)
+  } else style
+}
+
+
+#' Internal helper: error bar layers for a central-tendency summary
+#'
+#' Adds the `stat_summary` error bar layer(s) for `cent`, each tagged as the
+#' `"cent_errorbar"` series so [ggstylekit::style_plot()] fills their
+#' role-keyed fixed aesthetics and the style's `errorbar_width` (see
+#' [style_errorbar_width()]). `"mean_sdl"` draws mean +/- SD, `"median_iqr"`
+#' the 25th-75th percentiles, and `"mean_sdl_upper"` an upper-only bar (cap at
+#' mean + SD plus a `geom_linerange` from the mean). Other `cent` values add
+#' nothing.
+#'
+#' @param plot ggplot object.
+#' @param cent Central tendency measure (see [plot_dvtime()]).
+#' @param mapping The `aes()` shared with the point/line summary layers.
+#'
+#' @return Modified ggplot object.
+#' @keywords internal
+add_errorbar_layers_style <- function(plot, cent, mapping) {
+  errorbar <- function(...) {
+    ggstylekit::series_layer(
+      ggplot2::stat_summary(mapping, geom = "errorbar", ...), "cent_errorbar")
+  }
+  if (cent == "mean_sdl") {
+    plot <- plot + errorbar(fun.data = "mean_sdl", fun.args = list(mult = 1))
+  }
+  if (cent == "mean_sdl_upper") {
+    upper <- function(x) mean(x) + stats::sd(x)
+    plot <- plot + errorbar(fun.max = upper, fun.min = function(x) NA_real_)
+    plot <- plot + ggstylekit::series_layer(
+      ggplot2::stat_summary(mapping, geom = "linerange", show.legend = FALSE,
+                            fun.max = upper, fun.min = function(x) mean(x)),
+      "cent_errorbar")
+  }
+  if (cent == "median_iqr") {
+    plot <- plot + errorbar(fun.max = function(x) stats::quantile(x, 0.75),
+                            fun.min = function(x) stats::quantile(x, 0.25))
+  }
+  plot
 }
 
 
 #' Internal helper: add central tendency layers (style pattern)
 #'
-#' Central-tendency points and lines are `stat_summary` layers tagged as the
-#' `"cent_point"`/`"cent_line"` series for [ggstylekit::style_plot()]. Error
-#' bars use `GeomErrorbar`/`GeomLinerange`, which are outside ggstylekit's
-#' entity registry, so their aesthetics are set inline from the
-#' `"cent_errorbar"` series via [series_aes()]. Color is inherited from the
-#' plot's global `aes()` when mapped.
+#' Central-tendency points, lines, and error bars are `stat_summary` layers
+#' tagged as the `"cent_point"`/`"cent_line"`/`"cent_errorbar"` series for
+#' [ggstylekit::style_plot()], which fills their role-keyed fixed aesthetics.
+#' Error bars are ggstylekit's errorbar entity (`GeomErrorbar`/`GeomLinerange`),
+#' so the cap width comes from the style's `errorbar_width` field (see
+#' [style_errorbar_width()]). Color is inherited from the plot's global `aes()`
+#' when mapped.
 #'
 #' @param plot ggplot object.
 #' @param cent Central tendency measure (see [plot_dvtime()]).
 #' @param y_var Y variable name (e.g. `"DV"`).
-#' @param style A `ggstylekit_style_spec`.
-#' @param width Numeric error bar cap width.
 #'
 #' @return Modified ggplot object.
 #' @keywords internal
-add_cent_layers_style <- function(plot, cent, y_var, style, width) {
+add_cent_layers_style <- function(plot, cent, y_var) {
   if (cent == "none") return(plot)
 
   mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]])
@@ -202,29 +240,7 @@ add_cent_layers_style <- function(plot, cent, y_var, style, width) {
   plot <- plot + ggstylekit::series_layer(
     ggplot2::stat_summary(mapping, fun = stat_fun, geom = "line"), "cent_line")
 
-  eb <- series_aes(style, "cent_errorbar")
-  eb_bar <- c(list(mapping = mapping, geom = "errorbar", width = width), eb)
-
-  if (cent == "mean_sdl") {
-    plot <- plot + do.call(ggplot2::stat_summary,
-      c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_bar))
-  }
-  if (cent == "mean_sdl_upper") {
-    plot <- plot + do.call(ggplot2::stat_summary,
-      c(list(fun.max = function(x) mean(x) + stats::sd(x),
-             fun.min = function(x) NA_real_), eb_bar))
-    plot <- plot + do.call(ggplot2::stat_summary,
-      c(list(mapping = mapping, geom = "linerange", show.legend = FALSE,
-             fun.max = function(x) mean(x) + stats::sd(x),
-             fun.min = function(x) mean(x)), eb))
-  }
-  if (cent == "median_iqr") {
-    plot <- plot + do.call(ggplot2::stat_summary,
-      c(list(fun.max = function(x) stats::quantile(x, 0.75),
-             fun.min = function(x) stats::quantile(x, 0.25)), eb_bar))
-  }
-
-  plot
+  add_errorbar_layers_style(plot, cent, mapping)
 }
 
 
@@ -261,11 +277,10 @@ add_obs_layers_gof_style <- function(plot, id_var_str, color_aes) {
 #'
 #' Like [add_cent_layers_style()] but for the GOF overlay: color is mapped to a
 #' literal label (`"DV"`/`"PRED"`/`"IPRED"`) for the manual color legend. The
-#' point and line layers are tagged with [ggstylekit::series_layer()] so
-#' [ggstylekit::style_plot()] fills their role-keyed fixed aesthetics while
-#' leaving the mapped color channel to the caller's scale. Error bars and
-#' linerange are not ggstylekit entities, so their fixed aesthetics are still set
-#' inline via [series_aes()] (their color arrives from the mapped scale).
+#' point, line, and error bar layers are tagged with
+#' [ggstylekit::series_layer()] so [ggstylekit::style_plot()] fills their
+#' role-keyed fixed aesthetics while leaving the mapped color channel to the
+#' caller's scale.
 #'
 #' @inheritParams add_cent_layers_style
 #' @param color_aes Literal color label.
@@ -273,8 +288,8 @@ add_obs_layers_gof_style <- function(plot, id_var_str, color_aes) {
 #'
 #' @return Modified ggplot object.
 #' @keywords internal
-add_cent_layers_gof_style <- function(plot, cent, y_var, style, width,
-                                      color_aes, show_errorbars = TRUE) {
+add_cent_layers_gof_style <- function(plot, cent, y_var, color_aes,
+                                      show_errorbars = TRUE) {
   if (cent == "none") return(plot)
 
   mapping <- ggplot2::aes(x = .data$NTIME, y = .data[[y_var]], color = color_aes)
@@ -286,26 +301,7 @@ add_cent_layers_gof_style <- function(plot, cent, y_var, style, width,
     ggplot2::stat_summary(mapping, fun = stat_fun, geom = "line"), "cent_line")
 
   if (isTRUE(show_errorbars)) {
-    eb <- series_aes(style, "cent_errorbar")
-    eb_bar <- c(list(mapping = mapping, geom = "errorbar", width = width), eb)
-    if (cent == "mean_sdl") {
-      plot <- plot + do.call(ggplot2::stat_summary,
-        c(list(fun.data = "mean_sdl", fun.args = list(mult = 1)), eb_bar))
-    }
-    if (cent == "mean_sdl_upper") {
-      plot <- plot + do.call(ggplot2::stat_summary,
-        c(list(fun.max = function(x) mean(x) + stats::sd(x),
-               fun.min = function(x) NA_real_), eb_bar))
-      plot <- plot + do.call(ggplot2::stat_summary,
-        c(list(mapping = mapping, geom = "linerange", show.legend = FALSE,
-               fun.max = function(x) mean(x) + stats::sd(x),
-               fun.min = function(x) mean(x)), eb))
-    }
-    if (cent == "median_iqr") {
-      plot <- plot + do.call(ggplot2::stat_summary,
-        c(list(fun.max = function(x) stats::quantile(x, 0.75),
-               fun.min = function(x) stats::quantile(x, 0.25)), eb_bar))
-    }
+    plot <- add_errorbar_layers_style(plot, cent, mapping)
   }
 
   plot

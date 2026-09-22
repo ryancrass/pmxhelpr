@@ -48,9 +48,9 @@
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_dvtime()]; view the defaults by running `style_dvtime()`
 #'    with no arguments. Customize by passing `style = style_dvtime(...)`, or
-#'    restyle the returned plot with [restyle_plot()].
-#' @param errorbar_width Numeric error bar cap width. Default `NULL` uses 2.5%
-#'    of maximum `NTIME`.
+#'    restyle the returned plot with [restyle_plot()]. The error bar cap width
+#'    is the style's `errorbar_width` field; when unset it defaults to 2.5% of
+#'    the maximum nominal time (`ntime_var`).
 #'
 #' @family exploratory analysis
 #' @return A `ggplot2` plot object
@@ -78,8 +78,7 @@ plot_dvtime <- function(data,
                         ref = NULL,
                         log_y = FALSE,
                         show_caption = TRUE,
-                        style = NULL,
-                        errorbar_width = NULL){
+                        style = NULL){
 
   cent <- match.arg(cent)
 
@@ -111,12 +110,11 @@ plot_dvtime <- function(data,
 
   caption <- caption_dvtime(cent, log_y)
 
-  # Resolve style: preset default, with the log_y arg driving the y axis.
+  # Resolve style: preset default, with the log_y arg driving the y axis and
+  # the error bar cap width defaulted from the data when the style leaves it unset.
   plotstyle <- resolve_style(style, style_dvtime)
   plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
-
-  # Error bar cap width (builder-computed; no style_spec field).
-  ebw <- resolve_errorbar_width(errorbar_width, data)
+  plotstyle <- style_errorbar_width(plotstyle, data)
 
 ###Plot
 
@@ -141,7 +139,7 @@ plot_dvtime <- function(data,
   plot <- add_obs_layers_style(plot, id_var_str)
 
   #Plot Central Tendency (points, lines, error bars)
-  plot <- add_cent_layers_style(plot, cent, "DV", plotstyle, ebw)
+  plot <- add_cent_layers_style(plot, cent, "DV")
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)

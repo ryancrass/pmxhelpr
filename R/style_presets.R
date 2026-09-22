@@ -18,6 +18,11 @@
 #' plot roles: `obs_point`, `obs_line` (spaghetti), `cent_point`, `cent_line`,
 #' `cent_errorbar`, `ref_line`, `loq_line`.
 #'
+#' The error bar cap width is the `errorbar_width` field (e.g.
+#' `style_dvtime(errorbar_width = 10)`, in x-axis units). The preset leaves it
+#' unset, and [plot_dvtime()] then defaults it to 2.5% of the maximum nominal
+#' time so the caps scale with the time axis.
+#'
 #' Like every pmxhelpr preset, it places legend titles above the keys
 #' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
 #' theme.
@@ -38,6 +43,7 @@
 #' @examples
 #' style_dvtime()
 #' style_dvtime(shapes = c(obs_point = 16, cent_point = 16))
+#' style_dvtime(errorbar_width = 10)
 style_dvtime <- function(...) {
   defaults <- list(
     shapes     = c(obs_point = 1, cent_point = 16),
@@ -61,6 +67,10 @@ style_dvtime <- function(...) {
 #' Default [ggstylekit::style_spec()] for [plot_gof()]. The DV/PRED/IPRED (and
 #' OBS) overlays are colour-mapped by label via the `colors` map; the remaining
 #' fixed aesthetics use the role series names as in [style_dvtime()].
+#'
+#' The error bar cap width is the `errorbar_width` field (e.g.
+#' `style_gof(errorbar_width = 10)`, in x-axis units). The preset leaves it
+#' unset, and [plot_gof()] then defaults it to 2.5% of the maximum nominal time.
 #'
 #' Like every pmxhelpr preset, it places legend titles above the keys
 #' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
@@ -192,9 +202,9 @@ style_doseprop <- function(...) {
 #' Default [ggstylekit::style_spec()] for the VPC family. Line/point roles
 #' (`obs_point`, `obs_median_line`, `obs_pi_line`, `sim_pi_line`,
 #' `sim_median_line`, `loq_line`) are styled by `style_plot()`. The three ribbon
-#' roles (`sim_pi_ci`, `sim_pi_area`, `sim_median_ci`) are `geom_ribbon`
-#' (outside ggstylekit's entity registry), so their `fill`/`alpha` are set
-#' inline by the builder, read from these maps via `series_aes()`.
+#' roles (`sim_pi_ci`, `sim_pi_area`, `sim_median_ci`) are `geom_ribbon` layers
+#' whose `fill`/`alpha` the VPC builder sets inline, read from these maps via
+#' `series_aes()` (inline aesthetics take precedence over the `area_*` fields).
 #'
 #' Stratification facets are built by the VPC plotting functions from
 #' `strat_var` (not by `style_plot()`), but the `facet_scales`, `facet_nrow`,

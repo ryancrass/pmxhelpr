@@ -11,7 +11,9 @@ bespoke `pmx_*` element/theme system introduced in 0.5.0.
   pre-filled style spec for the new `style` argument (replaces `theme`). 
 * `restyle_plot()`, `reveal()`, `combine_styled_plots()`, and `legend_spec()`
   are re-exported from ggstylekit.
-* `plot_dvtime()` and `plot_gof()` gain an `errorbar_width` argument.
+* Error bar cap width is a style field: `style_dvtime(errorbar_width = ...)`
+  and `style_gof(errorbar_width = ...)`. When unset, `plot_dvtime()` and
+  `plot_gof()` default it to 2.5% of the maximum nominal time.
 * `plot_vpc_cont()`, `plot_vpc_cens()`, and `plot_doseprop()` take their facet
   layout from the style (`facet_scales`, `facet_nrow`, `facet_ncol`). These
   builders facet internally (by `strat_var` or by metric), so the style's
@@ -25,7 +27,7 @@ bespoke `pmx_*` element/theme system introduced in 0.5.0.
 * Character `col_var` values with numeric labels (e.g. `"5 mg"`, `"20 mg"`,
   `"100 mg"`) are ordered by value, not alphabetically, in legends and
   per-series color assignment (`plot_dvtime()`, `plot_dvconc()`).
-* `ggstylekit (>= 0.3.0)` is a new dependency (Imports).
+* `ggstylekit (>= 0.4.0)` is a new dependency (Imports).
 
 ## Breaking changes
 
@@ -48,8 +50,8 @@ bespoke `pmx_*` element/theme system introduced in 0.5.0.
   `plot_build_doseprop()`, and `plot_vpc_legend()` is renamed to `style` and now
   takes a `ggstylekit::style_spec()` object, typically from a `style_*()` 
   preset.
-* Error bar cap width moved out of the theme (`pmx_errorbar(width = ...)`) 
-  to the new `errorbar_width` argument of `plot_dvtime()` and `plot_gof()`.
+* Error bar cap width moved out of the theme (`pmx_errorbar(width = ...)`)
+  to the `errorbar_width` field of `style_dvtime()` and `style_gof()`.
 
 ## Migration
 

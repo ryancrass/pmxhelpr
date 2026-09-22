@@ -331,18 +331,19 @@ The default aesthetics for Response-Time plots are controlled via `style_dvtime(
 style_dvtime()
 ```
 
-Say we want to update the errorbar cap width to be more visible in our prior geometric mean +/- geometric SD plot with the interaction of dose and food passed to the color aesthetic. Error bar cap width is a builder argument (`errorbar_width`), while the other aesthetics come from the style.
+Say we want to update the errorbar cap width to be more visible in our prior geometric mean +/- geometric SD plot with the interaction of dose and food passed to the color aesthetic. Error bar cap width is the `errorbar_width` style field (in x-axis units); when unset it defaults to 2.5% of the maximum nominal time.
 
 ```{r new-style}
 dvtime_new_style <- style_dvtime(
-  alphas = c(obs_point = 0)
+  alphas = c(obs_point = 0),
+  errorbar_width = 10
 )
 ```
 
 ```{r plot-dvtime-blq-dn-new-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl",log_y = TRUE,
-            style = dvtime_new_style, errorbar_width = 10) +
+            style = dvtime_new_style) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)

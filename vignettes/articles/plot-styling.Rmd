@@ -188,8 +188,6 @@ it. Where the two overlap, the builder argument wins:
   style `logy` from the plotting function `log_y` argument. This is because 
   `log_y` argument in the plotting function also controls the central tendency 
   summary measure (e.g., arithmetic versus geometric mean). 
-  + **`errorbar_width`**: `plot_dvtime()` / `plot_gof()` set the errorbar cap 
-  width as a function of the time range (default = 2.5% the max(NTIME)).
   + **`plot_doseprop()` axes and facets**: this plotting family applies its own
   log-log `scale_*_log10()` and per-metric `facet_wrap()`, so the style spec's
   `logx`/`logy`/`xbreaks`/`facet` fields are ignored. The facet *layout* fields
@@ -243,14 +241,15 @@ plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
 
 ### Error bar cap width
 
-Error bar cap width is a builder argument, not part of the style, since it 
-depends on the values of the nominal time variable:
+Error bar cap width is the `errorbar_width` style field, in x-axis units. The
+presets leave it unset, and `plot_dvtime()` / `plot_gof()` then default it to
+2.5% of the maximum nominal time so the caps scale with the time axis. Set it
+in the style to override:
 
 ```{r ex-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = new_dvtime_style, 
-            errorbar_width = 10)
+            style = style_dvtime(alphas = c(obs_point = 0), errorbar_width = 10))
 ```
 
 

@@ -1,5 +1,3 @@
-use_lockfile = false
-
 [project]
 name = "pmxhelpr"
 r_version = "4.6"
@@ -8,7 +6,8 @@ r_version = "4.6"
 # The alias is only used in this file if you want to specifically require a dependency to come from a certain repository.
 # Example: { alias = "PPM", url = "https://packagemanager.posit.co/cran/latest" },
 repositories = [
-    { alias = "CRAN", url = "https://CRAN.R-project.org/"}
+    { alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30/" },
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/"}
 ]
 
 # A list of packages to install and any additional configuration
@@ -18,11 +17,7 @@ repositories = [
     # {name = "dplyr", git = "https://github.com/tidyverse/dplyr.git", tag = "v1.1.4"},
 dependencies = [
     "devtools",
-    "MASS",
-    "PKNCA",
-    "mrgsolve",
     "future.apply",
-    "ggplot2",
-    "tidyverse",
-    "patchwork",
+    "withr",
+    "ggstylekit"
 ]

@@ -10,7 +10,7 @@ plot_build_vpc(
   min_bin_count = 1,
   show_rep = TRUE,
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   pcvpc = FALSE,
   loq = NULL,
   strat_var = NULL,
@@ -46,11 +46,14 @@ For \code{type = "cens"}, only the \code{obs_point}, \code{obs_median_line},
 ribbon are shown; the simulated median line is off by default (pass
 \code{plot_vpc_shown(sim_median_line = TRUE)} to enable it).}
 
-\item{theme}{Aesthetic parameters created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}. For
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
+with no arguments. Customize by passing \code{style = style_vpc(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series names are the VPC roles. For
 \code{type = "cens"}, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens \code{obs_point} color is
 inherited from \code{obs_median_line} (so points match the obs line); the
-\code{obs_point} theme key still controls shape/alpha/size.}
+\code{obs_point} style key still controls shape/alpha/size.}
 
 \item{pcvpc}{Logical. When \code{TRUE}, plot the prediction-corrected columns
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
@@ -77,7 +80,8 @@ scale).}
 \item{strat_var}{Stratification variable. Accepts bare names or strings.
 Default is \code{NULL}. When \code{NULL}, the value is read from
 \code{compute_out$config$strat_var} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
-handled automatically.}
+handled automatically. Facet layout is taken from the \code{style}:
+\code{facet_scales}, \code{facet_nrow}, and \code{facet_ncol}.}
 
 \item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 }
@@ -116,6 +120,6 @@ Other vpc:
 \code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
 \code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

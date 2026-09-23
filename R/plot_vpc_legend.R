@@ -7,11 +7,15 @@
 #'    Ignored when `type = "cens"` (cens VPCs do not have prediction intervals).
 #' @param lloq Numeric scalar or vector of LLOQ values to label in the legend,
 #'    or `NULL` to omit. Each unique value becomes one legend entry rendered
-#'    with the theme's `loq_line` linetype. Pass `compute_out$config$loq` from
+#'    with the style's `loq_line` linetype. Pass `compute_out$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
-#' @param theme Named list of aesthetic parameters for the plot created by [plot_vpc_theme()].
-#'    Defaults can be viewed by running `plot_vpc_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling legend aesthetics.
+#'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
+#'    with no arguments. Should match the `style` passed to [plot_vpc_cont()].
+#'    The per-series maps supply each key's color, fill, shape, linetype, and
+#'    linewidth; `legend.title.position` and `legend.title.hjust` place the
+#'    legend titles. Other style fields do not apply to the legend panel.
 #' @param type One of `"cont"` (default) or `"cens"`. Selects the labels and
 #'    layer set the legend describes. Under `"cont"`, the central-tendency
 #'    entries are labeled `"Obs Med"`, `"Sim Med"`, and `"Sim <ci>% CI Med"`
@@ -21,7 +25,8 @@
 #'    relabeled to `"Obs Prop BLQ"`, `"Sim Prop BLQ"`, `"Sim <ci>% CI Prop BLQ"`
 #'    and all pi-related entries are suppressed regardless of `shown` (cens
 #'    VPCs have no prediction interval).
-#' @param ... Other arguments passed to [ggplot2::theme()].
+#' @param ... Other arguments passed to [ggplot2::theme()], applied after the
+#'    style so they override it.
 #'
 #' @inheritParams plot_vpc_cont
 #' @family vpc
@@ -44,14 +49,25 @@ plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
-                        theme = NULL,
+                        style = NULL,
                         type = c("cont", "cens"),
                         ...){
 
   type <- match.arg(type)
 
-  #aesthetics for legend based on settings in plot_vpc_theme
-  plist <- merge_theme(theme, plot_vpc_theme())
+  ## Legend aesthetics from the style. Reshape the style's per-series maps into
+  ## a per-role list (with American-spelled `color`) so the proxy-geom /
+  ## manual-scale construction below reads `plist$<role>$<field>` directly.
+  vpcstyle <- resolve_style(style, style_vpc)
+  .roles <- c("obs_point", "obs_median_line", "obs_pi_line", "sim_pi_line",
+              "sim_median_line", "loq_line", "sim_median_ci", "sim_pi_ci",
+              "sim_pi_area")
+  plist <- lapply(.roles, function(r) {
+    a <- series_aes(vpcstyle, r)
+    list(color = a$colour, fill = a$fill, alpha = a$alpha, shape = a$shape,
+         size = a$size, linetype = a$linetype, linewidth = a$linewidth)
+  })
+  names(plist) <- .roles
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
@@ -161,8 +177,12 @@ plot_vpc_legend <- function(ci = 0.90,
     ggplot2::theme(legend.position = "inside",
                    legend.box = "horizontal",
                    legend.title = ggplot2::element_text(size = 10),
-                   legend.text = ggplot2::element_text(size = 8),
-                   ...)+
+                   legend.text = ggplot2::element_text(size = 8)) +
+    ## Legend-title placement/justification follow the style so the legend
+    ## panel matches the plot it describes; `...` is applied last so explicit
+    ## theme() overrides still win.
+    legend_style_theme(vpcstyle) +
+    ggplot2::theme(...) +
     ggplot2::guides(shape = ggplot2::guide_legend(order=1),
                     linetype = ggplot2::guide_legend(order=2),
                     fill = ggplot2::guide_legend(order=3))
@@ -171,3 +191,27 @@ plot_vpc_legend <- function(ci = 0.90,
 }
 
 
+#' Internal helper: legend-title theme elements from a style_spec
+#'
+#' [plot_vpc_legend()] draws a standalone legend panel on `theme_void()`, so
+#' the style's `theme` field does not apply. The two legend-title fields of
+#' [ggstylekit::style_spec()] are mirrored here the way `ggstylekit` applies
+#' them to a plot, so the legend and its plot agree.
+#'
+#' @param style A `ggstylekit_style_spec`.
+#'
+#' @return A ggplot2 theme carrying `legend.title.position` and/or the
+#'   `legend.title` `hjust`; empty when neither field is set.
+#' @keywords internal
+legend_style_theme <- function(style) {
+  args <- list()
+  if (!is.null(style$legend.title.position)) {
+    args$legend.title.position <- style$legend.title.position
+  }
+  if (!is.null(style$legend.title.hjust)) {
+    hj <- style$legend.title.hjust
+    if (is.character(hj)) hj <- c(left = 0, center = 0.5, right = 1)[[hj]]
+    args$legend.title <- ggplot2::element_text(hjust = hj)
+  }
+  do.call(ggplot2::theme, args)
+}

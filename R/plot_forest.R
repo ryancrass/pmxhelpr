@@ -287,9 +287,13 @@ validate_forest_stats <- function(x) {
 #'
 #' @param stats A `forest_stats` object (typically the output of
 #'    [df_forest()]). Validated by [validate_forest_stats()] at entry.
-#' @param theme Named list of aesthetic parameters for the plot created by
-#'    [plot_forest_theme()]. Defaults can be viewed by running
-#'    `plot_forest_theme()` with no arguments.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_forest()]; view the defaults by running
+#'    `style_forest()` with no arguments. Customize by passing
+#'    `style = style_forest(...)`, or restyle the returned plot with
+#'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_line`, and
+#'    `ref_band`; `colors` entries keyed by covariate name opt into
+#'    per-covariate coloring (see [style_forest()]).
 #' @param ref Numeric scalar specifying the x-intercept for the
 #'    vertical reference line. Default `1` (the ratio-scale no-effect
 #'    value). Pass `NULL` to suppress the reference line. Distinct from
@@ -316,13 +320,18 @@ validate_forest_stats <- function(x) {
 #' )
 #' plot_build_forest(stats, metric = "AUCRATIO")
 #' plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+#' # Per-covariate coloring via the style's `colors` map
+#' plot_build_forest(
+#'   stats, metric = "AUCRATIO",
+#'   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
+#' )
 #' # Log x-axis: compose with ggplot2 directly
 #' plot_build_forest(stats, metric = "AUCRATIO") +
 #'   ggplot2::scale_x_log10(guide = "axis_logticks")
 
 plot_build_forest <- function(
   stats,
-  theme = NULL,
+  style = NULL,
   ref = 1,
   ref_band = NULL,
   metric = NULL
@@ -349,7 +358,7 @@ plot_build_forest <- function(
     )
   }
 
-  plottheme <- merge_theme(theme, plot_forest_theme())
+  plotstyle <- resolve_style(style, style_forest)
 
   plot_data <- stats$stats
 
@@ -515,15 +524,16 @@ plot_build_forest <- function(
     levels = cov_names_ordered
   )
 
-  base <- init_plot(
+  base <- ggplot2::ggplot(
     plot_data,
-    x_var = "est",
-    y_var = cov_level_var_str,
-    forest_panel = TRUE
+    ggplot2::aes(x = .data[["est"]], y = .data[[cov_level_var_str]])
   )
 
+  ## The equivalence band is an annotation, not a data layer, so its fill and
+  ## alpha are read from the style inline (as the VPC ribbons are); inline
+  ## aesthetics take precedence in style_plot().
   if (!is.null(ref_band)) {
-    rb <- plottheme$ref_band
+    rb <- series_aes(plotstyle, "ref_band")
     base <- base +
       ggplot2::annotate(
         "rect",
@@ -531,93 +541,52 @@ plot_build_forest <- function(
         xmax = ref_band[2],
         ymin = -Inf,
         ymax = Inf,
-        fill = rb$fill,
-        alpha = rb$alpha,
-        color = rb$color
+        fill = rb$fill %||% "grey80",
+        alpha = rb$alpha %||% 0.3,
+        color = NA
       )
   }
 
   if (!is.null(ref)) {
-    rl <- plottheme$ref_line
     base <- base +
-      do.call(
-        ggplot2::geom_vline,
-        compact(list(
-          xintercept = ref,
-          linewidth = rl$linewidth,
-          linetype = rl$linetype,
-          alpha = rl$alpha,
-          color = rl$color
-        ))
-      )
+      ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
   }
 
-  pc <- plottheme$panel_color
-  has_panel_color <- inherits(pc, "pmx_color") && length(pc) > 0
+  ## Per-covariate coloring: `colors` entries keyed by a covariate name present
+  ## in the plotted data switch point/errorbar color to a covariate mapping.
+  cov_levels <- levels(plot_data[[cov_name_var_str]])
+  panel_colors <- plotstyle$colors[names(plotstyle$colors) %in% cov_levels]
+  has_panel_color <- !is.function(plotstyle$colors) && length(panel_colors) > 0
 
-  eb <- plottheme$errorbar
-  eb_color <- if (has_panel_color) NULL else eb$color
-  eb_mapping <- if (has_panel_color) {
-    ggplot2::aes(
-      xmin = .data$lo,
-      xmax = .data$hi,
+  if (has_panel_color) {
+    eb_mapping <- ggplot2::aes(
+      xmin = .data[["lo"]],
+      xmax = .data[["hi"]],
       color = .data[[cov_name_var_str]]
     )
+    pt_mapping <- ggplot2::aes(color = .data[[cov_name_var_str]])
   } else {
-    ggplot2::aes(xmin = .data$lo, xmax = .data$hi)
+    eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]])
+    pt_mapping <- NULL
   }
   base <- base +
-    do.call(
-      ggplot2::geom_linerange,
-      compact(list(
-        mapping = eb_mapping,
-        linewidth = eb$linewidth,
-        linetype = eb$linetype,
-        alpha = eb$alpha,
-        color = eb_color
-      ))
-    )
-
-  pt <- plottheme$point
-  pt_color <- if (has_panel_color) NULL else pt$color
-  pt_mapping <- if (has_panel_color) {
-    ggplot2::aes(color = .data[[cov_name_var_str]])
-  } else {
-    NULL
-  }
-  base <- base +
-    do.call(
-      ggplot2::geom_point,
-      compact(list(
-        mapping = pt_mapping,
-        shape = pt$shape,
-        size = pt$size,
-        alpha = pt$alpha,
-        color = pt_color
-      ))
-    )
+    ggstylekit::series_layer(ggplot2::geom_linerange(eb_mapping), "errorbar") +
+    ggstylekit::series_layer(ggplot2::geom_point(pt_mapping), "point")
 
   # ~5 pt per char at geom_text size=3mm; buffer absorbs hjust=-0.1 + font-metric variation.
   label_right_pt <- max(nchar(plot_data$ci_label), 0L) * 5 + 15
 
   base <- base +
     ggplot2::geom_text(
-      mapping = ggplot2::aes(x = Inf, label = .data$ci_label),
+      mapping = ggplot2::aes(x = Inf, label = .data[["ci_label"]]),
       hjust = -0.1,
       size = 3,
       color = "grey20"
     ) +
-    ggplot2::coord_cartesian(clip = "off") +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(face = "bold"),
-      plot.margin = ggplot2::margin(
-        t = 5.5,
-        r = label_right_pt,
-        b = 5.5,
-        l = 5.5
-      )
-    )
+    ggplot2::coord_cartesian(clip = "off")
 
+  ## The covariate row facet is built here (switch = "y" pairs with the forest
+  ## panel theme's outside strips), so ggstylekit's own facet path is bypassed.
   base <- base +
     ggplot2::facet_grid(
       rows = ggplot2::vars(!!rlang::sym(cov_name_var_str)),
@@ -628,22 +597,38 @@ plot_build_forest <- function(
     ggplot2::labs(x = NULL, y = NULL, title = metric)
 
   if (has_panel_color) {
-    palette <- unlist(pc)
-    cov_levels <- levels(plot_data[[cov_name_var_str]])
-    missing <- setdiff(cov_levels, names(palette))
+    missing <- setdiff(cov_levels, names(panel_colors))
     if (length(missing) > 0) {
       rlang::warn(paste0(
-        "`panel_color` is missing entries for: ",
+        "`style` `colors` is missing entries for covariates: ",
         paste(missing, collapse = ", "),
         ". These covariates will render in grey50."
       ))
     }
+    ## style_plot() preserves a manual color scale that is already present
+    ## (breaks, na.value, and guide), so the covariate palette is set here.
     base <- base +
-      ggplot2::scale_color_manual(values = palette, na.value = "grey50") +
-      ggplot2::guides(color = "none")
+      ggplot2::scale_color_manual(
+        values = panel_colors,
+        na.value = "grey50",
+        guide = "none"
+      )
   }
 
-  base
+  ## style_plot() applies the style's theme wholesale, so the right margin that
+  ## makes room for the `ci_label` text is folded into the style's theme.
+  plotstyle <- ggstylekit::set_style(
+    plotstyle,
+    theme = (plotstyle$theme %||% pmx_house_theme(forest_panel = TRUE)) +
+      ggplot2::theme(plot.margin = ggplot2::margin(
+        t = 5.5,
+        r = label_right_pt,
+        b = 5.5,
+        l = 5.5
+      ))
+  )
+
+  ggstylekit::style_plot(base, plotstyle)
 }
 
 
@@ -656,14 +641,14 @@ plot_build_forest <- function(
 #' * raw replicate-draws data plus column-name arguments — the common
 #'   one-shot mode; or
 #' * a precomputed `forest_stats` object returned by [df_forest()] — skip
-#'   the aggregation and replot with different `theme` / `ref` / `ref_band`
+#'   the aggregation and replot with different `style` / `ref` / `ref_band`
 #'   settings.
 #'
 #' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
 #' `cov_level_var`, `metric_value_var`, `replicate_var`, `statistic`, `ci`,
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
-#' message pointing the caller at [df_forest()]. Only `theme`, `ref`,
+#' message pointing the caller at [df_forest()]. Only `style`, `ref`,
 #' `ref_band`, and `metric` are accepted on both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
@@ -695,6 +680,12 @@ plot_build_forest <- function(
 #' )
 #' plot_forest(stats, metric = "AUCRATIO")
 #' plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
+#'
+#' # Per-covariate coloring via the style's `colors` map
+#' plot_forest(
+#'   stats, metric = "AUCRATIO",
+#'   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
+#' )
 
 plot_forest <- function(
   data,
@@ -711,17 +702,17 @@ plot_forest <- function(
   cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
-  theme = NULL
+  style = NULL
 ) {
   if (inherits(data, "forest_stats")) {
     check_pipeline_args_dropped(
       call = match.call(),
-      plot_only_args = c("data", "theme", "ref", "ref_band", "metric"),
+      plot_only_args = c("data", "style", "ref", "ref_band", "metric"),
       fn_name = "plot_forest"
     )
     return(plot_build_forest(
       data,
-      theme = theme,
+      style = style,
       ref = ref,
       ref_band = ref_band,
       metric = metric
@@ -750,7 +741,7 @@ plot_forest <- function(
 
   plot_build_forest(
     stats,
-    theme = theme,
+    style = style,
     ref = ref,
     ref_band = ref_band,
     metric = metric

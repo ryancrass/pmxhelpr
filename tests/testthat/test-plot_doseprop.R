@@ -146,13 +146,12 @@ test_that("plot_doseprop accepts bare names", {
     "ggplot")
 })
 
-test_that("plot_doseprop accepts theme argument and applies overrides", {
-  custom_theme <- plot_doseprop_theme(
-    obs_point = pmx_point(color = "red"),
-    linear = pmx_trend(color = "navy"))
+test_that("plot_doseprop accepts style argument and applies overrides", {
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
   p <- plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                      metrics = c("aucinf.obs", "cmax"),
-                     theme = custom_theme)
+                     style = custom_style)
   expect_s3_class(p, "ggplot")
 })
 
@@ -224,13 +223,12 @@ test_that("plot_build_doseprop honors se = FALSE", {
   expect_false(p$layers[[2]]$stat_params$se)
 })
 
-test_that("plot_build_doseprop honors theme overrides", {
+test_that("plot_build_doseprop honors style overrides", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))
-  custom_theme <- plot_doseprop_theme(
-    obs_point = pmx_point(color = "red"),
-    linear = pmx_trend(color = "navy"))
-  p <- plot_build_doseprop(stats, theme = custom_theme)
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
+  p <- plot_build_doseprop(stats, style = custom_style)
   expect_s3_class(p, "ggplot")
 })
 
@@ -275,8 +273,8 @@ test_that("plot_doseprop aborts when pipeline args are passed on the precomputed
 test_that("plot_doseprop accepts plot-only args on the precomputed path", {
   stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
                        metrics = c("aucinf.obs", "cmax"))
-  custom_theme <- plot_doseprop_theme(obs_point = pmx_point(color = "red"))
-  expect_s3_class(plot_doseprop(stats, theme = custom_theme), "ggplot")
+  custom_style <- style_doseprop(colors = c(obs_point = "red"))
+  expect_s3_class(plot_doseprop(stats, style = custom_style), "ggplot")
   expect_s3_class(plot_doseprop(stats, se = FALSE), "ggplot")
 })
 
@@ -349,4 +347,52 @@ test_that("plot_build_doseprop facet limits are full log10 decades with 2% paddi
     expect_lte(round(panel$x.range)[1], log10(dose_min))
     expect_gte(round(panel$x.range)[2], log10(dose_max))
   }
+})
+
+
+##Test ggstylekit fixed-aesthetic styling contract
+# style_plot() must fill the per-series fixed aesthetics on series_layer-tagged,
+# non-data-mapped role layers from the style_doseprop() preset maps. A ggstylekit
+# regression (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults;
+# for the linear trend line that meant the line colour flipped to ggplot2's
+# geom_smooth default (#3366FF). Expected values mirror R/style_presets.R.
+styled_layer <- function(p, geom, stat = NULL) {
+  b   <- suppressWarnings(ggplot2::ggplot_build(p))
+  idx <- which(vapply(b$plot$layers, function(L)
+    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
+    logical(1)))[1]
+  expect_false(is.na(idx))
+  b$data[[idx]]
+}
+
+test_that("plot_doseprop fills role-keyed fixed aesthetics from style_doseprop()", {
+  sd <- style_doseprop()
+  p  <- plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+
+  obs <- styled_layer(p, "GeomPoint", "StatIdentity")
+  expect_equal(unique(obs$shape), unname(sd$shapes["obs_point"]))
+  expect_equal(unique(obs$size),  unname(sd$sizes["obs_point"]))
+  expect_equal(unique(obs$alpha), unname(sd$alphas["obs_point"]))
+
+  trend <- styled_layer(p, "GeomSmooth")            # linear (lm)
+  expect_equal(unique(trend$colour),    unname(sd$colors["linear"]))
+  expect_equal(unique(trend$linewidth), unname(sd$linewidths["linear"]))
+})
+
+test_that("plot_build_doseprop takes its facet layout from the style", {
+  stats <- df_doseprop(
+    dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+    metrics = c("aucinf.obs", "cmax")
+  )
+  ## Default: free scales, layout left to facet_wrap()
+  p_default <- plot_build_doseprop(stats)
+  expect_true(p_default$facet$params$free$x)
+  expect_true(p_default$facet$params$free$y)
+  expect_null(p_default$facet$params$ncol)
+
+  p_style <- plot_build_doseprop(
+    stats, style = style_doseprop(facet_ncol = 1, facet_scales = "fixed"))
+  expect_false(p_style$facet$params$free$x)
+  expect_false(p_style$facet$params$free$y)
+  expect_equal(p_style$facet$params$ncol, 1)
 })

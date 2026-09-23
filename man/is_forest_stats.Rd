@@ -48,6 +48,6 @@ Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=plot_forest_theme]{plot_forest_theme()}}
+\code{\link[=style_forest]{style_forest()}}
 }
 \concept{forest plot}

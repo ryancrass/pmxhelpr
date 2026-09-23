@@ -72,6 +72,6 @@ Other dose proportionality:
 \code{\link[=is_doseprop_stats]{is_doseprop_stats()}},
 \code{\link[=plot_build_doseprop]{plot_build_doseprop()}},
 \code{\link[=plot_doseprop]{plot_doseprop()}},
-\code{\link[=plot_doseprop_theme]{plot_doseprop_theme()}}
+\code{\link[=style_doseprop]{style_doseprop()}}
 }
 \concept{dose proportionality}

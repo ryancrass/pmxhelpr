@@ -4,15 +4,19 @@
 \alias{plot_build_forest}
 \title{Build a forest plot ggplot from a \code{forest_stats} object}
 \usage{
-plot_build_forest(stats, theme = NULL, ref = 1, ref_band = NULL, metric = NULL)
+plot_build_forest(stats, style = NULL, ref = 1, ref_band = NULL, metric = NULL)
 }
 \arguments{
 \item{stats}{A \code{forest_stats} object (typically the output of
 \code{\link[=df_forest]{df_forest()}}). Validated by \code{\link[=validate_forest_stats]{validate_forest_stats()}} at entry.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by
-\code{\link[=plot_forest_theme]{plot_forest_theme()}}. Defaults can be viewed by running
-\code{plot_forest_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
+\code{style_forest()} with no arguments. Customize by passing
+\code{style = style_forest(...)}, or restyle the returned plot with
+\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_line}, and
+\code{ref_band}; \code{colors} entries keyed by covariate name opt into
+per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).}
 
 \item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
@@ -56,6 +60,11 @@ stats <- df_forest(
 )
 plot_build_forest(stats, metric = "AUCRATIO")
 plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+# Per-covariate coloring via the style's `colors` map
+plot_build_forest(
+  stats, metric = "AUCRATIO",
+  style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
+)
 # Log x-axis: compose with ggplot2 directly
 plot_build_forest(stats, metric = "AUCRATIO") +
   ggplot2::scale_x_log10(guide = "axis_logticks")
@@ -65,6 +74,6 @@ Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=plot_forest_theme]{plot_forest_theme()}}
+\code{\link[=style_forest]{style_forest()}}
 }
 \concept{forest plot}

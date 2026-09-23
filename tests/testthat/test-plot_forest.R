@@ -194,39 +194,45 @@ test_that("summary.forest_stats produces output without erroring", {
 })
 
 
-#####plot_forest_theme#####
+#####style_forest#####
 
-test_that("plot_forest_theme() returns a pmx_theme with the expected elements", {
-  th <- plot_forest_theme()
-  expect_s3_class(th, "plot_forest_theme")
-  expect_s3_class(th, "pmx_theme")
-  expect_true(all(c("point", "errorbar", "ref_line", "ref_band") %in% names(th)))
-  expect_s3_class(th$point,    "pmx_point")
-  expect_s3_class(th$errorbar, "pmx_errorbar")
-  expect_s3_class(th$ref_line, "pmx_line")
-  expect_s3_class(th$ref_band, "pmx_ribbon")
+test_that("style_forest() returns a style_spec with the forest roles", {
+  st <- style_forest()
+  expect_s3_class(st, "ggstylekit_style_spec")
+  expect_equal(names(st$colors), c("point", "errorbar", "ref_line"))
+  expect_equal(names(st$fill), "ref_band")
+  expect_true(all(c("point", "errorbar", "ref_line", "ref_band") %in% names(st$alphas)))
+  expect_equal(unname(st$linetypes["ref_line"]), "dashed")
 })
 
-test_that("plot_forest_theme() honors user element overrides", {
-  th <- plot_forest_theme(point = pmx_point(shape = 18, size = 4))
-  expect_equal(th$point$shape, 18)
-  expect_equal(th$point$size,  4)
+test_that("style_forest() merges per-series overrides entry-wise", {
+  st <- style_forest(shapes = c(point = 18), sizes = c(point = 4))
+  expect_equal(unname(st$shapes["point"]), 18)
+  expect_equal(unname(st$sizes["point"]), 4)
+  expect_equal(unname(st$colors["point"]), "black")
 })
 
-test_that("plot_forest_theme() default panel_color is an empty pmx_color (opt-out)", {
-  th <- plot_forest_theme()
-  expect_s3_class(th$panel_color, "pmx_color")
-  expect_length(th$panel_color, 0L)
+test_that("style_forest() default colors carry no covariate entries (opt-out)", {
+  st <- style_forest()
+  expect_false(any(c("FOOD", "WTBL", "Reference") %in% names(st$colors)))
 })
 
-test_that("plot_forest_theme(panel_color = pmx_color(...)) stores the palette", {
-  th <- plot_forest_theme(panel_color = pmx_color(
+test_that("style_forest(colors = c(<covariate> = ...)) keeps the role colors", {
+  st <- style_forest(colors = c(
     FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"
   ))
-  expect_s3_class(th$panel_color, "pmx_color")
-  expect_equal(th$panel_color$FOOD, "firebrick")
-  expect_equal(th$panel_color$WTBL, "steelblue")
-  expect_equal(th$panel_color$Reference, "grey20")
+  expect_equal(unname(st$colors["FOOD"]), "firebrick")
+  expect_equal(unname(st$colors["WTBL"]), "steelblue")
+  expect_equal(unname(st$colors["Reference"]), "grey20")
+  expect_equal(unname(st$colors["ref_line"]), "grey40")
+})
+
+test_that("style_forest() theme uses the forest panel variant", {
+  th <- style_forest()$theme
+  expect_equal(th$strip.placement, "outside")
+  expect_s3_class(th$strip.background, "element_blank")
+  expect_s3_class(th$panel.grid.major.y, "element_blank")
+  expect_s3_class(th$panel.grid.major.x, "element_line")
 })
 
 
@@ -382,13 +388,21 @@ test_that("plot_forest() aborts when pipeline args are passed on the precomputed
                regexp = "cannot accept pipeline arguments")
 })
 
-test_that("plot_forest() honors theme/ref/ref_band on the precomputed path", {
+test_that("plot_forest() honors style/ref/ref_band on the precomputed path", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_forest(stats,
                    metric = "AUCRATIO",
-                   theme = plot_forest_theme(point = pmx_point(shape = 18)),
+                   style = style_forest(shapes = c(point = 18)),
                    ref = 0, ref_band = c(0.5, 2))
   expect_s3_class(p, "ggplot")
+  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))]]
+  expect_equal(pt$aes_params$shape, 18)
+})
+
+test_that("plot_build_forest() aborts on a non-style_spec `style`", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", style = list(point = 1)),
+               regexp = "must be a `ggstylekit::style_spec\\(\\)` object")
 })
 
 
@@ -430,18 +444,39 @@ test_that("plot_build_forest() aborts on malformed metric arg", {
 })
 
 
-#####plot_forest_theme -- refined defaults#####
+#####style_forest -- refined defaults#####
 
-test_that("plot_forest_theme() default sizes are bumped (point 2.5, errorbar 0.7)", {
-  th <- plot_forest_theme()
-  expect_equal(th$point$size, 2.5)
-  expect_equal(th$errorbar$linewidth, 0.7)
+test_that("style_forest() defaults reach the layers (point 2.5, errorbar 0.7, dashed ref_line)", {
+  st <- style_forest()
+  expect_equal(unname(st$sizes["point"]), 2.5)
+  expect_equal(unname(st$linewidths["errorbar"]), 0.7)
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+  geom_of <- function(cls) {
+    p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, cls), logical(1)))[1]]]
+  }
+  expect_equal(geom_of("GeomPoint")$aes_params$size, 2.5)
+  expect_equal(geom_of("GeomPoint")$aes_params$colour, "black")
+  expect_equal(geom_of("GeomLinerange")$aes_params$linewidth, 0.7)
+  expect_equal(geom_of("GeomVline")$aes_params$linetype, "dashed")
+  expect_equal(geom_of("GeomRect")$aes_params$fill, "grey80")
+  expect_equal(geom_of("GeomRect")$aes_params$alpha, 0.3)
+})
+
+test_that("ref_band fill/alpha come from the style's ref_band role", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+                         style = style_forest(fill = c(ref_band = "skyblue"),
+                                              alphas = c(ref_band = 0.2)))
+  rect <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomRect"), logical(1)))]]
+  expect_equal(rect$aes_params$fill, "skyblue")
+  expect_equal(rect$aes_params$alpha, 0.2)
 })
 
 
-#####plot_build_forest -- panel_color (per-covariate coloring)#####
+#####plot_build_forest -- per-covariate coloring via style colors#####
 
-test_that("plot_build_forest() adds no colour scale when panel_color is empty (default)", {
+test_that("plot_build_forest() adds no colour scale when the style names no covariate (default)", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
@@ -449,37 +484,70 @@ test_that("plot_build_forest() adds no colour scale when panel_color is empty (d
   expect_null(p$guides$guides$colour)
 })
 
-test_that("plot_build_forest() adds scale_color_manual when panel_color is non-empty", {
+test_that("plot_build_forest() maps color by covariate when the style names covariates", {
+  # data_sad_pkforest carries `cov_ref`, so the Reference row is dispersed into
+  # the FOOD/WTBL panels and only those two covariates are plotted.
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(
     stats, metric = "AUCRATIO",
-    theme = plot_forest_theme(panel_color = pmx_color(
+    style = style_forest(colors = c(
       Reference = "grey20", FOOD = "firebrick", WTBL = "steelblue"
     ))
   )
   scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
   expect_true("colour" %in% scale_aes)
   color_scale <- p$scales$scales[[which(scale_aes == "colour")]]
-  expect_equal(
-    color_scale$palette(3),
-    c(Reference = "grey20", FOOD = "firebrick", WTBL = "steelblue")
-  )
-  expect_equal(p$guides$guides$colour, "none")
+  expect_equal(unname(color_scale$palette(2)), c("firebrick", "steelblue"))
+  expect_equal(color_scale$na.value, "grey50")
+  expect_equal(color_scale$guide, "none")
+  # point/errorbar carry a colour mapping and no fixed colour
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  pt <- p$layers[[which(is_pt)]]
+  expect_true("colour" %in% names(pt$mapping))
+  expect_null(pt$aes_params$colour)
+  built <- ggplot2::ggplot_build(p)
+  expect_setequal(unique(built$data[[which(is_pt)]]$colour),
+                  c("firebrick", "steelblue"))
 })
 
-test_that("plot_build_forest() warns when panel_color is missing entries for present covariates", {
+test_that("plot_build_forest() colors a standalone Reference panel from the style", {
+  d <- data_sad_pkforest
+  d$cov_ref <- NULL
+  stats <- df_forest(d, replicate_var = "SIM")
+  p <- plot_build_forest(
+    stats, metric = "AUCRATIO",
+    style = style_forest(colors = c(
+      Reference = "grey20", FOOD = "firebrick", WTBL = "steelblue"
+    ))
+  )
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  built <- ggplot2::ggplot_build(p)
+  expect_setequal(unique(built$data[[which(is_pt)]]$colour),
+                  c("grey20", "firebrick", "steelblue"))
+})
+
+test_that("plot_build_forest() warns when style colors are missing entries for present covariates", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   expect_warning(
     plot_build_forest(
       stats, metric = "AUCRATIO",
-      theme = plot_forest_theme(panel_color = pmx_color(FOOD = "red"))
+      style = style_forest(colors = c(FOOD = "red"))
     ),
-    regexp = "panel_color.*missing entries"
+    regexp = "colors.*missing entries"
   )
 })
 
+test_that("plot_build_forest() keeps a fixed point colour when the style names no covariate", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO",
+                         style = style_forest(colors = c(point = "navy")))
+  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))]]
+  expect_equal(pt$aes_params$colour, "navy")
+  expect_false("colour" %in% names(pt$mapping))
+})
 
-#####plot_build_forest -- forest_panel theme variant#####
+
+#####plot_build_forest -- forest panel theme variant#####
 
 test_that("plot_build_forest() applies the forest_panel variant (panel.ontop unset, strip outside)", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")

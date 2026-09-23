@@ -112,6 +112,6 @@ Other vpc:
 \code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
 \code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

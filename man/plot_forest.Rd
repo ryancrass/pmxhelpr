@@ -19,7 +19,7 @@ plot_forest(
   cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
-  theme = NULL
+  style = NULL
 )
 }
 \arguments{
@@ -91,9 +91,13 @@ sort to the top of the plot.}
 interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
 (no shaded band).}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by
-\code{\link[=plot_forest_theme]{plot_forest_theme()}}. Defaults can be viewed by running
-\code{plot_forest_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
+\code{style_forest()} with no arguments. Customize by passing
+\code{style = style_forest(...)}, or restyle the returned plot with
+\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_line}, and
+\code{ref_band}; \code{colors} entries keyed by covariate name opt into
+per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).}
 }
 \value{
 a \code{ggplot} plot object
@@ -105,7 +109,7 @@ Dual-mode wrapper that delegates to \code{\link[=df_forest]{df_forest()}} for ag
 \item raw replicate-draws data plus column-name arguments — the common
 one-shot mode; or
 \item a precomputed \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}} — skip
-the aggregation and replot with different \code{theme} / \code{ref} / \code{ref_band}
+the aggregation and replot with different \code{style} / \code{ref} / \code{ref_band}
 settings.
 }
 
@@ -113,7 +117,7 @@ On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_n
 \code{cov_level_var}, \code{metric_value_var}, \code{replicate_var}, \code{statistic}, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
-message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{theme}, \code{ref},
+message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
 \code{ref_band}, and \code{metric} are accepted on both paths.
 }
 \examples{
@@ -130,12 +134,18 @@ stats <- df_forest(
 )
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
+
+# Per-covariate coloring via the style's `colors` map
+plot_forest(
+  stats, metric = "AUCRATIO",
+  style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
+)
 }
 \seealso{
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
-\code{\link[=plot_forest_theme]{plot_forest_theme()}}
+\code{\link[=style_forest]{style_forest()}}
 }
 \concept{forest plot}

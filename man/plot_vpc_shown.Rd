@@ -38,7 +38,7 @@ A named list of logicals
 \description{
 Constructor and factory for controlling which VPC layers are displayed.
 Call with no arguments to view defaults. Pass overrides to customize.
-Each element maps 1:1 with a \code{\link[=plot_vpc_theme]{plot_vpc_theme()}} aesthetic key.
+Each element maps 1:1 with a \code{\link[=style_vpc]{style_vpc()}} role/series key.
 }
 \examples{
 plot_vpc_shown()
@@ -53,6 +53,6 @@ Other vpc:
 \code{\link[=plot_vpc_cens]{plot_vpc_cens()}},
 \code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

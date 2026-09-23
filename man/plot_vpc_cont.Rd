@@ -20,7 +20,7 @@ plot_vpc_cont(
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   shown = NULL,
-  theme = NULL,
+  style = NULL,
   pi = c(0.05, 0.95),
   ci = 0.9
 )
@@ -44,7 +44,9 @@ Accepts bare names or strings. Default is \code{SIMDV}.}
 Accepts bare names or strings. Default is \code{OBSDV}.}
 
 \item{strat_var}{Stratification variable.
-Accepts bare names or strings. Currently, only a single stratifying variable is supported.}
+Accepts bare names or strings. Currently, only a single stratifying variable is supported.
+Facet layout is taken from the \code{style}: \code{facet_scales}, \code{facet_nrow},
+and \code{facet_ncol}.}
 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
@@ -68,7 +70,7 @@ quantile calculation.
 + If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{data}, filter to
 \code{MDV==0} since \code{loq} is unknown.
 Dashed horizontal line plotted at each unique LLOQ value by default for
-standard VPCs (controlled via \code{theme}); suppressed for \code{pcvpc = TRUE}
+standard VPCs (styled via the \code{loq_line} role); suppressed for \code{pcvpc = TRUE}
 since \code{loq} has no meaning on the prediction-corrected scale.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
@@ -95,8 +97,11 @@ historical behavior.}
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
-\item{theme}{Named list of aesthetic parameters for the plot created by \code{\link[=plot_vpc_theme]{plot_vpc_theme()}}.
-Defaults can be viewed by running \code{plot_vpc_theme()} with no arguments.}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
+Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
+with no arguments. Customize by passing \code{style = style_vpc(...)}, or
+restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Pass the same style to
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
@@ -139,6 +144,6 @@ Other vpc:
 \code{\link[=plot_vpc_cens]{plot_vpc_cens()}},
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}},
 \code{\link[=plot_vpc_shown]{plot_vpc_shown()}},
-\code{\link[=plot_vpc_theme]{plot_vpc_theme()}}
+\code{\link[=style_vpc]{style_vpc()}}
 }
 \concept{vpc}

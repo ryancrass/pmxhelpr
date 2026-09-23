@@ -16,8 +16,9 @@ repositories = [
     # {name = "dplyr", repository = "CRAN"},
     # {name = "dplyr", git = "https://github.com/tidyverse/dplyr.git", tag = "v1.1.4"},
 dependencies = [
-    "devtools",
-    "future.apply",
-    "withr",
-    "ggstylekit"
+     { name = "pmxhelpr", path = ".", install_suggestions = true, dependencies_only = true },
+     "devtools",
+     "future.apply",
+     "withr",
+     "ggstylekit"
 ]

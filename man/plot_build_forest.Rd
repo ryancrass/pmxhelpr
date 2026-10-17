@@ -4,7 +4,14 @@
 \alias{plot_build_forest}
 \title{Build a forest plot ggplot from a \code{forest_stats} object}
 \usage{
-plot_build_forest(stats, style = NULL, ref = 1, ref_band = NULL, metric = NULL)
+plot_build_forest(
+  stats,
+  style = NULL,
+  ref = 1,
+  ref_band = NULL,
+  metric = NULL,
+  show_legend = FALSE
+)
 }
 \arguments{
 \item{stats}{A \code{forest_stats} object (typically the output of
@@ -14,9 +21,11 @@ plot_build_forest(stats, style = NULL, ref = 1, ref_band = NULL, metric = NULL)
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
 \code{style = style_forest(...)}, or restyle the returned plot with
-\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_line}, and
-\code{ref_band}; \code{colors} entries keyed by covariate name opt into
-per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).}
+\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_point},
+\code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
+opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
+column is axis text styled through the theme's \code{axis.text.y.right}
+element; its header is the plot tag (\code{plot.tag}).}
 
 \item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
@@ -34,6 +43,11 @@ facet); the covariate name is the only facet dimension. If \code{NULL}
 (default) and \code{stats$stats} contains exactly one unique value of
 \code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
 are present, aborts and asks the caller to pick one.}
+
+\item{show_legend}{Logical. When \code{TRUE}, the reference line and shaded
+band join a legend (keys \code{"Reference line"} and \code{"Reference band"})
+placed by the style's \code{legend.position} (bottom in \code{\link[=style_forest]{style_forest()}}).
+Default \code{FALSE} (no legend).}
 }
 \value{
 a \code{ggplot} plot object
@@ -42,7 +56,15 @@ a \code{ggplot} plot object
 Constructs a covariate forest plot from a \code{\link[=df_forest]{df_forest()}} result (or any
 object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
-a vertical reference line; facets across \code{metric_name_var}.
+a vertical reference line, one facet row per covariate name. The numeric
+\code{ci_label} column is rendered as the right-hand secondary y-axis text
+under a header built from the container's \code{statistic} and \code{ci} (e.g.
+\code{"Median [90\% CI]"}), so each row's estimate sits beside its point.
+
+Reference rows (the dispersed per-covariate reference label, or the
+standalone \code{cov_name_ref} panel) draw through the \code{ref_point} style role
+(an open circle by default) and show the point estimate alone in the
+estimate column, since their CI collapses onto the estimate.
 
 Returns a plain \code{ggplot} object so callers can compose additional layers,
 themes, and scales with the standard \code{+} operator.
@@ -65,7 +87,12 @@ plot_build_forest(
   stats, metric = "AUCRATIO",
   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
 )
-# Log x-axis: compose with ggplot2 directly
+# Legend for the reference line and band
+plot_build_forest(
+  stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25), show_legend = TRUE
+)
+# Log x-axis: through the style, or compose with ggplot2 directly
+plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))
 plot_build_forest(stats, metric = "AUCRATIO") +
   ggplot2::scale_x_log10(guide = "axis_logticks")
 }

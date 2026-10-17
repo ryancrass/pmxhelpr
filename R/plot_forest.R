@@ -1,3 +1,27 @@
+#' Internal helper: format numbers to a fixed count of significant digits
+#'
+#' Pads trailing zeros so every value in a forest `ci_label` carries the same
+#' number of significant digits (`1.00`, `0.800`, `23300`), unlike `signif()`
+#' alone, which prints `1`, `0.8`, `23300`.
+#'
+#' @param x Numeric vector.
+#' @param sigdigits Integer scalar; significant digits to keep.
+#'
+#' @return Character vector the length of `x`; `NA` stays `NA`.
+#' @keywords internal
+fmt_sig <- function(x, sigdigits) {
+  out <- formatC(
+    signif(x, sigdigits),
+    digits = sigdigits,
+    format = "fg",
+    flag = "#"
+  )
+  out <- sub("[.]$", "", trimws(out))
+  out[is.na(x)] <- NA_character_
+  out
+}
+
+
 #' Compute Summary Statistics for Covariate Forest Plots
 #'
 #' @description
@@ -28,7 +52,8 @@
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
 #' @param sigdigits Number of significant digits used to format the
-#'    `ci_label` column. Default `3`.
+#'    `ci_label` column. Trailing zeros are kept so every value carries
+#'    `sigdigits` digits (`"1.00 [0.950, 1.05]"`). Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
 #'    `cov_name_var` column. Rows whose `cov_name_var` value equals
 #'    Default is `"Reference"` (matches the bundled `data_sad_pkforest`
@@ -57,11 +82,11 @@
 #'      \item{`stats`}{One row per `(metric × cov_name × cov_level)` group
 #'        with columns named in `metric_name_var` / `cov_name_var` /
 #'        `cov_level_var`, canonical numeric columns `est`, `lo`, `hi`,
-#'        and the character column `ci_label` (e.g. `"1.12 [0.95, 1.32]"`).
+#'        and the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`).
 #'        The `cov_name_var` value drives the per-row facet strip; the
 #'        `cov_level_var` value drives the y-axis tick label;
-#'        [plot_build_forest()] renders `ci_label` as a right-side
-#'        secondary-axis text layer.}
+#'        [plot_build_forest()] renders `ci_label` as the right-hand
+#'        secondary y-axis text.}
 #'      \item{`obs`}{`NULL`. No scatter overlay for the forest family.}
 #'      \item{`config`}{Named list with column names, `statistic`, `ci`,
 #'        and `sigdigits`.}
@@ -177,11 +202,11 @@ df_forest <- function(
   stats <- stats |>
     dplyr::mutate(
       ci_label = paste0(
-        signif(.data$est, sigdigits),
+        fmt_sig(.data$est, sigdigits),
         " [",
-        signif(.data$lo, sigdigits),
+        fmt_sig(.data$lo, sigdigits),
         ", ",
-        signif(.data$hi, sigdigits),
+        fmt_sig(.data$hi, sigdigits),
         "]"
       )
     )
@@ -274,7 +299,15 @@ validate_forest_stats <- function(x) {
 #' Constructs a covariate forest plot from a [df_forest()] result (or any
 #' object satisfying the `forest_stats` contract). Renders per-row point
 #' estimates with horizontal CI lines, optional shaded equivalence band, and
-#' a vertical reference line; facets across `metric_name_var`.
+#' a vertical reference line, one facet row per covariate name. The numeric
+#' `ci_label` column is rendered as the right-hand secondary y-axis text
+#' under a header built from the container's `statistic` and `ci` (e.g.
+#' `"Median [90% CI]"`), so each row's estimate sits beside its point.
+#'
+#' Reference rows (the dispersed per-covariate reference label, or the
+#' standalone `cov_name_ref` panel) draw through the `ref_point` style role
+#' (an open circle by default) and show the point estimate alone in the
+#' estimate column, since their CI collapses onto the estimate.
 #'
 #' Returns a plain `ggplot` object so callers can compose additional layers,
 #' themes, and scales with the standard `+` operator.
@@ -291,9 +324,11 @@ validate_forest_stats <- function(x) {
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
 #'    `style = style_forest(...)`, or restyle the returned plot with
-#'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_line`, and
-#'    `ref_band`; `colors` entries keyed by covariate name opt into
-#'    per-covariate coloring (see [style_forest()]).
+#'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_point`,
+#'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
+#'    opt into per-covariate coloring (see [style_forest()]). The estimate
+#'    column is axis text styled through the theme's `axis.text.y.right`
+#'    element; its header is the plot tag (`plot.tag`).
 #' @param ref Numeric scalar specifying the x-intercept for the
 #'    vertical reference line. Default `1` (the ratio-scale no-effect
 #'    value). Pass `NULL` to suppress the reference line. Distinct from
@@ -308,6 +343,10 @@ validate_forest_stats <- function(x) {
 #'    (default) and `stats$stats` contains exactly one unique value of
 #'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
 #'    are present, aborts and asks the caller to pick one.
+#' @param show_legend Logical. When `TRUE`, the reference line and shaded
+#'    band join a legend (keys `"Reference line"` and `"Reference band"`)
+#'    placed by the style's `legend.position` (bottom in [style_forest()]).
+#'    Default `FALSE` (no legend).
 #'
 #' @family forest plot
 #' @return a `ggplot` plot object
@@ -325,7 +364,12 @@ validate_forest_stats <- function(x) {
 #'   stats, metric = "AUCRATIO",
 #'   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
 #' )
-#' # Log x-axis: compose with ggplot2 directly
+#' # Legend for the reference line and band
+#' plot_build_forest(
+#'   stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25), show_legend = TRUE
+#' )
+#' # Log x-axis: through the style, or compose with ggplot2 directly
+#' plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))
 #' plot_build_forest(stats, metric = "AUCRATIO") +
 #'   ggplot2::scale_x_log10(guide = "axis_logticks")
 
@@ -334,7 +378,8 @@ plot_build_forest <- function(
   style = NULL,
   ref = 1,
   ref_band = NULL,
-  metric = NULL
+  metric = NULL,
+  show_legend = FALSE
 ) {
   validate_forest_stats(stats)
   check_ref_band(ref_band)
@@ -407,6 +452,10 @@ plot_build_forest <- function(
     ]
   }
 
+  ## `is_ref` flags the rows drawn through the `ref_point` role: the
+  ## synthesized dispersed reference rows, or the standalone reference panel.
+  plot_data$is_ref <- FALSE
+
   if (disperse_ref) {
     ref_rows <- plot_data[
       as.character(plot_data[[cov_name_var_str]]) == cov_name_ref,
@@ -462,6 +511,7 @@ plot_build_forest <- function(
       row <- ref_row
       row[[cov_name_var_str]] <- cn
       row[[cov_level_var_str]] <- vals
+      row$is_ref <- TRUE
       synth_rows_list[[cn]] <- row
     }
     synth_rows <- if (length(synth_rows_list)) {
@@ -470,6 +520,9 @@ plot_build_forest <- function(
       ref_row[FALSE, , drop = FALSE]
     }
     plot_data <- rbind(synth_rows, non_ref)
+  } else if (!is.null(cov_name_ref)) {
+    plot_data$is_ref <-
+      as.character(plot_data[[cov_name_var_str]]) == cov_name_ref
   }
 
   cov_names_unique <- unique(as.character(plot_data[[cov_name_var_str]]))
@@ -524,39 +577,21 @@ plot_build_forest <- function(
     levels = cov_names_ordered
   )
 
-  base <- ggplot2::ggplot(
-    plot_data,
-    ggplot2::aes(x = .data[["est"]], y = .data[[cov_level_var_str]])
-  )
-
-  ## The equivalence band is an annotation, not a data layer, so its fill and
-  ## alpha are read from the style inline (as the VPC ribbons are); inline
-  ## aesthetics take precedence in style_plot().
-  if (!is.null(ref_band)) {
-    rb <- series_aes(plotstyle, "ref_band")
-    base <- base +
-      ggplot2::annotate(
-        "rect",
-        xmin = ref_band[1],
-        xmax = ref_band[2],
-        ymin = -Inf,
-        ymax = Inf,
-        fill = rb$fill %||% "grey80",
-        alpha = rb$alpha %||% 0.3,
-        color = NA
-      )
-  }
-
-  if (!is.null(ref)) {
-    base <- base +
-      ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
-  }
+  test_data <- plot_data[!plot_data$is_ref, , drop = FALSE]
+  ref_data <- plot_data[plot_data$is_ref, , drop = FALSE]
 
   ## Per-covariate coloring: `colors` entries keyed by a covariate name present
   ## in the plotted data switch point/errorbar color to a covariate mapping.
+  ## The palette is ordered by the covariate levels so it also maps correctly
+  ## positionally.
   cov_levels <- levels(plot_data[[cov_name_var_str]])
-  panel_colors <- plotstyle$colors[names(plotstyle$colors) %in% cov_levels]
-  has_panel_color <- !is.function(plotstyle$colors) && length(panel_colors) > 0
+  has_panel_color <- !is.function(plotstyle$colors) &&
+    any(cov_levels %in% names(plotstyle$colors))
+  panel_colors <- if (has_panel_color) {
+    plotstyle$colors[cov_levels[cov_levels %in% names(plotstyle$colors)]]
+  } else {
+    NULL
+  }
 
   if (has_panel_color) {
     eb_mapping <- ggplot2::aes(
@@ -569,21 +604,155 @@ plot_build_forest <- function(
     eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]])
     pt_mapping <- NULL
   }
-  base <- base +
-    ggstylekit::series_layer(ggplot2::geom_linerange(eb_mapping), "errorbar") +
-    ggstylekit::series_layer(ggplot2::geom_point(pt_mapping), "point")
 
-  # ~5 pt per char at geom_text size=3mm; buffer absorbs hjust=-0.1 + font-metric variation.
-  label_right_pt <- max(nchar(plot_data$ci_label), 0L) * 5 + 15
+  ## geom_blank() trains every panel's y scale (and the covariate colour
+  ## scale, when mapped) on the full data first, so the level order set above
+  ## survives the subset point layers that follow: discrete limits otherwise
+  ## accrue in layer order.
+  base <- ggplot2::ggplot(
+    plot_data,
+    ggplot2::aes(x = .data[["est"]], y = .data[[cov_level_var_str]])
+  ) +
+    ggplot2::geom_blank(pt_mapping)
+
+  band_label <- "Reference band"
+  line_label <- "Reference line"
+
+  ## The equivalence band is an annotation, not a data layer, so its fill and
+  ## alpha are read from the style inline (as the VPC ribbons are); inline
+  ## aesthetics take precedence in style_plot(). Under `show_legend` the fill
+  ## is instead mapped to a label on a manual scale so the band joins the
+  ## legend; style_plot() preserves manual scales already present.
+  if (!is.null(ref_band)) {
+    rb <- series_aes(plotstyle, "ref_band")
+    if (isTRUE(show_legend)) {
+      base <- base +
+        ggplot2::geom_rect(
+          data = data.frame(
+            band = band_label,
+            xmin = ref_band[1],
+            xmax = ref_band[2],
+            ymin = -Inf,
+            ymax = Inf
+          ),
+          mapping = ggplot2::aes(
+            xmin = .data[["xmin"]],
+            xmax = .data[["xmax"]],
+            ymin = .data[["ymin"]],
+            ymax = .data[["ymax"]],
+            fill = .data[["band"]]
+          ),
+          inherit.aes = FALSE,
+          alpha = rb$alpha %||% 0.3,
+          color = NA
+        ) +
+        ggplot2::scale_fill_manual(
+          name = NULL,
+          values = stats::setNames(rb$fill %||% "grey80", band_label)
+        )
+    } else {
+      base <- base +
+        ggplot2::annotate(
+          "rect",
+          xmin = ref_band[1],
+          xmax = ref_band[2],
+          ymin = -Inf,
+          ymax = Inf,
+          fill = rb$fill %||% "grey80",
+          alpha = rb$alpha %||% 0.3,
+          color = NA
+        )
+    }
+  }
+
+  ## The reference line follows the same pattern as the LLOQ line in
+  ## add_loq_layer_style(): a tagged role layer by default, or a linetype
+  ## mapped to a label on a manual scale when it should join the legend.
+  if (!is.null(ref)) {
+    if (isTRUE(show_legend)) {
+      rl <- series_aes(plotstyle, "ref_line")
+      vargs <- compact(list(
+        data = data.frame(line = line_label, ref = ref),
+        mapping = ggplot2::aes(
+          xintercept = .data[["ref"]],
+          linetype = .data[["line"]]
+        ),
+        color = rl$colour,
+        linewidth = rl$linewidth,
+        alpha = rl$alpha
+      ))
+      base <- base +
+        do.call(ggplot2::geom_vline, vargs) +
+        ggplot2::scale_linetype_manual(
+          name = NULL,
+          values = stats::setNames(rl$linetype %||% "dashed", line_label)
+        )
+    } else {
+      base <- base +
+        ggstylekit::series_layer(
+          ggplot2::geom_vline(xintercept = ref),
+          "ref_line"
+        )
+    }
+  }
 
   base <- base +
-    ggplot2::geom_text(
-      mapping = ggplot2::aes(x = Inf, label = .data[["ci_label"]]),
-      hjust = -0.1,
-      size = 3,
-      color = "grey20"
+    ggstylekit::series_layer(
+      ggplot2::geom_linerange(eb_mapping, data = test_data),
+      "errorbar"
     ) +
-    ggplot2::coord_cartesian(clip = "off")
+    ggstylekit::series_layer(
+      ggplot2::geom_point(pt_mapping, data = test_data),
+      "point"
+    )
+  ## style_plot() fills a point's colour/shape/size/alpha from the role, but
+  ## not its `fill`, so the open-shape fill is set inline from the style.
+  if (nrow(ref_data) > 0L) {
+    rp_args <- compact(list(
+      mapping = pt_mapping,
+      data = ref_data,
+      fill = series_aes(plotstyle, "ref_point")$fill
+    ))
+    base <- base +
+      ggstylekit::series_layer(
+        do.call(ggplot2::geom_point, rp_args),
+        "ref_point"
+      )
+  }
+
+  ## The estimate column is the secondary y-axis: one label per y level, in
+  ## level order (a labels *function* would receive only the first panel's
+  ## breaks under free y scales, and out-of-order breaks reorder the panel).
+  ## Reference rows show the estimate alone.
+  y_levels_all <- levels(plot_data[[cov_level_var_str]])
+  row_labels <- ifelse(
+    plot_data$is_ref,
+    fmt_sig(plot_data$est, stats$config$sigdigits),
+    plot_data$ci_label
+  )
+  axis_labels <- row_labels[
+    match(y_levels_all, as.character(plot_data[[cov_level_var_str]]))
+  ]
+  ## The column header ("Median [90% CI]") is the plot tag pinned to the
+  ## top-right corner of the plot area (a secondary-axis *title* would land in
+  ## its own column to the right of the labels instead of above them).
+  stat_label <- switch(
+    stats$config$statistic,
+    median = "Median",
+    mean = "Mean",
+    geo_mean = "Geometric mean",
+    stats$config$statistic
+  )
+  header <- paste0(stat_label, " [", format(stats$config$ci * 100), "% CI]")
+  base <- base +
+    ggplot2::scale_y_discrete(
+      sec.axis = ggplot2::dup_axis(
+        name = NULL,
+        breaks = y_levels_all,
+        labels = axis_labels
+      )
+    ) +
+    ggplot2::labs(tag = header)
 
   ## The covariate row facet is built here (switch = "y" pairs with the forest
   ## panel theme's outside strips), so ggstylekit's own facet path is bypassed.
@@ -615,19 +784,6 @@ plot_build_forest <- function(
       )
   }
 
-  ## style_plot() applies the style's theme wholesale, so the right margin that
-  ## makes room for the `ci_label` text is folded into the style's theme.
-  plotstyle <- ggstylekit::set_style(
-    plotstyle,
-    theme = (plotstyle$theme %||% pmx_house_theme(forest_panel = TRUE)) +
-      ggplot2::theme(plot.margin = ggplot2::margin(
-        t = 5.5,
-        r = label_right_pt,
-        b = 5.5,
-        l = 5.5
-      ))
-  )
-
   ggstylekit::style_plot(base, plotstyle)
 }
 
@@ -649,7 +805,7 @@ plot_build_forest <- function(
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
-#' `ref_band`, and `metric` are accepted on both paths.
+#' `ref_band`, `metric`, and `show_legend` are accepted on both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
@@ -702,12 +858,15 @@ plot_forest <- function(
   cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
-  style = NULL
+  style = NULL,
+  show_legend = FALSE
 ) {
   if (inherits(data, "forest_stats")) {
     check_pipeline_args_dropped(
       call = match.call(),
-      plot_only_args = c("data", "style", "ref", "ref_band", "metric"),
+      plot_only_args = c(
+        "data", "style", "ref", "ref_band", "metric", "show_legend"
+      ),
       fn_name = "plot_forest"
     )
     return(plot_build_forest(
@@ -715,7 +874,8 @@ plot_forest <- function(
       style = style,
       ref = ref,
       ref_band = ref_band,
-      metric = metric
+      metric = metric,
+      show_legend = show_legend
     ))
   }
 
@@ -744,6 +904,7 @@ plot_forest <- function(
     style = style,
     ref = ref,
     ref_band = ref_band,
-    metric = metric
+    metric = metric,
+    show_legend = show_legend
   )
 }

@@ -7,10 +7,16 @@
 * `plot_forest()` generates a forest plot of test/reference comparisons
   for visualizing PK/PD relationships and covariate impact for a single
   PK parameter per call. Returns a plain `ggplot` object (composable
-  with `+ geom_*()` / `+ theme()` / `+ coord_*()`); numeric
-  `est [lo, hi]` annotation is rendered as right-side secondary-axis
-  text (via `geom_text` + `coord_cartesian(clip = "off")`) rather than
-  a side table; the primary y-axis carries the covariate level only. Covariate name is a grouping dimension
+  with `+ geom_*()` / `+ theme()` / `+ coord_*()`); the numeric
+  `est [lo, hi]` column is rendered as the right-hand secondary y-axis
+  text under a header built from the statistic and CI width (e.g.
+  `Median [90% CI]`, drawn as the plot tag) rather than a side table;
+  the primary y-axis carries the covariate level only. Reference rows
+  (the dispersed per-covariate reference label, or the standalone
+  Reference panel) draw as an open circle through the `ref_point` style
+  role and show the estimate alone in the column. `show_legend = TRUE`
+  adds a legend keying the reference line and shaded band (default
+  `FALSE`). Covariate name is a grouping dimension
   (`facet_grid` row with left-side strip label) and the designated
   reference row (controlled by the `cov_name_ref` argument, default
   `"Reference"`) always sorts to the top. Optionally, supply the `cov_level_ref`
@@ -29,14 +35,17 @@
   exactly one metric, it is picked automatically.
 * `df_forest()` aggregates replicate draws into per-group point and CI
   estimates. Returns a `forest_stats` / `pmx_stats` container with
-  canonical `est`, `lo`, `hi`, and `ci_label` columns. The `cov_level_var`
-  column drives the y-axis tick label (the covariate name lives in
-  the facet strip; `ci_label` is rendered as a right-side secondary-axis
-  text layer by `plot_build_forest()`).
+  canonical `est`, `lo`, `hi`, and `ci_label` columns; `ci_label` pads
+  every value to `sigdigits` significant digits (`1.00 [0.950, 1.05]`).
+  The `cov_level_var` column drives the y-axis tick label (the covariate
+  name lives in the facet strip; `ci_label` is rendered as the right-hand
+  secondary y-axis text by `plot_build_forest()`).
 * `plot_build_forest()` renders a forest ggplot from any `forest_stats`
   container; most users still go through `plot_forest()`.
 * `style_forest()` is the `ggstylekit::style_spec()` preset for
-  `plot_forest()` with roles `point`, `errorbar`, `ref_line`, and `ref_band`.
+  `plot_forest()` with roles `point`, `errorbar`, `ref_point`, `ref_line`,
+  and `ref_band`; its forest panel theme styles the estimate column
+  (`axis.text.y.right`) and its header (`plot.tag`).
 * `is_forest_stats()` predicate for the new `forest_stats` subclass.
 
 ### New datasets

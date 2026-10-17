@@ -22,10 +22,12 @@ A \code{ggstylekit_style_spec} object.
 \description{
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_forest]{plot_forest()}} /
 \code{\link[=plot_build_forest]{plot_build_forest()}}. Series names are the plot roles: \code{point} (the
-estimate), \code{errorbar} (the CI line range), \code{ref_line} (the vertical
-reference line drawn at \code{ref}), and \code{ref_band} (the shaded equivalence band
-drawn at \code{ref_band}; a \code{geom_rect} annotation whose \code{fill} and \code{alpha} come
-from the \code{fill} / \code{alphas} maps).
+estimate), \code{errorbar} (the CI line range), \code{ref_point} (the estimate of a
+reference row: the dispersed per-covariate reference label or the
+standalone reference panel; an open circle by default), \code{ref_line} (the
+vertical reference line drawn at \code{ref}), and \code{ref_band} (the shaded
+equivalence band drawn at \code{ref_band}; a \code{geom_rect} annotation whose \code{fill}
+and \code{alpha} come from the \code{fill} / \code{alphas} maps).
 }
 \details{
 Per-covariate coloring is opt-in through the same \code{colors} map: add entries
@@ -41,14 +43,19 @@ layers.
 The builder draws the covariate row facet itself (\code{facet_grid(rows = cov_name, switch = "y")}), so the \verb{facet*} fields are ignored, and it sets
 the plot title to the rendered metric unless the \code{title} field is supplied.
 The house theme uses the forest panel variant of \code{theme_bw()}: a faint
-vertical ruler, no horizontal gridlines, and bold covariate strips placed
-outside the y-axis.
+vertical ruler, no horizontal gridlines, bold covariate strips placed
+outside the y-axis, and the estimate column as right-hand axis text under a
+bold header (style them through \verb{theme = } with \code{axis.text.y.right} and
+\code{plot.tag}). \code{legend.position} is \code{"bottom"}, used only when
+\code{plot_forest(show_legend = TRUE)}. Set \code{logx = TRUE} for a log x-axis.
 }
 \examples{
 style_forest()
 style_forest(shapes = c(point = 18), sizes = c(point = 3))
 style_forest(fill = c(ref_band = "skyblue"), alphas = c(ref_band = 0.2))
+style_forest(shapes = c(ref_point = 16), colors = c(ref_point = "grey50"))
 style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
+style_forest(logx = TRUE)
 }
 \seealso{
 Other forest plot:

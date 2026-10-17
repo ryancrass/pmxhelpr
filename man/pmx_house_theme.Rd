@@ -29,6 +29,8 @@ estimates and blanks \code{panel.grid.major.y} (the \code{facet_grid()} rows gro
 y-axis by covariate name instead), uses a transparent panel with a thin grey
 border, and styles the covariate row strips for \code{switch = "y"}: placed
 outside the y-axis, no background fill, bold horizontal text right-aligned
-to the panel.
+to the panel. The right-hand secondary y-axis carries the estimate column
+(left-aligned grey text, no ticks) and the plot tag is its bold header,
+pinned to the top-right corner of the plot area above the column.
 }
 \keyword{internal}

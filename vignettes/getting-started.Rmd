@@ -278,6 +278,13 @@ plot_forest(forest_stats, metric = "AUCRATIO",
   scale_x_log10(limits = c(0.5, 5))
 ```
 
+Reference rows (here the dispersed `Fasted` and `70 kg` labels) draw as an open circle through the `ref_point` style role and show the estimate alone in the right-hand column. `show_legend = TRUE` adds a legend keying the reference line and shaded band, and `style_forest(logx = TRUE)` is the style-side alternative to composing `scale_x_log10()`.
+
+```{r plot-forest-legend, fig.width=8, fig.height=4.5, warning=FALSE, message=FALSE}
+plot_forest(forest_stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            show_legend = TRUE, style = style_forest(logx = TRUE))
+```
+
 # VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 
 The VPC workflow is an end to end process within `pmxhelpr`, starting from a 

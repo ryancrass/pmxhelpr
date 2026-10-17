@@ -257,10 +257,12 @@ style_vpc <- function(...) {
 #'
 #' Default [ggstylekit::style_spec()] for [plot_forest()] /
 #' [plot_build_forest()]. Series names are the plot roles: `point` (the
-#' estimate), `errorbar` (the CI line range), `ref_line` (the vertical
-#' reference line drawn at `ref`), and `ref_band` (the shaded equivalence band
-#' drawn at `ref_band`; a `geom_rect` annotation whose `fill` and `alpha` come
-#' from the `fill` / `alphas` maps).
+#' estimate), `errorbar` (the CI line range), `ref_point` (the estimate of a
+#' reference row: the dispersed per-covariate reference label or the
+#' standalone reference panel; an open circle by default), `ref_line` (the
+#' vertical reference line drawn at `ref`), and `ref_band` (the shaded
+#' equivalence band drawn at `ref_band`; a `geom_rect` annotation whose `fill`
+#' and `alpha` come from the `fill` / `alphas` maps).
 #'
 #' Per-covariate coloring is opt-in through the same `colors` map: add entries
 #' keyed by covariate name (the values of the `cov_name_var` column, e.g.
@@ -276,8 +278,11 @@ style_vpc <- function(...) {
 #' cov_name, switch = "y")`), so the `facet*` fields are ignored, and it sets
 #' the plot title to the rendered metric unless the `title` field is supplied.
 #' The house theme uses the forest panel variant of `theme_bw()`: a faint
-#' vertical ruler, no horizontal gridlines, and bold covariate strips placed
-#' outside the y-axis.
+#' vertical ruler, no horizontal gridlines, bold covariate strips placed
+#' outside the y-axis, and the estimate column as right-hand axis text under a
+#' bold header (style them through `theme = ` with `axis.text.y.right` and
+#' `plot.tag`). `legend.position` is `"bottom"`, used only when
+#' `plot_forest(show_legend = TRUE)`. Set `logx = TRUE` for a log x-axis.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
@@ -296,17 +301,23 @@ style_vpc <- function(...) {
 #' style_forest()
 #' style_forest(shapes = c(point = 18), sizes = c(point = 3))
 #' style_forest(fill = c(ref_band = "skyblue"), alphas = c(ref_band = 0.2))
+#' style_forest(shapes = c(ref_point = 16), colors = c(ref_point = "grey50"))
 #' style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
+#' style_forest(logx = TRUE)
 style_forest <- function(...) {
   defaults <- list(
-    colors     = c(point = "black", errorbar = "black", ref_line = "grey40"),
-    fill       = c(ref_band = "grey80"),
-    shapes     = c(point = 16),
-    sizes      = c(point = 2.5),
-    alphas     = c(point = 1, errorbar = 1, ref_line = 1, ref_band = 0.3),
+    colors     = c(point = "black", errorbar = "black", ref_point = "black",
+                   ref_line = "grey40"),
+    fill       = c(ref_point = "white", ref_band = "grey80"),
+    shapes     = c(point = 16, ref_point = 21),
+    sizes      = c(point = 2.5, ref_point = 2.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.3),
     linewidths = c(errorbar = 0.7, ref_line = 0.5),
     linetypes  = c(errorbar = "solid", ref_line = "dashed"),
-    # Legend titles above the keys, the house look for bottom/top legends.
+    # Legend (only drawn under `show_legend = TRUE`) below the panels, titles
+    # above the keys: the house look for bottom/top legends.
+    legend.position = "bottom",
     legend.title.position = "top",
     theme      = pmx_house_theme(forest_panel = TRUE)
   )

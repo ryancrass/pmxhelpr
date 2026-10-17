@@ -32,7 +32,9 @@
 #' y-axis by covariate name instead), uses a transparent panel with a thin grey
 #' border, and styles the covariate row strips for `switch = "y"`: placed
 #' outside the y-axis, no background fill, bold horizontal text right-aligned
-#' to the panel.
+#' to the panel. The right-hand secondary y-axis carries the estimate column
+#' (left-aligned grey text, no ticks) and the plot tag is its bold header,
+#' pinned to the top-right corner of the plot area above the column.
 #'
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a white
 #'   rectangle with a thin black border (VPC family). Default `FALSE`.
@@ -53,6 +55,16 @@ pmx_house_theme <- function(white_panel = FALSE, forest_panel = FALSE) {
     args$strip.text.y.left  <- ggplot2::element_text(angle = 0, face = "bold",
                                                      hjust = 1)
     args$plot.title         <- ggplot2::element_text(face = "bold")
+    args$panel.spacing.y    <- ggplot2::unit(8, "pt")
+    # Secondary y-axis = the estimate column: left-aligned text, no ticks. Its
+    # header is the plot tag, pinned top-right over the column.
+    args$axis.text.y.right  <- ggplot2::element_text(hjust = 0, colour = "grey20",
+                                                     size = ggplot2::rel(0.9))
+    args$axis.ticks.y.right <- ggplot2::element_blank()
+    args$plot.tag           <- ggplot2::element_text(face = "bold", hjust = 1,
+                                                     size = ggplot2::rel(0.9))
+    args$plot.tag.position  <- "topright"
+    args$plot.tag.location  <- "plot"
   } else {
     args$panel.grid.major.x <- ggplot2::element_blank()
     if (isTRUE(white_panel)) {

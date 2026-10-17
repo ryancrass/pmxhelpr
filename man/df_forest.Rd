@@ -45,7 +45,8 @@ One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} column. Default \code{3}.}
+\code{ci_label} column. Trailing zeros are kept so every value carries
+\code{sigdigits} digits (\code{"1.00 [0.950, 1.05]"}). Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
@@ -76,11 +77,11 @@ slots:
 \item{\code{stats}}{One row per \verb{(metric × cov_name × cov_level)} group
 with columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est}, \code{lo}, \code{hi},
-and the character column \code{ci_label} (e.g. \code{"1.12 [0.95, 1.32]"}).
+and the character column \code{ci_label} (e.g. \code{"1.12 [0.950, 1.32]"}).
 The \code{cov_name_var} value drives the per-row facet strip; the
 \code{cov_level_var} value drives the y-axis tick label;
-\code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as a right-side
-secondary-axis text layer.}
+\code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as the right-hand
+secondary y-axis text.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{statistic}, \code{ci},
 and \code{sigdigits}.}

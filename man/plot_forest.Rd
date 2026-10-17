@@ -19,7 +19,8 @@ plot_forest(
   cov_level_ref = NULL,
   ref = 1,
   ref_band = NULL,
-  style = NULL
+  style = NULL,
+  show_legend = FALSE
 )
 }
 \arguments{
@@ -57,7 +58,8 @@ One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 width (e.g., \code{0.9} for 90\% CI).}
 
 \item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} column. Default \code{3}.}
+\code{ci_label} column. Trailing zeros are kept so every value carries
+\code{sigdigits} digits (\code{"1.00 [0.950, 1.05]"}). Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
@@ -95,9 +97,16 @@ interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
 \code{style = style_forest(...)}, or restyle the returned plot with
-\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_line}, and
-\code{ref_band}; \code{colors} entries keyed by covariate name opt into
-per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).}
+\code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_point},
+\code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
+opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
+column is axis text styled through the theme's \code{axis.text.y.right}
+element; its header is the plot tag (\code{plot.tag}).}
+
+\item{show_legend}{Logical. When \code{TRUE}, the reference line and shaded
+band join a legend (keys \code{"Reference line"} and \code{"Reference band"})
+placed by the style's \code{legend.position} (bottom in \code{\link[=style_forest]{style_forest()}}).
+Default \code{FALSE} (no legend).}
 }
 \value{
 a \code{ggplot} plot object
@@ -118,7 +127,7 @@ On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_n
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
-\code{ref_band}, and \code{metric} are accepted on both paths.
+\code{ref_band}, \code{metric}, and \code{show_legend} are accepted on both paths.
 }
 \examples{
 # Raw-data path: one metric per call

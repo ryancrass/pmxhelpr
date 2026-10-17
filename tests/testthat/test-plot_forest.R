@@ -100,6 +100,23 @@ test_that("`sigdigits` controls numeric formatting of ci_label", {
   expect_false(identical(out_2$stats$ci_label, out_4$stats$ci_label))
 })
 
+test_that("ci_label pads every value to `sigdigits` significant digits", {
+  out <- df_forest(data_sad_pkforest, replicate_var = "SIM", sigdigits = 3)
+  s <- out$stats
+  ref <- s[s$cov_var == "Reference" & s$metric == "AUCRATIO", ]
+  expect_equal(ref$ci_label, "1.00 [1.00, 1.00]")
+  wt90 <- s[s$cov_val == "90 kg" & s$metric == "AUCRATIO", ]
+  expect_match(wt90$ci_label, "^0\\.[0-9]{3} \\[0\\.[0-9]{3}, 0\\.[0-9]{3}\\]$")
+  expect_match(s$ci_label, "^[0-9.]+ \\[[0-9.]+, [0-9.]+\\]$", all = TRUE)
+})
+
+test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA through", {
+  expect_equal(fmt_sig(c(1, 0.8, 23312, 9969, 2.334, NA), 3),
+               c("1.00", "0.800", "23300", "9970", "2.33", NA))
+  expect_equal(fmt_sig(1.5, 2), "1.5")
+  expect_equal(fmt_sig(0.0001234, 3), "0.000123")
+})
+
 
 #####df_forest -- argument handling#####
 
@@ -199,10 +216,14 @@ test_that("summary.forest_stats produces output without erroring", {
 test_that("style_forest() returns a style_spec with the forest roles", {
   st <- style_forest()
   expect_s3_class(st, "ggstylekit_style_spec")
-  expect_equal(names(st$colors), c("point", "errorbar", "ref_line"))
-  expect_equal(names(st$fill), "ref_band")
-  expect_true(all(c("point", "errorbar", "ref_line", "ref_band") %in% names(st$alphas)))
+  expect_equal(names(st$colors), c("point", "errorbar", "ref_point", "ref_line"))
+  expect_equal(names(st$fill), c("ref_point", "ref_band"))
+  expect_true(all(c("point", "errorbar", "ref_point", "ref_line", "ref_band") %in%
+                    names(st$alphas)))
   expect_equal(unname(st$linetypes["ref_line"]), "dashed")
+  expect_equal(unname(st$shapes["ref_point"]), 21)
+  expect_equal(unname(st$fill["ref_point"]), "white")
+  expect_equal(st$legend.position, "bottom")
 })
 
 test_that("style_forest() merges per-series overrides entry-wise", {
@@ -317,25 +338,135 @@ test_that("Error if ref is not numeric", {
                regexp = "argument `ref` must be class `numeric`")
 })
 
-#####plot_build_forest -- right-side ci_label annotation#####
+#####plot_build_forest -- right-side estimate column (secondary y-axis)#####
 
-test_that("ci_label is rendered as a right-side GeomText layer; y-axis carries cov_level only", {
+sec_axis_of <- function(p) p$scales$get_scales("y")$secondary.axis
+
+test_that("ci_label is rendered as the secondary y-axis; no GeomText layer; y-axis carries cov_level only", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   has_text <- any(vapply(p$layers,
                          function(L) inherits(L$geom, "GeomText"),
                          logical(1)))
-  expect_true(has_text)
+  expect_false(has_text)
+  expect_s3_class(sec_axis_of(p), "AxisSecondary")
   # primary y-axis only carries cov_level values (no CI text)
   expect_false(any(grepl("\\[", levels(p$data$cov_val))))
-  expect_true("ci_label" %in% colnames(stats$stats))
+  expect_equal(p$coordinates$clip, "on")
+  expect_null(p$theme$plot.margin)
 })
 
-test_that("plot_build_forest() applies coord_cartesian(clip = 'off') and an extended right plot.margin", {
+test_that("secondary-axis labels follow the y levels: ci_label for test rows, estimate alone for reference rows", {
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_equal(p$coordinates$clip, "off")
-  expect_true(as.numeric(p$theme$plot.margin)[2] > 20)
+  sec <- sec_axis_of(p)
+  expect_equal(sec$breaks, levels(p$data$cov_val))
+  d <- p$data
+  expected <- ifelse(d$is_ref, fmt_sig(d$est, 3), d$ci_label)[
+    match(levels(d$cov_val), as.character(d$cov_val))]
+  expect_equal(sec$labels, expected)
+  # dispersed reference rows ("Fasted", "70 kg") show the estimate alone
+  expect_equal(sec$labels[sec$breaks == "Fasted"], "1.00")
+  expect_equal(sec$labels[sec$breaks == "70 kg"], "1.00")
+  expect_match(sec$labels[sec$breaks == "Fed"], "^2\\.[0-9]{2} \\[")
+  # built right-axis labels agree per panel
+  built <- ggplot2::ggplot_build(p)
+  panel_labels <- lapply(built$layout$panel_params, function(pp) pp$y.sec$get_labels())
+  expect_setequal(unlist(panel_labels), expected)
+})
+
+test_that("the estimate column header is the plot tag built from statistic and ci", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(p$labels$tag, "Median [90% CI]")
+  expect_null(sec_axis_of(p)$name)
+  stats_mean <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                          statistic = "mean", ci = 0.95)
+  expect_equal(plot_build_forest(stats_mean, metric = "AUCRATIO")$labels$tag,
+               "Mean [95% CI]")
+  stats_geo <- df_forest(data_sad_pkforest, replicate_var = "SIM",
+                         statistic = "geo_mean", ci = 0.8)
+  expect_equal(plot_build_forest(stats_geo, metric = "AUCRATIO")$labels$tag,
+               "Geometric mean [80% CI]")
+})
+
+test_that("reference rows draw through the ref_point role (open circle) and test rows through point", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(sum(is_pt), 2L)
+  pt <- p$layers[[which(is_pt)[1]]]
+  ref_pt <- p$layers[[which(is_pt)[2]]]
+  expect_equal(pt$aes_params$shape, 16)
+  expect_equal(ref_pt$aes_params$shape, 21)
+  expect_equal(ref_pt$aes_params$fill, "white")
+  expect_equal(ref_pt$aes_params$colour, "black")
+  expect_true(all(ref_pt$data$is_ref))
+  expect_setequal(as.character(ref_pt$data$cov_val), c("Fasted", "70 kg"))
+  expect_false(any(pt$data$is_ref))
+  # the first layer trains every panel on the full data so the y order holds
+  expect_s3_class(p$layers[[1]]$geom, "GeomBlank")
+})
+
+test_that("a standalone Reference panel draws through ref_point; no ref_point layer without a reference", {
+  d <- data_sad_pkforest
+  d$cov_ref <- NULL
+  stats <- df_forest(d, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(sum(is_pt), 2L)
+  ref_pt <- p$layers[[which(is_pt)[2]]]
+  expect_equal(as.character(ref_pt$data$cov_var), "Reference")
+  expect_equal(sec_axis_of(p)$labels[sec_axis_of(p)$breaks == "Reference"], "1.00")
+  stats_noref <- df_forest(d, replicate_var = "SIM", cov_name_ref = NULL)
+  p2 <- plot_build_forest(stats_noref, metric = "AUCRATIO")
+  is_pt2 <- vapply(p2$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(sum(is_pt2), 1L)
+})
+
+#####plot_build_forest -- show_legend#####
+
+test_that("show_legend = FALSE (default) adds no fill/linetype scales and keeps role layers", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+  scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
+  expect_false(any(c("fill", "linetype") %in% scale_aes))
+  rect <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomRect"), logical(1)))]]
+  expect_equal(rect$aes_params$fill, "grey80")
+})
+
+test_that("show_legend = TRUE maps the band and line to manual scales keyed for the legend", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+                         show_legend = TRUE,
+                         style = style_forest(fill = c(ref_band = "skyblue"),
+                                              linetypes = c(ref_line = "dotted")))
+  scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
+  expect_true(all(c("fill", "linetype") %in% scale_aes))
+  is_rect <- vapply(p$layers, function(L) inherits(L$geom, "GeomRect"), logical(1))
+  is_vl <- vapply(p$layers, function(L) inherits(L$geom, "GeomVline"), logical(1))
+  rect <- p$layers[[which(is_rect)]]
+  expect_true("fill" %in% names(rect$mapping))
+  expect_equal(rect$aes_params$alpha, 0.3)
+  vl <- p$layers[[which(is_vl)]]
+  expect_true("linetype" %in% names(vl$mapping))
+  expect_equal(vl$aes_params$colour, "grey40")
+  # the manual scales resolve the legend keys to the style's values
+  built <- ggplot2::ggplot_build(p)
+  expect_equal(unique(built$data[[which(is_rect)]]$fill), "skyblue")
+  expect_equal(unique(built$data[[which(is_vl)]]$linetype), "dotted")
+  expect_equal(p$theme$legend.position, "bottom")
+})
+
+test_that("plot_forest() passes show_legend through on both paths", {
+  stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+  p1 <- plot_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25), show_legend = TRUE)
+  p2 <- plot_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+                    replicate_var = "SIM", ref_band = c(0.8, 1.25), show_legend = TRUE)
+  for (p in list(p1, p2)) {
+    scale_aes <- vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
+    expect_true(all(c("fill", "linetype") %in% scale_aes))
+  }
 })
 
 
@@ -395,7 +526,7 @@ test_that("plot_forest() honors style/ref/ref_band on the precomputed path", {
                    style = style_forest(shapes = c(point = 18)),
                    ref = 0, ref_band = c(0.5, 2))
   expect_s3_class(p, "ggplot")
-  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))]]
+  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))[1]]]
   expect_equal(pt$aes_params$shape, 18)
 })
 
@@ -502,11 +633,17 @@ test_that("plot_build_forest() maps color by covariate when the style names cova
   expect_equal(color_scale$guide, "none")
   # point/errorbar carry a colour mapping and no fixed colour
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
-  pt <- p$layers[[which(is_pt)]]
+  pt <- p$layers[[which(is_pt)[1]]]
+  ref_pt <- p$layers[[which(is_pt)[2]]]
   expect_true("colour" %in% names(pt$mapping))
   expect_null(pt$aes_params$colour)
+  # ref_point carries the same covariate mapping
+  expect_true("colour" %in% names(ref_pt$mapping))
+  expect_null(ref_pt$aes_params$colour)
   built <- ggplot2::ggplot_build(p)
-  expect_setequal(unique(built$data[[which(is_pt)]]$colour),
+  expect_setequal(unique(built$data[[which(is_pt)[1]]]$colour),
+                  c("firebrick", "steelblue"))
+  expect_setequal(unique(built$data[[which(is_pt)[2]]]$colour),
                   c("firebrick", "steelblue"))
 })
 
@@ -522,8 +659,9 @@ test_that("plot_build_forest() colors a standalone Reference panel from the styl
   )
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   built <- ggplot2::ggplot_build(p)
-  expect_setequal(unique(built$data[[which(is_pt)]]$colour),
-                  c("grey20", "firebrick", "steelblue"))
+  expect_setequal(unique(built$data[[which(is_pt)[1]]]$colour),
+                  c("firebrick", "steelblue"))
+  expect_equal(unique(built$data[[which(is_pt)[2]]]$colour), "grey20")
 })
 
 test_that("plot_build_forest() warns when style colors are missing entries for present covariates", {
@@ -541,7 +679,7 @@ test_that("plot_build_forest() keeps a fixed point colour when the style names n
   stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
   p <- plot_build_forest(stats, metric = "AUCRATIO",
                          style = style_forest(colors = c(point = "navy")))
-  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))]]
+  pt <- p$layers[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))[1]]]
   expect_equal(pt$aes_params$colour, "navy")
   expect_false("colour" %in% names(pt$mapping))
 })
@@ -556,6 +694,12 @@ test_that("plot_build_forest() applies the forest_panel variant (panel.ontop uns
   expect_false(isTRUE(p$theme$panel.ontop))
   expect_equal(p$theme$strip.placement, "outside")
   expect_s3_class(p$theme$strip.background, "element_blank")
+  # estimate column: left-aligned right-axis text, no ticks, header as top-right tag
+  expect_equal(p$theme$axis.text.y.right$hjust, 0)
+  expect_s3_class(p$theme$axis.ticks.y.right, "element_blank")
+  expect_equal(p$theme$plot.tag.position, "topright")
+  expect_equal(p$theme$plot.tag.location, "plot")
+  expect_equal(p$theme$plot.tag$face, "bold")
 })
 
 

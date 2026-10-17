@@ -106,7 +106,7 @@ data_gof <- data_sad_pkfit %>%
 
 ## `data_sad_pkforest`
 
-`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across four covariate scenarios (reference, fed, low body weight, high body weight). The per-row `cov_ref` column is already populated so that `df_forest()` will auto-disperse the reference into each covariate panel.
+`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across four covariate scenarios (reference, fed, low body weight, high body weight). The `cov_ref` column records the reference level of each varied covariate (`Fasted` for `FOOD`, `70 kg` for `WTBL`); the same mapping is passed to `df_forest()` as `cov_level_ref` below.
 
 ```{r data-pkforest}
 glimpse(data_sad_pkforest)
@@ -252,10 +252,11 @@ additional details on GOF diagnostics.
 
 # Forest plots of covariate impact with `df_forest()` and `plot_forest()`
 
-`df_forest()` aggregates values across simulation or bootstrap replicates into a point estimate and confidence interval for each covariate level, returning a class-tagged `forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats` and `vpc_stats`).
+`df_forest()` aggregates values across simulation or bootstrap replicates into a point estimate and confidence interval for each covariate level, returning a class-tagged `forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats` and `vpc_stats`). The `stats` slot is the plot-ready frame: one row per plotted point, in the order drawn top to bottom. Supplying `cov_level_ref` disperses the `Reference` row into each named covariate panel under that label (flagged `is_ref`); reorder the rows of `forest_stats$stats`, or set factor levels on the input columns, to control the plotted order.
 
 ```{r forest-stats}
-forest_stats <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+forest_stats <- df_forest(data_sad_pkforest,
+                          cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 forest_stats
 ```
 

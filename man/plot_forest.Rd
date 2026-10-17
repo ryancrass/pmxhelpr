@@ -11,7 +11,6 @@ plot_forest(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  replicate_var = NULL,
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -27,7 +26,7 @@ plot_forest(
 \item{data}{Either raw observation/draws data (data.frame) or a
 \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}}.}
 
-\item{metric}{Character scalar identifying which row of \code{metric_name_var} to
+\item{metric}{Character scalar identifying which value of \code{metric_name_var} to
 render. \code{plot_forest()} renders one metric per call (no metric
 facet); the covariate name is the only facet dimension. If \code{NULL}
 (default) and \code{stats$stats} contains exactly one unique value of
@@ -48,9 +47,6 @@ Accepts bare names or strings. Default is \code{cov_val}.}
 test/reference comparison statistic.
 Accepts bare names or strings. Default \code{value}.}
 
-\item{replicate_var}{Column in \code{data} indexing the replicate (e.g.,
-Accepts bare names or strings. Default is \code{SIM}.}
-
 \item{statistic}{Central-tendency statistic.
 One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
@@ -62,32 +58,28 @@ width (e.g., \code{0.9} for 90\% CI).}
 \code{sigdigits} digits (\code{"1.00 [0.950, 1.05]"}). Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
-\code{cov_name_var} column. Rows whose \code{cov_name_var} value equals
-Default is \code{"Reference"} (matches the bundled \code{data_sad_pkforest}
-convention).
+\code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
+\code{data_sad_pkforest} convention). Reference rows draw through the
+\code{ref_point} style role and sort to the top of the plot (standalone
+panel) or are dispersed into each covariate panel (see
+\code{cov_level_ref}). \code{NULL} marks no row as the reference.
 Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
-which is the numeric value of the x-intercept for the verticle reference line.}
+which is the numeric value of the x-intercept for the vertical reference line.}
 
 \item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
-values to the per-covariate reference label to display when the
-reference row is dispersed into each panel (see \code{\link[=plot_build_forest]{plot_build_forest()}}).
-Default is \code{NULL} (Reference row renders in its own facet at the top).
-\code{df_forest()} builds the canonical \code{cov_ref} column inside
-\code{stats$stats} from this mapping; names absent from \code{cov_level_ref}
-receive \code{NA} (those panels show no dispersed Reference row). The
-mapping is stored in \code{config$cov_level_ref} for the renderer.
-
-Alternative input mode: if \code{data} already carries a \code{cov_ref} column,
-it is used directly (per-row reference labels) and \code{cov_level_ref} is
-ignored with an informational \code{message()}. This is the preferred form
-when reference labels can't be reduced to a single value per
-\code{cov_name_var}.}
+values to the per-covariate reference label (e.g.
+\code{c(FOOD = "Fasted", WTBL = "70 kg")}). When supplied, the
+\code{cov_name_ref} row of each metric is copied into every named covariate
+that is present in \code{data} under that label (flagged \code{is_ref = TRUE}),
+and the standalone reference panel is dropped. Covariates not named
+show no reference row. Requires a non-\code{NULL} \code{cov_name_ref} and at
+least one matching row. Default is \code{NULL} (the reference renders in
+its own panel at the top).}
 
 \item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
 value). Pass \code{NULL} to suppress the reference line. Distinct from
-\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to
-sort to the top of the plot.}
+\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
 interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
@@ -123,7 +115,7 @@ settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
-\code{cov_level_var}, \code{metric_value_var}, \code{replicate_var}, \code{statistic}, \code{ci},
+\code{cov_level_var}, \code{metric_value_var}, \code{statistic}, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
@@ -133,13 +125,13 @@ message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code
 # Raw-data path: one metric per call
 plot_forest(
   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-  replicate_var = "SIM"
+  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
 
 # Precomputed path: compute once, render different metrics from the same stats
 stats <- df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
-  replicate_var = "SIM"
+  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))

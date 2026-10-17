@@ -275,3 +275,26 @@ check_ref_band <- function(ref_band) {
   }
   invisible(NULL)
 }
+
+check_forest_metric <- function(metric, metric_values, metric_name_var_str) {
+  if (is.null(metric)) {
+    if (length(metric_values) != 1L) {
+      rlang::abort(message = paste0(
+        "argument `metric` is required when `stats$stats` contains multiple values of `",
+        metric_name_var_str, "` (", paste(metric_values, collapse = ", "), "). ",
+        "Pass `metric = <one of the listed values>` to pick which to render."
+      ))
+    }
+    return(metric_values)
+  }
+  if (!is.character(metric) || length(metric) != 1L || is.na(metric) || !nzchar(metric)) {
+    rlang::abort(message = "argument `metric` must be a single non-empty character string, or `NULL`")
+  }
+  if (!metric %in% metric_values) {
+    rlang::abort(message = paste0(
+      "argument `metric` (", metric, ") not found in `", metric_name_var_str,
+      "`. Available: ", paste(metric_values, collapse = ", ")
+    ))
+  }
+  metric
+}

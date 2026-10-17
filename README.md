@@ -373,7 +373,7 @@ library(withr)
 glimpse(data_sad_pkforest)
 
 #Generate the summary dataset using df_forest()
-sum <- df_forest(data_sad_pkforest, replicate_var = "SIM")
+sum <- df_forest(data_sad_pkforest)
 
 #Filter to a single PK metric
 auc_ratio <- filter(data_sad_pkforest, metric == "AUCRATIO")
@@ -381,8 +381,8 @@ auc_ratio <- filter(data_sad_pkforest, metric == "AUCRATIO")
 #Per-covariate reference labels: a named vector maps each non-REF covariate
 #to the value of the REF row when that covariate is varied (e.g., the REF
 #dosing condition is Fasted; the REF body weight is 70 kg). Covariate names
-#not listed receive NA and produce no dispersed REF row in their panel.
-plot_forest(auc_ratio, replicate_var = "SIM",
+#not listed produce no dispersed REF row in their panel.
+plot_forest(auc_ratio,
             cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
             ref_band = c(0.8, 1.25)) +
   scale_x_log10(guide = "axis_logticks", limits = c(0.5, 5))

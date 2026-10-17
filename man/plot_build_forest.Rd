@@ -30,14 +30,13 @@ element; its header is the plot tag (\code{plot.tag}).}
 \item{ref}{Numeric scalar specifying the x-intercept for the
 vertical reference line. Default \code{1} (the ratio-scale no-effect
 value). Pass \code{NULL} to suppress the reference line. Distinct from
-\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row to
-sort to the top of the plot.}
+\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
 interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
 (no shaded band).}
 
-\item{metric}{Character scalar identifying which row of \code{metric_name_var} to
+\item{metric}{Character scalar identifying which value of \code{metric_name_var} to
 render. \code{plot_forest()} renders one metric per call (no metric
 facet); the covariate name is the only facet dimension. If \code{NULL}
 (default) and \code{stats$stats} contains exactly one unique value of
@@ -61,7 +60,12 @@ a vertical reference line, one facet row per covariate name. The numeric
 under a header built from the container's \code{statistic} and \code{ci} (e.g.
 \code{"Median [90\% CI]"}), so each row's estimate sits beside its point.
 
-Reference rows (the dispersed per-covariate reference label, or the
+Rows are drawn in the order they appear in \code{stats$stats}, top to bottom
+(see the "Row order" section of \code{\link[=df_forest]{df_forest()}}); reorder that frame to
+change the plot. Each row is its own y position, so covariate level
+labels may repeat across panels (\code{Low} / \code{High} under two covariates).
+
+Rows flagged \code{is_ref} (the dispersed per-covariate reference label, or the
 standalone \code{cov_name_ref} panel) draw through the \code{ref_point} style role
 (an open circle by default) and show the point estimate alone in the
 estimate column, since their CI collapses onto the estimate.
@@ -78,7 +82,7 @@ compatible columns and config.
 \examples{
 stats <- df_forest(
   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
-  replicate_var = "SIM"
+  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
 plot_build_forest(stats, metric = "AUCRATIO")
 plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))

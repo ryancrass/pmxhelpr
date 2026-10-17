@@ -10,11 +10,9 @@ style_forest(...)
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
 preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
 \code{shapes = c(point = 18)} leaves the other roles unchanged; \code{colors = c(FOOD = "red")} adds a covariate color while keeping the role colors);
-all other fields replace their default wholesale.
-A per-series map may instead be a palette \verb{function(n)} (e.g.
-\code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
-with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map.}
+all other fields replace their default wholesale. A palette
+\verb{function(n)} in \code{colors} has no effect here: nothing is colour-mapped
+unless the map names covariates, so use named entries instead.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

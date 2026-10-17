@@ -17,7 +17,7 @@
 \item{cov_var}{Covariate column name (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
 \item{cov_var_desc}{Covariate description corresponding to \code{cov_var} (values: \code{Reference}, \code{Food}, \code{Weight})}
 \item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{90 kg})}
-\item{cov_ref}{Per-row reference label for dispersal in \code{\link[=plot_forest]{plot_forest()}} (values: \code{NA} for \code{Reference} rows, \code{"Fasted"} for \code{FOOD} rows, \code{"70 kg"} for \code{WTBL} rows). Consumed by \code{\link[=df_forest]{df_forest()}} when present on \code{data}; in that case \code{cov_level_ref} is ignored with an informational message.}
+\item{cov_ref}{Reference level of the covariate varied in this row (values: \code{NA} for \code{Reference} rows, \code{"Fasted"} for \code{FOOD} rows, \code{"70 kg"} for \code{WTBL} rows). Informational; pass the same mapping to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to disperse the reference row into each covariate panel.}
 }
 }
 }

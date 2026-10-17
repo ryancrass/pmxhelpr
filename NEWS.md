@@ -11,35 +11,32 @@
   `est [lo, hi]` column is rendered as the right-hand secondary y-axis
   text under a header built from the statistic and CI width (e.g.
   `Median [90% CI]`, drawn as the plot tag) rather than a side table;
-  the primary y-axis carries the covariate level only. Reference rows
-  (the dispersed per-covariate reference label, or the standalone
+  the primary y-axis carries the covariate level only. Rows flagged
+  `is_ref` (the dispersed per-covariate reference label, or the standalone
   Reference panel) draw as an open circle through the `ref_point` style
   role and show the estimate alone in the column. `show_legend = TRUE`
   adds a legend keying the reference line and shaded band (default
-  `FALSE`). Covariate name is a grouping dimension
-  (`facet_grid` row with left-side strip label) and the designated
-  reference row (controlled by the `cov_name_ref` argument, default
-  `"Reference"`) always sorts to the top. Optionally, supply the `cov_level_ref`
-  argument — a named vector mapping covariate names to their
-  per-covariate reference labels (e.g.,
-  `c(FOOD = "Fasted", WTBL = "70 kg")`) — to disperse the Reference row into
-  each non-Reference panel under that label instead of rendering as a
-  standalone facet. Covariates not named in `cov_level_ref` show no
-  dispersed Reference row in their panel. Within each panel, the
-  y-axis tick labels are auto-sorted: numeric-parseable labels (e.g.,
-  `"50 kg"`, `"70 kg"`, `"90 kg"`) sort in ascending numerical order
-  so the highest value lands at the top; non-numeric labels (e.g.,
-  `"Fasted"`, `"Fed"`) keep the reverse data-encounter order (Reference row
-  on top). Select which exposure
-  metric to render via the `metric` argument; if `stats` carries
-  exactly one metric, it is picked automatically.
-* `df_forest()` aggregates replicate draws into per-group point and CI
-  estimates. Returns a `forest_stats` / `pmx_stats` container with
-  canonical `est`, `lo`, `hi`, and `ci_label` columns; `ci_label` pads
-  every value to `sigdigits` significant digits (`1.00 [0.950, 1.05]`).
-  The `cov_level_var` column drives the y-axis tick label (the covariate
-  name lives in the facet strip; `ci_label` is rendered as the right-hand
-  secondary y-axis text by `plot_build_forest()`).
+  `FALSE`). Covariate name is a grouping dimension (`facet_grid` row with
+  left-side strip label). Rows draw top to bottom in the order of the
+  `forest_stats` frame, and each row is its own y position, so covariate
+  level labels may repeat across panels. Select which exposure metric to
+  render via the `metric` argument; if `stats` carries exactly one metric,
+  it is picked automatically.
+* `df_forest()` aggregates replicate draws into a plot-ready
+  `forest_stats` / `pmx_stats` container: one row per plotted point with
+  canonical `est`, `lo`, `hi`, `ci_label`, and `is_ref` columns, sorted
+  into display order; `ci_label` pads every value to `sigdigits`
+  significant digits (`1.00 [0.950, 1.05]`). The designated reference row
+  (`cov_name_ref`, default `"Reference"`) sorts to the top as its own
+  panel, or, given `cov_level_ref` (a named vector mapping covariate names
+  to their per-covariate reference labels, e.g.
+  `c(FOOD = "Fasted", WTBL = "70 kg")`), is dispersed into each named
+  covariate panel under that label instead. Row order follows factor
+  levels on the input columns when present, otherwise first appearance in
+  the data; within a covariate, labels that start with a number sort
+  ascending (`50 kg` above `90 kg`) and any other set keeps the reference
+  label on top followed by the data order. Reorder the rows of
+  `stats$stats` to change the plot.
 * `plot_build_forest()` renders a forest ggplot from any `forest_stats`
   container; most users still go through `plot_forest()`.
 * `style_forest()` is the `ggstylekit::style_spec()` preset for
@@ -55,18 +52,8 @@
   test/reference PK metrics across body-weight and food-effect covariate
   scenarios. Column defaults of `df_forest()` / `plot_forest()`
   (`metric`, `cov_var`, `cov_val`, `value`) match this dataset for
-  drop-in use; pipe through `df_forest(replicate_var = "SIM")` to
-  produce a `forest_stats` container.
-
-### Dual input for per-covariate reference labels
-
-* `df_forest()` / `plot_forest()` now accept a `cov_ref` column on
-  `data` as an alternative to the `cov_level_ref` named-vector argument.
-  When the column is present, per-row reference labels are pulled from
-  it directly (supporting heterogeneous within-cov_name labels that the
-  named-vector form can't express); `cov_level_ref` is then ignored with
-  an informational `message()`. Existing `cov_level_ref` callers are
-  unaffected.
+  drop-in use; pipe through `df_forest()` to produce a `forest_stats`
+  container.
 
 ### Per-covariate coloring in forest plots
 
@@ -85,16 +72,15 @@
   `df_forest()` directly. Pass a precomputed result to skip aggregation
   and re-plot with different `style`, `ref`, or `ref_band` settings.
   Pipeline arguments (`metric_name_var`, `cov_name_var`, `cov_level_var`,
-  `metric_value_var`, `replicate_var`, `statistic`, `ci`, `sigdigits`,
+  `metric_value_var`, `statistic`, `ci`, `sigdigits`,
   `cov_name_ref`, `cov_level_ref`) cannot be honored on the precomputed
   path and error with a clear message. The plot-only `metric` argument is
   accepted on both paths so a single `forest_stats` container can be
   re-rendered for different exposure metrics.
 
-* `df_forest()` is draws-only: the replicate-aggregation path is the
-  function's sole purpose. Arguments for an externally pre-summarized
-  input (`est_var`, `lo_var`, `hi_var`) are removed; `replicate_var` is
-  required. Users with pre-summarized data from external pipelines build
+* `df_forest()` is draws-only: it aggregates every row of a
+  `(metric, covariate, level)` group, so no replicate index column is
+  needed. Users with pre-summarized data from external pipelines build
   a `forest_stats` container manually and render via
   `plot_build_forest()`.
 

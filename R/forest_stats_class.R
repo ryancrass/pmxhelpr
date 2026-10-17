@@ -27,11 +27,11 @@
 #' draws$VALUE <- rlnorm(nrow(draws), 0, 0.2)
 #' stats <- df_forest(
 #'   draws,
-#'   metric_name_var    = "METRIC",
-#'   cov_name_var  = "COV",
+#'   metric_name_var = "METRIC",
+#'   cov_name_var = "COV",
 #'   cov_level_var = "COVLVL",
-#'   metric_value_var     = "VALUE",
-#'   replicate_var = "REP"
+#'   metric_value_var = "VALUE",
+#'   cov_name_ref = NULL
 #' )
 #' is_forest_stats(stats)                  # TRUE
 #' is_forest_stats(as.data.frame(stats))   # FALSE -- coerced to plain frame
@@ -60,6 +60,14 @@ is_forest_stats <- function(x, strict = FALSE) {
 #' @method print forest_stats
 
 print.forest_stats <- function(x, ...) {
+  forest_stats_header(x)
+  cat("\n  stats body:\n")
+  print(x$stats, ...)
+  invisible(x)
+}
+
+
+forest_stats_header <- function(x) {
   cat("<forest_stats>\n")
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(x$stats), ncol(x$stats)))
@@ -69,8 +77,6 @@ print.forest_stats <- function(x, ...) {
               format(x$config$cov_level_var),
               format(x$config$statistic),
               format(x$config$ci)))
-  cat("\n  stats body:\n")
-  print(x$stats, ...)
   invisible(x)
 }
 
@@ -92,15 +98,7 @@ print.forest_stats <- function(x, ...) {
 #' @method summary forest_stats
 
 summary.forest_stats <- function(object, ...) {
-  cat("<forest_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(object$stats), ncol(object$stats)))
-  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
-              format(object$config$metric_name_var),
-              format(object$config$cov_name_var),
-              format(object$config$cov_level_var),
-              format(object$config$statistic),
-              format(object$config$ci)))
+  forest_stats_header(object)
   metric_name_var_str <- object$config$metric_name_var
   cov_level_var_str <- object$config$cov_level_var
   cat("\n  per-row:\n")

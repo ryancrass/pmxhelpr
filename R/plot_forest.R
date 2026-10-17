@@ -22,6 +22,53 @@ fmt_sig <- function(x, sigdigits) {
 }
 
 
+#' Internal helper: display order of a grouping column
+#'
+#' Factor levels when `x` is a factor (restricted to the levels present),
+#' otherwise order of first appearance.
+#'
+#' @param x Factor or atomic vector.
+#' @return Character vector of unique values in display order.
+#' @keywords internal
+level_order <- function(x) {
+  if (is.factor(x)) {
+    lv <- levels(x)
+    return(lv[lv %in% x])
+  }
+  unique(as.character(x))
+}
+
+
+#' Internal helper: top-to-bottom order of the rows within one forest panel
+#'
+#' @param labels Character; the unique `cov_level` labels in the panel.
+#' @param is_ref Logical the length of `labels`; `TRUE` for the dispersed
+#'    reference label.
+#' @param given Character; the order the input data declared for this
+#'    covariate (factor levels, or first appearance), from [level_order()].
+#' @param from_factor Logical; whether `given` came from factor levels.
+#'
+#' @return `labels` reordered top to bottom. Factor levels win when they
+#'    cover every label (so the caller controls placement, including the
+#'    reference label). Otherwise labels that start with a number sort
+#'    ascending (so e.g. `50 kg` sits above `90 kg` and a `70 kg`
+#'    reference lands between them); any other set keeps the reference label
+#'    on top followed by the data order.
+#' @keywords internal
+order_panel_labels <- function(labels, is_ref, given, from_factor) {
+  if (from_factor && all(labels %in% given)) {
+    return(labels[order(match(labels, given))])
+  }
+  nums <- suppressWarnings(as.numeric(
+    sub("^[^0-9]*?([0-9]*\\.?[0-9]+).*$", "\\1", labels)
+  ))
+  if (all(!is.na(nums))) {
+    return(labels[order(nums, match(labels, given))])
+  }
+  c(labels[is_ref], labels[!is_ref][order(match(labels[!is_ref], given))])
+}
+
+
 #' Compute Summary Statistics for Covariate Forest Plots
 #'
 #' @description
@@ -29,12 +76,18 @@ fmt_sig <- function(x, sigdigits) {
 #' container suitable for a covariate forest plots. Returns a [pmx_stats()]
 #' container with class `c("forest_stats", "pmx_stats")` and three slots:
 #'
-#'   + `stats` (per-row summary frame with canonical `est`, `lo`, `hi`, `ci_label`
-#'      columns),
+#'   + `stats` (plot-ready frame: one row per plotted point, in display order,
+#'      with canonical `est`, `lo`, `hi`, `ci_label`, and `is_ref` columns),
 #'   + `obs` (always `NULL`; no scatter overlay),
 #'   + `config` (column names + CI configuration)
 #'
-#' @param data Input data.frame. Replicate level long format dataset.
+#' All data shaping happens here: the reference row is dispersed into each
+#' covariate panel (when `cov_level_ref` is supplied) and the rows are sorted
+#' into the order [plot_build_forest()] draws them, top to bottom. Reorder the
+#' rows of `stats$stats` to change the plotted order.
+#'
+#' @param data Input data.frame. Replicate level long format dataset: one row
+#'    per metric, covariate, covariate level, and replicate.
 #' @param metric_name_var Column in `data` contain metric variable names.
 #'    Accepts bare names or strings. Default is `metric`.
 #' @param cov_name_var Column in `data` containing covariate variable names.
@@ -45,8 +98,6 @@ fmt_sig <- function(x, sigdigits) {
 #' @param metric_value_var Column in `data` containing replicate draws of the
 #'    test/reference comparison statistic.
 #'    Accepts bare names or strings. Default `value`.
-#' @param replicate_var Column in `data` indexing the replicate (e.g.,
-#'    Accepts bare names or strings. Default is `SIM`.
 #' @param statistic Central-tendency statistic.
 #'    One of `"median"` (default), `"mean"`, or `"geo_mean"`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
@@ -55,68 +106,70 @@ fmt_sig <- function(x, sigdigits) {
 #'    `ci_label` column. Trailing zeros are kept so every value carries
 #'    `sigdigits` digits (`"1.00 [0.950, 1.05]"`). Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
-#'    `cov_name_var` column. Rows whose `cov_name_var` value equals
-#'    Default is `"Reference"` (matches the bundled `data_sad_pkforest`
-#'    convention).
+#'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
+#'    `data_sad_pkforest` convention). Reference rows draw through the
+#'    `ref_point` style role and sort to the top of the plot (standalone
+#'    panel) or are dispersed into each covariate panel (see
+#'    `cov_level_ref`). `NULL` marks no row as the reference.
 #'    Not to be confused with `ref` in [plot_build_forest()] / [plot_forest()],
-#'    which is the numeric value of the x-intercept for the verticle reference line.
+#'    which is the numeric value of the x-intercept for the vertical reference line.
 #' @param cov_level_ref Optional named vector mapping `cov_name_var`
-#'    values to the per-covariate reference label to display when the
-#'    reference row is dispersed into each panel (see [plot_build_forest()]).
-#'    Default is `NULL` (Reference row renders in its own facet at the top).
-#'    `df_forest()` builds the canonical `cov_ref` column inside
-#'    `stats$stats` from this mapping; names absent from `cov_level_ref`
-#'    receive `NA` (those panels show no dispersed Reference row). The
-#'    mapping is stored in `config$cov_level_ref` for the renderer.
+#'    values to the per-covariate reference label (e.g.
+#'    `c(FOOD = "Fasted", WTBL = "70 kg")`). When supplied, the
+#'    `cov_name_ref` row of each metric is copied into every named covariate
+#'    that is present in `data` under that label (flagged `is_ref = TRUE`),
+#'    and the standalone reference panel is dropped. Covariates not named
+#'    show no reference row. Requires a non-`NULL` `cov_name_ref` and at
+#'    least one matching row. Default is `NULL` (the reference renders in
+#'    its own panel at the top).
 #'
-#'    Alternative input mode: if `data` already carries a `cov_ref` column,
-#'    it is used directly (per-row reference labels) and `cov_level_ref` is
-#'    ignored with an informational `message()`. This is the preferred form
-#'    when reference labels can't be reduced to a single value per
-#'    `cov_name_var`.
+#' @section Row order:
+#' Rows of `stats$stats` are sorted into display order, top to bottom:
+#' metrics and covariates follow their factor levels when the input columns
+#' are factors, otherwise their order of first appearance in `data`, with the
+#' standalone reference covariate moved first. Within a covariate, factor
+#' levels of `cov_level_var` win when they cover every label (including a
+#' dispersed reference label); otherwise labels that start with a number sort
+#' ascending (`50 kg` above `90 kg`), and any other set puts the reference
+#' label on top followed by the data order.
 #'
 #' @family forest plot
 #' @return A `forest_stats` container (subclass of `pmx_stats`) with three
 #'    slots:
 #'    \describe{
-#'      \item{`stats`}{One row per `(metric × cov_name × cov_level)` group
-#'        with columns named in `metric_name_var` / `cov_name_var` /
+#'      \item{`stats`}{One row per plotted point, in display order, with
+#'        character columns named in `metric_name_var` / `cov_name_var` /
 #'        `cov_level_var`, canonical numeric columns `est`, `lo`, `hi`,
-#'        and the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`).
-#'        The `cov_name_var` value drives the per-row facet strip; the
-#'        `cov_level_var` value drives the y-axis tick label;
+#'        the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`), and
+#'        the logical `is_ref`. The `cov_name_var` value drives the per-row
+#'        facet strip; the `cov_level_var` value drives the y-axis tick label;
 #'        [plot_build_forest()] renders `ci_label` as the right-hand
 #'        secondary y-axis text.}
 #'      \item{`obs`}{`NULL`. No scatter overlay for the forest family.}
 #'      \item{`config`}{Named list with column names, `statistic`, `ci`,
-#'        and `sigdigits`.}
+#'        `sigdigits`, `cov_name_ref`, and `cov_level_ref`.}
 #'    }
 #'    Pass directly to [plot_forest()] or [plot_build_forest()] to render.
 #' @export df_forest
 #'
 #' @examples
 #' # Aggregate replicate simulations to point estimate + 90% CI
-#' df_forest(
-#'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
-#'   replicate_var = "SIM"
-#' )
+#' df_forest(dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)))
 #'
 #' # Custom reference level (default is "Reference")
-#' df_forest(data_sad_pkforest, replicate_var = "SIM", cov_name_ref = "Reference")
+#' df_forest(data_sad_pkforest, cov_name_ref = "Reference")
 #'
 #' # Per-covariate reference labels (dispersed Reference in each panel)
 #' df_forest(
 #'   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-#'   replicate_var = "SIM",
 #'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #'
-#' # Alternative input: per-row `cov_ref` column already attached to `data`
+#' # Control the row order with factor levels on the input
 #' d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
-#' d$cov_ref <- c(FOOD = "Fasted", WTBL = "70 kg", Reference = NA)[
-#'   as.character(d$cov_var)
-#' ]
-#' df_forest(d, replicate_var = "SIM")
+#' d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",
+#'                                           "50 kg", "70 kg", "90 kg"))
+#' df_forest(d, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 
 df_forest <- function(
   data,
@@ -124,7 +177,6 @@ df_forest <- function(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  replicate_var = "SIM",
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -135,38 +187,34 @@ df_forest <- function(
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
   cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
-  replicate_var_str <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
 
   check_df(data, "data")
   check_forest_args(statistic, ci, sigdigits, cov_name_ref)
   check_cov_level_ref(cov_level_ref)
-  check_varsindf(
-    data,
-    c(metric_name_var_str, cov_name_var_str, cov_level_var_str),
-    "data",
-    "metric_name_var/cov_name_var/cov_level_var"
-  )
-
-  check_varsindf(
-    data,
-    c(metric_value_var_str, replicate_var_str),
-    "data",
-    "metric_value_var/replicate_var"
-  )
-
-  if ("cov_ref" %in% colnames(data)) {
-    if (!is.null(cov_level_ref)) {
-      message(
-        "Inheriting per-row `cov_ref` from `cov_ref` column in `data`; ignoring `cov_level_ref` argument."
-      )
-      cov_level_ref <- NULL
-    }
-    data$cov_ref <- as.character(data$cov_ref)
-  } else if (!is.null(cov_level_ref)) {
-    data$cov_ref <- as.character(unname(
-      cov_level_ref[as.character(data[[cov_name_var_str]])]
+  if (!is.null(cov_level_ref) && is.null(cov_name_ref)) {
+    rlang::abort(message = paste0(
+      "argument `cov_level_ref` requires a non-NULL `cov_name_ref` ",
+      "identifying the reference row to disperse."
     ))
   }
+  check_varsindf(
+    data,
+    c(metric_name_var_str, cov_name_var_str, cov_level_var_str, metric_value_var_str),
+    "data",
+    "metric_name_var/cov_name_var/cov_level_var/metric_value_var"
+  )
+
+  ## Display order is read from the input before `summarise()` sorts the groups.
+  metric_order <- level_order(data[[metric_name_var_str]])
+  cov_order <- level_order(data[[cov_name_var_str]])
+  cov_name_chr <- as.character(data[[cov_name_var_str]])
+  level_from_factor <- is.factor(data[[cov_level_var_str]])
+  ## Full factor levels (not just those present) so a dispersed reference
+  ## label the factor declares still places by its level.
+  level_given <- lapply(stats::setNames(nm = cov_order), function(cn) {
+    x <- data[[cov_level_var_str]][cov_name_chr == cn]
+    if (level_from_factor) levels(x) else unique(as.character(x))
+  })
 
   probs <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
   stats_fn <- switch(
@@ -176,50 +224,78 @@ df_forest <- function(
     geo_mean = function(x) exp(mean(log(x), na.rm = TRUE))
   )
 
-  grp_vars <- c(
-    metric_name_var_str,
-    cov_name_var_str,
-    cov_level_var_str,
-    if ("cov_ref" %in% colnames(data)) "cov_ref"
-  )
+  grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str)
   stats <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grp_vars))) |>
     dplyr::summarise(
       est = stats_fn(.data[[metric_value_var_str]]),
-      lo = unname(stats::quantile(
-        .data[[metric_value_var_str]],
-        probs[1],
-        na.rm = TRUE
-      )),
-      hi = unname(stats::quantile(
-        .data[[metric_value_var_str]],
-        probs[2],
-        na.rm = TRUE
-      )),
+      lo = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
+      hi = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
       .groups = "drop"
-    )
+    ) |>
+    as.data.frame()
+  for (v in grp_vars) stats[[v]] <- as.character(stats[[v]])
 
-  stats <- stats |>
-    dplyr::mutate(
-      ci_label = paste0(
-        fmt_sig(.data$est, sigdigits),
-        " [",
-        fmt_sig(.data$lo, sigdigits),
-        ", ",
-        fmt_sig(.data$hi, sigdigits),
-        "]"
-      )
+  ## Reference rows: dispersed into each named covariate panel under its
+  ## `cov_level_ref` label, or flagged in place as the standalone panel.
+  stats$is_ref <- FALSE
+  if (!is.null(cov_level_ref)) {
+    is_ref_row <- stats[[cov_name_var_str]] == cov_name_ref
+    if (!any(is_ref_row)) {
+      rlang::abort(message = paste0(
+        "cannot disperse `", cov_name_ref, "` row: no rows with `",
+        cov_name_var_str, " == \"", cov_name_ref, "\"` were found in `data`."
+      ))
+    }
+    targets <- intersect(names(cov_level_ref), cov_order)
+    ref_rows <- stats[is_ref_row, , drop = FALSE]
+    synth <- ref_rows[rep(seq_len(nrow(ref_rows)), times = length(targets)), , drop = FALSE]
+    synth[[cov_name_var_str]] <- rep(targets, each = nrow(ref_rows))
+    synth[[cov_level_var_str]] <- rep(as.character(cov_level_ref[targets]), each = nrow(ref_rows))
+    synth$is_ref <- TRUE
+    stats <- rbind(stats[!is_ref_row, , drop = FALSE], synth)
+    cov_order <- setdiff(cov_order, cov_name_ref)
+  } else if (!is.null(cov_name_ref)) {
+    stats$is_ref <- stats[[cov_name_var_str]] == cov_name_ref
+    cov_order <- c(intersect(cov_name_ref, cov_order), setdiff(cov_order, cov_name_ref))
+  }
+
+  ## Sort into display order (top to bottom): metric, covariate, then the
+  ## per-panel label order.
+  level_rank <- integer(nrow(stats))
+  for (cn in cov_order) {
+    in_panel <- stats[[cov_name_var_str]] == cn
+    labels <- unique(stats[[cov_level_var_str]][in_panel])
+    ordered <- order_panel_labels(
+      labels,
+      is_ref = labels %in% stats[[cov_level_var_str]][in_panel & stats$is_ref],
+      given = level_given[[cn]],
+      from_factor = level_from_factor
     )
+    level_rank[in_panel] <- match(stats[[cov_level_var_str]][in_panel], ordered)
+  }
+  stats <- stats[order(
+    match(stats[[metric_name_var_str]], metric_order),
+    match(stats[[cov_name_var_str]], cov_order),
+    level_rank
+  ), , drop = FALSE]
+  rownames(stats) <- NULL
+
+  stats$ci_label <- paste0(
+    fmt_sig(stats$est, sigdigits), " [",
+    fmt_sig(stats$lo, sigdigits), ", ",
+    fmt_sig(stats$hi, sigdigits), "]"
+  )
+  stats <- stats[, c(grp_vars, "est", "lo", "hi", "ci_label", "is_ref")]
 
   pmx_stats(
-    stats = as.data.frame(stats),
+    stats = stats,
     obs = NULL,
     config = list(
       metric_name_var = metric_name_var_str,
       cov_name_var = cov_name_var_str,
       cov_level_var = cov_level_var_str,
       metric_value_var = metric_value_var_str,
-      replicate_var = replicate_var_str,
       statistic = statistic,
       ci = ci,
       sigdigits = sigdigits,
@@ -251,7 +327,7 @@ validate_forest_stats <- function(x) {
     )
   }
   validate_pmx_stats(x)
-  required_cols <- c("est", "lo", "hi", "ci_label")
+  required_cols <- c("est", "lo", "hi", "ci_label", "is_ref")
   missing_cols <- setdiff(required_cols, colnames(x$stats))
   if (length(missing_cols) > 0) {
     rlang::abort(paste0(
@@ -260,14 +336,8 @@ validate_forest_stats <- function(x) {
     ))
   }
   required_config <- c(
-    "metric_name_var",
-    "cov_name_var",
-    "cov_level_var",
-    "statistic",
-    "ci",
-    "sigdigits",
-    "cov_name_ref",
-    "cov_level_ref"
+    "metric_name_var", "cov_name_var", "cov_level_var",
+    "statistic", "ci", "sigdigits"
   )
   missing_config <- setdiff(required_config, names(x$config))
   if (length(missing_config) > 0) {
@@ -278,16 +348,9 @@ validate_forest_stats <- function(x) {
   }
   check_varsindf(
     x$stats,
-    x$config$metric_name_var,
+    c(x$config$metric_name_var, x$config$cov_name_var, x$config$cov_level_var),
     "stats",
-    "config$metric_name_var"
-  )
-  check_varsindf(x$stats, x$config$cov_name_var, "stats", "config$cov_name_var")
-  check_varsindf(
-    x$stats,
-    x$config$cov_level_var,
-    "stats",
-    "config$cov_level_var"
+    "config$metric_name_var/cov_name_var/cov_level_var"
   )
   invisible(x)
 }
@@ -304,7 +367,12 @@ validate_forest_stats <- function(x) {
 #' under a header built from the container's `statistic` and `ci` (e.g.
 #' `"Median [90% CI]"`), so each row's estimate sits beside its point.
 #'
-#' Reference rows (the dispersed per-covariate reference label, or the
+#' Rows are drawn in the order they appear in `stats$stats`, top to bottom
+#' (see the "Row order" section of [df_forest()]); reorder that frame to
+#' change the plot. Each row is its own y position, so covariate level
+#' labels may repeat across panels (`Low` / `High` under two covariates).
+#'
+#' Rows flagged `is_ref` (the dispersed per-covariate reference label, or the
 #' standalone `cov_name_ref` panel) draw through the `ref_point` style role
 #' (an open circle by default) and show the point estimate alone in the
 #' estimate column, since their CI collapses onto the estimate.
@@ -332,12 +400,11 @@ validate_forest_stats <- function(x) {
 #' @param ref Numeric scalar specifying the x-intercept for the
 #'    vertical reference line. Default `1` (the ratio-scale no-effect
 #'    value). Pass `NULL` to suppress the reference line. Distinct from
-#'    `cov_name_ref` in [df_forest()], which identifies the reference row to
-#'    sort to the top of the plot.
+#'    `cov_name_ref` in [df_forest()], which identifies the reference row.
 #' @param ref_band Length-2 numeric vector giving the shaded equivalence
 #'    interval (e.g., `c(0.8, 1.25)` for bioequivalence). Default `NULL`
 #'    (no shaded band).
-#' @param metric Character scalar identifying which row of `metric_name_var` to
+#' @param metric Character scalar identifying which value of `metric_name_var` to
 #'    render. `plot_forest()` renders one metric per call (no metric
 #'    facet); the covariate name is the only facet dimension. If `NULL`
 #'    (default) and `stats$stats` contains exactly one unique value of
@@ -355,7 +422,7 @@ validate_forest_stats <- function(x) {
 #' @examples
 #' stats <- df_forest(
 #'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
-#'   replicate_var = "SIM"
+#'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #' plot_build_forest(stats, metric = "AUCRATIO")
 #' plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
@@ -386,297 +453,80 @@ plot_build_forest <- function(
   if (!is.null(ref)) {
     check_numeric_strict(ref, "ref")
   }
+  plotstyle <- resolve_style(style, style_forest)
 
   metric_name_var_str <- stats$config$metric_name_var
   cov_name_var_str <- stats$config$cov_name_var
   cov_level_var_str <- stats$config$cov_level_var
-  cov_name_ref <- stats$config$cov_name_ref
-  disperse_ref <- "cov_ref" %in% colnames(stats$stats)
 
-  if (disperse_ref && is.null(cov_name_ref)) {
-    rlang::abort(
-      message = paste0(
-        "cannot disperse the reference row when `cov_name_ref` is NULL. ",
-        "Set a non-NULL `cov_name_ref` in `df_forest()`, or remove the `cov_ref` ",
-        "column from `data` / omit `cov_level_ref`."
-      )
-    )
-  }
+  metric_col <- as.character(stats$stats[[metric_name_var_str]])
+  metric <- check_forest_metric(metric, unique(metric_col), metric_name_var_str)
+  plot_data <- stats$stats[metric_col == metric, , drop = FALSE]
+  rownames(plot_data) <- NULL
 
-  plotstyle <- resolve_style(style, style_forest)
-
-  plot_data <- stats$stats
-
-  metric_values <- unique(as.character(plot_data[[metric_name_var_str]]))
-  if (is.null(metric)) {
-    if (length(metric_values) != 1L) {
-      rlang::abort(
-        message = paste0(
-          "argument `metric` is required when `stats$stats` contains multiple values of `",
-          metric_name_var_str,
-          "` (",
-          paste(metric_values, collapse = ", "),
-          "). ",
-          "Pass `metric = <one of the listed values>` to pick which to render."
-        )
-      )
-    }
-    metric <- metric_values
-  } else {
-    if (
-      !is.character(metric) ||
-        length(metric) != 1L ||
-        is.na(metric) ||
-        !nzchar(metric)
-    ) {
-      rlang::abort(
-        message = "argument `metric` must be a single non-empty character string, or `NULL`"
-      )
-    }
-    if (!metric %in% metric_values) {
-      rlang::abort(
-        message = paste0(
-          "argument `metric` (",
-          metric,
-          ") not found in `",
-          metric_name_var_str,
-          "`. Available: ",
-          paste(metric_values, collapse = ", ")
-        )
-      )
-    }
-    plot_data <- plot_data[
-      as.character(plot_data[[metric_name_var_str]]) == metric,
-      ,
-      drop = FALSE
-    ]
-  }
-
-  ## `is_ref` flags the rows drawn through the `ref_point` role: the
-  ## synthesized dispersed reference rows, or the standalone reference panel.
-  plot_data$is_ref <- FALSE
-
-  if (disperse_ref) {
-    ref_rows <- plot_data[
-      as.character(plot_data[[cov_name_var_str]]) == cov_name_ref,
-      ,
-      drop = FALSE
-    ]
-    if (nrow(ref_rows) == 0L) {
-      rlang::abort(
-        message = paste0(
-          "cannot disperse `",
-          cov_name_ref,
-          "` row: no rows with `",
-          cov_name_var_str,
-          " == \"",
-          cov_name_ref,
-          "\"` were found for metric `",
-          metric,
-          "`."
-        )
-      )
-    }
-    ref_row <- ref_rows[1L, , drop = FALSE]
-    non_ref <- plot_data[
-      as.character(plot_data[[cov_name_var_str]]) != cov_name_ref,
-      ,
-      drop = FALSE
-    ]
-
-    cov_names_non_ref <- unique(as.character(non_ref[[cov_name_var_str]]))
-    synth_rows_list <- list()
-    for (cn in cov_names_non_ref) {
-      vals <- unique(non_ref$cov_ref[
-        as.character(non_ref[[cov_name_var_str]]) == cn
-      ])
-      vals <- vals[!is.na(vals)]
-      if (length(vals) == 0L) {
-        next
-      }
-      if (length(vals) > 1L) {
-        rlang::abort(
-          message = paste0(
-            "covariate `",
-            cn,
-            "` has multiple distinct `cov_ref` values (",
-            paste(vals, collapse = ", "),
-            "). ",
-            "Each non-`",
-            cov_name_ref,
-            "` covariate must declare a single reference label."
-          )
-        )
-      }
-      row <- ref_row
-      row[[cov_name_var_str]] <- cn
-      row[[cov_level_var_str]] <- vals
-      row$is_ref <- TRUE
-      synth_rows_list[[cn]] <- row
-    }
-    synth_rows <- if (length(synth_rows_list)) {
-      do.call(rbind, synth_rows_list)
-    } else {
-      ref_row[FALSE, , drop = FALSE]
-    }
-    plot_data <- rbind(synth_rows, non_ref)
-  } else if (!is.null(cov_name_ref)) {
-    plot_data$is_ref <-
-      as.character(plot_data[[cov_name_var_str]]) == cov_name_ref
-  }
-
-  cov_names_unique <- unique(as.character(plot_data[[cov_name_var_str]]))
-  if (
-    !disperse_ref &&
-      !is.null(cov_name_ref) &&
-      cov_name_ref %in% cov_names_unique
-  ) {
-    cov_names_ordered <- c(
-      cov_name_ref,
-      setdiff(cov_names_unique, cov_name_ref)
-    )
-  } else {
-    cov_names_ordered <- cov_names_unique
-  }
-
-  plot_data[[cov_level_var_str]] <- as.character(plot_data[[cov_level_var_str]])
-
-  # Per-panel y-axis ordering: parse cov_level as numeric when possible
-  # (so e.g. WTBL levels "50 kg"/"70 kg"/"90 kg" sort ascending → 90 on top of
-  # the discrete y-axis). Falls back to reverse-data-encounter order for
-  # categorical labels (so e.g. FOOD "Fasted" stays above "Fed").
-  y_levels <- character(0)
-  for (cn in cov_names_ordered) {
-    panel_labels <- unique(
-      plot_data[[cov_level_var_str]][
-        as.character(plot_data[[cov_name_var_str]]) == cn
-      ]
-    )
-    if (length(panel_labels) == 0L) {
-      next
-    }
-    nums <- suppressWarnings(as.numeric(gsub(
-      "[^0-9.eE+\\-]",
-      "",
-      panel_labels
-    )))
-    if (all(!is.na(nums))) {
-      panel_order <- panel_labels[order(nums)]
-    } else {
-      panel_order <- rev(panel_labels)
-    }
-    y_levels <- c(y_levels, panel_order)
-  }
-  plot_data[[cov_level_var_str]] <- factor(
-    plot_data[[cov_level_var_str]],
-    levels = y_levels
-  )
-
-  plot_data[[cov_name_var_str]] <- factor(
-    plot_data[[cov_name_var_str]],
-    levels = cov_names_ordered
-  )
-
+  ## Rows draw top to bottom in `stats$stats` order. `.row` is the y key, one
+  ## level per row, so cov_level labels may repeat across panels; the axis
+  ## text is supplied positionally in level order (bottom to top).
+  row_ids <- as.character(seq_len(nrow(plot_data)))
+  plot_data$.row <- factor(row_ids, levels = rev(row_ids))
+  cov_levels <- unique(as.character(plot_data[[cov_name_var_str]]))
+  plot_data[[cov_name_var_str]] <- factor(plot_data[[cov_name_var_str]], levels = cov_levels)
   test_data <- plot_data[!plot_data$is_ref, , drop = FALSE]
   ref_data <- plot_data[plot_data$is_ref, , drop = FALSE]
 
   ## Per-covariate coloring: `colors` entries keyed by a covariate name present
   ## in the plotted data switch point/errorbar color to a covariate mapping.
-  ## The palette is ordered by the covariate levels so it also maps correctly
-  ## positionally.
-  cov_levels <- levels(plot_data[[cov_name_var_str]])
   has_panel_color <- !is.function(plotstyle$colors) &&
     any(cov_levels %in% names(plotstyle$colors))
-  panel_colors <- if (has_panel_color) {
-    plotstyle$colors[cov_levels[cov_levels %in% names(plotstyle$colors)]]
-  } else {
-    NULL
-  }
-
-  if (has_panel_color) {
-    eb_mapping <- ggplot2::aes(
-      xmin = .data[["lo"]],
-      xmax = .data[["hi"]],
-      color = .data[[cov_name_var_str]]
-    )
-    pt_mapping <- ggplot2::aes(color = .data[[cov_name_var_str]])
-  } else {
-    eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]])
-    pt_mapping <- NULL
-  }
+  pt_mapping <- if (has_panel_color) ggplot2::aes(color = .data[[cov_name_var_str]])
+  eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]], !!!pt_mapping)
 
   ## geom_blank() trains every panel's y scale (and the covariate colour
-  ## scale, when mapped) on the full data first, so the level order set above
-  ## survives the subset point layers that follow: discrete limits otherwise
-  ## accrue in layer order.
+  ## scale, when mapped) on the full data first, so the row order set above
+  ## survives the subset point layers that follow.
   base <- ggplot2::ggplot(
     plot_data,
-    ggplot2::aes(x = .data[["est"]], y = .data[[cov_level_var_str]])
+    ggplot2::aes(x = .data[["est"]], y = .data[[".row"]])
   ) +
     ggplot2::geom_blank(pt_mapping)
 
-  band_label <- "Reference band"
-  line_label <- "Reference line"
-
-  ## The equivalence band is an annotation, not a data layer, so its fill and
-  ## alpha are read from the style inline (as the VPC ribbons are); inline
-  ## aesthetics take precedence in style_plot(). Under `show_legend` the fill
-  ## is instead mapped to a label on a manual scale so the band joins the
-  ## legend; style_plot() preserves manual scales already present.
+  ## The equivalence band is an annotation keyed to a manual fill scale, so
+  ## its fill comes from the style's `ref_band` role; the scale's guide is
+  ## what toggles the legend entry. style_plot() preserves manual scales.
   if (!is.null(ref_band)) {
     rb <- series_aes(plotstyle, "ref_band")
-    if (isTRUE(show_legend)) {
-      base <- base +
-        ggplot2::geom_rect(
-          data = data.frame(
-            band = band_label,
-            xmin = ref_band[1],
-            xmax = ref_band[2],
-            ymin = -Inf,
-            ymax = Inf
-          ),
-          mapping = ggplot2::aes(
-            xmin = .data[["xmin"]],
-            xmax = .data[["xmax"]],
-            ymin = .data[["ymin"]],
-            ymax = .data[["ymax"]],
-            fill = .data[["band"]]
-          ),
-          inherit.aes = FALSE,
-          alpha = rb$alpha %||% 0.3,
-          color = NA
-        ) +
-        ggplot2::scale_fill_manual(
-          name = NULL,
-          values = stats::setNames(rb$fill %||% "grey80", band_label)
-        )
-    } else {
-      base <- base +
-        ggplot2::annotate(
-          "rect",
-          xmin = ref_band[1],
-          xmax = ref_band[2],
-          ymin = -Inf,
-          ymax = Inf,
-          fill = rb$fill %||% "grey80",
-          alpha = rb$alpha %||% 0.3,
-          color = NA
-        )
-    }
+    band_guide <- if (isTRUE(show_legend)) "legend" else "none"
+    base <- base +
+      ggplot2::geom_rect(
+        data = data.frame(
+          key = "Reference band",
+          xmin = ref_band[1], xmax = ref_band[2], ymin = -Inf, ymax = Inf
+        ),
+        mapping = ggplot2::aes(
+          xmin = .data[["xmin"]], xmax = .data[["xmax"]],
+          ymin = .data[["ymin"]], ymax = .data[["ymax"]],
+          fill = .data[["key"]]
+        ),
+        inherit.aes = FALSE,
+        alpha = rb$alpha %||% 0.3,
+        color = NA
+      ) +
+      ggplot2::scale_fill_manual(
+        name = NULL,
+        values = c("Reference band" = rb$fill %||% "grey80"),
+        guide = band_guide
+      )
   }
 
-  ## The reference line follows the same pattern as the LLOQ line in
-  ## add_loq_layer_style(): a tagged role layer by default, or a linetype
-  ## mapped to a label on a manual scale when it should join the legend.
+  ## The reference line is a tagged `ref_line` role layer by default (so it
+  ## restyles), or a linetype mapped to a label on a manual scale when it
+  ## should join the legend (as the LLOQ line does in add_loq_layer_style()).
   if (!is.null(ref)) {
     if (isTRUE(show_legend)) {
       rl <- series_aes(plotstyle, "ref_line")
       vargs <- compact(list(
-        data = data.frame(line = line_label, ref = ref),
-        mapping = ggplot2::aes(
-          xintercept = .data[["ref"]],
-          linetype = .data[["line"]]
-        ),
+        data = data.frame(key = "Reference line", ref = ref),
+        mapping = ggplot2::aes(xintercept = .data[["ref"]], linetype = .data[["key"]]),
         color = rl$colour,
         linewidth = rl$linewidth,
         alpha = rl$alpha
@@ -685,14 +535,11 @@ plot_build_forest <- function(
         do.call(ggplot2::geom_vline, vargs) +
         ggplot2::scale_linetype_manual(
           name = NULL,
-          values = stats::setNames(rl$linetype %||% "dashed", line_label)
+          values = c("Reference line" = rl$linetype %||% "dashed")
         )
     } else {
       base <- base +
-        ggstylekit::series_layer(
-          ggplot2::geom_vline(xintercept = ref),
-          "ref_line"
-        )
+        ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
     }
   }
 
@@ -714,28 +561,18 @@ plot_build_forest <- function(
       fill = series_aes(plotstyle, "ref_point")$fill
     ))
     base <- base +
-      ggstylekit::series_layer(
-        do.call(ggplot2::geom_point, rp_args),
-        "ref_point"
-      )
+      ggstylekit::series_layer(do.call(ggplot2::geom_point, rp_args), "ref_point")
   }
 
-  ## The estimate column is the secondary y-axis: one label per y level, in
-  ## level order (a labels *function* would receive only the first panel's
-  ## breaks under free y scales, and out-of-order breaks reorder the panel).
-  ## Reference rows show the estimate alone.
-  y_levels_all <- levels(plot_data[[cov_level_var_str]])
-  row_labels <- ifelse(
+  ## Left axis: the covariate level labels. Right axis: the estimate column
+  ## (reference rows show the estimate alone), under a header ("Median
+  ## [90% CI]") drawn as the plot tag pinned to the top-right of the plot
+  ## area (a secondary-axis *title* would land beside the labels instead).
+  est_labels <- ifelse(
     plot_data$is_ref,
     fmt_sig(plot_data$est, stats$config$sigdigits),
     plot_data$ci_label
   )
-  axis_labels <- row_labels[
-    match(y_levels_all, as.character(plot_data[[cov_level_var_str]]))
-  ]
-  ## The column header ("Median [90% CI]") is the plot tag pinned to the
-  ## top-right corner of the plot area (a secondary-axis *title* would land in
-  ## its own column to the right of the labels instead of above them).
   stat_label <- switch(
     stats$config$statistic,
     median = "Median",
@@ -746,26 +583,26 @@ plot_build_forest <- function(
   header <- paste0(stat_label, " [", format(stats$config$ci * 100), "% CI]")
   base <- base +
     ggplot2::scale_y_discrete(
+      breaks = rev(row_ids),
+      labels = rev(as.character(plot_data[[cov_level_var_str]])),
       sec.axis = ggplot2::dup_axis(
         name = NULL,
-        breaks = y_levels_all,
-        labels = axis_labels
+        breaks = rev(row_ids),
+        labels = rev(est_labels)
       )
     ) +
-    ggplot2::labs(tag = header)
-
-  ## The covariate row facet is built here (switch = "y" pairs with the forest
-  ## panel theme's outside strips), so ggstylekit's own facet path is bypassed.
-  base <- base +
+    ## The covariate row facet is built here (switch = "y" pairs with the
+    ## forest panel theme's outside strips), bypassing ggstylekit's facet path.
     ggplot2::facet_grid(
       rows = ggplot2::vars(!!rlang::sym(cov_name_var_str)),
       scales = "free_y",
       space = "free_y",
       switch = "y"
     ) +
-    ggplot2::labs(x = NULL, y = NULL, title = metric)
+    ggplot2::labs(x = NULL, y = NULL, title = metric, tag = header)
 
   if (has_panel_color) {
+    panel_colors <- plotstyle$colors[intersect(cov_levels, names(plotstyle$colors))]
     missing <- setdiff(cov_levels, names(panel_colors))
     if (length(missing) > 0) {
       rlang::warn(paste0(
@@ -774,8 +611,6 @@ plot_build_forest <- function(
         ". These covariates will render in grey50."
       ))
     }
-    ## style_plot() preserves a manual color scale that is already present
-    ## (breaks, na.value, and guide), so the covariate palette is set here.
     base <- base +
       ggplot2::scale_color_manual(
         values = panel_colors,
@@ -801,7 +636,7 @@ plot_build_forest <- function(
 #'   settings.
 #'
 #' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
-#' `cov_level_var`, `metric_value_var`, `replicate_var`, `statistic`, `ci`,
+#' `cov_level_var`, `metric_value_var`, `statistic`, `ci`,
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
@@ -809,12 +644,6 @@ plot_build_forest <- function(
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
-#' @param metric Character scalar identifying which row of `metric_name_var` to
-#'    render. `plot_forest()` renders one metric per call (no metric
-#'    facet); the covariate name is the only facet dimension. If `NULL`
-#'    (default) and `stats$stats` contains exactly one unique value of
-#'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
-#'    are present, aborts and asks the caller to pick one.
 #' @inheritParams df_forest
 #' @inheritParams plot_build_forest
 #'
@@ -826,13 +655,13 @@ plot_build_forest <- function(
 #' # Raw-data path: one metric per call
 #' plot_forest(
 #'   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-#'   replicate_var = "SIM"
+#'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #'
 #' # Precomputed path: compute once, render different metrics from the same stats
 #' stats <- df_forest(
 #'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
-#'   replicate_var = "SIM"
+#'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #' plot_forest(stats, metric = "AUCRATIO")
 #' plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
@@ -850,7 +679,6 @@ plot_forest <- function(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  replicate_var = NULL,
   statistic = "median",
   ci = 0.9,
   sigdigits = 3,
@@ -869,35 +697,25 @@ plot_forest <- function(
       ),
       fn_name = "plot_forest"
     )
-    return(plot_build_forest(
+    stats <- data
+  } else {
+    metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
+    cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
+    cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
+    metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
+    stats <- df_forest(
       data,
-      style = style,
-      ref = ref,
-      ref_band = ref_band,
-      metric = metric,
-      show_legend = show_legend
-    ))
+      metric_name_var = metric_name_var_str,
+      cov_name_var = cov_name_var_str,
+      cov_level_var = cov_level_var_str,
+      metric_value_var = metric_value_var_str,
+      statistic = statistic,
+      ci = ci,
+      sigdigits = sigdigits,
+      cov_name_ref = cov_name_ref,
+      cov_level_ref = cov_level_ref
+    )
   }
-
-  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
-  cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
-  cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
-  replicate_var_str <- resolve_var(rlang::enquo(replicate_var), nullable = TRUE)
-
-  stats <- df_forest(
-    data,
-    metric_name_var = metric_name_var_str,
-    cov_name_var = cov_name_var_str,
-    cov_level_var = cov_level_var_str,
-    metric_value_var = metric_value_var_str,
-    replicate_var = replicate_var_str,
-    statistic = statistic,
-    ci = ci,
-    sigdigits = sigdigits,
-    cov_name_ref = cov_name_ref,
-    cov_level_ref = cov_level_ref
-  )
 
   plot_build_forest(
     stats,

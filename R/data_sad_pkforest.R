@@ -10,7 +10,7 @@
 #'   \item{cov_var}{Covariate column name (values: `Reference`, `FOOD`, `WTBL`)}
 #'   \item{cov_var_desc}{Covariate description corresponding to `cov_var` (values: `Reference`, `Food`, `Weight`)}
 #'   \item{cov_val}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `90 kg`)}
-#'   \item{cov_ref}{Per-row reference label for dispersal in [plot_forest()] (values: `NA` for `Reference` rows, `"Fasted"` for `FOOD` rows, `"70 kg"` for `WTBL` rows). Consumed by [df_forest()] when present on `data`; in that case `cov_level_ref` is ignored with an informational message.}
+#'   \item{cov_ref}{Reference level of the covariate varied in this row (values: `NA` for `Reference` rows, `"Fasted"` for `FOOD` rows, `"70 kg"` for `WTBL` rows). Informational; pass the same mapping to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to disperse the reference row into each covariate panel.}
 #' }
 #' @source simulated
 "data_sad_pkforest"

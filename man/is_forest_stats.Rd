@@ -34,11 +34,11 @@ draws <- expand.grid(
 draws$VALUE <- rlnorm(nrow(draws), 0, 0.2)
 stats <- df_forest(
   draws,
-  metric_name_var    = "METRIC",
-  cov_name_var  = "COV",
+  metric_name_var = "METRIC",
+  cov_name_var = "COV",
   cov_level_var = "COVLVL",
-  metric_value_var     = "VALUE",
-  replicate_var = "REP"
+  metric_value_var = "VALUE",
+  cov_name_ref = NULL
 )
 is_forest_stats(stats)                  # TRUE
 is_forest_stats(as.data.frame(stats))   # FALSE -- coerced to plain frame

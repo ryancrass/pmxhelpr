@@ -29,11 +29,13 @@
 #' The forest family (`forest_panel = TRUE`) inverts the gridline orientation:
 #' it keeps `panel.grid.major.x` as a faint ruler aligned with the point
 #' estimates and blanks `panel.grid.major.y` (the `facet_grid()` rows group the
-#' y-axis by covariate name instead), uses a transparent panel with a thin grey
-#' border, and styles the covariate row strips for `switch = "y"`: placed
-#' outside the y-axis, no background fill, bold horizontal text right-aligned
-#' to the panel. The right-hand secondary y-axis carries the estimate column
-#' (left-aligned grey text, no ticks) and the plot tag is its bold header,
+#' y-axis by covariate name instead). Panels are transparent with a thin grey
+#' border and no vertical spacing, so the row facets stack into one frame
+#' with their shared borders acting as separator lines. The covariate row
+#' strips are styled for `switch = "y"`: placed outside the y-axis, no
+#' background fill, bold horizontal text right-aligned to the panel. The
+#' right-hand secondary y-axis carries the estimate column (left-aligned text
+#' at the axis text size, no ticks) and the plot tag is its bold header,
 #' pinned to the top-right corner of the plot area above the column.
 #'
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a white
@@ -46,7 +48,10 @@
 pmx_house_theme <- function(white_panel = FALSE, forest_panel = FALSE) {
   args <- list(panel.grid.minor = ggplot2::element_blank())
   if (isTRUE(forest_panel)) {
-    args$panel.background   <- ggplot2::element_rect(fill = NA, color = "grey80")
+    # Panels touch (no vertical spacing) so the shared borders read as
+    # separator lines inside one frame rather than as separate boxes.
+    args$panel.background   <- ggplot2::element_rect(fill = NA, color = "grey60")
+    args$panel.spacing.y    <- ggplot2::unit(0, "pt")
     args$panel.grid.major.x <- ggplot2::element_line(color = "grey85",
                                                      linewidth = 0.3)
     args$panel.grid.major.y <- ggplot2::element_blank()
@@ -55,14 +60,13 @@ pmx_house_theme <- function(white_panel = FALSE, forest_panel = FALSE) {
     args$strip.text.y.left  <- ggplot2::element_text(angle = 0, face = "bold",
                                                      hjust = 1)
     args$plot.title         <- ggplot2::element_text(face = "bold")
-    args$panel.spacing.y    <- ggplot2::unit(8, "pt")
-    # Secondary y-axis = the estimate column: left-aligned text, no ticks. Its
-    # header is the plot tag, pinned top-right over the column.
-    args$axis.text.y.right  <- ggplot2::element_text(hjust = 0, colour = "grey20",
-                                                     size = ggplot2::rel(0.9))
+    # Secondary y-axis = the estimate column: left-aligned text at full axis
+    # size, no ticks. Its header is the plot tag, pinned top-right over the
+    # column.
+    args$axis.text.y.right  <- ggplot2::element_text(hjust = 0)
     args$axis.ticks.y.right <- ggplot2::element_blank()
     args$plot.tag           <- ggplot2::element_text(face = "bold", hjust = 1,
-                                                     size = ggplot2::rel(0.9))
+                                                     size = ggplot2::rel(1))
     args$plot.tag.position  <- "topright"
     args$plot.tag.location  <- "plot"
   } else {

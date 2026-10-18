@@ -41,10 +41,10 @@ layers.
 The builder draws the covariate row facet itself (\code{facet_grid(rows = cov_name, switch = "y")}), so the \verb{facet*} fields are ignored, and it sets
 the plot title to the rendered metric unless the \code{title} field is supplied.
 The house theme uses the forest panel variant of \code{theme_bw()}: a faint
-vertical ruler, no horizontal gridlines, bold covariate strips placed
-outside the y-axis, and the estimate column as right-hand axis text under a
-bold header (style them through \verb{theme = } with \code{axis.text.y.right} and
-\code{plot.tag}). \code{legend.position} is \code{"bottom"}, used only when
+vertical ruler, no horizontal gridlines, covariate panels stacked without
+spacing into one frame, bold covariate strips placed outside the y-axis,
+and the estimate column as right-hand axis text under a bold header (style
+them through \verb{theme = } with \code{axis.text.y.right} and \code{plot.tag}). \code{legend.position} is \code{"bottom"}, used only when
 \code{plot_forest(show_legend = TRUE)}. Set \code{logx = TRUE} for a log x-axis.
 }
 \examples{

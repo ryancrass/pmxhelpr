@@ -375,7 +375,9 @@ validate_forest_stats <- function(x) {
 #' Rows flagged `is_ref` (the dispersed per-covariate reference label, or the
 #' standalone `cov_name_ref` panel) draw through the `ref_point` style role
 #' (an open circle by default) and show the point estimate alone in the
-#' estimate column, since their CI collapses onto the estimate.
+#' estimate column, since their CI collapses onto the estimate. A row whose
+#' level label repeats its covariate name (the standalone reference panel)
+#' gets an empty tick label, since the strip already carries the name.
 #'
 #' Returns a plain `ggplot` object so callers can compose additional layers,
 #' themes, and scales with the standard `+` operator.
@@ -564,10 +566,14 @@ plot_build_forest <- function(
       ggstylekit::series_layer(do.call(ggplot2::geom_point, rp_args), "ref_point")
   }
 
-  ## Left axis: the covariate level labels. Right axis: the estimate column
-  ## (reference rows show the estimate alone), under a header ("Median
-  ## [90% CI]") drawn as the plot tag pinned to the top-right of the plot
-  ## area (a secondary-axis *title* would land beside the labels instead).
+  ## Left axis: the covariate level labels, blanked where the level repeats
+  ## the covariate name (the strip already says it, e.g. a standalone
+  ## Reference panel). Right axis: the estimate column (reference rows show
+  ## the estimate alone), under a header ("Median [90% CI]") drawn as the
+  ## plot tag pinned to the top-right of the plot area (a secondary-axis
+  ## *title* would land beside the labels instead).
+  level_labels <- as.character(plot_data[[cov_level_var_str]])
+  level_labels[level_labels == as.character(plot_data[[cov_name_var_str]])] <- ""
   est_labels <- ifelse(
     plot_data$is_ref,
     fmt_sig(plot_data$est, stats$config$sigdigits),
@@ -584,7 +590,7 @@ plot_build_forest <- function(
   base <- base +
     ggplot2::scale_y_discrete(
       breaks = rev(row_ids),
-      labels = rev(as.character(plot_data[[cov_level_var_str]])),
+      labels = rev(level_labels),
       sec.axis = ggplot2::dup_axis(
         name = NULL,
         breaks = rev(row_ids),

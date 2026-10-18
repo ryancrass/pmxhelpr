@@ -278,10 +278,10 @@ style_vpc <- function(...) {
 #' cov_name, switch = "y")`), so the `facet*` fields are ignored, and it sets
 #' the plot title to the rendered metric unless the `title` field is supplied.
 #' The house theme uses the forest panel variant of `theme_bw()`: a faint
-#' vertical ruler, no horizontal gridlines, bold covariate strips placed
-#' outside the y-axis, and the estimate column as right-hand axis text under a
-#' bold header (style them through `theme = ` with `axis.text.y.right` and
-#' `plot.tag`). `legend.position` is `"bottom"`, used only when
+#' vertical ruler, no horizontal gridlines, covariate panels stacked without
+#' spacing into one frame, bold covariate strips placed outside the y-axis,
+#' and the estimate column as right-hand axis text under a bold header (style
+#' them through `theme = ` with `axis.text.y.right` and `plot.tag`). `legend.position` is `"bottom"`, used only when
 #' `plot_forest(show_legend = TRUE)`. Set `logx = TRUE` for a log x-axis.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
@@ -305,13 +305,15 @@ style_vpc <- function(...) {
 style_forest <- function(...) {
   defaults <- list(
     colors     = c(point = "black", errorbar = "black", ref_point = "black",
-                   ref_line = "grey40"),
+                   ref_line = "grey30"),
     fill       = c(ref_point = "white", ref_band = "grey80"),
     shapes     = c(point = 16, ref_point = 21),
-    sizes      = c(point = 2.5, ref_point = 2.5),
+    # Markers outweigh the CI line so the estimate reads first even when the
+    # interval is narrow.
+    sizes      = c(point = 3.2, ref_point = 3.2),
     alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
                    ref_band = 0.3),
-    linewidths = c(errorbar = 0.7, ref_line = 0.5),
+    linewidths = c(errorbar = 0.6, ref_line = 0.6),
     linetypes  = c(errorbar = "solid", ref_line = "dashed"),
     # Legend (only drawn under `show_legend = TRUE`) below the panels, titles
     # above the keys: the house look for bottom/top legends.

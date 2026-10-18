@@ -359,8 +359,8 @@ test_that("style_forest() returns a style_spec with the forest roles", {
   expect_equal(unname(st$linetypes["ref_line"]), "dashed")
   expect_equal(unname(st$shapes["ref_point"]), 21)
   expect_equal(unname(st$fill["ref_point"]), "white")
-  expect_equal(unname(st$sizes["point"]), 2.5)
-  expect_equal(unname(st$linewidths["errorbar"]), 0.7)
+  expect_equal(unname(st$sizes["point"]), 3.2)
+  expect_equal(unname(st$linewidths["errorbar"]), 0.6)
   expect_equal(st$legend.position, "bottom")
 })
 
@@ -375,7 +375,7 @@ test_that("style_forest() colors carry no covariate entries by default; adding t
   expect_false(any(c("FOOD", "WTBL", "Reference") %in% names(style_forest()$colors)))
   st <- style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
   expect_equal(unname(st$colors["FOOD"]), "firebrick")
-  expect_equal(unname(st$colors["ref_line"]), "grey40")
+  expect_equal(unname(st$colors["ref_line"]), "grey30")
 })
 
 test_that("style_forest() theme uses the forest panel variant", {
@@ -384,6 +384,12 @@ test_that("style_forest() theme uses the forest panel variant", {
   expect_s3_class(th$strip.background, "element_blank")
   expect_s3_class(th$panel.grid.major.y, "element_blank")
   expect_s3_class(th$panel.grid.major.x, "element_line")
+  # panels stack into one frame: no vertical spacing, grey60 shared borders
+  expect_equal(as.numeric(th$panel.spacing.y), 0)
+  expect_equal(th$panel.background$colour, "grey60")
+  # estimate column text and header at full axis size
+  expect_null(th$axis.text.y.right$size)
+  expect_equal(unclass(th$plot.tag$size), 1)
 })
 
 
@@ -483,7 +489,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
   pt <- layer_of(p, "GeomPoint", 1L)
   ref_pt <- layer_of(p, "GeomPoint", 2L)
   expect_equal(pt$aes_params$shape, 16)
-  expect_equal(pt$aes_params$size, 2.5)
+  expect_equal(pt$aes_params$size, 3.2)
   expect_equal(pt$aes_params$colour, "black")
   expect_equal(ref_pt$aes_params$shape, 21)
   expect_equal(ref_pt$aes_params$fill, "white")
@@ -491,7 +497,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
   expect_true(all(ref_pt$data$is_ref))
   expect_setequal(ref_pt$data$cov_val, c("Fasted", "70 kg"))
   expect_false(any(pt$data$is_ref))
-  expect_equal(layer_of(p, "GeomLinerange")$aes_params$linewidth, 0.7)
+  expect_equal(layer_of(p, "GeomLinerange")$aes_params$linewidth, 0.6)
 })
 
 test_that("a standalone Reference panel draws through ref_point; no ref_point layer without a reference", {
@@ -499,6 +505,9 @@ test_that("a standalone Reference panel draws through ref_point; no ref_point la
   expect_equal(n_geom(p, "GeomPoint"), 2L)
   expect_equal(as.character(layer_of(p, "GeomPoint", 2L)$data$cov_var), "Reference")
   expect_equal(panel_labels(p, "y.sec")[[1]], "1.00")
+  # the tick label is blank where the level repeats the covariate name
+  expect_equal(panel_labels(p, "y")[[1]], "")
+  expect_equal(panel_labels(p, "y")[[2]], "Fed")
   p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL), metric = "AUCRATIO")
   expect_equal(n_geom(p2, "GeomPoint"), 1L)
 })
@@ -560,7 +569,7 @@ test_that("show_legend = TRUE maps the band and line to manual scales keyed for 
   vl <- layer_of(p, "GeomVline")
   expect_true("fill" %in% names(rect$mapping))
   expect_true("linetype" %in% names(vl$mapping))
-  expect_equal(vl$aes_params$colour, "grey40")
+  expect_equal(vl$aes_params$colour, "grey30")
   built <- ggplot2::ggplot_build(p)
   is_rect <- vapply(p$layers, function(L) inherits(L$geom, "GeomRect"), logical(1))
   is_vl <- vapply(p$layers, function(L) inherits(L$geom, "GeomVline"), logical(1))

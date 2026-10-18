@@ -26,11 +26,13 @@ white panel background with a thin black border.
 The forest family (\code{forest_panel = TRUE}) inverts the gridline orientation:
 it keeps \code{panel.grid.major.x} as a faint ruler aligned with the point
 estimates and blanks \code{panel.grid.major.y} (the \code{facet_grid()} rows group the
-y-axis by covariate name instead), uses a transparent panel with a thin grey
-border, and styles the covariate row strips for \code{switch = "y"}: placed
-outside the y-axis, no background fill, bold horizontal text right-aligned
-to the panel. The right-hand secondary y-axis carries the estimate column
-(left-aligned grey text, no ticks) and the plot tag is its bold header,
+y-axis by covariate name instead). Panels are transparent with a thin grey
+border and no vertical spacing, so the row facets stack into one frame
+with their shared borders acting as separator lines. The covariate row
+strips are styled for \code{switch = "y"}: placed outside the y-axis, no
+background fill, bold horizontal text right-aligned to the panel. The
+right-hand secondary y-axis carries the estimate column (left-aligned text
+at the axis text size, no ticks) and the plot tag is its bold header,
 pinned to the top-right corner of the plot area above the column.
 }
 \keyword{internal}

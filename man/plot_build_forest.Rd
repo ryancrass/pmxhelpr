@@ -68,7 +68,9 @@ labels may repeat across panels (\code{Low} / \code{High} under two covariates).
 Rows flagged \code{is_ref} (the dispersed per-covariate reference label, or the
 standalone \code{cov_name_ref} panel) draw through the \code{ref_point} style role
 (an open circle by default) and show the point estimate alone in the
-estimate column, since their CI collapses onto the estimate.
+estimate column, since their CI collapses onto the estimate. A row whose
+level label repeats its covariate name (the standalone reference panel)
+gets an empty tick label, since the strip already carries the name.
 
 Returns a plain \code{ggplot} object so callers can compose additional layers,
 themes, and scales with the standard \code{+} operator.

@@ -308,9 +308,9 @@ style_forest <- function(...) {
                    ref_line = "grey30"),
     fill       = c(ref_point = "white", ref_band = "grey80"),
     shapes     = c(point = 16, ref_point = 21),
-    # Markers outweigh the CI line so the estimate reads first even when the
+    # Compact markers; the thinner CI line keeps the estimate legible when the
     # interval is narrow.
-    sizes      = c(point = 3.2, ref_point = 3.2),
+    sizes      = c(point = 2.2, ref_point = 2.2),
     alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
                    ref_band = 0.3),
     linewidths = c(errorbar = 0.6, ref_line = 0.6),

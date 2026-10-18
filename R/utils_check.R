@@ -265,13 +265,24 @@ check_cov_level_ref <- function(cov_level_ref) {
   invisible(NULL)
 }
 
-check_ref_band <- function(ref_band) {
+check_ref <- function(ref) {
+  if (is.null(ref) || identical(ref, "reference")) return(invisible(NULL))
+  if (!is.numeric(ref) || length(ref) != 1L || is.na(ref)) {
+    rlang::abort(message = "argument `ref` must be a single numeric value, `\"reference\"`, or `NULL`")
+  }
+  invisible(NULL)
+}
+
+check_ref_band <- function(ref_band, ref_band_type = "absolute") {
   if (is.null(ref_band)) return(invisible(NULL))
   if (!is.numeric(ref_band) || length(ref_band) != 2L || any(is.na(ref_band))) {
     rlang::abort(message = "argument `ref_band` must be a length-2 numeric vector with no NAs")
   }
   if (ref_band[1] >= ref_band[2]) {
     rlang::abort(message = "argument `ref_band` must be ordered: ref_band[1] < ref_band[2]")
+  }
+  if (ref_band_type == "multiplicative" && any(ref_band <= 0)) {
+    rlang::abort(message = "argument `ref_band` must be positive when `ref_band_type = \"multiplicative\"`")
   }
   invisible(NULL)
 }

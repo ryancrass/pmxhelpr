@@ -21,7 +21,13 @@
   `forest_stats` frame, and each row is its own y position, so covariate
   level labels may repeat across panels. Select which exposure metric to
   render via the `metric` argument; if `stats` carries exactly one metric,
-  it is picked automatically.
+  it is picked automatically. The reference line defaults to
+  `ref = "reference"`, the estimate of the metric's reference row (`1` for
+  a ratio, the reference exposure for a raw metric); `ref_band` is placed
+  around it per `ref_band_type`: `"multiplicative"` (default,
+  `c(0.8, 1.25)` is bioequivalence on ratio and exposure scales),
+  `"additive"` (`c(-10, 10)` around a reference change for difference
+  metrics), or `"absolute"`.
 * `df_forest()` aggregates replicate draws into a plot-ready
   `forest_stats` / `pmx_stats` container: one row per plotted point with
   canonical `est`, `lo`, `hi`, `ci_label`, and `is_ref` columns, sorted
@@ -70,7 +76,8 @@
 
 * `plot_forest()` accepts the `forest_stats` container returned by
   `df_forest()` directly. Pass a precomputed result to skip aggregation
-  and re-plot with different `style`, `ref`, or `ref_band` settings.
+  and re-plot with different `style`, `ref`, `ref_band`, or
+  `ref_band_type` settings.
   Pipeline arguments (`metric_name_var`, `cov_name_var`, `cov_level_var`,
   `metric_value_var`, `statistic`, `ci`, `sigdigits`,
   `cov_name_ref`, `cov_level_ref`) cannot be honored on the precomputed

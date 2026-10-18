@@ -7,8 +7,9 @@
 plot_build_forest(
   stats,
   style = NULL,
-  ref = 1,
+  ref = "reference",
   ref_band = NULL,
+  ref_band_type = c("multiplicative", "additive", "absolute"),
   metric = NULL,
   show_legend = FALSE
 )
@@ -27,14 +28,26 @@ opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}
 column is axis text styled through the theme's \code{axis.text.y.right}
 element; its header is the plot tag (\code{plot.tag}).}
 
-\item{ref}{Numeric scalar specifying the x-intercept for the
-vertical reference line. Default \code{1} (the ratio-scale no-effect
-value). Pass \code{NULL} to suppress the reference line. Distinct from
+\item{ref}{The x-intercept of the vertical reference line: a numeric
+scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
+the estimate of the metric's reference row (the row flagged \code{is_ref};
+exactly \code{1} for a ratio metric, the reference exposure for a raw
+metric). With \code{"reference"} and no reference row in the plotted
+metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
-interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
+interval, read according to \code{ref_band_type}. Default \code{NULL}
 (no shaded band).}
+
+\item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
+\code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}
+is the bioequivalence band on a ratio or a raw exposure scale;
+\code{"additive"} draws \code{ref + ref_band}, so \code{c(-10, 10)} brackets a
+reference change of zero for a difference metric such as percent
+change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
+first two require a resolved \code{ref}; multiplicative limits must be
+positive.}
 
 \item{metric}{Character scalar identifying which value of \code{metric_name_var} to
 render. \code{plot_forest()} renders one metric per call (no metric
@@ -83,11 +96,17 @@ compatible columns and config.
 }
 \examples{
 stats <- df_forest(
-  dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
+  data_sad_pkforest,
   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
 plot_build_forest(stats, metric = "AUCRATIO")
 plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+# Raw exposure: the line sits at the reference exposure and the band is
+# 0.8 to 1.25 times it
+plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25))
+# Difference metric: an additive band around the reference estimate
+plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
+                  ref_band_type = "additive")
 # Per-covariate coloring via the style's `colors` map
 plot_build_forest(
   stats, metric = "AUCRATIO",

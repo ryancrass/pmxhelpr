@@ -399,13 +399,24 @@ validate_forest_stats <- function(x) {
 #'    opt into per-covariate coloring (see [style_forest()]). The estimate
 #'    column is axis text styled through the theme's `axis.text.y.right`
 #'    element; its header is the plot tag (`plot.tag`).
-#' @param ref Numeric scalar specifying the x-intercept for the
-#'    vertical reference line. Default `1` (the ratio-scale no-effect
-#'    value). Pass `NULL` to suppress the reference line. Distinct from
+#' @param ref The x-intercept of the vertical reference line: a numeric
+#'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
+#'    the estimate of the metric's reference row (the row flagged `is_ref`;
+#'    exactly `1` for a ratio metric, the reference exposure for a raw
+#'    metric). With `"reference"` and no reference row in the plotted
+#'    metric, a warning is issued and no line is drawn. Distinct from
 #'    `cov_name_ref` in [df_forest()], which identifies the reference row.
 #' @param ref_band Length-2 numeric vector giving the shaded equivalence
-#'    interval (e.g., `c(0.8, 1.25)` for bioequivalence). Default `NULL`
+#'    interval, read according to `ref_band_type`. Default `NULL`
 #'    (no shaded band).
+#' @param ref_band_type How `ref_band` is placed around the resolved `ref`:
+#'    `"multiplicative"` (default) draws `ref * ref_band`, so `c(0.8, 1.25)`
+#'    is the bioequivalence band on a ratio or a raw exposure scale;
+#'    `"additive"` draws `ref + ref_band`, so `c(-10, 10)` brackets a
+#'    reference change of zero for a difference metric such as percent
+#'    change from baseline; `"absolute"` draws `ref_band` as given. The
+#'    first two require a resolved `ref`; multiplicative limits must be
+#'    positive.
 #' @param metric Character scalar identifying which value of `metric_name_var` to
 #'    render. `plot_forest()` renders one metric per call (no metric
 #'    facet); the covariate name is the only facet dimension. If `NULL`
@@ -423,11 +434,17 @@ validate_forest_stats <- function(x) {
 #'
 #' @examples
 #' stats <- df_forest(
-#'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
+#'   data_sad_pkforest,
 #'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #' plot_build_forest(stats, metric = "AUCRATIO")
 #' plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
+#' # Raw exposure: the line sits at the reference exposure and the band is
+#' # 0.8 to 1.25 times it
+#' plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25))
+#' # Difference metric: an additive band around the reference estimate
+#' plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
+#'                   ref_band_type = "additive")
 #' # Per-covariate coloring via the style's `colors` map
 #' plot_build_forest(
 #'   stats, metric = "AUCRATIO",
@@ -445,16 +462,16 @@ validate_forest_stats <- function(x) {
 plot_build_forest <- function(
   stats,
   style = NULL,
-  ref = 1,
+  ref = "reference",
   ref_band = NULL,
+  ref_band_type = c("multiplicative", "additive", "absolute"),
   metric = NULL,
   show_legend = FALSE
 ) {
   validate_forest_stats(stats)
-  check_ref_band(ref_band)
-  if (!is.null(ref)) {
-    check_numeric_strict(ref, "ref")
-  }
+  check_ref(ref)
+  ref_band_type <- match.arg(ref_band_type)
+  check_ref_band(ref_band, ref_band_type)
   plotstyle <- resolve_style(style, style_forest)
 
   metric_name_var_str <- stats$config$metric_name_var
@@ -465,6 +482,39 @@ plot_build_forest <- function(
   metric <- check_forest_metric(metric, unique(metric_col), metric_name_var_str)
   plot_data <- stats$stats[metric_col == metric, , drop = FALSE]
   rownames(plot_data) <- NULL
+
+  ## `ref = "reference"` resolves to the metric's reference-row estimate (1
+  ## for a ratio, the reference exposure for a raw metric); the band is then
+  ## placed around that value according to `ref_band_type`.
+  if (identical(ref, "reference")) {
+    ref <- unique(plot_data$est[plot_data$is_ref])
+    if (length(ref) == 0L) {
+      rlang::warn(paste0(
+        "`ref = \"reference\"` but metric `", metric, "` has no reference row; ",
+        "no reference line is drawn. Pass a numeric `ref`, or set `cov_name_ref` in `df_forest()`."
+      ))
+      ref <- NULL
+    } else if (length(ref) > 1L) {
+      rlang::abort(message = paste0(
+        "metric `", metric, "` has multiple distinct reference-row estimates (",
+        paste(fmt_sig(ref, stats$config$sigdigits), collapse = ", "),
+        "); pass a numeric `ref`."
+      ))
+    }
+  }
+  if (!is.null(ref_band) && ref_band_type != "absolute") {
+    if (is.null(ref)) {
+      rlang::abort(message = paste0(
+        "`ref_band_type = \"", ref_band_type, "\"` needs a reference value; ",
+        "`ref` resolved to NULL. Pass a numeric `ref`, or use `ref_band_type = \"absolute\"`."
+      ))
+    }
+    ref_band <- switch(
+      ref_band_type,
+      multiplicative = ref * ref_band,
+      additive = ref + ref_band
+    )
+  }
 
   ## Rows draw top to bottom in `stats$stats` order. `.row` is the y key, one
   ## level per row, so cov_level labels may repeat across panels; the axis
@@ -639,14 +689,15 @@ plot_build_forest <- function(
 #'   one-shot mode; or
 #' * a precomputed `forest_stats` object returned by [df_forest()] — skip
 #'   the aggregation and replot with different `style` / `ref` / `ref_band`
-#'   settings.
+#'   / `ref_band_type` settings.
 #'
 #' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
 #' `cov_level_var`, `metric_value_var`, `statistic`, `ci`,
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
-#' `ref_band`, `metric`, and `show_legend` are accepted on both paths.
+#' `ref_band`, `ref_band_type`, `metric`, and `show_legend` are accepted on
+#' both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
@@ -666,11 +717,16 @@ plot_build_forest <- function(
 #'
 #' # Precomputed path: compute once, render different metrics from the same stats
 #' stats <- df_forest(
-#'   dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
+#'   data_sad_pkforest,
 #'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 #' )
 #' plot_forest(stats, metric = "AUCRATIO")
 #' plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
+#'
+#' # Raw exposure from the same stats: reference line at the reference
+#' # exposure, band at 0.8 to 1.25 times it (log x-axis keeps it symmetric)
+#' plot_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25),
+#'             style = style_forest(logx = TRUE))
 #'
 #' # Per-covariate coloring via the style's `colors` map
 #' plot_forest(
@@ -690,8 +746,9 @@ plot_forest <- function(
   sigdigits = 3,
   cov_name_ref = "Reference",
   cov_level_ref = NULL,
-  ref = 1,
+  ref = "reference",
   ref_band = NULL,
+  ref_band_type = c("multiplicative", "additive", "absolute"),
   style = NULL,
   show_legend = FALSE
 ) {
@@ -699,7 +756,8 @@ plot_forest <- function(
     check_pipeline_args_dropped(
       call = match.call(),
       plot_only_args = c(
-        "data", "style", "ref", "ref_band", "metric", "show_legend"
+        "data", "style", "ref", "ref_band", "ref_band_type", "metric",
+        "show_legend"
       ),
       fn_name = "plot_forest"
     )
@@ -728,6 +786,7 @@ plot_forest <- function(
     style = style,
     ref = ref,
     ref_band = ref_band,
+    ref_band_type = ref_band_type,
     metric = metric,
     show_legend = show_legend
   )

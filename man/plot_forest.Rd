@@ -16,8 +16,9 @@ plot_forest(
   sigdigits = 3,
   cov_name_ref = "Reference",
   cov_level_ref = NULL,
-  ref = 1,
+  ref = "reference",
   ref_band = NULL,
+  ref_band_type = c("multiplicative", "additive", "absolute"),
   style = NULL,
   show_legend = FALSE
 )
@@ -76,14 +77,26 @@ show no reference row. Requires a non-\code{NULL} \code{cov_name_ref} and at
 least one matching row. Default is \code{NULL} (the reference renders in
 its own panel at the top).}
 
-\item{ref}{Numeric scalar specifying the x-intercept for the
-vertical reference line. Default \code{1} (the ratio-scale no-effect
-value). Pass \code{NULL} to suppress the reference line. Distinct from
+\item{ref}{The x-intercept of the vertical reference line: a numeric
+scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
+the estimate of the metric's reference row (the row flagged \code{is_ref};
+exactly \code{1} for a ratio metric, the reference exposure for a raw
+metric). With \code{"reference"} and no reference row in the plotted
+metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
 \item{ref_band}{Length-2 numeric vector giving the shaded equivalence
-interval (e.g., \code{c(0.8, 1.25)} for bioequivalence). Default \code{NULL}
+interval, read according to \code{ref_band_type}. Default \code{NULL}
 (no shaded band).}
+
+\item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
+\code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}
+is the bioequivalence band on a ratio or a raw exposure scale;
+\code{"additive"} draws \code{ref + ref_band}, so \code{c(-10, 10)} brackets a
+reference change of zero for a difference metric such as percent
+change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
+first two require a resolved \code{ref}; multiplicative limits must be
+positive.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
@@ -111,7 +124,7 @@ Dual-mode wrapper that delegates to \code{\link[=df_forest]{df_forest()}} for ag
 one-shot mode; or
 \item a precomputed \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}} — skip
 the aggregation and replot with different \code{style} / \code{ref} / \code{ref_band}
-settings.
+/ \code{ref_band_type} settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
@@ -119,7 +132,8 @@ On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_n
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
-\code{ref_band}, \code{metric}, and \code{show_legend} are accepted on both paths.
+\code{ref_band}, \code{ref_band_type}, \code{metric}, and \code{show_legend} are accepted on
+both paths.
 }
 \examples{
 # Raw-data path: one metric per call
@@ -130,11 +144,16 @@ plot_forest(
 
 # Precomputed path: compute once, render different metrics from the same stats
 stats <- df_forest(
-  dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)),
+  data_sad_pkforest,
   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
 )
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
+
+# Raw exposure from the same stats: reference line at the reference
+# exposure, band at 0.8 to 1.25 times it (log x-axis keeps it symmetric)
+plot_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE))
 
 # Per-covariate coloring via the style's `colors` map
 plot_forest(

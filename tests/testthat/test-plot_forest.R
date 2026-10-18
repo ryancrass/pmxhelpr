@@ -359,7 +359,7 @@ test_that("style_forest() returns a style_spec with the forest roles", {
   expect_equal(unname(st$linetypes["ref_line"]), "dashed")
   expect_equal(unname(st$shapes["ref_point"]), 21)
   expect_equal(unname(st$fill["ref_point"]), "white")
-  expect_equal(unname(st$sizes["point"]), 3.2)
+  expect_equal(unname(st$sizes["point"]), 2.2)
   expect_equal(unname(st$linewidths["errorbar"]), 0.6)
   expect_equal(st$legend.position, "bottom")
 })
@@ -445,7 +445,7 @@ test_that("Covariate level labels may repeat across panels", {
   draws$VALUE <- stats::rlnorm(nrow(draws), 0, 0.2)
   stats <- df_forest(draws, metric_name_var = "METRIC", cov_name_var = "COV",
                      cov_level_var = "COVLVL", metric_value_var = "VALUE", cov_name_ref = NULL)
-  p <- plot_build_forest(stats)
+  p <- plot_build_forest(stats, ref = 1)
   expect_equal(panel_labels(p, "y"), list(c("High", "Low"), c("High", "Low")))
   s <- stats$stats
   expect_equal(panel_labels(p, "y.sec"),
@@ -489,7 +489,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
   pt <- layer_of(p, "GeomPoint", 1L)
   ref_pt <- layer_of(p, "GeomPoint", 2L)
   expect_equal(pt$aes_params$shape, 16)
-  expect_equal(pt$aes_params$size, 3.2)
+  expect_equal(pt$aes_params$size, 2.2)
   expect_equal(pt$aes_params$colour, "black")
   expect_equal(ref_pt$aes_params$shape, 21)
   expect_equal(ref_pt$aes_params$fill, "white")
@@ -508,7 +508,8 @@ test_that("a standalone Reference panel draws through ref_point; no ref_point la
   # the tick label is blank where the level repeats the covariate name
   expect_equal(panel_labels(p, "y")[[1]], "")
   expect_equal(panel_labels(p, "y")[[2]], "Fed")
-  p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL), metric = "AUCRATIO")
+  p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL),
+                          metric = "AUCRATIO", ref = 1)
   expect_equal(n_geom(p2, "GeomPoint"), 1L)
 })
 
@@ -530,12 +531,64 @@ test_that("ref_band = NULL produces no rect layer; setting it adds one styled fr
   expect_equal(unique(ggplot2::ggplot_build(p2)$data[[2]]$fill), "skyblue")
 })
 
-test_that("ref = NULL suppresses the vline; setting it adds a dashed ref_line role layer", {
+test_that("ref = NULL suppresses the vline; a numeric ref places it; the default resolves to the reference row", {
   stats <- df_forest(data_sad_pkforest)
   expect_false(has_geom(plot_build_forest(stats, metric = "AUCRATIO", ref = NULL), "GeomVline"))
-  p <- plot_build_forest(stats, metric = "AUCRATIO", ref = 1)
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref = 0.5)
   expect_true(has_geom(p, "GeomVline"))
   expect_equal(layer_of(p, "GeomVline")$aes_params$linetype, "dashed")
+  expect_equal(layer_of(p, "GeomVline")$data$xintercept, 0.5)
+  # default `ref = "reference"`: 1 for the ratio, the reference exposure for AUC
+  p_ratio <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_equal(layer_of(p_ratio, "GeomVline")$data$xintercept, 1)
+  ref_auc <- stats$stats$est[stats$stats$metric == "AUC" & stats$stats$is_ref]
+  p_auc <- plot_build_forest(stats, metric = "AUC")
+  expect_equal(layer_of(p_auc, "GeomVline")$data$xintercept, ref_auc)
+  # dispersed reference rows share one estimate and resolve the same way
+  stats_d <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
+  p_d <- plot_build_forest(stats_d, metric = "AUC")
+  expect_equal(layer_of(p_d, "GeomVline")$data$xintercept, ref_auc)
+})
+
+test_that("ref = \"reference\" with no reference row warns and draws no line", {
+  stats <- df_forest(data_sad_pkforest, cov_name_ref = NULL)
+  expect_warning(p <- plot_build_forest(stats, metric = "AUCRATIO"),
+                 regexp = "has no reference row")
+  expect_false(has_geom(p, "GeomVline"))
+  expect_error(
+    suppressWarnings(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))),
+    regexp = "needs a reference value"
+  )
+  expect_silent(p2 <- plot_build_forest(stats, metric = "AUCRATIO", ref = NULL))
+  expect_false(has_geom(p2, "GeomVline"))
+})
+
+test_that("ref_band_type places the band around the resolved ref", {
+  stats <- df_forest(data_sad_pkforest)
+  ref_auc <- stats$stats$est[stats$stats$metric == "AUC" & stats$stats$is_ref]
+  band_of <- function(p) unlist(layer_of(p, "GeomRect")$data[, c("xmin", "xmax")], use.names = FALSE)
+  # multiplicative (default): ratio scale is unchanged, raw scale scales with ref
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))),
+               c(0.8, 1.25))
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25))),
+               ref_auc * c(0.8, 1.25))
+  # additive
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
+                                         ref_band_type = "additive")),
+               ref_auc + c(-2000, 2000))
+  # absolute, with and without a reference line
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUC", ref_band = c(5000, 15000),
+                                         ref_band_type = "absolute")),
+               c(5000, 15000))
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUC", ref = NULL, ref_band = c(5000, 15000),
+                                         ref_band_type = "absolute")),
+               c(5000, 15000))
+  # a numeric ref anchors the band too
+  expect_equal(band_of(plot_build_forest(stats, metric = "AUC", ref = 10000, ref_band = c(0.5, 2))),
+               c(5000, 20000))
+  expect_error(plot_build_forest(stats, metric = "AUC", ref = NULL, ref_band = c(0.8, 1.25)),
+               regexp = "needs a reference value")
+  expect_error(plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25), ref_band_type = "nope"))
 })
 
 test_that("Error on malformed ref_band / ref", {
@@ -545,7 +598,11 @@ test_that("Error on malformed ref_band / ref", {
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(1.25, 0.8)),
                regexp = "must be ordered")
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref = "one"),
-               regexp = "argument `ref` must be class `numeric`")
+               regexp = "argument `ref` must be a single numeric value")
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref = c(1, 2)),
+               regexp = "argument `ref` must be a single numeric value")
+  expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(-0.2, 1.25)),
+               regexp = "must be positive when `ref_band_type = \"multiplicative\"`")
 })
 
 test_that("show_legend = FALSE (default) hides the band guide and adds no linetype scale", {
@@ -678,7 +735,7 @@ test_that("plot_forest() raw-data path returns a ggplot and forwards the pipelin
   expect_s3_class(p, "ggplot")
   expect_false("Reference" %in% p$data$cov_var)
   expect_setequal(p$data$cov_val[p$data$is_ref], c("Fasted", "70 kg"))
-  p2 <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_name_ref = NULL)
+  p2 <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_name_ref = NULL, ref = 1)
   expect_false(any(p2$data$is_ref))
 })
 
@@ -689,6 +746,19 @@ test_that("plot_forest() precomputed-stats path returns a ggplot and honors plot
                    ref = 0, ref_band = c(0.5, 2))
   expect_equal(layer_of(p, "GeomPoint")$aes_params$shape, 18)
   expect_true(has_geom(p, "GeomRect"))
+})
+
+test_that("plot_forest() forwards ref / ref_band_type on both paths", {
+  stats <- df_forest(data_sad_pkforest)
+  ref_auc <- stats$stats$est[stats$stats$metric == "AUC" & stats$stats$is_ref]
+  p1 <- plot_forest(stats, metric = "AUC", ref_band = c(-1000, 1000), ref_band_type = "additive")
+  p2 <- plot_forest(data_sad_pkforest, metric = "AUC", ref_band = c(-1000, 1000),
+                    ref_band_type = "additive")
+  for (p in list(p1, p2)) {
+    expect_equal(layer_of(p, "GeomVline")$data$xintercept, ref_auc)
+    expect_equal(unlist(layer_of(p, "GeomRect")$data[, c("xmin", "xmax")], use.names = FALSE),
+                 ref_auc + c(-1000, 1000))
+  }
 })
 
 test_that("plot_forest() aborts when pipeline args are passed on the precomputed path", {

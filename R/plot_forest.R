@@ -17,6 +17,8 @@ fmt_sig <- function(x, sigdigits) {
     flag = "#"
   )
   out <- sub("[.]$", "", trimws(out))
+  # formatC() cannot pad an exact zero to `sigdigits` digits ("0." -> "0").
+  out[!is.na(x) & x == 0] <- formatC(0, digits = sigdigits - 1L, format = "f")
   out[is.na(x)] <- NA_character_
   out
 }

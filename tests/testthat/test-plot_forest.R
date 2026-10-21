@@ -89,10 +89,11 @@ test_that("Aggregation needs no replicate column", {
   expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM"), "unused argument")
 })
 
-test_that("A `cov_ref` column on `data` is not consumed", {
-  with_col <- df_forest(data_sad_pkforest)
-  without  <- df_forest(dplyr::select(data_sad_pkforest, -cov_ref))
-  expect_equal(with_col$stats, without$stats)
+test_that("Extra columns on `data` are not consumed", {
+  d <- data_sad_pkforest
+  d$extra <- "x"
+  expect_equal(df_forest(d)$stats, df_forest(data_sad_pkforest)$stats)
+  expect_false("extra" %in% colnames(df_forest(d)$stats))
 })
 
 test_that("Config records column names and settings", {
@@ -133,6 +134,8 @@ test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA th
                c("1.00", "0.800", "23300", "9970", "2.33", NA))
   expect_equal(fmt_sig(1.5, 2), "1.5")
   expect_equal(fmt_sig(0.0001234, 3), "0.000123")
+  expect_equal(fmt_sig(c(0, -17.24), 3), c("0.00", "-17.2"))
+  expect_equal(fmt_sig(0, 1), "0")
 })
 
 

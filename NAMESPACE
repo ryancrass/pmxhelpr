@@ -48,10 +48,14 @@ export(style_vpc)
 export(var_addn)
 export(var_dosenorm)
 export(var_predcorr)
-importFrom(ggstylekit,combine_styled_plots)
-importFrom(ggstylekit,legend_spec)
-importFrom(ggstylekit,restyle_plot)
-importFrom(ggstylekit,reveal)
-importFrom(rlang,"%||%")
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(ggstylekit,
+  combine_styled_plots,
+  legend_spec,
+  restyle_plot,
+  reveal
+)
+importFrom(rlang,
+  "%||%",
+  ":=",
+  .data
+)

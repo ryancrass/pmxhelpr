@@ -106,7 +106,7 @@ data_gof <- data_sad_pkfit %>%
 
 ## `data_sad_pkforest`
 
-`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across four covariate scenarios (reference, fed, low body weight, high body weight). The `cov_ref` column records the reference level of each varied covariate (`Fasted` for `FOOD`, `70 kg` for `WTBL`); the same mapping is passed to `df_forest()` as `cov_level_ref` below.
+`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across six covariate scenarios (reference, fed, and 50, 60, 80, 90 kg body weight), built from the raw replicate output in `data_sad_pkforest_sim`. The reference scenario is fasted at 70 kg; that mapping is passed to `df_forest()` as `cov_level_ref` below.
 
 ```{r data-pkforest}
 glimpse(data_sad_pkforest)

@@ -1,3 +1,6 @@
+#####Load the development package (functions + inst/models via pkgload)#####
+devtools::load_all()
+
 #####Read model files#####
 
 ##Load Model Files
@@ -6,7 +9,7 @@ pkmod <- mrgsolve::mread(system.file(
   "pkmodel.cpp",
   package = "pmxhelpr"
 ))
-pkmod_th <- mrgsolve::param(pkmod)@data %>% as.data.frame()
+pkmod_th <- mrgsolve::param(pkmod)@data |> as.data.frame()
 pdmod <- mrgsolve::mread(system.file(
   "models",
   "pdmodel.cpp",
@@ -180,7 +183,7 @@ withr::with_seed(
 
 pd_data <- data_sad_pk |>
   dplyr::filter(CMT == 2) |>
-  dplyr::left_join(dplyr::select(pdsimout, LINE, IPRED, IPREDPK)) %>%
+  dplyr::left_join(dplyr::select(pdsimout, LINE, IPRED, IPREDPK)) |>
   dplyr::mutate(
     CMT = 3,
     CONC = ifelse(is.na(ODV), 0, ODV),
@@ -190,8 +193,8 @@ pd_data <- data_sad_pk |>
   ) |>
   dplyr::select(-IPRED, -IPREDPK)
 
-data_sad <- dplyr::bind_rows(data_sad_pk, pd_data) %>%
-  dplyr::arrange(ID, TIME, CMT) %>%
+data_sad <- dplyr::bind_rows(data_sad_pk, pd_data) |>
+  dplyr::arrange(ID, TIME, CMT) |>
   dplyr::select(ID:LDV, CFB, CONC, everything())
 
 
@@ -263,74 +266,109 @@ withr::with_seed(
   )
 )
 
-data_sad_pkfit <- data_sad_pk %>%
+data_sad_pkfit <- data_sad_pk |>
   dplyr::left_join(dplyr::select(pkfit, LINE, IPRED, PRED))
 
 usethis::use_data(data_sad_pkfit, overwrite = TRUE)
 
 
-#####Create `data_sad_pkforest` internal dataset of PK model parameters bootstrapped
+#####Create `data_sad_pkforest_sim` and `data_sad_pkforest` internal datasets#####
+## Forest plot replicate simulation: a typical individual (IIV zeroed) under
+## each covariate scenario receives 200 mg QD to steady state. Each replicate
+## runs all scenarios on its own parameter set, drawn by parametric bootstrap
+## from a multivariate normal defined by an assumed variance-covariance
+## matrix on the model's log typical values and covariate coefficients
+## (the structure of sampling from a model's covariance step).
 
-#Identify parameter set
-pkmod_th_expand <- pkmod_th[rep(1, 500), ]
+n_rep <- 500
 
-pkmod_th_expand <- lapply(pkmod_th_expand, function(x) {
-  if (is.numeric(x)) {
-    return(x * runif(length(x), 1 - 0.2, 1 + 0.2))
-  }
-  return(x)
-}) |>
-  as.data.frame() |>
-  dplyr::mutate(PARSET = 1, PARSET = cumsum(PARSET))
-
-# Identify simulation dataset
-forest_sim <- data.frame(
-  OID = 1:6,
-  TIME = 0,
-  AMT = 200,
-  CMT = 1,
-  EVID = 1,
-  WT = c(70, 70, 50, 60, 80, 90),
+## Scenario design table: one row per covariate condition, with the labels
+## `df_forest()` reads from `cov_var` / `cov_val`.
+forest_scn <- data.frame(
+  ID = 1:6,
+  WTBL = c(70, 70, 50, 60, 80, 90),
   FOOD = c(0, 1, 0, 0, 0, 0),
-  II = 24,
-  SS = 1
+  cov_var = c("Reference", "FOOD", rep("WTBL", 4)),
+  cov_val = c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg")
 )
 
-parset_grid <- data.frame(OID = 1, ID = 1:500) |>
-  dplyr::bind_rows(data.frame(OID = 2, ID = 1:500)) |>
-  dplyr::bind_rows(data.frame(OID = 3, ID = 1:500)) |>
-  dplyr::bind_rows(data.frame(OID = 4, ID = 1:500)) |>
-  dplyr::bind_rows(data.frame(OID = 5, ID = 1:500)) |>
-  dplyr::bind_rows(data.frame(OID = 6, ID = 1:500))
+## Parameter uncertainty: log typical values + natural-scale covariate
+## coefficients, assumed SEs and correlations -> variance-covariance matrix.
+tv_names <- c("TVCL", "TVVC", "TVKA", "TVQ", "TVVP")
+cov_names <- c("WT_CL", "WT_VC", "WT_Q", "WT_VP", "FOOD_KA", "FOOD_F1")
+theta <- c(log(unlist(pkmod_th[tv_names])), unlist(pkmod_th[cov_names]))
+theta_se <- c(
+  rep(0.10, length(tv_names)),
+  WT_CL = 0.15, WT_VC = 0.15, WT_Q = 0.15, WT_VP = 0.15,
+  FOOD_KA = 0.10, FOOD_F1 = 0.20
+)
+theta_corr <- diag(length(theta))
+dimnames(theta_corr) <- list(names(theta), names(theta))
+theta_corr["TVCL", "TVVC"] <- theta_corr["TVVC", "TVCL"] <- 0.3
+theta_corr["TVQ", "TVVP"] <- theta_corr["TVVP", "TVQ"] <- 0.3
+theta_corr["FOOD_KA", "FOOD_F1"] <- theta_corr["FOOD_F1", "FOOD_KA"] <- -0.2
+theta_vcov <- (theta_se %o% theta_se) * theta_corr
 
-forest_sim <- dplyr::left_join(parset_grid, forest_sim)
+withr::with_seed(
+  seed = 987654321,
+  forest_idata <- MASS::mvrnorm(n_rep, mu = theta, Sigma = theta_vcov) |>
+    as.data.frame()
+)
+forest_idata[tv_names] <- exp(forest_idata[tv_names])
+forest_idata <- dplyr::mutate(forest_idata, SIM = dplyr::row_number(), .before = 1)
+
+## Simulation input: every scenario x replicate is its own mrgsolve `ID`
+## (so the dose records never collide); the replicate `SIM` and scenario
+## `OID` ride along, and `idata` repeats each replicate's parameter set
+## under its scenario IDs.
+forest_sim <- tidyr::expand_grid(OID = forest_scn$ID, SIM = 1:n_rep) |>
+  dplyr::mutate(ID = dplyr::row_number(), .before = 1) |>
+  dplyr::left_join(dplyr::select(forest_scn, OID = ID, WT = WTBL, FOOD), by = "OID") |>
+  dplyr::mutate(
+    TIME = 0, AMT = 200, DOSE = 200, CMT = 1, EVID = 1, II = 24, SS = 1
+  )
+
+forest_idata_sim <- forest_sim |>
+  dplyr::select(ID, SIM) |>
+  dplyr::left_join(forest_idata, by = "SIM") |>
+  dplyr::select(-SIM)
 
 forest_grid <- mrgsolve::tgrid(start = 0, end = 24, delta = 0.1)
 
-# Run Simulation
 withr::with_seed(
   seed = 987654321,
   pkforest_fit <- mrgsolve::mrgsim_df(
     mrgsolve::zero_re(pkmod),
     data = forest_sim,
-    idata = pkmod_th_expand,
+    idata = forest_idata_sim,
     tgrid = forest_grid,
-    carry_out = c("FOOD", "WT", "DOSE", "OID"),
+    carry_out = c("SIM", "OID", "WT", "FOOD", "DOSE"),
     obsonly = TRUE
   )
 )
 
-# Post-process Simulation
-pkforest_sum <- pkforest_fit |>
-  dplyr::rename(SIM = ID, ID = OID, WTBL = WT) |>
-  dplyr::group_by(ID, SIM, WTBL, FOOD) |>
-  dplyr::summarize(
+## Raw replicate output: exposure metrics over the steady-state dosing
+## interval, one row per scenario x replicate.
+data_sad_pkforest_sim <- pkforest_fit |>
+  dplyr::select(-ID) |>
+  dplyr::rename(ID = OID, WTBL = WT) |>
+  dplyr::group_by(ID, SIM, WTBL, FOOD, DOSE) |>
+  dplyr::summarise(
     CMAX = max(IPRED),
     CMIN = dplyr::last(IPRED),
     AUC = PKNCA::pk.calc.auc.last(IPRED, TIME),
-    CAVG = AUC / 24
+    CAVG = AUC / 24,
+    .groups = "drop"
   ) |>
-  dplyr::ungroup() |>
+  dplyr::arrange(ID, SIM) |>
+  as.data.frame()
+
+usethis::use_data(data_sad_pkforest_sim, overwrite = TRUE)
+
+## Long replicate draws: within-replicate test/reference ratios against the
+## reference scenario (ID 1), pivoted to one row per metric with the
+## scenario labels joined.
+data_sad_pkforest <- data_sad_pkforest_sim |>
   dplyr::group_by(SIM) |>
   dplyr::mutate(
     CMAXRATIO = CMAX / CMAX[ID == 1],
@@ -338,25 +376,10 @@ pkforest_sum <- pkforest_fit |>
     AUCRATIO = AUC / AUC[ID == 1],
     CAVGRATIO = CAVG / CAVG[ID == 1]
   ) |>
-  dplyr::ungroup()
-
-#Pivot and Join Labels
-
-id_cov_lookup <- data.frame(
-  ID = c(1, 2, 3, 4, 5, 6),
-  cov_var = c("Reference", "FOOD", rep("WTBL", 4)),
-  cov_var_desc = c("Reference", "Food", rep("Weight", 4)),
-  cov_val = c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg"),
-  cov_ref = c(NA_character_, "Fasted", rep("70 kg", 4))
-)
-
-data_sad_pkforest <- pkforest_sum |>
-  tidyr::pivot_longer(
-    CMAX:CAVGRATIO,
-    names_to = "metric",
-    values_to = "value"
-  ) |>
-  dplyr::left_join(id_cov_lookup) |>
-  dplyr::ungroup()
+  dplyr::ungroup() |>
+  tidyr::pivot_longer(CMAX:CAVGRATIO, names_to = "metric", values_to = "value") |>
+  dplyr::left_join(dplyr::select(forest_scn, ID, cov_var, cov_val), by = "ID") |>
+  dplyr::select(ID, SIM, WTBL, FOOD, metric, value, cov_var, cov_val) |>
+  as.data.frame()
 
 usethis::use_data(data_sad_pkforest, overwrite = TRUE)

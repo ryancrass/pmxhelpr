@@ -14,7 +14,8 @@ df_forest(
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
-  cov_level_ref = NULL
+  cov_level_ref = NULL,
+  is_ref_var = "is_ref"
 )
 }
 \arguments{
@@ -51,6 +52,10 @@ width (e.g., \code{0.9} for 90\% CI).}
 \code{ref_point} style role and sort to the top of the plot (standalone
 panel) or are dispersed into each covariate panel (see
 \code{cov_level_ref}). \code{NULL} marks no row as the reference.
+Consulted only when no reference flag column is present (see
+\code{is_ref_var}), so \code{cov_name_ref = NULL} suppresses the reference row
+on the string path alone; pass \code{is_ref_var = NULL} as well to ignore a
+flag column.
 Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
 which is the numeric value of the x-intercept for the vertical reference line.}
 
@@ -63,6 +68,18 @@ and the standalone reference panel is dropped. Covariates not named
 show no reference row. Requires a non-\code{NULL} \code{cov_name_ref} and at
 least one matching row. Default is \code{NULL} (the reference renders in
 its own panel at the top).}
+
+\item{is_ref_var}{Column in \code{data} holding a logical reference flag, one
+value per draw, marking the rows of the reference scenario. Accepts
+bare names or strings; \code{NULL} disables the flag path. Default
+\code{is_ref}, the column \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} emits. When the named
+column is present it identifies the reference rows and \code{cov_name_ref}
+is not consulted; when the default name is absent the \code{cov_name_ref}
+string match is used instead; a non-default name that is absent is an
+error. The flag must be constant within a
+\verb{(metric, covariate, level)} group. A covariate whose rows are all
+flagged is a standalone reference panel, the flag-path equivalent of
+\code{cov_name_ref}.}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three
@@ -131,6 +148,7 @@ df_forest(d, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 }
 \seealso{
 Other forest plot:
+\code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},

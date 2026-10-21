@@ -5,17 +5,19 @@
 \alias{data_sad_pkforest}
 \title{Example Replicate-Draws Dataset for Forest Plots of PK Test/Reference Comparisons}
 \format{
-\subsection{\code{data.frame} a data frame with 24000 rows and 8 columns:}{
+\subsection{\code{data.frame} a data frame with 24000 rows and 10 columns:}{
 
 \describe{
 \item{ID}{Scenario identifier (values: 1=reference, 2=fed, 3=50 kg, 4=60 kg, 5=80 kg, 6=90 kg)}
 \item{SIM}{Replicate identifier (1-500 per scenario)}
 \item{WTBL}{Scenario body weight (units: kg; 70 kg for the reference)}
 \item{FOOD}{Scenario food status (values: 0=fasted, 1=high-fat meal)}
+\item{DOSE}{Dose (units: mg; 200 mg once daily in every scenario)}
 \item{metric}{PK exposure metric name: absolute (\code{CMAX}, \code{CMIN}, \code{AUC}, \code{CAVG}) or test/reference ratio (\code{CMAXRATIO}, \code{CMINRATIO}, \code{AUCRATIO}, \code{CAVGRATIO})}
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
 \item{cov_var}{Covariate varied in the scenario (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
 \item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to disperse the reference row into each covariate panel.}
+\item{is_ref}{Logical flag marking the reference-scenario rows. \code{\link[=df_forest]{df_forest()}} reads this column in preference to matching \code{cov_name_ref}.}
 }
 }
 }
@@ -29,10 +31,10 @@ data_sad_pkforest
 Long-format replicate draws of PK exposure metrics for a typical individual
 under six covariate scenarios, ready for \code{\link[=df_forest]{df_forest()}} / \code{\link[=plot_forest]{plot_forest()}}
 with their default column names (\code{metric}, \code{cov_var}, \code{cov_val}, \code{value}).
-Built from \link{data_sad_pkforest_sim} by dividing each metric by its value in
-the reference scenario (\code{ID == 1}) within the same replicate to form a
-test/reference ratio, then stacking the absolute and ratio metrics to one
-row per metric per scenario per replicate.
+Built from \link{data_sad_pkforest_sim} with \code{\link[=df_forest_preprocess]{df_forest_preprocess()}}, which
+divides each metric by its value in the reference scenario within the same
+replicate to form a test/reference ratio, then stacks the absolute and
+ratio metrics to one row per metric per scenario per replicate.
 }
 \details{
 Each scenario is a typical individual (inter-individual variability zeroed)
@@ -44,7 +46,16 @@ variance-covariance matrix (the structure of sampling from a model's
 covariance step). Exposure metrics are derived over the 24-hour dosing
 interval at steady state. See \code{data-raw/data_sad_raw.R}.
 }
+\section{Attributes}{
+
+Carries a \code{"cov_level_ref"} attribute, \code{c(FOOD = "Fasted", WTBL = "70 kg")},
+giving each varied covariate's reference level label. Pass it to
+\code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref} to disperse the reference row into every
+covariate panel.
+}
+
 \seealso{
-\link{data_sad_pkforest_sim} for the raw replicate output.
+\link{data_sad_pkforest_sim} for the raw replicate output,
+\code{\link[=df_forest_preprocess]{df_forest_preprocess()}} for the function that builds this frame.
 }
 \keyword{datasets}

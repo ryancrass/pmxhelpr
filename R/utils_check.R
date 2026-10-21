@@ -309,3 +309,91 @@ check_forest_metric <- function(metric, metric_values, metric_name_var_str) {
   }
   metric
 }
+
+
+check_character_vars <- function(x, name) {
+  if (!is.character(x) || length(x) == 0L) {
+    rlang::abort(message = paste0(
+      "argument `", name, "` must be a non-empty character vector of column names"
+    ))
+  }
+  if (any(is.na(x)) || any(!nzchar(x))) {
+    rlang::abort(message = paste0(
+      "argument `", name, "` must not contain `NA` or empty strings"
+    ))
+  }
+  if (anyDuplicated(x)) {
+    rlang::abort(message = paste0(
+      "argument `", name, "` has duplicate entries: ",
+      paste(unique(x[duplicated(x)]), collapse = ", ")
+    ))
+  }
+  invisible(NULL)
+}
+
+check_cov_value_ref <- function(cov_value_ref, cov_vars) {
+  if (!is.vector(cov_value_ref) || is.list(cov_value_ref)) {
+    rlang::abort(message = "argument `cov_value_ref` must be a named atomic vector")
+  }
+  nms <- names(cov_value_ref)
+  if (length(cov_value_ref) == 0L || is.null(nms) ||
+      any(is.na(nms)) || any(!nzchar(nms))) {
+    rlang::abort(message = "argument `cov_value_ref` must be a non-empty named vector with non-empty names")
+  }
+  if (anyDuplicated(nms)) {
+    rlang::abort(message = paste0(
+      "argument `cov_value_ref` has duplicate names: ",
+      paste(unique(nms[duplicated(nms)]), collapse = ", ")
+    ))
+  }
+  missing_cov <- setdiff(cov_vars, nms)
+  if (length(missing_cov) > 0) {
+    rlang::abort(message = paste0(
+      "argument `cov_value_ref` is missing a reference value for: ",
+      paste(missing_cov, collapse = ", "),
+      ". One entry is required per `cov_vars` column."
+    ))
+  }
+  extra_cov <- setdiff(nms, cov_vars)
+  if (length(extra_cov) > 0) {
+    rlang::abort(message = paste0(
+      "argument `cov_value_ref` names columns that are not in `cov_vars`: ",
+      paste(extra_cov, collapse = ", ")
+    ))
+  }
+  invisible(NULL)
+}
+
+check_cov_labels <- function(cov_labels, cov_vars) {
+  if (is.null(cov_labels)) return(invisible(NULL))
+  if (!is.list(cov_labels) || is.null(names(cov_labels)) ||
+      any(is.na(names(cov_labels))) || any(!nzchar(names(cov_labels)))) {
+    rlang::abort(message = "argument `cov_labels` must be a named list (or `NULL`)")
+  }
+  if (anyDuplicated(names(cov_labels))) {
+    rlang::abort(message = paste0(
+      "argument `cov_labels` has duplicate names: ",
+      paste(unique(names(cov_labels)[duplicated(names(cov_labels))]), collapse = ", ")
+    ))
+  }
+  extra_cov <- setdiff(names(cov_labels), cov_vars)
+  if (length(extra_cov) > 0) {
+    rlang::abort(message = paste0(
+      "argument `cov_labels` names columns that are not in `cov_vars`: ",
+      paste(extra_cov, collapse = ", ")
+    ))
+  }
+  for (cn in names(cov_labels)) {
+    lab <- cov_labels[[cn]]
+    if (is.function(lab)) next
+    if (is.character(lab) && !is.null(names(lab)) &&
+        !any(is.na(names(lab))) && all(nzchar(names(lab)))) {
+      next
+    }
+    rlang::abort(message = paste0(
+      "element `", cn, "` of argument `cov_labels` must be a function or a ",
+      "named character vector keyed on the covariate values"
+    ))
+  }
+  invisible(NULL)
+}

@@ -124,6 +124,7 @@ plot_build_forest(stats, metric = "AUCRATIO") +
 \seealso{
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
+\code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_forest]{plot_forest()}},
 \code{\link[=style_forest]{style_forest()}}

@@ -282,14 +282,13 @@ usethis::use_data(data_sad_pkfit, overwrite = TRUE)
 
 n_rep <- 500
 
-## Scenario design table: one row per covariate condition, with the labels
-## `df_forest()` reads from `cov_var` / `cov_val`.
+## Scenario design table: one row per covariate condition. The covariate
+## columns alone define the scenarios; `df_forest_preprocess()` derives the
+## labels below.
 forest_scn <- data.frame(
   ID = 1:6,
   WTBL = c(70, 70, 50, 60, 80, 90),
-  FOOD = c(0, 1, 0, 0, 0, 0),
-  cov_var = c("Reference", "FOOD", rep("WTBL", 4)),
-  cov_val = c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg")
+  FOOD = c(0, 1, 0, 0, 0, 0)
 )
 
 ## Parameter uncertainty: log typical values + natural-scale covariate
@@ -366,20 +365,17 @@ data_sad_pkforest_sim <- pkforest_fit |>
 usethis::use_data(data_sad_pkforest_sim, overwrite = TRUE)
 
 ## Long replicate draws: within-replicate test/reference ratios against the
-## reference scenario (ID 1), pivoted to one row per metric with the
-## scenario labels joined.
-data_sad_pkforest <- data_sad_pkforest_sim |>
-  dplyr::group_by(SIM) |>
-  dplyr::mutate(
-    CMAXRATIO = CMAX / CMAX[ID == 1],
-    CMINRATIO = CMIN / CMIN[ID == 1],
-    AUCRATIO = AUC / AUC[ID == 1],
-    CAVGRATIO = CAVG / CAVG[ID == 1]
-  ) |>
-  dplyr::ungroup() |>
-  tidyr::pivot_longer(CMAX:CAVGRATIO, names_to = "metric", values_to = "value") |>
-  dplyr::left_join(dplyr::select(forest_scn, ID, cov_var, cov_val), by = "ID") |>
-  dplyr::select(ID, SIM, WTBL, FOOD, metric, value, cov_var, cov_val) |>
-  as.data.frame()
+## reference scenario, pivoted to one row per metric with the scenario
+## labels attached. Built with the package's own preprocessing function.
+data_sad_pkforest <- df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars = c("CMAX", "CMIN", "AUC", "CAVG"),
+  cov_vars = c("FOOD", "WTBL"),
+  cov_value_ref = c(FOOD = 0, WTBL = 70),
+  cov_labels = list(
+    FOOD = c("0" = "Fasted", "1" = "Fed"),
+    WTBL = function(x) paste(x, "kg")
+  )
+)
 
 usethis::use_data(data_sad_pkforest, overwrite = TRUE)

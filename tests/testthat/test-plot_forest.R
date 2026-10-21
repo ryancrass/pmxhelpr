@@ -188,9 +188,9 @@ test_that("df_forest() rejects malformed cov_level_ref", {
 })
 
 test_that("cov_level_ref requires a non-NULL cov_name_ref and a matching row", {
-  expect_error(df_forest(data_sad_pkforest, cov_level_ref = ref_map, cov_name_ref = NULL),
+  expect_error(df_forest(data_sad_pkforest, cov_level_ref = ref_map, cov_name_ref = NULL, is_ref_var = NULL),
                regexp = "requires a non-NULL `cov_name_ref`")
-  expect_error(df_forest(data_sad_pkforest, cov_level_ref = ref_map, cov_name_ref = "NOMATCH"),
+  expect_error(df_forest(data_sad_pkforest, cov_level_ref = ref_map, cov_name_ref = "NOMATCH", is_ref_var = NULL),
                regexp = "no rows with")
 })
 
@@ -201,12 +201,12 @@ test_that("Standalone reference: is_ref flags the cov_name_ref rows and they sor
   s <- df_forest(data_sad_pkforest)$stats
   expect_equal(s$is_ref, s$cov_var == "Reference")
   expect_equal(unique(s$cov_var), c("Reference", "FOOD", "WTBL"))
-  s_base <- df_forest(data_sad_pkforest, cov_name_ref = "Baseline")$stats
+  s_base <- df_forest(data_sad_pkforest, cov_name_ref = "Baseline", is_ref_var = NULL)$stats
   expect_false(any(s_base$is_ref))
 })
 
-test_that("cov_name_ref = NULL flags no reference and keeps data order", {
-  s <- df_forest(data_sad_pkforest, cov_name_ref = NULL)$stats
+test_that("cov_name_ref = NULL, is_ref_var = NULL flags no reference and keeps data order", {
+  s <- df_forest(data_sad_pkforest, cov_name_ref = NULL, is_ref_var = NULL)$stats
   expect_false(any(s$is_ref))
   expect_equal(unique(s$cov_var), unique(data_sad_pkforest$cov_var))
 })
@@ -257,7 +257,7 @@ test_that("Categorical labels keep first-appearance order from `data`, reference
                    cov_val = c("Normal", "Mild", "Moderate", "Severe"),
                    SIM = 1:20, stringsAsFactors = FALSE)
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
-  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_val,
+  expect_equal(df_forest(d, cov_name_ref = NULL, is_ref_var = NULL)$stats$cov_val,
                c("Normal", "Mild", "Moderate", "Severe"))
   s <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)$stats
   expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "FOOD"], c("Fasted", "Fed"))
@@ -269,7 +269,7 @@ test_that("Labels sharing a leading number fall back to data order", {
                    cov_val = c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"),
                    SIM = 1:20, stringsAsFactors = FALSE)
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
-  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_val,
+  expect_equal(df_forest(d, cov_name_ref = NULL, is_ref_var = NULL)$stats$cov_val,
                c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"))
 })
 
@@ -289,7 +289,7 @@ test_that("Factor levels on cov_name_var and metric_name_var control panel and m
   d <- data_sad_pkforest
   d$cov_var <- factor(d$cov_var, levels = c("WTBL", "FOOD", "Reference"))
   d$metric <- factor(d$metric, levels = rev(sort(unique(d$metric))))
-  s <- df_forest(d, cov_name_ref = NULL)$stats
+  s <- df_forest(d, cov_name_ref = NULL, is_ref_var = NULL)$stats
   expect_equal(unique(s$cov_var), c("WTBL", "FOOD", "Reference"))
   expect_equal(unique(s$metric), levels(d$metric))
   # the standalone reference still moves first
@@ -447,7 +447,7 @@ test_that("Covariate level labels may repeat across panels", {
                        REP = 1:50, stringsAsFactors = FALSE)
   draws$VALUE <- stats::rlnorm(nrow(draws), 0, 0.2)
   stats <- df_forest(draws, metric_name_var = "METRIC", cov_name_var = "COV",
-                     cov_level_var = "COVLVL", metric_value_var = "VALUE", cov_name_ref = NULL)
+                     cov_level_var = "COVLVL", metric_value_var = "VALUE", cov_name_ref = NULL, is_ref_var = NULL)
   p <- plot_build_forest(stats, ref = 1)
   expect_equal(panel_labels(p, "y"), list(c("High", "Low"), c("High", "Low")))
   s <- stats$stats
@@ -511,7 +511,7 @@ test_that("a standalone Reference panel draws through ref_point; no ref_point la
   # the tick label is blank where the level repeats the covariate name
   expect_equal(panel_labels(p, "y")[[1]], "")
   expect_equal(panel_labels(p, "y")[[2]], "Fed")
-  p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL),
+  p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL, is_ref_var = NULL),
                           metric = "AUCRATIO", ref = 1)
   expect_equal(n_geom(p2, "GeomPoint"), 1L)
 })
@@ -554,7 +554,7 @@ test_that("ref = NULL suppresses the vline; a numeric ref places it; the default
 })
 
 test_that("ref = \"reference\" with no reference row warns and draws no line", {
-  stats <- df_forest(data_sad_pkforest, cov_name_ref = NULL)
+  stats <- df_forest(data_sad_pkforest, cov_name_ref = NULL, is_ref_var = NULL)
   expect_warning(p <- plot_build_forest(stats, metric = "AUCRATIO"),
                  regexp = "has no reference row")
   expect_false(has_geom(p, "GeomVline"))
@@ -738,7 +738,7 @@ test_that("plot_forest() raw-data path returns a ggplot and forwards the pipelin
   expect_s3_class(p, "ggplot")
   expect_false("Reference" %in% p$data$cov_var)
   expect_setequal(p$data$cov_val[p$data$is_ref], c("Fasted", "70 kg"))
-  p2 <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_name_ref = NULL, ref = 1)
+  p2 <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_name_ref = NULL, is_ref_var = NULL, ref = 1)
   expect_false(any(p2$data$is_ref))
 })
 
@@ -781,4 +781,92 @@ test_that("plot_forest() passes show_legend through on both paths", {
   for (p in list(p1, p2)) {
     expect_true(all(c("fill", "linetype") %in% scale_aes_of(p)))
   }
+})
+
+
+#####df_forest -- is_ref flag column#####
+
+flag_data <- function(cov_name = "Reference") {
+  d <- data_sad_pkforest[data_sad_pkforest$metric == "AUCRATIO", ]
+  d$cov_var[d$is_ref] <- cov_name
+  d$cov_val[d$is_ref] <- cov_name
+  d
+}
+
+test_that("An `is_ref` column identifies the reference rows", {
+  d <- flag_data()
+  out <- df_forest(d)
+  expect_equal(out$config$is_ref_var, "is_ref")
+  expect_true(all(out$stats$is_ref[out$stats$cov_var == "Reference"]))
+  expect_false(any(out$stats$is_ref[out$stats$cov_var != "Reference"]))
+})
+
+test_that("The flag identifies the reference when `cov_var` is not `cov_name_ref`", {
+  d <- flag_data("Typical subject")
+  out <- df_forest(d, cov_name_ref = NULL)
+  expect_equal(out$stats$cov_var[out$stats$is_ref], "Typical subject")
+  # the flagged panel still sorts to the top
+  expect_equal(out$stats$cov_var[1], "Typical subject")
+})
+
+test_that("The flag takes precedence over a disagreeing `cov_name_ref`", {
+  d <- flag_data("Typical subject")
+  with_flag <- df_forest(d)$stats
+  without <- df_forest(d, is_ref_var = NULL)$stats
+  expect_equal(with_flag$cov_var[with_flag$is_ref], "Typical subject")
+  expect_false(any(without$is_ref))
+})
+
+test_that("An absent default flag column falls back to `cov_name_ref`", {
+  d <- flag_data()
+  no_flag <- d
+  no_flag$is_ref <- NULL
+  expect_equal(df_forest(no_flag)$stats, df_forest(d)$stats)
+  expect_null(df_forest(no_flag)$config$is_ref_var)
+})
+
+test_that("An explicitly named flag column that is missing aborts", {
+  d <- flag_data()
+  d$is_ref <- NULL
+  expect_error(df_forest(d, is_ref_var = "ref_flag"), "is_ref_var")
+})
+
+test_that("`cov_level_ref` disperses from the flag without `cov_name_ref`", {
+  d <- flag_data("Typical subject")
+  s <- df_forest(d, cov_name_ref = NULL, cov_level_ref = ref_map)$stats
+  expect_equal(s$cov_val[s$cov_var == "FOOD"], c("Fasted", "Fed"))
+  expect_equal(s$cov_val[s$cov_var == "WTBL"],
+               c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
+  expect_true(all(s$is_ref[s$cov_val %in% c("Fasted", "70 kg")]))
+  expect_false("Typical subject" %in% s$cov_var)
+})
+
+test_that("Dispersal aborts when no covariate is entirely flagged", {
+  d <- flag_data()
+  d$is_ref <- FALSE
+  expect_error(
+    df_forest(d, cov_name_ref = NULL, cov_level_ref = ref_map),
+    "no covariate"
+  )
+})
+
+test_that("A flag that varies within a group aborts", {
+  d <- flag_data()
+  d$is_ref[which(d$is_ref)[1]] <- FALSE
+  expect_error(df_forest(d), "not constant within")
+})
+
+test_that("A non-logical flag column is coerced, and `NA` aborts", {
+  d <- flag_data()
+  d$is_ref <- as.numeric(d$is_ref)
+  expect_true(all(df_forest(d)$stats$is_ref[df_forest(d)$stats$cov_var == "Reference"]))
+  d$is_ref <- NA
+  expect_error(df_forest(d), "no `NA` values")
+})
+
+test_that("`plot_forest()` forwards `is_ref_var` on the raw path only", {
+  d <- flag_data("Typical subject")
+  expect_s3_class(plot_forest(d, cov_name_ref = NULL), "ggplot")
+  stats <- df_forest(d)
+  expect_error(plot_forest(stats, is_ref_var = "is_ref"), "pipeline arguments")
 })

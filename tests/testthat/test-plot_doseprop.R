@@ -29,6 +29,60 @@ test_that("Error if argument `sigdigits` is not coercible to an integer", {
 })
 
 
+##Test `sigdigits` is display-only: it must not steer the verdict
+supra_fit <- function() {
+  d <- data.frame(DOSE = c(5, 10, 20, 50, 100, 200))
+  d$VAL <- d$DOSE^1.3 * c(1.01, 0.99, 1.02, 0.98, 1.01, 0.995)
+  stats::lm(log(VAL) ~ log(DOSE), data = d)
+}
+
+test_that("Proportional/Interpretation come from the unrounded bounds", {
+  # Power ~ 1.30, CI ~ [1.29, 1.31]: clearly supra-proportional, but both
+  # bounds round to 1 at `sigdigits = 1`. Judging the verdict on the rounded
+  # columns would report "Dose-proportional".
+  coarse <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 1)
+  fine   <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 6)
+
+  expect_equal(coarse$LCL, 1)                   # rounded column still rounds
+  expect_equal(coarse$UCL, 1)
+  expect_equal(coarse$Interpretation, "Greater than dose-proportional")
+  expect_false(coarse$Proportional)
+  expect_equal(coarse$Interpretation, fine$Interpretation)
+  expect_equal(coarse$Proportional, fine$Proportional)
+})
+
+
+##Test `PowerCI` pads to a fixed significant-digit count
+test_that("PowerCI carries `sigdigits` significant digits for every value", {
+  nsig <- function(x) {
+    x <- sub("^-", "", x)
+    x <- sub("^0\\.0*", "", sub("[.]", "", x))
+    nchar(x)
+  }
+  for (sd in c(2, 3, 4)) {
+    lbl <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = sd)$PowerCI
+    vals <- regmatches(lbl, gregexpr("[0-9]*[.][0-9]+", lbl))[[1]]
+    expect_length(vals, 3)                       # Power, LCL, UCL
+    expect_equal(vapply(vals, nsig, integer(1), USE.NAMES = FALSE),
+                 rep(sd, 3))
+    expect_false(grepl("e[-+]", lbl))            # never scientific notation
+  }
+})
+
+test_that("PowerCI pads a trailing zero the old signif()+paste0() dropped", {
+  # Power is 1.2977: signif(, 3) is 1.30, which paste0() renders as "1.3".
+  expect_equal(pmxhelpr:::df_loglog(supra_fit(), sigdigits = 3)$PowerCI,
+               "Power: 1.30 (90% CI 1.29-1.31)")
+})
+
+
+test_that("PowerCI pads trailing zeros rather than dropping them", {
+  # signif() + paste0() renders 1.2 as "1.2"; fmt_sig() renders "1.200".
+  expect_equal(pmxhelpr:::fmt_sig(c(1, 0.9, 1.2), 4),
+               c("1.000", "0.9000", "1.200"))
+})
+
+
 #####df_doseprop#####
 ##Test Output
 test_that("Output is a `doseprop_stats` / `pmx_stats` container", {

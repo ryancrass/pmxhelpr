@@ -1,29 +1,3 @@
-#' Internal helper: format numbers to a fixed count of significant digits
-#'
-#' Pads trailing zeros so every value in a forest `ci_label` carries the same
-#' number of significant digits (`1.00`, `0.800`, `23300`), unlike `signif()`
-#' alone, which prints `1`, `0.8`, `23300`.
-#'
-#' @param x Numeric vector.
-#' @param sigdigits Integer scalar; significant digits to keep.
-#'
-#' @return Character vector the length of `x`; `NA` stays `NA`.
-#' @keywords internal
-fmt_sig <- function(x, sigdigits) {
-  out <- formatC(
-    signif(x, sigdigits),
-    digits = sigdigits,
-    format = "fg",
-    flag = "#"
-  )
-  out <- sub("[.]$", "", trimws(out))
-  # formatC() cannot pad an exact zero to `sigdigits` digits ("0." -> "0").
-  out[!is.na(x) & x == 0] <- formatC(0, digits = sigdigits - 1L, format = "f")
-  out[is.na(x)] <- NA_character_
-  out
-}
-
-
 #' Internal helper: display order of a grouping column
 #'
 #' Factor levels when `x` is a factor (restricted to the levels present),

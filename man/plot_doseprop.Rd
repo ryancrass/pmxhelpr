@@ -41,7 +41,12 @@ Options are \code{"normal"} (default) and \code{"tdist"}.}
 \item{ci}{confidence interval to be calculated.
 Options \code{0.90} (default) and \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding.}
+\item{sigdigits}{number of significant digits for the reported
+\code{Intercept}, \code{StandardError}, \code{Power}, \code{LCL}, \code{UCL}, and \code{PowerCI}
+columns. \code{PowerCI} pads every value to this many digits so the facet
+labels line up. The \code{Proportional} / \code{Interpretation} verdict is taken
+from the unrounded confidence bounds, so it never moves with
+\code{sigdigits}.}
 
 \item{se}{logical to display confidence interval around regression.
 Default is \code{TRUE}.}

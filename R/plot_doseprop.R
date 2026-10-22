@@ -10,7 +10,10 @@
 #'    Options are "normal" (default) and "tdist"
 #' @param ci confidence interval to be calculated.
 #'    Options 0.90 (default) and 0.95
-#' @param sigdigits number of significant digits for rounding
+#' @param sigdigits number of significant digits for the reported
+#'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
+#'    columns. The `Proportional` / `Interpretation` verdict is taken from
+#'    the unrounded confidence bounds, so it never moves with `sigdigits`.
 #'
 #' @return `data.frame`
 #' @keywords internal
@@ -26,26 +29,38 @@ df_loglog <- function(fit,
   int <- stats::coef(fit)[[1]]
   est <- stats::coef(fit)[[2]]
   se <- sqrt(diag(stats::vcov(fit)))[[2]]
-  z <- stats::qt((1 + ci)/2, (length(fit$residuals)-1))
+
+  ## `method` is validated above, so the critical value is a straight choice
+  ## between the normal and t quantile.
+  crit <- switch(
+    method,
+    normal = stats::qnorm((1 + ci)/2),
+    tdist  = stats::qt((1 + ci)/2, (length(fit$residuals) - 1))
+  )
+  lcl <- est - crit*se
+  ucl <- est + crit*se
 
   tab <- data.frame(
     Intercept = signif(int, digits=sigdigits),
     StandardError = signif(se, digits=sigdigits),
     CI = paste0(ci*100, "%"),
     Power = signif(est, digits = sigdigits),
-    LCL = dplyr::case_when(method == "normal" ~ signif(est - stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
-                           method == "tdist" ~ signif(est - z*se, digits=sigdigits),
-                           .default = NA_real_),
-    UCL = dplyr::case_when(method == "normal" ~ signif(est + stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
-                           method == "tdist" ~ signif(est + z*se, digits=sigdigits),
-                           .default = NA_real_)) |>
-    dplyr::mutate(Proportional = dplyr::case_when(.data$LCL < 1 & .data$UCL < 1 ~ FALSE,
-                                        .data$LCL > 1 & .data$UCL > 1 ~ FALSE,
-                                        .default = TRUE),
-                  PowerCI = paste0("Power: ", .data$Power, " (", .data$CI," CI ", .data$LCL ,"-", .data$UCL,")"),
-                  Interpretation = dplyr::case_when(.data$LCL < 1 & .data$UCL < 1 ~ "Less than dose-proportional",
-                                      .data$LCL > 1 & .data$UCL > 1 ~ "Greater than dose-proportional",
-                                      .default = "Dose-proportional"))
+    LCL = signif(lcl, digits=sigdigits),
+    UCL = signif(ucl, digits=sigdigits))
+
+  ## The verdict is judged on the unrounded bounds: `sigdigits` is a display
+  ## setting and must not steer the conclusion. A bound of 1.0004 rounds to
+  ## 1.00 at three digits, which would turn "Greater than dose-proportional"
+  ## into "Dose-proportional".
+  tab$Proportional <- !((lcl < 1 & ucl < 1) | (lcl > 1 & ucl > 1))
+  ## Pad every value to `sigdigits` so the facet labels line up
+  ## ("1.00 (90% CI 0.900-1.20)", not "1 (90% CI 0.9-1.2)").
+  tab$PowerCI <- paste0("Power: ", fmt_sig(est, sigdigits),
+                        " (", tab$CI, " CI ",
+                        fmt_sig(lcl, sigdigits), "-", fmt_sig(ucl, sigdigits), ")")
+  tab$Interpretation <- dplyr::case_when(lcl < 1 & ucl < 1 ~ "Less than dose-proportional",
+                                         lcl > 1 & ucl > 1 ~ "Greater than dose-proportional",
+                                         .default = "Dose-proportional")
 
   tab
 }
@@ -77,7 +92,12 @@ df_loglog <- function(fit,
 #'    Options are `"normal"` (default) and `"tdist"`.
 #' @param ci confidence interval to be calculated.
 #'    Options `0.90` (default) and `0.95`.
-#' @param sigdigits number of significant digits for rounding.
+#' @param sigdigits number of significant digits for the reported
+#'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
+#'    columns. `PowerCI` pads every value to this many digits so the facet
+#'    labels line up. The `Proportional` / `Interpretation` verdict is taken
+#'    from the unrounded confidence bounds, so it never moves with
+#'    `sigdigits`.
 #'
 #' @family dose proportionality
 #' @return A `doseprop_stats` container (subclass of `pmx_stats`) with three

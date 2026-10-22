@@ -455,3 +455,15 @@ test_that("order_col_factor falls back to first-appearance for non-numeric label
     c("Placebo", "20 mg", "5 mg")
   )
 })
+
+
+##Test fmt_sig(): fixed-significant-digit label formatter
+test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA through", {
+  expect_equal(fmt_sig(c(1, 0.8, 23312, 9969, 2.334, NA), 3),
+               c("1.00", "0.800", "23300", "9970", "2.33", NA))
+  expect_equal(fmt_sig(1.5, 2), "1.5")
+  expect_equal(fmt_sig(0.0001234, 3), "0.000123")
+  expect_equal(fmt_sig(c(0, -17.24), 3), c("0.00", "-17.2"))
+  expect_equal(fmt_sig(0, 1), "0")
+})
+

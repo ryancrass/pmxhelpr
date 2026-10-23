@@ -35,7 +35,8 @@ test_that("Output is a `forest_stats` / `pmx_stats` container", {
 test_that("Output stats slot contains canonical columns, grouping columns as character", {
   out <- df_forest(data_sad_pkforest)
   expect_equal(colnames(out$stats),
-               c("metric", "cov_var", "cov_val", "est", "lo", "hi", "ci_label", "is_ref"))
+               c("metric", "cov_var", "cov_val", "est", "lo", "hi",
+                 "est_label", "lo_label", "hi_label", "ci_label", "is_ref"))
   expect_type(out$stats$metric, "character")
   expect_type(out$stats$cov_var, "character")
   expect_type(out$stats$cov_val, "character")
@@ -113,15 +114,20 @@ test_that("Column arguments accept bare names", {
 })
 
 
-#####ci_label formatting#####
+#####label formatting#####
 
-test_that("ci_label pads every value to `sigdigits` significant digits", {
+test_that("labels share one decimal count per metric, set by `sigdigits` of its median estimate", {
   s <- df_forest(data_sad_pkforest, sigdigits = 3)$stats
-  expect_equal(s$ci_label[s$cov_var == "Reference" & s$metric == "AUCRATIO"],
-               "1.00 [1.00, 1.00]")
-  expect_match(s$ci_label[s$cov_val == "90 kg" & s$metric == "AUCRATIO"],
-               "^0\\.[0-9]{3} \\[0\\.[0-9]{3}, 0\\.[0-9]{3}\\]$")
-  expect_match(s$ci_label, "^[0-9.]+ \\[[0-9.]+, [0-9.]+\\]$", all = TRUE)
+  ratio <- s[s$metric == "AUCRATIO", ]
+  expect_equal(ratio$ci_label[ratio$cov_var == "Reference"], "1.00 (1.00, 1.00)")
+  # values below 1 take the metric's 2 decimals, not 3 significant digits
+  expect_match(ratio$ci_label[ratio$cov_val == "90 kg"],
+               "^0\\.[0-9]{2} \\(0\\.[0-9]{2}, 0\\.[0-9]{2}\\)$")
+  expect_match(c(ratio$est_label, ratio$lo_label, ratio$hi_label), "^[0-9]\\.[0-9]{2}$", all = TRUE)
+  # an exposure near 12500 rounds every value to the hundreds
+  auc <- s[s$metric == "AUC", ]
+  expect_match(c(auc$est_label, auc$lo_label, auc$hi_label), "^[0-9]+00$", all = TRUE)
+  expect_equal(s$ci_label, paste0(s$est_label, " (", s$lo_label, ", ", s$hi_label, ")"))
   expect_false(identical(df_forest(data_sad_pkforest, sigdigits = 2)$stats$ci_label,
                          df_forest(data_sad_pkforest, sigdigits = 4)$stats$ci_label))
 })
@@ -276,7 +282,7 @@ test_that("cov_level_ref disperses the reference row into each named covariate",
   expect_equal(sum(s$is_ref), 2L * length(unique(s$metric)))
 })
 
-test_that("Dispersed reference rows inherit est/lo/hi/ci_label from the reference row", {
+test_that("Dispersed reference rows inherit est/lo/hi and labels from the reference row", {
   plain <- df_forest(data_sad_pkforest)$stats
   ref <- plain[plain$cov_var == "Reference" & plain$metric == "AUCRATIO", ]
   s <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)$stats
@@ -284,7 +290,9 @@ test_that("Dispersed reference rows inherit est/lo/hi/ci_label from the referenc
   expect_equal(fasted$est, ref$est)
   expect_equal(fasted$lo,  ref$lo)
   expect_equal(fasted$hi,  ref$hi)
-  expect_equal(fasted$ci_label, ref$ci_label)
+  expect_equal(fasted[c("est_label", "lo_label", "hi_label", "ci_label")],
+               ref[c("est_label", "lo_label", "hi_label", "ci_label")],
+               ignore_attr = TRUE)
 })
 
 test_that("cov_level_ref names absent from data are ignored; unnamed covariates get no reference row", {
@@ -455,9 +463,15 @@ test_that("style_forest() theme uses the forest panel variant", {
   # panels stack into one frame: no vertical spacing, grey60 shared borders
   expect_equal(as.numeric(th$panel.spacing.y), 0)
   expect_equal(th$panel.background$colour, "grey60")
-  # estimate column text and header at full axis size
+  # estimate column text and header at full axis size; black y-axis text
   expect_null(th$axis.text.y.right$size)
-  expect_equal(unclass(th$plot.tag$size), 1)
+  expect_equal(th$axis.text.y.right$colour, "black")
+  expect_equal(as.numeric(th$axis.text.y.right$margin)[4], 8)
+  expect_equal(th$axis.text.y.left$colour, "black")
+  # covariate strips head their rows: top-left aligned
+  expect_equal(th$strip.text.y.left$hjust, 0)
+  expect_equal(th$strip.text.y.left$vjust, 1)
+  expect_equal(unclass(th$plot.subtitle$size), 1)
 })
 
 
@@ -478,16 +492,23 @@ test_that("plot_build_forest() maps `est` to x and the per-row key to y", {
   expect_s3_class(p$layers[[1]]$geom, "GeomBlank")
 })
 
-test_that("plot_build_forest() facet_grid uses cov_name rows only; title carries the metric", {
+test_that("plot_build_forest() facet_grid uses cov_name rows only; the x-axis label carries the metric", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
   expect_s3_class(p$facet, "FacetGrid")
   row_vars <- vapply(p$facet$params$rows, rlang::as_name, character(1))
   expect_equal(unname(row_vars), "cov_var")
   expect_length(p$facet$params$cols, 0L)
   expect_true(isTRUE(p$facet$params$space_free$y))
-  expect_null(p$labels$x)
+  expect_equal(p$labels$x, "AUCRATIO")
   expect_null(p$labels$y)
-  expect_equal(p$labels$title, "AUCRATIO")
+  expect_null(p$labels$title)
+})
+
+test_that("the style's xlabel and title fields override the metric x label and empty title", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         style = style_forest(xlabel = "AUC ratio", title = "Food and weight"))
+  expect_equal(p$labels$x, "AUC ratio")
+  expect_equal(p$labels$title, "Food and weight")
 })
 
 test_that("Rows draw top to bottom in stats order; panels follow row order", {
@@ -516,32 +537,35 @@ test_that("Covariate level labels may repeat across panels", {
   p <- plot_build_forest(stats, ref = 1)
   expect_equal(panel_labels(p, "y"), list(c("High", "Low"), c("High", "Low")))
   s <- stats$stats
+  col <- forest_col_labels(s$est_label, s$lo_label, s$hi_label, s$is_ref)
   expect_equal(panel_labels(p, "y.sec"),
-               list(rev(s$ci_label[s$COV == "WTBL"]), rev(s$ci_label[s$COV == "AGE"])))
+               list(rev(col[s$COV == "WTBL"]), rev(col[s$COV == "AGE"])))
 })
 
 
 #####plot_build_forest -- estimate column (secondary y-axis)#####
 
-test_that("ci_label is the secondary y-axis text; reference rows show the estimate alone", {
+test_that("the label pieces are the secondary y-axis text; reference rows show the estimate alone", {
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_false(has_geom(p, "GeomText"))
   expect_s3_class(sec_axis_of(p), "AxisSecondary")
   s <- stats$stats[stats$stats$metric == "AUCRATIO", ]
-  expected <- ifelse(s$is_ref, fmt_sig(s$est, 3), s$ci_label)
+  expected <- ifelse(s$is_ref, s$est_label,
+                     paste0(s$est_label, "  (", s$lo_label, ", ", s$hi_label, ")"))
   expect_equal(unlist(panel_labels(p, "y.sec")),
                c(rev(expected[s$cov_var == "FOOD"]), rev(expected[s$cov_var == "WTBL"])))
   expect_equal(expected[s$cov_val %in% c("Fasted", "70 kg")], c("1.00", "1.00"))
-  expect_match(expected[s$cov_val == "Fed"], "^2\\.[0-9]{2} \\[")
+  expect_equal(expected[s$cov_val == "Fed"], "2.32  (2.00, 2.65)")
 })
 
-test_that("the estimate column header is the plot tag built from ci", {
+test_that("the estimate column header is the plot subtitle built from ci", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
-  expect_equal(p$labels$tag, "Median [90% CI]")
+  expect_equal(p$labels$subtitle, "Estimate (90% CI)")
+  expect_null(p$labels$tag)
   expect_null(sec_axis_of(p)$name)
   stats_95 <- df_forest(data_sad_pkforest, ci = 0.95)
-  expect_equal(plot_build_forest(stats_95, metric = "AUCRATIO")$labels$tag, "Median [95% CI]")
+  expect_equal(plot_build_forest(stats_95, metric = "AUCRATIO")$labels$subtitle, "Estimate (95% CI)")
 })
 
 
@@ -774,9 +798,10 @@ test_that("plot_build_forest() applies the forest_panel variant", {
   expect_s3_class(p$theme$strip.background, "element_blank")
   expect_equal(p$theme$axis.text.y.right$hjust, 0)
   expect_s3_class(p$theme$axis.ticks.y.right, "element_blank")
-  expect_equal(p$theme$plot.tag.position, "topright")
-  expect_equal(p$theme$plot.tag.location, "plot")
-  expect_equal(p$theme$plot.tag$face, "bold")
+  # the header subtitle spans the plot, right-aligned over the column
+  expect_equal(p$theme$plot.title.position, "plot")
+  expect_equal(p$theme$plot.subtitle$hjust, 1)
+  expect_equal(p$theme$plot.subtitle$face, "bold")
 })
 
 

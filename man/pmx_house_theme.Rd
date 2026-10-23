@@ -30,9 +30,12 @@ y-axis by covariate name instead). Panels are transparent with a thin grey
 border and no vertical spacing, so the row facets stack into one frame
 with their shared borders acting as separator lines. The covariate row
 strips are styled for \code{switch = "y"}: placed outside the y-axis, no
-background fill, bold horizontal text right-aligned to the panel. The
+background fill, bold horizontal text aligned to the top-left so each
+covariate name heads its group of rows. The y-axis text is black. The
 right-hand secondary y-axis carries the estimate column (left-aligned text
-at the axis text size, no ticks) and the plot tag is its bold header,
-pinned to the top-right corner of the plot area above the column.
+at the axis text size, an 8 pt gap from the panel, no ticks) and the plot
+subtitle is its bold header, right-aligned across the full plot width
+(\code{plot.title.position = "plot"}) so it sits on the top edge of the panels
+above the column.
 }
 \keyword{internal}

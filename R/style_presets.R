@@ -275,13 +275,16 @@ style_vpc <- function(...) {
 #' layers.
 #'
 #' The builder draws the covariate row facet itself (`facet_grid(rows =
-#' cov_name, switch = "y")`), so the `facet*` fields are ignored, and it sets
-#' the plot title to the rendered metric unless the `title` field is supplied.
+#' cov_name, switch = "y")`), so the `facet*` fields are ignored. It labels
+#' the x-axis with the rendered metric unless the `xlabel` field is supplied,
+#' and draws no title unless the `title` field is supplied.
 #' The house theme uses the forest panel variant of `theme_bw()`: a faint
 #' vertical ruler, no horizontal gridlines, covariate panels stacked without
-#' spacing into one frame, bold covariate strips placed outside the y-axis,
-#' and the estimate column as right-hand axis text under a bold header (style
-#' them through `theme = ` with `axis.text.y.right` and `plot.tag`). Set `logx = TRUE` for a log x-axis.
+#' spacing into one frame, bold top-left covariate strips placed outside the y-axis,
+#' and the estimate column as right-hand axis text under a bold header drawn
+#' as the right-aligned subtitle on the top edge of the panels (style them
+#' through `theme = ` with `axis.text.y.right` and `plot.subtitle`). Set
+#' `logx = TRUE` for a log x-axis.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.

@@ -25,7 +25,7 @@ Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by ru
 \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
 column is axis text styled through the theme's \code{axis.text.y.right}
-element; its header is the plot tag (\code{plot.tag}).}
+element; its header is the plot subtitle (\code{plot.subtitle}).}
 
 \item{ref}{The x-intercept of the vertical reference line: a numeric
 scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
@@ -62,10 +62,14 @@ a \code{ggplot} plot object
 Constructs a covariate forest plot from a \code{\link[=df_forest]{df_forest()}} result (or any
 object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
-a vertical reference line, one facet row per covariate name. The numeric
-\code{ci_label} column is rendered as the right-hand secondary y-axis text
-under a header built from the container's \code{ci} (e.g.
-\code{"Median [90\% CI]"}), so each row's estimate sits beside its point.
+a vertical reference line, one facet row per covariate name. The
+\code{est_label}, \code{lo_label}, and \code{hi_label} columns are assembled into the
+right-hand secondary y-axis text (\code{"1.29  (1.19, 1.41)"}) under a header
+built from the container's \code{ci} (e.g. \code{"Estimate (90\% CI)"}), so each
+row's estimate sits beside its point. The header is the plot subtitle,
+right-aligned so it sits on the top edge of the panels above the column;
+the rendered metric labels the x-axis, and the plot has no title by
+default.
 
 Rows are drawn in the order they appear in \code{stats$stats}, top to bottom
 (see the "Row order" section of \code{\link[=df_forest]{df_forest()}}); reorder that frame to

@@ -267,7 +267,9 @@ forest_obj
 ```
 
 The `stats` slot holds one row per plotted point with the canonical columns
-`est`, `lo`, `hi`, and `ci_label`. `is_ref` is also present to flag the 
+`est`, `lo`, and `hi`, their formatted text `est_label`, `lo_label`, and 
+`hi_label`, and `ci_label` combining the three for tables. The plotted 
+estimate column is assembled from the three label columns. `is_ref` is also present to flag the 
 reference rows. The data.frame is output in plotting order.
 
 ```{r df-forest-stats}
@@ -281,8 +283,10 @@ The summary can be customized with:
 
   + `ci`: confidence interval to return, default `0.9` based on the interval 
   recommended for bioequivalence assessment.
-  + `sigdigits`: number of significant digits in `ci_label`, default `3`. 
-  Trailing zeros are kept so every value carries the same number of digits.
+  + `sigdigits`: number of significant digits in the label columns, default 
+  `3`. Digits are counted on the median estimate of each metric, so every 
+  value of a metric shares one count of decimal places (`0.90` and `2.32` for 
+  a ratio) and the plotted estimate column aligns on the decimal point.
 
 ```{r df-forest-obj-95ci}
 df_forest(simsum, ci = 0.95, sigdigits = 2)
@@ -379,8 +383,9 @@ input data carrys only one metric, the `metric` argument does not need to be
 specified and the metric is selected automatically. 
 
 The output is a `ggplot` object with one facet row per covariate, the covariate
-level on the y-axis, and the `ci_label` text as a right-hand estimate column 
-under a header built from `ci` (e.g. `Median [90% CI]`).
+level on the y-axis, and a right-hand estimate column (`1.29  (1.19, 1.41)`) 
+under a header built from `ci` (e.g. `Estimate (90% CI)`). The rendered metric 
+labels the x-axis; there is no title by default.
 
 ```{r plot-raw, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(simsum, metric = "AUCRATIO")
@@ -442,18 +447,19 @@ plot_forest(data_pchg,
 
 ## The estimate column header
 
-The header above the estimate column is built from `ci` (`Median [90% CI]`). 
-It is the plot tag, so it can be relabelled after the fact with `labs()`. 
+The header above the estimate column is built from `ci` (`Estimate (90% CI)`). 
+It is the plot subtitle, right-aligned so it sits on the top edge of the 
+panels, and can be relabelled after the fact with `labs(subtitle = )`. 
 
 For a ratio metric the conventional label names the quantity rather than the 
 statistic, as in the example below
 
-```{r plot-tag, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+```{r plot-header, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(simsum, metric = "AUCRATIO",
             cov_level_ref = ref_levels,
             ref_band = c(0.8, 1.25),
             style = style_forest(logx = TRUE)) +
-  labs(tag = "Ratio [90% CI]")
+  labs(subtitle = "Ratio (90% CI)")
 ```
 
 ## Reusing precomputed stats
@@ -572,7 +578,10 @@ The facet layout is fixed by the renderer (`facet_grid()` rows by covariate,
 strips outside the y-axis), so the style's `facet*` fields are ignored. 
 
 The estimate column is right-hand axis text styled through the theme's 
-`axis.text.y.right` element, and its header is the plot tag (`plot.tag`).
+`axis.text.y.right` element, and its header is the plot subtitle 
+(`plot.subtitle`). The x-axis label defaults to the metric and can be replaced 
+with the style's `xlabel` field or `labs(x = )`; a title can be added with the 
+`title` field or `labs(title = )`.
 
 For a deeper treatment of the styling system — `style_spec()` fields, 
 per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the 

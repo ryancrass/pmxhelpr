@@ -326,5 +326,5 @@ plot_forest(sum,
             ref_band = c(0.8, 1.25)) +
   scale_x_log10(limits = c(0.5, 5), 
             breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5)) +
-  labs(tag = "Ratio (90% CI)")
+  labs(subtitle = "Ratio (90% CI)")
 ```

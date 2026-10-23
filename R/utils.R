@@ -542,24 +542,34 @@ merge_element <- function(user, default) {
 #' number of significant digits (`1.00`, `0.800`, `23300`), unlike `signif()`
 #' followed by coercion, which prints `1`, `0.8`, `23300` and falls back to
 #' scientific notation for small magnitudes. Used to build the forest
-#' `ci_label` ([df_forest()]) and the dose-proportionality `PowerCI` label
+#' label columns ([df_forest()]) and the dose-proportionality `PowerCI` label
 #' ([df_doseprop()]).
+#'
+#' The decimal count of each value is set by `anchor`: `sigdigits`
+#' significant digits of `anchor` fix the decimal places, and `x` is rounded
+#' to them. The default (`anchor = x`) gives every value its own
+#' `sigdigits` significant digits. A shared anchor gives every value the same
+#' decimal places, so a column of labels aligns on the decimal point
+#' (`2.32`, `0.90` rather than `2.32`, `0.903`).
 #'
 #' @param x Numeric vector.
 #' @param sigdigits Integer scalar; significant digits to keep.
+#' @param anchor Numeric vector recycled to the length of `x`; the value(s)
+#'    whose `sigdigits` significant digits set the decimal places. A zero or
+#'    non-finite anchor falls back to `sigdigits - 1` decimal places.
+#'    Default `x`.
 #'
 #' @return Character vector the length of `x`; `NA` stays `NA`.
 #' @keywords internal
-fmt_sig <- function(x, sigdigits) {
-  out <- formatC(
-    signif(x, sigdigits),
-    digits = sigdigits,
-    format = "fg",
-    flag = "#"
-  )
-  out <- sub("[.]$", "", trimws(out))
-  # formatC() cannot pad an exact zero to `sigdigits` digits ("0." -> "0").
-  out[!is.na(x) & x == 0] <- formatC(0, digits = sigdigits - 1L, format = "f")
+fmt_sig <- function(x, sigdigits, anchor = x) {
+  anchor <- rep_len(abs(anchor), length(x))
+  ## signif() first, so an anchor that rounds up a magnitude (0.9996 -> 1.00)
+  ## takes the decimals of the rounded value.
+  mag <- floor(log10(signif(anchor, sigdigits)))
+  mag[!is.finite(mag)] <- 0
+  d <- sigdigits - 1L - mag
+  ## `+ 0` turns a rounded negative zero into a positive one ("-0.00" -> "0.00").
+  out <- sprintf("%.*f", as.integer(pmax(d, 0)), round(x, d) + 0)
   out[is.na(x)] <- NA_character_
   out
 }

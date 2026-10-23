@@ -50,9 +50,12 @@ Accepts bare names or strings. Default \code{value}.}
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
 
-\item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} column. Trailing zeros are kept so every value carries
-\code{sigdigits} digits (\code{"1.00 [0.950, 1.05]"}). Default \code{3}.}
+\item{sigdigits}{Number of significant digits used to format the label
+columns. Digits are counted on the median estimate of each metric,
+which fixes one count of decimal places for every value of that metric
+(\code{"1.00"}, \code{"0.95"}, \code{"2.32"} for a ratio; \code{"12500"}, \code{"9500"} for an
+exposure near 12500), so the plotted estimate column aligns on the
+decimal point. Trailing zeros are kept. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
@@ -118,7 +121,7 @@ Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by ru
 \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
 column is axis text styled through the theme's \code{axis.text.y.right}
-element; its header is the plot tag (\code{plot.tag}).}
+element; its header is the plot subtitle (\code{plot.subtitle}).}
 }
 \value{
 a \code{ggplot} plot object

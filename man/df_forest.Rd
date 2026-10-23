@@ -38,9 +38,12 @@ Accepts bare names or strings. Default \code{value}.}
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
 
-\item{sigdigits}{Number of significant digits used to format the
-\code{ci_label} column. Trailing zeros are kept so every value carries
-\code{sigdigits} digits (\code{"1.00 [0.950, 1.05]"}). Default \code{3}.}
+\item{sigdigits}{Number of significant digits used to format the label
+columns. Digits are counted on the median estimate of each metric,
+which fixes one count of decimal places for every value of that metric
+(\code{"1.00"}, \code{"0.95"}, \code{"2.32"} for a ratio; \code{"12500"}, \code{"9500"} for an
+exposure near 12500), so the plotted estimate column aligns on the
+decimal point. Trailing zeros are kept. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
@@ -85,11 +88,14 @@ slots:
 character columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est} (median of the
 draws), \code{lo}, \code{hi} (the \code{(1 - ci) / 2} and \code{1 - (1 - ci) / 2}
-percentiles), the character column \code{ci_label} (e.g. \code{"1.12 [0.950, 1.32]"}), and
+percentiles), the character columns \code{est_label}, \code{lo_label}, and
+\code{hi_label} (those values formatted per \code{sigdigits}), \code{ci_label}
+(the three combined for tables, e.g. \code{"1.12 (0.95, 1.32)"}), and
 the logical \code{is_ref}. The \code{cov_name_var} value drives the per-row
 facet strip; the \code{cov_level_var} value drives the y-axis tick label;
-\code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as the right-hand
-secondary y-axis text.}
+\code{\link[=plot_build_forest]{plot_build_forest()}} assembles \code{est_label}, \code{lo_label}, and
+\code{hi_label} into the right-hand secondary y-axis text, so edit those
+columns (not \code{ci_label}) to change the plotted text.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, and \code{cov_level_ref}.}
@@ -102,7 +108,8 @@ container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stat
 container with class \code{c("forest_stats", "pmx_stats")} and three slots:
 \itemize{
 \item \code{stats} (plot-ready frame: one row per plotted point, in display order,
-with canonical \code{est}, \code{lo}, \code{hi}, \code{ci_label}, and \code{is_ref} columns),
+with canonical \code{est}, \code{lo}, \code{hi}, the formatted \code{est_label},
+\code{lo_label}, \code{hi_label}, and \code{ci_label}, and \code{is_ref} columns),
 \item \code{obs} (always \code{NULL}; no scatter overlay),
 \item \code{config} (column names + CI configuration)
 }

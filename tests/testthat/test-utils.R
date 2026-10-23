@@ -524,5 +524,17 @@ test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA th
   expect_equal(fmt_sig(0.0001234, 3), "0.000123")
   expect_equal(fmt_sig(c(0, -17.24), 3), c("0.00", "-17.2"))
   expect_equal(fmt_sig(0, 1), "0")
+  # rounding up a magnitude takes the rounded value's decimals
+  expect_equal(fmt_sig(c(0.9996, 9996), 3), c("1.00", "10000"))
+})
+
+test_that("fmt_sig() with a shared anchor gives every value the same decimal places", {
+  expect_equal(fmt_sig(c(2.321, 0.903, 0.873), 3, anchor = 1.1), c("2.32", "0.90", "0.87"))
+  expect_equal(fmt_sig(c(28812, 9470), 3, anchor = 12459), c("28800", "9500"))
+  # a zero or non-finite anchor falls back to `sigdigits - 1` decimals
+  expect_equal(fmt_sig(c(1.234, 0.5), 3, anchor = 0), c("1.23", "0.50"))
+  expect_equal(fmt_sig(1.234, 3, anchor = NA), "1.23")
+  # rounding to a negative zero prints without the sign
+  expect_equal(fmt_sig(-0.001, 3, anchor = 1), "0.00")
 })
 

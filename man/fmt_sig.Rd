@@ -4,12 +4,17 @@
 \alias{fmt_sig}
 \title{Internal helper: format numbers to a fixed count of significant digits}
 \usage{
-fmt_sig(x, sigdigits)
+fmt_sig(x, sigdigits, anchor = x)
 }
 \arguments{
 \item{x}{Numeric vector.}
 
 \item{sigdigits}{Integer scalar; significant digits to keep.}
+
+\item{anchor}{Numeric vector recycled to the length of \code{x}; the value(s)
+whose \code{sigdigits} significant digits set the decimal places. A zero or
+non-finite anchor falls back to \code{sigdigits - 1} decimal places.
+Default \code{x}.}
 }
 \value{
 Character vector the length of \code{x}; \code{NA} stays \code{NA}.
@@ -19,7 +24,15 @@ Pads trailing zeros so every value in a rendered label carries the same
 number of significant digits (\code{1.00}, \code{0.800}, \code{23300}), unlike \code{signif()}
 followed by coercion, which prints \code{1}, \code{0.8}, \code{23300} and falls back to
 scientific notation for small magnitudes. Used to build the forest
-\code{ci_label} (\code{\link[=df_forest]{df_forest()}}) and the dose-proportionality \code{PowerCI} label
+label columns (\code{\link[=df_forest]{df_forest()}}) and the dose-proportionality \code{PowerCI} label
 (\code{\link[=df_doseprop]{df_doseprop()}}).
+}
+\details{
+The decimal count of each value is set by \code{anchor}: \code{sigdigits}
+significant digits of \code{anchor} fix the decimal places, and \code{x} is rounded
+to them. The default (\code{anchor = x}) gives every value its own
+\code{sigdigits} significant digits. A shared anchor gives every value the same
+decimal places, so a column of labels aligns on the decimal point
+(\code{2.32}, \code{0.90} rather than \code{2.32}, \code{0.903}).
 }
 \keyword{internal}

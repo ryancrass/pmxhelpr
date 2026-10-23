@@ -33,10 +33,13 @@
 #' border and no vertical spacing, so the row facets stack into one frame
 #' with their shared borders acting as separator lines. The covariate row
 #' strips are styled for `switch = "y"`: placed outside the y-axis, no
-#' background fill, bold horizontal text right-aligned to the panel. The
+#' background fill, bold horizontal text aligned to the top-left so each
+#' covariate name heads its group of rows. The y-axis text is black. The
 #' right-hand secondary y-axis carries the estimate column (left-aligned text
-#' at the axis text size, no ticks) and the plot tag is its bold header,
-#' pinned to the top-right corner of the plot area above the column.
+#' at the axis text size, an 8 pt gap from the panel, no ticks) and the plot
+#' subtitle is its bold header, right-aligned across the full plot width
+#' (`plot.title.position = "plot"`) so it sits on the top edge of the panels
+#' above the column.
 #'
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a white
 #'   rectangle with a thin black border (VPC family). Default `FALSE`.
@@ -57,18 +60,26 @@ pmx_house_theme <- function(white_panel = FALSE, forest_panel = FALSE) {
     args$panel.grid.major.y <- ggplot2::element_blank()
     args$strip.background   <- ggplot2::element_blank()
     args$strip.placement    <- "outside"
+    # Top-left aligned, so each covariate name reads as the header of its
+    # group of level rows.
     args$strip.text.y.left  <- ggplot2::element_text(angle = 0, face = "bold",
-                                                     hjust = 1)
-    args$plot.title         <- ggplot2::element_text(face = "bold")
-    # Secondary y-axis = the estimate column: left-aligned text at full axis
-    # size, no ticks. Its header is the plot tag, pinned top-right over the
-    # column.
-    args$axis.text.y.right  <- ggplot2::element_text(hjust = 0)
+                                                     hjust = 0, vjust = 1)
+    # Titles span the whole plot, so the right-aligned subtitle (the
+    # estimate column header) ends at the column's right edge; the subtitle
+    # row sits directly on top of the panels.
+    args$plot.title          <- ggplot2::element_text(face = "bold")
+    args$plot.title.position <- "plot"
+    args$plot.subtitle       <- ggplot2::element_text(
+      face = "bold", hjust = 1, size = ggplot2::rel(1),
+      margin = ggplot2::margin(b = 4)
+    )
+    args$axis.text.y.left   <- ggplot2::element_text(colour = "black")
+    # Secondary y-axis = the estimate column: black left-aligned text at full
+    # axis size, set off from the panel, no ticks.
+    args$axis.text.y.right  <- ggplot2::element_text(
+      hjust = 0, colour = "black", margin = ggplot2::margin(l = 8)
+    )
     args$axis.ticks.y.right <- ggplot2::element_blank()
-    args$plot.tag           <- ggplot2::element_text(face = "bold", hjust = 1,
-                                                     size = ggplot2::rel(1))
-    args$plot.tag.position  <- "topright"
-    args$plot.tag.location  <- "plot"
   } else {
     args$panel.grid.major.x <- ggplot2::element_blank()
     if (isTRUE(white_panel)) {

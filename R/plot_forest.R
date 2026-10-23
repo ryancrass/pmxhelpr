@@ -97,6 +97,21 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 }
 
 
+#' Internal helper: assemble the forest estimate column
+#'
+#' Joins the formatted pieces as `"est  (lo, hi)"`.
+#'
+#' @param est_label,lo_label,hi_label Character vectors of formatted values.
+#' @param is_ref Logical; reference rows show the estimate alone, since
+#'    their interval collapses onto the estimate.
+#'
+#' @return Character vector of display labels.
+#' @keywords internal
+forest_col_labels <- function(est_label, lo_label, hi_label, is_ref) {
+  ifelse(is_ref, est_label, paste0(est_label, "  (", lo_label, ", ", hi_label, ")"))
+}
+
+
 #' Compute Summary Statistics for Covariate Forest Plots
 #'
 #' @description
@@ -105,7 +120,8 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #' container with class `c("forest_stats", "pmx_stats")` and three slots:
 #'
 #'   + `stats` (plot-ready frame: one row per plotted point, in display order,
-#'      with canonical `est`, `lo`, `hi`, `ci_label`, and `is_ref` columns),
+#'      with canonical `est`, `lo`, `hi`, the formatted `est_label`,
+#'      `lo_label`, `hi_label`, and `ci_label`, and `is_ref` columns),
 #'   + `obs` (always `NULL`; no scatter overlay),
 #'   + `config` (column names + CI configuration)
 #'
@@ -128,9 +144,12 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #'    Accepts bare names or strings. Default `value`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
-#' @param sigdigits Number of significant digits used to format the
-#'    `ci_label` column. Trailing zeros are kept so every value carries
-#'    `sigdigits` digits (`"1.00 [0.950, 1.05]"`). Default `3`.
+#' @param sigdigits Number of significant digits used to format the label
+#'    columns. Digits are counted on the median estimate of each metric,
+#'    which fixes one count of decimal places for every value of that metric
+#'    (`"1.00"`, `"0.95"`, `"2.32"` for a ratio; `"12500"`, `"9500"` for an
+#'    exposure near 12500), so the plotted estimate column aligns on the
+#'    decimal point. Trailing zeros are kept. Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
 #'    `data_sad_pkforest` convention). Reference rows draw through the
@@ -182,11 +201,14 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #'        character columns named in `metric_name_var` / `cov_name_var` /
 #'        `cov_level_var`, canonical numeric columns `est` (median of the
 #'        draws), `lo`, `hi` (the `(1 - ci) / 2` and `1 - (1 - ci) / 2`
-#'        percentiles), the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`), and
+#'        percentiles), the character columns `est_label`, `lo_label`, and
+#'        `hi_label` (those values formatted per `sigdigits`), `ci_label`
+#'        (the three combined for tables, e.g. `"1.12 (0.95, 1.32)"`), and
 #'        the logical `is_ref`. The `cov_name_var` value drives the per-row
 #'        facet strip; the `cov_level_var` value drives the y-axis tick label;
-#'        [plot_build_forest()] renders `ci_label` as the right-hand
-#'        secondary y-axis text.}
+#'        [plot_build_forest()] assembles `est_label`, `lo_label`, and
+#'        `hi_label` into the right-hand secondary y-axis text, so edit those
+#'        columns (not `ci_label`) to change the plotted text.}
 #'      \item{`obs`}{`NULL`. No scatter overlay for the forest family.}
 #'      \item{`config`}{Named list with column names, `ci`,
 #'        `sigdigits`, `cov_name_ref`, and `cov_level_ref`.}
@@ -351,12 +373,17 @@ df_forest <- function(
   ), , drop = FALSE]
   rownames(stats) <- NULL
 
+  ## One decimal count per metric, set by `sigdigits` of its median estimate,
+  ## so the plotted estimate column aligns on the decimal point.
+  anchor <- stats::ave(abs(stats$est), stats[[metric_name_var_str]], FUN = stats::median)
+  stats$est_label <- fmt_sig(stats$est, sigdigits, anchor = anchor)
+  stats$lo_label <- fmt_sig(stats$lo, sigdigits, anchor = anchor)
+  stats$hi_label <- fmt_sig(stats$hi, sigdigits, anchor = anchor)
   stats$ci_label <- paste0(
-    fmt_sig(stats$est, sigdigits), " [",
-    fmt_sig(stats$lo, sigdigits), ", ",
-    fmt_sig(stats$hi, sigdigits), "]"
+    stats$est_label, " (", stats$lo_label, ", ", stats$hi_label, ")"
   )
-  stats <- stats[, c(grp_vars, "est", "lo", "hi", "ci_label", "is_ref")]
+  stats <- stats[, c(grp_vars, "est", "lo", "hi", "est_label", "lo_label",
+                     "hi_label", "ci_label", "is_ref")]
 
   pmx_stats(
     stats = stats,
@@ -397,7 +424,8 @@ validate_forest_stats <- function(x) {
     )
   }
   validate_pmx_stats(x)
-  required_cols <- c("est", "lo", "hi", "ci_label", "is_ref")
+  required_cols <- c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
+                     "ci_label", "is_ref")
   missing_cols <- setdiff(required_cols, colnames(x$stats))
   if (length(missing_cols) > 0) {
     rlang::abort(paste0(
@@ -432,10 +460,14 @@ validate_forest_stats <- function(x) {
 #' Constructs a covariate forest plot from a [df_forest()] result (or any
 #' object satisfying the `forest_stats` contract). Renders per-row point
 #' estimates with horizontal CI lines, optional shaded equivalence band, and
-#' a vertical reference line, one facet row per covariate name. The numeric
-#' `ci_label` column is rendered as the right-hand secondary y-axis text
-#' under a header built from the container's `ci` (e.g.
-#' `"Median [90% CI]"`), so each row's estimate sits beside its point.
+#' a vertical reference line, one facet row per covariate name. The
+#' `est_label`, `lo_label`, and `hi_label` columns are assembled into the
+#' right-hand secondary y-axis text (`"1.29  (1.19, 1.41)"`) under a header
+#' built from the container's `ci` (e.g. `"Estimate (90% CI)"`), so each
+#' row's estimate sits beside its point. The header is the plot subtitle,
+#' right-aligned so it sits on the top edge of the panels above the column;
+#' the rendered metric labels the x-axis, and the plot has no title by
+#' default.
 #'
 #' Rows are drawn in the order they appear in `stats$stats`, top to bottom
 #' (see the "Row order" section of [df_forest()]); reorder that frame to
@@ -468,7 +500,7 @@ validate_forest_stats <- function(x) {
 #'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
 #'    opt into per-covariate coloring (see [style_forest()]). The estimate
 #'    column is axis text styled through the theme's `axis.text.y.right`
-#'    element; its header is the plot tag (`plot.tag`).
+#'    element; its header is the plot subtitle (`plot.subtitle`).
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;
@@ -654,17 +686,15 @@ plot_build_forest <- function(
   ## Left axis: the covariate level labels, blanked where the level repeats
   ## the covariate name (the strip already says it, e.g. a standalone
   ## Reference panel). Right axis: the estimate column (reference rows show
-  ## the estimate alone), under a header ("Median [90% CI]") drawn as the
-  ## plot tag pinned to the top-right of the plot area (a secondary-axis
-  ## *title* would land beside the labels instead).
+  ## the estimate alone), under a header ("Estimate (90% CI)") drawn as the
+  ## right-aligned plot subtitle, the row directly above the panels (a
+  ## secondary-axis *title* would land beside the labels instead).
   level_labels <- as.character(plot_data[[cov_level_var_str]])
   level_labels[level_labels == as.character(plot_data[[cov_name_var_str]])] <- ""
-  est_labels <- ifelse(
-    plot_data$is_ref,
-    fmt_sig(plot_data$est, stats$config$sigdigits),
-    plot_data$ci_label
+  est_labels <- forest_col_labels(
+    plot_data$est_label, plot_data$lo_label, plot_data$hi_label, plot_data$is_ref
   )
-  header <- paste0("Median [", format(stats$config$ci * 100), "% CI]")
+  header <- paste0("Estimate (", format(stats$config$ci * 100), "% CI)")
   base <- base +
     ggplot2::scale_y_discrete(
       breaks = rev(row_ids),
@@ -683,7 +713,7 @@ plot_build_forest <- function(
       space = "free_y",
       switch = "y"
     ) +
-    ggplot2::labs(x = NULL, y = NULL, title = metric, tag = header)
+    ggplot2::labs(x = metric, y = NULL, subtitle = header)
 
   if (has_panel_color) {
     panel_colors <- plotstyle$colors[intersect(cov_levels, names(plotstyle$colors))]

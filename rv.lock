@@ -404,8 +404,8 @@ dependencies = [
 
 [[packages]]
 name = "ggstylekit"
-version = "0.4.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0" }
+version = "0.4.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "ggplot2", requirement = "(>= 3.5.2)" },

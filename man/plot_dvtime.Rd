@@ -87,7 +87,8 @@ change-from-baseline data.}
 \item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
-\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
+\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
+A \code{caption} set in the style replaces it.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvtime]{style_dvtime()}}; view the defaults by running \code{style_dvtime()}

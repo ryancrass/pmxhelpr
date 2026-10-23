@@ -52,7 +52,7 @@ pmxhelpr to your project’s `rproject.toml`, then run `rv sync`:
 ``` toml
 repositories = [
     { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
-    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/" }
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1/" }
 ]
 
 dependencies = [
@@ -66,7 +66,7 @@ pmxhelpr release from GitHub with `devtools`:
 ``` r
 # install.packages("devtools")
 install.packages("ggstylekit",
-                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
                            getOption("repos")))
 devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
 ```

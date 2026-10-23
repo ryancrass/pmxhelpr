@@ -82,7 +82,8 @@ required for inclusion in binned plot layers. BLQ-encoded records
 small bins from summary statistic plotting but retains the underlying
 observations as data points.}
 
-\item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
+\item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.
+A \code{caption} set in the style replaces it.}
 
 \item{lower_bound}{Lower bound for prediction correction formula.}
 

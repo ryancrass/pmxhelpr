@@ -182,7 +182,8 @@ style_dvtime()$alphas
 
 A few aesthetic decisions belong to the plot builder rather than to the style,
 because the builder needs them to decide *what to draw*, not just how to draw 
-it. Where the two overlap, the builder argument wins:
+it. Where the two overlap, the builder argument wins (the one exception, the
+caption, follows the list):
 
   + **`log_y`**:  `plot_dvtime()`, `plot_dvconc()`, and `plot_gof()` set the 
   style `logy` from the plotting function `log_y` argument. This is because 
@@ -202,6 +203,15 @@ it. Where the two overlap, the builder argument wins:
   and `plot_vpc_shown(obs_point = FALSE)` (a single flag, since the observed
   points are their only optional layer); an invisible layer still sets the axis
   limits.
+
+The **caption** is the exception: the style wins. `plot_dvtime()`, 
+`plot_dvconc()`, and `plot_gof()` write a caption describing the plotted data 
+(`show_caption`), and the VPC builders write the replicate count (`show_rep`). 
+A `caption` set in the style (`style_dvtime(caption = "...")`, available from 
+ggstylekit 0.4.1) replaces that caption even when `show_caption` or `show_rep` 
+is `TRUE`, since a caption written into the style is an explicit request. To 
+drop the caption entirely, set `show_caption = FALSE` (or `show_rep = FALSE`) 
+and leave the style `caption` unset.
 
 
 ## Examples

@@ -33,6 +33,8 @@
 #'    applied to total obs (`obs_n`) — BLQ-heavy bins are the most
 #'    informative on a cens VPC and are retained.
 #' @param show_rep Logical. Display replicate count as a plot caption.
+#'    A `caption` set in
+#'    the style replaces it.
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
 #'    For `type = "cens"`, only the `obs_point`, `obs_median_line`,
 #'    `sim_median_line`, and `sim_median_ci` keys are read. Defaults follow

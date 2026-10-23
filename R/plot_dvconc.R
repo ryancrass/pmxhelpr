@@ -13,7 +13,8 @@
 #' @param linear Logical indicating if a linear regression fit should be shown. Default is `FALSE`.
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
 #' @param log_y Logical indicator for log10 transformation of the y-axis.
-#' @param show_caption Logical indicating if a caption should be shown describing the data plotted
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
+#'    A `caption` set in the style replaces it.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_dvconc()]; view the defaults by running `style_dvconc()`
 #'    with no arguments. Customize by passing `style = style_dvconc(...)`, or

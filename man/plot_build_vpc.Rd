@@ -37,7 +37,9 @@ records do not count toward it. For \code{type = "cens"}, the threshold is
 applied to total obs (\code{obs_n}) — BLQ-heavy bins are the most
 informative on a cens VPC and are retained.}
 
-\item{show_rep}{Logical. Display replicate count as a plot caption.}
+\item{show_rep}{Logical. Display replicate count as a plot caption.
+A \code{caption} set in
+the style replaces it.}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 For \code{type = "cens"}, only the \code{obs_point}, \code{obs_median_line},

@@ -45,7 +45,7 @@
 #'    Also controls whether the caption reports arithmetic or geometric mean
 #'    when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown
-#'    describing the data plotted.
+#'    describing the data plotted. A `caption` set in the style replaces it.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
 #'    with no arguments. Customize by passing `style = style_gof(...)`, or

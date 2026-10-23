@@ -447,6 +447,18 @@ test_that("print and summary produce the forest_stats header", {
   expect_output(summary(out), "per-row")
 })
 
+test_that("summary.forest_stats output is stable (snapshot)", {
+  out <- df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+                   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  expect_snapshot(summary(out))
+})
+
+test_that("forest header prints NULL config values and omits the obs line", {
+  out <- df_forest(data_sad_pkforest, cov_name_ref = NULL)
+  expect_output(print(out), "cov_name_ref = NULL, cov_level_ref = NULL")
+  expect_false(any(grepl("obs:", capture.output(print(out)))))
+})
+
 
 #####style_forest#####
 

@@ -17,6 +17,7 @@
 \description{
 Focused summary of a \code{\link[=df_forest]{df_forest()}} result: object dimensions, the
 configuration values (\code{metric_name_var}, \code{cov_name_var}, \code{cov_level_var},
-\code{ci}), and the per-row stats body. Inspect the underlying
+\code{ci}, \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}), and the per-row stats
+body. Inspect the underlying
 frame directly via \code{x$stats}; inspect run config via \code{x$config}.
 }

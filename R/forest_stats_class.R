@@ -49,7 +49,8 @@ is_forest_stats <- function(x, strict = FALSE) {
 #' @description
 #' Focused summary of a [df_forest()] result: object dimensions, the
 #' configuration values (`metric_name_var`, `cov_name_var`, `cov_level_var`,
-#' `ci`), and the per-row stats body. Inspect the underlying
+#' `ci`, `sigdigits`, `cov_name_ref`, `cov_level_ref`), and the per-row stats
+#' body. Inspect the underlying
 #' frame directly via `x$stats`; inspect run config via `x$config`.
 #'
 #' @param x A `forest_stats` object.
@@ -68,15 +69,8 @@ print.forest_stats <- function(x, ...) {
 
 
 forest_stats_header <- function(x) {
-  cat("<forest_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, ci = %s\n",
-              format(x$config$metric_name_var),
-              format(x$config$cov_name_var),
-              format(x$config$cov_level_var),
-              format(x$config$ci)))
-  invisible(x)
+  pmx_stats_header(x, c("metric_name_var", "cov_name_var", "cov_level_var",
+                        "ci", "sigdigits", "cov_name_ref", "cov_level_ref"))
 }
 
 
@@ -85,9 +79,11 @@ forest_stats_header <- function(x) {
 #'
 #' @description
 #' Compact summary of a [df_forest()] result: the same header shown by
-#' [print.forest_stats()], but the body is condensed to one line per row
-#' using the covariate level column. Suitable for vignette output and test
-#' snapshots.
+#' [print.forest_stats()], but the body is condensed to one line per row:
+#' `[metric] covariate: level`, or the covariate alone where the level
+#' repeats it (the standalone reference row). Rows drawn in only one
+#' reference layout are tagged `(consolidated)` or `(distributed)`; untagged
+#' rows draw in both. Suitable for vignette output and test snapshots.
 #'
 #' @param object A `forest_stats` object.
 #' @param ... Currently unused.
@@ -98,13 +94,14 @@ forest_stats_header <- function(x) {
 
 summary.forest_stats <- function(object, ...) {
   forest_stats_header(object)
-  metric_name_var_str <- object$config$metric_name_var
-  cov_level_var_str <- object$config$cov_level_var
+  s <- object$stats
+  metric <- as.character(s[[object$config$metric_name_var]])
+  cov_name <- as.character(s[[object$config$cov_name_var]])
+  cov_level <- as.character(s[[object$config$cov_level_var]])
+  row_label <- ifelse(cov_level == cov_name, cov_name,
+                      paste0(cov_name, ": ", cov_level))
+  layout_tag <- ifelse(s$layout == "both", "", paste0("  (", s$layout, ")"))
   cat("\n  per-row:\n")
-  for (i in seq_len(nrow(object$stats))) {
-    cat(sprintf("    [%s] %s\n",
-                object$stats[[metric_name_var_str]][i],
-                as.character(object$stats[[cov_level_var_str]][i])))
-  }
+  cat(sprintf("    [%s] %s%s\n", metric, row_label, layout_tag), sep = "")
   invisible(object)
 }

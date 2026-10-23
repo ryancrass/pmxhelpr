@@ -47,14 +47,7 @@ is_vpc_stats <- function(x, strict = FALSE) {
 #' @method print vpc_stats
 
 print.vpc_stats <- function(x, n_head = 3, ...) {
-  cat("<vpc_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
-  cat(sprintf("  config: n_replicates = %s, loq = %s, strat_var = %s\n",
-              format(x$config$n_replicates),
-              paste(format(x$config$loq), collapse = ", "),
-              format(x$config$strat_var)))
+  pmx_stats_header(x, c("n_replicates", "loq", "strat_var"))
 
   bin_present  <- BIN_MID_VAR %in% colnames(x$stats)
   strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))

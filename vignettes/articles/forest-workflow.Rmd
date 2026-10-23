@@ -500,15 +500,16 @@ The returned object is class-tagged `c("forest_stats", "pmx_stats")`, which
 provides three S3 methods designed for interactive inspection.
 
 `print()` shows a focused summary — object dimensions, the configuration values
-(`metric_name_var`, `cov_name_var`, `cov_level_var`, `ci`), and the per-row 
-stats body.
+(`metric_name_var`, `cov_name_var`, `cov_level_var`, `ci`, `sigdigits`, 
+`cov_name_ref`, `cov_level_ref`), and the per-row stats body.
 
 ```{r print-stats}
 print(forest_obj)
 ```
 
-`summary()` shares the header but condenses the body to one line per row using
-the metric and covariate level.
+`summary()` shares the header but condenses the body to one line per row,
+`[metric] covariate: level`. Rows drawn in only one reference layout are tagged
+`(consolidated)` or `(distributed)`; untagged rows draw in both.
 
 ```{r summary-stats}
 summary(forest_obj)

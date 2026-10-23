@@ -55,18 +55,8 @@ print.doseprop_stats <- function(x, ...) {
 
 
 doseprop_stats_header <- function(x) {
-  cat("<doseprop_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  obs:   %d rows\n",
-              if (is.data.frame(x$obs)) nrow(x$obs) else 0L))
-  cat(sprintf("  config: metric_name_var = %s, metric_value_var = %s, dose_var = %s, ci = %s, method = %s\n",
-              format(x$config$metric_name_var),
-              format(x$config$metric_value_var),
-              format(x$config$dose_var),
-              format(x$config$ci),
-              format(x$config$method)))
-  invisible(x)
+  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "dose_var",
+                        "ci", "method"))
 }
 
 

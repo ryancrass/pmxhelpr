@@ -124,6 +124,34 @@ validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
 }
 
 
+#' Internal helper: print the header shared by the `pmx_stats` subclasses
+#'
+#' Prints the class tag, the `stats` dimensions, the `obs` row count (when
+#' `obs` is a data.frame), and the `config` values named in `config_keys` as
+#' one `key = value` line. `NULL` values print as `NULL`, named vectors as an
+#' R `c()` call, and other vectors comma-separated.
+#'
+#' @param x A `pmx_stats` subclass object.
+#' @param config_keys Names of the `x$config` entries to show, in order.
+#'
+#' @return `invisible(x)`.
+#' @keywords internal
+#' @noRd
+pmx_stats_header <- function(x, config_keys) {
+  fmt_value <- function(v) {
+    if (is.null(v)) return("NULL")
+    if (!is.null(names(v))) return(paste(deparse(v), collapse = ""))
+    paste(format(v), collapse = ", ")
+  }
+  cat(sprintf("<%s>\n", class(x)[1]))
+  cat(sprintf("  stats: %d rows x %d columns\n", nrow(x$stats), ncol(x$stats)))
+  if (is.data.frame(x$obs)) cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
+  vals <- vapply(config_keys, function(k) fmt_value(x$config[[k]]), character(1))
+  cat(sprintf("  config: %s\n", paste(config_keys, "=", vals, collapse = ", ")))
+  invisible(x)
+}
+
+
 
 #' Print method for `pmx_stats`
 #'

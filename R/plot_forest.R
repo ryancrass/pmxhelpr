@@ -350,32 +350,13 @@ df_forest <- function(
 #' @keywords internal
 
 validate_forest_stats <- function(x) {
-  if (!inherits(x, "forest_stats")) {
-    rlang::abort(
-      "`x` must be a `forest_stats` object (output of `df_forest()`)."
-    )
-  }
-  validate_pmx_stats(x)
-  required_cols <- c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
-                     "ci_label", "is_ref", "layout")
-  missing_cols <- setdiff(required_cols, colnames(x$stats))
-  if (length(missing_cols) > 0) {
-    rlang::abort(paste0(
-      "`forest_stats` is missing required columns: ",
-      paste(missing_cols, collapse = ", ")
-    ))
-  }
-  required_config <- c(
-    "metric_name_var", "cov_name_var", "cov_level_var",
-    "ci", "sigdigits"
+  validate_pmx_stats(
+    x, "forest_stats", "df_forest",
+    stats_cols = c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
+                   "ci_label", "is_ref", "layout"),
+    config_keys = c("metric_name_var", "cov_name_var", "cov_level_var",
+                    "ci", "sigdigits")
   )
-  missing_config <- setdiff(required_config, names(x$config))
-  if (length(missing_config) > 0) {
-    rlang::abort(paste0(
-      "`forest_stats` is missing required config keys: ",
-      paste(missing_config, collapse = ", ")
-    ))
-  }
   check_varsindf(
     x$stats,
     c(x$config$metric_name_var, x$config$cov_name_var, x$config$cov_level_var),

@@ -187,25 +187,12 @@ df_doseprop <- function(data,
 #' @keywords internal
 
 validate_doseprop_stats <- function(x) {
-  if (!inherits(x, "doseprop_stats")) {
-    rlang::abort("`x` must be a `doseprop_stats` object (output of `df_doseprop()`).")
-  }
-  validate_pmx_stats(x)
-  required_cols <- c("Intercept", "Power", "LCL", "UCL", "PowerCI")
-  missing_cols <- setdiff(required_cols, colnames(x$stats))
-  if (length(missing_cols) > 0) {
-    rlang::abort(paste0("`doseprop_stats` is missing required columns: ",
-                        paste(missing_cols, collapse = ", ")))
-  }
-  required_config <- c("metric_name_var", "metric_value_var", "dose_var", "ci")
-  missing_config <- setdiff(required_config, names(x$config))
-  if (length(missing_config) > 0) {
-    rlang::abort(paste0("`doseprop_stats` is missing required config keys: ",
-                        paste(missing_config, collapse = ", ")))
-  }
-  if (!is.data.frame(x$obs)) {
-    rlang::abort("`doseprop_stats$obs` must be a data.frame.")
-  }
+  validate_pmx_stats(
+    x, "doseprop_stats", "df_doseprop",
+    stats_cols = c("Intercept", "Power", "LCL", "UCL", "PowerCI"),
+    config_keys = c("metric_name_var", "metric_value_var", "dose_var", "ci"),
+    require_obs = TRUE
+  )
   check_varsindf(x$obs, x$config$metric_name_var,  "obs", "config$metric_name_var")
   check_varsindf(x$obs, x$config$metric_value_var, "obs", "config$metric_value_var")
   check_varsindf(x$obs, x$config$dose_var,         "obs", "config$dose_var")

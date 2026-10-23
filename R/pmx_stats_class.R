@@ -57,20 +57,37 @@ is_pmx_stats <- function(x, strict = FALSE) {
 
 
 
-#' Validate a `pmx_stats` container's structural shape
+#' Validate a `pmx_stats` container
 #'
 #' @description
 #' Internal helper. Asserts that `x` carries the `pmx_stats` class and exposes
 #' the `stats` / `obs` / `config` slots in the expected shape. Subclass
-#' validators delegate to this function for the structural checks before
-#' applying their own column / config-key checks.
+#' validators pass their contract (class, required columns, required config
+#' keys) through the optional arguments, so every container reports missing
+#' pieces with the same messages, and then apply any checks of their own.
 #'
 #' @param x Object to validate.
+#' @param subclass Optional subclass name `x` must carry (e.g.
+#'    `"forest_stats"`).
+#' @param source Name of the function that builds `subclass`, quoted in the
+#'    class error (e.g. `"df_forest"`).
+#' @param stats_cols Columns `x$stats` must contain.
+#' @param obs_cols Columns `x$obs` must contain.
+#' @param config_keys Keys `x$config` must contain.
+#' @param require_obs Logical; whether `x$obs` must be a data.frame rather
+#'    than `NULL`. Implied by a non-empty `obs_cols`.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
 
-validate_pmx_stats <- function(x) {
+validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
+                               stats_cols = NULL, obs_cols = NULL,
+                               config_keys = NULL,
+                               require_obs = length(obs_cols) > 0) {
+  if (!is.null(subclass) && !inherits(x, subclass)) {
+    rlang::abort(paste0("`x` must be a `", subclass, "` object (output of `",
+                        source, "()`)."))
+  }
   if (!inherits(x, "pmx_stats")) {
     rlang::abort("`x` must be a `pmx_stats` object.")
   }
@@ -89,6 +106,20 @@ validate_pmx_stats <- function(x) {
   if (!is.list(x$config)) {
     rlang::abort("`pmx_stats$config` must be a `list`.")
   }
+  name <- subclass %||% "pmx_stats"
+  if (isTRUE(require_obs) && !is.data.frame(x$obs)) {
+    rlang::abort(paste0("`", name, "` object must contain `stats` and `obs` data.frames."))
+  }
+  missing_from <- function(have, need, what, noun) {
+    miss <- setdiff(need, have)
+    if (length(miss) > 0) {
+      rlang::abort(paste0("`", name, "$", what, "` is missing required ", noun,
+                          ": ", paste(miss, collapse = ", ")))
+    }
+  }
+  missing_from(colnames(x$stats), stats_cols, "stats", "columns")
+  missing_from(colnames(x$obs), obs_cols, "obs", "columns")
+  missing_from(names(x$config), config_keys, "config", "keys")
   invisible(x)
 }
 

@@ -382,41 +382,19 @@ df_vpccompute <- function(data,
 #' @keywords internal
 
 validate_vpc_stats <- function(x) {
-  if (!inherits(x, "vpc_stats")) {
-    rlang::abort("`x` must be a `vpc_stats` object (output of `df_vpcstats()`).")
-  }
-  validate_pmx_stats(x)
-  if (!is.data.frame(x$obs)) {
-    rlang::abort("`vpc_stats` object must contain `stats` and `obs` data.frames.")
-  }
-
   ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
   ## Use the medians as the canonical column for each group so we don't
   ## depend on every CI bound being present.
-  required_stats <- c(BIN_MID_VAR, .vpc_count_cols,
-                      "obs_low", "obs_med", "obs_hi",
-                      "sim_low_med", "sim_med_med", "sim_hi_med",
-                      "pc_obs_low", "pc_obs_med", "pc_obs_hi",
-                      "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med")
-  missing_stats <- setdiff(required_stats, colnames(x$stats))
-  if (length(missing_stats) > 0) {
-    rlang::abort(paste0("`vpc_stats$stats` is missing required columns: ",
-                        paste(missing_stats, collapse = ", ")))
-  }
-
-  required_obs <- c("OBSDV", "PC_OBSDV", "TIME")
-  missing_obs <- setdiff(required_obs, colnames(x$obs))
-  if (length(missing_obs) > 0) {
-    rlang::abort(paste0("`vpc_stats$obs` is missing required columns: ",
-                        paste(missing_obs, collapse = ", ")))
-  }
-
-  required_config <- c("n_replicates", "loq", "strat_var")
-  missing_config  <- setdiff(required_config, names(x$config))
-  if (length(missing_config) > 0) {
-    rlang::abort(paste0("`vpc_stats$config` is missing required keys: ",
-                        paste(missing_config, collapse = ", ")))
-  }
+  validate_pmx_stats(
+    x, "vpc_stats", "df_vpcstats",
+    stats_cols = c(BIN_MID_VAR, .vpc_count_cols,
+                   "obs_low", "obs_med", "obs_hi",
+                   "sim_low_med", "sim_med_med", "sim_hi_med",
+                   "pc_obs_low", "pc_obs_med", "pc_obs_hi",
+                   "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med"),
+    obs_cols = c("OBSDV", "PC_OBSDV", "TIME"),
+    config_keys = c("n_replicates", "loq", "strat_var")
+  )
 
   ## Cens invariant: if df_vpcstats() was called with a LOQ source, the
   ## sim_prop_blq_* columns must be present. Catches malformed

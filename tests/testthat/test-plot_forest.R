@@ -400,7 +400,7 @@ test_that("validate_forest_stats errors when canonical columns or config keys ar
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns: layout")
   out <- df_forest(data_sad_pkforest)
   out$config$ci <- NULL
-  expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required config keys")
+  expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required keys")
 })
 
 test_that("validate_forest_stats does not require the provenance config keys", {

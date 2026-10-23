@@ -330,6 +330,41 @@ var_addn <- function(grp_var,
 
 
 
+#' Internal Helper: Numeric sort key for a human-written display label
+#'
+#' @description Reads the first number out of each label so level labels can be
+#'    ordered by value rather than lexicographically. Shared by
+#'    `order_col_factor()` (colour/stratification levels) and
+#'    `order_panel_labels()` (forest covariate levels) so the two cannot drift
+#'    apart again.
+#'
+#'    This is a **sort key**, not a number parser, and is named accordingly: it
+#'    reads `"1e3"` as `1`, `"1,000 mg"` as `1`, and `"2.5.1"` as `2.5`. Both
+#'    callers only need a monotone ordering of human-written labels, so these
+#'    are acceptable; do not "fix" them into a full parser without checking
+#'    both call sites.
+#'
+#'    A `-` counts as a minus sign only where a sign can legally appear: at the
+#'    start of the label, or after whitespace or an open paren. Anywhere else it
+#'    is a hyphen joining a compound (`"Weight-50 kg"`) or a range
+#'    (`"50-60 kg"`), and reading it as a sign would sort the label as negative.
+#'
+#' @param x Character vector of labels.
+#'
+#' @return Numeric vector the length of `x`. **Contract:** `NA_real_` where no
+#'    number can be read, and for `NA` input -- never a sentinel value. Both
+#'    callers gate on `NA` to decide whether to sort numerically at all, so
+#'    substituting `Inf` or `0` would silently change behaviour at both.
+#' @keywords internal
+#' @noRd
+label_sort_num <- function(x) {
+  flat <- gsub("([^[:space:](])-", "\\1 ", x)
+  suppressWarnings(as.numeric(
+    sub("^[^0-9-]*(-?[0-9]*\\.?[0-9]+).*$", "\\1", flat)
+  ))
+}
+
+
 #' Internal Helper: Coerce a color/stratification variable to an ordered factor
 #'
 #' @description Since ggstylekit (>= 0.4.0) drives discrete legends and per-series
@@ -339,9 +374,10 @@ var_addn <- function(grp_var,
 #'    + Existing factor: levels preserved (drop unused). Use [var_addn()] or a
 #'       pre-releveled factor to control order deliberately.
 #'    + Numeric: `factor()` default, i.e. ascending by magnitude.
-#'    + Character where every label begins with a number (e.g. dose labels like
-#'       `"200 mg"`): ordered numerically by that leading number, so `"5 mg"`
-#'       sorts before `"20 mg"` before `"200 mg"` rather than lexicographically.
+#'    + Character where every label carries a number (e.g. dose labels like
+#'       `"200 mg"`, or `"Dose 5 mg"`): ordered numerically by that number,
+#'       sign included, so `"5 mg"` sorts before `"20 mg"` before `"200 mg"`
+#'       rather than lexicographically. The number need not lead the label.
 #'       Ties keep first-appearance order.
 #'    + Any other character (including mixed numeric / non-numeric labels such as
 #'       `c("Placebo", "5 mg")`, where placement is ambiguous): first-appearance
@@ -356,8 +392,8 @@ order_col_factor <- function(x) {
   if (is.factor(x))  return(factor(x))
   if (is.numeric(x)) return(factor(x))
   lev <- unique(as.character(x))
-  num <- suppressWarnings(as.numeric(sub("^\\s*(-?[0-9]+\\.?[0-9]*).*$", "\\1", lev)))
-  if (all(grepl("^\\s*-?[0-9]", lev)) && !anyNA(num)) {
+  num <- label_sort_num(lev)
+  if (!anyNA(num)) {
     lev <- lev[order(num, seq_along(lev))]
   }
   factor(x, levels = lev)

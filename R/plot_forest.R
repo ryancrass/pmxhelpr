@@ -26,18 +26,21 @@ level_order <- function(x) {
 #'
 #' @return `labels` reordered top to bottom. Factor levels win when they
 #'    cover every label (so the caller controls placement, including the
-#'    reference label). Otherwise labels that start with a number sort
-#'    ascending (so e.g. `50 kg` sits above `90 kg` and a `70 kg`
-#'    reference lands between them); any other set keeps the reference label
-#'    on top followed by the data order.
+#'    reference label). Otherwise labels carrying a number sort ascending by
+#'    it, sign included (so e.g. `50 kg` sits above `90 kg` and a `70 kg`
+#'    reference lands between them, and `-20%` sits above `-5%`); any other
+#'    set keeps the reference label on top followed by the data order.
 #' @keywords internal
 order_panel_labels <- function(labels, is_ref, given, from_factor) {
   if (from_factor && all(labels %in% given)) {
     return(labels[order(match(labels, given))])
   }
-  nums <- suppressWarnings(as.numeric(
-    sub("^[^0-9]*?([0-9]*\\.?[0-9]+).*$", "\\1", labels)
-  ))
+  ## Sort key shared with `order_col_factor()` so the two cannot drift apart;
+  ## it handles the minus-vs-hyphen distinction. The tie-break below stays
+  ## here: `given` can differ from `labels` once a dispersed reference label
+  ## has been synthesized, so `match()` is not interchangeable with
+  ## `seq_along()` the way it is in `order_col_factor()`.
+  nums <- label_sort_num(labels)
   if (all(!is.na(nums))) {
     return(labels[order(nums, match(labels, given))])
   }
@@ -169,8 +172,8 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #' are factors, otherwise their order of first appearance in `data`, with the
 #' standalone reference covariate moved first. Within a covariate, factor
 #' levels of `cov_level_var` win when they cover every label (including a
-#' dispersed reference label); otherwise labels that start with a number sort
-#' ascending (`50 kg` above `90 kg`), and any other set puts the reference
+#' dispersed reference label); otherwise labels carrying a number sort ascending by it,
+#' sign included (`50 kg` above `90 kg`), and any other set puts the reference
 #' label on top followed by the data order.
 #'
 #' @family forest plot

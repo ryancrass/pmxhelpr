@@ -20,10 +20,10 @@ covariate (factor levels, or first appearance), from \code{\link[=level_order]{l
 \value{
 \code{labels} reordered top to bottom. Factor levels win when they
 cover every label (so the caller controls placement, including the
-reference label). Otherwise labels that start with a number sort
-ascending (so e.g. \verb{50 kg} sits above \verb{90 kg} and a \verb{70 kg}
-reference lands between them); any other set keeps the reference label
-on top followed by the data order.
+reference label). Otherwise labels carrying a number sort ascending by
+it, sign included (so e.g. \verb{50 kg} sits above \verb{90 kg} and a \verb{70 kg}
+reference lands between them, and \verb{-20\%} sits above \verb{-5\%}); any other
+set keeps the reference label on top followed by the data order.
 }
 \description{
 Internal helper: top-to-bottom order of the rows within one forest panel

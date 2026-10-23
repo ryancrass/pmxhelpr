@@ -413,6 +413,47 @@ test_that("check_single_cmt is silent on empty data", {
 })
 
 
+##Test label_sort_num(): shared numeric sort key for display labels
+test_that("label_sort_num honors the NA contract for unparseable input", {
+  # Both callers gate on NA to decide whether to sort numerically at all, so a
+  # sentinel (Inf, 0) here would silently change behavior at both call sites.
+  got <- pmxhelpr:::label_sort_num(c(NA_character_, "", "-", "--", "  ", "Fasted"))
+  expect_true(all(is.na(got)))
+  expect_type(got, "double")
+})
+
+test_that("label_sort_num reads the first number, sign included", {
+  expect_equal(
+    pmxhelpr:::label_sort_num(c("-5 kg", "10 kg", "-20 kg", "-0.5",
+                                "Age 65 y", "WT70", "2.5 mg", "70 kg")),
+    c(-5, 10, -20, -0.5, 65, 70, 2.5, 70)
+  )
+})
+
+test_that("label_sort_num treats a non-sign hyphen as a hyphen", {
+  # Compound word and range separator: the number is positive in both.
+  expect_equal(pmxhelpr:::label_sort_num(c("Weight-50 kg", "50-60 kg")), c(50, 50))
+  # ... but a real leading sign still reads as negative.
+  expect_equal(pmxhelpr:::label_sort_num("-50 kg"), -50)
+})
+
+test_that("label_sort_num agrees with the legacy leading-number regex", {
+  # order_col_factor() used to gate on `^\\s*-?[0-9]` and parse with the regex
+  # below. Dropping that gate is only safe because the shared key returns the
+  # same value for every label the gate admitted -- pinned here so the
+  # guarantee lives in the suite, not just in review.
+  legacy <- function(x) {
+    suppressWarnings(as.numeric(sub("^\\s*(-?[0-9]+\\.?[0-9]*).*$", "\\1", x)))
+  }
+  corpus <- c("5 mg", "20 mg", "100 mg", "2.5 mg", "0.5 mg", "-5 kg", "-20 kg",
+              "100 mg (n=6)", "20 mg (n=12)", "5-10 mg", "70 kg", "0 kg",
+              " 15 mg", "1000", "12.75 ng/mL", "-0.5", "3 mg/kg", "5 mg q12h",
+              "-0", "0", "7.", "10e3")
+  expect_true(all(grepl("^\\s*-?[0-9]", corpus)))   # all admitted by the old gate
+  expect_equal(pmxhelpr:::label_sort_num(corpus), legacy(corpus))
+})
+
+
 ##Test order_col_factor(): factor level order feeds ggstylekit (>= 0.3.0)
 test_that("order_col_factor preserves an existing factor's declared levels", {
   f <- factor(c("b", "a", "b"), levels = c("b", "a"))
@@ -441,6 +482,24 @@ test_that("order_col_factor orders numeric-labelled character col_var by value",
   expect_equal(
     levels(pmxhelpr:::order_col_factor(c("2.5 mg", "10 mg", "0.5 mg"))),
     c("0.5 mg", "2.5 mg", "10 mg")
+  )
+})
+
+test_that("order_col_factor sorts labels whose number is not leading", {
+  # Previously these failed the `starts with a digit` gate and kept
+  # first-appearance order, so "Dose 10 mg" sorted above "Dose 5 mg".
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Dose 10 mg", "Dose 5 mg"))),
+    c("Dose 5 mg", "Dose 10 mg")
+  )
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Week 2", "Week 10", "Week 1"))),
+    c("Week 1", "Week 2", "Week 10")
+  )
+  # A hyphen in the label is not a minus sign.
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Weight-50 kg", "Weight-10 kg"))),
+    c("Weight-10 kg", "Weight-50 kg")
   )
 })
 

@@ -35,28 +35,39 @@ Full narrative documentation, including worked examples for every plotting workf
 
 ## Installation
 
-pmxhelpr depends on `ggstylekit`, which is distributed through the PRISM
-package repository rather than CRAN, so the repository must be declared
-alongside the pmxhelpr release.
+pmxhelpr and its styling dependency `ggstylekit` are distributed through the
+PRISM package repository rather than CRAN. Each release of each package has its
+own PRISM repository, so declare both alongside a CRAN mirror for the remaining
+dependencies.
 
 The recommended way to install pmxhelpr is with [rv](https://github.com/A2-ai/rv).
-Add the `ggstylekit` PRISM repository and the most recent
-[tagged release](https://github.com/ryancrass/pmxhelpr/releases/latest) of
-pmxhelpr to your project's `rproject.toml`, then run `rv sync`:
+Add the two PRISM repositories and pmxhelpr to your project's `rproject.toml`,
+then run `rv sync`:
 
 ``` toml
 repositories = [
     { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
+    { alias = "pmxhelpr", url = "https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.6.0/" },
     { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1/" }
 ]
 
 dependencies = [
-    { name = "pmxhelpr", git = "https://github.com/ryancrass/pmxhelpr.git", tag = "v0.6.0" }
+    "pmxhelpr"
 ]
 ```
 
-Alternatively, install `ggstylekit` from PRISM and then the tagged pmxhelpr
-release from GitHub with `devtools`:
+Alternatively, install from the same repositories with `install.packages()`:
+
+``` r
+install.packages("pmxhelpr",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.6.0",
+                           "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
+                           getOption("repos")))
+```
+
+To install a development version or another
+[tagged release](https://github.com/ryancrass/pmxhelpr/releases) from GitHub,
+install `ggstylekit` from PRISM first, then use `devtools`:
 
 ``` r
 # install.packages("devtools")
@@ -66,10 +77,11 @@ install.packages("ggstylekit",
 devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
 ```
 
-The README examples use a few packages from `Suggests` that aren't installed automatically:
+The README examples use a package from `Suggests` that isn't installed
+automatically:
 
 ``` r
-install.packages(c("dplyr", "ggplot2", "forcats", "patchwork"))
+install.packages("patchwork")
 ```
 
 

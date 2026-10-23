@@ -55,6 +55,8 @@
 #'        single (not duplicated). `sim_prop_blq_*` is std-only — LOQ has
 #'        no meaning on the prediction-corrected scale. `-Inf` quantile
 #'        values from rank-mode fully-censored bins are masked to `NA`.
+#'        `pc_sim_*` quantiles are `NA` in bins with no quantifiable
+#'        observations (`obs_n == obs_n_blq`).
 #'        Carries attributes `n_replicates`, `loq`, and `strat_var`.}
 #'      \item{`obs`}{First-replicate observation rows with `MDV == 0`, used as
 #'        the scatter overlay in [plot_vpc_cont()]. `OBSDV` carries the

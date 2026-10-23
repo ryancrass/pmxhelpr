@@ -75,6 +75,8 @@ prediction-corrected counterparts carry a \code{pc_} prefix
 single (not duplicated). \verb{sim_prop_blq_*} is std-only — LOQ has
 no meaning on the prediction-corrected scale. \code{-Inf} quantile
 values from rank-mode fully-censored bins are masked to \code{NA}.
+\verb{pc_sim_*} quantiles are \code{NA} in bins with no quantifiable
+observations (\code{obs_n == obs_n_blq}).
 Carries attributes \code{n_replicates}, \code{loq}, and \code{strat_var}.}
 \item{\code{obs}}{First-replicate observation rows with \code{MDV == 0}, used as
 the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSDV} carries the

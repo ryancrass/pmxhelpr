@@ -87,7 +87,7 @@
 
 plot_build_vpc <- function(compute_out,
                            type = c("cont", "cens"),
-                           min_bin_count = 1,
+                           min_bin_count = 0,
                            show_rep = TRUE,
                            shown = NULL,
                            style = NULL,

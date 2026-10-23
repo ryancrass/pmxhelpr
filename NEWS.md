@@ -48,6 +48,10 @@
   `"Dose 5 mg"` before `"Dose 10 mg"`), not only a leading one. Label sets
   with any number-free value keep first-appearance order; factors are
   unaffected.
+* `min_bin_count` in `plot_vpc_cont()`, `plot_vpc_cens()`, and
+  `plot_build_vpc()` now defaults to `0` (was `1`), so no bins are filtered
+  by default. Prediction-corrected simulated quantiles (`pc_sim_*`) are `NA`
+  in bins with no quantifiable observations, so pcVPCs do not draw them.
 
 ## Bug fixes
 

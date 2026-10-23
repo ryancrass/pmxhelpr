@@ -215,6 +215,8 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
 #' applies `var_loqcens` to `SIMDV` (when `loq` is supplied) and
 #' [`var_predcorr()`] per (`bin_var` × `strat_var` × `CMT`) to both
 #' `OBSDV` and `SIMDV`. The pc columns are returned with a `pc_` prefix.
+#' `pc_sim_*` quantiles are masked to `NA` in bins with no quantifiable
+#' observations (`obs_n == obs_n_blq`).
 #'
 #' @param data Preprocessed simulation data, typically from [df_vpcpreprocess()].
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
@@ -319,6 +321,14 @@ df_vpccompute <- function(data,
     dplyr::rename_with(~ paste0("pc_", .x), -dplyr::all_of(group_vars))
 
   stats <- dplyr::left_join(stats_std, stats_pc, by = group_vars)
+
+  ## Mask pc simulated quantiles in bins with no quantifiable observations.
+  ## Per-row LOQ censoring leaves only the few above-LOQ simulated values in
+  ## these bins, so their quantiles are biased toward the LOQ and have no
+  ## observed counterpart to compare against.
+  pc_sim_cols <- paste0("pc_", .vpc_sim_quantile_cols)
+  no_quant <- (stats$obs_n - stats$obs_n_blq) == 0
+  stats[no_quant, pc_sim_cols] <- NA_real_
 
   stats <- stats |>
     dplyr::relocate(

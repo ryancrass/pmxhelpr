@@ -14,7 +14,7 @@ plot_vpc_cens(
   strat_var = NULL,
   loq = NULL,
   irep_name = "SIM",
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,

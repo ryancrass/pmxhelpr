@@ -473,7 +473,7 @@ plot_vpc_cont(
 
 ## Dropping small sample bins
 
-There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count` (default = 1), which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count`, which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. The default (`min_bin_count = 0`) retains all bins; `min_bin_count = 1` drops bins in which every observation is BLQ. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
 When setting `min_bin_count = 10`, summary statistics are not plotted for the final two timepoints containing fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
 
@@ -530,7 +530,7 @@ vpc <- plot_vpc_cont(
 vpc
 ```
 
-Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
+Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the change in the shape of the observed quantiles and the greater resolution in separation between the confidence intervals.
 
 Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst.
 

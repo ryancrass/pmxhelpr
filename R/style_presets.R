@@ -268,9 +268,10 @@ style_vpc <- function(...) {
 #' keyed by covariate name (the values of the `cov_name_var` column, e.g.
 #' `colors = c(FOOD = "darkgreen", WTBL = "darkblue")`). When at least one
 #' covariate present in the plotted data has an entry, the builder maps point
-#' and error bar color to the covariate (facet) via `scale_color_manual()` and
-#' suppresses the legend, since the facet strips already label each covariate.
-#' Covariates without an entry render in `grey50` with a warning. The role
+#' and error bar color to the covariate (facet) and suppresses the legend,
+#' since the facet strips already label each covariate. Covariates without an
+#' entry take colours from the house palette, as for `col_var` in
+#' [plot_dvtime()]. The role
 #' entries (`point`, `errorbar`, `ref_line`) are then ignored for the mapped
 #' layers.
 #'

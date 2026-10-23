@@ -661,23 +661,10 @@ plot_build_forest <- function(
     ) +
     ggplot2::labs(x = metric, y = NULL, subtitle = header)
 
-  if (has_panel_color) {
-    panel_colors <- plotstyle$colors[intersect(cov_levels, names(plotstyle$colors))]
-    missing <- setdiff(cov_levels, names(panel_colors))
-    if (length(missing) > 0) {
-      rlang::warn(paste0(
-        "`style` `colors` is missing entries for covariates: ",
-        paste(missing, collapse = ", "),
-        ". These covariates will render in grey50."
-      ))
-    }
-    base <- base +
-      ggplot2::scale_color_manual(
-        values = panel_colors,
-        na.value = "grey50",
-        guide = "none"
-      )
-  }
+  ## style_plot() builds the covariate colour scale from the `colors` entries
+  ## (covariates without one take the house palette); the facet strips
+  ## already name each covariate, so the legend is dropped.
+  if (has_panel_color) base <- base + ggplot2::guides(colour = "none")
 
   ggstylekit::style_plot(base, plotstyle)
 }

@@ -566,7 +566,7 @@ keyed by covariate name.
 
 When at least one plotted covariate is named, points and error bars are colored 
 by covariate and the legend is suppressed, since the panel strips already label
-each covariate. Covariates without an entry render in grey with a warning.
+each covariate. Covariates without an entry take colours from the house palette.
 
 ```{r plot-colored, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),

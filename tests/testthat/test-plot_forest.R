@@ -764,9 +764,9 @@ test_that("plot_build_forest() maps color by covariate when the style names cova
   scale_aes <- scale_aes_of(p)
   expect_true("colour" %in% scale_aes)
   color_scale <- p$scales$scales[[which(scale_aes == "colour")]]
-  expect_equal(unname(color_scale$palette(2)), c("firebrick", "steelblue"))
-  expect_equal(color_scale$na.value, "grey50")
-  expect_equal(color_scale$guide, "none")
+  expect_equal(color_scale$palette(2)[c("FOOD", "WTBL")],
+               c(FOOD = "firebrick", WTBL = "steelblue"))
+  expect_equal(p$guides$guides$colour, "none")
   pt <- layer_of(p, "GeomPoint", 1L)
   ref_pt <- layer_of(p, "GeomPoint", 2L)
   expect_true("colour" %in% names(pt$mapping))
@@ -790,12 +790,19 @@ test_that("plot_build_forest() colors a standalone Reference panel from the styl
   expect_equal(unique(built$data[[which(is_pt)[2]]]$colour), "grey20")
 })
 
-test_that("plot_build_forest() warns when style colors are missing entries for present covariates", {
-  expect_warning(
-    plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                      style = style_forest(colors = c(FOOD = "red"))),
-    regexp = "colors.*missing entries"
+test_that("Covariates without a style colour take the house palette, silently", {
+  expect_no_warning(
+    p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                           style = style_forest(colors = c(FOOD = "red")))
   )
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  test_cols <- built$data[[which(is_pt)[1]]]
+  food <- p$layers[[which(is_pt)[1]]]$data$cov_var == "FOOD"
+  expect_equal(unique(test_cols$colour[food]), "red")
+  others <- unique(c(test_cols$colour[!food], built$data[[which(is_pt)[2]]]$colour))
+  expect_length(others, 2L)
+  expect_false(any(others %in% c("red", "grey50", NA)))
 })
 
 

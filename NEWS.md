@@ -2,94 +2,58 @@
 
 ## New features
 
-### New functions
+### Forest plots
 
-* `plot_forest()` generates a forest plot of test/reference comparisons
-  for visualizing PK/PD relationships and covariate impact for a single
-  PK parameter per call. Returns a plain `ggplot` object (composable
-  with `+ geom_*()` / `+ theme()` / `+ coord_*()`); the numeric
-  `est [lo, hi]` column is rendered as the right-hand secondary y-axis
-  text under a header built from the statistic and CI width (e.g.
-  `Median [90% CI]`, drawn as the plot tag) rather than a side table;
-  the primary y-axis carries the covariate level only. Rows flagged
-  `is_ref` (the dispersed per-covariate reference label, or the standalone
-  Reference panel) draw as an open circle through the `ref_point` style
-  role and show the estimate alone in the column. `show_legend = TRUE`
-  adds a legend keying the reference line and shaded band (default
-  `FALSE`). Covariate name is a grouping dimension (`facet_grid` row with
-  left-side strip label). Rows draw top to bottom in the order of the
-  `forest_stats` frame, and each row is its own y position, so covariate
-  level labels may repeat across panels. Select which exposure metric to
-  render via the `metric` argument; if `stats` carries exactly one metric,
-  it is picked automatically. The reference line defaults to
-  `ref = "reference"`, the estimate of the metric's reference row (`1` for
-  a ratio, the reference exposure for a raw metric); `ref_band` is placed
-  around it per `ref_band_type`: `"multiplicative"` (default,
-  `c(0.8, 1.25)` is bioequivalence on ratio and exposure scales),
-  `"additive"` (`c(-10, 10)` around a reference change for difference
-  metrics), or `"absolute"`.
-* `df_forest()` aggregates replicate draws into a plot-ready
-  `forest_stats` / `pmx_stats` container: one row per plotted point with
-  canonical `est`, `lo`, `hi`, `ci_label`, and `is_ref` columns, sorted
-  into display order; `ci_label` pads every value to `sigdigits`
-  significant digits (`1.00 [0.950, 1.05]`). The designated reference row
-  (`cov_name_ref`, default `"Reference"`) sorts to the top as its own
-  panel, or, given `cov_level_ref` (a named vector mapping covariate names
-  to their per-covariate reference labels, e.g.
-  `c(FOOD = "Fasted", WTBL = "70 kg")`), is dispersed into each named
-  covariate panel under that label instead. Row order follows factor
-  levels on the input columns when present, otherwise first appearance in
-  the data; within a covariate, labels that start with a number sort
-  ascending (`50 kg` above `90 kg`) and any other set keeps the reference
-  label on top followed by the data order. Reorder the rows of
-  `stats$stats` to change the plot.
-* `plot_build_forest()` renders a forest ggplot from any `forest_stats`
-  container; most users still go through `plot_forest()`.
-* `style_forest()` is the `ggstylekit::style_spec()` preset for
-  `plot_forest()` with roles `point`, `errorbar`, `ref_point`, `ref_line`,
-  and `ref_band`; its forest panel theme styles the estimate column
-  (`axis.text.y.right`) and its header (`plot.tag`).
-* `is_forest_stats()` predicate for the new `forest_stats` subclass.
+* `plot_forest()` draws a forest plot of test/reference comparisons for one
+  exposure metric, faceted by covariate, with an `Estimate (CI)` text column
+  on the right. 
+  
+  Key features:
+  + Reference line (`ref`) and optional band (`ref_band`, `ref_band_type` of
+    `"multiplicative"`, `"additive"`, or `"absolute"`).
+  + Accepts raw draws or a precomputed `forest_stats` container, so a
+    summary can be re-plotted without re-aggregating.
+  + Returns a plain `ggplot` object.
+  
+* `df_forest()` summarizes replicate draws into a plot-ready `forest_stats`
+  container (estimate, CI bounds, formatted labels, `is_ref` flag) in display
+  order. Reference rows are identified by a logical flag column (`is_ref_var`)
+  or by name (`cov_name_ref`), and can be shown as their own panel or
+  dispersed into each covariate panel (`cov_level_ref`).
+* `df_forest_preprocess()` reshapes wide replicate simulation output (one row
+  per scenario per replicate) into the long draws `df_forest()` consumes,
+  inferring each scenario's covariate from its difference to the reference
+  (`cov_val_ref`) and optionally adding test/reference ratios (`ratio`).
+* `plot_build_forest()` renders any `forest_stats` container, including
+  manually built ones from external pipelines.
+* `style_forest()` is the `ggstylekit` style preset for `plot_forest()`;
+  `colors` keyed by covariate name color each covariate panel.
+* `is_forest_stats()` tests for a `forest_stats` object.
 
 ### New datasets
 
-* `data_sad_pkforest` ships as long-form example data for `df_forest()` /
-  `plot_forest()`: per-replicate bootstrap-PK draws of absolute and
-  test/reference PK metrics across body-weight and food-effect covariate
-  scenarios. Column defaults of `df_forest()` / `plot_forest()`
-  (`metric`, `cov_var`, `cov_val`, `value`) match this dataset for
-  drop-in use; pipe through `df_forest()` to produce a `forest_stats`
-  container.
+* `data_sad_pkforest_sim`: example raw replicate simulation output (500
+  bootstrap replicates of steady-state `CMAX`, `CMIN`, `AUC`, `CAVG` under
+  six covariate scenarios).
+* `data_sad_pkforest`: `data_sad_pkforest_sim` processed by
+  `df_forest_preprocess()`, ready for `df_forest()` / `plot_forest()`.
 
-### Per-covariate coloring in forest plots
+## Changed behavior
 
-* `style_forest()` accepts `colors` entries keyed by covariate name (e.g.
-  `style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))`). When at
-  least one covariate present in the plotted data is named, `plot_forest()`
-  colors point and errorbar layers by covariate (facet) via
-  `scale_color_manual()` and suppresses the legend, since facet strips
-  already label each covariate. Covariates absent from the map render in
-  `grey50` and trigger a warning. The default map names no covariates
-  (single-color behavior).
+* Character `col_var` labels in `plot_dvconc()`, `plot_dvtime()`, and
+  `plot_gof()` now order by a number anywhere in the label (e.g.
+  `"Dose 5 mg"` before `"Dose 10 mg"`), not only a leading one. Label sets
+  with any number-free value keep first-appearance order; factors are
+  unaffected.
 
-### Dual-mode pipelines (replot without recompute)
+## Bug fixes
 
-* `plot_forest()` accepts the `forest_stats` container returned by
-  `df_forest()` directly. Pass a precomputed result to skip aggregation
-  and re-plot with different `style`, `ref`, `ref_band`, or
-  `ref_band_type` settings.
-  Pipeline arguments (`metric_name_var`, `cov_name_var`, `cov_level_var`,
-  `metric_value_var`, `statistic`, `ci`, `sigdigits`,
-  `cov_name_ref`, `cov_level_ref`) cannot be honored on the precomputed
-  path and error with a clear message. The plot-only `metric` argument is
-  accepted on both paths so a single `forest_stats` container can be
-  re-rendered for different exposure metrics.
-
-* `df_forest()` is draws-only: it aggregates every row of a
-  `(metric, covariate, level)` group, so no replicate index column is
-  needed. Users with pre-summarized data from external pipelines build
-  a `forest_stats` container manually and render via
-  `plot_build_forest()`.
+* `df_doseprop()` / `plot_doseprop()` judge dose proportionality on unrounded
+  confidence bounds, so bounds within rounding distance of 1 are no longer
+  misclassified as "Dose-proportional".
+* `df_doseprop()` `PowerCI` labels pad to `sigdigits` significant digits
+  (e.g. `Power: 1.00 (90% CI 0.900-1.20)`) and no longer use scientific
+  notation.
 
 # pmxhelpr 0.6.0
 

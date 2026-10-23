@@ -9,7 +9,7 @@ df_forest_preprocess(
   metric_vars,
   cov_vars,
   cov_val_ref,
-  replicate_var = "SIM",
+  irep_name = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
   cov_labels = NULL,
@@ -35,7 +35,7 @@ every \code{cov_vars} column (e.g. \code{c(FOOD = 0, WTBL = 70)}). Not to be
 confused with \code{cov_level_ref} in \code{\link[=df_forest]{df_forest()}}, which holds display
 labels rather than source values.}
 
-\item{replicate_var}{Column in \code{data} identifying the replicate.
+\item{irep_name}{Column in \code{data} identifying the replicate.
 Accepts bare names or strings. Default is \code{SIM}. Required only when
 \code{ratio = TRUE}, which forms ratios within a replicate.}
 

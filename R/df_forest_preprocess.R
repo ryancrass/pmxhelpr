@@ -45,7 +45,7 @@
 #'    every `cov_vars` column (e.g. `c(FOOD = 0, WTBL = 70)`). Not to be
 #'    confused with `cov_level_ref` in [df_forest()], which holds display
 #'    labels rather than source values.
-#' @param replicate_var Column in `data` identifying the replicate.
+#' @param irep_name Column in `data` identifying the replicate.
 #'    Accepts bare names or strings. Default is `SIM`. Required only when
 #'    `ratio = TRUE`, which forms ratios within a replicate.
 #' @param ratio Logical. When `TRUE` (default), append a test/reference
@@ -125,7 +125,7 @@ df_forest_preprocess <- function(
   metric_vars,
   cov_vars,
   cov_val_ref,
-  replicate_var = "SIM",
+  irep_name = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
   cov_labels = NULL,
@@ -135,7 +135,7 @@ df_forest_preprocess <- function(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val"
 ) {
-  replicate_var_str <- resolve_var(rlang::enquo(replicate_var))
+  irep_name_str <- resolve_var(rlang::enquo(irep_name))
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
@@ -151,7 +151,7 @@ df_forest_preprocess <- function(
   check_string(cov_name_ref, "cov_name_ref")
   check_varsindf(data, c(metric_vars, cov_vars), "data", "metric_vars/cov_vars")
   if (isTRUE(ratio)) {
-    check_varsindf(data, replicate_var_str, "data", "replicate_var")
+    check_varsindf(data, irep_name_str, "data", "irep_name")
   }
 
   data <- as.data.frame(data)
@@ -257,10 +257,10 @@ df_forest_preprocess <- function(
   wide <- data
   ratio_vars <- character(0)
   if (isTRUE(ratio)) {
-    rep_key <- as.character(data[[replicate_var_str]])
+    rep_key <- as.character(data[[irep_name_str]])
     if (any(is.na(rep_key))) {
       rlang::abort(message = paste0(
-        "column `", replicate_var_str, "` must not contain `NA`."
+        "column `", irep_name_str, "` must not contain `NA`."
       ))
     }
     reps <- unique(rep_key)
@@ -269,7 +269,7 @@ df_forest_preprocess <- function(
     if (any(bad_rep)) {
       rlang::abort(message = paste0(
         "each replicate must contain exactly one reference-scenario row; ",
-        "these values of `", replicate_var_str, "` do not: ",
+        "these values of `", irep_name_str, "` do not: ",
         paste(reps[bad_rep][seq_len(min(10L, sum(bad_rep)))], collapse = ", "),
         " (found ", paste(n_ref_per[bad_rep][seq_len(min(10L, sum(bad_rep)))], collapse = ", "), ")."
       ))

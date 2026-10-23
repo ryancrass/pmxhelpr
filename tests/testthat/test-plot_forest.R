@@ -88,7 +88,7 @@ test_that("Aggregation needs no replicate column", {
   d <- data_sad_pkforest
   d$SIM <- NULL
   expect_s3_class(df_forest(d), "forest_stats")
-  expect_error(df_forest(data_sad_pkforest, replicate_var = "SIM"), "unused argument")
+  expect_error(df_forest(data_sad_pkforest, irep_name = "SIM"), "unused argument")
 })
 
 test_that("Extra columns on `data` are not consumed", {

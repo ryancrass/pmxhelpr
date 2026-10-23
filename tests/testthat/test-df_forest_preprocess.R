@@ -148,7 +148,7 @@ test_that("`ratio_suffix` names the ratio metrics", {
   expect_true(all(c("AUC_REL", "CMAX_REL") %in% out$metric))
 })
 
-test_that("`replicate_var` is only required when ratios are requested", {
+test_that("`irep_name` is only required when ratios are requested", {
   no_sim <- sim_wide[sim_wide$SIM == 1, setdiff(names(sim_wide), "SIM")]
   expect_s3_class(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
@@ -158,7 +158,7 @@ test_that("`replicate_var` is only required when ratios are requested", {
   expect_error(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals),
-    "replicate_var"
+    "irep_name"
   )
 })
 
@@ -211,8 +211,8 @@ test_that("The attribute feeds `df_forest()` as `cov_level_ref`", {
 #####df_forest_preprocess -- argument validation#####
 
 test_that("Column-name arguments accept bare names or strings", {
-  expect_equal(pre(cov_labels = labs, replicate_var = SIM),
-               pre(cov_labels = labs, replicate_var = "SIM"))
+  expect_equal(pre(cov_labels = labs, irep_name = SIM),
+               pre(cov_labels = labs, irep_name = "SIM"))
 })
 
 test_that("Output column names are configurable", {

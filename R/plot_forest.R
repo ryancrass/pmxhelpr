@@ -65,89 +65,37 @@ forest_col_labels <- function(est_label, lo_label, hi_label, is_ref) {
 
 #' Internal helper: the rows a forest plot draws, in draw order
 #'
-#' Returns `stats$stats` (optionally restricted to one metric) laid out for
-#' the requested reference layout. `"consolidated"` draws the rows as they
-#' are; `"distributed"` replaces the standalone reference panel(s) with a
-#' copy of the reference row in each covariate panel named in
-#' `config$cov_level_ref`, under that label, directly below the
-#' `config$ref_after` label (top of the panel when `NA` or absent).
+#' Returns `stats$stats` (optionally restricted to one metric) filtered to the
+#' requested reference layout through its `layout` column: rows marked
+#' `"both"` always draw, `"consolidated"` rows (the standalone reference
+#' panel) only in that layout, `"distributed"` rows (the per-covariate
+#' reference copies) only in that one.
 #'
 #' @param stats A `forest_stats` object.
 #' @param ref_layout `NULL`, `"distributed"`, or `"consolidated"`. `NULL`
-#'    resolves to `"distributed"` when `config$cov_level_ref` is set,
-#'    otherwise `"consolidated"`.
+#'    resolves to `"distributed"` when `stats$stats` carries distributed
+#'    rows, otherwise `"consolidated"`.
 #' @param metric Optional metric value to restrict the rows to.
 #'
 #' @return A data.frame of rows in top-to-bottom draw order.
 #' @keywords internal
 forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
-  cfg <- stats$config
   rows <- stats$stats
-  if (!is.null(metric)) {
-    rows <- rows[as.character(rows[[cfg$metric_name_var]]) == metric, , drop = FALSE]
-  }
+  has_distributed <- any(rows$layout == "distributed")
   if (is.null(ref_layout)) {
-    ref_layout <- if (is.null(cfg$cov_level_ref)) "consolidated" else "distributed"
+    ref_layout <- if (has_distributed) "distributed" else "consolidated"
   }
-  if (ref_layout == "distributed") {
-    if (is.null(cfg$cov_level_ref)) {
-      rlang::abort(message = paste0(
-        "`ref_layout = \"distributed\"` needs per-covariate reference labels; ",
-        "pass `cov_level_ref` to `df_forest()`."
-      ))
-    }
-    metric_chr <- as.character(rows[[cfg$metric_name_var]])
-    by_metric <- split(rows, factor(metric_chr, levels = unique(metric_chr)))
-    by_metric <- lapply(by_metric, distribute_ref_rows, cfg = cfg)
-    if (!any(vapply(by_metric, function(x) isTRUE(attr(x, "distributed")), logical(1)))) {
-      rlang::abort(message = paste0(
-        "`ref_layout = \"distributed\"` found no standalone reference panel ",
-        "(a covariate whose rows are all flagged `is_ref`) to distribute."
-      ))
-    }
-    rows <- do.call(rbind, by_metric)
+  if (ref_layout == "distributed" && !has_distributed) {
+    rlang::abort(message = paste0(
+      "`ref_layout = \"distributed\"` needs per-covariate reference rows; ",
+      "pass `cov_level_ref` to `df_forest()`."
+    ))
   }
+  if (!is.null(metric)) {
+    rows <- rows[as.character(rows[[stats$config$metric_name_var]]) == metric, , drop = FALSE]
+  }
+  rows <- rows[rows$layout %in% c("both", ref_layout), , drop = FALSE]
   rownames(rows) <- NULL
-  rows
-}
-
-
-#' Internal helper: distribute one metric's reference panel
-#'
-#' @param rows One metric's rows of `stats$stats`, in draw order.
-#' @param cfg The `forest_stats` config list.
-#'
-#' @return `rows` with the standalone reference panel(s) replaced by copies
-#'    in each `cfg$cov_level_ref` covariate, carrying a `"distributed"`
-#'    attribute (`TRUE` when a reference panel was found).
-#' @keywords internal
-distribute_ref_rows <- function(rows, cfg) {
-  cov_name_var_str <- cfg$cov_name_var
-  cov_level_var_str <- cfg$cov_level_var
-  cov <- as.character(rows[[cov_name_var_str]])
-  ref_covs <- Filter(
-    function(cn) all(rows$is_ref[cov == cn]),
-    unique(cov[rows$is_ref])
-  )
-  if (length(ref_covs) == 0L) return(rows)
-
-  ref_rows <- rows[cov %in% ref_covs, , drop = FALSE]
-  rows <- rows[!cov %in% ref_covs, , drop = FALSE]
-  cov <- cov[!cov %in% ref_covs]
-  for (cn in intersect(names(cfg$cov_level_ref), unique(cov))) {
-    copy <- ref_rows
-    copy[[cov_name_var_str]] <- cn
-    copy[[cov_level_var_str]] <- as.character(cfg$cov_level_ref[[cn]])
-    in_panel <- which(as.character(rows[[cov_name_var_str]]) == cn)
-    after <- unname(cfg$ref_after[cn])
-    hit <- if (length(after) == 1L && !is.na(after)) {
-      in_panel[as.character(rows[[cov_level_var_str]][in_panel]) == after]
-    }
-    pos <- if (length(hit) > 0L) max(hit) else min(in_panel) - 1L
-    idx <- seq_len(nrow(rows))
-    rows <- rbind(rows[idx <= pos, , drop = FALSE], copy, rows[idx > pos, , drop = FALSE])
-  }
-  attr(rows, "distributed") <- TRUE
   rows
 }
 
@@ -160,17 +108,19 @@ distribute_ref_rows <- function(rows, cfg) {
 #' container with class `c("forest_stats", "pmx_stats")` and three slots:
 #'
 #'   + `stats` (plot-ready frame: one row per plotted point, in display order,
-#'      with the reference in its own panel, canonical `est`, `lo`, `hi`, the formatted `est_label`,
-#'      `lo_label`, `hi_label`, and `ci_label`, and `is_ref` columns),
+#'      with canonical `est`, `lo`, `hi`, the formatted `est_label`,
+#'      `lo_label`, `hi_label`, and `ci_label`, and `is_ref` and `layout`
+#'      columns),
 #'   + `obs` (always `NULL`; no scatter overlay),
 #'   + `config` (column names + CI configuration)
 #'
 #' The rows are sorted into the order [plot_build_forest()] draws them, top
 #' to bottom; reorder the rows of `stats$stats` to change the plotted order.
-#' The reference row stays in its own panel at the top of `stats$stats`. When
-#' `cov_level_ref` is supplied, [plot_build_forest()] distributes it into each
-#' covariate panel at plot time (switch with its `ref_layout` argument), so
-#' one container renders either layout without re-aggregating.
+#' The reference row sits in its own panel at the top of `stats$stats`. When
+#' `cov_level_ref` is supplied, a copy of it is also placed in each named
+#' covariate panel, and the `layout` column records which rows each
+#' reference layout draws, so one container renders either layout (see
+#' `ref_layout` in [plot_build_forest()]) without re-aggregating.
 #'
 #' @param data Input data.frame. Replicate level long format dataset: one row
 #'    per metric, covariate, covariate level, and replicate.
@@ -209,7 +159,8 @@ distribute_ref_rows <- function(rows, cfg) {
 #'    named covariate that is present in `data`, under that label, in place
 #'    of the standalone reference panel (`ref_layout = "consolidated"` draws
 #'    the standalone panel instead). Covariates not named show no reference
-#'    row. `stats$stats` itself always keeps the standalone reference rows.
+#'    row. `stats$stats` keeps both the standalone reference rows and the
+#'    per-covariate copies, told apart by the `layout` column.
 #'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
 #'    Default is `NULL` (the reference renders in
 #'    its own panel at the top).
@@ -222,9 +173,9 @@ distribute_ref_rows <- function(rows, cfg) {
 #' levels of `cov_level_var` win when they cover every label (including the
 #' distributed reference label); otherwise labels carrying a number sort ascending by it,
 #' sign included (`50 kg` above `90 kg`), and any other set puts the reference
-#' label on top followed by the data order. The distributed reference label is
-#' placed by the same rules and its position recorded in `config$ref_after`,
-#' so the covariate rows keep one order in both layouts.
+#' label on top followed by the data order. The distributed reference rows
+#' are placed by the same rules, so the covariate rows keep one order in both
+#' layouts.
 #'
 #' @family forest plot
 #' @return A `forest_stats` container (subclass of `pmx_stats`) with three
@@ -236,18 +187,18 @@ distribute_ref_rows <- function(rows, cfg) {
 #'        draws), `lo`, `hi` (the `(1 - ci) / 2` and `1 - (1 - ci) / 2`
 #'        percentiles), the character columns `est_label`, `lo_label`, and
 #'        `hi_label` (those values formatted per `sigdigits`), `ci_label`
-#'        (the three combined for tables, e.g. `"1.12 (0.95, 1.32)"`), and
-#'        the logical `is_ref`. The `cov_name_var` value drives the per-row
+#'        (the three combined for tables, e.g. `"1.12 (0.95, 1.32)"`), the
+#'        logical `is_ref`, and `layout`, the reference layout(s) a row draws
+#'        in: `"both"` (covariate rows), `"consolidated"` (the standalone
+#'        reference panel), or `"distributed"` (the reference copies placed
+#'        in each `cov_level_ref` covariate). The `cov_name_var` value drives the per-row
 #'        facet strip; the `cov_level_var` value drives the y-axis tick label;
 #'        [plot_build_forest()] assembles `est_label`, `lo_label`, and
 #'        `hi_label` into the right-hand secondary y-axis text, so edit those
 #'        columns (not `ci_label`) to change the plotted text.}
 #'      \item{`obs`}{`NULL`. No scatter overlay for the forest family.}
 #'      \item{`config`}{Named list with column names, `ci`,
-#'        `sigdigits`, `cov_name_ref`, `cov_level_ref`, and `ref_after` (a
-#'        named character vector giving, per `cov_level_ref` covariate, the
-#'        label the distributed reference row is drawn directly below; `NA`
-#'        for the top of the panel).}
+#'        `sigdigits`, `cov_name_ref`, and `cov_level_ref`.}
 #'    }
 #'    Pass directly to [plot_forest()] or [plot_build_forest()] to render.
 #' @export df_forest
@@ -330,9 +281,11 @@ df_forest <- function(
     as.data.frame()
   for (v in grp_vars) stats[[v]] <- as.character(stats[[v]])
 
-  ## Reference rows match `cov_name_ref`. They stay in their own panel,
-  ## sorted first; distributing them into each covariate panel under its
-  ## `cov_level_ref` label happens at plot time (see `forest_rows()`).
+  ## Reference rows match `cov_name_ref` and form the standalone reference
+  ## panel, drawn only in the consolidated layout. With `cov_level_ref`, a
+  ## copy of each metric's reference row is added to every named covariate
+  ## that metric has, under that covariate's reference label, drawn only in
+  ## the distributed layout. All other rows draw in both.
   stats$is_ref <- FALSE
   ref_covs <- character(0)
   if (!is.null(cov_name_ref)) {
@@ -345,36 +298,33 @@ df_forest <- function(
       cov_name_var_str, " == \"", cov_name_ref, "\"` were found in `data`."
     ))
   }
+  stats$layout <- ifelse(stats$is_ref, "consolidated", "both")
+  ref_rows <- stats[stats$is_ref, , drop = FALSE]
+  targets <- intersect(names(cov_level_ref), setdiff(cov_order, ref_covs))
+  copies <- lapply(targets, function(cn) {
+    present <- stats[[metric_name_var_str]][stats[[cov_name_var_str]] == cn]
+    copy <- ref_rows[ref_rows[[metric_name_var_str]] %in% present, , drop = FALSE]
+    copy[[cov_name_var_str]] <- rep(cn, nrow(copy))
+    copy[[cov_level_var_str]] <- rep(as.character(cov_level_ref[[cn]]), nrow(copy))
+    copy$layout <- rep("distributed", nrow(copy))
+    copy
+  })
+  stats <- do.call(rbind, c(list(stats), copies))
   cov_order <- c(intersect(ref_covs, cov_order), setdiff(cov_order, ref_covs))
 
   ## Sort into display order (top to bottom): metric, covariate, then the
-  ## per-panel label order. A covariate named in `cov_level_ref` is ordered
-  ## with its reference label included, and the label the distributed
-  ## reference row sits directly below is recorded in `ref_after` (`NA` for
-  ## the top of the panel), so both layouts share one test-row order.
-  targets <- intersect(names(cov_level_ref), setdiff(cov_order, ref_covs))
-  ref_after <- stats::setNames(rep(NA_character_, length(targets)), targets)
+  ## per-panel label order. Distributed reference labels are ordered with
+  ## the covariate's own labels, so both layouts share one test-row order.
   level_rank <- integer(nrow(stats))
   for (cn in cov_order) {
     in_panel <- stats[[cov_name_var_str]] == cn
     labels <- unique(stats[[cov_level_var_str]][in_panel])
-    is_ref_label <- labels %in% stats[[cov_level_var_str]][in_panel & stats$is_ref]
-    if (cn %in% targets) {
-      ref_label <- as.character(cov_level_ref[[cn]])
-      is_ref_label <- is_ref_label[labels != ref_label]
-      labels <- c(labels[labels != ref_label], ref_label)
-      is_ref_label <- c(is_ref_label, TRUE)
-    }
     ordered <- order_panel_labels(
       labels,
-      is_ref = is_ref_label,
+      is_ref = labels %in% stats[[cov_level_var_str]][in_panel & stats$is_ref],
       given = level_given[[cn]],
       from_factor = level_from_factor
     )
-    if (cn %in% targets) {
-      pos <- match(ref_label, ordered)
-      if (pos > 1L) ref_after[[cn]] <- ordered[pos - 1L]
-    }
     level_rank[in_panel] <- match(stats[[cov_level_var_str]][in_panel], ordered)
   }
   stats <- stats[order(
@@ -394,7 +344,7 @@ df_forest <- function(
     stats$est_label, " (", stats$lo_label, ", ", stats$hi_label, ")"
   )
   stats <- stats[, c(grp_vars, "est", "lo", "hi", "est_label", "lo_label",
-                     "hi_label", "ci_label", "is_ref")]
+                     "hi_label", "ci_label", "is_ref", "layout")]
 
   pmx_stats(
     stats = stats,
@@ -407,8 +357,7 @@ df_forest <- function(
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,
-      cov_level_ref = cov_level_ref,
-      ref_after = if (!is.null(cov_level_ref)) ref_after
+      cov_level_ref = cov_level_ref
     ),
     subclass = "forest_stats"
   )
@@ -436,7 +385,7 @@ validate_forest_stats <- function(x) {
   }
   validate_pmx_stats(x)
   required_cols <- c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
-                     "ci_label", "is_ref")
+                     "ci_label", "is_ref", "layout")
   missing_cols <- setdiff(required_cols, colnames(x$stats))
   if (length(missing_cols) > 0) {
     rlang::abort(paste0(
@@ -484,9 +433,8 @@ validate_forest_stats <- function(x) {
 #' (see the "Row order" section of [df_forest()]); reorder that frame to
 #' change the plot. Each row is its own y position, so covariate level
 #' labels may repeat across panels (`Low` / `High` under two covariates).
-#' The one exception is the reference row in the distributed layout (see
-#' `ref_layout`): it is inserted into each covariate panel at draw time,
-#' below the label recorded in `config$ref_after`.
+#' The `layout` column selects the rows for the chosen reference layout (see
+#' `ref_layout`).
 #'
 #' Rows flagged `is_ref` (the distributed per-covariate reference label, or the
 #' standalone `cov_name_ref` panel) draw through the `ref_point` style role
@@ -540,13 +488,14 @@ validate_forest_stats <- function(x) {
 #'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
 #'    are present, aborts and asks the caller to pick one.
 #' @param ref_layout Where the reference row is drawn: `"distributed"`
-#'    copies it into each covariate panel named in the container's
-#'    `cov_level_ref`, under that covariate's reference label;
-#'    `"consolidated"` draws it in its own panel at the top. `NULL`
-#'    (default) uses `"distributed"` when [df_forest()] was given
-#'    `cov_level_ref`, otherwise `"consolidated"`. `"distributed"` without
-#'    `cov_level_ref` is an error. The summary statistics are not
-#'    recomputed; only the drawn rows change.
+#'    draws it in each covariate panel named in the container's
+#'    `cov_level_ref`, under that covariate's reference label (the rows with
+#'    `layout = "distributed"`); `"consolidated"` draws it in its own panel
+#'    at the top (`layout = "consolidated"`). Rows with `layout = "both"`
+#'    draw in either. `NULL` (default) uses `"distributed"` when
+#'    [df_forest()] was given `cov_level_ref`, otherwise `"consolidated"`.
+#'    `"distributed"` without `cov_level_ref` is an error. The summary
+#'    statistics are not recomputed; only the drawn rows change.
 #'
 #' @family forest plot
 #' @return a `ggplot` plot object

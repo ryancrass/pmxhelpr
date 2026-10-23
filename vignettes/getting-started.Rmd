@@ -437,8 +437,8 @@ confidence interval for each covariate level, returning a class-tagged
 and `vpc_stats`). The `stats` slot is the plot-ready frame with one row per 
 forest plot entry in the order drawn top to bottom. Supplying `cov_level_ref`
 lets the plot distribute the `Reference` row into each named covariate panel
-under that label (flagged `is_ref`); `$stats` itself keeps the single
-`Reference` row. Reorder the rows of `forest_stats$stats`, or set factor
+under that label (flagged `is_ref`); the `layout` column of `$stats` records
+which reference rows each layout draws. Reorder the rows of `forest_stats$stats`, or set factor
 levels of `cov_val` in the input dataset to control the plotted order.
 
 ```{r forest-stats}

@@ -269,7 +269,8 @@ The `stats` slot holds one row per plotted point with the canonical columns
 `est`, `lo`, and `hi`, their formatted text `est_label`, `lo_label`, and 
 `hi_label`, and `ci_label` combining the three for tables. The plotted 
 estimate column is assembled from the three label columns. The logical `is_ref` flags the 
-reference rows. The data.frame is output in plotting order.
+reference rows, and `layout` records the reference layout each row is drawn in 
+(see below). The data.frame is output in plotting order.
 
 ```{r df-forest-stats}
 forest_obj$stats
@@ -313,16 +314,16 @@ df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
 of that covariate. When supplied, the plot distributes the reference row into
 each named covariate panel under that label in place of the standalone
 reference panel, so every panel shows the reference alongside the varied levels.
-The summary table itself is unchanged: `$stats` keeps one reference row per
-metric, and `config$ref_after` records the label each distributed reference row
-is drawn directly below (`NA` for the top of the panel).
+`$stats` then holds both: the standalone reference rows (`layout = 
+"consolidated"`) and a copy of them in each named covariate panel at its sorted
+position (`layout = "distributed"`). Covariate rows are drawn in either layout
+(`layout = "both"`).
 
 ```{r df-forest-distributed}
 forest_obj <- df_forest(simsum,
                         cov_level_ref = ref_levels)
 forest_obj$stats %>%
   filter(metric == "AUCRATIO")
-forest_obj$config$ref_after
 ```
 
 If the data has no reference at all, pass `cov_name_ref = NULL`.
@@ -359,8 +360,7 @@ data_wt_desc <- simsum %>%
 wt_desc <- df_forest(data_wt_desc, cov_level_ref = ref_levels)
 wt_desc$stats %>%
   filter(metric == "AUCRATIO") %>%
-  select(cov_var, cov_val, is_ref, ci_label)
-wt_desc$config$ref_after
+  select(cov_var, cov_val, is_ref, layout, ci_label)
 ```
 
 # Plotting with `plot_forest()`

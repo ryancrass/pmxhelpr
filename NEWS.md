@@ -19,7 +19,7 @@
   + Returns a plain `ggplot` object.
   
 * `df_forest()` summarizes replicate draws into a plot-ready `forest_stats`
-  container (estimate, CI bounds, formatted labels, `is_ref` flag) in display
+  container (estimate, CI bounds, formatted labels, `is_ref` flag, `layout`) in display
   order. Reference rows are identified by name (`cov_name_ref`);
   `cov_level_ref` supplies the per-covariate reference labels that the
   distributed layout draws them under.

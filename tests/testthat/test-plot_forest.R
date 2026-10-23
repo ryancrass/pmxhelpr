@@ -39,7 +39,7 @@ test_that("Output stats slot contains canonical columns, grouping columns as cha
   out <- df_forest(data_sad_pkforest)
   expect_equal(colnames(out$stats),
                c("metric", "cov_var", "cov_val", "est", "lo", "hi",
-                 "est_label", "lo_label", "hi_label", "ci_label", "is_ref"))
+                 "est_label", "lo_label", "hi_label", "ci_label", "is_ref", "layout"))
   expect_type(out$stats$metric, "character")
   expect_type(out$stats$cov_var, "character")
   expect_type(out$stats$cov_val, "character")
@@ -308,12 +308,18 @@ test_that("cov_level_ref names absent from data are ignored; unnamed covariates 
 
 #####reference layout (ref_layout)#####
 
-test_that("stats$stats keeps the standalone reference regardless of cov_level_ref", {
+test_that("cov_level_ref adds distributed reference copies; other rows are unchanged", {
   plain <- df_forest(data_sad_pkforest)
   with_map <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
-  expect_equal(with_map$stats, plain$stats)
-  expect_equal(with_map$config$ref_after, c(FOOD = NA_character_, WTBL = "60 kg"))
-  expect_null(plain$config$ref_after)
+  expect_equal(unique(plain$stats$layout), c("consolidated", "both"))
+  kept <- with_map$stats[with_map$stats$layout != "distributed", ]
+  expect_equal(kept, plain$stats, ignore_attr = TRUE)
+  copies <- with_map$stats[with_map$stats$layout == "distributed", ]
+  expect_true(all(copies$is_ref))
+  expect_equal(nrow(copies), 2 * length(unique(data_sad_pkforest$metric)))
+  # copies sit in their panel at their sorted position
+  auc <- with_map$stats[with_map$stats$metric == "AUCRATIO" & with_map$stats$cov_var == "WTBL", ]
+  expect_equal(auc$cov_val, c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
 })
 
 test_that("ref_layout = NULL distributes only when cov_level_ref was given", {
@@ -321,7 +327,7 @@ test_that("ref_layout = NULL distributes only when cov_level_ref was given", {
   with_map <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   expect_equal(drawn(plain), plain$stats)
   expect_equal(drawn(with_map), drawn(with_map, "distributed"))
-  expect_equal(drawn(with_map, "consolidated"), with_map$stats)
+  expect_equal(drawn(with_map, "consolidated"), plain$stats)
 })
 
 test_that("Both layouts share the covariate rows and labels; only reference rows move", {
@@ -334,16 +340,6 @@ test_that("Both layouts share the covariate rows and labels; only reference rows
   expect_equal(unique(copies), ref, ignore_attr = TRUE)
 })
 
-test_that("A missing `ref_after` label puts the distributed row at the top of its panel", {
-  stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
-  stats$config$ref_after <- NULL
-  s <- drawn(stats, metric = "AUCRATIO")
-  expect_equal(s$cov_val[s$cov_var == "WTBL"], c("70 kg", "50 kg", "60 kg", "80 kg", "90 kg"))
-  stats$config$ref_after[["WTBL"]] <- "not a label"
-  s <- drawn(stats, metric = "AUCRATIO")
-  expect_equal(s$cov_val[s$cov_var == "WTBL"][1], "70 kg")
-})
-
 test_that("Covariate rows keep the order the reference label set, in both layouts", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
   d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",
@@ -351,16 +347,19 @@ test_that("Covariate rows keep the order the reference label set, in both layout
   stats <- df_forest(d, cov_level_ref = ref_map)
   cons <- drawn(stats, "consolidated")
   expect_equal(cons$cov_val[cons$cov_var == "WTBL"], c("50 kg", "90 kg", "60 kg", "80 kg"))
-  expect_equal(stats$config$ref_after, c(FOOD = "Fed", WTBL = "50 kg"))
+  dist <- drawn(stats, "distributed")
+  expect_equal(dist$cov_val[dist$cov_var == "WTBL"], c("50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
+  expect_equal(dist$cov_val[dist$cov_var == "FOOD"], c("Fed", "Fasted"))
 })
 
-test_that("ref_layout errors: distributed without cov_level_ref or a reference panel; bad values", {
+test_that("ref_layout errors: distributed without distributed rows; bad values", {
   expect_error(plot_build_forest(df_forest(data_sad_pkforest), metric = "AUC",
                                  ref_layout = "distributed"),
                "pass `cov_level_ref` to `df_forest\\(\\)`")
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
-  stats$stats$is_ref <- FALSE
-  expect_error(plot_build_forest(stats, metric = "AUC", ref = 1), "no standalone reference panel")
+  stats$stats <- stats$stats[stats$stats$layout != "distributed", ]
+  expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = "distributed"),
+               "per-covariate reference rows")
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = "split"), "ref_layout")
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = NA_character_), "ref_layout")
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = c("distributed", "consolidated")),
@@ -465,6 +464,9 @@ test_that("validate_forest_stats errors when canonical columns or config keys ar
   out <- df_forest(data_sad_pkforest)
   out$stats$is_ref <- NULL
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns")
+  out <- df_forest(data_sad_pkforest)
+  out$stats$layout <- NULL
+  expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns: layout")
   out <- df_forest(data_sad_pkforest)
   out$config$ci <- NULL
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required config keys")
@@ -600,8 +602,8 @@ test_that("Rows draw top to bottom in stats order; panels follow row order", {
   stats$stats <- stats$stats[rev(seq_len(nrow(stats$stats))), ]
   p2 <- plot_build_forest(stats, metric = "AUCRATIO")
   expect_equal(levels(p2$data$cov_var), c("WTBL", "FOOD"))
-  # the distributed reference row follows its `ref_after` label (60 kg)
-  expect_equal(panel_labels(p2, "y")[[1]], c("50 kg", "70 kg", "60 kg", "80 kg", "90 kg"))
+  # the distributed reference row moves with the rows around it
+  expect_equal(panel_labels(p2, "y")[[1]], c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
 })
 
 test_that("Covariate level labels may repeat across panels", {

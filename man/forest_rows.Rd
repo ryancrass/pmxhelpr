@@ -10,8 +10,8 @@ forest_rows(stats, ref_layout = NULL, metric = NULL)
 \item{stats}{A \code{forest_stats} object.}
 
 \item{ref_layout}{\code{NULL}, \code{"distributed"}, or \code{"consolidated"}. \code{NULL}
-resolves to \code{"distributed"} when \code{config$cov_level_ref} is set,
-otherwise \code{"consolidated"}.}
+resolves to \code{"distributed"} when \code{stats$stats} carries distributed
+rows, otherwise \code{"consolidated"}.}
 
 \item{metric}{Optional metric value to restrict the rows to.}
 }
@@ -19,11 +19,10 @@ otherwise \code{"consolidated"}.}
 A data.frame of rows in top-to-bottom draw order.
 }
 \description{
-Returns \code{stats$stats} (optionally restricted to one metric) laid out for
-the requested reference layout. \code{"consolidated"} draws the rows as they
-are; \code{"distributed"} replaces the standalone reference panel(s) with a
-copy of the reference row in each covariate panel named in
-\code{config$cov_level_ref}, under that label, directly below the
-\code{config$ref_after} label (top of the panel when \code{NA} or absent).
+Returns \code{stats$stats} (optionally restricted to one metric) filtered to the
+requested reference layout through its \code{layout} column: rows marked
+\code{"both"} always draw, \code{"consolidated"} rows (the standalone reference
+panel) only in that layout, \code{"distributed"} rows (the per-covariate
+reference copies) only in that one.
 }
 \keyword{internal}

@@ -57,13 +57,14 @@ facet); the covariate name is the only facet dimension. If \code{NULL}
 are present, aborts and asks the caller to pick one.}
 
 \item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
-copies it into each covariate panel named in the container's
-\code{cov_level_ref}, under that covariate's reference label;
-\code{"consolidated"} draws it in its own panel at the top. \code{NULL}
-(default) uses \code{"distributed"} when \code{\link[=df_forest]{df_forest()}} was given
-\code{cov_level_ref}, otherwise \code{"consolidated"}. \code{"distributed"} without
-\code{cov_level_ref} is an error. The summary statistics are not
-recomputed; only the drawn rows change.}
+draws it in each covariate panel named in the container's
+\code{cov_level_ref}, under that covariate's reference label (the rows with
+\code{layout = "distributed"}); \code{"consolidated"} draws it in its own panel
+at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
+draw in either. \code{NULL} (default) uses \code{"distributed"} when
+\code{\link[=df_forest]{df_forest()}} was given \code{cov_level_ref}, otherwise \code{"consolidated"}.
+\code{"distributed"} without \code{cov_level_ref} is an error. The summary
+statistics are not recomputed; only the drawn rows change.}
 }
 \value{
 a \code{ggplot} plot object
@@ -85,9 +86,8 @@ Rows are drawn in the order they appear in \code{stats$stats}, top to bottom
 (see the "Row order" section of \code{\link[=df_forest]{df_forest()}}); reorder that frame to
 change the plot. Each row is its own y position, so covariate level
 labels may repeat across panels (\code{Low} / \code{High} under two covariates).
-The one exception is the reference row in the distributed layout (see
-\code{ref_layout}): it is inserted into each covariate panel at draw time,
-below the label recorded in \code{config$ref_after}.
+The \code{layout} column selects the rows for the chosen reference layout (see
+\code{ref_layout}).
 
 Rows flagged \code{is_ref} (the distributed per-covariate reference label, or the
 standalone \code{cov_name_ref} panel) draw through the \code{ref_point} style role

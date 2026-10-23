@@ -62,7 +62,8 @@ reference layout and makes it the default in \code{\link[=plot_build_forest]{plo
 named covariate that is present in \code{data}, under that label, in place
 of the standalone reference panel (\code{ref_layout = "consolidated"} draws
 the standalone panel instead). Covariates not named show no reference
-row. \code{stats$stats} itself always keeps the standalone reference rows.
+row. \code{stats$stats} keeps both the standalone reference rows and the
+per-covariate copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
 Default is \code{NULL} (the reference renders in
 its own panel at the top).}
@@ -77,18 +78,18 @@ character columns named in \code{metric_name_var} / \code{cov_name_var} /
 draws), \code{lo}, \code{hi} (the \code{(1 - ci) / 2} and \code{1 - (1 - ci) / 2}
 percentiles), the character columns \code{est_label}, \code{lo_label}, and
 \code{hi_label} (those values formatted per \code{sigdigits}), \code{ci_label}
-(the three combined for tables, e.g. \code{"1.12 (0.95, 1.32)"}), and
-the logical \code{is_ref}. The \code{cov_name_var} value drives the per-row
+(the three combined for tables, e.g. \code{"1.12 (0.95, 1.32)"}), the
+logical \code{is_ref}, and \code{layout}, the reference layout(s) a row draws
+in: \code{"both"} (covariate rows), \code{"consolidated"} (the standalone
+reference panel), or \code{"distributed"} (the reference copies placed
+in each \code{cov_level_ref} covariate). The \code{cov_name_var} value drives the per-row
 facet strip; the \code{cov_level_var} value drives the y-axis tick label;
 \code{\link[=plot_build_forest]{plot_build_forest()}} assembles \code{est_label}, \code{lo_label}, and
 \code{hi_label} into the right-hand secondary y-axis text, so edit those
 columns (not \code{ci_label}) to change the plotted text.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{ci},
-\code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}, and \code{ref_after} (a
-named character vector giving, per \code{cov_level_ref} covariate, the
-label the distributed reference row is drawn directly below; \code{NA}
-for the top of the panel).}
+\code{sigdigits}, \code{cov_name_ref}, and \code{cov_level_ref}.}
 }
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.
 }
@@ -98,18 +99,20 @@ container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stat
 container with class \code{c("forest_stats", "pmx_stats")} and three slots:
 \itemize{
 \item \code{stats} (plot-ready frame: one row per plotted point, in display order,
-with the reference in its own panel, canonical \code{est}, \code{lo}, \code{hi}, the formatted \code{est_label},
-\code{lo_label}, \code{hi_label}, and \code{ci_label}, and \code{is_ref} columns),
+with canonical \code{est}, \code{lo}, \code{hi}, the formatted \code{est_label},
+\code{lo_label}, \code{hi_label}, and \code{ci_label}, and \code{is_ref} and \code{layout}
+columns),
 \item \code{obs} (always \code{NULL}; no scatter overlay),
 \item \code{config} (column names + CI configuration)
 }
 
 The rows are sorted into the order \code{\link[=plot_build_forest]{plot_build_forest()}} draws them, top
 to bottom; reorder the rows of \code{stats$stats} to change the plotted order.
-The reference row stays in its own panel at the top of \code{stats$stats}. When
-\code{cov_level_ref} is supplied, \code{\link[=plot_build_forest]{plot_build_forest()}} distributes it into each
-covariate panel at plot time (switch with its \code{ref_layout} argument), so
-one container renders either layout without re-aggregating.
+The reference row sits in its own panel at the top of \code{stats$stats}. When
+\code{cov_level_ref} is supplied, a copy of it is also placed in each named
+covariate panel, and the \code{layout} column records which rows each
+reference layout draws, so one container renders either layout (see
+\code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}}) without re-aggregating.
 }
 \section{Row order}{
 
@@ -120,9 +123,9 @@ standalone reference covariate moved first. Within a covariate, factor
 levels of \code{cov_level_var} win when they cover every label (including the
 distributed reference label); otherwise labels carrying a number sort ascending by it,
 sign included (\verb{50 kg} above \verb{90 kg}), and any other set puts the reference
-label on top followed by the data order. The distributed reference label is
-placed by the same rules and its position recorded in \code{config$ref_after},
-so the covariate rows keep one order in both layouts.
+label on top followed by the data order. The distributed reference rows
+are placed by the same rules, so the covariate rows keep one order in both
+layouts.
 }
 
 \examples{

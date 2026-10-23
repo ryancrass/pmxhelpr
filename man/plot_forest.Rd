@@ -75,7 +75,8 @@ reference layout and makes it the default in \code{\link[=plot_build_forest]{plo
 named covariate that is present in \code{data}, under that label, in place
 of the standalone reference panel (\code{ref_layout = "consolidated"} draws
 the standalone panel instead). Covariates not named show no reference
-row. \code{stats$stats} itself always keeps the standalone reference rows.
+row. \code{stats$stats} keeps both the standalone reference rows and the
+per-covariate copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
 Default is \code{NULL} (the reference renders in
 its own panel at the top).}
@@ -102,13 +103,14 @@ first two require a resolved \code{ref}; multiplicative limits must be
 positive.}
 
 \item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
-copies it into each covariate panel named in the container's
-\code{cov_level_ref}, under that covariate's reference label;
-\code{"consolidated"} draws it in its own panel at the top. \code{NULL}
-(default) uses \code{"distributed"} when \code{\link[=df_forest]{df_forest()}} was given
-\code{cov_level_ref}, otherwise \code{"consolidated"}. \code{"distributed"} without
-\code{cov_level_ref} is an error. The summary statistics are not
-recomputed; only the drawn rows change.}
+draws it in each covariate panel named in the container's
+\code{cov_level_ref}, under that covariate's reference label (the rows with
+\code{layout = "distributed"}); \code{"consolidated"} draws it in its own panel
+at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
+draw in either. \code{NULL} (default) uses \code{"distributed"} when
+\code{\link[=df_forest]{df_forest()}} was given \code{cov_level_ref}, otherwise \code{"consolidated"}.
+\code{"distributed"} without \code{cov_level_ref} is an error. The summary
+statistics are not recomputed; only the drawn rows change.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running

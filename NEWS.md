@@ -38,9 +38,9 @@
 * `plot_dvtime()` and `plot_dvconc()` gain `show_obs` to omit the observed
   point layer. Unlike `alphas = c(obs_point = 0)`, hidden points no longer
   affect the axis limits.
-* `plot_vpc_legend()` gains `show_lloq_value`. Set `show_lloq_value = FALSE`
-  to label the LLOQ linetype as a single `"LLOQ"` entry instead of one
-  `"LLOQ = <value>"` entry per value.
+* `plot_vpc_legend()`, `plot_dvtime()`, and `plot_gof()` gain
+  `show_lloq_value`. Set `show_lloq_value = FALSE` to label the LLOQ linetype
+  as a single `"LLOQ"` legend entry without its value.
 
 ### New datasets
 

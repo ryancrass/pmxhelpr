@@ -103,8 +103,9 @@ add_trend_layers_style <- function(plot, method, show, se, series,
 #' Draws the LLOQ line (suppressed under `dosenorm`) and appends the BLQ
 #' imputation caption. The line's fixed aesthetics come from the `"loq_line"`
 #' series of `style`. When `show_legend` is `TRUE`, the linetype is mapped to a
-#' `"LLOQ = <value>"` label with a manual scale so the line joins the legend;
-#' `style_plot()` preserves this manual scale.
+#' manual scale titled `"LLOQ"` and keyed by the value so the line joins the
+#' legend; with `show_value = FALSE` the title is dropped and the key is
+#' labeled `"LLOQ"`. `style_plot()` preserves this manual scale.
 #'
 #' @param plot ggplot object.
 #' @param caption Current caption string.
@@ -113,12 +114,13 @@ add_trend_layers_style <- function(plot, method, show, se, series,
 #' @param dosenorm Logical; whether dose normalization is active.
 #' @param style A `ggstylekit_style_spec` supplying the `loq_line` aesthetics.
 #' @param show_legend Logical; whether to add LLOQ to the linetype legend.
+#' @param show_value Logical; whether the legend key shows the LLOQ value.
 #'
 #' @return A named list with `plot` (modified ggplot) and `caption` (modified
 #'   string).
 #' @keywords internal
 add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
-                                show_legend = FALSE) {
+                                show_legend = FALSE, show_value = TRUE) {
   if (!loq_method %in% c(1, 2)) {
     return(list(plot = plot, caption = caption))
   }
@@ -126,14 +128,15 @@ add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
   if (!isTRUE(dosenorm)) {
     el <- series_aes(style, "loq_line")
     if (isTRUE(show_legend)) {
-      loq_lab <- paste0(loq)
+      loq_lab <- if (show_value) paste0(loq) else "LLOQ"
+      loq_title <- if (show_value) "LLOQ" else NULL
       hargs <- compact(list(
         mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
         linewidth = el$linewidth, alpha = el$alpha, color = el$colour))
       plot <- plot +
         do.call(ggplot2::geom_hline, hargs) +
         ggplot2::scale_linetype_manual(
-          name = "LLOQ",
+          name = loq_title,
           values = stats::setNames(el$linetype, loq_lab)) +
         ggplot2::guides(color = ggplot2::guide_legend(order = 1),
                         linetype = ggplot2::guide_legend(order = 2))

@@ -16,6 +16,7 @@ plot_gof(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
+  show_lloq_value = TRUE,
   blq_mode = c("obs", "all"),
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
@@ -58,6 +59,11 @@ BLQ imputation behavior on the DV / prediction layers is controlled by
 
 \item{loq_method}{Method for handling BLQ data. See \code{\link[=plot_dvtime]{plot_dvtime()}} for
 option details. Default is \code{0} (no imputation).}
+
+\item{show_lloq_value}{Logical. If \code{TRUE} (default), the LLOQ line's legend
+entry is titled \code{"LLOQ"} and keyed by its value. If \code{FALSE}, the title is
+dropped and the entry is labeled \code{"LLOQ"} without the value. Applies only
+when the LLOQ line is drawn (\code{loq_method} of \code{1} or \code{2}, \code{dosenorm = FALSE}).}
 
 \item{blq_mode}{One of \code{"obs"} (default) or \code{"all"}. Controls which layers
 receive BLQ imputation: \code{"obs"} imputes the observed \code{DV} layer only,

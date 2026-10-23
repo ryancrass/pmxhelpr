@@ -348,3 +348,16 @@ test_that("a style caption replaces the builder caption whatever show_caption", 
   p <- plot_dvtime(d, dv_var = "ODV", show_caption = FALSE)
   expect_null(p$labels$caption)
 })
+
+test_that("plot_dvtime show_lloq_value toggles the LLOQ legend value", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  lt_on <- ggplot2::get_guide_data(
+    plot_dvtime(d, dv_var = "ODV", loq = 0.5, loq_method = 1), "linetype")
+  expect_equal(lt_on$.label, "0.5")
+  p_off <- plot_dvtime(d, dv_var = "ODV", loq = 0.5, loq_method = 1,
+                       show_lloq_value = FALSE)
+  expect_equal(ggplot2::get_guide_data(p_off, "linetype")$.label, "LLOQ")
+  expect_null(p_off$scales$get_scales("linetype")$name)
+  expect_error(plot_dvtime(d, dv_var = "ODV", show_lloq_value = "no"),
+               regexp = "argument `show_lloq_value` must be `TRUE` or `FALSE`")
+})

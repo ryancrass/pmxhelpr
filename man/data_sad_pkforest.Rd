@@ -5,7 +5,7 @@
 \alias{data_sad_pkforest}
 \title{Example Replicate-Draws Dataset for Forest Plots of PK Test/Reference Comparisons}
 \format{
-\subsection{\code{data.frame} a data frame with 24000 rows and 10 columns:}{
+\subsection{\code{data.frame} a data frame with 24000 rows and 9 columns:}{
 
 \describe{
 \item{ID}{Scenario identifier (values: 1=reference, 2=fed, 3=50 kg, 4=60 kg, 5=80 kg, 6=90 kg)}
@@ -17,7 +17,6 @@
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
 \item{cov_var}{Covariate varied in the scenario (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
 \item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to distribute the reference row into each covariate panel.}
-\item{is_ref}{Logical flag marking the reference-scenario rows. \code{\link[=df_forest]{df_forest()}} reads this column in preference to matching \code{cov_name_ref}.}
 }
 }
 }

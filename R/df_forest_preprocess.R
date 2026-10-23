@@ -6,8 +6,8 @@
 #' replicate with the exposure metrics as columns (an N replicates by M
 #' scenarios table, the shape an `mrgsolve` forest simulation produces once
 #' metrics are derived over the interval of interest). Output is one row per
-#' metric per scenario per replicate, with the covariate name, the covariate
-#' level label, and a logical reference flag.
+#' metric per scenario per replicate, with the covariate name and the
+#' covariate level label.
 #'
 #' Scenarios are read from the covariate columns themselves: the reference
 #' scenario is the one where every covariate equals its `cov_val_ref`
@@ -71,15 +71,11 @@
 #'    Accepts bare names or strings. Default `cov_var`.
 #' @param cov_level_var Name of the output column of covariate level labels.
 #'    Accepts bare names or strings. Default `cov_val`.
-#' @param is_ref_var Name of the output logical column flagging
-#'    reference-scenario rows. Accepts bare names or strings. Default
-#'    `is_ref`. [df_forest()] prefers this column over `cov_name_ref` when
-#'    it is present.
 #'
 #' @section Output columns:
 #' Every column of `data` that is not a metric column passes through
 #' unchanged and in its original order, followed by `metric_name_var`,
-#' `metric_value_var`, `cov_name_var`, `cov_level_var`, and `is_ref_var`.
+#' `metric_value_var`, `cov_name_var`, and `cov_level_var`.
 #' An output name that collides with a passthrough column replaces it, with
 #' a warning.
 #'
@@ -137,15 +133,13 @@ df_forest_preprocess <- function(
   metric_name_var = "metric",
   metric_value_var = "value",
   cov_name_var = "cov_var",
-  cov_level_var = "cov_val",
-  is_ref_var = "is_ref"
+  cov_level_var = "cov_val"
 ) {
   replicate_var_str <- resolve_var(rlang::enquo(replicate_var))
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
   cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-  is_ref_var_str <- resolve_var(rlang::enquo(is_ref_var))
 
   check_df(data, "data")
   check_character_vars(metric_vars, "metric_vars")
@@ -297,7 +291,7 @@ df_forest_preprocess <- function(
   ## ---- Assemble the long frame -------------------------------------------
   out_vars <- c(
     metric_name_var_str, metric_value_var_str,
-    cov_name_var_str, cov_level_var_str, is_ref_var_str
+    cov_name_var_str, cov_level_var_str
   )
   passthrough <- setdiff(names(data), c(metric_vars, out_vars))
   clobbered <- intersect(names(data), out_vars)
@@ -319,7 +313,6 @@ df_forest_preprocess <- function(
     b[[metric_value_var_str]] <- wide[[stacked_vars[i]]]
     b[[cov_name_var_str]] <- cov_name_col
     b[[cov_level_var_str]] <- cov_level_col
-    b[[is_ref_var_str]] <- is_ref
     b$.src_row <- seq_len(nrow(wide))
     b$.src_metric <- i
     b

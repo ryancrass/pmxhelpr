@@ -48,55 +48,6 @@ order_panel_labels <- function(labels, is_ref, given, from_factor) {
 }
 
 
-#' Internal helper: collapse a reference flag column onto aggregated groups
-#'
-#' Reduces the per-draw reference flag in `data` to one value per
-#' `(metric, covariate, level)` group, aligned to the rows of the aggregated
-#' `stats` frame. The flag must be constant within a group; a group that
-#' mixes flagged and unflagged draws is a caller error, not something to
-#' silently resolve.
-#'
-#' @param data Input draws data.frame carrying the flag column.
-#' @param stats Aggregated stats frame, group columns already character.
-#' @param grp_vars Character vector of grouping column names.
-#' @param is_ref_var_str Name of the flag column in `data`.
-#'
-#' @return Logical vector the length of `nrow(stats)`.
-#' @keywords internal
-aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
-  flag <- data[[is_ref_var_str]]
-  if (is.factor(flag)) flag <- as.character(flag)
-  if (!is.logical(flag)) flag <- as.logical(flag)
-  if (any(is.na(flag))) {
-    rlang::abort(message = paste0(
-      "reference flag column `", is_ref_var_str,
-      "` must be logical (or coercible to logical) with no `NA` values."
-    ))
-  }
-  group_key <- function(df) {
-    do.call(
-      paste,
-      c(lapply(grp_vars, function(v) as.character(df[[v]])), list(sep = "\r"))
-    )
-  }
-  key_data <- group_key(data)
-  any_by <- tapply(flag, key_data, any)
-  all_by <- tapply(flag, key_data, all)
-  mixed <- names(any_by)[any_by != all_by]
-  if (length(mixed) > 0) {
-    rlang::abort(message = paste0(
-      "reference flag column `", is_ref_var_str, "` is not constant within ",
-      paste(grp_vars, collapse = "/"), " groups: ",
-      paste(gsub("\r", " / ", mixed[seq_len(min(5L, length(mixed)))], fixed = TRUE), collapse = "; "),
-      ". Every draw in a group must share the same flag value."
-    ))
-  }
-  ## `tapply()` returns a 1-d array; strip it back to a plain logical vector
-  ## so the flag path and the string path produce identical `stats` frames.
-  as.vector(any_by[group_key(stats)])
-}
-
-
 #' Internal helper: assemble the forest estimate column
 #'
 #' Joins the formatted pieces as `"est  (lo, hi)"`.
@@ -243,27 +194,13 @@ distribute_ref_rows <- function(rows, cfg) {
 #'    decimal point. Trailing zeros are kept. Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
-#'    `data_sad_pkforest` convention). Reference rows draw through the
-#'    `ref_point` style role and sort to the top of `stats$stats`
-#'    (standalone panel); they can be distributed into each covariate panel
-#'    at plot time (see `cov_level_ref`). `NULL` marks no row as the reference.
-#'    Consulted only when no reference flag column is present (see
-#'    `is_ref_var`), so `cov_name_ref = NULL` suppresses the reference row
-#'    on the string path alone; pass `is_ref_var = NULL` as well to ignore a
-#'    flag column.
+#'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
+#'    Reference rows are flagged `is_ref`, draw through the `ref_point` style
+#'    role, and sort to the top of `stats$stats` (standalone panel); they can
+#'    be distributed into each covariate panel at plot time (see
+#'    `cov_level_ref`). `NULL` marks no row as the reference.
 #'    Not to be confused with `ref` in [plot_build_forest()] / [plot_forest()],
 #'    which is the numeric value of the x-intercept for the vertical reference line.
-#' @param is_ref_var Column in `data` holding a logical reference flag, one
-#'    value per draw, marking the rows of the reference scenario. Accepts
-#'    bare names or strings; `NULL` disables the flag path. Default
-#'    `is_ref`, the column [df_forest_preprocess()] emits. When the named
-#'    column is present it identifies the reference rows and `cov_name_ref`
-#'    is not consulted; when the default name is absent the `cov_name_ref`
-#'    string match is used instead; a non-default name that is absent is an
-#'    error. The flag must be constant within a
-#'    `(metric, covariate, level)` group. A covariate whose rows are all
-#'    flagged is a standalone reference panel, the flag-path equivalent of
-#'    `cov_name_ref`.
 #' @param cov_level_ref Optional named vector mapping `cov_name_var`
 #'    values to the per-covariate reference label (e.g.
 #'    `c(FOOD = "Fasted", WTBL = "70 kg")`). Enables the distributed
@@ -273,8 +210,8 @@ distribute_ref_rows <- function(rows, cfg) {
 #'    of the standalone reference panel (`ref_layout = "consolidated"` draws
 #'    the standalone panel instead). Covariates not named show no reference
 #'    row. `stats$stats` itself always keeps the standalone reference rows.
-#'    Requires a reference row, identified by the flag column or a
-#'    non-`NULL` `cov_name_ref`. Default is `NULL` (the reference renders in
+#'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
+#'    Default is `NULL` (the reference renders in
 #'    its own panel at the top).
 #'
 #' @section Row order:
@@ -344,14 +281,12 @@ df_forest <- function(
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
-  cov_level_ref = NULL,
-  is_ref_var = "is_ref"
+  cov_level_ref = NULL
 ) {
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
   cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
-  is_ref_var_str <- resolve_var(rlang::enquo(is_ref_var), nullable = TRUE)
 
   check_df(data, "data")
   check_forest_args(ci, sigdigits, cov_name_ref)
@@ -363,22 +298,10 @@ df_forest <- function(
     "metric_name_var/cov_name_var/cov_level_var/metric_value_var"
   )
 
-  ## A reference flag column in `data` takes precedence over the
-  ## `cov_name_ref` string match. The default name falls back silently when
-  ## absent; an explicitly named column that is missing is an error.
-  use_flag <- FALSE
-  if (!is.null(is_ref_var_str)) {
-    if (is_ref_var_str %in% colnames(data)) {
-      use_flag <- TRUE
-    } else if (!identical(is_ref_var_str, "is_ref")) {
-      check_varsindf(data, is_ref_var_str, "data", "is_ref_var")
-    }
-  }
-  if (!is.null(cov_level_ref) && is.null(cov_name_ref) && !use_flag) {
+  if (!is.null(cov_level_ref) && is.null(cov_name_ref)) {
     rlang::abort(message = paste0(
-      "argument `cov_level_ref` requires a non-NULL `cov_name_ref`, or a ",
-      "reference flag column named by `is_ref_var`, identifying the ",
-      "reference row to distribute."
+      "argument `cov_level_ref` requires a non-NULL `cov_name_ref` ",
+      "identifying the reference row to distribute."
     ))
   }
 
@@ -407,31 +330,17 @@ df_forest <- function(
     as.data.frame()
   for (v in grp_vars) stats[[v]] <- as.character(stats[[v]])
 
-  ## Reference rows: identified by the flag column when `data` carries one,
-  ## otherwise by matching `cov_name_ref`. They stay in their own panel(s),
+  ## Reference rows match `cov_name_ref`. They stay in their own panel,
   ## sorted first; distributing them into each covariate panel under its
   ## `cov_level_ref` label happens at plot time (see `forest_rows()`).
   stats$is_ref <- FALSE
   ref_covs <- character(0)
-  if (use_flag) {
-    stats$is_ref <- aggregate_ref_flag(data, stats, grp_vars, is_ref_var_str)
-    ## A covariate whose rows are *all* reference rows is a standalone
-    ## reference panel, the flag-path equivalent of `cov_name_ref`.
-    ref_covs <- Filter(
-      function(cn) all(stats$is_ref[stats[[cov_name_var_str]] == cn]),
-      unique(stats[[cov_name_var_str]][stats$is_ref])
-    )
-    ref_covs <- as.character(ref_covs)
-  } else if (!is.null(cov_name_ref)) {
+  if (!is.null(cov_name_ref)) {
     stats$is_ref <- stats[[cov_name_var_str]] == cov_name_ref
     ref_covs <- intersect(cov_name_ref, stats[[cov_name_var_str]])
   }
   if (!is.null(cov_level_ref) && length(ref_covs) == 0L) {
-    rlang::abort(message = if (use_flag) paste0(
-      "cannot distribute the reference row: no covariate in `",
-      cov_name_var_str, "` is made up entirely of rows flagged by `",
-      is_ref_var_str, "`."
-    ) else paste0(
+    rlang::abort(message = paste0(
       "cannot distribute `", cov_name_ref, "` row: no rows with `",
       cov_name_var_str, " == \"", cov_name_ref, "\"` were found in `data`."
     ))
@@ -499,8 +408,7 @@ df_forest <- function(
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,
       cov_level_ref = cov_level_ref,
-      ref_after = if (!is.null(cov_level_ref)) ref_after,
-      is_ref_var = if (use_flag) is_ref_var_str else NULL
+      ref_after = if (!is.null(cov_level_ref)) ref_after
     ),
     subclass = "forest_stats"
   )
@@ -923,7 +831,6 @@ plot_forest <- function(
   sigdigits = 3,
   cov_name_ref = "Reference",
   cov_level_ref = NULL,
-  is_ref_var = "is_ref",
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
@@ -954,8 +861,7 @@ plot_forest <- function(
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,
-      cov_level_ref = cov_level_ref,
-      is_ref_var = is_ref_var
+      cov_level_ref = cov_level_ref
     )
   }
 

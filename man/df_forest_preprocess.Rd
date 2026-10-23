@@ -17,8 +17,7 @@ df_forest_preprocess(
   metric_name_var = "metric",
   metric_value_var = "value",
   cov_name_var = "cov_var",
-  cov_level_var = "cov_val",
-  is_ref_var = "is_ref"
+  cov_level_var = "cov_val"
 )
 }
 \arguments{
@@ -70,11 +69,6 @@ Accepts bare names or strings. Default \code{cov_var}.}
 
 \item{cov_level_var}{Name of the output column of covariate level labels.
 Accepts bare names or strings. Default \code{cov_val}.}
-
-\item{is_ref_var}{Name of the output logical column flagging
-reference-scenario rows. Accepts bare names or strings. Default
-\code{is_ref}. \code{\link[=df_forest]{df_forest()}} prefers this column over \code{cov_name_ref} when
-it is present.}
 }
 \value{
 A \code{data.frame} with one row per metric per scenario per
@@ -88,8 +82,8 @@ Turns raw replicate simulation output into the long draws frame
 replicate with the exposure metrics as columns (an N replicates by M
 scenarios table, the shape an \code{mrgsolve} forest simulation produces once
 metrics are derived over the interval of interest). Output is one row per
-metric per scenario per replicate, with the covariate name, the covariate
-level label, and a logical reference flag.
+metric per scenario per replicate, with the covariate name and the
+covariate level label.
 
 Scenarios are read from the covariate columns themselves: the reference
 scenario is the one where every covariate equals its \code{cov_val_ref}
@@ -121,7 +115,7 @@ change the default rendering from invisible metadata.
 
 Every column of \code{data} that is not a metric column passes through
 unchanged and in its original order, followed by \code{metric_name_var},
-\code{metric_value_var}, \code{cov_name_var}, \code{cov_level_var}, and \code{is_ref_var}.
+\code{metric_value_var}, \code{cov_name_var}, and \code{cov_level_var}.
 An output name that collides with a passthrough column replaces it, with
 a warning.
 }

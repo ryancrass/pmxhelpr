@@ -13,8 +13,7 @@ df_forest(
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
-  cov_level_ref = NULL,
-  is_ref_var = "is_ref"
+  cov_level_ref = NULL
 )
 }
 \arguments{
@@ -47,14 +46,11 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
-\code{data_sad_pkforest} convention). Reference rows draw through the
-\code{ref_point} style role and sort to the top of \code{stats$stats}
-(standalone panel); they can be distributed into each covariate panel
-at plot time (see \code{cov_level_ref}). \code{NULL} marks no row as the reference.
-Consulted only when no reference flag column is present (see
-\code{is_ref_var}), so \code{cov_name_ref = NULL} suppresses the reference row
-on the string path alone; pass \code{is_ref_var = NULL} as well to ignore a
-flag column.
+\code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
+Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
+role, and sort to the top of \code{stats$stats} (standalone panel); they can
+be distributed into each covariate panel at plot time (see
+\code{cov_level_ref}). \code{NULL} marks no row as the reference.
 Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
 which is the numeric value of the x-intercept for the vertical reference line.}
 
@@ -67,21 +63,9 @@ named covariate that is present in \code{data}, under that label, in place
 of the standalone reference panel (\code{ref_layout = "consolidated"} draws
 the standalone panel instead). Covariates not named show no reference
 row. \code{stats$stats} itself always keeps the standalone reference rows.
-Requires a reference row, identified by the flag column or a
-non-\code{NULL} \code{cov_name_ref}. Default is \code{NULL} (the reference renders in
+Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
+Default is \code{NULL} (the reference renders in
 its own panel at the top).}
-
-\item{is_ref_var}{Column in \code{data} holding a logical reference flag, one
-value per draw, marking the rows of the reference scenario. Accepts
-bare names or strings; \code{NULL} disables the flag path. Default
-\code{is_ref}, the column \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} emits. When the named
-column is present it identifies the reference rows and \code{cov_name_ref}
-is not consulted; when the default name is absent the \code{cov_name_ref}
-string match is used instead; a non-default name that is absent is an
-error. The flag must be constant within a
-\verb{(metric, covariate, level)} group. A covariate whose rows are all
-flagged is a standalone reference panel, the flag-path equivalent of
-\code{cov_name_ref}.}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three

@@ -19,7 +19,7 @@
 #' covariance step). Exposure metrics are derived over the 24-hour dosing
 #' interval at steady state. See `data-raw/data_sad_raw.R`.
 #'
-#' @format ## `data.frame` a data frame with 24000 rows and 10 columns:
+#' @format ## `data.frame` a data frame with 24000 rows and 9 columns:
 #' \describe{
 #'   \item{ID}{Scenario identifier (values: 1=reference, 2=fed, 3=50 kg, 4=60 kg, 5=80 kg, 6=90 kg)}
 #'   \item{SIM}{Replicate identifier (1-500 per scenario)}
@@ -30,7 +30,6 @@
 #'   \item{value}{Numeric value of the metric for this `(ID x SIM)` replicate}
 #'   \item{cov_var}{Covariate varied in the scenario (values: `Reference`, `FOOD`, `WTBL`)}
 #'   \item{cov_val}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`). The reference levels of the varied covariates are `Fasted` (`FOOD`) and `70 kg` (`WTBL`); pass them to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to distribute the reference row into each covariate panel.}
-#'   \item{is_ref}{Logical flag marking the reference-scenario rows. [df_forest()] reads this column in preference to matching `cov_name_ref`.}
 #' }
 #' @section Attributes:
 #' Carries a `"cov_level_ref"` attribute, `c(FOOD = "Fasted", WTBL = "70 kg")`,

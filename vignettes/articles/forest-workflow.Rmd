@@ -106,7 +106,6 @@ Relevant variables in these datasets include:
   (`Reference`, `FOOD`, `WTBL`)
   + `cov_val` holds the value of the univariate covariate varied
   (`Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`)
-  + `is_ref` flags the reference rows
 
 It also carries a `cov_level_ref` attribute naming each covariate's reference.
 
@@ -154,7 +153,7 @@ plot workflow.
 identical(simsum, data_sad_pkforest)
 ```
 
-The reference rows are flagged by `is_ref` and labeled `Reference`. The 
+The reference rows are labeled `Reference` in both `cov_var` and `cov_val`. The 
 reference labels are attached as an attribute, ready to pass to `df_forest()` 
 as `cov_level_ref`. 
 
@@ -166,12 +165,12 @@ ref_levels
 ## Reference Conditions
 
 The reference condition is defined by the `cov_val_ref` argument, which takes a
-vector of covariate name:reference value pairs. `df_forest_preprocess()` flags 
-the rows in the dataset with the reference values of covariates with the logical
-variable `is_ref` and labels `cov_var` and `cov_val` as `"Reference"`.
+vector of covariate name:reference value pairs. `df_forest_preprocess()` labels
+`cov_var` and `cov_val` as `"Reference"` (the `cov_name_ref` argument) in the 
+rows of the dataset with the reference values of every covariate.
 
 ```{r}
-ref <- filter(simsum, is_ref == TRUE)
+ref <- filter(simsum, cov_var == "Reference")
 unique(ref$cov_var)
 unique(ref$cov_val)
 unique(ref$FOOD)
@@ -269,7 +268,7 @@ forest_obj
 The `stats` slot holds one row per plotted point with the canonical columns
 `est`, `lo`, and `hi`, their formatted text `est_label`, `lo_label`, and 
 `hi_label`, and `ci_label` combining the three for tables. The plotted 
-estimate column is assembled from the three label columns. `is_ref` is also present to flag the 
+estimate column is assembled from the three label columns. The logical `is_ref` flags the 
 reference rows. The data.frame is output in plotting order.
 
 ```{r df-forest-stats}
@@ -295,22 +294,17 @@ df_forest(simsum, ci = 0.95, sigdigits = 2)
 
 ## Reference
 
-Reference rows are found one of two ways. When the data carries a logical flag 
-column (`is_ref`), that column identifies the reference. This is the pathway
-used when`df_forest_preprocess()` is the entry point into the workflow. 
+Reference rows are identified by `cov_name_ref`, the value of `cov_var` that
+marks the reference condition. The default `"Reference"` matches the 
+`df_forest_preprocess()` output, but the reference can be called anything, as 
+in the example below. Reference rows are flagged `is_ref = TRUE` in the output, 
+drawn as an open circle, and sorted to the top of the plot.
 
-Otherwise `cov_name_ref` names the value of `cov_var` that marks the reference
-condition, default `"Reference"`, but can be called anything, as in the 
-example below.
-
-Reference rows flagged with `is_ref=TRUE` are
-drawn as an open circle and sorted to the top of the plot. 
-
-```{r df-forest-flag}
-renamed <- simsum
-renamed$cov_var[renamed$is_ref] <- "Typical subject"
-renamed$cov_val[renamed$is_ref] <- "70 kg, fasted"
-df_forest(renamed)$stats %>%
+```{r df-forest-ref-name}
+renamed <- simsum %>%
+  mutate(cov_val = ifelse(cov_var == "Reference", "70 kg, fasted", cov_val),
+         cov_var = ifelse(cov_var == "Reference", "Typical subject", cov_var))
+df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
   filter(metric == "AUCRATIO") %>%
   select(cov_var, cov_val, is_ref, ci_label)
 ```
@@ -331,17 +325,7 @@ forest_obj$stats %>%
 forest_obj$config$ref_after
 ```
 
-If the data does not have the `is_ref` logical or `is_ref` should be ignored, 
-it can be switched off by passing:
-
-  + `is_ref_var = NULL` 
-  
-This will ignore the flag column and forces the `cov_name_ref` string match. 
-
-If the data has no reference at all, switch off both:
-
-  + `cov_name_ref = NULL`
-  + `is_ref_var = NULL`.
+If the data has no reference at all, pass `cov_name_ref = NULL`.
 
 ## Row order
 
@@ -495,7 +479,7 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_layout = "consolidated",
 
 When `data` is a precomputed `forest_stats` result, the pipeline arguments 
 (`metric_name_var`, `cov_name_var`, `cov_level_var`, `metric_value_var`, `ci`,
-`sigdigits`, `cov_name_ref`, `cov_level_ref`, `is_ref_var`) **cannot** be 
+`sigdigits`, `cov_name_ref`, `cov_level_ref`) **cannot** be 
 honored in `plot_forest` — those decisions were already made when `df_forest()`
 ran. 
 

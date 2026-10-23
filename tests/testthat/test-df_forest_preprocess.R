@@ -33,11 +33,10 @@ test_that("Output is a long data.frame with passthrough and canonical columns", 
   expect_s3_class(out, "data.frame")
   expect_equal(
     colnames(out),
-    c("SCN", "SIM", "FOOD", "WTBL", "metric", "value", "cov_var", "cov_val", "is_ref")
+    c("SCN", "SIM", "FOOD", "WTBL", "metric", "value", "cov_var", "cov_val")
   )
   # 8 input rows x (2 metrics + 2 ratio metrics)
   expect_equal(nrow(out), 8 * 4)
-  expect_type(out$is_ref, "logical")
 })
 
 test_that("Each input row's metrics stay together, in the order requested", {
@@ -59,19 +58,18 @@ test_that("Non-metric columns pass through unchanged", {
 
 #####df_forest_preprocess -- scenario derivation#####
 
-test_that("Reference rows are flagged and labeled with `cov_name_ref`", {
+test_that("Reference rows are labeled with `cov_name_ref`", {
   out <- pre(cov_labels = labs)
-  ref <- out[out$is_ref, ]
+  ref <- out[out$SCN == 1, ]
   expect_equal(unique(ref$cov_var), "Reference")
   expect_equal(unique(ref$cov_val), "Reference")
-  expect_equal(unique(ref$SCN), 1)
-  expect_true(all(!out$is_ref[out$SCN != 1]))
+  expect_false(any(out$cov_var[out$SCN != 1] == "Reference"))
 })
 
 test_that("`cov_name_ref` renames the reference label", {
   out <- pre(cov_labels = labs, cov_name_ref = "Typical")
-  expect_equal(unique(out$cov_var[out$is_ref]), "Typical")
-  expect_equal(unique(out$cov_val[out$is_ref]), "Typical")
+  expect_equal(unique(out$cov_var[out$SCN == 1]), "Typical")
+  expect_equal(unique(out$cov_val[out$SCN == 1]), "Typical")
 })
 
 test_that("Each scenario is keyed to the one covariate it varies", {
@@ -89,7 +87,7 @@ test_that("Covariate values match `cov_val_ref` on their character form", {
     metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
     cov_val_ref = c(FOOD = 0, WTBL = 70)
   )
-  expect_equal(sum(out$is_ref & out$metric == "AUC"), 2)
+  expect_equal(sum(out$cov_var == "Reference" & out$metric == "AUC"), 2)
 })
 
 test_that("A scenario differing in two covariates aborts", {
@@ -136,7 +134,7 @@ test_that("Ratios divide by the same replicate's reference value", {
   out <- pre(cov_labels = labs)
   auc_ratio <- out[out$metric == "AUCRATIO", ]
   expect_equal(auc_ratio$value, sim_wide$AUC / rep(c(100, 110), each = 4))
-  expect_equal(auc_ratio$value[auc_ratio$is_ref], c(1, 1))
+  expect_equal(auc_ratio$value[auc_ratio$cov_var == "Reference"], c(1, 1))
 })
 
 test_that("`ratio = FALSE` emits absolute metrics only", {
@@ -219,8 +217,8 @@ test_that("Column-name arguments accept bare names or strings", {
 
 test_that("Output column names are configurable", {
   out <- pre(cov_labels = labs, metric_name_var = "PARAM",
-             metric_value_var = "VAL", is_ref_var = "REF")
-  expect_true(all(c("PARAM", "VAL", "REF") %in% colnames(out)))
+             metric_value_var = "VAL")
+  expect_true(all(c("PARAM", "VAL") %in% colnames(out)))
   expect_false("metric" %in% colnames(out))
 })
 
@@ -274,7 +272,6 @@ test_that("Output feeds `df_forest()` with its default column names", {
   out <- pre(cov_labels = labs)
   s <- df_forest(out)
   expect_s3_class(s, "forest_stats")
-  expect_equal(s$config$is_ref_var, "is_ref")
   expect_true(all(s$stats$is_ref[s$stats$cov_var == "Reference"]))
 })
 

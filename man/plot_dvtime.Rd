@@ -88,7 +88,7 @@ change-from-baseline data.}
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
-A \code{caption} set in the style replaces it.}
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvtime]{style_dvtime()}}; view the defaults by running \code{style_dvtime()}

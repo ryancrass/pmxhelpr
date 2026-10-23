@@ -36,9 +36,8 @@ metric). With \code{"reference"} and no reference row in the plotted
 metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
-\item{ref_band}{Length-2 numeric vector giving the shaded equivalence
-interval, read according to \code{ref_band_type}. Default \code{NULL}
-(no shaded band).}
+\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the shaded equivalence interval, read according to
+\code{ref_band_type}. Default \code{NULL} (no shaded band).}
 
 \item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
 \code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}

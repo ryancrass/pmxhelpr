@@ -39,7 +39,7 @@
 #'    small bins from summary statistic plotting but retains the underlying
 #'    observations as data points.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
-#'    A `caption` set in the style replaces it.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Controls how
 #'    BLQ-encoded values are carried through quantile aggregation. In `"rank"`
 #'    mode, BLQ rows ranks low at `stats::quantile`; fully-censored quantiles

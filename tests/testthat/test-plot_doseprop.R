@@ -458,3 +458,19 @@ test_that("plot_doseprop() rejects a non-logical se", {
   expect_error(plot_build_doseprop(stats, se = NA),
                "argument `se` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("df_doseprop() / plot_doseprop() require metrics on the raw path", {
+  expect_error(df_doseprop(data_sad_nca, metrics = NULL), "argument `metrics` is required")
+  expect_error(plot_doseprop(data_sad_nca), "argument `metrics` is required")
+})
+
+test_that("method selects the normal or t critical value for the CI", {
+  ci_halfwidth <- function(method) {
+    s <- df_doseprop(data_sad_nca, metrics = "cmax", method = method, sigdigits = 12)$stats
+    (s$UCL - s$LCL) / (2 * s$StandardError)
+  }
+  n <- sum(data_sad_nca$PPTESTCD == "cmax" & !is.na(data_sad_nca$PPORRES))
+  expect_equal(ci_halfwidth("normal"), stats::qnorm(0.95), tolerance = 1e-8)
+  expect_equal(ci_halfwidth("tdist"), stats::qt(0.95, n - 1), tolerance = 1e-8)
+})

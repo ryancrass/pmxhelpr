@@ -159,3 +159,12 @@ test_that("logical arguments must be TRUE or FALSE", {
                  regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
   }
 })
+
+
+test_that("show_obs = FALSE does not train the y axis on the observations", {
+  y_span <- function(p) diff(ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range)
+  with_obs <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC"))
+  no_obs <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                         show_obs = FALSE))
+  expect_lt(suppressWarnings(y_span(no_obs)), suppressWarnings(y_span(with_obs)))
+})

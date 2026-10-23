@@ -83,7 +83,7 @@ small bins from summary statistic plotting but retains the underlying
 observations as data points.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.
-A \code{caption} set in the style replaces it.}
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{lower_bound}{Lower bound for prediction correction formula.}
 

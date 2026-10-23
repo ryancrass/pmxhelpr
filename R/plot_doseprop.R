@@ -135,6 +135,12 @@ df_doseprop <- function(data,
   check_varsindf(data, metric_name_var_str, "data", "metric_name_var")
   check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
+  if (!is.character(metrics) || length(metrics) == 0L) {
+    rlang::abort(message = paste0(
+      "argument `metrics` is required: a character vector of values in `",
+      metric_name_var_str, "` to analyze"
+    ))
+  }
   check_levelsinvar(data, metric_name_var_str, metrics, "metric_name_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 

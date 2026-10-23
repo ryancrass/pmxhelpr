@@ -7,9 +7,9 @@
 df_forest(
   data,
   metric_name_var = "metric",
+  metric_value_var = "value",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  metric_value_var = "value",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -23,16 +23,16 @@ per metric, covariate, covariate level, and replicate.}
 \item{metric_name_var}{Column in \code{data} contain metric variable names.
 Accepts bare names or strings. Default is \code{metric}.}
 
+\item{metric_value_var}{Column in \code{data} containing replicate draws of the
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
+
 \item{cov_name_var}{Column in \code{data} containing covariate variable names.
 (e.g., \code{WTBL},\code{FOOD}, etc).
 Accepts bare names or strings. Default is \code{cov_var}.}
 
 \item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
 Accepts bare names or strings. Default is \code{cov_val}.}
-
-\item{metric_value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic.
-Accepts bare names or strings. Default \code{value}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
@@ -48,7 +48,7 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
 Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of \code{stats$stats} (standalone panel). With
+role, and sort to the top of each metric's rows (standalone panel). With
 \code{cov_level_ref}, a copy is also placed in each covariate panel, and
 \code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
 copies are drawn. \code{NULL} marks no row as the reference.
@@ -63,7 +63,9 @@ reference layout and makes it the default in \code{\link[=plot_build_forest]{plo
 named covariate that is present in \code{data}, under that label, in place
 of the standalone reference panel (\code{ref_layout = "consolidated"} draws
 the standalone panel instead). Covariates not named show no reference
-row; names not found in \code{cov_name_var} are ignored with a warning.
+row. Names not found in \code{cov_name_var}, or naming the reference row
+itself, are ignored with a warning; a label matching an existing level
+of that covariate also warns, since both rows would share the label.
 \code{stats$stats} keeps both the standalone reference rows and the
 per-covariate copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
@@ -110,7 +112,7 @@ columns),
 
 The rows are sorted into the order \code{\link[=plot_build_forest]{plot_build_forest()}} draws them, top
 to bottom; reorder the rows of \code{stats$stats} to change the plotted order.
-The reference row sits in its own panel at the top of \code{stats$stats}. When
+Within each metric, the reference row sits in its own panel at the top. When
 \code{cov_level_ref} is supplied, a copy of it is also placed in each named
 covariate panel, and the \code{layout} column records which rows each
 reference layout draws, so one container renders either layout (see

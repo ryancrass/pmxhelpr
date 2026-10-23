@@ -46,7 +46,7 @@
 #' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
 #'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
-#'    A `caption` set in the style replaces it.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.

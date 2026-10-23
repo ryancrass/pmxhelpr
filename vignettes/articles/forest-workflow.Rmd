@@ -253,9 +253,9 @@ The only required argument is `data`. The column-name arguments default to the
 conventions `df_forest_preprocess()` emits:
 
   + `metric_name_var`: column of metric names, default `metric`
+  + `metric_value_var`: column of metric values, default `value`
   + `cov_name_var`: column of covariate names, default `cov_var`
   + `cov_level_var`: column of covariate levels, default `cov_val`
-  + `metric_value_var`: column of metric values, default `value`
 
 Every row of a `(metric, covariate, level)` group is aggregated, so no 
 replicate index column (e.g., `SIM`) is needed.
@@ -299,7 +299,8 @@ Reference rows are identified by `cov_name_ref`, the value of `cov_var` that
 marks the reference condition. The default `"Reference"` matches the 
 `df_forest_preprocess()` output, but the reference can be called anything, as 
 in the example below. Reference rows are flagged `is_ref = TRUE` in the output, 
-drawn as an open circle, and sorted to the top of the plot.
+drawn as an open circle, and sorted to the top of each metric (the top of the
+plot in the consolidated layout).
 
 ```{r df-forest-ref-name}
 renamed <- simsum %>%
@@ -478,7 +479,7 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_layout = "consolidated",
 ```
 
 When `data` is a precomputed `forest_stats` result, the pipeline arguments 
-(`metric_name_var`, `cov_name_var`, `cov_level_var`, `metric_value_var`, `ci`,
+(`metric_name_var`, `metric_value_var`, `cov_name_var`, `cov_level_var`, `ci`,
 `sigdigits`, `cov_name_ref`, `cov_level_ref`) **cannot** be 
 honored in `plot_forest` — those decisions were already made when `df_forest()`
 ran. 

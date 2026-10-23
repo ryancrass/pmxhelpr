@@ -35,7 +35,7 @@
 #'    requires quantifiable obs. Rationale: BLQ-heavy bins are the most
 #'    informative on a cens VPC and should be retained.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
-#'    A `caption` set in the style replaces it.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #'
 #' @param shown Layer visibility settings created by [plot_vpc_shown()]. The
 #'    cens builder reads four of the keys: `obs_point`, `obs_median_line`,

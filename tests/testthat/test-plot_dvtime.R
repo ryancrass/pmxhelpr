@@ -336,3 +336,15 @@ test_that("logical arguments must be TRUE or FALSE", {
                  regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
   }
 })
+
+
+test_that("a style caption replaces the builder caption whatever show_caption", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  p <- plot_dvtime(d, dv_var = "ODV", style = style_dvtime(caption = "Mine"))
+  expect_equal(p$labels$caption, "Mine")
+  p <- plot_dvtime(d, dv_var = "ODV", show_caption = FALSE,
+                   style = style_dvtime(caption = "Mine"))
+  expect_equal(p$labels$caption, "Mine")
+  p <- plot_dvtime(d, dv_var = "ODV", show_caption = FALSE)
+  expect_null(p$labels$caption)
+})

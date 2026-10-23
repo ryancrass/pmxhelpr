@@ -715,7 +715,8 @@ test_that("ref_band_type places the band around the resolved ref", {
                c(5000, 20000))
   expect_error(plot_build_forest(stats, metric = "AUC", ref = NULL, ref_band = c(0.8, 1.25)),
                regexp = "needs a reference value")
-  expect_error(plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25), ref_band_type = "nope"))
+  expect_error(plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25), ref_band_type = "nope"),
+               regexp = "should be one of")
 })
 
 test_that("Error on malformed ref_band / ref", {
@@ -928,4 +929,59 @@ test_that("`cov_level_ref` distributes a renamed reference", {
                c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
   expect_true(all(s$is_ref[s$cov_val %in% c("Fasted", "70 kg")]))
   expect_false("Typical subject" %in% s$cov_var)
+})
+
+
+#####missing values#####
+
+test_that("df_forest() aborts on NA metric or covariate names", {
+  d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
+  d$cov_var[1:5] <- NA
+  expect_error(df_forest(d), "columns `cov_var` of `data` must not contain `NA`")
+  d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
+  d$metric[1] <- NA
+  expect_error(df_forest(d), "columns `metric` of `data` must not contain `NA`")
+})
+
+test_that("an all-NA group does not change the metric's decimal places", {
+  d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
+  base <- df_forest(d)$stats
+  d$value[d$cov_val == "90 kg"] <- NA
+  out <- suppressWarnings(df_forest(d))$stats
+  keep <- out$cov_val != "90 kg"
+  expect_equal(out$est_label[keep], base$est_label[base$cov_val != "90 kg"])
+  expect_true(is.na(out$est_label[!keep]))
+  expect_true(is.na(out$ci_label[!keep]))
+})
+
+test_that("ref = \"reference\" aborts on distinct reference-row estimates", {
+  stats <- df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+                     cov_level_ref = ref_map)
+  copy <- which(stats$stats$layout == "distributed")[1]
+  stats$stats$est[copy] <- 2
+  expect_error(plot_build_forest(stats), "multiple distinct reference-row estimates")
+  expect_s3_class(plot_build_forest(stats, ref = 1), "ggplot")
+})
+
+test_that("cov_level_ref naming the reference row itself warns and is ignored", {
+  expect_warning(
+    out <- df_forest(data_sad_pkforest, cov_level_ref = c(Reference = "x", FOOD = "Fasted")),
+    "names the reference row itself \\(`Reference`\\)"
+  )
+  expect_false("x" %in% out$stats$cov_val)
+})
+
+test_that("cov_level_ref label matching an existing level warns", {
+  expect_warning(
+    out <- df_forest(data_sad_pkforest, cov_level_ref = c(WTBL = "50 kg")),
+    "WTBL = \"50 kg\""
+  )
+  wt50 <- out$stats[out$stats$cov_var == "WTBL" & out$stats$cov_val == "50 kg" &
+                      out$stats$metric == "AUC", ]
+  expect_setequal(wt50$layout, c("both", "distributed"))
+})
+
+test_that("df_forest() column arguments follow the metric-first order", {
+  expect_identical(names(formals(df_forest))[2:5],
+                   c("metric_name_var", "metric_value_var", "cov_name_var", "cov_level_var"))
 })

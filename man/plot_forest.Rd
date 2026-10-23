@@ -8,9 +8,9 @@ plot_forest(
   data,
   metric = NULL,
   metric_name_var = "metric",
+  metric_value_var = "value",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  metric_value_var = "value",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -36,16 +36,16 @@ are present, aborts and asks the caller to pick one.}
 \item{metric_name_var}{Column in \code{data} contain metric variable names.
 Accepts bare names or strings. Default is \code{metric}.}
 
+\item{metric_value_var}{Column in \code{data} containing replicate draws of the
+test/reference comparison statistic.
+Accepts bare names or strings. Default \code{value}.}
+
 \item{cov_name_var}{Column in \code{data} containing covariate variable names.
 (e.g., \code{WTBL},\code{FOOD}, etc).
 Accepts bare names or strings. Default is \code{cov_var}.}
 
 \item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
 Accepts bare names or strings. Default is \code{cov_val}.}
-
-\item{metric_value_var}{Column in \code{data} containing replicate draws of the
-test/reference comparison statistic.
-Accepts bare names or strings. Default \code{value}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
@@ -61,7 +61,7 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
 Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of \code{stats$stats} (standalone panel). With
+role, and sort to the top of each metric's rows (standalone panel). With
 \code{cov_level_ref}, a copy is also placed in each covariate panel, and
 \code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
 copies are drawn. \code{NULL} marks no row as the reference.
@@ -76,7 +76,9 @@ reference layout and makes it the default in \code{\link[=plot_build_forest]{plo
 named covariate that is present in \code{data}, under that label, in place
 of the standalone reference panel (\code{ref_layout = "consolidated"} draws
 the standalone panel instead). Covariates not named show no reference
-row; names not found in \code{cov_name_var} are ignored with a warning.
+row. Names not found in \code{cov_name_var}, or naming the reference row
+itself, are ignored with a warning; a label matching an existing level
+of that covariate also warns, since both rows would share the label.
 \code{stats$stats} keeps both the standalone reference rows and the
 per-covariate copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
@@ -91,9 +93,8 @@ metric). With \code{"reference"} and no reference row in the plotted
 metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
-\item{ref_band}{Length-2 numeric vector giving the shaded equivalence
-interval, read according to \code{ref_band_type}. Default \code{NULL}
-(no shaded band).}
+\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the shaded equivalence interval, read according to
+\code{ref_band_type}. Default \code{NULL} (no shaded band).}
 
 \item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
 \code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}
@@ -138,8 +139,8 @@ the aggregation and replot with different \code{style} / \code{ref} / \code{ref_
 / \code{ref_band_type} / \code{ref_layout} settings.
 }
 
-On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
-\code{cov_level_var}, \code{metric_value_var}, \code{ci},
+On the precomputed path, pipeline arguments (\code{metric_name_var},
+\code{metric_value_var}, \code{cov_name_var}, \code{cov_level_var}, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},

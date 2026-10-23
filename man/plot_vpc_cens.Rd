@@ -67,7 +67,7 @@ requires quantifiable obs. Rationale: BLQ-heavy bins are the most
 informative on a cens VPC and should be retained.}
 
 \item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.
-A \code{caption} set in the style replaces it.}
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}. The
 cens builder reads four of the keys: \code{obs_point}, \code{obs_median_line},

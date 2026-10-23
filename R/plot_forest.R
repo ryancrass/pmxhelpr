@@ -68,7 +68,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'
 #' The rows are sorted into the order [plot_build_forest()] draws them, top
 #' to bottom; reorder the rows of `stats$stats` to change the plotted order.
-#' The reference row sits in its own panel at the top of `stats$stats`. When
+#' Within each metric, the reference row sits in its own panel at the top. When
 #' `cov_level_ref` is supplied, a copy of it is also placed in each named
 #' covariate panel, and the `layout` column records which rows each
 #' reference layout draws, so one container renders either layout (see
@@ -78,14 +78,14 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    per metric, covariate, covariate level, and replicate.
 #' @param metric_name_var Column in `data` contain metric variable names.
 #'    Accepts bare names or strings. Default is `metric`.
+#' @param metric_value_var Column in `data` containing replicate draws of the
+#'    test/reference comparison statistic.
+#'    Accepts bare names or strings. Default `value`.
 #' @param cov_name_var Column in `data` containing covariate variable names.
 #'    (e.g., `WTBL`,`FOOD`, etc).
 #'    Accepts bare names or strings. Default is `cov_var`.
 #' @param cov_level_var Column in `data` containing covariate levels (e.g., `70 kg`).
 #'    Accepts bare names or strings. Default is `cov_val`.
-#' @param metric_value_var Column in `data` containing replicate draws of the
-#'    test/reference comparison statistic.
-#'    Accepts bare names or strings. Default `value`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
 #' @param sigdigits Number of significant digits used to format the label
@@ -98,7 +98,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
 #'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
 #'    Reference rows are flagged `is_ref`, draw through the `ref_point` style
-#'    role, and sort to the top of `stats$stats` (standalone panel). With
+#'    role, and sort to the top of each metric's rows (standalone panel). With
 #'    `cov_level_ref`, a copy is also placed in each covariate panel, and
 #'    `ref_layout` in [plot_build_forest()] / [plot_forest()] chooses which
 #'    copies are drawn. `NULL` marks no row as the reference.
@@ -112,7 +112,9 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    named covariate that is present in `data`, under that label, in place
 #'    of the standalone reference panel (`ref_layout = "consolidated"` draws
 #'    the standalone panel instead). Covariates not named show no reference
-#'    row; names not found in `cov_name_var` are ignored with a warning.
+#'    row. Names not found in `cov_name_var`, or naming the reference row
+#'    itself, are ignored with a warning; a label matching an existing level
+#'    of that covariate also warns, since both rows would share the label.
 #'    `stats$stats` keeps both the standalone reference rows and the
 #'    per-covariate copies, told apart by the `layout` column.
 #'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
@@ -180,18 +182,18 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 df_forest <- function(
   data,
   metric_name_var = "metric",
+  metric_value_var = "value",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  metric_value_var = "value",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
   cov_level_ref = NULL
 ) {
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
+  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
   cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
 
   check_df(data, "data")
   check_quantile_scalar(ci, "ci")
@@ -200,10 +202,18 @@ df_forest <- function(
   if (!is.null(cov_level_ref)) check_named_vector(cov_level_ref, "cov_level_ref")
   check_varsindf(
     data,
-    c(metric_name_var_str, cov_name_var_str, cov_level_var_str, metric_value_var_str),
+    c(metric_name_var_str, metric_value_var_str, cov_name_var_str, cov_level_var_str),
     "data",
-    "metric_name_var/cov_name_var/cov_level_var/metric_value_var"
+    "metric_name_var/metric_value_var/cov_name_var/cov_level_var"
   )
+  ## Metric and covariate names key the panels and the row order, so a
+  ## missing name has nowhere to draw.
+  has_na <- Filter(function(v) anyNA(data[[v]]), c(metric_name_var_str, cov_name_var_str))
+  if (length(has_na) > 0) {
+    rlang::abort(message = paste0(
+      "columns `", paste(has_na, collapse = "`, `"), "` of `data` must not contain `NA`"
+    ))
+  }
 
   if (!is.null(cov_level_ref) && is.null(cov_name_ref)) {
     rlang::abort(message = paste0(
@@ -262,9 +272,27 @@ df_forest <- function(
       ". No reference row is distributed for them."
     ))
   }
+  self_ref <- intersect(names(cov_level_ref), ref_covs)
+  if (length(self_ref) > 0) {
+    rlang::warn(paste0(
+      "`cov_level_ref` names the reference row itself (`", self_ref,
+      "`); the entry is ignored."
+    ))
+  }
   stats$layout <- ifelse(stats$is_ref, "consolidated", "both")
   ref_rows <- stats[stats$is_ref, , drop = FALSE]
   targets <- intersect(names(cov_level_ref), setdiff(cov_order, ref_covs))
+  clash <- Filter(function(cn) {
+    as.character(cov_level_ref[[cn]]) %in%
+      stats[[cov_level_var_str]][stats[[cov_name_var_str]] == cn]
+  }, targets)
+  if (length(clash) > 0) {
+    rlang::warn(paste0(
+      "`cov_level_ref` labels match an existing level of the same covariate: ",
+      paste0(clash, " = \"", cov_level_ref[clash], "\"", collapse = ", "),
+      ". The distributed reference row and the test row share that label."
+    ))
+  }
   copies <- lapply(targets, function(cn) {
     present <- stats[[metric_name_var_str]][stats[[cov_name_var_str]] == cn]
     copy <- ref_rows[ref_rows[[metric_name_var_str]] %in% present, , drop = FALSE]
@@ -305,13 +333,15 @@ df_forest <- function(
 
   ## One decimal count per metric, set by `sigdigits` of its median estimate,
   ## so the plotted estimate column aligns on the decimal point.
-  anchor <- stats::ave(abs(stats$est), stats[[metric_name_var_str]], FUN = stats::median)
+  anchor <- stats::ave(abs(stats$est), stats[[metric_name_var_str]],
+                       FUN = function(x) stats::median(x, na.rm = TRUE))
   stats$est_label <- fmt_sig(stats$est, sigdigits, anchor = anchor)
   stats$lo_label <- fmt_sig(stats$lo, sigdigits, anchor = anchor)
   stats$hi_label <- fmt_sig(stats$hi, sigdigits, anchor = anchor)
   stats$ci_label <- paste0(
     stats$est_label, " (", stats$lo_label, ", ", stats$hi_label, ")"
   )
+  stats$ci_label[is.na(stats$est)] <- NA_character_
   stats <- stats[, c(grp_vars, "est", "lo", "hi", "est_label", "lo_label",
                      "hi_label", "ci_label", "is_ref", "layout")]
 
@@ -320,9 +350,9 @@ df_forest <- function(
     obs = NULL,
     config = list(
       metric_name_var = metric_name_var_str,
+      metric_value_var = metric_value_var_str,
       cov_name_var = cov_name_var_str,
       cov_level_var = cov_level_var_str,
-      metric_value_var = metric_value_var_str,
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,
@@ -420,9 +450,9 @@ validate_forest_stats <- function(x) {
 #'    metric). With `"reference"` and no reference row in the plotted
 #'    metric, a warning is issued and no line is drawn. Distinct from
 #'    `cov_name_ref` in [df_forest()], which identifies the reference row.
-#' @param ref_band Length-2 numeric vector giving the shaded equivalence
-#'    interval, read according to `ref_band_type`. Default `NULL`
-#'    (no shaded band).
+#' @param ref_band Length-2 increasing numeric vector (`ref_band[1] <
+#'    ref_band[2]`) giving the shaded equivalence interval, read according to
+#'    `ref_band_type`. Default `NULL` (no shaded band).
 #' @param ref_band_type How `ref_band` is placed around the resolved `ref`:
 #'    `"multiplicative"` (default) draws `ref * ref_band`, so `c(0.8, 1.25)`
 #'    is the bioequivalence band on a ratio or a raw exposure scale;
@@ -662,8 +692,8 @@ plot_build_forest <- function(
 #'   the aggregation and replot with different `style` / `ref` / `ref_band`
 #'   / `ref_band_type` / `ref_layout` settings.
 #'
-#' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
-#' `cov_level_var`, `metric_value_var`, `ci`,
+#' On the precomputed path, pipeline arguments (`metric_name_var`,
+#' `metric_value_var`, `cov_name_var`, `cov_level_var`, `ci`,
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
@@ -712,9 +742,9 @@ plot_forest <- function(
   data,
   metric = NULL,
   metric_name_var = "metric",
+  metric_value_var = "value",
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
-  metric_value_var = "value",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -737,15 +767,15 @@ plot_forest <- function(
     stats <- data
   } else {
     metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
+    metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
     cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
     cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
-    metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
     stats <- df_forest(
       data,
       metric_name_var = metric_name_var_str,
+      metric_value_var = metric_value_var_str,
       cov_name_var = cov_name_var_str,
       cov_level_var = cov_level_var_str,
-      metric_value_var = metric_value_var_str,
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,

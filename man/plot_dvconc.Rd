@@ -55,7 +55,7 @@ change-from-baseline data.}
 \item{log_y}{Logical indicator for log10 transformation of the y-axis.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
-A \code{caption} set in the style replaces it.}
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvconc]{style_dvconc()}}; view the defaults by running \code{style_dvconc()}

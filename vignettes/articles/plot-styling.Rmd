@@ -193,6 +193,9 @@ caption, follows the list):
   log-log `scale_*_log10()` and per-metric `facet_wrap()`, so the style spec's
   `logx`/`logy`/`xbreaks`/`facet` fields are ignored. The facet *layout* fields
   (`facet_scales`, default `"free"`; `facet_nrow`; `facet_ncol`) are honored.
+  + **`plot_forest()` facets**: the forest builder draws its own covariate row 
+  facets (`facet_grid()` with strips outside the y-axis), so the style spec's 
+  `facet*` fields are ignored; see `style_forest()`.
   + **Visibility**: `plot_gof_shown()` / `plot_vpc_shown()` control which 
   layers are *built* and the style spec controls how the built layers *look*. 
   Setting `style_vpc(alphas = c(obs_point = 0))` draws an invisible layer and 
@@ -208,8 +211,9 @@ The **caption** is the exception: the style wins. `plot_dvtime()`,
 `plot_dvconc()`, and `plot_gof()` write a caption describing the plotted data 
 (`show_caption`), and the VPC builders write the replicate count (`show_rep`). 
 A `caption` set in the style (`style_dvtime(caption = "...")`, available from 
-ggstylekit 0.4.1) replaces that caption even when `show_caption` or `show_rep` 
-is `TRUE`, since a caption written into the style is an explicit request. To 
+ggstylekit 0.4.1) is drawn regardless of `show_caption` or `show_rep`, 
+replacing the builder's caption, since a caption written into the style is an 
+explicit request. To 
 drop the caption entirely, set `show_caption = FALSE` (or `show_rep = FALSE`) 
 and leave the style `caption` unset.
 

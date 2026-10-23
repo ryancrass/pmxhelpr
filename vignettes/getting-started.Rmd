@@ -128,7 +128,7 @@ pk_plot <- plot_dvtime(
   cent = "mean_sdl",
   col_var = Regimen,
   log_y = TRUE,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 pk_plot
@@ -140,7 +140,7 @@ pd_plot <- plot_dvtime(
   dv_var = "CFB",
   cent = "mean_sdl",
   col_var = Regimen,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
@@ -511,12 +511,12 @@ aesthetics (e.g, `colors`, `shapes`, `sizes`, `linetypes`, `linewidths`,
 leaves the others untouched.
 
 New styles can be defined as an object and recycled across plots. This revised
-style object removes the observed points and increases the linewidth of the 
-central tendency line and error bars.
+style object increases the linewidth of the central tendency line and error 
+bars. Observed points are hidden with the `show_obs = FALSE` argument, which 
+omits the layer so it does not affect the axis limits.
 
 ```{r style-new}
 new_dvtime_style <- style_dvtime(
-    alphas     = c(obs_point = 0),
     linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
 new_dvtime_style
@@ -529,6 +529,7 @@ plot_dvtime(
   cent = "mean_sdl",
   col_var = "Regimen",
   log_y = TRUE,
+  show_obs = FALSE,
   style = new_dvtime_style
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")

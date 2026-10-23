@@ -10,6 +10,7 @@ plot_dvconc(
   idv_var = "CONC",
   col_var = NULL,
   col_trend = FALSE,
+  show_obs = TRUE,
   loess = TRUE,
   linear = FALSE,
   se_loess = FALSE,
@@ -32,6 +33,12 @@ records). Filter by \code{CMT} or \code{EVID == 0} before passing.}
 \item{col_var}{Column to map to the color aesthetic. Accepts bare names or strings. Default is \code{NULL}.}
 
 \item{col_trend}{Logical indicating if the variable specified in \code{col_var} should be used to stratify trend lines}
+
+\item{show_obs}{Logical indicating if observed data points should be shown.
+Default is \code{TRUE}. \code{FALSE} omits the point layer entirely, so hidden
+points do not affect axis limits (unlike setting
+\code{alphas = c(obs_point = 0)} in the style). Spaghetti lines are controlled
+separately by \code{id_var}.}
 
 \item{loess}{Logical indicating if a loess smoother fit should be shown. Default is \code{TRUE}}
 

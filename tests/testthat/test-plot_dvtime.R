@@ -296,3 +296,33 @@ test_that("plot_dvtime fills cent_errorbar aesthetics from the style", {
   expect_equal(unique(lr$linewidth), 1.5)
   expect_equal(unique(lr$alpha), 0.4)
 })
+
+
+##Test show_obs
+obs_point_layer <- function(p) {
+  vapply(p$layers, function(l)
+    inherits(l$geom, "GeomPoint") && inherits(l$stat, "StatIdentity"),
+    logical(1))
+}
+
+test_that("show_obs = FALSE omits the observed point layer", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  expect_true(any(obs_point_layer(plot_dvtime(data, dv_var = "ODV"))))
+  expect_false(any(obs_point_layer(plot_dvtime(data, dv_var = "ODV", show_obs = FALSE))))
+})
+
+test_that("show_obs = FALSE keeps id_var spaghetti lines", {
+  p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                   id_var = "ID", show_obs = FALSE)
+  layer_geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_true("GeomLine" %in% layer_geoms)
+})
+
+test_that("show_obs = FALSE hidden points do not train the y axis", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  y_range <- function(show_obs) {
+    p <- plot_dvtime(data, dv_var = "ODV", cent = "mean_sdl", show_obs = show_obs)
+    suppressWarnings(ggplot2::ggplot_build(p))$layout$panel_params[[1]]$y.range
+  }
+  expect_lt(diff(y_range(FALSE)), diff(y_range(TRUE)))
+})

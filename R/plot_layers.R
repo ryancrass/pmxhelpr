@@ -36,16 +36,21 @@ add_ref_layer_style <- function(plot, ref) {
 #' @param id_var_str Column name for spaghetti grouping, or `NULL` for no lines.
 #' @param col_var_str Column name to map to color at the layer level, or `NULL`
 #'   to inherit color from the plot's global mapping.
+#' @param show_point Logical; whether to add the observed point layer. When
+#'   `FALSE` the layer is omitted entirely, so it does not train the axes.
 #'
 #' @return Modified ggplot object.
 #' @keywords internal
-add_obs_layers_style <- function(plot, id_var_str, col_var_str = NULL) {
-  point <- if (is.null(col_var_str)) {
-    ggplot2::geom_point()
-  } else {
-    ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]))
+add_obs_layers_style <- function(plot, id_var_str, col_var_str = NULL,
+                                 show_point = TRUE) {
+  if (isTRUE(show_point)) {
+    point <- if (is.null(col_var_str)) {
+      ggplot2::geom_point()
+    } else {
+      ggplot2::geom_point(ggplot2::aes(color = .data[[col_var_str]]))
+    }
+    plot <- plot + ggstylekit::series_layer(point, "obs_point")
   }
-  plot <- plot + ggstylekit::series_layer(point, "obs_point")
 
   if (!is.null(id_var_str)) {
     line_mapping <- if (is.null(col_var_str)) {

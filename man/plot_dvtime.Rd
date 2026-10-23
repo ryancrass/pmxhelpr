@@ -15,6 +15,7 @@ plot_dvtime(
   loq = NULL,
   loq_method = 0,
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
+  show_obs = TRUE,
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,
@@ -69,6 +70,12 @@ Options are:
 \item Median +/- Interquartile Range: \code{median_iqr}
 \item None: \code{"none"}
 }}
+
+\item{show_obs}{Logical indicating if observed data points should be shown.
+Default is \code{TRUE}. \code{FALSE} omits the point layer entirely, so hidden
+points do not affect axis limits (unlike setting
+\code{alphas = c(obs_point = 0)} in the style). Spaghetti lines are controlled
+separately by \code{id_var}.}
 
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
 Requires variable specified in \code{dose_var} to be present in \code{data}}

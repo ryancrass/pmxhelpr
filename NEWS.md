@@ -33,6 +33,12 @@
   `colors` keyed by covariate name color each covariate panel.
 * `is_forest_stats()` tests for a `forest_stats` object.
 
+### New arguments
+
+* `plot_dvtime()` and `plot_dvconc()` gain `show_obs` to omit the observed
+  point layer. Unlike `alphas = c(obs_point = 0)`, hidden points no longer
+  affect the axis limits.
+
 ### New datasets
 
 * `data_sad_pkforest_sim`: example raw replicate simulation output (500

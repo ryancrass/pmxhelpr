@@ -4,7 +4,7 @@
 \alias{add_obs_layers_style}
 \title{Internal helper: add observed points and spaghetti lines (style pattern)}
 \usage{
-add_obs_layers_style(plot, id_var_str, col_var_str = NULL)
+add_obs_layers_style(plot, id_var_str, col_var_str = NULL, show_point = TRUE)
 }
 \arguments{
 \item{plot}{ggplot object.}
@@ -13,6 +13,9 @@ add_obs_layers_style(plot, id_var_str, col_var_str = NULL)
 
 \item{col_var_str}{Column name to map to color at the layer level, or \code{NULL}
 to inherit color from the plot's global mapping.}
+
+\item{show_point}{Logical; whether to add the observed point layer. When
+\code{FALSE} the layer is omitted entirely, so it does not train the axes.}
 }
 \value{
 Modified ggplot object.

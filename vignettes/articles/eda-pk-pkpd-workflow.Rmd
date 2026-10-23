@@ -209,12 +209,12 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
   facet_wrap(~PART)
 ```
 
-The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be hidden by setting `alphas = c(obs_point = 0)` in the style.
+The plot can be simplified to show mean +/- standard deviation by specifying `cent = "mean_sdl"`. The observed points just add noise when combined with error bars and can be hidden by setting `show_obs = FALSE`.
 
 ```{r plot-dvtime_part-meansdl, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl",log_y = TRUE,
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -225,7 +225,7 @@ For data with high variability visualized on a linear y-axis, the error bars may
 ```{r plot-dvtime_part-meansdl-upper, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl_upper",
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -236,7 +236,7 @@ For small samples or non-normally (or log-normally) distributed data, the median
 ```{r plot-dvtime_part-medianiqr, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "median_iqr",log_y = TRUE,
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -335,14 +335,13 @@ Say we want to update the errorbar cap width to be more visible in our prior geo
 
 ```{r new-style}
 dvtime_new_style <- style_dvtime(
-  alphas = c(obs_point = 0),
   errorbar_width = 10
 )
 ```
 
 ```{r plot-dvtime-blq-dn-new-style, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl",log_y = TRUE,
+            cent = "mean_sdl",log_y = TRUE, show_obs = FALSE,
             style = dvtime_new_style) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +

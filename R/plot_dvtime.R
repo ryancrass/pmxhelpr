@@ -33,6 +33,11 @@
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #'
+#' @param show_obs Logical indicating if observed data points should be shown.
+#'    Default is `TRUE`. `FALSE` omits the point layer entirely, so hidden
+#'    points do not affect axis limits (unlike setting
+#'    `alphas = c(obs_point = 0)` in the style). Spaghetti lines are controlled
+#'    separately by `id_var`.
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
@@ -74,6 +79,7 @@ plot_dvtime <- function(data,
                         loq_method = 0,
                         cent = c("mean", "mean_sdl", "mean_sdl_upper",
                                  "median", "median_iqr", "none"),
+                        show_obs = TRUE,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
@@ -136,7 +142,7 @@ plot_dvtime <- function(data,
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers_style(plot, id_var_str)
+  plot <- add_obs_layers_style(plot, id_var_str, show_point = show_obs)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers_style(plot, cent, "DV")

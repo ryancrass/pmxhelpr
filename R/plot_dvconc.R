@@ -37,6 +37,7 @@ plot_dvconc <- function(data,
                         idv_var = "CONC",
                         col_var = NULL,
                         col_trend = FALSE,
+                        show_obs = TRUE,
                         loess = TRUE,
                         linear = FALSE,
                         se_loess = FALSE,
@@ -69,7 +70,7 @@ plot_dvconc <- function(data,
   if(!is.null(col_var_str)){data[[col_var_str]] <- order_col_factor(data[[col_var_str]])}
 
   #Determine Caption
-  caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear)
+  caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear, show_obs)
 
   #Resolve style (log_y arg drives the y axis)
   plotstyle <- resolve_style(style, style_dvconc)
@@ -100,7 +101,8 @@ plot_dvconc <- function(data,
 
   #Add observations (color at the layer level unless trends are stratified)
   plot <- add_obs_layers_style(plot, id_var_str = NULL,
-                               col_var_str = if (isTRUE(col_trend)) NULL else col_var_str)
+                               col_var_str = if (isTRUE(col_trend)) NULL else col_var_str,
+                               show_point = show_obs)
 
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
@@ -120,8 +122,10 @@ plot_dvconc <- function(data,
 #' @keywords internal
 #' @noRd
 
-caption_dvconc <- function(ref, loess, linear, se_loess, se_linear){
+caption_dvconc <- function(ref, loess, linear, se_loess, se_linear,
+                           show_obs = TRUE){
 
+  obs_lab <- if (isTRUE(show_obs)) "Points are observations" else ""
   ref_lab <- if (!is.null(ref)) paste0("\n Reference line at y = ", ref) else ""
 
   fit_labels <- list(
@@ -139,7 +143,7 @@ caption_dvconc <- function(ref, loess, linear, se_loess, se_linear){
   key <- paste(loess, linear, se_loess, se_linear, sep = ".")
   fit_lab <- fit_labels[[key]]
 
-  paste("Points are observations", ref_lab, fit_lab)
+  trimws(paste(obs_lab, ref_lab, fit_lab), which = "left")
 }
 
 

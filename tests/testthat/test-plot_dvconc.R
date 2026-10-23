@@ -135,3 +135,17 @@ test_that("plot_dvconc (col_trend) legend follows factor level order, not row or
   sc <- suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
   expect_equal(as.character(sc$get_breaks()), levels(d$Dose))
 })
+
+
+##Test show_obs
+test_that("show_obs = FALSE omits the observed point layer", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", show_obs = FALSE)
+  layer_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_false("GeomPoint" %in% layer_types)
+})
+
+test_that("show_obs = FALSE drops the observations clause from the caption", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", show_obs = FALSE)
+  expect_false(grepl("Points are observations", p$labels$caption))
+  expect_true(grepl("^LOESS fit overlaid", p$labels$caption))
+})

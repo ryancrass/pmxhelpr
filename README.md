@@ -32,6 +32,8 @@ articles:
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
+- [Forest Plot
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.html)
 - [Plot Styling and
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 
@@ -119,6 +121,8 @@ the prefix indicates what the function returns:
 ### Model Application
 
 - Forest Plots:
+  - `df_forest_preprocess()` — Reshape replicate simulation output into
+    forest plot draws
   - `df_forest()` — Forest plot summary statistics
   - `plot_forest()` — Forest plot of covariate impact
 
@@ -129,8 +133,8 @@ a corresponding `style_*()` preset that returns a
 `ggstylekit::style_spec()` pre-filled with the plot family defaults:
 
 - `style_dvtime()`, `style_dvconc()`, `style_doseprop()`, `style_gof()`,
-  `style_vpc()`, `style_forest()` — pass one to the `style` argument of the matching plot
-  function
+  `style_vpc()`, `style_forest()` — pass one to the `style` argument of
+  the matching plot function
 - `plot_vpc_shown()` / `plot_gof_shown()` — control which VPC / GOF
   layers are visible via the `shown` argument
 
@@ -199,8 +203,11 @@ workflow articles for worked examples.
   analysis (NCA)
 - `data_sad_pkfit` — `data_sad` with individual (IPRED) and population
   (PRED) PK model predictions
-- `data_sad_pkforest` — `data_sad` PK model simulation metrics by
-  replicate for a forest plot
+- `data_sad_pkforest_sim` — `data_sad` PK model replicate simulation
+  output: exposure metrics across covariate scenarios, one row per
+  scenario per replicate
+- `data_sad_pkforest` — long-format replicate draws of absolute and
+  test/reference ratio exposure metrics for a forest plot
 
 **Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
 (original DV), to note that it is provided in original units from the
@@ -373,17 +380,14 @@ library(withr)
 glimpse(data_sad_pkforest)
 
 #Generate the summary dataset using df_forest()
-sum <- df_forest(data_sad_pkforest)
+sum <- df_forest(data_sad_pkforest, 
+                 cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),)
 
-#Filter to a single PK metric
-auc_ratio <- filter(data_sad_pkforest, metric == "AUCRATIO")
-
-#Per-covariate reference labels: a named vector maps each non-REF covariate
-#to the value of the REF row when that covariate is varied (e.g., the REF
-#dosing condition is Fasted; the REF body weight is 70 kg). Covariate names
-#not listed produce no dispersed REF row in their panel.
-plot_forest(auc_ratio,
-            cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),
+#Consume the summary dataset to generate the Forest Plot using plot_forest()
+plot_forest(sum, 
+            metric = "AUCRATIO",
             ref_band = c(0.8, 1.25)) +
-  scale_x_log10(guide = "axis_logticks", limits = c(0.5, 5))
+  scale_x_log10(limits = c(0.5, 5), 
+            breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5)) +
+  labs(tag = "Ratio (90% CI)")
 ```

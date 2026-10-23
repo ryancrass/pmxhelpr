@@ -21,6 +21,7 @@ articles:
       - matches("articles/gof-diagnostics")
       - matches("articles/vpc-workflow")
       - matches("articles/doseprop-workflow")
+      - matches("articles/forest-workflow")
       - matches("articles/plot-styling")
 
 reference:
@@ -79,6 +80,7 @@ reference:
     desc: Test/reference comparison summaries for forest plots.
     contents:
       - df_forest
+      - df_forest_preprocess
 
   - title: Vectorized Helpers
     desc: Vectorized utilities intended for use inside `dplyr::mutate()`.
@@ -121,3 +123,4 @@ reference:
       - data_sad_nca
       - data_sad_pkfit
       - data_sad_pkforest
+      - data_sad_pkforest_sim

@@ -229,11 +229,27 @@ test_that("Distributed reference rows inherit est/lo/hi and labels from the refe
                ignore_attr = TRUE)
 })
 
-test_that("cov_level_ref names absent from data are ignored; unnamed covariates get no reference row", {
-  s <- drawn(df_forest(data_sad_pkforest, cov_level_ref = c(FOOD = "Fasted", SEX = "Male")))
+test_that("cov_level_ref names absent from data are ignored with a warning; unnamed covariates get no reference row", {
+  expect_warning(
+    out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOOD = "Fasted", SEX = "Male")),
+    "`cov_level_ref` names covariates not found in `cov_var`: SEX"
+  )
+  s <- drawn(out)
   expect_true(any(s$is_ref & s$cov_var == "FOOD"))
   expect_false(any(s$is_ref & s$cov_var == "WTBL"))
   expect_false("SEX" %in% s$cov_var)
+})
+
+test_that("a misspelled cov_level_ref name warns instead of silently falling back to consolidated", {
+  expect_warning(
+    out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOD = "Fasted")),
+    "not found in `cov_var`: FOD"
+  )
+  expect_false(any(out$stats$layout == "distributed"))
+})
+
+test_that("cov_level_ref matching every covariate does not warn", {
+  expect_no_warning(df_forest(data_sad_pkforest, cov_level_ref = ref_map))
 })
 
 

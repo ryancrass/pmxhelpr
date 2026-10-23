@@ -112,7 +112,8 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    named covariate that is present in `data`, under that label, in place
 #'    of the standalone reference panel (`ref_layout = "consolidated"` draws
 #'    the standalone panel instead). Covariates not named show no reference
-#'    row. `stats$stats` keeps both the standalone reference rows and the
+#'    row; names not found in `cov_name_var` are ignored with a warning.
+#'    `stats$stats` keeps both the standalone reference rows and the
 #'    per-covariate copies, told apart by the `layout` column.
 #'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
 #'    Default is `NULL` (the reference renders in
@@ -251,6 +252,14 @@ df_forest <- function(
     rlang::abort(message = paste0(
       "cannot distribute `", cov_name_ref, "` row: no rows with `",
       cov_name_var_str, " == \"", cov_name_ref, "\"` were found in `data`."
+    ))
+  }
+  unmatched <- setdiff(names(cov_level_ref), cov_order)
+  if (length(unmatched) > 0) {
+    rlang::warn(paste0(
+      "`cov_level_ref` names covariates not found in `", cov_name_var_str,
+      "`: ", paste(unmatched, collapse = ", "),
+      ". No reference row is distributed for them."
     ))
   }
   stats$layout <- ifelse(stats$is_ref, "consolidated", "both")

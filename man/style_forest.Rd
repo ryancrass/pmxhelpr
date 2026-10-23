@@ -21,7 +21,7 @@ A \code{ggstylekit_style_spec} object.
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_forest]{plot_forest()}} /
 \code{\link[=plot_build_forest]{plot_build_forest()}}. Series names are the plot roles: \code{point} (the
 estimate), \code{errorbar} (the CI line range), \code{ref_point} (the estimate of a
-reference row: the dispersed per-covariate reference label or the
+reference row: the distributed per-covariate reference label or the
 standalone reference panel; an open circle by default), \code{ref_line} (the
 vertical reference line drawn at \code{ref}), and \code{ref_band} (the shaded
 equivalence band drawn at \code{ref_band}; a \code{geom_rect} annotation whose \code{fill}

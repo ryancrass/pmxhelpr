@@ -13,13 +13,16 @@
     `"multiplicative"`, `"additive"`, or `"absolute"`).
   + Accepts raw draws or a precomputed `forest_stats` container, so a
     summary can be re-plotted without re-aggregating.
+  + `ref_layout` draws the reference row in its own panel
+    (`"consolidated"`) or in each covariate panel (`"distributed"`), so one
+    `forest_stats` container renders either layout.
   + Returns a plain `ggplot` object.
   
 * `df_forest()` summarizes replicate draws into a plot-ready `forest_stats`
   container (estimate, CI bounds, formatted labels, `is_ref` flag) in display
   order. Reference rows are identified by a logical flag column (`is_ref_var`)
-  or by name (`cov_name_ref`), and can be shown as their own panel or
-  dispersed into each covariate panel (`cov_level_ref`).
+  or by name (`cov_name_ref`); `cov_level_ref` supplies the per-covariate
+  reference labels that the distributed layout draws them under.
 * `df_forest_preprocess()` reshapes wide replicate simulation output (one row
   per scenario per replicate) into the long draws `df_forest()` consumes,
   inferring each scenario's covariate from its difference to the reference

@@ -48,9 +48,9 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention). Reference rows draw through the
-\code{ref_point} style role and sort to the top of the plot (standalone
-panel) or are dispersed into each covariate panel (see
-\code{cov_level_ref}). \code{NULL} marks no row as the reference.
+\code{ref_point} style role and sort to the top of \code{stats$stats}
+(standalone panel); they can be distributed into each covariate panel
+at plot time (see \code{cov_level_ref}). \code{NULL} marks no row as the reference.
 Consulted only when no reference flag column is present (see
 \code{is_ref_var}), so \code{cov_name_ref = NULL} suppresses the reference row
 on the string path alone; pass \code{is_ref_var = NULL} as well to ignore a
@@ -60,12 +60,15 @@ which is the numeric value of the x-intercept for the vertical reference line.}
 
 \item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label (e.g.
-\code{c(FOOD = "Fasted", WTBL = "70 kg")}). When supplied, the
-\code{cov_name_ref} row of each metric is copied into every named covariate
-that is present in \code{data} under that label (flagged \code{is_ref = TRUE}),
-and the standalone reference panel is dropped. Covariates not named
-show no reference row. Requires a non-\code{NULL} \code{cov_name_ref} and at
-least one matching row. Default is \code{NULL} (the reference renders in
+\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the distributed
+reference layout and makes it the default in \code{\link[=plot_build_forest]{plot_build_forest()}} /
+\code{\link[=plot_forest]{plot_forest()}}: the reference row of each metric is drawn in every
+named covariate that is present in \code{data}, under that label, in place
+of the standalone reference panel (\code{ref_layout = "consolidated"} draws
+the standalone panel instead). Covariates not named show no reference
+row. \code{stats$stats} itself always keeps the standalone reference rows.
+Requires a reference row, identified by the flag column or a
+non-\code{NULL} \code{cov_name_ref}. Default is \code{NULL} (the reference renders in
 its own panel at the top).}
 
 \item{is_ref_var}{Column in \code{data} holding a logical reference flag, one
@@ -98,7 +101,10 @@ facet strip; the \code{cov_level_var} value drives the y-axis tick label;
 columns (not \code{ci_label}) to change the plotted text.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
 \item{\code{config}}{Named list with column names, \code{ci},
-\code{sigdigits}, \code{cov_name_ref}, and \code{cov_level_ref}.}
+\code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}, and \code{ref_after} (a
+named character vector giving, per \code{cov_level_ref} covariate, the
+label the distributed reference row is drawn directly below; \code{NA}
+for the top of the panel).}
 }
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.
 }
@@ -108,16 +114,18 @@ container suitable for a covariate forest plots. Returns a \code{\link[=pmx_stat
 container with class \code{c("forest_stats", "pmx_stats")} and three slots:
 \itemize{
 \item \code{stats} (plot-ready frame: one row per plotted point, in display order,
-with canonical \code{est}, \code{lo}, \code{hi}, the formatted \code{est_label},
+with the reference in its own panel, canonical \code{est}, \code{lo}, \code{hi}, the formatted \code{est_label},
 \code{lo_label}, \code{hi_label}, and \code{ci_label}, and \code{is_ref} columns),
 \item \code{obs} (always \code{NULL}; no scatter overlay),
 \item \code{config} (column names + CI configuration)
 }
 
-All data shaping happens here: the reference row is dispersed into each
-covariate panel (when \code{cov_level_ref} is supplied) and the rows are sorted
-into the order \code{\link[=plot_build_forest]{plot_build_forest()}} draws them, top to bottom. Reorder the
-rows of \code{stats$stats} to change the plotted order.
+The rows are sorted into the order \code{\link[=plot_build_forest]{plot_build_forest()}} draws them, top
+to bottom; reorder the rows of \code{stats$stats} to change the plotted order.
+The reference row stays in its own panel at the top of \code{stats$stats}. When
+\code{cov_level_ref} is supplied, \code{\link[=plot_build_forest]{plot_build_forest()}} distributes it into each
+covariate panel at plot time (switch with its \code{ref_layout} argument), so
+one container renders either layout without re-aggregating.
 }
 \section{Row order}{
 
@@ -125,10 +133,12 @@ Rows of \code{stats$stats} are sorted into display order, top to bottom:
 metrics and covariates follow their factor levels when the input columns
 are factors, otherwise their order of first appearance in \code{data}, with the
 standalone reference covariate moved first. Within a covariate, factor
-levels of \code{cov_level_var} win when they cover every label (including a
-dispersed reference label); otherwise labels carrying a number sort ascending by it,
+levels of \code{cov_level_var} win when they cover every label (including the
+distributed reference label); otherwise labels carrying a number sort ascending by it,
 sign included (\verb{50 kg} above \verb{90 kg}), and any other set puts the reference
-label on top followed by the data order.
+label on top followed by the data order. The distributed reference label is
+placed by the same rules and its position recorded in \code{config$ref_after},
+so the covariate rows keep one order in both layouts.
 }
 
 \examples{
@@ -138,7 +148,8 @@ df_forest(dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)))
 # Custom reference level (default is "Reference")
 df_forest(data_sad_pkforest, cov_name_ref = "Reference")
 
-# Per-covariate reference labels (dispersed Reference in each panel)
+# Per-covariate reference labels (Reference distributed into each panel
+# at plot time)
 df_forest(
   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")

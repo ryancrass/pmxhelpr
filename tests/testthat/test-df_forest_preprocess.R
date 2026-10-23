@@ -202,7 +202,7 @@ test_that("The attribute falls back to the character value with no labeller", {
 
 test_that("The attribute feeds `df_forest()` as `cov_level_ref`", {
   out <- pre(cov_labels = labs)
-  s <- df_forest(out, cov_level_ref = attr(out, "cov_level_ref"))$stats
+  s <- pmxhelpr:::forest_rows(df_forest(out, cov_level_ref = attr(out, "cov_level_ref")))
   expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "FOOD"],
                c("Fasted", "Fed"))
   expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "WTBL"],

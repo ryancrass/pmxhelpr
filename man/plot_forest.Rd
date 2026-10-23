@@ -19,6 +19,7 @@ plot_forest(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
+  ref_layout = NULL,
   style = NULL
 )
 }
@@ -60,9 +61,9 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention). Reference rows draw through the
-\code{ref_point} style role and sort to the top of the plot (standalone
-panel) or are dispersed into each covariate panel (see
-\code{cov_level_ref}). \code{NULL} marks no row as the reference.
+\code{ref_point} style role and sort to the top of \code{stats$stats}
+(standalone panel); they can be distributed into each covariate panel
+at plot time (see \code{cov_level_ref}). \code{NULL} marks no row as the reference.
 Consulted only when no reference flag column is present (see
 \code{is_ref_var}), so \code{cov_name_ref = NULL} suppresses the reference row
 on the string path alone; pass \code{is_ref_var = NULL} as well to ignore a
@@ -72,12 +73,15 @@ which is the numeric value of the x-intercept for the vertical reference line.}
 
 \item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label (e.g.
-\code{c(FOOD = "Fasted", WTBL = "70 kg")}). When supplied, the
-\code{cov_name_ref} row of each metric is copied into every named covariate
-that is present in \code{data} under that label (flagged \code{is_ref = TRUE}),
-and the standalone reference panel is dropped. Covariates not named
-show no reference row. Requires a non-\code{NULL} \code{cov_name_ref} and at
-least one matching row. Default is \code{NULL} (the reference renders in
+\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the distributed
+reference layout and makes it the default in \code{\link[=plot_build_forest]{plot_build_forest()}} /
+\code{\link[=plot_forest]{plot_forest()}}: the reference row of each metric is drawn in every
+named covariate that is present in \code{data}, under that label, in place
+of the standalone reference panel (\code{ref_layout = "consolidated"} draws
+the standalone panel instead). Covariates not named show no reference
+row. \code{stats$stats} itself always keeps the standalone reference rows.
+Requires a reference row, identified by the flag column or a
+non-\code{NULL} \code{cov_name_ref}. Default is \code{NULL} (the reference renders in
 its own panel at the top).}
 
 \item{is_ref_var}{Column in \code{data} holding a logical reference flag, one
@@ -113,6 +117,15 @@ change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
 first two require a resolved \code{ref}; multiplicative limits must be
 positive.}
 
+\item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
+copies it into each covariate panel named in the container's
+\code{cov_level_ref}, under that covariate's reference label;
+\code{"consolidated"} draws it in its own panel at the top. \code{NULL}
+(default) uses \code{"distributed"} when \code{\link[=df_forest]{df_forest()}} was given
+\code{cov_level_ref}, otherwise \code{"consolidated"}. \code{"distributed"} without
+\code{cov_level_ref} is an error. The summary statistics are not
+recomputed; only the drawn rows change.}
+
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
@@ -134,7 +147,7 @@ Dual-mode wrapper that delegates to \code{\link[=df_forest]{df_forest()}} for ag
 one-shot mode; or
 \item a precomputed \code{forest_stats} object returned by \code{\link[=df_forest]{df_forest()}} — skip
 the aggregation and replot with different \code{style} / \code{ref} / \code{ref_band}
-/ \code{ref_band_type} settings.
+/ \code{ref_band_type} / \code{ref_layout} settings.
 }
 
 On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
@@ -142,7 +155,8 @@ On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_n
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
-\code{ref_band}, \code{ref_band_type}, and \code{metric} are accepted on both paths.
+\code{ref_band}, \code{ref_band_type}, \code{ref_layout}, and \code{metric} are accepted on
+both paths.
 }
 \examples{
 # Raw-data path: one metric per call
@@ -158,6 +172,9 @@ stats <- df_forest(
 )
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
+
+# Same stats, reference in its own panel instead of each covariate panel
+plot_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 
 # Raw exposure from the same stats: reference line at the reference
 # exposure, band at 0.8 to 1.25 times it (log x-axis keeps it symmetric)

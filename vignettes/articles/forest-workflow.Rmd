@@ -315,16 +315,20 @@ df_forest(renamed)$stats %>%
   select(cov_var, cov_val, is_ref, ci_label)
 ```
 
-`cov_level_ref` is a named vector mapping each covariate to the reference level 
-of that covariate. When supplied, the reference row is copied into each named
-covariate panel under that label and the standalone reference panel is dropped,
-so every panel shows the reference alongside the varied levels.
+`cov_level_ref` is a named vector mapping each covariate to the reference level
+of that covariate. When supplied, the plot distributes the reference row into
+each named covariate panel under that label in place of the standalone
+reference panel, so every panel shows the reference alongside the varied levels.
+The summary table itself is unchanged: `$stats` keeps one reference row per
+metric, and `config$ref_after` records the label each distributed reference row
+is drawn directly below (`NA` for the top of the panel).
 
-```{r df-forest-dispersed}
+```{r df-forest-distributed}
 forest_obj <- df_forest(simsum,
                         cov_level_ref = ref_levels)
 forest_obj$stats %>%
   filter(metric == "AUCRATIO")
+forest_obj$config$ref_after
 ```
 
 If the data does not have the `is_ref` logical or `is_ref` should be ignored, 
@@ -349,7 +353,7 @@ data rather than alphanumerically:
   
   + Covariate value levels within an individual covariate follow the factor 
   levels when the input columns are factors. The order specified in
-  `cov_level_var` wins when all labels are covered, including a dispersed 
+  `cov_level_var` wins when all labels are covered, including a distributed
   reference label. Else, labels carrying a number are automatically sorted in 
   ascending numeric order (e.g., `50 kg` above `90 kg`, `-20%` above `-5%`, 
   and `Weight 50 kg` and `Weight 90 kg`).
@@ -368,9 +372,11 @@ data_wt_desc <- simsum %>%
   mutate(cov_val = factor(cov_val, levels = c("Reference", "Fasted", "Fed",
                                               "90 kg", "80 kg", "70 kg", "60 kg", "50 kg")))
 
-df_forest(data_wt_desc, cov_level_ref = ref_levels)$stats %>%
+wt_desc <- df_forest(data_wt_desc, cov_level_ref = ref_levels)
+wt_desc$stats %>%
   filter(metric == "AUCRATIO") %>%
   select(cov_var, cov_val, is_ref, ci_label)
+wt_desc$config$ref_after
 ```
 
 # Plotting with `plot_forest()`
@@ -475,6 +481,16 @@ plot_forest(forest_obj, metric = "CMAXRATIO", ref_band = c(0.8, 1.25),
 
 plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
             style = style_forest(logx = TRUE))
+```
+
+The reference layout can also be switched on precomputed stats. `forest_obj`
+was computed with `cov_level_ref`, so the reference is distributed into each
+covariate panel by default; `ref_layout = "consolidated"` draws it in its own
+panel instead, with no re-aggregation.
+
+```{r plot-ref-layout, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_layout = "consolidated",
+            ref_band = c(0.8, 1.25), style = style_forest(logx = TRUE))
 ```
 
 When `data` is a precomputed `forest_stats` result, the pipeline arguments 

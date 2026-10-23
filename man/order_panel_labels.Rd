@@ -9,7 +9,7 @@ order_panel_labels(labels, is_ref, given, from_factor)
 \arguments{
 \item{labels}{Character; the unique \code{cov_level} labels in the panel.}
 
-\item{is_ref}{Logical the length of \code{labels}; \code{TRUE} for the dispersed
+\item{is_ref}{Logical the length of \code{labels}; \code{TRUE} for the distributed
 reference label.}
 
 \item{given}{Character; the order the input data declared for this

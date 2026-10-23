@@ -435,9 +435,10 @@ glimpse(forest_preprocess)
 confidence interval for each covariate level, returning a class-tagged 
 `forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats`
 and `vpc_stats`). The `stats` slot is the plot-ready frame with one row per 
-forest plot entry in the order drawn top to bottom. Supplying `cov_level_ref` 
-disperses the `Reference` row into each named covariate panel under that label 
-(flagged `is_ref`). Reorder the rows of `forest_stats$stats`, or set factor 
+forest plot entry in the order drawn top to bottom. Supplying `cov_level_ref`
+lets the plot distribute the `Reference` row into each named covariate panel
+under that label (flagged `is_ref`); `$stats` itself keeps the single
+`Reference` row. Reorder the rows of `forest_stats$stats`, or set factor
 levels of `cov_val` in the input dataset to control the plotted order.
 
 ```{r forest-stats}
@@ -472,18 +473,17 @@ plot_forest(forest_stats, metric = "AUCRATIO",
             ref_band = c(0.8, 1.25), style = new_forest_style) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
-Reference rows (here the dispersed `Fasted` and `70 kg` labels) draw as an open
-circle through the `ref_point` style role and show the estimate alone in the
-right-hand column. 
+Reference rows (here the distributed `Fasted` and `70 kg` labels) draw as an
+open circle through the `ref_point` style role and show the estimate alone in
+the right-hand column.
 
-Reference values can be collected into a separate reference 
-panel, rather than dispersed; however, this decision must be made in
-`df_forest()` using the pre-computed path. A one-stage summary and plotting 
-example is provided below with a collected reference panel.
+Reference values can instead be consolidated into a separate reference panel
+with `ref_layout = "consolidated"`, from the same precomputed `forest_stats`
+object. Without `cov_level_ref`, the reference is always consolidated.
 
 ```{r plot-forest-reference, fig.width=8, fig.height=4.5, warning=FALSE, message=FALSE}
-plot_forest(data_sad_pkforest,
-            metric = "AUCRATIO", 
+plot_forest(forest_stats,
+            metric = "AUCRATIO", ref_layout = "consolidated",
             ref_band = c(0.8, 1.25), style = new_forest_style) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```

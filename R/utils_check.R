@@ -270,6 +270,15 @@ check_ref <- function(ref) {
   invisible(NULL)
 }
 
+check_ref_layout <- function(ref_layout) {
+  if (is.null(ref_layout)) return(invisible(NULL))
+  if (!is.character(ref_layout) || length(ref_layout) != 1L ||
+      !ref_layout %in% c("distributed", "consolidated")) {
+    rlang::abort(message = "argument `ref_layout` must be `\"distributed\"`, `\"consolidated\"`, or `NULL`")
+  }
+  invisible(NULL)
+}
+
 check_ref_band <- function(ref_band, ref_band_type = "absolute") {
   if (is.null(ref_band)) return(invisible(NULL))
   if (!is.numeric(ref_band) || length(ref_band) != 2L || any(is.na(ref_band))) {

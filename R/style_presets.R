@@ -258,7 +258,7 @@ style_vpc <- function(...) {
 #' Default [ggstylekit::style_spec()] for [plot_forest()] /
 #' [plot_build_forest()]. Series names are the plot roles: `point` (the
 #' estimate), `errorbar` (the CI line range), `ref_point` (the estimate of a
-#' reference row: the dispersed per-covariate reference label or the
+#' reference row: the distributed per-covariate reference label or the
 #' standalone reference panel; an open circle by default), `ref_line` (the
 #' vertical reference line drawn at `ref`), and `ref_band` (the shaded
 #' equivalence band drawn at `ref_band`; a `geom_rect` annotation whose `fill`

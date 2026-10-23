@@ -16,7 +16,7 @@
 \item{metric}{PK exposure metric name: absolute (\code{CMAX}, \code{CMIN}, \code{AUC}, \code{CAVG}) or test/reference ratio (\code{CMAXRATIO}, \code{CMINRATIO}, \code{AUCRATIO}, \code{CAVGRATIO})}
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
 \item{cov_var}{Covariate varied in the scenario (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
-\item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to disperse the reference row into each covariate panel.}
+\item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to distribute the reference row into each covariate panel.}
 \item{is_ref}{Logical flag marking the reference-scenario rows. \code{\link[=df_forest]{df_forest()}} reads this column in preference to matching \code{cov_name_ref}.}
 }
 }
@@ -50,7 +50,7 @@ interval at steady state. See \code{data-raw/data_sad_raw.R}.
 
 Carries a \code{"cov_level_ref"} attribute, \code{c(FOOD = "Fasted", WTBL = "70 kg")},
 giving each varied covariate's reference level label. Pass it to
-\code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref} to disperse the reference row into every
+\code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref} to distribute the reference row into every
 covariate panel.
 }
 

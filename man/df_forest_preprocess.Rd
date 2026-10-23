@@ -148,7 +148,7 @@ attr(draws, "cov_level_ref")
 # Feed straight into the forest pipeline
 df_forest(draws)
 
-# ... or disperse the reference into each covariate panel
+# ... or distribute the reference into each covariate panel
 df_forest(draws, cov_level_ref = attr(draws, "cov_level_ref"))
 
 # Absolute metrics only

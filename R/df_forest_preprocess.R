@@ -112,7 +112,7 @@
 #' # Feed straight into the forest pipeline
 #' df_forest(draws)
 #'
-#' # ... or disperse the reference into each covariate panel
+#' # ... or distribute the reference into each covariate panel
 #' df_forest(draws, cov_level_ref = attr(draws, "cov_level_ref"))
 #'
 #' # Absolute metrics only
@@ -249,7 +249,7 @@ df_forest_preprocess <- function(
   }
 
   ## The same labeller applied to each covariate's reference value gives the
-  ## `cov_level_ref` mapping `df_forest()` takes for dispersed references.
+  ## `cov_level_ref` mapping `df_forest()` takes for distributed references.
   cov_level_ref <- vapply(
     cov_vars,
     function(cn) label_vals(cn, cov_val_ref[[cn]]),

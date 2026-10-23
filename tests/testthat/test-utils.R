@@ -366,7 +366,7 @@ test_that("check_loglog_args errors on bad method", {
 
 test_that("check_loglog_args errors on ci outside (0,1)", {
   expect_error(pmxhelpr:::check_loglog_args("normal", 1.5, 3),
-               regexp = "must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("check_loglog_args accepts valid arguments silently", {

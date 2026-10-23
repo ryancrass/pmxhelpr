@@ -207,8 +207,10 @@ df_forest <- function(
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
 
   check_df(data, "data")
-  check_forest_args(ci, sigdigits, cov_name_ref)
-  check_cov_level_ref(cov_level_ref)
+  check_quantile_scalar(ci, "ci")
+  check_integer(sigdigits, "sigdigits")
+  check_string(cov_name_ref, "cov_name_ref", null_ok = TRUE)
+  if (!is.null(cov_level_ref)) check_named_vector(cov_level_ref, "cov_level_ref")
   check_varsindf(
     data,
     c(metric_name_var_str, cov_name_var_str, cov_level_var_str, metric_value_var_str),

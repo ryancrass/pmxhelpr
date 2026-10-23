@@ -20,7 +20,7 @@ test_that("Error if argument `method` not one of normal or tdist", {
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), ci = 1.1),
-               regexp = "argument `ci` must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {
@@ -175,7 +175,7 @@ test_that("Error if argument `method` is not one of normal or tdist", {
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
-               regexp = "argument `ci` must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("Error if argument `sigdigits` is not coercible to an integer", {

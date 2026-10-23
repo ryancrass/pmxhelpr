@@ -147,14 +147,8 @@ df_forest_preprocess <- function(
   check_cov_val_ref(cov_val_ref, cov_vars)
   check_cov_labels(cov_labels, cov_vars)
   check_boolean(ratio, "ratio")
-  if (!is.character(ratio_suffix) || length(ratio_suffix) != 1L ||
-      is.na(ratio_suffix) || !nzchar(ratio_suffix)) {
-    rlang::abort(message = "argument `ratio_suffix` must be a single non-empty character string")
-  }
-  if (!is.character(cov_name_ref) || length(cov_name_ref) != 1L ||
-      is.na(cov_name_ref) || !nzchar(cov_name_ref)) {
-    rlang::abort(message = "argument `cov_name_ref` must be a single non-empty character string")
-  }
+  check_string(ratio_suffix, "ratio_suffix")
+  check_string(cov_name_ref, "cov_name_ref")
   check_varsindf(data, c(metric_vars, cov_vars), "data", "metric_vars/cov_vars")
   if (isTRUE(ratio)) {
     check_varsindf(data, replicate_var_str, "data", "replicate_var")

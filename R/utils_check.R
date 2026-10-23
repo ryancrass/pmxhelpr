@@ -230,10 +230,7 @@ check_single_cmt <- function(data, name = "data") {
   invisible(NULL)
 }
 
-check_forest_args <- function(statistic, ci, sigdigits, cov_name_ref) {
-  if (!statistic %in% c("median", "mean", "geo_mean")) {
-    rlang::abort(message = 'argument `statistic` must be `median`, `mean`, or `geo_mean`')
-  }
+check_forest_args <- function(ci, sigdigits, cov_name_ref) {
   if (!is.numeric(ci) || length(ci) != 1L || is.na(ci) || ci <= 0 || ci >= 1) {
     rlang::abort(message = "argument `ci` must be a single numeric value between 0 and 1")
   }
@@ -331,25 +328,25 @@ check_character_vars <- function(x, name) {
   invisible(NULL)
 }
 
-check_cov_value_ref <- function(cov_value_ref, cov_vars) {
-  if (!is.vector(cov_value_ref) || is.list(cov_value_ref)) {
-    rlang::abort(message = "argument `cov_value_ref` must be a named atomic vector")
+check_cov_val_ref <- function(cov_val_ref, cov_vars) {
+  if (!is.vector(cov_val_ref) || is.list(cov_val_ref)) {
+    rlang::abort(message = "argument `cov_val_ref` must be a named atomic vector")
   }
-  nms <- names(cov_value_ref)
-  if (length(cov_value_ref) == 0L || is.null(nms) ||
+  nms <- names(cov_val_ref)
+  if (length(cov_val_ref) == 0L || is.null(nms) ||
       any(is.na(nms)) || any(!nzchar(nms))) {
-    rlang::abort(message = "argument `cov_value_ref` must be a non-empty named vector with non-empty names")
+    rlang::abort(message = "argument `cov_val_ref` must be a non-empty named vector with non-empty names")
   }
   if (anyDuplicated(nms)) {
     rlang::abort(message = paste0(
-      "argument `cov_value_ref` has duplicate names: ",
+      "argument `cov_val_ref` has duplicate names: ",
       paste(unique(nms[duplicated(nms)]), collapse = ", ")
     ))
   }
   missing_cov <- setdiff(cov_vars, nms)
   if (length(missing_cov) > 0) {
     rlang::abort(message = paste0(
-      "argument `cov_value_ref` is missing a reference value for: ",
+      "argument `cov_val_ref` is missing a reference value for: ",
       paste(missing_cov, collapse = ", "),
       ". One entry is required per `cov_vars` column."
     ))
@@ -357,7 +354,7 @@ check_cov_value_ref <- function(cov_value_ref, cov_vars) {
   extra_cov <- setdiff(nms, cov_vars)
   if (length(extra_cov) > 0) {
     rlang::abort(message = paste0(
-      "argument `cov_value_ref` names columns that are not in `cov_vars`: ",
+      "argument `cov_val_ref` names columns that are not in `cov_vars`: ",
       paste(extra_cov, collapse = ", ")
     ))
   }

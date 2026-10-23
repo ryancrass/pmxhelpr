@@ -10,7 +10,6 @@ df_forest(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  statistic = "median",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -35,9 +34,6 @@ Accepts bare names or strings. Default is \code{cov_val}.}
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
 test/reference comparison statistic.
 Accepts bare names or strings. Default \code{value}.}
-
-\item{statistic}{Central-tendency statistic.
-One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
@@ -87,14 +83,15 @@ slots:
 \describe{
 \item{\code{stats}}{One row per plotted point, in display order, with
 character columns named in \code{metric_name_var} / \code{cov_name_var} /
-\code{cov_level_var}, canonical numeric columns \code{est}, \code{lo}, \code{hi},
-the character column \code{ci_label} (e.g. \code{"1.12 [0.950, 1.32]"}), and
+\code{cov_level_var}, canonical numeric columns \code{est} (median of the
+draws), \code{lo}, \code{hi} (the \code{(1 - ci) / 2} and \code{1 - (1 - ci) / 2}
+percentiles), the character column \code{ci_label} (e.g. \code{"1.12 [0.950, 1.32]"}), and
 the logical \code{is_ref}. The \code{cov_name_var} value drives the per-row
 facet strip; the \code{cov_level_var} value drives the y-axis tick label;
 \code{\link[=plot_build_forest]{plot_build_forest()}} renders \code{ci_label} as the right-hand
 secondary y-axis text.}
 \item{\code{obs}}{\code{NULL}. No scatter overlay for the forest family.}
-\item{\code{config}}{Named list with column names, \code{statistic}, \code{ci},
+\item{\code{config}}{Named list with column names, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, and \code{cov_level_ref}.}
 }
 Pass directly to \code{\link[=plot_forest]{plot_forest()}} or \code{\link[=plot_build_forest]{plot_build_forest()}} to render.

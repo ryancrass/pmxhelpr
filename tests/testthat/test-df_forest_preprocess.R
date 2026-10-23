@@ -20,7 +20,7 @@ pre <- function(...) {
     sim_wide,
     metric_vars = c("AUC", "CMAX"),
     cov_vars = c("FOOD", "WTBL"),
-    cov_value_ref = ref_vals,
+    cov_val_ref = ref_vals,
     ...
   )
 }
@@ -81,13 +81,13 @@ test_that("Each scenario is keyed to the one covariate it varies", {
   expect_equal(scn$cov_val, c("Reference", "Fed", "50 kg", "90 kg"))
 })
 
-test_that("Covariate values match `cov_value_ref` on their character form", {
+test_that("Covariate values match `cov_val_ref` on their character form", {
   chr <- sim_wide
   chr$FOOD <- as.character(chr$FOOD)
   out <- df_forest_preprocess(
     chr,
     metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-    cov_value_ref = c(FOOD = 0, WTBL = 70)
+    cov_val_ref = c(FOOD = 0, WTBL = 70)
   )
   expect_equal(sum(out$is_ref & out$metric == "AUC"), 2)
 })
@@ -97,7 +97,7 @@ test_that("A scenario differing in two covariates aborts", {
   bad$WTBL[bad$SCN == 2] <- 90
   expect_error(
     df_forest_preprocess(bad, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "differ in more than one"
   )
 })
@@ -105,7 +105,7 @@ test_that("A scenario differing in two covariates aborts", {
 test_that("A missing reference scenario aborts", {
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = c(FOOD = 0, WTBL = 60)),
+                         cov_val_ref = c(FOOD = 0, WTBL = 60)),
     "no reference scenario found"
   )
 })
@@ -114,7 +114,7 @@ test_that("A replicate without exactly one reference row aborts", {
   dup <- rbind(sim_wide, sim_wide[sim_wide$SCN == 1, ])
   expect_error(
     df_forest_preprocess(dup, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "exactly one reference-scenario row"
   )
 })
@@ -124,7 +124,7 @@ test_that("`NA` in a covariate column aborts", {
   na_cov$FOOD[3] <- NA
   expect_error(
     df_forest_preprocess(na_cov, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "must not contain `NA`"
   )
 })
@@ -154,12 +154,12 @@ test_that("`replicate_var` is only required when ratios are requested", {
   no_sim <- sim_wide[sim_wide$SIM == 1, setdiff(names(sim_wide), "SIM")]
   expect_s3_class(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals, ratio = FALSE),
+                         cov_val_ref = ref_vals, ratio = FALSE),
     "data.frame"
   )
   expect_error(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "replicate_var"
   )
 })
@@ -229,7 +229,7 @@ test_that("An output name colliding with an input column warns", {
   clash$metric <- "x"
   expect_warning(
     df_forest_preprocess(clash, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "replaced by output columns"
   )
 })
@@ -237,17 +237,17 @@ test_that("An output name colliding with an input column warns", {
 test_that("Malformed arguments abort", {
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = c("AUC", "AUC"),
-                         cov_vars = c("FOOD", "WTBL"), cov_value_ref = ref_vals),
+                         cov_vars = c("FOOD", "WTBL"), cov_val_ref = ref_vals),
     "duplicate entries"
   )
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = c(FOOD = 0)),
+                         cov_val_ref = c(FOOD = 0)),
     "missing a reference value"
   )
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = "AUC", cov_vars = "FOOD",
-                         cov_value_ref = c(FOOD = 0, WTBL = 70)),
+                         cov_val_ref = c(FOOD = 0, WTBL = 70)),
     "not in `cov_vars`"
   )
   expect_error(pre(cov_labels = list(FOOD = 1:2)), "must be a function or a")
@@ -255,14 +255,14 @@ test_that("Malformed arguments abort", {
   expect_error(pre(cov_labels = labs, ratio_suffix = ""), "non-empty character string")
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = "SCN", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals, ratio = FALSE),
+                         cov_val_ref = ref_vals, ratio = FALSE),
     NA
   )
   chr_metric <- sim_wide
   chr_metric$AUC <- as.character(chr_metric$AUC)
   expect_error(
     df_forest_preprocess(chr_metric, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
-                         cov_value_ref = ref_vals),
+                         cov_val_ref = ref_vals),
     "must name numeric columns"
   )
 })
@@ -283,7 +283,7 @@ test_that("The shipped dataset is reproduced by the shipped raw data", {
     data_sad_pkforest_sim,
     metric_vars = c("CMAX", "CMIN", "AUC", "CAVG"),
     cov_vars = c("FOOD", "WTBL"),
-    cov_value_ref = c(FOOD = 0, WTBL = 70),
+    cov_val_ref = c(FOOD = 0, WTBL = 70),
     cov_labels = list(
       FOOD = c("0" = "Fasted", "1" = "Fed"),
       WTBL = function(x) paste(x, "kg")

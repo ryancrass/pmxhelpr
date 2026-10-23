@@ -49,7 +49,7 @@ is_forest_stats <- function(x, strict = FALSE) {
 #' @description
 #' Focused summary of a [df_forest()] result: object dimensions, the
 #' configuration values (`metric_name_var`, `cov_name_var`, `cov_level_var`,
-#' `statistic`, `ci`), and the per-row stats body. Inspect the underlying
+#' `ci`), and the per-row stats body. Inspect the underlying
 #' frame directly via `x$stats`; inspect run config via `x$config`.
 #'
 #' @param x A `forest_stats` object.
@@ -71,11 +71,10 @@ forest_stats_header <- function(x) {
   cat("<forest_stats>\n")
   cat(sprintf("  stats: %d rows x %d columns\n",
               nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, statistic = %s, ci = %s\n",
+  cat(sprintf("  config: metric_name_var = %s, cov_name_var = %s, cov_level_var = %s, ci = %s\n",
               format(x$config$metric_name_var),
               format(x$config$cov_name_var),
               format(x$config$cov_level_var),
-              format(x$config$statistic),
               format(x$config$ci)))
   invisible(x)
 }

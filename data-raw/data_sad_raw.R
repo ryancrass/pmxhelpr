@@ -371,7 +371,7 @@ data_sad_pkforest <- df_forest_preprocess(
   data_sad_pkforest_sim,
   metric_vars = c("CMAX", "CMIN", "AUC", "CAVG"),
   cov_vars = c("FOOD", "WTBL"),
-  cov_value_ref = c(FOOD = 0, WTBL = 70),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
   cov_labels = list(
     FOOD = c("0" = "Fasted", "1" = "Fed"),
     WTBL = function(x) paste(x, "kg")

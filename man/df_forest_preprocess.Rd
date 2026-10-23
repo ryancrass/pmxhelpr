@@ -8,7 +8,7 @@ df_forest_preprocess(
   data,
   metric_vars,
   cov_vars,
-  cov_value_ref,
+  cov_val_ref,
   replicate_var = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
@@ -31,7 +31,7 @@ replicate, with exposure metrics as columns.}
 \item{cov_vars}{Character vector naming the covariate columns in \code{data}
 that define the scenarios (e.g. \code{c("FOOD", "WTBL")}).}
 
-\item{cov_value_ref}{Named vector giving the reference-scenario value of
+\item{cov_val_ref}{Named vector giving the reference-scenario value of
 every \code{cov_vars} column (e.g. \code{c(FOOD = 0, WTBL = 70)}). Not to be
 confused with \code{cov_level_ref} in \code{\link[=df_forest]{df_forest()}}, which holds display
 labels rather than source values.}
@@ -92,13 +92,13 @@ metric per scenario per replicate, with the covariate name, the covariate
 level label, and a logical reference flag.
 
 Scenarios are read from the covariate columns themselves: the reference
-scenario is the one where every covariate equals its \code{cov_value_ref}
+scenario is the one where every covariate equals its \code{cov_val_ref}
 value, and every other scenario must differ from it in exactly one
 covariate, which becomes that scenario's covariate name. No scenario
 identifier column is needed.
 }
 \details{
-Covariate values are matched to \code{cov_value_ref} on their character
+Covariate values are matched to \code{cov_val_ref} on their character
 representation, so a numeric column and a character reference value still
 match. Covariate columns may not contain \code{NA}.
 
@@ -134,7 +134,7 @@ draws <- df_forest_preprocess(
   data_sad_pkforest_sim,
   metric_vars   = c("CMAX", "AUC"),
   cov_vars      = c("FOOD", "WTBL"),
-  cov_value_ref = c(FOOD = 0, WTBL = 70),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
   cov_labels    = list(
     FOOD = c("0" = "Fasted", "1" = "Fed"),
     WTBL = function(x) paste(x, "kg")
@@ -156,7 +156,7 @@ df_forest_preprocess(
   data_sad_pkforest_sim,
   metric_vars   = "AUC",
   cov_vars      = c("FOOD", "WTBL"),
-  cov_value_ref = c(FOOD = 0, WTBL = 70),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
   ratio         = FALSE
 )
 }

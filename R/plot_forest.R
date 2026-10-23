@@ -126,8 +126,6 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #' @param metric_value_var Column in `data` containing replicate draws of the
 #'    test/reference comparison statistic.
 #'    Accepts bare names or strings. Default `value`.
-#' @param statistic Central-tendency statistic.
-#'    One of `"median"` (default), `"mean"`, or `"geo_mean"`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
 #' @param sigdigits Number of significant digits used to format the
@@ -182,14 +180,15 @@ aggregate_ref_flag <- function(data, stats, grp_vars, is_ref_var_str) {
 #'    \describe{
 #'      \item{`stats`}{One row per plotted point, in display order, with
 #'        character columns named in `metric_name_var` / `cov_name_var` /
-#'        `cov_level_var`, canonical numeric columns `est`, `lo`, `hi`,
-#'        the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`), and
+#'        `cov_level_var`, canonical numeric columns `est` (median of the
+#'        draws), `lo`, `hi` (the `(1 - ci) / 2` and `1 - (1 - ci) / 2`
+#'        percentiles), the character column `ci_label` (e.g. `"1.12 [0.950, 1.32]"`), and
 #'        the logical `is_ref`. The `cov_name_var` value drives the per-row
 #'        facet strip; the `cov_level_var` value drives the y-axis tick label;
 #'        [plot_build_forest()] renders `ci_label` as the right-hand
 #'        secondary y-axis text.}
 #'      \item{`obs`}{`NULL`. No scatter overlay for the forest family.}
-#'      \item{`config`}{Named list with column names, `statistic`, `ci`,
+#'      \item{`config`}{Named list with column names, `ci`,
 #'        `sigdigits`, `cov_name_ref`, and `cov_level_ref`.}
 #'    }
 #'    Pass directly to [plot_forest()] or [plot_build_forest()] to render.
@@ -220,7 +219,6 @@ df_forest <- function(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  statistic = "median",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -234,7 +232,7 @@ df_forest <- function(
   is_ref_var_str <- resolve_var(rlang::enquo(is_ref_var), nullable = TRUE)
 
   check_df(data, "data")
-  check_forest_args(statistic, ci, sigdigits, cov_name_ref)
+  check_forest_args(ci, sigdigits, cov_name_ref)
   check_cov_level_ref(cov_level_ref)
   check_varsindf(
     data,
@@ -275,18 +273,11 @@ df_forest <- function(
   })
 
   probs <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  stats_fn <- switch(
-    statistic,
-    median = function(x) stats::median(x, na.rm = TRUE),
-    mean = function(x) mean(x, na.rm = TRUE),
-    geo_mean = function(x) exp(mean(log(x), na.rm = TRUE))
-  )
-
   grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str)
   stats <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grp_vars))) |>
     dplyr::summarise(
-      est = stats_fn(.data[[metric_value_var_str]]),
+      est = stats::median(.data[[metric_value_var_str]], na.rm = TRUE),
       lo = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
       hi = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
       .groups = "drop"
@@ -375,7 +366,6 @@ df_forest <- function(
       cov_name_var = cov_name_var_str,
       cov_level_var = cov_level_var_str,
       metric_value_var = metric_value_var_str,
-      statistic = statistic,
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,
@@ -417,7 +407,7 @@ validate_forest_stats <- function(x) {
   }
   required_config <- c(
     "metric_name_var", "cov_name_var", "cov_level_var",
-    "statistic", "ci", "sigdigits"
+    "ci", "sigdigits"
   )
   missing_config <- setdiff(required_config, names(x$config))
   if (length(missing_config) > 0) {
@@ -444,7 +434,7 @@ validate_forest_stats <- function(x) {
 #' estimates with horizontal CI lines, optional shaded equivalence band, and
 #' a vertical reference line, one facet row per covariate name. The numeric
 #' `ci_label` column is rendered as the right-hand secondary y-axis text
-#' under a header built from the container's `statistic` and `ci` (e.g.
+#' under a header built from the container's `ci` (e.g.
 #' `"Median [90% CI]"`), so each row's estimate sits beside its point.
 #'
 #' Rows are drawn in the order they appear in `stats$stats`, top to bottom
@@ -709,14 +699,7 @@ plot_build_forest <- function(
     fmt_sig(plot_data$est, stats$config$sigdigits),
     plot_data$ci_label
   )
-  stat_label <- switch(
-    stats$config$statistic,
-    median = "Median",
-    mean = "Mean",
-    geo_mean = "Geometric mean",
-    stats$config$statistic
-  )
-  header <- paste0(stat_label, " [", format(stats$config$ci * 100), "% CI]")
+  header <- paste0("Median [", format(stats$config$ci * 100), "% CI]")
   base <- base +
     ggplot2::scale_y_discrete(
       breaks = rev(row_ids),
@@ -772,7 +755,7 @@ plot_build_forest <- function(
 #'   / `ref_band_type` settings.
 #'
 #' On the precomputed path, pipeline arguments (`metric_name_var`, `cov_name_var`,
-#' `cov_level_var`, `metric_value_var`, `statistic`, `ci`,
+#' `cov_level_var`, `metric_value_var`, `ci`,
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
@@ -821,7 +804,6 @@ plot_forest <- function(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  statistic = "median",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -854,7 +836,6 @@ plot_forest <- function(
       cov_name_var = cov_name_var_str,
       cov_level_var = cov_level_var_str,
       metric_value_var = metric_value_var_str,
-      statistic = statistic,
       ci = ci,
       sigdigits = sigdigits,
       cov_name_ref = cov_name_ref,

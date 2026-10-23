@@ -70,7 +70,7 @@ object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
 a vertical reference line, one facet row per covariate name. The numeric
 \code{ci_label} column is rendered as the right-hand secondary y-axis text
-under a header built from the container's \code{statistic} and \code{ci} (e.g.
+under a header built from the container's \code{ci} (e.g.
 \code{"Median [90\% CI]"}), so each row's estimate sits beside its point.
 
 Rows are drawn in the order they appear in \code{stats$stats}, top to bottom

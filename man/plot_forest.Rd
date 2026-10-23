@@ -11,7 +11,6 @@ plot_forest(
   cov_name_var = "cov_var",
   cov_level_var = "cov_val",
   metric_value_var = "value",
-  statistic = "median",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -48,9 +47,6 @@ Accepts bare names or strings. Default is \code{cov_val}.}
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
 test/reference comparison statistic.
 Accepts bare names or strings. Default \code{value}.}
-
-\item{statistic}{Central-tendency statistic.
-One of \code{"median"} (default), \code{"mean"}, or \code{"geo_mean"}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}
@@ -145,7 +141,7 @@ the aggregation and replot with different \code{style} / \code{ref} / \code{ref_
 }
 
 On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_name_var},
-\code{cov_level_var}, \code{metric_value_var}, \code{statistic}, \code{ci},
+\code{cov_level_var}, \code{metric_value_var}, \code{ci},
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},

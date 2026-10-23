@@ -10,13 +10,13 @@
 #' level label, and a logical reference flag.
 #'
 #' Scenarios are read from the covariate columns themselves: the reference
-#' scenario is the one where every covariate equals its `cov_value_ref`
+#' scenario is the one where every covariate equals its `cov_val_ref`
 #' value, and every other scenario must differ from it in exactly one
 #' covariate, which becomes that scenario's covariate name. No scenario
 #' identifier column is needed.
 #'
 #' @details
-#' Covariate values are matched to `cov_value_ref` on their character
+#' Covariate values are matched to `cov_val_ref` on their character
 #' representation, so a numeric column and a character reference value still
 #' match. Covariate columns may not contain `NA`.
 #'
@@ -41,7 +41,7 @@
 #'    `data` (e.g. `c("CMAX", "AUC")`). Must be numeric columns.
 #' @param cov_vars Character vector naming the covariate columns in `data`
 #'    that define the scenarios (e.g. `c("FOOD", "WTBL")`).
-#' @param cov_value_ref Named vector giving the reference-scenario value of
+#' @param cov_val_ref Named vector giving the reference-scenario value of
 #'    every `cov_vars` column (e.g. `c(FOOD = 0, WTBL = 70)`). Not to be
 #'    confused with `cov_level_ref` in [df_forest()], which holds display
 #'    labels rather than source values.
@@ -98,7 +98,7 @@
 #'   data_sad_pkforest_sim,
 #'   metric_vars   = c("CMAX", "AUC"),
 #'   cov_vars      = c("FOOD", "WTBL"),
-#'   cov_value_ref = c(FOOD = 0, WTBL = 70),
+#'   cov_val_ref = c(FOOD = 0, WTBL = 70),
 #'   cov_labels    = list(
 #'     FOOD = c("0" = "Fasted", "1" = "Fed"),
 #'     WTBL = function(x) paste(x, "kg")
@@ -120,7 +120,7 @@
 #'   data_sad_pkforest_sim,
 #'   metric_vars   = "AUC",
 #'   cov_vars      = c("FOOD", "WTBL"),
-#'   cov_value_ref = c(FOOD = 0, WTBL = 70),
+#'   cov_val_ref = c(FOOD = 0, WTBL = 70),
 #'   ratio         = FALSE
 #' )
 
@@ -128,7 +128,7 @@ df_forest_preprocess <- function(
   data,
   metric_vars,
   cov_vars,
-  cov_value_ref,
+  cov_val_ref,
   replicate_var = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
@@ -150,7 +150,7 @@ df_forest_preprocess <- function(
   check_df(data, "data")
   check_character_vars(metric_vars, "metric_vars")
   check_character_vars(cov_vars, "cov_vars")
-  check_cov_value_ref(cov_value_ref, cov_vars)
+  check_cov_val_ref(cov_val_ref, cov_vars)
   check_cov_labels(cov_labels, cov_vars)
   check_boolean(ratio, "ratio")
   if (!is.character(ratio_suffix) || length(ratio_suffix) != 1L ||
@@ -188,7 +188,7 @@ df_forest_preprocess <- function(
       paste(has_na, collapse = ", ")
     ))
   }
-  ref_chr <- as.character(cov_value_ref[cov_vars])
+  ref_chr <- as.character(cov_val_ref[cov_vars])
 
   diff_mat <- matrix(
     unlist(Map(function(x, r) x != r, cov_chr, ref_chr)),
@@ -205,7 +205,7 @@ df_forest_preprocess <- function(
   )
   if (!any(is_ref)) {
     rlang::abort(message = paste0(
-      "no reference scenario found: no rows in `data` match `cov_value_ref` (",
+      "no reference scenario found: no rows in `data` match `cov_val_ref` (",
       paste0(cov_vars, " = ", ref_chr, collapse = ", "), "). ",
       "Scenarios present: ", paste(unique(scenario_label)[seq_len(min(10L, length(unique(scenario_label))))], collapse = "; ")
     ))
@@ -252,7 +252,7 @@ df_forest_preprocess <- function(
   ## `cov_level_ref` mapping `df_forest()` takes for dispersed references.
   cov_level_ref <- vapply(
     cov_vars,
-    function(cn) label_vals(cn, cov_value_ref[[cn]]),
+    function(cn) label_vals(cn, cov_val_ref[[cn]]),
     character(1)
   )
   names(cov_level_ref) <- cov_vars

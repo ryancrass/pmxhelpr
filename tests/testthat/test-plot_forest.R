@@ -71,15 +71,13 @@ test_that("`ci` argument controls quantile probs", {
   expect_gt(row_95$hi, row_90$hi)
 })
 
-test_that("`statistic` selects mean / geometric mean for `est`", {
+test_that("`est` is the median of the draws", {
   grp <- data_sad_pkforest[data_sad_pkforest$metric  == "AUCRATIO" &
                            data_sad_pkforest$cov_var == "WTBL" &
                            data_sad_pkforest$cov_val == "50 kg", ]
   pick <- function(s) s[s$metric == "AUCRATIO" & s$cov_var == "WTBL" & s$cov_val == "50 kg", ]
-  expect_equal(pick(df_forest(data_sad_pkforest, statistic = "mean")$stats)$est,
-               mean(grp$value))
-  expect_equal(pick(df_forest(data_sad_pkforest, statistic = "geo_mean")$stats)$est,
-               exp(mean(log(grp$value))))
+  expect_equal(pick(df_forest(data_sad_pkforest)$stats)$est, stats::median(grp$value))
+  expect_error(df_forest(data_sad_pkforest, statistic = "mean"), "unused argument")
 })
 
 test_that("Aggregation needs no replicate column", {
@@ -102,7 +100,6 @@ test_that("Config records column names and settings", {
   expect_equal(out$config$cov_name_var, "cov_var")
   expect_equal(out$config$cov_level_var, "cov_val")
   expect_equal(out$config$metric_value_var, "value")
-  expect_equal(out$config$statistic, "median")
   expect_equal(out$config$ci, 0.9)
   expect_equal(out$config$sigdigits, 3)
   expect_equal(out$config$cov_name_ref, "Reference")
@@ -206,11 +203,9 @@ test_that("Error if `data` is not a data.frame", {
                regexp = "argument `data` must be a `data.frame`")
 })
 
-test_that("Error on malformed ci / statistic / sigdigits", {
+test_that("Error on malformed ci / sigdigits", {
   expect_error(df_forest(data_sad_pkforest, ci = 1.5),
                regexp = "argument `ci` must be a single numeric value between 0 and 1")
-  expect_error(df_forest(data_sad_pkforest, statistic = "mode"),
-               regexp = "argument `statistic` must be `median`, `mean`, or `geo_mean`")
   expect_error(df_forest(data_sad_pkforest, sigdigits = "abc"),
                regexp = "argument `sigdigits` must be coercible to class `integer`")
 })
@@ -541,15 +536,12 @@ test_that("ci_label is the secondary y-axis text; reference rows show the estima
   expect_match(expected[s$cov_val == "Fed"], "^2\\.[0-9]{2} \\[")
 })
 
-test_that("the estimate column header is the plot tag built from statistic and ci", {
+test_that("the estimate column header is the plot tag built from ci", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
   expect_equal(p$labels$tag, "Median [90% CI]")
   expect_null(sec_axis_of(p)$name)
-  stats_mean <- df_forest(data_sad_pkforest, statistic = "mean", ci = 0.95)
-  expect_equal(plot_build_forest(stats_mean, metric = "AUCRATIO")$labels$tag, "Mean [95% CI]")
-  stats_geo <- df_forest(data_sad_pkforest, statistic = "geo_mean", ci = 0.8)
-  expect_equal(plot_build_forest(stats_geo, metric = "AUCRATIO")$labels$tag,
-               "Geometric mean [80% CI]")
+  stats_95 <- df_forest(data_sad_pkforest, ci = 0.95)
+  expect_equal(plot_build_forest(stats_95, metric = "AUCRATIO")$labels$tag, "Median [95% CI]")
 })
 
 

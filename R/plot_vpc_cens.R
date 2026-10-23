@@ -105,6 +105,8 @@ plot_vpc_cens <- function(data,
                           style = NULL,
                           ci = 0.90) {
 
+  check_boolean(show_rep, "show_rep")
+
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute, validate that the container
   ## carries the cens columns, and delegate to plot_build_vpc(type = "cens").

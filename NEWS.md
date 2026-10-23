@@ -58,9 +58,12 @@
   `plot_build_vpc()` now defaults to `0` (was `1`), so no bins are filtered
   by default. Prediction-corrected simulated quantiles (`pc_sim_*`) are `NA`
   in bins with no quantifiable observations, so pcVPCs do not draw them.
-* `plot_dvtime()` and `plot_dvconc()` abort when a logical argument (e.g.
-  `log_y`, `show_caption`) is not `TRUE` or `FALSE`, instead of silently
-  treating it as `FALSE` or failing later with an unclear error.
+* `plot_dvtime()`, `plot_dvconc()`, `plot_gof()`, `plot_vpc_cont()`,
+  `plot_vpc_cens()`, `plot_build_vpc()`, `plot_doseprop()`, and
+  `plot_build_doseprop()` abort when a logical argument (e.g. `log_y`,
+  `show_caption`, `pcvpc`, `show_rep`, `se`) is not `TRUE` or `FALSE`,
+  instead of silently treating it as `FALSE` or failing later with an
+  unclear error.
 
 ## Bug fixes
 

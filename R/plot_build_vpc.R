@@ -97,6 +97,8 @@ plot_build_vpc <- function(compute_out,
                            bin_var = BIN_MID_VAR) {
 
   type <- match.arg(type)
+  check_boolean(show_rep, "show_rep")
+  check_boolean(pcvpc, "pcvpc")
 
   validate_vpc_stats(compute_out)
 

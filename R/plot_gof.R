@@ -84,6 +84,9 @@ plot_gof <- function(data,
 
   cent <- match.arg(cent)
   blq_mode <- match.arg(blq_mode)
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(log_y, "log_y")
+  check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   pred_var_str  <- resolve_var(rlang::enquo(pred_var))

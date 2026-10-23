@@ -245,6 +245,7 @@ plot_build_doseprop <- function(stats,
                                 style = NULL,
                                 se = TRUE) {
 
+  check_boolean(se, "se")
   validate_doseprop_stats(stats)
 
   metric_name_var_str <- stats$config$metric_name_var

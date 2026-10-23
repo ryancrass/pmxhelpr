@@ -450,3 +450,11 @@ test_that("plot_build_doseprop takes its facet layout from the style", {
   expect_false(p_style$facet$params$free$y)
   expect_equal(p_style$facet$params$ncol, 1)
 })
+
+test_that("plot_doseprop() rejects a non-logical se", {
+  stats <- df_doseprop(data_sad_nca, metrics = "aucinf.obs")
+  expect_error(plot_doseprop(stats, se = "no"),
+               "argument `se` must be `TRUE` or `FALSE`")
+  expect_error(plot_build_doseprop(stats, se = NA),
+               "argument `se` must be `TRUE` or `FALSE`")
+})

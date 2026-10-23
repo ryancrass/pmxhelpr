@@ -225,3 +225,12 @@ test_that("plot_gof errorbar_width from the style reaches the errorbar layer", {
   expect_equal(unique(eb$colour), unname(style_gof()$colors["DV"]))
   expect_error(style_gof(errorbar_width = "wide"), regexp = "non-negative number")
 })
+
+test_that("plot_gof() rejects non-logical flags", {
+  expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", log_y = NA),
+               "argument `log_y` must be `TRUE` or `FALSE`")
+  expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", dosenorm = "yes"),
+               "argument `dosenorm` must be `TRUE` or `FALSE`")
+  expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", show_caption = 1),
+               "argument `show_caption` must be `TRUE` or `FALSE`")
+})

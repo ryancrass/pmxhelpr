@@ -115,6 +115,9 @@ plot_vpc_cont <- function(data,
                           pi = c(0.05, 0.95),
                           ci = 0.90) {
 
+  check_boolean(show_rep, "show_rep")
+  check_boolean(pcvpc, "pcvpc")
+
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute and recover plotting context
   ## from the container's $config slot. Pipeline args (strat_var, loq, mode,

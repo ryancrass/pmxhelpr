@@ -545,3 +545,12 @@ test_that("pmx_vpc_plot class is preserved after adding non-facet layers", {
   expect_warning(p + ggplot2::facet_wrap(~FOOD),
                  regexp = "facet_\\*\\(\\).*plot_vpc_cont")
 })
+
+test_that("plot_vpc_cont() and plot_build_vpc() reject non-logical flags before computing", {
+  expect_error(plot_vpc_cont(data_sad, pcvpc = NA),
+               "argument `pcvpc` must be `TRUE` or `FALSE`")
+  expect_error(plot_vpc_cont(data_sad, show_rep = "yes"),
+               "argument `show_rep` must be `TRUE` or `FALSE`")
+  expect_error(plot_build_vpc(list(), show_rep = 1),
+               "argument `show_rep` must be `TRUE` or `FALSE`")
+})

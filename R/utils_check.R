@@ -315,7 +315,7 @@ check_forest_metric <- function(metric, metric_values, metric_name_var_str) {
     }
     return(metric_values)
   }
-  check_string(metric, "metric", null_ok = TRUE)
+  check_string(metric, "metric")
   if (!metric %in% metric_values) {
     rlang::abort(message = paste0(
       "argument `metric` (", metric, ") not found in `", metric_name_var_str,

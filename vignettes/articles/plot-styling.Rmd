@@ -198,7 +198,10 @@ it. Where the two overlap, the builder argument wins:
   includes it in the legend whereas `plot_vpc_shown(obs_point = FALSE)` omits 
   it entirely. `shown` is the preferred method when a layer is not wanted.
   `plot_dvtime()` and `plot_dvconc()` expose the same choice for observed points
-  through `show_obs = FALSE`; an invisible layer still sets the axis limits.
+  through `show_obs = FALSE`, the counterpart of `plot_gof_shown(obs = FALSE)`
+  and `plot_vpc_shown(obs_point = FALSE)` (a single flag, since the observed
+  points are their only optional layer); an invisible layer still sets the axis
+  limits.
 
 
 ## Examples

@@ -33,8 +33,8 @@ Accepts bare names or strings. Default is \code{DOSE}.}
 \item{method}{character string specifying the distribution to be used to derive the confidence interval.
 Options are \code{"normal"} (default) and \code{"tdist"}.}
 
-\item{ci}{confidence interval to be calculated.
-Options \code{0.90} (default) and \code{0.95}.}
+\item{ci}{confidence interval to be calculated: a single numeric value
+in \verb{(0, 1)}, e.g. \code{0.90} (default) or \code{0.95}.}
 
 \item{sigdigits}{number of significant digits for the reported
 \code{Intercept}, \code{StandardError}, \code{Power}, \code{LCL}, \code{UCL}, and \code{PowerCI}

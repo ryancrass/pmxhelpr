@@ -155,17 +155,21 @@ assembled with `combine_styled_plots()`.
 predicates and `print()`/`summary()` methods for interactive inspection
 and programmatic validation.
 
-- Stats classes — `df_vpcstats()` returns a `vpc_stats` list and
-  `df_doseprop()` returns a `doseprop_stats` data.frame. Each carries
+- Stats classes — `df_vpcstats()`, `df_doseprop()`, and `df_forest()`
+  return `pmx_stats` containers of class `vpc_stats`, `doseprop_stats`,
+  and `forest_stats` (`stats`, `obs`, and `config` slots). Each carries
   `print()`, `summary()`, and `as.data.frame()` methods plus a predicate
-  (`is_vpc_stats()`, `is_doseprop_stats()`).
-- Dual-mode plotting — `plot_vpc_cont()` and `plot_doseprop()` accept
-  either raw input data or a precomputed stats object. The precomputed
-  path skips the summarization / regression refit, enabling compute-once
-  / replot-many workflows (e.g. flipping `pcvpc = TRUE/FALSE`, varying
-  `style`, trying different `min_bin_count`). The lower-level renderers
-  `plot_build_vpc()` / `plot_build_doseprop()` are exported for custom
-  workflows that produce class-compatible objects outside `pmxhelpr`.
+  (`is_vpc_stats()`, `is_doseprop_stats()`, `is_forest_stats()`).
+- Dual-mode plotting — `plot_vpc_cont()`, `plot_vpc_cens()`,
+  `plot_doseprop()`, and `plot_forest()` accept either raw input data or
+  a precomputed stats object. The precomputed path skips the
+  summarization / regression refit, enabling compute-once / replot-many
+  workflows (e.g. flipping `pcvpc = TRUE/FALSE`, varying `style`, trying
+  different `min_bin_count`, or switching the forest `metric` /
+  `ref_layout`). The lower-level renderers `plot_build_vpc()` /
+  `plot_build_doseprop()` / `plot_build_forest()` are exported for
+  custom workflows that produce class-compatible objects outside
+  `pmxhelpr`.
 
 `pmxhelpr` returns a class tagged object for VPC plot outputs to warn
 users via the `+.pmx_vpc_plot` method when `facet_*()` layers are added
@@ -177,6 +181,8 @@ Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 and
 [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
 [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
+/ [Forest
+Plot](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.html)
 workflow articles for worked examples.
 
 ### Vectorized Helpers
@@ -379,11 +385,11 @@ library(withr)
 glimpse(data_sad_pkforest)
 
 #Generate the summary dataset using df_forest()
-sum <- df_forest(data_sad_pkforest, 
-                 cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"),)
+forest_stats <- df_forest(data_sad_pkforest, 
+                          cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 
 #Consume the summary dataset to generate the Forest Plot using plot_forest()
-plot_forest(sum, 
+plot_forest(forest_stats, 
             metric = "AUCRATIO",
             ref_band = c(0.8, 1.25)) +
   scale_x_log10(limits = c(0.5, 5), 

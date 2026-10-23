@@ -8,8 +8,8 @@
 #' @param fit `lm` model object for the log-log regression
 #' @param method character string specifying the distribution to be used to derived the confidence interval.
 #'    Options are "normal" (default) and "tdist"
-#' @param ci confidence interval to be calculated.
-#'    Options 0.90 (default) and 0.95
+#' @param ci confidence interval to be calculated: a single numeric value
+#'    in `(0, 1)`, e.g. `0.90` (default) or `0.95`.
 #' @param sigdigits number of significant digits for the reported
 #'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
 #'    columns. The `Proportional` / `Interpretation` verdict is taken from
@@ -90,8 +90,8 @@ df_loglog <- function(fit,
 #'    Accepts bare names or strings. Default is `DOSE`.
 #' @param method character string specifying the distribution to be used to derive the confidence interval.
 #'    Options are `"normal"` (default) and `"tdist"`.
-#' @param ci confidence interval to be calculated.
-#'    Options `0.90` (default) and `0.95`.
+#' @param ci confidence interval to be calculated: a single numeric value
+#'    in `(0, 1)`, e.g. `0.90` (default) or `0.95`.
 #' @param sigdigits number of significant digits for the reported
 #'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
 #'    columns. `PowerCI` pads every value to this many digits so the facet

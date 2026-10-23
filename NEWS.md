@@ -58,9 +58,17 @@
   `plot_build_vpc()` now defaults to `0` (was `1`), so no bins are filtered
   by default. Prediction-corrected simulated quantiles (`pc_sim_*`) are `NA`
   in bins with no quantifiable observations, so pcVPCs do not draw them.
+* `plot_dvtime()` and `plot_dvconc()` abort when a logical argument (e.g.
+  `log_y`, `show_caption`) is not `TRUE` or `FALSE`, instead of silently
+  treating it as `FALSE` or failing later with an unclear error.
 
 ## Bug fixes
 
+* The bundled `pkmodel` (`model_mread_load("pkmodel")`) computed
+  intercompartmental clearance from the clearance typical value
+  (`Q = TVCL * ...`); it now uses `TVQ`. Simulations from `pkmodel` change,
+  and `data_sad`, `data_sad_nca`, and `data_sad_pkfit` are regenerated with
+  the corrected model.
 * `df_doseprop()` / `plot_doseprop()` judge dose proportionality on unrounded
   confidence bounds, so bounds within rounding distance of 1 are no longer
   misclassified as "Dose-proportional".

@@ -61,9 +61,10 @@ decimal point. Trailing zeros are kept. Default \code{3}.}
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
 Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of \code{stats$stats} (standalone panel); they can
-be distributed into each covariate panel at plot time (see
-\code{cov_level_ref}). \code{NULL} marks no row as the reference.
+role, and sort to the top of \code{stats$stats} (standalone panel). With
+\code{cov_level_ref}, a copy is also placed in each covariate panel, and
+\code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
+copies are drawn. \code{NULL} marks no row as the reference.
 Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
 which is the numeric value of the x-intercept for the vertical reference line.}
 

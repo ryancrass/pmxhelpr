@@ -44,7 +44,7 @@ library(ggplot2, warn.conflicts =  FALSE)
 A univariate forest plot is a graphical model application used to visualize the
 impact of intrinsic and extrinsic participant factors (i.e., covariates) on 
 integrated model outputs (e.g., exposure metrics, response metrics, ratios of 
-exposure or response) under test conditions relative to reference conditinos.
+exposure or response) under test conditions relative to reference conditions.
 
 The typical workflow involves establishing the "reference" virtual participant
 (i.e., the vector of covariates at the reference level for each individual 
@@ -84,10 +84,10 @@ glimpse(data_sad_pkforest_sim)
 ```
 
   + `data_sad_pkforest`: pre-processed simulated exposure metrics. Exposure 
-    metrics are gathered from columns into rows resulting in a dataset of 
-    are summarized to one row per covariate set (M) per replicate (N) per metric
-    (K) resulting in a dataset of length M x N x K (6 covariate sets * 
-    500 replicates * 8 metrics = 24000).Example output dataset from 
+    metrics are gathered from columns into rows, one row per covariate set (M)
+    per replicate (N) per metric (K), resulting in a dataset of length 
+    M x N x K (6 covariate sets * 500 replicates * 8 metrics = 24000). Example
+    output dataset from 
     `df_forest_preprocess` and example input dataset for `df_forest()`. 
 
 ```{r data-scenarios}
@@ -330,7 +330,7 @@ If the data has no reference at all, pass `cov_name_ref = NULL`.
 
 ## Row order
 
-Rows of  are drawn in order top to bottom, and the order is read from the input 
+Rows of `forest_obj$stats` are drawn in order top to bottom, and the order is read from the input 
 data rather than alphanumerically:
 
   + Covariate name panels follow their factor levels when the input columns are
@@ -346,7 +346,7 @@ data rather than alphanumerically:
 To control the order explicitly:
 
   + a priori set factor levels of `cov_val` before calling `df_forest()`
-  + a posteriori reorder the rows of `df_forest_obj$stats` before plotting.
+  + a posteriori reorder the rows of `forest_obj$stats` before plotting.
   
 The example below reorders the levels of the unique covariate values in the 
 pre-processed dataset output by `df_forest_preprocess` before passing to 
@@ -369,7 +369,7 @@ wt_desc$stats %>%
 `plot_build_forest()`. 
 
 It renders one metric per call specified by the `metric` argument. When the 
-input data carrys only one metric, the `metric` argument does not need to be 
+input data carries only one metric, the `metric` argument does not need to be 
 specified and the metric is selected automatically. 
 
 The output is a `ggplot` object with one facet row per covariate, the covariate
@@ -485,7 +485,7 @@ ran.
 
 Passing any of these arguments aborts with a message pointing the caller back 
 at `df_forest()`. Only the plot-only arguments (`metric`, `ref`, `ref_band`, 
-`ref_band_type`,  `style`) are accepted on this path. 
+`ref_band_type`, `ref_layout`, `style`) are accepted on this path. 
 
 # Inspecting the `forest_stats` object
 

@@ -462,7 +462,7 @@ plot_forest(forest_stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
 
 Per-covariate panel colors are opt-in through the `colors` map of 
 `style_forest()`. Add entries keyed by covariate name (matching the `cov_var` 
-column). Covariate names omitted from the map render in grey with a warning.
+column). Covariate names omitted from the map take colors from the house palette.
 
 ```{r plot-forest-styled, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
 new_forest_style <- style_forest(

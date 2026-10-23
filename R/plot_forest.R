@@ -98,9 +98,10 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
 #'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
 #'    Reference rows are flagged `is_ref`, draw through the `ref_point` style
-#'    role, and sort to the top of `stats$stats` (standalone panel); they can
-#'    be distributed into each covariate panel at plot time (see
-#'    `cov_level_ref`). `NULL` marks no row as the reference.
+#'    role, and sort to the top of `stats$stats` (standalone panel). With
+#'    `cov_level_ref`, a copy is also placed in each covariate panel, and
+#'    `ref_layout` in [plot_build_forest()] / [plot_forest()] chooses which
+#'    copies are drawn. `NULL` marks no row as the reference.
 #'    Not to be confused with `ref` in [plot_build_forest()] / [plot_forest()],
 #'    which is the numeric value of the x-intercept for the vertical reference line.
 #' @param cov_level_ref Optional named vector mapping `cov_name_var`

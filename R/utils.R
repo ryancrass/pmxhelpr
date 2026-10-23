@@ -333,16 +333,14 @@ var_addn <- function(grp_var,
 #' Internal Helper: Numeric sort key for a human-written display label
 #'
 #' @description Reads the first number out of each label so level labels can be
-#'    ordered by value rather than lexicographically. Shared by
-#'    `order_col_factor()` (colour/stratification levels) and
-#'    `order_panel_labels()` (forest covariate levels) so the two cannot drift
-#'    apart again.
+#'    ordered by value rather than lexicographically. The sort key behind
+#'    `order_col_factor()`, which orders both colour/stratification levels and
+#'    the forest covariate level rows ([df_forest()]).
 #'
 #'    This is a **sort key**, not a number parser, and is named accordingly: it
-#'    reads `"1e3"` as `1`, `"1,000 mg"` as `1`, and `"2.5.1"` as `2.5`. Both
-#'    callers only need a monotone ordering of human-written labels, so these
-#'    are acceptable; do not "fix" them into a full parser without checking
-#'    both call sites.
+#'    reads `"1e3"` as `1`, `"1,000 mg"` as `1`, and `"2.5.1"` as `2.5`. Its uses
+#'    only need a monotone ordering of human-written labels, so these are
+#'    acceptable; do not "fix" it into a full parser.
 #'
 #'    A `-` counts as a minus sign only where a sign can legally appear: at the
 #'    start of the label, or after whitespace or an open paren. Anywhere else it
@@ -352,9 +350,9 @@ var_addn <- function(grp_var,
 #' @param x Character vector of labels.
 #'
 #' @return Numeric vector the length of `x`. **Contract:** `NA_real_` where no
-#'    number can be read, and for `NA` input -- never a sentinel value. Both
-#'    callers gate on `NA` to decide whether to sort numerically at all, so
-#'    substituting `Inf` or `0` would silently change behaviour at both.
+#'    number can be read, and for `NA` input -- never a sentinel value.
+#'    `order_col_factor()` gates on `NA` to decide whether to sort numerically
+#'    at all, so substituting `Inf` or `0` would silently change behaviour.
 #' @keywords internal
 #' @noRd
 label_sort_num <- function(x) {

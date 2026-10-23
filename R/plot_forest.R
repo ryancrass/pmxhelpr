@@ -15,39 +15,6 @@ level_order <- function(x) {
 }
 
 
-#' Internal helper: top-to-bottom order of the rows within one forest panel
-#'
-#' @param labels Character; the unique `cov_level` labels in the panel.
-#' @param is_ref Logical the length of `labels`; `TRUE` for the distributed
-#'    reference label.
-#' @param given Character; the order the input data declared for this
-#'    covariate (factor levels, or first appearance), from [level_order()].
-#' @param from_factor Logical; whether `given` came from factor levels.
-#'
-#' @return `labels` reordered top to bottom. Factor levels win when they
-#'    cover every label (so the caller controls placement, including the
-#'    reference label). Otherwise labels carrying a number sort ascending by
-#'    it, sign included (so e.g. `50 kg` sits above `90 kg` and a `70 kg`
-#'    reference lands between them, and `-20%` sits above `-5%`); any other
-#'    set keeps the reference label on top followed by the data order.
-#' @keywords internal
-order_panel_labels <- function(labels, is_ref, given, from_factor) {
-  if (from_factor && all(labels %in% given)) {
-    return(labels[order(match(labels, given))])
-  }
-  ## Sort key shared with `order_col_factor()` so the two cannot drift apart;
-  ## it handles the minus-vs-hyphen distinction. The tie-break below stays
-  ## here: `given` can differ from `labels` once a distributed reference label
-  ## has been synthesized, so `match()` is not interchangeable with
-  ## `seq_along()` the way it is in `order_col_factor()`.
-  nums <- label_sort_num(labels)
-  if (all(!is.na(nums))) {
-    return(labels[order(nums, match(labels, given))])
-  }
-  c(labels[is_ref], labels[!is_ref][order(match(labels[!is_ref], given))])
-}
-
-
 #' Internal helper: assemble the forest estimate column
 #'
 #' Joins the formatted pieces as `"est  (lo, hi)"`.
@@ -313,19 +280,24 @@ df_forest <- function(
   cov_order <- c(intersect(ref_covs, cov_order), setdiff(cov_order, ref_covs))
 
   ## Sort into display order (top to bottom): metric, covariate, then the
-  ## per-panel label order. Distributed reference labels are ordered with
-  ## the covariate's own labels, so both layouts share one test-row order.
+  ## per-panel label order from `order_col_factor()`. Factor levels win when
+  ## they cover every label in the panel (so the caller controls placement,
+  ## including the reference label); otherwise the panel's labels go in
+  ## reference first, then data order, and `order_col_factor()` sorts them
+  ## by value when every label carries a number. Distributed reference
+  ## labels are ordered with the covariate's own labels, so both layouts
+  ## share one test-row order.
   level_rank <- integer(nrow(stats))
   for (cn in cov_order) {
     in_panel <- stats[[cov_name_var_str]] == cn
-    labels <- unique(stats[[cov_level_var_str]][in_panel])
-    ordered <- order_panel_labels(
-      labels,
-      is_ref = labels %in% stats[[cov_level_var_str]][in_panel & stats$is_ref],
-      given = level_given[[cn]],
-      from_factor = level_from_factor
-    )
-    level_rank[in_panel] <- match(stats[[cov_level_var_str]][in_panel], ordered)
+    labels <- stats[[cov_level_var_str]][in_panel]
+    given <- level_given[[cn]]
+    panel <- if (level_from_factor && all(labels %in% given)) {
+      factor(labels, levels = given)
+    } else {
+      c(labels[stats$is_ref[in_panel]], given[given %in% labels])
+    }
+    level_rank[in_panel] <- match(labels, levels(order_col_factor(panel)))
   }
   stats <- stats[order(
     match(stats[[metric_name_var_str]], metric_order),

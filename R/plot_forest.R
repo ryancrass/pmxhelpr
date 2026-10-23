@@ -15,21 +15,6 @@ level_order <- function(x) {
 }
 
 
-#' Internal helper: assemble the forest estimate column
-#'
-#' Joins the formatted pieces as `"est  (lo, hi)"`.
-#'
-#' @param est_label,lo_label,hi_label Character vectors of formatted values.
-#' @param is_ref Logical; reference rows show the estimate alone, since
-#'    their interval collapses onto the estimate.
-#'
-#' @return Character vector of display labels.
-#' @keywords internal
-forest_col_labels <- function(est_label, lo_label, hi_label, is_ref) {
-  ifelse(is_ref, est_label, paste0(est_label, "  (", lo_label, ", ", hi_label, ")"))
-}
-
-
 #' Internal helper: the rows a forest plot draws, in draw order
 #'
 #' Returns `stats$stats` (optionally restricted to one metric) filtered to the
@@ -620,8 +605,10 @@ plot_build_forest <- function(
   ## secondary-axis *title* would land beside the labels instead).
   level_labels <- as.character(plot_data[[cov_level_var_str]])
   level_labels[level_labels == as.character(plot_data[[cov_name_var_str]])] <- ""
-  est_labels <- forest_col_labels(
-    plot_data$est_label, plot_data$lo_label, plot_data$hi_label, plot_data$is_ref
+  est_labels <- ifelse(
+    plot_data$is_ref,
+    plot_data$est_label,
+    paste0(plot_data$est_label, "  (", plot_data$lo_label, ", ", plot_data$hi_label, ")")
   )
   header <- paste0("Estimate (", format(stats$config$ci * 100), "% CI)")
   base <- base +

@@ -87,6 +87,10 @@ plot_dvtime <- function(data,
                         style = NULL){
 
   cent <- match.arg(cent)
+  check_boolean(show_obs, "show_obs")
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(log_y, "log_y")
+  check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   time_var_str  <- resolve_var(rlang::enquo(time_var))

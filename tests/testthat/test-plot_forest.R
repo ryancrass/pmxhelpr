@@ -547,7 +547,7 @@ test_that("Covariate level labels may repeat across panels", {
   p <- plot_build_forest(stats, ref = 1)
   expect_equal(panel_labels(p, "y"), list(c("High", "Low"), c("High", "Low")))
   s <- stats$stats
-  col <- forest_col_labels(s$est_label, s$lo_label, s$hi_label, s$is_ref)
+  col <- paste0(s$est_label, "  (", s$lo_label, ", ", s$hi_label, ")")
   expect_equal(panel_labels(p, "y.sec"),
                list(rev(col[s$COV == "WTBL"]), rev(col[s$COV == "AGE"])))
 })

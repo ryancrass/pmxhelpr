@@ -326,3 +326,13 @@ test_that("show_obs = FALSE hidden points do not train the y axis", {
   }
   expect_lt(diff(y_range(FALSE)), diff(y_range(TRUE)))
 })
+
+test_that("logical arguments must be TRUE or FALSE", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  for (arg in c("show_obs", "dosenorm", "log_y", "show_caption")) {
+    args <- list(data, dv_var = "ODV")
+    args[[arg]] <- 1
+    expect_error(do.call(plot_dvtime, args),
+                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+  }
+})

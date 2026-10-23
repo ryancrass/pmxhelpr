@@ -52,6 +52,15 @@ plot_dvconc <- function(data,
   idv_var_str <- resolve_var(rlang::enquo(idv_var))
   col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
+  check_boolean(col_trend, "col_trend")
+  check_boolean(show_obs, "show_obs")
+  check_boolean(loess, "loess")
+  check_boolean(linear, "linear")
+  check_boolean(se_loess, "se_loess")
+  check_boolean(se_linear, "se_linear")
+  check_boolean(log_y, "log_y")
+  check_boolean(show_caption, "show_caption")
+
   if (!is.null(col_var_str) && !isTRUE(col_trend)) {
     warning("`col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.", call. = FALSE)
   }

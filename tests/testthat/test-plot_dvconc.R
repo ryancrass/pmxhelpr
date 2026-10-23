@@ -149,3 +149,13 @@ test_that("show_obs = FALSE drops the observations clause from the caption", {
   expect_false(grepl("Points are observations", p$labels$caption))
   expect_true(grepl("^LOESS fit overlaid", p$labels$caption))
 })
+
+test_that("logical arguments must be TRUE or FALSE", {
+  for (arg in c("col_trend", "show_obs", "loess", "linear", "se_loess",
+                "se_linear", "log_y", "show_caption")) {
+    args <- list(data_sad, dv_var = "ODV", idv_var = "CONC")
+    args[[arg]] <- NA
+    expect_error(do.call(plot_dvconc, args),
+                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+  }
+})

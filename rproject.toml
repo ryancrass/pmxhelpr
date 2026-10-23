@@ -22,6 +22,5 @@ dependencies = [
     "ggplot2",
     "withr",
     "PKNCA",
-    "future.apply",
     "ggstylekit"
 ]

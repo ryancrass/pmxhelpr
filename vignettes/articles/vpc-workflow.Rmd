@@ -263,31 +263,6 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
 nrow(simout)
 ```
 
-## Parallel processing
-
-For large `replicates` values or expensive model evaluations, `df_mrgsim_replicate()` accepts `parallel = TRUE` to dispatch per-replicate simulations across worker processes via `future.apply::future_lapply()`. This requires the `future.apply` package and a parallel plan set by the user. `df_mrgsim_replicate()` does not modify the plan itself, so the user retains full control over the worker topology and is responsible for restoring the prior plan after the call.
-
-The pattern is to wrap the parallel simulation between a `future::plan()` setup and a teardown back to `future::sequential`:
-
-```{r df_mrgsim_replicate-parallel, eval=FALSE}
-future::plan(future::multisession, workers = 4)
-
-simout <- df_mrgsim_replicate(data = data_sad_pk,
-                     model = model,
-                     replicates = 1000,
-                     dv_var = ODV,
-                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     recover  = c("PART", "DoseFood"),
-                     parallel = TRUE)
-
-future::plan(future::sequential)
-```
-
-Under `parallel = TRUE`, per-replicate RNG streams are generated from `seed` using L'Ecuyer-CMRG (via the `future.seed = seed` argument to `future_lapply()`), so output is reproducible given the same `seed` and `future::plan()`. The numerical output differs from `parallel = FALSE` because the RNG mechanism differs, but the two are statistically equivalent — the same per-replicate distribution is sampled, only the per-record realizations change. As a consequence, downstream `df_vpcstats()` summary statistics (quantiles, BLQ proportions, simulated CI bands) will not match bit-for-bit between the sequential and parallel paths even when the seed is held constant; both are valid Monte Carlo samples of the same target distribution.
-
-Speedup is best for high `replicates` (the per-worker dispatch overhead amortizes over many replicates) and models with expensive numerical integration. For modest workloads — e.g., the 100-replicate examples used throughout this vignette — the sequential path is typically faster end-to-end because worker-startup cost dominates the simulation cost.
-
-
 # Calculating the summary statistics with `df_vpcstats()`
 
 `pmxhelpr` contains a function to pre-process and derive summary statistics from the observed and simulated data for plotting in downstream VPC and pcVPC plots to evaluate the model fit for longitudinal, continuous repeated measures data: `df_vpcstats()` 

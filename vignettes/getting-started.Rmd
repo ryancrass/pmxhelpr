@@ -267,8 +267,7 @@ From a validated model file, the VPC pipeline includes functionality to:
 
 `df_mrgsim_replicate()` is a wrapper function for `mrgsim::mrgsim_df()`, 
 which uses `lapply()` to iterate from 1 to the integer value passed to 
-`replicates`. This can be parallelized using `future.apply::future_lapply()` 
-when `parallel = TRUE` and a corresponding `future::plan()` is in place.
+`replicates`.
 
 There are 3 required arguments to `df_mrgsim_replicate()`:
 

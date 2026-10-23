@@ -47,6 +47,14 @@
 * `data_sad_pkforest`: `data_sad_pkforest_sim` processed by
   `df_forest_preprocess()`, ready for `df_forest()` / `plot_forest()`.
 
+## Breaking changes
+
+### Removed arguments
+
+* `df_mrgsim_replicate()` no longer has a `parallel` argument; replicates
+  always run sequentially under `seed`. Passing `parallel` aborts with a
+  message. `future.apply` is no longer a suggested dependency.
+
 ## Changed behavior
 
 * Character `col_var` labels in `plot_dvconc()`, `plot_dvtime()`, and

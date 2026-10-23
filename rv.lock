@@ -203,13 +203,6 @@ force_source = false
 dependencies = []
 
 [[packages]]
-name = "codetools"
-version = "0.2-20"
-source = { builtin = true }
-force_source = false
-dependencies = []
-
-[[packages]]
 name = "colorspace"
 version = "2.1-4"
 source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
@@ -432,28 +425,6 @@ force_source = false
 dependencies = []
 
 [[packages]]
-name = "future"
-version = "1.76.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
-force_source = false
-dependencies = [
-    "digest",
-    { name = "globals", requirement = "(>= 0.18.0)" },
-    { name = "listenv", requirement = "(>= 0.8.0)" },
-    { name = "parallelly", requirement = "(>= 1.44.0)" },
-]
-
-[[packages]]
-name = "future.apply"
-version = "1.20.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
-force_source = false
-dependencies = [
-    { name = "future", requirement = "(>= 1.49.0)" },
-    "globals",
-]
-
-[[packages]]
 name = "generics"
 version = "0.1.4"
 source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
@@ -525,15 +496,6 @@ version = "0.1.2"
 source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
-
-[[packages]]
-name = "globals"
-version = "0.20.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
-force_source = false
-dependencies = [
-    "codetools",
-]
 
 [[packages]]
 name = "glue"
@@ -723,13 +685,6 @@ dependencies = [
 ]
 
 [[packages]]
-name = "listenv"
-version = "1.1.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
-force_source = false
-dependencies = []
-
-[[packages]]
 name = "magrittr"
 version = "2.0.5"
 source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
@@ -816,13 +771,6 @@ dependencies = []
 [[packages]]
 name = "pak"
 version = "0.11.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
-force_source = false
-dependencies = []
-
-[[packages]]
-name = "parallelly"
-version = "1.48.0"
 source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
@@ -940,7 +888,6 @@ suggests = [
     { name = "testthat", requirement = "(>= 3.0.0)" },
     "Hmisc",
     "forcats",
-    "future.apply",
 ]
 
 [[packages]]

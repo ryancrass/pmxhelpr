@@ -29,8 +29,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     Hmisc,
-    forcats,
-    future.apply
+    forcats
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Encoding: UTF-8

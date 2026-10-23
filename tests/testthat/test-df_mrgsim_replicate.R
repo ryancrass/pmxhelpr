@@ -138,37 +138,13 @@ test_that("df_mrgsim_replicate errors on zero-row data", {
   )
 })
 
-## Test parallel argument
-test_that("parallel = FALSE produces identical output to default", {
-  out_default  <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                      model = model_mread_load("pkmodel"),
-                                      replicates = 3, dv_var = "ODV", seed = 42)
-  out_explicit <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                      model = model_mread_load("pkmodel"),
-                                      replicates = 3, dv_var = "ODV", seed = 42,
-                                      parallel = FALSE)
-  expect_identical(out_default, out_explicit)
-})
-
-test_that("parallel = TRUE is reproducible across runs with same seed", {
-  skip_if_not_installed("future.apply")
-  out1 <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                              model = model_mread_load("pkmodel"),
-                              replicates = 3, dv_var = "ODV", seed = 42,
-                              parallel = TRUE)
-  out2 <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                              model = model_mread_load("pkmodel"),
-                              replicates = 3, dv_var = "ODV", seed = 42,
-                              parallel = TRUE)
-  expect_identical(out1$SIMDV, out2$SIMDV)
-})
-
-test_that("Error if parallel is not TRUE/FALSE", {
+## The removed `parallel` argument must not fall through `...` to mrgsim_df()
+test_that("Error if the removed parallel argument is supplied", {
   expect_error(df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                    model = model_mread_load("pkmodel"),
                                    replicates = 2, dv_var = "ODV",
-                                   parallel = "yes"),
-               regexp = "argument `parallel` must be `TRUE` or `FALSE`")
+                                   parallel = TRUE),
+               regexp = "argument `parallel` was removed in pmxhelpr 0.7.0")
 })
 
 

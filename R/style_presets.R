@@ -281,8 +281,7 @@ style_vpc <- function(...) {
 #' vertical ruler, no horizontal gridlines, covariate panels stacked without
 #' spacing into one frame, bold covariate strips placed outside the y-axis,
 #' and the estimate column as right-hand axis text under a bold header (style
-#' them through `theme = ` with `axis.text.y.right` and `plot.tag`). `legend.position` is `"bottom"`, used only when
-#' `plot_forest(show_legend = TRUE)`. Set `logx = TRUE` for a log x-axis.
+#' them through `theme = ` with `axis.text.y.right` and `plot.tag`). Set `logx = TRUE` for a log x-axis.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
@@ -315,8 +314,8 @@ style_forest <- function(...) {
                    ref_band = 0.3),
     linewidths = c(errorbar = 0.6, ref_line = 0.6),
     linetypes  = c(errorbar = "solid", ref_line = "dashed"),
-    # Legend (only drawn under `show_legend = TRUE`) below the panels, titles
-    # above the keys: the house look for bottom/top legends.
+    # The builder draws no legend; these place any a caller adds below the
+    # panels, titles above the keys: the house look for bottom/top legends.
     legend.position = "bottom",
     legend.title.position = "top",
     theme      = pmx_house_theme(forest_panel = TRUE)

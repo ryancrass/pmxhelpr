@@ -19,8 +19,7 @@ plot_forest(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  style = NULL,
-  show_legend = FALSE
+  style = NULL
 )
 }
 \arguments{
@@ -120,11 +119,6 @@ Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by ru
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
 column is axis text styled through the theme's \code{axis.text.y.right}
 element; its header is the plot tag (\code{plot.tag}).}
-
-\item{show_legend}{Logical. When \code{TRUE}, the reference line and shaded
-band join a legend (keys \code{"Reference line"} and \code{"Reference band"})
-placed by the style's \code{legend.position} (bottom in \code{\link[=style_forest]{style_forest()}}).
-Default \code{FALSE} (no legend).}
 }
 \value{
 a \code{ggplot} plot object
@@ -145,8 +139,7 @@ On the precomputed path, pipeline arguments (\code{metric_name_var}, \code{cov_n
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
-\code{ref_band}, \code{ref_band_type}, \code{metric}, and \code{show_legend} are accepted on
-both paths.
+\code{ref_band}, \code{ref_band_type}, and \code{metric} are accepted on both paths.
 }
 \examples{
 # Raw-data path: one metric per call

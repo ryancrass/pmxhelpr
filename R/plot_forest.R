@@ -493,10 +493,6 @@ validate_forest_stats <- function(x) {
 #'    (default) and `stats$stats` contains exactly one unique value of
 #'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
 #'    are present, aborts and asks the caller to pick one.
-#' @param show_legend Logical. When `TRUE`, the reference line and shaded
-#'    band join a legend (keys `"Reference line"` and `"Reference band"`)
-#'    placed by the style's `legend.position` (bottom in [style_forest()]).
-#'    Default `FALSE` (no legend).
 #'
 #' @family forest plot
 #' @return a `ggplot` plot object
@@ -520,10 +516,6 @@ validate_forest_stats <- function(x) {
 #'   stats, metric = "AUCRATIO",
 #'   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
 #' )
-#' # Legend for the reference line and band
-#' plot_build_forest(
-#'   stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25), show_legend = TRUE
-#' )
 #' # Log x-axis: through the style, or compose with ggplot2 directly
 #' plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))
 #' plot_build_forest(stats, metric = "AUCRATIO") +
@@ -535,8 +527,7 @@ plot_build_forest <- function(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  metric = NULL,
-  show_legend = FALSE
+  metric = NULL
 ) {
   validate_forest_stats(stats)
   check_ref(ref)
@@ -612,57 +603,31 @@ plot_build_forest <- function(
   ) +
     ggplot2::geom_blank(pt_mapping)
 
-  ## The equivalence band is an annotation keyed to a manual fill scale, so
-  ## its fill comes from the style's `ref_band` role; the scale's guide is
-  ## what toggles the legend entry. style_plot() preserves manual scales.
+  ## The equivalence band is an unkeyed annotation; style_plot() fills a
+  ## role's colour/alpha but not a rect's `fill`, so both are set inline from
+  ## the style's `ref_band` role.
   if (!is.null(ref_band)) {
     rb <- series_aes(plotstyle, "ref_band")
-    band_guide <- if (isTRUE(show_legend)) "legend" else "none"
     base <- base +
       ggplot2::geom_rect(
         data = data.frame(
-          key = "Reference band",
           xmin = ref_band[1], xmax = ref_band[2], ymin = -Inf, ymax = Inf
         ),
         mapping = ggplot2::aes(
           xmin = .data[["xmin"]], xmax = .data[["xmax"]],
-          ymin = .data[["ymin"]], ymax = .data[["ymax"]],
-          fill = .data[["key"]]
+          ymin = .data[["ymin"]], ymax = .data[["ymax"]]
         ),
         inherit.aes = FALSE,
+        fill = rb$fill %||% "grey80",
         alpha = rb$alpha %||% 0.3,
         color = NA
-      ) +
-      ggplot2::scale_fill_manual(
-        name = NULL,
-        values = c("Reference band" = rb$fill %||% "grey80"),
-        guide = band_guide
       )
   }
 
-  ## The reference line is a tagged `ref_line` role layer by default (so it
-  ## restyles), or a linetype mapped to a label on a manual scale when it
-  ## should join the legend (as the LLOQ line does in add_loq_layer_style()).
+  ## The reference line is a tagged `ref_line` role layer, so it restyles.
   if (!is.null(ref)) {
-    if (isTRUE(show_legend)) {
-      rl <- series_aes(plotstyle, "ref_line")
-      vargs <- compact(list(
-        data = data.frame(key = "Reference line", ref = ref),
-        mapping = ggplot2::aes(xintercept = .data[["ref"]], linetype = .data[["key"]]),
-        color = rl$colour,
-        linewidth = rl$linewidth,
-        alpha = rl$alpha
-      ))
-      base <- base +
-        do.call(ggplot2::geom_vline, vargs) +
-        ggplot2::scale_linetype_manual(
-          name = NULL,
-          values = c("Reference line" = rl$linetype %||% "dashed")
-        )
-    } else {
-      base <- base +
-        ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
-    }
+    base <- base +
+      ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
   }
 
   base <- base +
@@ -759,8 +724,7 @@ plot_build_forest <- function(
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
-#' `ref_band`, `ref_band_type`, `metric`, and `show_legend` are accepted on
-#' both paths.
+#' `ref_band`, `ref_band_type`, and `metric` are accepted on both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
@@ -812,15 +776,13 @@ plot_forest <- function(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  style = NULL,
-  show_legend = FALSE
+  style = NULL
 ) {
   if (inherits(data, "forest_stats")) {
     check_pipeline_args_dropped(
       call = match.call(),
       plot_only_args = c(
-        "data", "style", "ref", "ref_band", "ref_band_type", "metric",
-        "show_legend"
+        "data", "style", "ref", "ref_band", "ref_band_type", "metric"
       ),
       fn_name = "plot_forest"
     )
@@ -850,7 +812,6 @@ plot_forest <- function(
     ref = ref,
     ref_band = ref_band,
     ref_band_type = ref_band_type,
-    metric = metric,
-    show_legend = show_legend
+    metric = metric
   )
 }

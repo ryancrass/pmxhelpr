@@ -579,7 +579,7 @@ test_that("a standalone Reference panel draws through ref_point; no ref_point la
 })
 
 
-#####plot_build_forest -- ref / ref_band / show_legend#####
+#####plot_build_forest -- ref / ref_band#####
 
 test_that("ref_band = NULL produces no rect layer; setting it adds one styled from ref_band", {
   stats <- df_forest(data_sad_pkforest)
@@ -670,34 +670,22 @@ test_that("Error on malformed ref_band / ref", {
                regexp = "must be positive when `ref_band_type = \"multiplicative\"`")
 })
 
-test_that("show_legend = FALSE (default) hides the band guide and adds no linetype scale", {
-  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO", ref_band = c(0.8, 1.25))
-  scale_aes <- scale_aes_of(p)
-  expect_false("linetype" %in% scale_aes)
-  fill_scale <- p$scales$scales[[which(scale_aes == "fill")]]
-  expect_equal(fill_scale$guide, "none")
-  expect_false("linetype" %in% names(layer_of(p, "GeomVline")$mapping))
-})
-
-test_that("show_legend = TRUE maps the band and line to manual scales keyed for the legend", {
+test_that("the reference line and band are unkeyed: no fill or linetype scale", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                         ref_band = c(0.8, 1.25), show_legend = TRUE,
+                         ref_band = c(0.8, 1.25),
                          style = style_forest(fill = c(ref_band = "skyblue"),
                                               linetypes = c(ref_line = "dotted")))
   scale_aes <- scale_aes_of(p)
-  expect_true(all(c("fill", "linetype") %in% scale_aes))
-  expect_equal(p$scales$scales[[which(scale_aes == "fill")]]$guide, "legend")
-  rect <- layer_of(p, "GeomRect")
-  vl <- layer_of(p, "GeomVline")
-  expect_true("fill" %in% names(rect$mapping))
-  expect_true("linetype" %in% names(vl$mapping))
-  expect_equal(vl$aes_params$colour, "grey30")
+  expect_false(any(c("fill", "linetype") %in% scale_aes))
+  expect_false("fill" %in% names(layer_of(p, "GeomRect")$mapping))
+  expect_false("linetype" %in% names(layer_of(p, "GeomVline")$mapping))
   built <- ggplot2::ggplot_build(p)
   is_rect <- vapply(p$layers, function(L) inherits(L$geom, "GeomRect"), logical(1))
   is_vl <- vapply(p$layers, function(L) inherits(L$geom, "GeomVline"), logical(1))
   expect_equal(unique(built$data[[which(is_rect)]]$fill), "skyblue")
   expect_equal(unique(built$data[[which(is_vl)]]$linetype), "dotted")
-  expect_equal(p$theme$legend.position, "bottom")
+  expect_error(plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                                 show_legend = TRUE), "unused argument")
 })
 
 
@@ -834,17 +822,6 @@ test_that("plot_forest() aborts when pipeline args are passed on the precomputed
   expect_error(plot_forest(stats, cov_level_ref = ref_map),
                regexp = "cannot accept pipeline arguments")
 })
-
-test_that("plot_forest() passes show_legend through on both paths", {
-  p1 <- plot_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                    ref_band = c(0.8, 1.25), show_legend = TRUE)
-  p2 <- plot_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-                    ref_band = c(0.8, 1.25), show_legend = TRUE)
-  for (p in list(p1, p2)) {
-    expect_true(all(c("fill", "linetype") %in% scale_aes_of(p)))
-  }
-})
-
 
 #####df_forest -- is_ref flag column#####
 

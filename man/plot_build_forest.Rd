@@ -10,8 +10,7 @@ plot_build_forest(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  metric = NULL,
-  show_legend = FALSE
+  metric = NULL
 )
 }
 \arguments{
@@ -55,11 +54,6 @@ facet); the covariate name is the only facet dimension. If \code{NULL}
 (default) and \code{stats$stats} contains exactly one unique value of
 \code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
 are present, aborts and asks the caller to pick one.}
-
-\item{show_legend}{Logical. When \code{TRUE}, the reference line and shaded
-band join a legend (keys \code{"Reference line"} and \code{"Reference band"})
-placed by the style's \code{legend.position} (bottom in \code{\link[=style_forest]{style_forest()}}).
-Default \code{FALSE} (no legend).}
 }
 \value{
 a \code{ggplot} plot object
@@ -111,10 +105,6 @@ plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
 plot_build_forest(
   stats, metric = "AUCRATIO",
   style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"))
-)
-# Legend for the reference line and band
-plot_build_forest(
-  stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25), show_legend = TRUE
 )
 # Log x-axis: through the style, or compose with ggplot2 directly
 plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))

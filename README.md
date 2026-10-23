@@ -51,7 +51,7 @@ pmxhelpr to your project’s `rproject.toml`, then run `rv sync`:
 ``` toml
 repositories = [
     { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
-    { alias = "pmxhelpr", url = "https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.6.0/" },
+    { alias = "pmxhelpr", url = "https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0/" },
     { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1/" }
 ]
 
@@ -65,7 +65,7 @@ Alternatively, install from the same repositories with
 
 ``` r
 install.packages("pmxhelpr",
-                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.6.0",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0",
                            "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
                            getOption("repos")))
 ```
@@ -79,7 +79,7 @@ install `ggstylekit` from PRISM first, then use `devtools`:
 install.packages("ggstylekit",
                  repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
                            getOption("repos")))
-devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
+devtools::install_github("ryancrass/pmxhelpr@v0.7.0")
 ```
 
 The README examples use a package from `Suggests` that isn’t installed

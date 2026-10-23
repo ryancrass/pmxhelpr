@@ -9,6 +9,7 @@ plot_vpc_legend(
   pi = c(0.05, 0.95),
   shown = NULL,
   lloq = NULL,
+  show_lloq_value = TRUE,
   style = NULL,
   type = c("cont", "cens"),
   ...
@@ -29,6 +30,11 @@ or \code{NULL} to omit. Each unique value becomes one legend entry rendered
 with the style's \code{loq_line} linetype. Pass \code{compute_out$config$loq} from
 a \code{\link[=df_vpcstats]{df_vpcstats()}} result to mirror the reference lines drawn by
 \code{\link[=plot_build_vpc]{plot_build_vpc()}}.}
+
+\item{show_lloq_value}{Logical. If \code{TRUE} (default), each unique \code{lloq} value
+gets its own legend entry labeled \code{"LLOQ = <value>"}. If \code{FALSE}, a
+single entry labeled \code{"LLOQ"} is drawn regardless of how many values
+\code{lloq} holds. Ignored when \code{lloq} is \code{NULL}.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling legend aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
@@ -67,6 +73,8 @@ ci = 0.95,
  sim_median_line = FALSE, sim_median_ci = TRUE))
 ## Cens VPC legend
 plot_vpc_legend(type = "cens", lloq = 1)
+## LLOQ entry without its value
+plot_vpc_legend(lloq = c(0.5, 1), show_lloq_value = FALSE)
 }
 \seealso{
 Other vpc:

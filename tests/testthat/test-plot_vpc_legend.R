@@ -170,6 +170,17 @@ test_that("lloq labeling still works under type = 'cens'", {
   expect_true("LLOQ = 2" %in% lt)
 })
 
+test_that("show_lloq_value = FALSE collapses LLOQ entries to a single 'LLOQ' label", {
+  p <- plot_vpc_legend(lloq = c(0.1, 1), show_lloq_value = FALSE)
+  lt <- linetype_breaks(p)
+  expect_equal(sum(grepl("^LLOQ", lt)), 1L)
+  expect_true("LLOQ" %in% lt)
+  expect_false(any(grepl("LLOQ = ", lt)))
+  expect_false(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(show_lloq_value = FALSE)))))
+  expect_error(plot_vpc_legend(lloq = 1, show_lloq_value = NA),
+               regexp = "argument `show_lloq_value` must be `TRUE` or `FALSE`")
+})
+
 test_that("type = 'cens' suppresses pi-related geom layers regardless of shown", {
   p <- plot_vpc_legend(type = "cens",
                        shown = plot_vpc_shown(

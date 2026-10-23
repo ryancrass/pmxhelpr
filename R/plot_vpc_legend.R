@@ -10,6 +10,10 @@
 #'    with the style's `loq_line` linetype. Pass `compute_out$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
+#' @param show_lloq_value Logical. If `TRUE` (default), each unique `lloq` value
+#'    gets its own legend entry labeled `"LLOQ = <value>"`. If `FALSE`, a
+#'    single entry labeled `"LLOQ"` is drawn regardless of how many values
+#'    `lloq` holds. Ignored when `lloq` is `NULL`.
 #' @param style A [ggstylekit::style_spec()] controlling legend aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
 #'    with no arguments. Should match the `style` passed to [plot_vpc_cont()].
@@ -44,11 +48,14 @@
 #'  sim_median_line = FALSE, sim_median_ci = TRUE))
 #'## Cens VPC legend
 #'plot_vpc_legend(type = "cens", lloq = 1)
+#'## LLOQ entry without its value
+#'plot_vpc_legend(lloq = c(0.5, 1), show_lloq_value = FALSE)
 
 plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
                         lloq = NULL,
+                        show_lloq_value = TRUE,
                         style = NULL,
                         type = c("cont", "cens"),
                         ...){
@@ -84,10 +91,11 @@ plot_vpc_legend <- function(ci = 0.90,
   }
 
   if (!is.null(lloq)) check_numeric_strict(lloq, "lloq")
-  lloq_lab <- paste0("LLOQ = ", lloq)
+  check_boolean(show_lloq_value, "show_lloq_value")
+  lloq_lab <- if (show_lloq_value) paste0("LLOQ = ", lloq) else "LLOQ"
   df_lloq <- if (!is.null(lloq)) {
-    data.frame(x = rep(NA_real_, length(lloq)),
-               y = rep(NA_real_, length(lloq)),
+    data.frame(x = rep(NA_real_, length(lloq_lab)),
+               y = rep(NA_real_, length(lloq_lab)),
                lloq_lab = factor(lloq_lab, levels = lloq_lab))
   } else NULL
   obs <- "Obs"

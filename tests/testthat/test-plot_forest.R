@@ -1081,3 +1081,72 @@ test_that("plot_build_forest() with style_coveffectsplot() draws every row blue,
   expect_equal(unique(unlist(lapply(built$data[is_pt], `[[`, "colour"))), "blue")
   expect_equal(layer_of(p, "GeomRect")$aes_params$fill, "grey")
 })
+
+
+#####style_pmxforest#####
+
+test_that("style_pmxforest() returns the PMXForest look as a style_spec", {
+  st <- style_pmxforest()
+  expect_s3_class(st, "ggstylekit_style_spec")
+  expect_equal(unname(st$shapes[c("point", "ref_point")]), c(16, 16))
+  expect_equal(unname(st$sizes[c("point", "ref_point")]), c(2.5, 2.5))
+  expect_equal(unname(st$colors[c("point", "errorbar", "ref_point", "ref_line")]),
+               rep("black", 4))
+  expect_equal(unname(st$linetypes[c("errorbar", "ref_line")]), c("solid", "dotted"))
+  expect_equal(unname(st$linewidths[c("errorbar", "ref_line")]), c(0.7, 1))
+  expect_equal(unname(st$fill["ref_band"]), "lightgrey")
+  expect_equal(unname(st$alphas["ref_band"]), 0.7)
+  expect_equal(st$legend.position, "top")
+  th <- st$theme
+  expect_equal(th$panel.background$fill, "grey92")
+  expect_s3_class(th$panel.border, "element_blank")
+  expect_equal(th$panel.grid.major.y$colour, "white")
+  expect_s3_class(ggplot2::calc_element("panel.grid.minor.x", th), "element_blank")
+  expect_equal(th$strip.background$fill, "grey85")
+  expect_equal(th$strip.placement, "inside")
+  expect_equal(th$strip.text.y.left$face, "plain")
+})
+
+test_that("plot_build_forest() with style_pmxforest() draws black, dotted, unmapped", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         ref_band = c(0.8, 1.25), style = style_pmxforest())
+  expect_false("colour" %in% scale_aes_of(p))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(unique(unlist(lapply(built$data[is_pt], `[[`, "colour"))), "black")
+  is_vl <- vapply(p$layers, function(L) inherits(L$geom, "GeomVline"), logical(1))
+  expect_equal(unique(built$data[[which(is_vl)]]$linetype), "dotted")
+  expect_equal(layer_of(p, "GeomRect")$aes_params$fill, "lightgrey")
+})
+
+
+#####plot_build_forest -- capped error bars#####
+
+test_that("intervals are uncapped lineranges unless the style sets errorbar_width", {
+  stats <- df_forest(data_sad_pkforest)
+  p <- plot_build_forest(stats, metric = "AUCRATIO")
+  expect_false(is.null(layer_of(p, "GeomLinerange")))
+  expect_false(any(vapply(p$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))))
+
+  p2 <- plot_build_forest(stats, metric = "AUCRATIO",
+                          style = style_forest(errorbar_width = 0.3))
+  eb <- layer_of(p2, "GeomErrorbar")
+  expect_equal(eb$geom_params$orientation, "y")
+  expect_equal(eb$aes_params$width, 0.3)
+  expect_false(any(vapply(p2$layers, function(L) inherits(L$geom, "GeomLinerange"), logical(1))))
+  built <- ggplot2::ggplot_build(p2)$data[[which(vapply(p2$layers, function(L)
+    inherits(L$geom, "GeomErrorbar"), logical(1)))]]
+  expect_equal(unique(round(built$ymax - built$ymin, 8)), 0.3)
+  expect_equal(unique(built$colour), "black")
+})
+
+test_that("capped error bars follow per-covariate colors", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         style = style_forest(errorbar_width = 0.3,
+                                              colors = c(FOOD = "red", WTBL = "blue")))
+  eb <- layer_of(p, "GeomErrorbar")
+  expect_true("colour" %in% names(eb$mapping))
+  built <- ggplot2::ggplot_build(p)$data[[which(vapply(p$layers, function(L)
+    inherits(L$geom, "GeomErrorbar"), logical(1)))]]
+  expect_setequal(unique(built$colour), c("red", "blue"))
+})

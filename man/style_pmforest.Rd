@@ -49,6 +49,7 @@ Other forest plot:
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
-\code{\link[=style_forest]{style_forest()}}
+\code{\link[=style_forest]{style_forest()}},
+\code{\link[=style_pmxforest]{style_pmxforest()}}
 }
 \concept{forest plot}

@@ -59,6 +59,7 @@ reference:
       - style_forest
       - style_pmforest
       - style_coveffectsplot
+      - style_pmxforest
       - style_vpc
       - reexports
 

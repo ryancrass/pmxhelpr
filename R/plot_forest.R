@@ -437,9 +437,10 @@ validate_forest_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
-#'    `style = style_forest(...)`, use [style_pmforest()] or
-#'    [style_coveffectsplot()] for the looks of the `pmforest` and
-#'    `coveffectsplot` packages, or restyle the returned plot with
+#'    `style = style_forest(...)`, use [style_pmforest()],
+#'    [style_coveffectsplot()], or [style_pmxforest()] for the looks of the
+#'    `pmforest`, `coveffectsplot`, and `PMXForest` packages, or restyle the
+#'    returned plot with
 #'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_point`,
 #'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
 #'    opt into per-covariate coloring (see [style_forest()]). The estimate
@@ -638,11 +639,16 @@ plot_build_forest <- function(
       ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
   }
 
+  ## Uncapped interval lines by default; an `errorbar_width` in the style
+  ## (in row heights) opts into capped error bars, whose cap width
+  ## style_plot() fills from that field.
+  eb_layer <- if (is.null(plotstyle$errorbar_width)) {
+    ggplot2::geom_linerange(eb_mapping, data = test_data)
+  } else {
+    ggplot2::geom_errorbar(eb_mapping, data = test_data, orientation = "y")
+  }
   base <- base +
-    ggstylekit::series_layer(
-      ggplot2::geom_linerange(eb_mapping, data = test_data),
-      "errorbar"
-    ) +
+    ggstylekit::series_layer(eb_layer, "errorbar") +
     ggstylekit::series_layer(
       do.call(ggplot2::geom_point, compact(list(
         mapping = pt_layer_mapping, data = test_data, colour = pt_outline

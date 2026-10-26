@@ -50,6 +50,10 @@ and the estimate column as right-hand axis text under a bold header drawn
 as the right-aligned subtitle on the top edge of the panels (style them
 through \verb{theme = } with \code{axis.text.y.right} and \code{plot.subtitle}). Set
 \code{logx = TRUE} for a log x-axis.
+
+Intervals are drawn as uncapped lines. Set the \code{errorbar_width} field to
+draw capped error bars instead; it is the cap height in row heights (e.g.
+\code{style_forest(errorbar_width = 0.3)}, where 1 spans a full row).
 }
 \examples{
 style_forest()
@@ -58,10 +62,12 @@ style_forest(fill = c(ref_band = "skyblue"), alphas = c(ref_band = 0.2))
 style_forest(shapes = c(ref_point = 16), colors = c(ref_point = "grey50"))
 style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
 style_forest(logx = TRUE)
+style_forest(errorbar_width = 0.3)
 }
 \seealso{
-\code{\link[=style_pmforest]{style_pmforest()}} and \code{\link[=style_coveffectsplot]{style_coveffectsplot()}} for the looks of
-the \code{pmforest} and \code{coveffectsplot} packages.
+\code{\link[=style_pmforest]{style_pmforest()}}, \code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, and
+\code{\link[=style_pmxforest]{style_pmxforest()}} for the looks of the \code{pmforest}, \code{coveffectsplot},
+and \code{PMXForest} packages.
 
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
@@ -70,6 +76,7 @@ Other forest plot:
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
-\code{\link[=style_pmforest]{style_pmforest()}}
+\code{\link[=style_pmforest]{style_pmforest()}},
+\code{\link[=style_pmxforest]{style_pmxforest()}}
 }
 \concept{forest plot}

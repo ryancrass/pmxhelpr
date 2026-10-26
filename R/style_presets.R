@@ -287,6 +287,10 @@ style_vpc <- function(...) {
 #' through `theme = ` with `axis.text.y.right` and `plot.subtitle`). Set
 #' `logx = TRUE` for a log x-axis.
 #'
+#' Intervals are drawn as uncapped lines. Set the `errorbar_width` field to
+#' draw capped error bars instead; it is the cap height in row heights (e.g.
+#' `style_forest(errorbar_width = 0.3)`, where 1 spans a full row).
+#'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
 #'   `shapes = c(point = 18)` leaves the other roles unchanged; `colors =
@@ -296,8 +300,9 @@ style_vpc <- function(...) {
 #'   number of covariates); it replaces the role entries, which then fall back
 #'   to the ggplot2 defaults.
 #'
-#' @seealso [style_pmforest()] and [style_coveffectsplot()] for the looks of
-#'   the `pmforest` and `coveffectsplot` packages.
+#' @seealso [style_pmforest()], [style_coveffectsplot()], and
+#'   [style_pmxforest()] for the looks of the `pmforest`, `coveffectsplot`,
+#'   and `PMXForest` packages.
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
@@ -308,6 +313,7 @@ style_vpc <- function(...) {
 #' style_forest(shapes = c(ref_point = 16), colors = c(ref_point = "grey50"))
 #' style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
 #' style_forest(logx = TRUE)
+#' style_forest(errorbar_width = 0.3)
 style_forest <- function(...) {
   defaults <- list(
     colors     = c(point = "black", errorbar = "black", ref_point = "black",
@@ -462,6 +468,81 @@ style_coveffectsplot <- function(...) {
       axis.text.y.left   = ggplot2::element_text(size = 8, colour = "black"),
       axis.text.y.right  = ggplot2::element_text(
         size = 3.5 / 0.352777778, hjust = 0.5, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' PMXForest-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of the
+#' `forestPlot()` function of Pharmetheus'
+#' [PMXForest](https://github.com/pharmetheus/PMXForest/) package, the
+#' forest plot of the FREM workflow: black points (shape 16, size 2.5) on
+#' uncapped black interval lines, a thick dotted black reference line, a
+#' `lightgrey` equivalence band at alpha 0.7 (PMXForest's 0.4, raised so the
+#' band stands out from the grey panel), and the ggplot2 default
+#' `theme_grey()` panel (grey background, white gridlines on both axes,
+#' grey strips) that PMXForest inherits.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from PMXForest in that: covariate
+#' strips sit on the left rather than the right; there are no minor
+#' gridlines and no legend (PMXForest keys every layer in a legend above the
+#' plot); the band is drawn only when `ref_band` is supplied (PMXForest
+#' shows 0.8-1.25 by default); the estimate column is `est (lo, hi)` axis
+#' text under an `Estimate (CI)` header rather than a separate
+#' `est [lo-hi]` "Statistics" panel; no reference-subject footnote is added;
+#' reference rows are drawn like test rows; and the x-axis is labeled with
+#' the metric.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `colors =
+#'   c(point = "navy")` leaves the other roles black); `colors` entries keyed
+#'   by covariate name opt into per-covariate coloring as in
+#'   [style_forest()]. All other fields replace their default wholesale.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_pmxforest()
+#' style_pmxforest(alphas = c(ref_band = 1))
+#' style_pmxforest(logx = TRUE)
+style_pmxforest <- function(...) {
+  defaults <- list(
+    colors     = c(point = "black", errorbar = "black", ref_point = "black",
+                   ref_line = "black"),
+    fill       = c(ref_band = "lightgrey"),
+    shapes     = c(point = 16, ref_point = 16),
+    sizes      = c(point = 2.5, ref_point = 2.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.7),
+    linewidths = c(errorbar = 0.7, ref_line = 1),
+    linetypes  = c(errorbar = "solid", ref_line = "dotted"),
+    legend.position = "top",
+    # PMXForest sets no theme, so it renders in the default theme_grey():
+    # grey92 panel, white gridlines, grey85 strips, grey30 axis text. Its
+    # table text is `tabTextSize * 0.36` = 3.6 mm.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      panel.background   = ggplot2::element_rect(fill = "grey92", colour = NA),
+      panel.border       = ggplot2::element_blank(),
+      panel.spacing.y    = ggplot2::unit(5.5, "pt"),
+      panel.grid.major.x = ggplot2::element_line(colour = "white"),
+      panel.grid.major.y = ggplot2::element_line(colour = "white"),
+      strip.placement    = "inside",
+      strip.background   = ggplot2::element_rect(fill = "grey85", colour = NA),
+      strip.text.y.left  = ggplot2::element_text(
+        colour = "grey10", face = "plain", angle = 0, hjust = 0.5, vjust = 0.5
+      ),
+      axis.text.y.left   = ggplot2::element_text(colour = "grey30"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 3.6 / 0.352777778, hjust = 0.5, colour = "black",
         margin = ggplot2::margin(l = 8)
       )
     )

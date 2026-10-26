@@ -102,9 +102,9 @@ Relevant variables in these datasets include:
   (`CMAX`, `CMIN`, `AUC`, `CAVG`) and test/reference ratios 
   (`CMAXRATIO`, `CMINRATIO`, `AUCRATIO`, `CAVGRATIO`)
   + `value` holds the exposure metric values
-  + `cov_var` holds the name of the univariate covariate varied
+  + `cov_name` holds the name of the univariate covariate varied
   (`Reference`, `FOOD`, `WTBL`)
-  + `cov_val` holds the value of the univariate covariate varied
+  + `cov_level` holds the level label of the univariate covariate varied
   (`Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`)
 
 It also carries a `cov_level_ref` attribute naming each covariate's reference.
@@ -153,7 +153,7 @@ plot workflow.
 identical(simsum, data_sad_pkforest)
 ```
 
-The reference rows are labeled `Reference` in both `cov_var` and `cov_val`. The 
+The reference rows are labeled `Reference` in both `cov_name` and `cov_level`. The 
 reference labels are attached as an attribute, ready to pass to `df_forest()` 
 as `cov_level_ref`. 
 
@@ -166,20 +166,20 @@ ref_levels
 
 The reference condition is defined by the `cov_val_ref` argument, which takes a
 vector of covariate name:reference value pairs. `df_forest_preprocess()` labels
-`cov_var` and `cov_val` as `"Reference"` (the `cov_name_ref` argument) in the 
+`cov_name` and `cov_level` as `"Reference"` (the `cov_name_ref` argument) in the 
 rows of the dataset with the reference values of every covariate.
 
 ```{r}
-ref <- filter(simsum, cov_var == "Reference")
-unique(ref$cov_var)
-unique(ref$cov_val)
+ref <- filter(simsum, cov_name == "Reference")
+unique(ref$cov_name)
+unique(ref$cov_level)
 unique(ref$FOOD)
 unique(ref$WTBL)
 ```
 
 Every other scenario must differ from the reference in a univariate manner 
 (i.e., by exactly one covariate value), and that covariate becomes the 
-rows `cov_var`, with its labeled value as `cov_val`. No scenario identifier 
+rows `cov_name`, with its labeled value as `cov_level`. No scenario identifier 
 column or separate lookup table is needed, as the covariate combination in the 
 dataset defines the scenario.
 
@@ -239,7 +239,7 @@ df_forest_preprocess(
   cov_val_ref = c(FOOD = 0, WTBL = 70),
   cov_labels    = list(FOOD = c("0" = "Fasted"))
 ) %>%
-  distinct(cov_var, cov_val)
+  distinct(cov_name, cov_level)
 ```
 
 
@@ -254,8 +254,8 @@ conventions `df_forest_preprocess()` emits:
 
   + `metric_name_var`: column of metric names, default `metric`
   + `metric_value_var`: column of metric values, default `value`
-  + `cov_name_var`: column of covariate names, default `cov_var`
-  + `cov_level_var`: column of covariate levels, default `cov_val`
+  + `cov_name_var`: column of covariate names, default `cov_name`
+  + `cov_level_var`: column of covariate levels, default `cov_level`
 
 Every row of a `(metric, covariate, level)` group is aggregated, so no 
 replicate index column (e.g., `SIM`) is needed.
@@ -295,7 +295,7 @@ df_forest(simsum, ci = 0.95, sigdigits = 2)
 
 ## Reference
 
-Reference rows are identified by `cov_name_ref`, the value of `cov_var` that
+Reference rows are identified by `cov_name_ref`, the value of `cov_name` that
 marks the reference condition. The default `"Reference"` matches the 
 `df_forest_preprocess()` output, but the reference can be called anything, as 
 in the example below. Reference rows are flagged `is_ref = TRUE` in the output, 
@@ -304,11 +304,11 @@ plot in the consolidated layout).
 
 ```{r df-forest-ref-name}
 renamed <- simsum %>%
-  mutate(cov_val = ifelse(cov_var == "Reference", "70 kg, fasted", cov_val),
-         cov_var = ifelse(cov_var == "Reference", "Typical subject", cov_var))
+  mutate(cov_level = ifelse(cov_name == "Reference", "70 kg, fasted", cov_level),
+         cov_name = ifelse(cov_name == "Reference", "Typical subject", cov_name))
 df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
   filter(metric == "AUCRATIO") %>%
-  select(cov_var, cov_val, is_ref, ci_label)
+  select(cov_name, cov_level, is_ref, ci_label)
 ```
 
 `cov_level_ref` is a named vector mapping each covariate to the reference level
@@ -345,7 +345,7 @@ data rather than alphanumerically:
 
 To control the order explicitly:
 
-  + a priori set factor levels of `cov_val` before calling `df_forest()`
+  + a priori set factor levels of `cov_level` before calling `df_forest()`
   + a posteriori reorder the rows of `forest_obj$stats` before plotting.
   
 The example below reorders the levels of the unique covariate values in the 
@@ -354,13 +354,13 @@ pre-processed dataset output by `df_forest_preprocess` before passing to
 
 ```{r df-forest-order}
 data_wt_desc <- simsum %>%
-  mutate(cov_val = factor(cov_val, levels = c("Reference", "Fasted", "Fed",
+  mutate(cov_level = factor(cov_level, levels = c("Reference", "Fasted", "Fed",
                                               "90 kg", "80 kg", "70 kg", "60 kg", "50 kg")))
 
 wt_desc <- df_forest(data_wt_desc, cov_level_ref = ref_levels)
 wt_desc$stats %>%
   filter(metric == "AUCRATIO") %>%
-  select(cov_var, cov_val, is_ref, layout, ci_label)
+  select(cov_name, cov_level, is_ref, layout, ci_label)
 ```
 
 # Plotting with `plot_forest()`

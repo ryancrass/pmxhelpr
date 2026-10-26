@@ -38,11 +38,11 @@ test_that("Output is a `forest_stats` / `pmx_stats` container", {
 test_that("Output stats slot contains canonical columns, grouping columns as character", {
   out <- df_forest(data_sad_pkforest)
   expect_equal(colnames(out$stats),
-               c("metric", "cov_var", "cov_val", "est", "lo", "hi",
+               c("metric", "cov_name", "cov_level", "est", "lo", "hi",
                  "est_label", "lo_label", "hi_label", "ci_label", "is_ref", "layout"))
   expect_type(out$stats$metric, "character")
-  expect_type(out$stats$cov_var, "character")
-  expect_type(out$stats$cov_val, "character")
+  expect_type(out$stats$cov_name, "character")
+  expect_type(out$stats$cov_level, "character")
   expect_type(out$stats$is_ref, "logical")
   expect_false("cov_ref" %in% colnames(out$stats))
 })
@@ -50,25 +50,25 @@ test_that("Output stats slot contains canonical columns, grouping columns as cha
 test_that("Output has one row per (metric x cov_name x cov_level) group", {
   out <- df_forest(data_sad_pkforest)
   n_metric <- length(unique(data_sad_pkforest$metric))
-  n_cov    <- nrow(unique(data_sad_pkforest[, c("cov_var", "cov_val")]))
+  n_cov    <- nrow(unique(data_sad_pkforest[, c("cov_name", "cov_level")]))
   expect_equal(nrow(out$stats), n_metric * n_cov)
 })
 
 test_that("Quantiles match stats::quantile on the input draws", {
   out <- df_forest(data_sad_pkforest, ci = 0.9)
   grp <- data_sad_pkforest[data_sad_pkforest$metric  == "AUCRATIO" &
-                           data_sad_pkforest$cov_var == "WTBL" &
-                           data_sad_pkforest$cov_val == "50 kg", ]
+                           data_sad_pkforest$cov_name == "WTBL" &
+                           data_sad_pkforest$cov_level == "50 kg", ]
   row <- out$stats[out$stats$metric  == "AUCRATIO" &
-                   out$stats$cov_var == "WTBL" &
-                   out$stats$cov_val == "50 kg", ]
+                   out$stats$cov_name == "WTBL" &
+                   out$stats$cov_level == "50 kg", ]
   expect_equal(row$est, stats::median(grp$value))
   expect_equal(row$lo,  unname(stats::quantile(grp$value, 0.05)))
   expect_equal(row$hi,  unname(stats::quantile(grp$value, 0.95)))
 })
 
 test_that("`ci` argument controls quantile probs", {
-  pick <- function(s) s[s$metric == "AUCRATIO" & s$cov_var == "WTBL" & s$cov_val == "50 kg", ]
+  pick <- function(s) s[s$metric == "AUCRATIO" & s$cov_name == "WTBL" & s$cov_level == "50 kg", ]
   row_90 <- pick(df_forest(data_sad_pkforest, ci = 0.9)$stats)
   row_95 <- pick(df_forest(data_sad_pkforest, ci = 0.95)$stats)
   expect_lt(row_95$lo, row_90$lo)
@@ -77,9 +77,9 @@ test_that("`ci` argument controls quantile probs", {
 
 test_that("`est` is the median of the draws", {
   grp <- data_sad_pkforest[data_sad_pkforest$metric  == "AUCRATIO" &
-                           data_sad_pkforest$cov_var == "WTBL" &
-                           data_sad_pkforest$cov_val == "50 kg", ]
-  pick <- function(s) s[s$metric == "AUCRATIO" & s$cov_var == "WTBL" & s$cov_val == "50 kg", ]
+                           data_sad_pkforest$cov_name == "WTBL" &
+                           data_sad_pkforest$cov_level == "50 kg", ]
+  pick <- function(s) s[s$metric == "AUCRATIO" & s$cov_name == "WTBL" & s$cov_level == "50 kg", ]
   expect_equal(pick(df_forest(data_sad_pkforest)$stats)$est, stats::median(grp$value))
   expect_error(df_forest(data_sad_pkforest, statistic = "mean"), "unused argument")
 })
@@ -101,8 +101,8 @@ test_that("Extra columns on `data` are not consumed", {
 test_that("Config records column names and settings", {
   out <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   expect_equal(out$config$metric_name_var, "metric")
-  expect_equal(out$config$cov_name_var, "cov_var")
-  expect_equal(out$config$cov_level_var, "cov_val")
+  expect_equal(out$config$cov_name_var, "cov_name")
+  expect_equal(out$config$cov_level_var, "cov_level")
   expect_equal(out$config$metric_value_var, "value")
   expect_equal(out$config$ci, 0.9)
   expect_equal(out$config$sigdigits, 3)
@@ -111,8 +111,8 @@ test_that("Config records column names and settings", {
 })
 
 test_that("Column arguments accept bare names", {
-  out <- df_forest(data_sad_pkforest, metric_name_var = metric, cov_name_var = cov_var,
-                   cov_level_var = cov_val, metric_value_var = value)
+  out <- df_forest(data_sad_pkforest, metric_name_var = metric, cov_name_var = cov_name,
+                   cov_level_var = cov_level, metric_value_var = value)
   expect_equal(out$stats, df_forest(data_sad_pkforest)$stats)
 })
 
@@ -122,9 +122,9 @@ test_that("Column arguments accept bare names", {
 test_that("labels share one decimal count per metric, set by `sigdigits` of its median estimate", {
   s <- df_forest(data_sad_pkforest, sigdigits = 3)$stats
   ratio <- s[s$metric == "AUCRATIO", ]
-  expect_equal(ratio$ci_label[ratio$cov_var == "Reference"], "1.00 (1.00, 1.00)")
+  expect_equal(ratio$ci_label[ratio$cov_name == "Reference"], "1.00 (1.00, 1.00)")
   # values below 1 take the metric's 2 decimals, not 3 significant digits
-  expect_match(ratio$ci_label[ratio$cov_val == "90 kg"],
+  expect_match(ratio$ci_label[ratio$cov_level == "90 kg"],
                "^0\\.[0-9]{2} \\(0\\.[0-9]{2}, 0\\.[0-9]{2}\\)$")
   expect_match(c(ratio$est_label, ratio$lo_label, ratio$hi_label), "^[0-9]\\.[0-9]{2}$", all = TRUE)
   # an exposure near 12500 rounds every value to the hundreds
@@ -196,8 +196,8 @@ test_that("cov_level_ref requires a non-NULL cov_name_ref and a matching row", {
 
 test_that("Standalone reference: is_ref flags the cov_name_ref rows and they sort first", {
   s <- df_forest(data_sad_pkforest)$stats
-  expect_equal(s$is_ref, s$cov_var == "Reference")
-  expect_equal(unique(s$cov_var), c("Reference", "FOOD", "WTBL"))
+  expect_equal(s$is_ref, s$cov_name == "Reference")
+  expect_equal(unique(s$cov_name), c("Reference", "FOOD", "WTBL"))
   s_base <- df_forest(data_sad_pkforest, cov_name_ref = "Baseline")$stats
   expect_false(any(s_base$is_ref))
 })
@@ -205,24 +205,24 @@ test_that("Standalone reference: is_ref flags the cov_name_ref rows and they sor
 test_that("cov_name_ref = NULL flags no reference and keeps data order", {
   s <- df_forest(data_sad_pkforest, cov_name_ref = NULL)$stats
   expect_false(any(s$is_ref))
-  expect_equal(unique(s$cov_var), unique(data_sad_pkforest$cov_var))
+  expect_equal(unique(s$cov_name), unique(data_sad_pkforest$cov_name))
 })
 
 test_that("cov_level_ref distributes the reference row into each named covariate at plot time", {
   s <- drawn(df_forest(data_sad_pkforest, cov_level_ref = ref_map))
-  expect_false("Reference" %in% s$cov_var)
+  expect_false("Reference" %in% s$cov_name)
   auc <- s[s$metric == "AUCRATIO", ]
-  expect_equal(auc$cov_val[auc$is_ref & auc$cov_var == "FOOD"], "Fasted")
-  expect_equal(auc$cov_val[auc$is_ref & auc$cov_var == "WTBL"], "70 kg")
+  expect_equal(auc$cov_level[auc$is_ref & auc$cov_name == "FOOD"], "Fasted")
+  expect_equal(auc$cov_level[auc$is_ref & auc$cov_name == "WTBL"], "70 kg")
   # one distributed row per metric per named covariate
   expect_equal(sum(s$is_ref), 2L * length(unique(s$metric)))
 })
 
 test_that("Distributed reference rows inherit est/lo/hi and labels from the reference row", {
   plain <- df_forest(data_sad_pkforest)$stats
-  ref <- plain[plain$cov_var == "Reference" & plain$metric == "AUCRATIO", ]
+  ref <- plain[plain$cov_name == "Reference" & plain$metric == "AUCRATIO", ]
   s <- drawn(df_forest(data_sad_pkforest, cov_level_ref = ref_map))
-  fasted <- s[s$metric == "AUCRATIO" & s$cov_var == "FOOD" & s$cov_val == "Fasted", ]
+  fasted <- s[s$metric == "AUCRATIO" & s$cov_name == "FOOD" & s$cov_level == "Fasted", ]
   expect_equal(fasted$est, ref$est)
   expect_equal(fasted$lo,  ref$lo)
   expect_equal(fasted$hi,  ref$hi)
@@ -234,18 +234,18 @@ test_that("Distributed reference rows inherit est/lo/hi and labels from the refe
 test_that("cov_level_ref names absent from data are ignored with a warning; unnamed covariates get no reference row", {
   expect_warning(
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOOD = "Fasted", SEX = "Male")),
-    "`cov_level_ref` names covariates not found in `cov_var`: SEX"
+    "`cov_level_ref` names covariates not found in `cov_name`: SEX"
   )
   s <- drawn(out)
-  expect_true(any(s$is_ref & s$cov_var == "FOOD"))
-  expect_false(any(s$is_ref & s$cov_var == "WTBL"))
-  expect_false("SEX" %in% s$cov_var)
+  expect_true(any(s$is_ref & s$cov_name == "FOOD"))
+  expect_false(any(s$is_ref & s$cov_name == "WTBL"))
+  expect_false("SEX" %in% s$cov_name)
 })
 
 test_that("a misspelled cov_level_ref name warns instead of silently falling back to consolidated", {
   expect_warning(
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOD = "Fasted")),
-    "not found in `cov_var`: FOD"
+    "not found in `cov_name`: FOD"
   )
   expect_false(any(out$stats$layout == "distributed"))
 })
@@ -267,8 +267,8 @@ test_that("cov_level_ref adds distributed reference copies; other rows are uncha
   expect_true(all(copies$is_ref))
   expect_equal(nrow(copies), 2 * length(unique(data_sad_pkforest$metric)))
   # copies sit in their panel at their sorted position
-  auc <- with_map$stats[with_map$stats$metric == "AUCRATIO" & with_map$stats$cov_var == "WTBL", ]
-  expect_equal(auc$cov_val, c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
+  auc <- with_map$stats[with_map$stats$metric == "AUCRATIO" & with_map$stats$cov_name == "WTBL", ]
+  expect_equal(auc$cov_level, c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
 })
 
 test_that("ref_layout = NULL distributes only when cov_level_ref was given", {
@@ -291,14 +291,14 @@ test_that("Both layouts share the covariate rows and labels; only reference rows
 
 test_that("Covariate rows keep the order the reference label set, in both layouts", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
-  d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",
+  d$cov_level <- factor(d$cov_level, levels = c("Reference", "Fed", "Fasted",
                                             "50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
   stats <- df_forest(d, cov_level_ref = ref_map)
   cons <- drawn(stats, "consolidated")
-  expect_equal(cons$cov_val[cons$cov_var == "WTBL"], c("50 kg", "90 kg", "60 kg", "80 kg"))
+  expect_equal(cons$cov_level[cons$cov_name == "WTBL"], c("50 kg", "90 kg", "60 kg", "80 kg"))
   dist <- drawn(stats, "distributed")
-  expect_equal(dist$cov_val[dist$cov_var == "WTBL"], c("50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
-  expect_equal(dist$cov_val[dist$cov_var == "FOOD"], c("Fed", "Fasted"))
+  expect_equal(dist$cov_level[dist$cov_name == "WTBL"], c("50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
+  expect_equal(dist$cov_level[dist$cov_name == "FOOD"], c("Fed", "Fasted"))
 })
 
 test_that("ref_layout errors: distributed without distributed rows; bad values", {
@@ -317,14 +317,14 @@ test_that("ref_layout errors: distributed without distributed rows; bad values",
 
 test_that("The default ref_layout is resolved per metric", {
   set.seed(1)
-  mk <- function(m, cov, lvl) data.frame(metric = m, cov_var = cov, cov_val = lvl,
+  mk <- function(m, cov, lvl) data.frame(metric = m, cov_name = cov, cov_level = lvl,
                                          value = stats::rlnorm(30, 0, 0.1))
   d <- rbind(mk("A", "Reference", "Reference"), mk("A", "WT", "50 kg"),
              mk("B", "Reference", "Reference"), mk("B", "AGE", "20 y"))
   fs <- df_forest(d, cov_level_ref = c(WT = "70 kg"))
   expect_no_warning(p <- plot_build_forest(fs, metric = "B"))
-  expect_setequal(as.character(unique(p$data$cov_var)), c("Reference", "AGE"))
-  expect_equal(as.character(unique(plot_build_forest(fs, metric = "A")$data$cov_var)), "WT")
+  expect_setequal(as.character(unique(p$data$cov_name)), c("Reference", "AGE"))
+  expect_equal(as.character(unique(plot_build_forest(fs, metric = "A")$data$cov_name)), "WT")
   expect_error(plot_build_forest(fs, metric = "B", ref_layout = "distributed"),
                "per-covariate reference rows for metric `B`")
 })
@@ -333,8 +333,8 @@ test_that("ref_layout switches the drawn panels of one container", {
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   p_dist <- plot_build_forest(stats, metric = "AUCRATIO")
   p_cons <- plot_build_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
-  expect_equal(levels(p_dist$data$cov_var), c("FOOD", "WTBL"))
-  expect_equal(levels(p_cons$data$cov_var), c("Reference", "FOOD", "WTBL"))
+  expect_equal(levels(p_dist$data$cov_name), c("FOOD", "WTBL"))
+  expect_equal(levels(p_cons$data$cov_name), c("Reference", "FOOD", "WTBL"))
   # the reference line resolves to the same estimate in both layouts
   vline <- function(p) layer_of(p, "GeomVline")$data$xintercept
   expect_equal(vline(p_dist), vline(p_cons))
@@ -345,78 +345,78 @@ test_that("ref_layout switches the drawn panels of one container", {
 
 test_that("Numeric-leading labels sort ascending; the distributed reference lands in sequence", {
   s <- drawn(df_forest(data_sad_pkforest, cov_level_ref = ref_map))
-  expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "WTBL"],
+  expect_equal(s$cov_level[s$metric == "AUCRATIO" & s$cov_name == "WTBL"],
                c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
   s0 <- df_forest(data_sad_pkforest)$stats
-  expect_equal(s0$cov_val[s0$metric == "AUCRATIO"],
+  expect_equal(s0$cov_level[s0$metric == "AUCRATIO"],
                c("Reference", "Fed", "50 kg", "60 kg", "80 kg", "90 kg"))
 })
 
 test_that("Negative-valued levels sort by signed value through df_forest()", {
   set.seed(1)
-  d <- expand.grid(metric = "DELTA", cov_var = "EGFRCHG",
-                   cov_val = c("10%", "-20%", "-5%", "0%"),
+  d <- expand.grid(metric = "DELTA", cov_name = "EGFRCHG",
+                   cov_level = c("10%", "-20%", "-5%", "0%"),
                    SIM = 1:20, stringsAsFactors = FALSE)
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
-  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_val,
+  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_level,
                c("-20%", "-5%", "0%", "10%"))
 })
 
 test_that("Categorical labels keep first-appearance order from `data`, reference label on top", {
   set.seed(1)
-  d <- expand.grid(metric = "AUCRATIO", cov_var = "RENAL",
-                   cov_val = c("Normal", "Mild", "Moderate", "Severe"),
+  d <- expand.grid(metric = "AUCRATIO", cov_name = "RENAL",
+                   cov_level = c("Normal", "Mild", "Moderate", "Severe"),
                    SIM = 1:20, stringsAsFactors = FALSE)
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
-  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_val,
+  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_level,
                c("Normal", "Mild", "Moderate", "Severe"))
   s <- drawn(df_forest(data_sad_pkforest, cov_level_ref = ref_map))
-  expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "FOOD"], c("Fasted", "Fed"))
+  expect_equal(s$cov_level[s$metric == "AUCRATIO" & s$cov_name == "FOOD"], c("Fasted", "Fed"))
 })
 
 test_that("Labels sharing a leading number fall back to data order", {
   set.seed(1)
-  d <- expand.grid(metric = "AUCRATIO", cov_var = "CYP2D6",
-                   cov_val = c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"),
+  d <- expand.grid(metric = "AUCRATIO", cov_name = "CYP2D6",
+                   cov_level = c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"),
                    SIM = 1:20, stringsAsFactors = FALSE)
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
-  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_val,
+  expect_equal(df_forest(d, cov_name_ref = NULL)$stats$cov_level,
                c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"))
 })
 
 test_that("Range labels sharing a number keep data order, reference label on top", {
   set.seed(1)
   lab <- c("Mild (60-89)", "Moderate (30-59)", "Severe (<30)")
-  d <- expand.grid(metric = "AUCRATIO", cov_var = c("Reference", "RENAL"),
-                   cov_val = lab, SIM = 1:20, stringsAsFactors = FALSE)
-  d$cov_val[d$cov_var == "Reference"] <- "Reference"
+  d <- expand.grid(metric = "AUCRATIO", cov_name = c("Reference", "RENAL"),
+                   cov_level = lab, SIM = 1:20, stringsAsFactors = FALSE)
+  d$cov_level[d$cov_name == "Reference"] <- "Reference"
   d$value <- stats::rlnorm(nrow(d), 0, 0.2)
   s <- drawn(df_forest(d, cov_level_ref = c(RENAL = "Normal (>=90)")))
-  expect_equal(s$cov_val[s$cov_var == "RENAL"], c("Normal (>=90)", lab))
+  expect_equal(s$cov_level[s$cov_name == "RENAL"], c("Normal (>=90)", lab))
 })
 
 test_that("Factor levels on cov_level_var control the row order, including the reference label", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
-  d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",
+  d$cov_level <- factor(d$cov_level, levels = c("Reference", "Fed", "Fasted",
                                             "50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
   s <- drawn(df_forest(d, cov_level_ref = ref_map))
-  expect_equal(s$cov_val[s$cov_var == "FOOD"], c("Fed", "Fasted"))
-  expect_equal(s$cov_val[s$cov_var == "WTBL"], c("50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
+  expect_equal(s$cov_level[s$cov_name == "FOOD"], c("Fed", "Fasted"))
+  expect_equal(s$cov_level[s$cov_name == "WTBL"], c("50 kg", "70 kg", "90 kg", "60 kg", "80 kg"))
   # a label outside the factor levels falls back to the heuristics
   s2 <- drawn(df_forest(d, cov_level_ref = c(FOOD = "No food", WTBL = "70 kg")))
-  expect_equal(s2$cov_val[s2$cov_var == "FOOD"], c("No food", "Fed"))
+  expect_equal(s2$cov_level[s2$cov_name == "FOOD"], c("No food", "Fed"))
 })
 
 test_that("Factor levels on cov_name_var and metric_name_var control panel and metric order", {
   d <- data_sad_pkforest
-  d$cov_var <- factor(d$cov_var, levels = c("WTBL", "FOOD", "Reference"))
+  d$cov_name <- factor(d$cov_name, levels = c("WTBL", "FOOD", "Reference"))
   d$metric <- factor(d$metric, levels = rev(sort(unique(d$metric))))
   s <- df_forest(d, cov_name_ref = NULL)$stats
-  expect_equal(unique(s$cov_var), c("WTBL", "FOOD", "Reference"))
+  expect_equal(unique(s$cov_name), c("WTBL", "FOOD", "Reference"))
   expect_equal(unique(s$metric), levels(d$metric))
   # the standalone reference still moves first
   s_ref <- df_forest(d)$stats
-  expect_equal(unique(s_ref$cov_var), c("Reference", "WTBL", "FOOD"))
+  expect_equal(unique(s_ref$cov_name), c("Reference", "WTBL", "FOOD"))
 })
 
 
@@ -560,7 +560,7 @@ test_that("plot_build_forest() facet_grid uses cov_name rows only; the x-axis la
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
   expect_s3_class(p$facet, "FacetGrid")
   row_vars <- vapply(p$facet$params$rows, rlang::as_name, character(1))
-  expect_equal(unname(row_vars), "cov_var")
+  expect_equal(unname(row_vars), "cov_name")
   expect_length(p$facet$params$cols, 0L)
   expect_true(isTRUE(p$facet$params$space_free$y))
   expect_equal(p$labels$x, "AUCRATIO")
@@ -579,15 +579,15 @@ test_that("Rows draw top to bottom in stats order; panels follow row order", {
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   p <- plot_build_forest(stats, metric = "AUCRATIO")
   s <- drawn(stats, metric = "AUCRATIO")
-  expect_equal(p$data$cov_val, s$cov_val)
-  expect_equal(levels(p$data$cov_var), c("FOOD", "WTBL"))
+  expect_equal(p$data$cov_level, s$cov_level)
+  expect_equal(levels(p$data$cov_name), c("FOOD", "WTBL"))
   # bottom-to-top per panel is the reverse of the stats order
   expect_equal(panel_labels(p, "y"),
-               list(rev(s$cov_val[s$cov_var == "FOOD"]), rev(s$cov_val[s$cov_var == "WTBL"])))
+               list(rev(s$cov_level[s$cov_name == "FOOD"]), rev(s$cov_level[s$cov_name == "WTBL"])))
   # reordering stats$stats reorders the plot
   stats$stats <- stats$stats[rev(seq_len(nrow(stats$stats))), ]
   p2 <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_equal(levels(p2$data$cov_var), c("WTBL", "FOOD"))
+  expect_equal(levels(p2$data$cov_name), c("WTBL", "FOOD"))
   # the distributed reference row moves with the rows around it
   expect_equal(panel_labels(p2, "y")[[1]], c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
 })
@@ -619,9 +619,9 @@ test_that("the label pieces are the secondary y-axis text; reference rows show t
   expected <- ifelse(s$is_ref, s$est_label,
                      paste0(s$est_label, " (", s$lo_label, ", ", s$hi_label, ")"))
   expect_equal(unlist(panel_labels(p, "y.sec")),
-               c(rev(expected[s$cov_var == "FOOD"]), rev(expected[s$cov_var == "WTBL"])))
-  expect_equal(expected[s$cov_val %in% c("Fasted", "70 kg")], c("1.00", "1.00"))
-  expect_equal(expected[s$cov_val == "Fed"], "2.32 (2.00, 2.65)")
+               c(rev(expected[s$cov_name == "FOOD"]), rev(expected[s$cov_name == "WTBL"])))
+  expect_equal(expected[s$cov_level %in% c("Fasted", "70 kg")], c("1.00", "1.00"))
+  expect_equal(expected[s$cov_level == "Fed"], "2.32 (2.00, 2.65)")
 })
 
 test_that("the estimate column header is the plot subtitle built from ci", {
@@ -649,7 +649,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
   expect_equal(ref_pt$aes_params$fill, "white")
   expect_equal(ref_pt$aes_params$colour, "black")
   expect_true(all(ref_pt$data$is_ref))
-  expect_setequal(ref_pt$data$cov_val, c("Fasted", "70 kg"))
+  expect_setequal(ref_pt$data$cov_level, c("Fasted", "70 kg"))
   expect_false(any(pt$data$is_ref))
   expect_equal(layer_of(p, "GeomErrorbar")$aes_params$linewidth, 0.6)
 })
@@ -657,7 +657,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
 test_that("a standalone Reference panel draws through ref_point; no ref_point layer without a reference", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
   expect_equal(n_geom(p, "GeomPoint"), 2L)
-  expect_equal(as.character(layer_of(p, "GeomPoint", 2L)$data$cov_var), "Reference")
+  expect_equal(as.character(layer_of(p, "GeomPoint", 2L)$data$cov_name), "Reference")
   expect_equal(panel_labels(p, "y.sec")[[1]], "1.00")
   # no left tick or label where the level repeats the covariate name
   expect_length(panel_labels(p, "y")[[1]], 0L)
@@ -854,7 +854,7 @@ test_that("Covariates without a style colour take the house palette, silently", 
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   test_cols <- built$data[[which(is_pt)[1]]]
-  food <- p$layers[[which(is_pt)[1]]]$data$cov_var == "FOOD"
+  food <- p$layers[[which(is_pt)[1]]]$data$cov_name == "FOOD"
   expect_equal(unique(test_cols$colour[food]), "red")
   others <- unique(c(test_cols$colour[!food], built$data[[which(is_pt)[2]]]$colour))
   expect_length(others, 2L)
@@ -882,10 +882,10 @@ test_that("plot_build_forest() applies the forest_panel variant", {
 
 test_that("plot_forest() raw-data path returns a ggplot and forwards the pipeline args", {
   p <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_level_ref = ref_map,
-                   cov_name_var = cov_var)
+                   cov_name_var = cov_name)
   expect_s3_class(p, "ggplot")
-  expect_false("Reference" %in% p$data$cov_var)
-  expect_setequal(p$data$cov_val[p$data$is_ref], c("Fasted", "70 kg"))
+  expect_false("Reference" %in% p$data$cov_name)
+  expect_setequal(p$data$cov_level[p$data$is_ref], c("Fasted", "70 kg"))
   p2 <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_name_ref = NULL, ref = 1)
   expect_false(any(p2$data$is_ref))
 })
@@ -904,9 +904,9 @@ test_that("plot_forest() forwards ref_layout on both paths", {
   p_pre <- plot_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
   p_raw <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", cov_level_ref = ref_map,
                        ref_layout = "consolidated")
-  expect_equal(levels(p_pre$data$cov_var), c("Reference", "FOOD", "WTBL"))
+  expect_equal(levels(p_pre$data$cov_name), c("Reference", "FOOD", "WTBL"))
   expect_equal(p_raw$data, p_pre$data)
-  expect_equal(levels(plot_forest(stats, metric = "AUCRATIO")$data$cov_var), c("FOOD", "WTBL"))
+  expect_equal(levels(plot_forest(stats, metric = "AUCRATIO")$data$cov_name), c("FOOD", "WTBL"))
 })
 
 test_that("plot_forest() forwards ref / ref_band_type on both paths", {
@@ -933,29 +933,29 @@ test_that("plot_forest() aborts when pipeline args are passed on the precomputed
 
 #####df_forest -- custom reference name#####
 
-renamed_ref <- function(cov_name = "Typical subject") {
+renamed_ref <- function(ref_name = "Typical subject") {
   d <- data_sad_pkforest[data_sad_pkforest$metric == "AUCRATIO", ]
-  is_ref <- d$cov_var == "Reference"
-  d$cov_var[is_ref] <- cov_name
-  d$cov_val[is_ref] <- cov_name
+  is_ref <- d$cov_name == "Reference"
+  d$cov_name[is_ref] <- ref_name
+  d$cov_level[is_ref] <- ref_name
   d
 }
 
 test_that("`cov_name_ref` identifies a renamed reference, which sorts first", {
   out <- df_forest(renamed_ref(), cov_name_ref = "Typical subject")$stats
-  expect_equal(out$cov_var[out$is_ref], "Typical subject")
-  expect_equal(out$cov_var[1], "Typical subject")
+  expect_equal(out$cov_name[out$is_ref], "Typical subject")
+  expect_equal(out$cov_name[1], "Typical subject")
   expect_false(any(df_forest(renamed_ref())$stats$is_ref))
 })
 
 test_that("`cov_level_ref` distributes a renamed reference", {
   s <- drawn(df_forest(renamed_ref(), cov_name_ref = "Typical subject",
                        cov_level_ref = ref_map))
-  expect_equal(s$cov_val[s$cov_var == "FOOD"], c("Fasted", "Fed"))
-  expect_equal(s$cov_val[s$cov_var == "WTBL"],
+  expect_equal(s$cov_level[s$cov_name == "FOOD"], c("Fasted", "Fed"))
+  expect_equal(s$cov_level[s$cov_name == "WTBL"],
                c("50 kg", "60 kg", "70 kg", "80 kg", "90 kg"))
-  expect_true(all(s$is_ref[s$cov_val %in% c("Fasted", "70 kg")]))
-  expect_false("Typical subject" %in% s$cov_var)
+  expect_true(all(s$is_ref[s$cov_level %in% c("Fasted", "70 kg")]))
+  expect_false("Typical subject" %in% s$cov_name)
 })
 
 
@@ -963,8 +963,8 @@ test_that("`cov_level_ref` distributes a renamed reference", {
 
 test_that("df_forest() aborts on NA metric or covariate names", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
-  d$cov_var[1:5] <- NA
-  expect_error(df_forest(d), "columns `cov_var` of `data` must not contain `NA`")
+  d$cov_name[1:5] <- NA
+  expect_error(df_forest(d), "columns `cov_name` of `data` must not contain `NA`")
   d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
   d$metric[1] <- NA
   expect_error(df_forest(d), "columns `metric` of `data` must not contain `NA`")
@@ -973,10 +973,10 @@ test_that("df_forest() aborts on NA metric or covariate names", {
 test_that("an all-NA group does not change the metric's decimal places", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
   base <- df_forest(d)$stats
-  d$value[d$cov_val == "90 kg"] <- NA
+  d$value[d$cov_level == "90 kg"] <- NA
   out <- suppressWarnings(df_forest(d))$stats
-  keep <- out$cov_val != "90 kg"
-  expect_equal(out$est_label[keep], base$est_label[base$cov_val != "90 kg"])
+  keep <- out$cov_level != "90 kg"
+  expect_equal(out$est_label[keep], base$est_label[base$cov_level != "90 kg"])
   expect_true(is.na(out$est_label[!keep]))
   expect_true(is.na(out$ci_label[!keep]))
 })
@@ -995,7 +995,7 @@ test_that("cov_level_ref naming the reference row itself warns and is ignored", 
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(Reference = "x", FOOD = "Fasted")),
     "names the reference row itself \\(`Reference`\\)"
   )
-  expect_false("x" %in% out$stats$cov_val)
+  expect_false("x" %in% out$stats$cov_level)
 })
 
 test_that("cov_level_ref label matching an existing level warns", {
@@ -1003,7 +1003,7 @@ test_that("cov_level_ref label matching an existing level warns", {
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(WTBL = "50 kg")),
     "WTBL = \"50 kg\""
   )
-  wt50 <- out$stats[out$stats$cov_var == "WTBL" & out$stats$cov_val == "50 kg" &
+  wt50 <- out$stats[out$stats$cov_name == "WTBL" & out$stats$cov_level == "50 kg" &
                       out$stats$metric == "AUC", ]
   expect_setequal(wt50$layout, c("both", "distributed"))
 })
@@ -1056,7 +1056,7 @@ test_that("plot_build_forest() with style_pmforest() fills diamonds per covariat
   ebs <- built$data[[which(is_eb)]]
   expect_equal(unique(pts$shape), 23)
   expect_equal(pts$fill, ebs$colour)
-  expect_equal(length(unique(pts$fill)), length(unique(p$layers[[which(is_pt)[1]]]$data$cov_var)))
+  expect_equal(length(unique(pts$fill)), length(unique(p$layers[[which(is_pt)[1]]]$data$cov_name)))
   rect <- layer_of(p, "GeomRect")
   expect_equal(rect$aes_params$fill, "grey35")
   expect_equal(rect$aes_params$alpha, 0.2)
@@ -1096,7 +1096,7 @@ test_that("covariate colors match across ref_layout; the Reference panel keeps t
     built <- ggplot2::ggplot_build(p)
     is_pt <- which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))
     lapply(is_pt, function(i) {
-      cov <- as.character(p$layers[[i]]$data$cov_var)
+      cov <- as.character(p$layers[[i]]$data$cov_name)
       tapply(built$data[[i]]$colour, cov, unique)
     })
   }

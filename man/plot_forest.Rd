@@ -9,8 +9,8 @@ plot_forest(
   metric = NULL,
   metric_name_var = "metric",
   metric_value_var = "value",
-  cov_name_var = "cov_var",
-  cov_level_var = "cov_val",
+  cov_name_var = "cov_name",
+  cov_level_var = "cov_level",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -42,10 +42,10 @@ Accepts bare names or strings. Default \code{value}.}
 
 \item{cov_name_var}{Column in \code{data} containing covariate variable names.
 (e.g., \code{WTBL},\code{FOOD}, etc).
-Accepts bare names or strings. Default is \code{cov_var}.}
+Accepts bare names or strings. Default is \code{cov_name}.}
 
 \item{cov_level_var}{Column in \code{data} containing covariate levels (e.g., \verb{70 kg}).
-Accepts bare names or strings. Default is \code{cov_val}.}
+Accepts bare names or strings. Default is \code{cov_level}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the central interval
 width (e.g., \code{0.9} for 90\% CI).}

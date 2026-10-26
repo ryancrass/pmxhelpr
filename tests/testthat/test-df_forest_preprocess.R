@@ -33,7 +33,7 @@ test_that("Output is a long data.frame with passthrough and canonical columns", 
   expect_s3_class(out, "data.frame")
   expect_equal(
     colnames(out),
-    c("SCN", "SIM", "FOOD", "WTBL", "metric", "value", "cov_var", "cov_val")
+    c("SCN", "SIM", "FOOD", "WTBL", "metric", "value", "cov_name", "cov_level")
   )
   # 8 input rows x (2 metrics + 2 ratio metrics)
   expect_equal(nrow(out), 8 * 4)
@@ -61,22 +61,22 @@ test_that("Non-metric columns pass through unchanged", {
 test_that("Reference rows are labeled with `cov_name_ref`", {
   out <- pre(cov_labels = labs)
   ref <- out[out$SCN == 1, ]
-  expect_equal(unique(ref$cov_var), "Reference")
-  expect_equal(unique(ref$cov_val), "Reference")
-  expect_false(any(out$cov_var[out$SCN != 1] == "Reference"))
+  expect_equal(unique(ref$cov_name), "Reference")
+  expect_equal(unique(ref$cov_level), "Reference")
+  expect_false(any(out$cov_name[out$SCN != 1] == "Reference"))
 })
 
 test_that("`cov_name_ref` renames the reference label", {
   out <- pre(cov_labels = labs, cov_name_ref = "Typical")
-  expect_equal(unique(out$cov_var[out$SCN == 1]), "Typical")
-  expect_equal(unique(out$cov_val[out$SCN == 1]), "Typical")
+  expect_equal(unique(out$cov_name[out$SCN == 1]), "Typical")
+  expect_equal(unique(out$cov_level[out$SCN == 1]), "Typical")
 })
 
 test_that("Each scenario is keyed to the one covariate it varies", {
   out <- pre(cov_labels = labs)
-  scn <- unique(out[, c("SCN", "cov_var", "cov_val")])
-  expect_equal(scn$cov_var, c("Reference", "FOOD", "WTBL", "WTBL"))
-  expect_equal(scn$cov_val, c("Reference", "Fed", "50 kg", "90 kg"))
+  scn <- unique(out[, c("SCN", "cov_name", "cov_level")])
+  expect_equal(scn$cov_name, c("Reference", "FOOD", "WTBL", "WTBL"))
+  expect_equal(scn$cov_level, c("Reference", "Fed", "50 kg", "90 kg"))
 })
 
 test_that("Covariate values match `cov_val_ref` on their character form", {
@@ -87,14 +87,14 @@ test_that("Covariate values match `cov_val_ref` on their character form", {
     metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
     cov_val_ref = c(FOOD = 0, WTBL = 70)
   )
-  expect_equal(sum(out$cov_var == "Reference" & out$metric == "AUC"), 2)
+  expect_equal(sum(out$cov_name == "Reference" & out$metric == "AUC"), 2)
 })
 
 test_that("Large numeric covariate values match and label in fixed notation", {
   big <- data.frame(SIM = rep(1:2, each = 3), WT = rep(c(100000L, 50000L, 150000L), 2),
                     AUC = c(10, 8, 12, 11, 9, 13))
   out <- df_forest_preprocess(big, "AUC", "WT", c(WT = 100000))
-  expect_equal(unique(out$cov_val), c("Reference", "50000", "150000"))
+  expect_equal(unique(out$cov_level), c("Reference", "50000", "150000"))
   expect_equal(attr(out, "cov_level_ref"), c(WT = "100000"))
   big$WT <- as.numeric(big$WT)
   out <- df_forest_preprocess(big, "AUC", "WT", c(WT = 100000))
@@ -145,7 +145,7 @@ test_that("Ratios divide by the same replicate's reference value", {
   out <- pre(cov_labels = labs)
   auc_ratio <- out[out$metric == "AUCRATIO", ]
   expect_equal(auc_ratio$value, sim_wide$AUC / rep(c(100, 110), each = 4))
-  expect_equal(auc_ratio$value[auc_ratio$cov_var == "Reference"], c(1, 1))
+  expect_equal(auc_ratio$value[auc_ratio$cov_name == "Reference"], c(1, 1))
 })
 
 test_that("`ratio = FALSE` emits absolute metrics only", {
@@ -197,14 +197,14 @@ test_that("`irep_name` is only required when ratios are requested", {
 
 test_that("A named-vector labeller and a function labeller both apply", {
   out <- pre(cov_labels = labs)
-  expect_equal(unique(out$cov_val[out$cov_var == "FOOD"]), "Fed")
-  expect_equal(sort(unique(out$cov_val[out$cov_var == "WTBL"])), c("50 kg", "90 kg"))
+  expect_equal(unique(out$cov_level[out$cov_name == "FOOD"]), "Fed")
+  expect_equal(sort(unique(out$cov_level[out$cov_name == "WTBL"])), c("50 kg", "90 kg"))
 })
 
 test_that("Without `cov_labels` levels fall back to their character form", {
   out <- pre()
-  expect_equal(unique(out$cov_val[out$cov_var == "FOOD"]), "1")
-  expect_equal(sort(unique(out$cov_val[out$cov_var == "WTBL"])), c("50", "90"))
+  expect_equal(unique(out$cov_level[out$cov_name == "FOOD"]), "1")
+  expect_equal(sort(unique(out$cov_level[out$cov_name == "WTBL"])), c("50", "90"))
 })
 
 test_that("An unmapped covariate value warns and falls back", {
@@ -212,7 +212,7 @@ test_that("An unmapped covariate value warns and falls back", {
     out <- pre(cov_labels = list(FOOD = c("0" = "Fasted"))),
     "no entry for these covariate values"
   )
-  expect_equal(unique(out$cov_val[out$cov_var == "FOOD"]), "1")
+  expect_equal(unique(out$cov_level[out$cov_name == "FOOD"]), "1")
 })
 
 
@@ -231,9 +231,9 @@ test_that("The attribute falls back to the character value with no labeller", {
 test_that("The attribute feeds `df_forest()` as `cov_level_ref`", {
   out <- pre(cov_labels = labs)
   s <- pmxhelpr:::forest_rows(df_forest(out, cov_level_ref = attr(out, "cov_level_ref")))
-  expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "FOOD"],
+  expect_equal(s$cov_level[s$metric == "AUCRATIO" & s$cov_name == "FOOD"],
                c("Fasted", "Fed"))
-  expect_equal(s$cov_val[s$metric == "AUCRATIO" & s$cov_var == "WTBL"],
+  expect_equal(s$cov_level[s$metric == "AUCRATIO" & s$cov_name == "WTBL"],
                c("50 kg", "70 kg", "90 kg"))
 })
 
@@ -311,7 +311,7 @@ test_that("Output feeds `df_forest()` with its default column names", {
   out <- pre(cov_labels = labs)
   s <- df_forest(out)
   expect_s3_class(s, "forest_stats")
-  expect_true(all(s$stats$is_ref[s$stats$cov_var == "Reference"]))
+  expect_true(all(s$stats$is_ref[s$stats$cov_name == "Reference"]))
 })
 
 test_that("The shipped dataset is reproduced by the shipped raw data", {

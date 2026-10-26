@@ -68,9 +68,9 @@
 #' @param metric_value_var Name of the output column of metric values.
 #'    Accepts bare names or strings. Default `value`.
 #' @param cov_name_var Name of the output column of covariate names.
-#'    Accepts bare names or strings. Default `cov_var`.
+#'    Accepts bare names or strings. Default `cov_name`.
 #' @param cov_level_var Name of the output column of covariate level labels.
-#'    Accepts bare names or strings. Default `cov_val`.
+#'    Accepts bare names or strings. Default `cov_level`.
 #'
 #' @section Output columns:
 #' Every column of `data` that is not a metric column passes through
@@ -132,8 +132,8 @@ df_forest_preprocess <- function(
   cov_name_ref = "Reference",
   metric_name_var = "metric",
   metric_value_var = "value",
-  cov_name_var = "cov_var",
-  cov_level_var = "cov_val"
+  cov_name_var = "cov_name",
+  cov_level_var = "cov_level"
 ) {
   irep_name_str <- resolve_var(rlang::enquo(irep_name))
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))

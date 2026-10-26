@@ -3,7 +3,7 @@
 #' @description
 #' Long-format replicate draws of PK exposure metrics for a typical individual
 #' under six covariate scenarios, ready for [df_forest()] / [plot_forest()]
-#' with their default column names (`metric`, `cov_var`, `cov_val`, `value`).
+#' with their default column names (`metric`, `cov_name`, `cov_level`, `value`).
 #' Built from [data_sad_pkforest_sim] with [df_forest_preprocess()], which
 #' divides each metric by its value in the reference scenario within the same
 #' replicate to form a test/reference ratio, then stacks the absolute and
@@ -28,8 +28,8 @@
 #'   \item{DOSE}{Dose (units: mg; 200 mg once daily in every scenario)}
 #'   \item{metric}{PK exposure metric name: absolute (`CMAX`, `CMIN`, `AUC`, `CAVG`) or test/reference ratio (`CMAXRATIO`, `CMINRATIO`, `AUCRATIO`, `CAVGRATIO`)}
 #'   \item{value}{Numeric value of the metric for this `(ID x SIM)` replicate}
-#'   \item{cov_var}{Covariate varied in the scenario (values: `Reference`, `FOOD`, `WTBL`)}
-#'   \item{cov_val}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`). The reference levels of the varied covariates are `Fasted` (`FOOD`) and `70 kg` (`WTBL`); pass them to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to distribute the reference row into each covariate panel.}
+#'   \item{cov_name}{Covariate varied in the scenario (values: `Reference`, `FOOD`, `WTBL`)}
+#'   \item{cov_level}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`). The reference levels of the varied covariates are `Fasted` (`FOOD`) and `70 kg` (`WTBL`); pass them to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to distribute the reference row into each covariate panel.}
 #' }
 #' @section Attributes:
 #' Carries a `"cov_level_ref"` attribute, `c(FOOD = "Fasted", WTBL = "70 kg")`,

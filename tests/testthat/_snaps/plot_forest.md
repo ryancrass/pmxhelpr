@@ -5,7 +5,7 @@
     Output
       <forest_stats>
         stats: 8 rows x 12 columns
-        config: metric_name_var = metric, cov_name_var = cov_var, cov_level_var = cov_val, ci = 0.9, sigdigits = 3, cov_name_ref = Reference, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+        config: metric_name_var = metric, cov_name_var = cov_name, cov_level_var = cov_level, ci = 0.9, sigdigits = 3, cov_name_ref = Reference, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
       
         per-row:
           [AUCRATIO] Reference  (consolidated)

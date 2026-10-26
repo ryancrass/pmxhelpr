@@ -86,9 +86,9 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    Accepts bare names or strings. Default `value`.
 #' @param cov_name_var Column in `data` containing covariate variable names.
 #'    (e.g., `WTBL`,`FOOD`, etc).
-#'    Accepts bare names or strings. Default is `cov_var`.
+#'    Accepts bare names or strings. Default is `cov_name`.
 #' @param cov_level_var Column in `data` containing covariate levels (e.g., `70 kg`).
-#'    Accepts bare names or strings. Default is `cov_val`.
+#'    Accepts bare names or strings. Default is `cov_level`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the central interval
 #'    width (e.g., `0.9` for 90% CI).
 #' @param sigdigits Number of significant digits used to format the label
@@ -177,7 +177,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'
 #' # Control the row order with factor levels on the input
 #' d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
-#' d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",
+#' d$cov_level <- factor(d$cov_level, levels = c("Reference", "Fed", "Fasted",
 #'                                           "50 kg", "70 kg", "90 kg"))
 #' df_forest(d, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 
@@ -185,8 +185,8 @@ df_forest <- function(
   data,
   metric_name_var = "metric",
   metric_value_var = "value",
-  cov_name_var = "cov_var",
-  cov_level_var = "cov_val",
+  cov_name_var = "cov_name",
+  cov_level_var = "cov_level",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",
@@ -810,8 +810,8 @@ plot_forest <- function(
   metric = NULL,
   metric_name_var = "metric",
   metric_value_var = "value",
-  cov_name_var = "cov_var",
-  cov_level_var = "cov_val",
+  cov_name_var = "cov_name",
+  cov_level_var = "cov_level",
   ci = 0.9,
   sigdigits = 3,
   cov_name_ref = "Reference",

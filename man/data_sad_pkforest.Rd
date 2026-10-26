@@ -15,8 +15,8 @@
 \item{DOSE}{Dose (units: mg; 200 mg once daily in every scenario)}
 \item{metric}{PK exposure metric name: absolute (\code{CMAX}, \code{CMIN}, \code{AUC}, \code{CAVG}) or test/reference ratio (\code{CMAXRATIO}, \code{CMINRATIO}, \code{AUCRATIO}, \code{CAVGRATIO})}
 \item{value}{Numeric value of the metric for this \verb{(ID x SIM)} replicate}
-\item{cov_var}{Covariate varied in the scenario (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
-\item{cov_val}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to distribute the reference row into each covariate panel.}
+\item{cov_name}{Covariate varied in the scenario (values: \code{Reference}, \code{FOOD}, \code{WTBL})}
+\item{cov_level}{Covariate level label (values: \code{Reference}, \code{Fed}, \verb{50 kg}, \verb{60 kg}, \verb{80 kg}, \verb{90 kg}). The reference levels of the varied covariates are \code{Fasted} (\code{FOOD}) and \verb{70 kg} (\code{WTBL}); pass them to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")} to distribute the reference row into each covariate panel.}
 }
 }
 }
@@ -29,7 +29,7 @@ data_sad_pkforest
 \description{
 Long-format replicate draws of PK exposure metrics for a typical individual
 under six covariate scenarios, ready for \code{\link[=df_forest]{df_forest()}} / \code{\link[=plot_forest]{plot_forest()}}
-with their default column names (\code{metric}, \code{cov_var}, \code{cov_val}, \code{value}).
+with their default column names (\code{metric}, \code{cov_name}, \code{cov_level}, \code{value}).
 Built from \link{data_sad_pkforest_sim} with \code{\link[=df_forest_preprocess]{df_forest_preprocess()}}, which
 divides each metric by its value in the reference scenario within the same
 replicate to form a test/reference ratio, then stacks the absolute and

@@ -16,8 +16,8 @@ df_forest_preprocess(
   cov_name_ref = "Reference",
   metric_name_var = "metric",
   metric_value_var = "value",
-  cov_name_var = "cov_var",
-  cov_level_var = "cov_val"
+  cov_name_var = "cov_name",
+  cov_level_var = "cov_level"
 )
 }
 \arguments{
@@ -65,10 +65,10 @@ Accepts bare names or strings. Default \code{metric}.}
 Accepts bare names or strings. Default \code{value}.}
 
 \item{cov_name_var}{Name of the output column of covariate names.
-Accepts bare names or strings. Default \code{cov_var}.}
+Accepts bare names or strings. Default \code{cov_name}.}
 
 \item{cov_level_var}{Name of the output column of covariate level labels.
-Accepts bare names or strings. Default \code{cov_val}.}
+Accepts bare names or strings. Default \code{cov_level}.}
 }
 \value{
 A \code{data.frame} with one row per metric per scenario per

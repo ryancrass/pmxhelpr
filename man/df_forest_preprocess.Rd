@@ -73,8 +73,8 @@ Accepts bare names or strings. Default \code{cov_val}.}
 \value{
 A \code{data.frame} with one row per metric per scenario per
 replicate, carrying a \code{"cov_level_ref"} attribute: a named character
-vector mapping each covariate to its reference level label, ready to
-pass to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref}.
+vector mapping each covariate that varies in \code{data} to its reference
+level label, ready to pass to \code{\link[=df_forest]{df_forest()}} as \code{cov_level_ref}.
 }
 \description{
 Turns raw replicate simulation output into the long draws frame

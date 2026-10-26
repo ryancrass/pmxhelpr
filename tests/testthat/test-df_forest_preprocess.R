@@ -237,6 +237,15 @@ test_that("The attribute feeds `df_forest()` as `cov_level_ref`", {
                c("50 kg", "70 kg", "90 kg"))
 })
 
+test_that("A covariate that never varies is left out of the attribute", {
+  fixed <- sim_wide
+  fixed$SEX <- 0
+  out <- df_forest_preprocess(fixed, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL", "SEX"),
+                              cov_val_ref = c(ref_vals, SEX = 0), cov_labels = labs)
+  expect_equal(attr(out, "cov_level_ref"), c(FOOD = "Fasted", WTBL = "70 kg"))
+  expect_no_warning(df_forest(out, cov_level_ref = attr(out, "cov_level_ref")))
+})
+
 
 #####df_forest_preprocess -- argument validation#####
 

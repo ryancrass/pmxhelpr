@@ -82,8 +82,8 @@
 #' @family forest plot
 #' @return A `data.frame` with one row per metric per scenario per
 #'    replicate, carrying a `"cov_level_ref"` attribute: a named character
-#'    vector mapping each covariate to its reference level label, ready to
-#'    pass to [df_forest()] as `cov_level_ref`.
+#'    vector mapping each covariate that varies in `data` to its reference
+#'    level label, ready to pass to [df_forest()] as `cov_level_ref`.
 #' @export df_forest_preprocess
 #'
 #' @examples
@@ -248,12 +248,14 @@ df_forest_preprocess <- function(
 
   ## The same labeller applied to each covariate's reference value gives the
   ## `cov_level_ref` mapping `df_forest()` takes for distributed references.
+  ## A covariate that never varies has no panel, so it is left out.
+  varied_covs <- intersect(cov_vars, which_cov)
   cov_level_ref <- vapply(
-    cov_vars,
+    varied_covs,
     function(cn) label_vals(cn, cov_val_ref[[cn]]),
     character(1)
   )
-  names(cov_level_ref) <- cov_vars
+  names(cov_level_ref) <- varied_covs
 
   if (length(unlabeled) > 0) {
     rlang::warn(paste0(

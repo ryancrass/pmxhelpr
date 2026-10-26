@@ -441,8 +441,8 @@ validate_forest_stats <- function(x) {
 #'    [style_coveffectsplot()], [style_pmxforest()], or [style_pumas()] for
 #'    the looks of the `pmforest`, `coveffectsplot`, and `PMXForest` packages
 #'    and of `table_forest_plot()` from the Pumas ecosystem, or restyle the
-#'    returned plot with [restyle_plot()]. Series roles are `point`, `errorbar`
-#'    , `ref_point`,`ref_line`, and `ref_band`; `colors` entries keyed by
+#'    returned plot with [restyle_plot()]. Series roles are `point`, `errorbar`,
+#'    `ref_point`, `ref_line`, and `ref_band`; `colors` entries keyed by
 #'    covariate name opt into per-covariate coloring (see [style_forest()]).
 #'    The estimate column is axis text styled through the theme's
 #'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
@@ -579,10 +579,11 @@ plot_build_forest <- function(
   ## Per-covariate coloring: a palette `function(n)` in `colors`, or entries
   ## keyed by a covariate name present in the plotted data, switch
   ## point/errorbar color to a covariate mapping. A palette is resolved to
-  ## named covariate entries here so the fill map below can reuse them.
+  ## named covariate entries here so the fill map below can reuse them; a
+  ## palette returning fewer than n colors is recycled.
   if (is.function(plotstyle$colors)) {
     pal <- plotstyle$colors(length(cov_levels))
-    if (is.null(names(pal))) pal <- stats::setNames(pal[seq_along(cov_levels)], cov_levels)
+    if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(cov_levels)), cov_levels)
     plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
   }
   has_panel_color <- any(cov_levels %in% names(plotstyle$colors))

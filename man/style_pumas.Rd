@@ -20,7 +20,7 @@ A \code{ggstylekit_style_spec} object.
 \description{
 An alternative \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_forest]{plot_forest()}} /
 \code{\link[=plot_build_forest]{plot_build_forest()}} that reproduces the look of the
-\code{table_forest_plot()} function of Pumas; see the \href{https://tutorials.pumas.ai/html/forest_plots/forest.html}{Pumas forest plot tutorial}):
+\code{table_forest_plot()} function of Pumas; see the \href{https://tutorials.pumas.ai/html/forest_plots/forest.html}{Pumas forest plot tutorial}:
 filled diamonds on thin capped error bars, coloured per covariate from
 Makie's default Wong palette, a dashed black reference line, a light grey
 equivalence band, and an open panel with no gridlines and only the x-axis

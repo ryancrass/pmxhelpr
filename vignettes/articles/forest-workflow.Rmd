@@ -576,6 +576,15 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
                                  logx = TRUE))
 ```
 
+The facet layout is fixed by the renderer (`facet_grid()` rows by covariate, 
+strips outside the y-axis), so the style's `facet*` fields are ignored. 
+
+The estimate column is right-hand axis text styled through the theme's 
+`axis.text.y.right` element, and its header is the plot subtitle 
+(`plot.subtitle`). The x-axis label defaults to the metric and can be replaced 
+with the style's `xlabel` field or `labs(x = )`; a title can be added with the 
+`title` field or `labs(title = )`.
+
 ## pmforest styling
 
 `style_pmforest()` reproduces the default look of Metrum's
@@ -629,15 +638,6 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
             style = style_pumas(logx = TRUE)) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
-
-The facet layout is fixed by the renderer (`facet_grid()` rows by covariate, 
-strips outside the y-axis), so the style's `facet*` fields are ignored. 
-
-The estimate column is right-hand axis text styled through the theme's 
-`axis.text.y.right` element, and its header is the plot subtitle 
-(`plot.subtitle`). The x-axis label defaults to the metric and can be replaced 
-with the style's `xlabel` field or `labs(x = )`; a title can be added with the 
-`title` field or `labs(title = )`.
 
 For a deeper treatment of the styling system — `style_spec()` fields, 
 per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the 

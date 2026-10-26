@@ -407,8 +407,8 @@ style_pmforest <- function(...) {
 #' [plot_build_forest()] that reproduces the default look of the
 #' `forest_plot()` function of the
 #' [coveffectsplot](https://github.com/smouksassi/coveffectsplot/) package:
-#' blue points (shape 16, size 4) on thick blue interval lines for every row,
-#' reference rows included, a thick dashed black reference line, a grey
+#' blue points (shape 16, size 4) on thick blue interval lines, blue
+#' reference points, a thick dashed black reference line, a grey
 #' equivalence band at alpha 80/255, grey major gridlines on both axes,
 #' grey-filled covariate strips placed between the level labels and the
 #' panels, separated panels, and a centered estimate column.
@@ -420,7 +420,8 @@ style_pmforest <- function(...) {
 #' no minor gridlines and no legend; the band is drawn only when `ref_band`
 #' is supplied (coveffectsplot shows 0.8-1.25 by default); the estimate
 #' column is `est (lo, hi)` axis text under an `Estimate (CI)` header rather
-#' than a separate bordered table; and the x-axis is labeled with the metric.
+#' than a separate bordered table; reference rows show a point without an
+#' interval; and the x-axis is labeled with the metric.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them.
@@ -497,8 +498,8 @@ style_coveffectsplot <- function(...) {
 #' shows 0.8-1.25 by default); the estimate column is `est (lo, hi)` axis
 #' text under an `Estimate (CI)` header rather than a separate
 #' `est [lo-hi]` "Statistics" panel; no reference-subject footnote is added;
-#' reference rows are drawn like test rows; and the x-axis is labeled with
-#' the metric.
+#' reference rows are drawn as points like the test rows but without an
+#' interval; and the x-axis is labeled with the metric.
 #'
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them.
@@ -556,7 +557,7 @@ style_pmxforest <- function(...) {
 #' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
 #' [plot_build_forest()] that reproduces the look of the
 #' `table_forest_plot()` function of Pumas; see the [Pumas forest plot
-#' tutorial](https://tutorials.pumas.ai/html/forest_plots/forest.html)):
+#' tutorial](https://tutorials.pumas.ai/html/forest_plots/forest.html):
 #' filled diamonds on thin capped error bars, coloured per covariate from
 #' Makie's default Wong palette, a dashed black reference line, a light grey
 #' equivalence band, and an open panel with no gridlines and only the x-axis

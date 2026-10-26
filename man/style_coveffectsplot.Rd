@@ -21,8 +21,8 @@ An alternative \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for
 \code{\link[=plot_build_forest]{plot_build_forest()}} that reproduces the default look of the
 \code{forest_plot()} function of the
 \href{https://github.com/smouksassi/coveffectsplot/}{coveffectsplot} package:
-blue points (shape 16, size 4) on thick blue interval lines for every row,
-reference rows included, a thick dashed black reference line, a grey
+blue points (shape 16, size 4) on thick blue interval lines, blue
+reference points, a thick dashed black reference line, a grey
 equivalence band at alpha 80/255, grey major gridlines on both axes,
 grey-filled covariate strips placed between the level labels and the
 panels, separated panels, and a centered estimate column.
@@ -35,7 +35,8 @@ covariate strips raised to the axis text size for legibility; there are
 no minor gridlines and no legend; the band is drawn only when \code{ref_band}
 is supplied (coveffectsplot shows 0.8-1.25 by default); the estimate
 column is \code{est (lo, hi)} axis text under an \code{Estimate (CI)} header rather
-than a separate bordered table; and the x-axis is labeled with the metric.
+than a separate bordered table; reference rows show a point without an
+interval; and the x-axis is labeled with the metric.
 }
 \examples{
 style_coveffectsplot()

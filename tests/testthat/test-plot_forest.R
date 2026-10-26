@@ -1047,6 +1047,16 @@ test_that("a palette function in style_forest() colors each covariate", {
   expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })
 
+test_that("a palette function returning fewer than n colors is recycled", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         style = style_forest(colors = function(n) "red"))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  cols <- unlist(lapply(built$data[is_pt], `[[`, "colour"))
+  expect_false(anyNA(cols))
+  expect_equal(unique(cols), "red")
+})
+
 
 #####style_coveffectsplot#####
 

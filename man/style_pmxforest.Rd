@@ -37,8 +37,8 @@ plot); the band is drawn only when \code{ref_band} is supplied (PMXForest
 shows 0.8-1.25 by default); the estimate column is \code{est (lo, hi)} axis
 text under an \code{Estimate (CI)} header rather than a separate
 \code{est [lo-hi]} "Statistics" panel; no reference-subject footnote is added;
-reference rows are drawn like test rows; and the x-axis is labeled with
-the metric.
+reference rows are drawn as points like the test rows but without an
+interval; and the x-axis is labeled with the metric.
 }
 \examples{
 style_pmxforest()

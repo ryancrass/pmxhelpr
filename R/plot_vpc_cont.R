@@ -131,7 +131,8 @@ plot_vpc_cont <- function(data,
       call           = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
                          "style", "pcvpc"),
-      fn_name        = "plot_vpc_cont"
+      fn_name        = "plot_vpc_cont",
+      stats_fn       = "df_vpcstats"
     )
     return(plot_build_vpc(
       data,

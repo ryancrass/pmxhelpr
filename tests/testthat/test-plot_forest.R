@@ -527,6 +527,11 @@ test_that("print and summary produce the forest_stats header", {
   expect_output(print(out), "<forest_stats>")
   expect_output(summary(out), "<forest_stats>")
   expect_output(summary(out), "per-row")
+  printed <- capture.output(print(out))
+  expect_true(any(grepl("head(stats, 3)", printed, fixed = TRUE)))
+  expect_true(any(grepl("^3 ", printed)))
+  expect_false(any(grepl("^4 ", printed)))
+  expect_false(any(grepl("head\\(stats", capture.output(print(out, n_head = 0)))))
 })
 
 test_that("summary.forest_stats output is stable (snapshot)", {

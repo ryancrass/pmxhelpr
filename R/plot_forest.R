@@ -434,8 +434,8 @@ validate_forest_stats <- function(x) {
 #' built from the container's `ci` (e.g. `"Estimate (90% CI)"`), so each
 #' row's estimate sits beside its point. The header is the plot subtitle,
 #' right-aligned so it sits on the top edge of the panels above the column;
-#' the rendered metric labels the x-axis, and the plot has no title by
-#' default.
+#' change it with `+ ggplot2::labs(subtitle = "Ratio (90% CI)")`. The
+#' rendered metric labels the x-axis, and the plot has no title by default.
 #'
 #' Rows are drawn in the order they appear in `stats$stats`, top to bottom
 #' (see the "Row order" section of [df_forest()]); reorder that frame to
@@ -877,7 +877,8 @@ plot_forest <- function(
         "data", "style", "ref", "ref_band", "ref_band_type", "ref_layout",
         "show_rep", "metric"
       ),
-      fn_name = "plot_forest"
+      fn_name = "plot_forest",
+      stats_fn = "df_forest"
     )
     stats <- data
   } else {

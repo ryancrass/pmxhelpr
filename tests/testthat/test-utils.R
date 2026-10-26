@@ -377,15 +377,21 @@ test_that("check_loglog_args accepts valid arguments silently", {
 test_that("check_pipeline_args_dropped accepts plot-only args silently", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, style = my_style))
   expect_silent(pmxhelpr:::check_pipeline_args_dropped(
-    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"))
+    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont",
+    stats_fn = "df_vpcstats"))
 })
 
 test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, loq = 1, mode = "drop"))
   expect_error(
     pmxhelpr:::check_pipeline_args_dropped(
-      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"),
+      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont",
+      stats_fn = "df_vpcstats"),
     regexp = "loq|mode"
+  )
+  expect_error(
+    plot_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO", ci = 0.95),
+    regexp = "call `df_forest\\(\\)` with these arguments"
   )
 })
 

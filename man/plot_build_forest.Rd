@@ -87,8 +87,8 @@ right-hand secondary y-axis text (\code{"1.29 (1.19, 1.41)"}) under a header
 built from the container's \code{ci} (e.g. \code{"Estimate (90\% CI)"}), so each
 row's estimate sits beside its point. The header is the plot subtitle,
 right-aligned so it sits on the top edge of the panels above the column;
-the rendered metric labels the x-axis, and the plot has no title by
-default.
+change it with \code{+ ggplot2::labs(subtitle = "Ratio (90\% CI)")}. The
+rendered metric labels the x-axis, and the plot has no title by default.
 
 Rows are drawn in the order they appear in \code{stats$stats}, top to bottom
 (see the "Row order" section of \code{\link[=df_forest]{df_forest()}}); reorder that frame to

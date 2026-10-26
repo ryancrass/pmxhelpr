@@ -49,21 +49,27 @@ is_forest_stats <- function(x, strict = FALSE) {
 #' @description
 #' Focused summary of a [df_forest()] result: object dimensions, the
 #' configuration values (`metric_name_var`, `cov_name_var`, `cov_level_var`,
-#' `ci`, `sigdigits`, `cov_name_ref`, `cov_level_ref`), and the per-row stats
-#' body. Inspect the underlying
-#' frame directly via `x$stats`; inspect run config via `x$config`.
+#' `ci`, `sigdigits`, `cov_name_ref`, `cov_level_ref`), and the first rows of
+#' the stats frame. Inspect the full frame via `x$stats`; inspect run config
+#' via `x$config`.
 #'
 #' @param x A `forest_stats` object.
-#' @param ... Passed to the underlying `print.data.frame()` call for the body.
+#' @param n_head Number of rows of `x$stats` to preview. Default `3`; `0`
+#'    omits the preview.
+#' @param ... Passed to the underlying `print.data.frame()` call for the
+#'    preview.
 #'
 #' @return `invisible(x)`.
 #' @export
 #' @method print forest_stats
 
-print.forest_stats <- function(x, ...) {
+print.forest_stats <- function(x, n_head = 3, ...) {
   forest_stats_header(x)
-  cat("\n  stats body:\n")
-  print(x$stats, ...)
+  if (n_head > 0 && nrow(x$stats) > 0) {
+    cat(sprintf("\n  head(stats, %d):\n", n_head))
+    print(utils::head(x$stats, n_head), ...)
+  }
+  cat("\n  Use `x$stats` for the full data.frame.\n")
   invisible(x)
 }
 

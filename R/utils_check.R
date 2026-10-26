@@ -185,10 +185,12 @@ check_loglog_args <- function(method, ci, sigdigits) {
 #'    The matched data argument should also be included.
 #' @param fn_name Character scalar, the wrapper's name, used in the error
 #'    message.
+#' @param stats_fn Character scalar, the stats function the caller should
+#'    run instead (e.g. `"df_forest"`), used in the error message.
 #'
 #' @return `invisible(NULL)` on success.
 #' @keywords internal
-check_pipeline_args_dropped <- function(call, plot_only_args, fn_name) {
+check_pipeline_args_dropped <- function(call, plot_only_args, fn_name, stats_fn) {
   passed <- names(call)
   passed <- passed[nzchar(passed)]                 # drop "" (function name, positional)
   passed <- setdiff(passed, plot_only_args)
@@ -197,7 +199,7 @@ check_pipeline_args_dropped <- function(call, plot_only_args, fn_name) {
       "`", fn_name, "()` cannot accept pipeline arguments when `data` is a ",
       "precomputed `pmx_stats` object: ",
       paste(passed, collapse = ", "),
-      ". Either: (a) call the underlying df_*stats() function with these ",
+      ". Either: (a) call `", stats_fn, "()` with these ",
       "arguments and pass its result to `", fn_name, "()`; or (b) pass raw ",
       "data and let `", fn_name, "()` build the stats."
     ))

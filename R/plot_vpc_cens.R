@@ -117,7 +117,8 @@ plot_vpc_cens <- function(data,
     check_pipeline_args_dropped(
       call           = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
-      fn_name        = "plot_vpc_cens"
+      fn_name        = "plot_vpc_cens",
+      stats_fn       = "df_vpcstats"
     )
     return(plot_build_vpc(
       data,

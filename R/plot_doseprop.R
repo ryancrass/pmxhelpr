@@ -362,7 +362,8 @@ plot_doseprop <- function(data,
     check_pipeline_args_dropped(
       call           = match.call(),
       plot_only_args = c("data", "style", "se"),
-      fn_name        = "plot_doseprop"
+      fn_name        = "plot_doseprop",
+      stats_fn       = "df_doseprop"
     )
     return(plot_build_doseprop(data, style = style, se = se))
   }

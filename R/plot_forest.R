@@ -446,10 +446,10 @@ validate_forest_stats <- function(x) {
 #'    covariate name opt into per-covariate coloring (see [style_forest()]).
 #'    The estimate column is axis text styled through the theme's
 #'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
-#'    Per-covariate coloring (named or palette `colors`), the fill of
-#'    fill-shape points, and capped error bars (`errorbar_width`) are set when
-#'    the plot is built, so pass them through `style =`; [restyle_plot()]
-#'    does not add or remove them.
+#'    Per-covariate coloring (named or palette `colors`) and the fill of
+#'    fill-shape points are set when the plot is built, so pass them through
+#'    `style =`; [restyle_plot()] does not add or remove them. The error bar
+#'    cap (`errorbar_width`) can be restyled.
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;
@@ -651,16 +651,17 @@ plot_build_forest <- function(
       ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
   }
 
-  ## Uncapped interval lines by default; an `errorbar_width` in the style
-  ## (in row heights) opts into capped error bars, whose cap width
-  ## style_plot() fills from that field.
-  eb_layer <- if (is.null(plotstyle$errorbar_width)) {
-    ggplot2::geom_linerange(eb_mapping, data = test_data)
-  } else {
-    ggplot2::geom_errorbar(eb_mapping, data = test_data, orientation = "y")
+  ## Intervals are always error bars, so restyle_plot() can change the cap.
+  ## style_plot() fills the cap height (in row heights) from the style's
+  ## `errorbar_width`; unset, it is back-filled to 0, an uncapped line.
+  if (is.null(plotstyle$errorbar_width)) {
+    plotstyle <- ggstylekit::set_style(plotstyle, errorbar_width = 0)
   }
   base <- base +
-    ggstylekit::series_layer(eb_layer, "errorbar") +
+    ggstylekit::series_layer(
+      ggplot2::geom_errorbar(eb_mapping, data = test_data, orientation = "y"),
+      "errorbar"
+    ) +
     ggstylekit::series_layer(
       do.call(ggplot2::geom_point, compact(list(
         mapping = pt_layer_mapping, data = test_data, colour = pt_outline

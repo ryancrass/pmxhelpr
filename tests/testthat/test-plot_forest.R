@@ -624,7 +624,7 @@ test_that("reference rows draw through the ref_point role (open circle) and test
   expect_true(all(ref_pt$data$is_ref))
   expect_setequal(ref_pt$data$cov_val, c("Fasted", "70 kg"))
   expect_false(any(pt$data$is_ref))
-  expect_equal(layer_of(p, "GeomLinerange")$aes_params$linewidth, 0.6)
+  expect_equal(layer_of(p, "GeomErrorbar")$aes_params$linewidth, 0.6)
 })
 
 test_that("a standalone Reference panel draws through ref_point; no ref_point layer without a reference", {
@@ -801,7 +801,7 @@ test_that("plot_build_forest() maps color by covariate when the style names cova
   expect_true("colour" %in% names(pt$mapping))
   expect_null(pt$aes_params$colour)
   expect_true("colour" %in% names(ref_pt$mapping))
-  expect_true("colour" %in% names(layer_of(p, "GeomLinerange")$mapping))
+  expect_true("colour" %in% names(layer_of(p, "GeomErrorbar")$mapping))
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   expect_setequal(unique(built$data[[which(is_pt)[1]]]$colour), c("firebrick", "steelblue"))
@@ -1024,7 +1024,7 @@ test_that("plot_build_forest() with style_pmforest() fills diamonds per covariat
   expect_equal(p$guides$guides$fill, "none")
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
-  is_eb <- vapply(p$layers, function(L) inherits(L$geom, "GeomLinerange"), logical(1))
+  is_eb <- vapply(p$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))
   pts <- built$data[[which(is_pt)[1]]]
   ebs <- built$data[[which(is_eb)]]
   expect_equal(unique(pts$shape), 23)
@@ -1140,11 +1140,11 @@ test_that("plot_build_forest() with style_pmxforest() draws black, dotted, unmap
 
 #####plot_build_forest -- capped error bars#####
 
-test_that("intervals are uncapped lineranges unless the style sets errorbar_width", {
+test_that("intervals are zero-cap error bars unless the style sets errorbar_width", {
   stats <- df_forest(data_sad_pkforest)
   p <- plot_build_forest(stats, metric = "AUCRATIO")
-  expect_false(is.null(layer_of(p, "GeomLinerange")))
-  expect_false(any(vapply(p$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))))
+  expect_equal(layer_of(p, "GeomErrorbar")$aes_params$width, 0)
+  expect_false(any(vapply(p$layers, function(L) inherits(L$geom, "GeomLinerange"), logical(1))))
 
   p2 <- plot_build_forest(stats, metric = "AUCRATIO",
                           style = style_forest(errorbar_width = 0.3))
@@ -1156,6 +1156,14 @@ test_that("intervals are uncapped lineranges unless the style sets errorbar_widt
     inherits(L$geom, "GeomErrorbar"), logical(1)))]]
   expect_equal(unique(round(built$ymax - built$ymin, 8)), 0.3)
   expect_equal(unique(built$colour), "black")
+})
+
+test_that("restyle_plot() caps the error bars of a built forest plot", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO")
+  r <- restyle_plot(p, errorbar_width = 0.3)
+  is_eb <- vapply(r$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))
+  built <- ggplot2::ggplot_build(r)$data[[which(is_eb)]]
+  expect_equal(unique(round(built$ymax - built$ymin, 8)), 0.3)
 })
 
 test_that("capped error bars follow per-covariate colors", {

@@ -271,9 +271,9 @@ style_vpc <- function(...) {
 #' and error bar color to the covariate (facet) and suppresses the legend,
 #' since the facet strips already label each covariate. Covariates without an
 #' entry take colours from the house palette, as for `col_var` in
-#' [plot_dvtime()]. The role
-#' entries (`point`, `errorbar`, `ref_line`) are then ignored for the mapped
-#' layers.
+#' [plot_dvtime()]. The `point`, `errorbar`, and `ref_point` role colours are
+#' then replaced by the covariate colour; a standalone reference panel keeps
+#' the `ref_point` colour unless `colors` names it. `ref_line` is unaffected.
 #'
 #' The builder draws the covariate row facet itself (`facet_grid(rows =
 #' cov_name, switch = "y")`), so the `facet*` fields are ignored. It labels

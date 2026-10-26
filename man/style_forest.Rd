@@ -36,9 +36,9 @@ covariate present in the plotted data has an entry, the builder maps point
 and error bar color to the covariate (facet) and suppresses the legend,
 since the facet strips already label each covariate. Covariates without an
 entry take colours from the house palette, as for \code{col_var} in
-\code{\link[=plot_dvtime]{plot_dvtime()}}. The role
-entries (\code{point}, \code{errorbar}, \code{ref_line}) are then ignored for the mapped
-layers.
+\code{\link[=plot_dvtime]{plot_dvtime()}}. The \code{point}, \code{errorbar}, and \code{ref_point} role colours are
+then replaced by the covariate colour; a standalone reference panel keeps
+the \code{ref_point} colour unless \code{colors} names it. \code{ref_line} is unaffected.
 
 The builder draws the covariate row facet itself (\code{facet_grid(rows = cov_name, switch = "y")}), so the \verb{facet*} fields are ignored. It labels
 the x-axis with the rendered metric unless the \code{xlabel} field is supplied,

@@ -582,22 +582,34 @@ plot_build_forest <- function(
 
   ## Per-covariate coloring: a palette `function(n)` in `colors`, or entries
   ## keyed by a covariate name present in the plotted data, switch
-  ## point/errorbar color to a covariate mapping. A palette is resolved to
-  ## named covariate entries here so the fill map below can reuse them; a
-  ## palette returning fewer than n colors is recycled.
+  ## point/errorbar color to a covariate mapping. Only covariates with test
+  ## rows are colored, so a standalone reference panel takes no palette slot
+  ## and colors match across `ref_layout`. A palette is resolved to named
+  ## covariate entries here so the fill map below can reuse them; a palette
+  ## returning fewer than n colors is recycled.
+  color_levels <- unique(as.character(test_data[[cov_name_var_str]]))
   if (is.function(plotstyle$colors)) {
-    pal <- plotstyle$colors(length(cov_levels))
-    if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(cov_levels)), cov_levels)
-    if (!any(cov_levels %in% names(pal))) {
+    pal <- plotstyle$colors(length(color_levels))
+    if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(color_levels)), color_levels)
+    if (!any(color_levels %in% names(pal))) {
       rlang::warn(paste0(
         "The `colors` palette function returned names matching no covariate (",
-        paste(cov_levels, collapse = ", "), "); covariates are not colored. ",
+        paste(color_levels, collapse = ", "), "); covariates are not colored. ",
         "Return an unnamed vector, or name entries by covariate."
       ))
     }
     plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
   }
-  has_panel_color <- any(cov_levels %in% names(plotstyle$colors))
+  has_panel_color <- any(color_levels %in% names(plotstyle$colors))
+  ## A reference-only panel (the consolidated Reference) keeps the `ref_point`
+  ## role colour unless `colors` names it.
+  ref_only <- setdiff(unique(as.character(ref_data[[cov_name_var_str]])), color_levels)
+  ref_only <- setdiff(ref_only, names(plotstyle$colors))
+  if (has_panel_color && length(ref_only) > 0L) {
+    ref_colors <- plotstyle$colors
+    ref_colors[ref_only] <- series_aes(plotstyle, "ref_point")$colour %||% "black"
+    plotstyle <- ggstylekit::set_style(plotstyle, colors = ref_colors)
+  }
   pt_mapping <- if (has_panel_color) ggplot2::aes(color = .data[[cov_name_var_str]])
   eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]], !!!pt_mapping)
 
@@ -609,7 +621,7 @@ plot_build_forest <- function(
   if (has_panel_color && isTRUE(series_aes(plotstyle, "point")$shape %in% 21:25)) {
     pt_layer_mapping <- ggplot2::aes(fill = .data[[cov_name_var_str]])
     pt_outline <- series_aes(plotstyle, "point")$colour %||% "black"
-    cov_colors <- plotstyle$colors[intersect(cov_levels, names(plotstyle$colors))]
+    cov_colors <- plotstyle$colors[intersect(color_levels, names(plotstyle$colors))]
     fill_map <- if (is.function(plotstyle$fill)) NULL else plotstyle$fill
     fill_map[names(cov_colors)] <- cov_colors
     plotstyle <- ggstylekit::set_style(plotstyle, fill = fill_map)

@@ -1047,6 +1047,28 @@ test_that("a palette function in style_forest() colors each covariate", {
   expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })
 
+test_that("covariate colors match across ref_layout; the Reference panel keeps the ref_point colour", {
+  stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
+  pt_cols <- function(style, layout) {
+    p <- plot_build_forest(stats, metric = "AUCRATIO", style = style, ref_layout = layout)
+    built <- ggplot2::ggplot_build(p)
+    is_pt <- which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))
+    lapply(is_pt, function(i) {
+      cov <- as.character(p$layers[[i]]$data$cov_var)
+      tapply(built$data[[i]]$colour, cov, unique)
+    })
+  }
+  for (st in list(style_pumas(), style_forest(colors = c(FOOD = "red", WTBL = "blue")))) {
+    dist <- pt_cols(st, "distributed")
+    cons <- pt_cols(st, "consolidated")
+    expect_equal(cons[[1]][c("FOOD", "WTBL")], dist[[1]][c("FOOD", "WTBL")])
+    ref_col <- if (is.function(st$colors)) "black" else st$colors[["ref_point"]]
+    expect_equal(unname(cons[[2]]["Reference"]), ref_col)
+  }
+  expect_equal(as.vector(pt_cols(style_pumas(), "distributed")[[1]][c("FOOD", "WTBL")]),
+               style_pumas()$colors(2))
+})
+
 test_that("a palette function whose names match no covariate warns", {
   expect_warning(
     plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
@@ -1062,7 +1084,7 @@ test_that("a palette function returning fewer than n colors is recycled", {
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   cols <- unlist(lapply(built$data[is_pt], `[[`, "colour"))
   expect_false(anyNA(cols))
-  expect_equal(unique(cols), "red")
+  expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })
 
 

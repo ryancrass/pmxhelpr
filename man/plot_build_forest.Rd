@@ -17,7 +17,8 @@ plot_build_forest(
 }
 \arguments{
 \item{stats}{A \code{forest_stats} object (typically the output of
-\code{\link[=df_forest]{df_forest()}}). Validated by \code{\link[=validate_forest_stats]{validate_forest_stats()}} at entry.}
+\code{\link[=df_forest]{df_forest()}}), checked on entry; see "Building a \code{forest_stats} by
+hand" for the required columns and config.}
 
 \item{metric}{Character scalar identifying which value of \code{metric_name_var} to
 render. \code{plot_forest()} renders one metric per call (no metric
@@ -113,6 +114,29 @@ constructed or cached \code{forest_stats} object — for example, plotting a
 precomputed result from disk or a custom pipeline that produces
 compatible columns and config.
 }
+\section{Building a \code{forest_stats} by hand}{
+
+Summaries computed elsewhere can be plotted by wrapping them with
+\code{\link[=pmx_stats]{pmx_stats()}} and \code{subclass = "forest_stats"} (see the last example).
+\code{stats} needs one row per plotted point, in display order, with:
+\itemize{
+\item the metric, covariate name, and covariate level columns named in
+\code{config} (character);
+\item \code{est}, \code{lo}, \code{hi} (numeric; the point and interval);
+\item \code{est_label}, \code{lo_label}, \code{hi_label} (character; the plotted text) and
+\code{ci_label} (character; their combined form);
+\item \code{is_ref} (logical, no \code{NA}; the reference rows);
+\item \code{layout}: \code{"both"} for covariate rows, \code{"consolidated"} for a
+standalone reference row, \code{"distributed"} for a reference copy inside a
+covariate panel;
+\item optionally \code{n} (integer draw count), needed only for \code{show_rep}.
+}
+
+\code{config} needs \code{metric_name_var}, \code{cov_name_var}, and \code{cov_level_var}
+(the column names), \code{ci} (in \verb{(0, 1)}, used in the header), and
+\code{sigdigits} (a whole number \verb{>= 1}). The object is checked when plotted.
+}
+
 \examples{
 stats <- df_forest(
   data_sad_pkforest,
@@ -125,8 +149,11 @@ plot_build_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 # Raw exposure: the line sits at the reference exposure and the band is
 # 0.8 to 1.25 times it
 plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25))
-# Difference metric: an additive band around the reference estimate
-plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
+# Difference metric: percent change from the reference, with an additive
+# band around the reference change of 0
+pchg <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO") |>
+  dplyr::mutate(metric = "AUCPCHG", value = 100 * (value - 1))
+plot_build_forest(df_forest(pchg), ref_band = c(-20, 25),
                   ref_band_type = "additive")
 # Per-covariate coloring via the style's `colors` map
 plot_build_forest(
@@ -137,6 +164,25 @@ plot_build_forest(
 plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))
 plot_build_forest(stats, metric = "AUCRATIO") +
   ggplot2::scale_x_log10(guide = "axis_logticks")
+# A summary built by hand
+manual <- pmx_stats(
+  stats = data.frame(
+    metric = "AUCRATIO",
+    cov_name = c("Reference", "WTBL", "WTBL"),
+    cov_level = c("Reference", "50 kg", "90 kg"),
+    est = c(1, 1.29, 0.83), lo = c(1, 1.19, 0.77), hi = c(1, 1.41, 0.88),
+    est_label = c("1.00", "1.29", "0.83"),
+    lo_label = c("1.00", "1.19", "0.77"),
+    hi_label = c("1.00", "1.41", "0.88"),
+    ci_label = c("1.00 (1.00, 1.00)", "1.29 (1.19, 1.41)", "0.83 (0.77, 0.88)"),
+    is_ref = c(TRUE, FALSE, FALSE),
+    layout = c("consolidated", "both", "both")
+  ),
+  config = list(metric_name_var = "metric", cov_name_var = "cov_name",
+                cov_level_var = "cov_level", ci = 0.9, sigdigits = 3),
+  subclass = "forest_stats"
+)
+plot_build_forest(manual)
 }
 \seealso{
 Other forest plot:

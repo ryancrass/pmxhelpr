@@ -18,9 +18,10 @@ Logical scalar.
 }
 \description{
 Predicate that returns \code{TRUE} if \code{x} carries the \code{"pmx_stats"} class. This
-is the shared base class for \code{\link[=df_vpcstats]{df_vpcstats()}} and \code{\link[=df_doseprop]{df_doseprop()}} outputs;
-use the subclass-specific predicates \code{\link[=is_vpc_stats]{is_vpc_stats()}} and
-\code{\link[=is_doseprop_stats]{is_doseprop_stats()}} when you need to discriminate between pipelines.
+is the shared base class for \code{\link[=df_vpcstats]{df_vpcstats()}}, \code{\link[=df_doseprop]{df_doseprop()}}, and
+\code{\link[=df_forest]{df_forest()}} outputs; use the subclass-specific predicates
+\code{\link[=is_vpc_stats]{is_vpc_stats()}}, \code{\link[=is_doseprop_stats]{is_doseprop_stats()}}, and \code{\link[=is_forest_stats]{is_forest_stats()}} when you
+need to discriminate between pipelines.
 }
 \seealso{
 Other pmx stats class:

@@ -136,8 +136,13 @@ layouts.
 # Aggregate replicate simulations to point estimate + 90\% CI
 df_forest(dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)))
 
-# Custom reference level (default is "Reference")
-df_forest(data_sad_pkforest, cov_name_ref = "Reference")
+# A reference named something other than "Reference"
+renamed <- dplyr::mutate(
+  data_sad_pkforest,
+  cov_level = ifelse(cov_name == "Reference", "70 kg, fasted", cov_level),
+  cov_name = ifelse(cov_name == "Reference", "Typical subject", cov_name)
+)
+df_forest(renamed, cov_name_ref = "Typical subject")
 
 # Per-covariate reference labels (Reference distributed into each panel
 # at plot time)

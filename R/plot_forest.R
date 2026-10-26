@@ -166,8 +166,13 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #' # Aggregate replicate simulations to point estimate + 90% CI
 #' df_forest(dplyr::filter(data_sad_pkforest, grepl("RATIO$", metric)))
 #'
-#' # Custom reference level (default is "Reference")
-#' df_forest(data_sad_pkforest, cov_name_ref = "Reference")
+#' # A reference named something other than "Reference"
+#' renamed <- dplyr::mutate(
+#'   data_sad_pkforest,
+#'   cov_level = ifelse(cov_name == "Reference", "70 kg, fasted", cov_level),
+#'   cov_name = ifelse(cov_name == "Reference", "Typical subject", cov_name)
+#' )
+#' df_forest(renamed, cov_name_ref = "Typical subject")
 #'
 #' # Per-covariate reference labels (Reference distributed into each panel
 #' # at plot time)
@@ -461,7 +466,8 @@ validate_forest_stats <- function(x) {
 #' compatible columns and config.
 #'
 #' @param stats A `forest_stats` object (typically the output of
-#'    [df_forest()]). Validated by [validate_forest_stats()] at entry.
+#'    [df_forest()]), checked on entry; see "Building a `forest_stats` by
+#'    hand" for the required columns and config.
 #' @param metric Character scalar identifying which value of `metric_name_var` to
 #'    render. `plot_forest()` renders one metric per call (no metric
 #'    facet); the covariate name is the only facet dimension. If `NULL`
@@ -512,6 +518,25 @@ validate_forest_stats <- function(x) {
 #'    range, when rows of the metric have different counts. Default `FALSE`.
 #'    A `caption` set in the style is drawn instead, whatever this value.
 #'
+#' @section Building a `forest_stats` by hand:
+#' Summaries computed elsewhere can be plotted by wrapping them with
+#' [pmx_stats()] and `subclass = "forest_stats"` (see the last example).
+#' `stats` needs one row per plotted point, in display order, with:
+#' * the metric, covariate name, and covariate level columns named in
+#'   `config` (character);
+#' * `est`, `lo`, `hi` (numeric; the point and interval);
+#' * `est_label`, `lo_label`, `hi_label` (character; the plotted text) and
+#'   `ci_label` (character; their combined form);
+#' * `is_ref` (logical, no `NA`; the reference rows);
+#' * `layout`: `"both"` for covariate rows, `"consolidated"` for a
+#'   standalone reference row, `"distributed"` for a reference copy inside a
+#'   covariate panel;
+#' * optionally `n` (integer draw count), needed only for `show_rep`.
+#'
+#' `config` needs `metric_name_var`, `cov_name_var`, and `cov_level_var`
+#' (the column names), `ci` (in `(0, 1)`, used in the header), and
+#' `sigdigits` (a whole number `>= 1`). The object is checked when plotted.
+#'
 #' @family forest plot
 #' @return a `ggplot` plot object
 #' @export plot_build_forest
@@ -528,8 +553,11 @@ validate_forest_stats <- function(x) {
 #' # Raw exposure: the line sits at the reference exposure and the band is
 #' # 0.8 to 1.25 times it
 #' plot_build_forest(stats, metric = "AUC", ref_band = c(0.8, 1.25))
-#' # Difference metric: an additive band around the reference estimate
-#' plot_build_forest(stats, metric = "AUC", ref_band = c(-2000, 2000),
+#' # Difference metric: percent change from the reference, with an additive
+#' # band around the reference change of 0
+#' pchg <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO") |>
+#'   dplyr::mutate(metric = "AUCPCHG", value = 100 * (value - 1))
+#' plot_build_forest(df_forest(pchg), ref_band = c(-20, 25),
 #'                   ref_band_type = "additive")
 #' # Per-covariate coloring via the style's `colors` map
 #' plot_build_forest(
@@ -540,6 +568,25 @@ validate_forest_stats <- function(x) {
 #' plot_build_forest(stats, metric = "AUCRATIO", style = style_forest(logx = TRUE))
 #' plot_build_forest(stats, metric = "AUCRATIO") +
 #'   ggplot2::scale_x_log10(guide = "axis_logticks")
+#' # A summary built by hand
+#' manual <- pmx_stats(
+#'   stats = data.frame(
+#'     metric = "AUCRATIO",
+#'     cov_name = c("Reference", "WTBL", "WTBL"),
+#'     cov_level = c("Reference", "50 kg", "90 kg"),
+#'     est = c(1, 1.29, 0.83), lo = c(1, 1.19, 0.77), hi = c(1, 1.41, 0.88),
+#'     est_label = c("1.00", "1.29", "0.83"),
+#'     lo_label = c("1.00", "1.19", "0.77"),
+#'     hi_label = c("1.00", "1.41", "0.88"),
+#'     ci_label = c("1.00 (1.00, 1.00)", "1.29 (1.19, 1.41)", "0.83 (0.77, 0.88)"),
+#'     is_ref = c(TRUE, FALSE, FALSE),
+#'     layout = c("consolidated", "both", "both")
+#'   ),
+#'   config = list(metric_name_var = "metric", cov_name_var = "cov_name",
+#'                 cov_level_var = "cov_level", ci = 0.9, sigdigits = 3),
+#'   subclass = "forest_stats"
+#' )
+#' plot_build_forest(manual)
 
 plot_build_forest <- function(
   stats,

@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Constructor for the cacheable stats containers returned by
-#' [df_vpcstats()] and [df_doseprop()]. Each container is a named list with
+#' [df_vpcstats()], [df_doseprop()], and [df_forest()]. Each container is a named list with
 #' three slots — `stats` (the per-row summary frame), `obs` (the observation
 #' overlay used by plot builders, may be `NULL`), and `config` (named list of
 #' run configuration consumed by the plot builders). The class vector is
@@ -15,7 +15,7 @@
 #' @param config A named `list` of run configuration (e.g. column names, CI
 #'    width, replicate count).
 #' @param subclass Character scalar naming the concrete subclass (e.g.
-#'    `"vpc_stats"`, `"doseprop_stats"`).
+#'    `"vpc_stats"`, `"doseprop_stats"`, `"forest_stats"`).
 #'
 #' @family pmx stats class
 #' @return An object of class `c(subclass, "pmx_stats")`.
@@ -36,9 +36,10 @@ pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
 #'
 #' @description
 #' Predicate that returns `TRUE` if `x` carries the `"pmx_stats"` class. This
-#' is the shared base class for [df_vpcstats()] and [df_doseprop()] outputs;
-#' use the subclass-specific predicates [is_vpc_stats()] and
-#' [is_doseprop_stats()] when you need to discriminate between pipelines.
+#' is the shared base class for [df_vpcstats()], [df_doseprop()], and
+#' [df_forest()] outputs; use the subclass-specific predicates
+#' [is_vpc_stats()], [is_doseprop_stats()], and [is_forest_stats()] when you
+#' need to discriminate between pipelines.
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs

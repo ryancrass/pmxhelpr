@@ -617,6 +617,19 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
+## Pumas styling
+
+`style_pumas()` reproduces the look of the `table_forest_plot()` function of
+[Pumas](https://tutorials.pumas.ai/html/forest_plots/forest.html): diamonds
+and capped error bars colored per covariate, a dashed reference line, and an
+open panel without gridlines.
+
+```{r plot-pumas, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_pumas(logx = TRUE)) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
 The facet layout is fixed by the renderer (`facet_grid()` rows by covariate, 
 strips outside the y-axis), so the style's `facet*` fields are ignored. 
 

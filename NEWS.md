@@ -43,6 +43,10 @@
 * `style_pmxforest()` is an alternative `plot_forest()` preset reproducing the
   look of `PMXForest::forestPlot()`: black points on uncapped
   black intervals, dotted reference line, and the grey `theme_grey()` panel.
+* `style_pumas()` is an alternative `plot_forest()` preset reproducing the
+  look of Pumas' `table_forest_plot()`: diamonds and capped error bars
+  colored per covariate, dashed reference line, and an open panel without
+  gridlines.
 * `is_forest_stats()` tests for a `forest_stats` object.
 
 ### New arguments

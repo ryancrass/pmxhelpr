@@ -438,14 +438,14 @@ validate_forest_stats <- function(x) {
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
 #'    `style = style_forest(...)`, use [style_pmforest()],
-#'    [style_coveffectsplot()], or [style_pmxforest()] for the looks of the
-#'    `pmforest`, `coveffectsplot`, and `PMXForest` packages, or restyle the
-#'    returned plot with
-#'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_point`,
-#'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
-#'    opt into per-covariate coloring (see [style_forest()]). The estimate
-#'    column is axis text styled through the theme's `axis.text.y.right`
-#'    element; its header is the plot subtitle (`plot.subtitle`).
+#'    [style_coveffectsplot()], [style_pmxforest()], or [style_pumas()] for
+#'    the looks of the `pmforest`, `coveffectsplot`, and `PMXForest` packages
+#'    and of `table_forest_plot()` from the Pumas ecosystem, or restyle the
+#'    returned plot with [restyle_plot()]. Series roles are `point`, `errorbar`
+#'    , `ref_point`,`ref_line`, and `ref_band`; `colors` entries keyed by
+#'    covariate name opt into per-covariate coloring (see [style_forest()]).
+#'    The estimate column is axis text styled through the theme's
+#'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;

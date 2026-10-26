@@ -60,6 +60,7 @@ reference:
       - style_pmforest
       - style_coveffectsplot
       - style_pmxforest
+      - style_pumas
       - style_vpc
       - reexports
 

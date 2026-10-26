@@ -1150,3 +1150,38 @@ test_that("capped error bars follow per-covariate colors", {
     inherits(L$geom, "GeomErrorbar"), logical(1)))]]
   expect_setequal(unique(built$colour), c("red", "blue"))
 })
+
+
+#####style_pumas#####
+
+test_that("style_pumas() returns the Pumas look as a style_spec", {
+  st <- style_pumas()
+  expect_s3_class(st, "ggstylekit_style_spec")
+  expect_true(is.function(st$colors))
+  expect_equal(st$colors(3), c("#0072B2", "#E69F00", "#009E73"))
+  expect_equal(unname(st$shapes[c("point", "ref_point")]), c(18, 18))
+  expect_equal(unname(st$linetypes["ref_line"]), "dashed")
+  expect_equal(unname(st$fill["ref_band"]), "grey50")
+  expect_equal(unname(st$alphas["ref_band"]), 0.2)
+  expect_equal(st$errorbar_width, 0.3)
+  th <- st$theme
+  expect_s3_class(th$panel.grid.major.x, "element_blank")
+  expect_s3_class(th$panel.border, "element_blank")
+  expect_s3_class(th$axis.line.x, "element_line")
+  expect_equal(as.numeric(th$panel.spacing.y), 0)
+})
+
+test_that("plot_build_forest() with style_pumas() colors capped bars and diamonds per covariate", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         ref_band = c(0.8, 1.25), style = style_pumas())
+  eb <- layer_of(p, "GeomErrorbar")
+  expect_true("colour" %in% names(eb$mapping))
+  pt <- layer_of(p, "GeomPoint", 1L)
+  expect_true("colour" %in% names(pt$mapping))
+  expect_false("fill" %in% names(pt$mapping))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  is_eb <- vapply(p$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))
+  expect_equal(built$data[[which(is_pt)[1]]]$colour, built$data[[which(is_eb)]]$colour)
+  expect_true(all(built$data[[which(is_pt)[1]]]$colour %in% style_pumas()$colors(7)))
+})

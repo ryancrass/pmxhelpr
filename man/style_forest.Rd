@@ -65,9 +65,9 @@ style_forest(logx = TRUE)
 style_forest(errorbar_width = 0.3)
 }
 \seealso{
-\code{\link[=style_pmforest]{style_pmforest()}}, \code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, and
-\code{\link[=style_pmxforest]{style_pmxforest()}} for the looks of the \code{pmforest}, \code{coveffectsplot},
-and \code{PMXForest} packages.
+\code{\link[=style_pmforest]{style_pmforest()}}, \code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, \code{\link[=style_pmxforest]{style_pmxforest()}},
+and \code{\link[=style_pumas]{style_pumas()}} for the looks of the \code{pmforest}, \code{coveffectsplot},
+and \code{PMXForest} packages and of Pumas.
 
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
@@ -77,6 +77,7 @@ Other forest plot:
 \code{\link[=plot_forest]{plot_forest()}},
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
 \code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_pmxforest]{style_pmxforest()}}
+\code{\link[=style_pmxforest]{style_pmxforest()}},
+\code{\link[=style_pumas]{style_pumas()}}
 }
 \concept{forest plot}

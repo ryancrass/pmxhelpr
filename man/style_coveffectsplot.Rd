@@ -51,6 +51,7 @@ Other forest plot:
 \code{\link[=plot_forest]{plot_forest()}},
 \code{\link[=style_forest]{style_forest()}},
 \code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_pmxforest]{style_pmxforest()}}
+\code{\link[=style_pmxforest]{style_pmxforest()}},
+\code{\link[=style_pumas]{style_pumas()}}
 }
 \concept{forest plot}

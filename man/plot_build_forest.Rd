@@ -22,9 +22,9 @@ plot_build_forest(
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
 \code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, or \code{\link[=style_pmxforest]{style_pmxforest()}} for the looks of the
-\code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages, or restyle the
-returned plot with
+\code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, \code{\link[=style_pmxforest]{style_pmxforest()}}, or \code{\link[=style_pumas]{style_pumas()}} for
+the looks of the \code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages
+and of Pumas, or restyle the returned plot with
 \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_point},
 \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
@@ -141,6 +141,7 @@ Other forest plot:
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
 \code{\link[=style_forest]{style_forest()}},
 \code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_pmxforest]{style_pmxforest()}}
+\code{\link[=style_pmxforest]{style_pmxforest()}},
+\code{\link[=style_pumas]{style_pumas()}}
 }
 \concept{forest plot}

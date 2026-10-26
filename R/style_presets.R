@@ -300,9 +300,9 @@ style_vpc <- function(...) {
 #'   number of covariates); it replaces the role entries, which then fall back
 #'   to the ggplot2 defaults.
 #'
-#' @seealso [style_pmforest()], [style_coveffectsplot()], and
-#'   [style_pmxforest()] for the looks of the `pmforest`, `coveffectsplot`,
-#'   and `PMXForest` packages.
+#' @seealso [style_pmforest()], [style_coveffectsplot()], [style_pmxforest()],
+#'   and [style_pumas()] for the looks of the `pmforest`, `coveffectsplot`,
+#'   and `PMXForest` packages and of Pumas.
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
@@ -545,6 +545,69 @@ style_pmxforest <- function(...) {
         size = 3.6 / 0.352777778, hjust = 0.5, colour = "black",
         margin = ggplot2::margin(l = 8)
       )
+    )
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' Pumas-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the look of the
+#' `table_forest_plot()` function of Pumas; see the [Pumas forest plot
+#' tutorial](https://tutorials.pumas.ai/html/forest_plots/forest.html)):
+#' filled diamonds on thin capped error bars, coloured per covariate from
+#' Makie's default Wong palette, a dashed black reference line, a light grey
+#' equivalence band, and an open panel with no gridlines and only the x-axis
+#' line.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from Pumas in that: the estimate
+#' column is on the right as `est (lo, hi)` (Pumas puts a `Scenario` /
+#' `Median [90% CI]` table on the left); covariate names head their rows as
+#' strips rather than `COV (ref: X)` headers; the band is drawn only when
+#' `ref_band` is supplied; and Pumas' optional density ridges are not drawn.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
+#'   c(point = 3)`). The default `colors` is a palette `function(n)`, so
+#'   passing `colors` replaces it wholesale: a different palette function,
+#'   or entries keyed by covariate name (covariates without an entry take the
+#'   house palette). `errorbar_width` sets the cap height in row heights.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_pumas()
+#' style_pumas(errorbar_width = 0.5)
+#' style_pumas(logx = TRUE)
+style_pumas <- function(...) {
+  defaults <- list(
+    # Makie's default categorical palette (Wong 2011), in Makie's order.
+    colors     = function(n) {
+      rep_len(c("#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9",
+                "#D55E00", "#F0E442"), n)
+    },
+    fill       = c(ref_band = "grey50"),
+    shapes     = c(point = 18, ref_point = 18),
+    sizes      = c(point = 3.5, ref_point = 3.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.2),
+    linewidths = c(errorbar = 0.5, ref_line = 0.6),
+    linetypes  = c(errorbar = "solid", ref_line = "dashed"),
+    errorbar_width = 0.3,
+    legend.position = "none",
+    # Open panel: no box or gridlines, only the x-axis line. The house
+    # forest theme's zero panel spacing keeps the line and band unbroken.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      panel.background   = ggplot2::element_blank(),
+      panel.border       = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_blank(),
+      axis.line.x        = ggplot2::element_line(colour = "black", linewidth = 0.4),
+      axis.ticks.y.left  = ggplot2::element_blank()
     )
   )
   build_style(defaults, list(...))

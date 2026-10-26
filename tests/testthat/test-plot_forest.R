@@ -474,7 +474,7 @@ test_that("style_forest() returns a style_spec with the forest roles", {
   expect_equal(unname(st$fill["ref_point"]), "white")
   expect_equal(unname(st$sizes["point"]), 2.2)
   expect_equal(unname(st$linewidths["errorbar"]), 0.6)
-  expect_equal(st$legend.position, "bottom")
+  expect_equal(st$legend.position, "none")
 })
 
 test_that("style_forest() merges per-series overrides entry-wise", {
@@ -1047,6 +1047,14 @@ test_that("a palette function in style_forest() colors each covariate", {
   expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })
 
+test_that("a palette function whose names match no covariate warns", {
+  expect_warning(
+    plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                      style = style_forest(colors = function(n) c(a = "red"))),
+    "matching no covariate"
+  )
+})
+
 test_that("a palette function returning fewer than n colors is recycled", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
                          style = style_forest(colors = function(n) "red"))
@@ -1071,7 +1079,7 @@ test_that("style_coveffectsplot() returns the coveffectsplot look as a style_spe
   expect_equal(unname(st$linewidths[c("errorbar", "ref_line")]), c(1, 1))
   expect_equal(unname(st$fill["ref_band"]), "grey")
   expect_equal(unname(st$alphas["ref_band"]), 80 / 255)
-  expect_equal(st$legend.position, "top")
+  expect_equal(st$legend.position, "none")
   th <- st$theme
   expect_equal(th$strip.placement, "inside")
   expect_equal(th$strip.background$fill, "#E5E5E5")
@@ -1106,7 +1114,7 @@ test_that("style_pmxforest() returns the PMXForest look as a style_spec", {
   expect_equal(unname(st$linewidths[c("errorbar", "ref_line")]), c(0.7, 1))
   expect_equal(unname(st$fill["ref_band"]), "lightgrey")
   expect_equal(unname(st$alphas["ref_band"]), 0.7)
-  expect_equal(st$legend.position, "top")
+  expect_equal(st$legend.position, "none")
   th <- st$theme
   expect_equal(th$panel.background$fill, "grey92")
   expect_s3_class(th$panel.border, "element_blank")

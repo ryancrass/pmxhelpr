@@ -126,7 +126,11 @@ returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are
 \code{ref_point}, \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by
 covariate name opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).
 The estimate column is axis text styled through the theme's
-\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).}
+\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).
+Per-covariate coloring (named or palette \code{colors}), the fill of
+fill-shape points, and capped error bars (\code{errorbar_width}) are set when
+the plot is built, so pass them through \verb{style =}; \code{\link[=restyle_plot]{restyle_plot()}}
+does not add or remove them.}
 }
 \value{
 a \code{ggplot} plot object

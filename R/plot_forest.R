@@ -446,6 +446,10 @@ validate_forest_stats <- function(x) {
 #'    covariate name opt into per-covariate coloring (see [style_forest()]).
 #'    The estimate column is axis text styled through the theme's
 #'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
+#'    Per-covariate coloring (named or palette `colors`), the fill of
+#'    fill-shape points, and capped error bars (`errorbar_width`) are set when
+#'    the plot is built, so pass them through `style =`; [restyle_plot()]
+#'    does not add or remove them.
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;
@@ -584,6 +588,13 @@ plot_build_forest <- function(
   if (is.function(plotstyle$colors)) {
     pal <- plotstyle$colors(length(cov_levels))
     if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(cov_levels)), cov_levels)
+    if (!any(cov_levels %in% names(pal))) {
+      rlang::warn(paste0(
+        "The `colors` palette function returned names matching no covariate (",
+        paste(cov_levels, collapse = ", "), "); covariates are not colored. ",
+        "Return an unnamed vector, or name entries by covariate."
+      ))
+    }
     plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
   }
   has_panel_color <- any(cov_levels %in% names(plotstyle$colors))

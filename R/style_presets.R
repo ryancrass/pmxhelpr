@@ -327,10 +327,8 @@ style_forest <- function(...) {
                    ref_band = 0.3),
     linewidths = c(errorbar = 0.6, ref_line = 0.6),
     linetypes  = c(errorbar = "solid", ref_line = "dashed"),
-    # The builder draws no legend; these place any a caller adds below the
-    # panels, titles above the keys: the house look for bottom/top legends.
-    legend.position = "bottom",
-    legend.title.position = "top",
+    # The builder draws no legend; the facet strips name each covariate.
+    legend.position = "none",
     theme      = pmx_house_theme(forest_panel = TRUE)
   )
   build_style(defaults, list(...))
@@ -450,7 +448,7 @@ style_coveffectsplot <- function(...) {
                    ref_band = 80 / 255),
     linewidths = c(errorbar = 1, ref_line = 1),
     linetypes  = c(errorbar = "solid", ref_line = "dashed"),
-    legend.position = "top",
+    legend.position = "none",
     # Text sizes are coveffectsplot's halved (base 22 -> 11 pt), keeping its
     # proportions at pmxhelpr figure sizes; table text 7 mm -> 3.5 mm. Strip
     # text is raised to the 8 pt axis text (13 pt halves to an illegible 6.5).
@@ -526,7 +524,7 @@ style_pmxforest <- function(...) {
                    ref_band = 0.7),
     linewidths = c(errorbar = 0.7, ref_line = 1),
     linetypes  = c(errorbar = "solid", ref_line = "dotted"),
-    legend.position = "top",
+    legend.position = "none",
     # PMXForest sets no theme, so it renders in the default theme_grey():
     # grey92 panel, white gridlines, grey85 strips, grey30 axis text. Its
     # table text is `tabTextSize * 0.36` = 3.6 mm.

@@ -90,6 +90,17 @@ test_that("Covariate values match `cov_val_ref` on their character form", {
   expect_equal(sum(out$cov_var == "Reference" & out$metric == "AUC"), 2)
 })
 
+test_that("Large numeric covariate values match and label in fixed notation", {
+  big <- data.frame(SIM = rep(1:2, each = 3), WT = rep(c(100000L, 50000L, 150000L), 2),
+                    AUC = c(10, 8, 12, 11, 9, 13))
+  out <- df_forest_preprocess(big, "AUC", "WT", c(WT = 100000))
+  expect_equal(unique(out$cov_val), c("Reference", "50000", "150000"))
+  expect_equal(attr(out, "cov_level_ref"), c(WT = "100000"))
+  big$WT <- as.numeric(big$WT)
+  out <- df_forest_preprocess(big, "AUC", "WT", c(WT = 100000))
+  expect_equal(attr(out, "cov_level_ref"), c(WT = "100000"))
+})
+
 test_that("A scenario differing in two covariates aborts", {
   bad <- sim_wide
   bad$WTBL[bad$SCN == 2] <- 90

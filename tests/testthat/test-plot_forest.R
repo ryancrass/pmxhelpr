@@ -304,7 +304,7 @@ test_that("Covariate rows keep the order the reference label set, in both layout
 test_that("ref_layout errors: distributed without distributed rows; bad values", {
   expect_error(plot_build_forest(df_forest(data_sad_pkforest), metric = "AUC",
                                  ref_layout = "distributed"),
-               "pass `cov_level_ref` to `df_forest\\(\\)`")
+               "pass `cov_level_ref` naming its covariates to `df_forest\\(\\)`")
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   stats$stats <- stats$stats[stats$stats$layout != "distributed", ]
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = "distributed"),
@@ -313,6 +313,20 @@ test_that("ref_layout errors: distributed without distributed rows; bad values",
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = NA_character_), "ref_layout")
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = c("distributed", "consolidated")),
                "ref_layout")
+})
+
+test_that("The default ref_layout is resolved per metric", {
+  set.seed(1)
+  mk <- function(m, cov, lvl) data.frame(metric = m, cov_var = cov, cov_val = lvl,
+                                         value = stats::rlnorm(30, 0, 0.1))
+  d <- rbind(mk("A", "Reference", "Reference"), mk("A", "WT", "50 kg"),
+             mk("B", "Reference", "Reference"), mk("B", "AGE", "20 y"))
+  fs <- df_forest(d, cov_level_ref = c(WT = "70 kg"))
+  expect_no_warning(p <- plot_build_forest(fs, metric = "B"))
+  expect_setequal(as.character(unique(p$data$cov_var)), c("Reference", "AGE"))
+  expect_equal(as.character(unique(plot_build_forest(fs, metric = "A")$data$cov_var)), "WT")
+  expect_error(plot_build_forest(fs, metric = "B", ref_layout = "distributed"),
+               "per-covariate reference rows for metric `B`")
 })
 
 test_that("ref_layout switches the drawn panels of one container", {

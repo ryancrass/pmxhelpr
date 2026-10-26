@@ -10,8 +10,8 @@ forest_rows(stats, ref_layout = NULL, metric = NULL)
 \item{stats}{A \code{forest_stats} object.}
 
 \item{ref_layout}{\code{NULL}, \code{"distributed"}, or \code{"consolidated"}. \code{NULL}
-resolves to \code{"distributed"} when \code{stats$stats} carries distributed
-rows, otherwise \code{"consolidated"}.}
+resolves to \code{"distributed"} when the rows of \code{metric} (all rows if
+\code{metric} is \code{NULL}) include distributed rows, otherwise \code{"consolidated"}.}
 
 \item{metric}{Optional metric value to restrict the rows to.}
 }

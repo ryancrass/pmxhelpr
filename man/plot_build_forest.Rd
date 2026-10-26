@@ -68,8 +68,9 @@ draws it in each covariate panel named in the container's
 \code{layout = "distributed"}); \code{"consolidated"} draws it in its own panel
 at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
 draw in either. \code{NULL} (default) uses \code{"distributed"} when
-\code{\link[=df_forest]{df_forest()}} was given \code{cov_level_ref}, otherwise \code{"consolidated"}.
-\code{"distributed"} without \code{cov_level_ref} is an error. The summary
+\code{\link[=df_forest]{df_forest()}} was given a \code{cov_level_ref} entry for a covariate of
+\code{metric}, otherwise \code{"consolidated"}. \code{"distributed"} without one is an
+error. The summary
 statistics are not recomputed; only the drawn rows change.}
 }
 \value{

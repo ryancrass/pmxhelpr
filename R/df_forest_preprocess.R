@@ -177,7 +177,7 @@ df_forest_preprocess <- function(
   ## A scenario is one combination of the `cov_vars` columns. Matching is on
   ## the character form so a numeric column and a character reference value
   ## still line up.
-  cov_chr <- lapply(data[cov_vars], as.character)
+  cov_chr <- lapply(data[cov_vars], value_chr)
   names(cov_chr) <- cov_vars
   has_na <- cov_vars[vapply(cov_chr, function(x) any(is.na(x)), logical(1))]
   if (length(has_na) > 0) {
@@ -186,7 +186,7 @@ df_forest_preprocess <- function(
       paste(has_na, collapse = ", ")
     ))
   }
-  ref_chr <- as.character(cov_val_ref[cov_vars])
+  ref_chr <- vapply(cov_vars, function(cn) value_chr(cov_val_ref[[cn]]), character(1), USE.NAMES = FALSE)
 
   diff_mat <- matrix(
     unlist(Map(function(x, r) x != r, cov_chr, ref_chr)),
@@ -227,7 +227,7 @@ df_forest_preprocess <- function(
   ## ---- Covariate level labels --------------------------------------------
   unlabeled <- character(0)
   label_vals <- function(cn, orig) {
-    chr <- as.character(orig)
+    chr <- value_chr(orig)
     lab <- cov_labels[[cn]]
     if (is.null(lab)) return(chr)
     if (is.function(lab)) return(as.character(lab(orig)))
@@ -332,5 +332,26 @@ df_forest_preprocess <- function(
   out <- as.data.frame(out)
 
   attr(out, "cov_level_ref") <- cov_level_ref
+  out
+}
+
+
+#' Internal helper: covariate values as character, never in scientific
+#' notation
+#'
+#' `as.character()` writes doubles of 1e5 and above as `"1e+05"` but integers
+#' as `"100000"`, so an integer column would not match a double reference
+#' value, and level labels would read `"1e+05"`. Numerics are written in fixed
+#' notation (up to 15 significant digits) instead; other types use
+#' `as.character()`.
+#'
+#' @param x A vector.
+#' @return A character vector, `NA` where `x` is `NA`.
+#' @keywords internal
+#' @noRd
+value_chr <- function(x) {
+  if (!is.numeric(x)) return(as.character(x))
+  out <- trimws(formatC(as.double(x), digits = 15, format = "fg"))
+  out[is.na(x)] <- NA_character_
   out
 }

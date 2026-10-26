@@ -25,26 +25,29 @@ level_order <- function(x) {
 #'
 #' @param stats A `forest_stats` object.
 #' @param ref_layout `NULL`, `"distributed"`, or `"consolidated"`. `NULL`
-#'    resolves to `"distributed"` when `stats$stats` carries distributed
-#'    rows, otherwise `"consolidated"`.
+#'    resolves to `"distributed"` when the rows of `metric` (all rows if
+#'    `metric` is `NULL`) include distributed rows, otherwise `"consolidated"`.
 #' @param metric Optional metric value to restrict the rows to.
 #'
 #' @return A data.frame of rows in top-to-bottom draw order.
 #' @keywords internal
 forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
   rows <- stats$stats
+  if (!is.null(metric)) {
+    rows <- rows[as.character(rows[[stats$config$metric_name_var]]) == metric, , drop = FALSE]
+  }
+  ## Resolved per metric: a metric whose covariates have no `cov_level_ref`
+  ## entry keeps its standalone reference panel.
   has_distributed <- any(rows$layout == "distributed")
   if (is.null(ref_layout)) {
     ref_layout <- if (has_distributed) "distributed" else "consolidated"
   }
   if (ref_layout == "distributed" && !has_distributed) {
     rlang::abort(message = paste0(
-      "`ref_layout = \"distributed\"` needs per-covariate reference rows; ",
-      "pass `cov_level_ref` to `df_forest()`."
+      "`ref_layout = \"distributed\"` needs per-covariate reference rows",
+      if (!is.null(metric)) paste0(" for metric `", metric, "`"),
+      "; pass `cov_level_ref` naming its covariates to `df_forest()`."
     ))
-  }
-  if (!is.null(metric)) {
-    rows <- rows[as.character(rows[[stats$config$metric_name_var]]) == metric, , drop = FALSE]
   }
   rows <- rows[rows$layout %in% c("both", ref_layout), , drop = FALSE]
   rownames(rows) <- NULL
@@ -478,8 +481,9 @@ validate_forest_stats <- function(x) {
 #'    `layout = "distributed"`); `"consolidated"` draws it in its own panel
 #'    at the top (`layout = "consolidated"`). Rows with `layout = "both"`
 #'    draw in either. `NULL` (default) uses `"distributed"` when
-#'    [df_forest()] was given `cov_level_ref`, otherwise `"consolidated"`.
-#'    `"distributed"` without `cov_level_ref` is an error. The summary
+#'    [df_forest()] was given a `cov_level_ref` entry for a covariate of
+#'    `metric`, otherwise `"consolidated"`. `"distributed"` without one is an
+#'    error. The summary
 #'    statistics are not recomputed; only the drawn rows change.
 #'
 #' @family forest plot

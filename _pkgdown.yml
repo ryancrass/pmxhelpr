@@ -58,6 +58,7 @@ reference:
       - style_doseprop
       - style_forest
       - style_pmforest
+      - style_coveffectsplot
       - style_vpc
       - reexports
 

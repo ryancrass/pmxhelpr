@@ -1046,3 +1046,38 @@ test_that("a palette function in style_forest() colors each covariate", {
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })
+
+
+#####style_coveffectsplot#####
+
+test_that("style_coveffectsplot() returns the coveffectsplot look as a style_spec", {
+  st <- style_coveffectsplot()
+  expect_s3_class(st, "ggstylekit_style_spec")
+  expect_equal(unname(st$shapes[c("point", "ref_point")]), c(16, 16))
+  expect_equal(unname(st$sizes[c("point", "ref_point")]), c(4, 4))
+  expect_equal(unname(st$colors[c("point", "errorbar", "ref_point", "ref_line")]),
+               c("blue", "blue", "blue", "black"))
+  expect_equal(unname(st$linetypes["ref_line"]), "dashed")
+  expect_equal(unname(st$linewidths[c("errorbar", "ref_line")]), c(1, 1))
+  expect_equal(unname(st$fill["ref_band"]), "grey")
+  expect_equal(unname(st$alphas["ref_band"]), 80 / 255)
+  expect_equal(st$legend.position, "top")
+  th <- st$theme
+  expect_equal(th$strip.placement, "inside")
+  expect_equal(th$strip.background$fill, "#E5E5E5")
+  expect_equal(th$strip.text.y.left$size, 8)
+  expect_s3_class(th$panel.grid.major.y, "element_line")
+  expect_s3_class(ggplot2::calc_element("panel.grid.minor.x", th), "element_blank")
+  expect_equal(as.numeric(th$panel.spacing.y), 5.5)
+  expect_equal(th$axis.text.y.right$hjust, 0.5)
+})
+
+test_that("plot_build_forest() with style_coveffectsplot() draws every row blue, unmapped", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         ref_band = c(0.8, 1.25), style = style_coveffectsplot())
+  expect_false("colour" %in% scale_aes_of(p))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(unique(unlist(lapply(built$data[is_pt], `[[`, "colour"))), "blue")
+  expect_equal(layer_of(p, "GeomRect")$aes_params$fill, "grey")
+})

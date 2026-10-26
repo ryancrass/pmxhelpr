@@ -296,7 +296,8 @@ style_vpc <- function(...) {
 #'   number of covariates); it replaces the role entries, which then fall back
 #'   to the ggplot2 defaults.
 #'
-#' @seealso [style_pmforest()] for the look of Metrum's `pmforest` package.
+#' @seealso [style_pmforest()] and [style_coveffectsplot()] for the looks of
+#'   the `pmforest` and `coveffectsplot` packages.
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
@@ -386,6 +387,81 @@ style_pmforest <- function(...) {
       panel.grid.major.x = ggplot2::element_line(colour = "grey"),
       axis.text.y.right  = ggplot2::element_text(
         size = 2.8 / 0.352777778, hjust = 0, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' coveffectsplot-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of the
+#' `forest_plot()` function of the
+#' [coveffectsplot](https://github.com/smouksassi/coveffectsplot/) package:
+#' blue points (shape 16, size 4) on thick blue interval lines for every row,
+#' reference rows included, a thick dashed black reference line, a grey
+#' equivalence band at alpha 80/255, grey major gridlines on both axes,
+#' grey-filled covariate strips placed between the level labels and the
+#' panels, separated panels, and a centered estimate column.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from coveffectsplot in that: text is
+#' scaled to an 11 pt base (coveffectsplot uses `base_size = 22`), with the
+#' covariate strips raised to the axis text size for legibility; there are
+#' no minor gridlines and no legend; the band is drawn only when `ref_band`
+#' is supplied (coveffectsplot shows 0.8-1.25 by default); the estimate
+#' column is `est (lo, hi)` axis text under an `Estimate (CI)` header rather
+#' than a separate bordered table; and the x-axis is labeled with the metric.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `colors =
+#'   c(point = "darkred")` leaves the other roles blue); `colors` entries
+#'   keyed by covariate name opt into per-covariate coloring as in
+#'   [style_forest()]. All other fields replace their default wholesale.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_coveffectsplot()
+#' style_coveffectsplot(colors = c(point = "darkred", errorbar = "darkred"))
+#' style_coveffectsplot(logx = TRUE)
+style_coveffectsplot <- function(...) {
+  defaults <- list(
+    colors     = c(point = "blue", errorbar = "blue", ref_point = "blue",
+                   ref_line = "black"),
+    # coveffectsplot's "#BEBEBE50": grey (#BEBEBE) with hex alpha 0x50.
+    fill       = c(ref_band = "grey"),
+    shapes     = c(point = 16, ref_point = 16),
+    # geom_pointrange(size = 1, fatten = 4) draws a size-4 point.
+    sizes      = c(point = 4, ref_point = 4),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 80 / 255),
+    linewidths = c(errorbar = 1, ref_line = 1),
+    linetypes  = c(errorbar = "solid", ref_line = "dashed"),
+    legend.position = "top",
+    # Text sizes are coveffectsplot's halved (base 22 -> 11 pt), keeping its
+    # proportions at pmxhelpr figure sizes; table text 7 mm -> 3.5 mm. Strip
+    # text is raised to the 8 pt axis text (13 pt halves to an illegible 6.5).
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      text               = ggplot2::element_text(size = 11),
+      panel.background   = ggplot2::element_rect(fill = "white", colour = NA),
+      panel.spacing.y    = ggplot2::unit(5.5, "pt"),
+      panel.grid.major.x = ggplot2::element_line(colour = "gray"),
+      panel.grid.major.y = ggplot2::element_line(colour = "gray"),
+      strip.placement    = "inside",
+      strip.background   = ggplot2::element_rect(fill = "#E5E5E5", colour = "grey20"),
+      strip.text.y.left  = ggplot2::element_text(
+        size = 8, face = "bold", angle = 0, hjust = 0.5, vjust = 0.5
+      ),
+      axis.text.x        = ggplot2::element_text(size = 8),
+      axis.text.y.left   = ggplot2::element_text(size = 8, colour = "black"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 3.5 / 0.352777778, hjust = 0.5, colour = "black",
         margin = ggplot2::margin(l = 8)
       )
     )

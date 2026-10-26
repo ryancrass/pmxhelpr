@@ -33,8 +33,12 @@
   `colors` keyed by covariate name, or a palette `function(n)`, color each
   covariate panel.
 * `style_pmforest()` is an alternative `plot_forest()` preset reproducing the
-  look of Metrum's `pmforest` package: hue-filled diamonds with black
+  look of the `pmforest` package: hue-filled diamonds with black
   outlines, dot-dash reference line, and grey vertical gridlines.
+* `style_coveffectsplot()` is an alternative `plot_forest()` preset
+  reproducing the look of `coveffectsplot::forest_plot()`: blue points on
+  thick blue intervals, dashed reference line, grey gridlines on both axes,
+  and grey-filled covariate strips.
 * `is_forest_stats()` tests for a `forest_stats` object.
 
 ### New arguments

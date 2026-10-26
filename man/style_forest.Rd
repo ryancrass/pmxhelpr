@@ -60,7 +60,8 @@ style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "gre
 style_forest(logx = TRUE)
 }
 \seealso{
-\code{\link[=style_pmforest]{style_pmforest()}} for the look of Metrum's \code{pmforest} package.
+\code{\link[=style_pmforest]{style_pmforest()}} and \code{\link[=style_coveffectsplot]{style_coveffectsplot()}} for the looks of
+the \code{pmforest} and \code{coveffectsplot} packages.
 
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
@@ -68,6 +69,7 @@ Other forest plot:
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
+\code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
 \code{\link[=style_pmforest]{style_pmforest()}}
 }
 \concept{forest plot}

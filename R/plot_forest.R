@@ -437,8 +437,9 @@ validate_forest_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
-#'    `style = style_forest(...)`, use [style_pmforest()] for the look of
-#'    Metrum's `pmforest` package, or restyle the returned plot with
+#'    `style = style_forest(...)`, use [style_pmforest()] or
+#'    [style_coveffectsplot()] for the looks of the `pmforest` and
+#'    `coveffectsplot` packages, or restyle the returned plot with
 #'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_point`,
 #'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
 #'    opt into per-covariate coloring (see [style_forest()]). The estimate

@@ -29,8 +29,8 @@ are present, aborts and asks the caller to pick one.}
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
-\code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, \code{\link[=style_pmxforest]{style_pmxforest()}}, or \code{\link[=style_pumas]{style_pumas()}} for
+\code{style = style_forest(...)}, use \code{\link[=style_forest_pmforest]{style_forest_pmforest()}},
+\code{\link[=style_forest_coveffectsplot]{style_forest_coveffectsplot()}}, \code{\link[=style_forest_pmxforest]{style_forest_pmxforest()}}, or \code{\link[=style_forest_pumas]{style_forest_pumas()}} for
 the looks of the \code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages
 and of \code{table_forest_plot()} from the Pumas ecosystem. Series roles are \code{point}, \code{errorbar},
 \code{ref_point}, \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by
@@ -144,10 +144,10 @@ Other forest plot:
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
 \code{\link[=style_forest]{style_forest()}},
-\code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_pmxforest]{style_pmxforest()}},
-\code{\link[=style_pumas]{style_pumas()}}
+\code{\link[=style_forest_coveffectsplot]{style_forest_coveffectsplot()}},
+\code{\link[=style_forest_pmforest]{style_forest_pmforest()}},
+\code{\link[=style_forest_pmxforest]{style_forest_pmxforest()}},
+\code{\link[=style_forest_pumas]{style_forest_pumas()}}
 }
 \concept{forest plot}

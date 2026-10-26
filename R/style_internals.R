@@ -139,7 +139,7 @@ series_aes <- function(spec, series) {
 #' `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
 #' with the number of mapped groups; a palette has no entries to merge, so it
 #' replaces the default map wholesale (and is likewise replaced wholesale when
-#' it is the default, e.g. [style_pmforest()]). The merged fields are passed to
+#' it is the default, e.g. [style_forest_pmforest()]). The merged fields are passed to
 #' `ggstylekit::style_spec()`.
 #'
 #' @param defaults Named list of default `style_spec` arguments.

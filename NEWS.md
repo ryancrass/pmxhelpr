@@ -33,17 +33,17 @@
   `colors` keyed by covariate name, or a palette `function(n)`, color each
   covariate panel; `errorbar_width` (in row heights) draws capped error bars
   instead of uncapped interval lines.
-* `style_pmforest()` is an alternative `plot_forest()` preset reproducing the
+* `style_forest_pmforest()` is an alternative `plot_forest()` preset reproducing the
   look of the `pmforest` package: hue-filled diamonds with black
   outlines, dot-dash reference line, and grey vertical gridlines.
-* `style_coveffectsplot()` is an alternative `plot_forest()` preset
+* `style_forest_coveffectsplot()` is an alternative `plot_forest()` preset
   reproducing the look of `coveffectsplot::forest_plot()`: blue points on
   thick blue intervals, dashed reference line, grey gridlines on both axes,
   and grey-filled covariate strips.
-* `style_pmxforest()` is an alternative `plot_forest()` preset reproducing the
+* `style_forest_pmxforest()` is an alternative `plot_forest()` preset reproducing the
   look of `PMXForest::forestPlot()`: black points on uncapped
   black intervals, dotted reference line, and the grey `theme_grey()` panel.
-* `style_pumas()` is an alternative `plot_forest()` preset reproducing the
+* `style_forest_pumas()` is an alternative `plot_forest()` preset reproducing the
   look of Pumas' `table_forest_plot()`: diamonds and capped error bars
   colored per covariate, dashed reference line, and an open panel without
   gridlines.

@@ -57,10 +57,10 @@ reference:
       - style_gof
       - style_doseprop
       - style_forest
-      - style_pmforest
-      - style_coveffectsplot
-      - style_pmxforest
-      - style_pumas
+      - style_forest_pmforest
+      - style_forest_coveffectsplot
+      - style_forest_pmxforest
+      - style_forest_pumas
       - style_vpc
       - reexports
 

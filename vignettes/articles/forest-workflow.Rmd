@@ -586,7 +586,7 @@ with the style's `xlabel` field or `labs(x = )`; a title can be added with the
 
 ## pmforest styling
 
-`style_pmforest()` reproduces the default look of Metrum's
+`style_forest_pmforest()` reproduces the default look of Metrum's
 [pmforest](https://github.com/metrumresearchgroup/pmforest/) package: diamonds
 filled per covariate from the ggplot2 hue palette with black outlines, a
 dot-dash reference line, and grey vertical gridlines. It is a regular preset,
@@ -594,47 +594,47 @@ so its fields can be overridden the same way.
 
 ```{r plot-pmforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_pmforest(logx = TRUE)) + 
+            style = style_forest_pmforest(logx = TRUE)) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
 ## coveffectsplot styling
 
-`style_coveffectsplot()` reproduces the default look of the `forest_plot()`
+`style_forest_coveffectsplot()` reproduces the default look of the `forest_plot()`
 function of the [coveffectsplot](https://github.com/smouksassi/coveffectsplot/)
 package: blue points on thick blue intervals, a dashed reference line, grey
 gridlines on both axes, and grey-filled covariate strips.
 
 ```{r plot-coveffectsplot, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_coveffectsplot(logx = TRUE)) + 
+            style = style_forest_coveffectsplot(logx = TRUE)) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
 
 ## PMXForest styling
 
-`style_pmxforest()` reproduces the default look of the `forestPlot()`
+`style_forest_pmxforest()` reproduces the default look of the `forestPlot()`
 function of Pharmetheus' [PMXForest](https://github.com/pharmetheus/PMXForest/)
 package, the forest plot of the FREM workflow: black points on uncapped black
 intervals, a dotted reference line, and the grey `theme_grey()` panel.
 
 ```{r plot-pmxforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_pmxforest(logx = TRUE)) + 
+            style = style_forest_pmxforest(logx = TRUE)) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
 ## Pumas styling
 
-`style_pumas()` reproduces the look of the `table_forest_plot()` function of
+`style_forest_pumas()` reproduces the look of the `table_forest_plot()` function of
 [Pumas](https://tutorials.pumas.ai/html/forest_plots/forest.html): diamonds
 and capped error bars colored per covariate, a dashed reference line, and an
 open panel without gridlines.
 
 ```{r plot-pumas, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_pumas(logx = TRUE)) + 
+            style = style_forest_pumas(logx = TRUE)) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 

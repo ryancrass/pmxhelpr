@@ -471,8 +471,8 @@ validate_forest_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
-#'    `style = style_forest(...)`, use [style_pmforest()],
-#'    [style_coveffectsplot()], [style_pmxforest()], or [style_pumas()] for
+#'    `style = style_forest(...)`, use [style_forest_pmforest()],
+#'    [style_forest_coveffectsplot()], [style_forest_pmxforest()], or [style_forest_pumas()] for
 #'    the looks of the `pmforest`, `coveffectsplot`, and `PMXForest` packages
 #'    and of `table_forest_plot()` from the Pumas ecosystem. Series roles are `point`, `errorbar`,
 #'    `ref_point`, `ref_line`, and `ref_band`; `colors` entries keyed by

@@ -301,8 +301,8 @@ style_vpc <- function(...) {
 #'   number of covariates); it replaces the role entries, which then fall back
 #'   to the ggplot2 defaults.
 #'
-#' @seealso [style_pmforest()], [style_coveffectsplot()], [style_pmxforest()],
-#'   and [style_pumas()] for the looks of the `pmforest`, `coveffectsplot`,
+#' @seealso [style_forest_pmforest()], [style_forest_coveffectsplot()], [style_forest_pmxforest()],
+#'   and [style_forest_pumas()] for the looks of the `pmforest`, `coveffectsplot`,
 #'   and `PMXForest` packages and of Pumas.
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
@@ -360,17 +360,19 @@ style_forest <- function(...) {
 #'   c(point = 3)`). The default `colors` is a hue palette `function(n)`, so
 #'   passing `colors` replaces it wholesale: a different palette function, or
 #'   entries keyed by covariate name (covariates without an entry take the
-#'   house palette). The point fill follows the covariate colour while the
+#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
+#'   turns covariate coloring off, with a warning. The point fill follows the
+#'   covariate colour while the
 #'   point shape is a fill shape (21-25); the `point` colour is the outline.
 #'
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
 #' @examples
-#' style_pmforest()
-#' style_pmforest(fill = c(ref_band = "skyblue"))
-#' style_pmforest(logx = TRUE)
-style_pmforest <- function(...) {
+#' style_forest_pmforest()
+#' style_forest_pmforest(fill = c(ref_band = "skyblue"))
+#' style_forest_pmforest(logx = TRUE)
+style_forest_pmforest <- function(...) {
   defaults <- list(
     # ggplot2's default discrete hue palette (`scales::hue_pal()`).
     colors     = function(n) {
@@ -396,7 +398,9 @@ style_pmforest <- function(...) {
       )
     )
   )
-  build_style(defaults, list(...))
+  overrides <- list(...)
+  warn_forest_palette_dropped(overrides$colors, "style_forest_pmforest")
+  build_style(defaults, overrides)
 }
 
 
@@ -433,10 +437,10 @@ style_pmforest <- function(...) {
 #' @return A `ggstylekit_style_spec` object.
 #' @export
 #' @examples
-#' style_coveffectsplot()
-#' style_coveffectsplot(colors = c(point = "darkred", errorbar = "darkred"))
-#' style_coveffectsplot(logx = TRUE)
-style_coveffectsplot <- function(...) {
+#' style_forest_coveffectsplot()
+#' style_forest_coveffectsplot(colors = c(point = "darkred", errorbar = "darkred"))
+#' style_forest_coveffectsplot(logx = TRUE)
+style_forest_coveffectsplot <- function(...) {
   defaults <- list(
     colors     = c(point = "blue", errorbar = "blue", ref_point = "blue",
                    ref_line = "black"),
@@ -511,10 +515,10 @@ style_coveffectsplot <- function(...) {
 #' @return A `ggstylekit_style_spec` object.
 #' @export
 #' @examples
-#' style_pmxforest()
-#' style_pmxforest(alphas = c(ref_band = 1))
-#' style_pmxforest(logx = TRUE)
-style_pmxforest <- function(...) {
+#' style_forest_pmxforest()
+#' style_forest_pmxforest(alphas = c(ref_band = 1))
+#' style_forest_pmxforest(logx = TRUE)
+style_forest_pmxforest <- function(...) {
   defaults <- list(
     colors     = c(point = "black", errorbar = "black", ref_point = "black",
                    ref_line = "black"),
@@ -575,16 +579,18 @@ style_pmxforest <- function(...) {
 #'   c(point = 3)`). The default `colors` is a palette `function(n)`, so
 #'   passing `colors` replaces it wholesale: a different palette function,
 #'   or entries keyed by covariate name (covariates without an entry take the
-#'   house palette). `errorbar_width` sets the cap height in row heights.
+#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
+#'   turns covariate coloring off, with a warning. `errorbar_width` sets the
+#'   cap height in row heights.
 #'
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
 #' @examples
-#' style_pumas()
-#' style_pumas(errorbar_width = 0.5)
-#' style_pumas(logx = TRUE)
-style_pumas <- function(...) {
+#' style_forest_pumas()
+#' style_forest_pumas(errorbar_width = 0.5)
+#' style_forest_pumas(logx = TRUE)
+style_forest_pumas <- function(...) {
   defaults <- list(
     # Makie's default categorical palette (Wong 2011), in Makie's order.
     colors     = function(n) {
@@ -610,5 +616,33 @@ style_pumas <- function(...) {
       axis.ticks.y.left  = ggplot2::element_blank()
     )
   )
-  build_style(defaults, list(...))
+  overrides <- list(...)
+  warn_forest_palette_dropped(overrides$colors, "style_forest_pumas")
+  build_style(defaults, overrides)
+}
+
+
+#' Internal helper: warn when a palette preset loses its covariate coloring
+#'
+#' In [style_forest_pmforest()] and [style_forest_pumas()] the default
+#' `colors` is a palette function, which a named `colors` vector replaces
+#' wholesale. A vector naming only series roles therefore turns
+#' per-covariate coloring off; warn so that is not silent.
+#'
+#' @param colors The user's `colors` override, or `NULL`.
+#' @param preset Name of the calling preset, for the message.
+#' @return `NULL`, invisibly.
+#' @keywords internal
+#' @noRd
+warn_forest_palette_dropped <- function(colors, preset) {
+  roles <- c("point", "errorbar", "ref_point", "ref_line", "ref_band")
+  if (is.null(colors) || is.function(colors) || !all(names(colors) %in% roles)) {
+    return(invisible(NULL))
+  }
+  rlang::warn(paste0(
+    "`colors` replaces the covariate palette of `", preset, "()`, so ",
+    "covariates are no longer colored. To keep per-covariate coloring, key ",
+    "`colors` by covariate name or pass a palette `function(n)`."
+  ))
+  invisible(NULL)
 }

@@ -1075,10 +1075,10 @@ test_that("df_forest() column arguments follow the metric-first order", {
 })
 
 
-#####style_pmforest#####
+#####style_forest_pmforest#####
 
-test_that("style_pmforest() returns the pmforest look as a style_spec", {
-  st <- style_pmforest()
+test_that("style_forest_pmforest() returns the pmforest look as a style_spec", {
+  st <- style_forest_pmforest()
   expect_s3_class(st, "ggstylekit_style_spec")
   expect_true(is.function(st$colors))
   expect_equal(st$colors(3), grDevices::hcl(h = c(15, 135, 255), c = 100, l = 65))
@@ -1095,16 +1095,16 @@ test_that("style_pmforest() returns the pmforest look as a style_spec", {
   expect_equal(th$axis.text.y.right$size, 2.8 / 0.352777778)
 })
 
-test_that("style_pmforest() overrides: named colors replace the palette; maps merge entry-wise", {
-  st <- style_pmforest(colors = c(FOOD = "red"), sizes = c(point = 3))
+test_that("style_forest_pmforest() overrides: named colors replace the palette; maps merge entry-wise", {
+  st <- style_forest_pmforest(colors = c(FOOD = "red"), sizes = c(point = 3))
   expect_equal(st$colors, c(FOOD = "red"))
   expect_equal(unname(st$sizes[c("point", "ref_point")]), c(3, 3.5))
 })
 
-test_that("plot_build_forest() with style_pmforest() fills diamonds per covariate with black outlines", {
+test_that("plot_build_forest() with style_forest_pmforest() fills diamonds per covariate with black outlines", {
   stats <- df_forest(data_sad_pkforest)
   p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-                         style = style_pmforest())
+                         style = style_forest_pmforest())
   pt <- layer_of(p, "GeomPoint", 1L)
   expect_true("fill" %in% names(pt$mapping))
   expect_false("colour" %in% names(pt$mapping))
@@ -1137,7 +1137,7 @@ test_that("a palette function in style_forest() colors each covariate", {
 
 test_that("a fill-shape reference point keeps the role outline when test points are filled by covariate", {
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
-  p <- plot_build_forest(stats, metric = "AUCRATIO", style = style_pmforest())
+  p <- plot_build_forest(stats, metric = "AUCRATIO", style = style_forest_pmforest())
   ref_pt <- layer_of(p, "GeomPoint", 2L)
   expect_false("colour" %in% names(ref_pt$mapping))
   built <- ggplot2::ggplot_build(p)
@@ -1161,15 +1161,15 @@ test_that("covariate colors match across ref_layout; the Reference panel keeps t
       tapply(built$data[[i]]$colour, cov, unique)
     })
   }
-  for (st in list(style_pumas(), style_forest(colors = c(FOOD = "red", WTBL = "blue")))) {
+  for (st in list(style_forest_pumas(), style_forest(colors = c(FOOD = "red", WTBL = "blue")))) {
     dist <- pt_cols(st, "distributed")
     cons <- pt_cols(st, "consolidated")
     expect_equal(cons[[1]][c("FOOD", "WTBL")], dist[[1]][c("FOOD", "WTBL")])
     ref_col <- if (is.function(st$colors)) "black" else st$colors[["ref_point"]]
     expect_equal(unname(cons[[2]]["Reference"]), ref_col)
   }
-  expect_equal(as.vector(pt_cols(style_pumas(), "distributed")[[1]][c("FOOD", "WTBL")]),
-               style_pumas()$colors(2))
+  expect_equal(as.vector(pt_cols(style_forest_pumas(), "distributed")[[1]][c("FOOD", "WTBL")]),
+               style_forest_pumas()$colors(2))
 })
 
 test_that("a palette function whose names match no covariate warns", {
@@ -1191,10 +1191,21 @@ test_that("a palette function returning fewer than n colors is recycled", {
 })
 
 
-#####style_coveffectsplot#####
+test_that("palette presets warn when role-only colors drop covariate coloring", {
+  for (preset in list(style_forest_pmforest, style_forest_pumas)) {
+    expect_warning(preset(colors = c(point = "red")), "covariates are no longer colored")
+    expect_no_warning(preset(colors = c(FOOD = "red")))
+    expect_no_warning(preset(colors = function(n) rep("red", n)))
+    expect_no_warning(preset(sizes = c(point = 3)))
+  }
+  expect_no_warning(style_forest_coveffectsplot(colors = c(point = "red")))
+})
 
-test_that("style_coveffectsplot() returns the coveffectsplot look as a style_spec", {
-  st <- style_coveffectsplot()
+
+#####style_forest_coveffectsplot#####
+
+test_that("style_forest_coveffectsplot() returns the coveffectsplot look as a style_spec", {
+  st <- style_forest_coveffectsplot()
   expect_s3_class(st, "ggstylekit_style_spec")
   expect_equal(unname(st$shapes[c("point", "ref_point")]), c(16, 16))
   expect_equal(unname(st$sizes[c("point", "ref_point")]), c(4, 4))
@@ -1215,9 +1226,9 @@ test_that("style_coveffectsplot() returns the coveffectsplot look as a style_spe
   expect_equal(th$axis.text.y.right$hjust, 0.5)
 })
 
-test_that("plot_build_forest() with style_coveffectsplot() draws every row blue, unmapped", {
+test_that("plot_build_forest() with style_forest_coveffectsplot() draws every row blue, unmapped", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                         ref_band = c(0.8, 1.25), style = style_coveffectsplot())
+                         ref_band = c(0.8, 1.25), style = style_forest_coveffectsplot())
   expect_false("colour" %in% scale_aes_of(p))
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
@@ -1226,10 +1237,10 @@ test_that("plot_build_forest() with style_coveffectsplot() draws every row blue,
 })
 
 
-#####style_pmxforest#####
+#####style_forest_pmxforest#####
 
-test_that("style_pmxforest() returns the PMXForest look as a style_spec", {
-  st <- style_pmxforest()
+test_that("style_forest_pmxforest() returns the PMXForest look as a style_spec", {
+  st <- style_forest_pmxforest()
   expect_s3_class(st, "ggstylekit_style_spec")
   expect_equal(unname(st$shapes[c("point", "ref_point")]), c(16, 16))
   expect_equal(unname(st$sizes[c("point", "ref_point")]), c(2.5, 2.5))
@@ -1250,9 +1261,9 @@ test_that("style_pmxforest() returns the PMXForest look as a style_spec", {
   expect_equal(th$strip.text.y.left$face, "plain")
 })
 
-test_that("plot_build_forest() with style_pmxforest() draws black, dotted, unmapped", {
+test_that("plot_build_forest() with style_forest_pmxforest() draws black, dotted, unmapped", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                         ref_band = c(0.8, 1.25), style = style_pmxforest())
+                         ref_band = c(0.8, 1.25), style = style_forest_pmxforest())
   expect_false("colour" %in% scale_aes_of(p))
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
@@ -1303,10 +1314,10 @@ test_that("capped error bars follow per-covariate colors", {
 })
 
 
-#####style_pumas#####
+#####style_forest_pumas#####
 
-test_that("style_pumas() returns the Pumas look as a style_spec", {
-  st <- style_pumas()
+test_that("style_forest_pumas() returns the Pumas look as a style_spec", {
+  st <- style_forest_pumas()
   expect_s3_class(st, "ggstylekit_style_spec")
   expect_true(is.function(st$colors))
   expect_equal(st$colors(3), c("#0072B2", "#E69F00", "#009E73"))
@@ -1322,9 +1333,9 @@ test_that("style_pumas() returns the Pumas look as a style_spec", {
   expect_equal(as.numeric(th$panel.spacing.y), 0)
 })
 
-test_that("plot_build_forest() with style_pumas() colors capped bars and diamonds per covariate", {
+test_that("plot_build_forest() with style_forest_pumas() colors capped bars and diamonds per covariate", {
   p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
-                         ref_band = c(0.8, 1.25), style = style_pumas())
+                         ref_band = c(0.8, 1.25), style = style_forest_pumas())
   eb <- layer_of(p, "GeomErrorbar")
   expect_true("colour" %in% names(eb$mapping))
   pt <- layer_of(p, "GeomPoint", 1L)
@@ -1334,5 +1345,5 @@ test_that("plot_build_forest() with style_pumas() colors capped bars and diamond
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   is_eb <- vapply(p$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1))
   expect_equal(built$data[[which(is_pt)[1]]]$colour, built$data[[which(is_eb)]]$colour)
-  expect_true(all(built$data[[which(is_pt)[1]]]$colour %in% style_pumas()$colors(7)))
+  expect_true(all(built$data[[which(is_pt)[1]]]$colour %in% style_forest_pumas()$colors(7)))
 })

@@ -158,10 +158,10 @@ Other forest plot:
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=style_coveffectsplot]{style_coveffectsplot()}},
 \code{\link[=style_forest]{style_forest()}},
-\code{\link[=style_pmforest]{style_pmforest()}},
-\code{\link[=style_pmxforest]{style_pmxforest()}},
-\code{\link[=style_pumas]{style_pumas()}}
+\code{\link[=style_forest_coveffectsplot]{style_forest_coveffectsplot()}},
+\code{\link[=style_forest_pmforest]{style_forest_pmforest()}},
+\code{\link[=style_forest_pmxforest]{style_forest_pmxforest()}},
+\code{\link[=style_forest_pumas]{style_forest_pumas()}}
 }
 \concept{forest plot}

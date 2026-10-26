@@ -446,6 +446,28 @@ test_that("validate_forest_stats errors when canonical columns or config keys ar
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required keys")
 })
 
+test_that("validate_forest_stats checks column types and values of an edited container", {
+  v <- function(f) {
+    out <- df_forest(data_sad_pkforest)
+    out <- f(out)
+    pmxhelpr:::validate_forest_stats(out)
+  }
+  expect_error(v(function(o) { o$stats$layout[1] <- "foo"; o }),
+               "`stats\\$stats\\$layout` must be .*found: foo")
+  expect_error(v(function(o) { o$stats$is_ref <- ifelse(o$stats$is_ref, "yes", "no"); o }),
+               "`stats\\$stats\\$is_ref` must be logical")
+  expect_error(v(function(o) { o$stats$is_ref[1] <- NA; o }),
+               "`stats\\$stats\\$is_ref` must be logical")
+  expect_error(v(function(o) { o$stats$lo <- as.character(o$stats$lo); o }),
+               "columns must be numeric: lo")
+  expect_error(v(function(o) { o$stats$ci_label <- factor(o$stats$ci_label); o }),
+               "columns must be character: ci_label")
+  expect_error(v(function(o) { o$config$ci <- 90; o }), "config\\$ci")
+  expect_error(v(function(o) { o$config$sigdigits <- 0; o }), "config\\$sigdigits")
+  # NA estimates (an all-NA group) are allowed
+  expect_invisible(v(function(o) { o$stats$est[2] <- NA; o$stats$est_label[2] <- NA; o }))
+})
+
 test_that("validate_forest_stats does not require the provenance config keys", {
   out <- df_forest(data_sad_pkforest)
   out$config$metric_value_var <- NULL

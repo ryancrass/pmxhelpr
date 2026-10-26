@@ -391,6 +391,31 @@ validate_forest_stats <- function(x) {
     "stats",
     "config$metric_name_var/cov_name_var/cov_level_var"
   )
+  ## Column types and values the renderer relies on, since users may edit
+  ## `stats$stats` directly. Estimates and labels may be NA (all-NA draws).
+  s <- x$stats
+  bad_type <- function(cols, pred, what) {
+    bad <- cols[!vapply(s[cols], pred, logical(1))]
+    if (length(bad) > 0) {
+      rlang::abort(message = paste0(
+        "`stats$stats` columns must be ", what, ": ", paste(bad, collapse = ", ")
+      ))
+    }
+  }
+  bad_type(c("est", "lo", "hi"), is.numeric, "numeric")
+  bad_type(c("est_label", "lo_label", "hi_label", "ci_label"), is.character, "character")
+  if (!is.logical(s$is_ref) || anyNA(s$is_ref)) {
+    rlang::abort(message = "`stats$stats$is_ref` must be logical with no `NA`")
+  }
+  bad_layout <- setdiff(unique(s$layout), c("both", "consolidated", "distributed"))
+  if (length(bad_layout) > 0) {
+    rlang::abort(message = paste0(
+      "`stats$stats$layout` must be \"both\", \"consolidated\", or \"distributed\"; found: ",
+      paste(bad_layout, collapse = ", ")
+    ))
+  }
+  check_quantile_scalar(x$config$ci, "config$ci")
+  check_positive_integer(x$config$sigdigits, "config$sigdigits")
   invisible(x)
 }
 

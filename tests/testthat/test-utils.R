@@ -515,6 +515,11 @@ test_that("order_col_factor falls back to first-appearance for non-numeric label
   )
 })
 
+test_that("order_col_factor keeps first-appearance order when labels share a number", {
+  lab <- c("Mild (60-89)", "Moderate (30-59)", "Severe (<30)")
+  expect_equal(levels(pmxhelpr:::order_col_factor(lab)), lab)
+})
+
 
 ##Test fmt_sig(): fixed-significant-digit label formatter
 test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA through", {

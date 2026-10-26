@@ -337,12 +337,11 @@ data rather than alphanumerically:
   + Covariate name panels follow their factor levels when the input columns are
   factors, otherwise they order in order of first appearance.  
   
-  + Covariate value levels within an individual covariate follow the factor 
-  levels when the input columns are factors. The order specified in
-  `cov_level_var` wins when all labels are covered, including a distributed
-  reference label. Else, labels carrying a number are automatically sorted in 
-  ascending numeric order (e.g., `50 kg` above `90 kg`, `-20%` above `-5%`, 
-  and `Weight 50 kg` and `Weight 90 kg`).
+  + Covariate levels within a covariate follow the factor levels of the
+  `cov_level_var` column when those levels cover every label, including a
+  distributed reference label. Otherwise, if every label carries a distinct
+  number, labels sort ascending by it (`50 kg` above `90 kg`, `-20%` above
+  `-5%`). Any other set keeps the reference label on top, then data order.
 
 To control the order explicitly:
 

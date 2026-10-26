@@ -376,7 +376,9 @@ label_sort_num <- function(x) {
 #'       `"200 mg"`, or `"Dose 5 mg"`): ordered numerically by that number,
 #'       sign included, so `"5 mg"` sorts before `"20 mg"` before `"200 mg"`
 #'       rather than lexicographically. The number need not lead the label.
-#'       Ties keep first-appearance order.
+#'       If two labels share a number (e.g. `"Mild (60-89)"`,
+#'       `"Moderate (30-59)"`, `"Severe (<30)"`), the order is ambiguous and
+#'       first-appearance order is kept.
 #'    + Any other character (including mixed numeric / non-numeric labels such as
 #'       `c("Placebo", "5 mg")`, where placement is ambiguous): first-appearance
 #'       order. Never lexicographic.
@@ -391,7 +393,7 @@ order_col_factor <- function(x) {
   if (is.numeric(x)) return(factor(x))
   lev <- unique(as.character(x))
   num <- label_sort_num(lev)
-  if (!anyNA(num)) {
+  if (!anyNA(num) && !anyDuplicated(num)) {
     lev <- lev[order(num, seq_along(lev))]
   }
   factor(x, levels = lev)

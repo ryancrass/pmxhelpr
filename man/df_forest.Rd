@@ -125,9 +125,9 @@ metrics and covariates follow their factor levels when the input columns
 are factors, otherwise their order of first appearance in \code{data}, with the
 standalone reference covariate moved first. Within a covariate, factor
 levels of \code{cov_level_var} win when they cover every label (including the
-distributed reference label); otherwise labels carrying a number sort ascending by it,
-sign included (\verb{50 kg} above \verb{90 kg}), and any other set puts the reference
-label on top followed by the data order. The distributed reference rows
+distributed reference label); otherwise, if every label carries a distinct
+number, labels sort ascending by it, sign included (\verb{50 kg} above \verb{90 kg});
+any other set puts the reference label on top followed by the data order. The distributed reference rows
 are placed by the same rules, so the covariate rows keep one order in both
 layouts.
 }

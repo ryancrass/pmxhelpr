@@ -368,6 +368,17 @@ test_that("Labels sharing a leading number fall back to data order", {
                c("CYP2D6 PM", "CYP2D6 IM", "CYP2D6 UM"))
 })
 
+test_that("Range labels sharing a number keep data order, reference label on top", {
+  set.seed(1)
+  lab <- c("Mild (60-89)", "Moderate (30-59)", "Severe (<30)")
+  d <- expand.grid(metric = "AUCRATIO", cov_var = c("Reference", "RENAL"),
+                   cov_val = lab, SIM = 1:20, stringsAsFactors = FALSE)
+  d$cov_val[d$cov_var == "Reference"] <- "Reference"
+  d$value <- stats::rlnorm(nrow(d), 0, 0.2)
+  s <- drawn(df_forest(d, cov_level_ref = c(RENAL = "Normal (>=90)")))
+  expect_equal(s$cov_val[s$cov_var == "RENAL"], c("Normal (>=90)", lab))
+})
+
 test_that("Factor levels on cov_level_var control the row order, including the reference label", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
   d$cov_val <- factor(d$cov_val, levels = c("Reference", "Fed", "Fasted",

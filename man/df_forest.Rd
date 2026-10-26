@@ -41,8 +41,7 @@ width (e.g., \code{0.9} for 90\% CI).}
 columns. Digits are counted on the median estimate of each metric,
 which fixes one count of decimal places for every value of that metric
 (\code{"1.00"}, \code{"0.95"}, \code{"2.32"} for a ratio; \code{"12500"}, \code{"9500"} for an
-exposure near 12500), so the plotted estimate column aligns on the
-decimal point. Trailing zeros are kept. Default \code{3}.}
+exposure near 12500). Trailing zeros are kept. Default \code{3}.}
 
 \item{cov_name_ref}{Character string identifying the reference row(s) in the
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled

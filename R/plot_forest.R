@@ -92,8 +92,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    columns. Digits are counted on the median estimate of each metric,
 #'    which fixes one count of decimal places for every value of that metric
 #'    (`"1.00"`, `"0.95"`, `"2.32"` for a ratio; `"12500"`, `"9500"` for an
-#'    exposure near 12500), so the plotted estimate column aligns on the
-#'    decimal point. Trailing zeros are kept. Default `3`.
+#'    exposure near 12500). Trailing zeros are kept. Default `3`.
 #' @param cov_name_ref Character string identifying the reference row(s) in the
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
 #'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
@@ -331,8 +330,7 @@ df_forest <- function(
   ), , drop = FALSE]
   rownames(stats) <- NULL
 
-  ## One decimal count per metric, set by `sigdigits` of its median estimate,
-  ## so the plotted estimate column aligns on the decimal point.
+  ## One decimal count per metric, set by `sigdigits` of its median estimate.
   anchor <- stats::ave(abs(stats$est), stats[[metric_name_var_str]],
                        FUN = function(x) stats::median(x, na.rm = TRUE))
   stats$est_label <- fmt_sig(stats$est, sigdigits, anchor = anchor)

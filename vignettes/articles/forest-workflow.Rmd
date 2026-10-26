@@ -286,7 +286,7 @@ The summary can be customized with:
   + `sigdigits`: number of significant digits in the label columns, default 
   `3`. Digits are counted on the median estimate of each metric, so every 
   value of a metric shares one count of decimal places (`0.90` and `2.32` for 
-  a ratio) and the plotted estimate column aligns on the decimal point.
+  a ratio).
 
 ```{r df-forest-obj-95ci}
 df_forest(simsum, ci = 0.95, sigdigits = 2)

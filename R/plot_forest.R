@@ -684,24 +684,34 @@ plot_build_forest <- function(
     )
   ## style_plot() fills a point's colour/shape/size/alpha from the role, but
   ## not its `fill`, so the open-shape fill is set inline from the style.
+  ## When test points carry the covariate as fill, a fill-shape reference
+  ## point keeps a role-colour outline to match them, not the covariate colour.
+  rp <- series_aes(plotstyle, "ref_point")
+  rp_mapping <- pt_mapping
+  rp_outline <- NULL
+  if (!is.null(pt_outline) && isTRUE(rp$shape %in% 21:25)) {
+    rp_mapping <- NULL
+    rp_outline <- rp$colour %||% pt_outline
+  }
   if (nrow(ref_data) > 0L) {
     rp_args <- compact(list(
-      mapping = pt_mapping,
+      mapping = rp_mapping,
       data = ref_data,
-      fill = series_aes(plotstyle, "ref_point")$fill
+      colour = rp_outline,
+      fill = rp$fill
     ))
     base <- base +
       ggstylekit::series_layer(do.call(ggplot2::geom_point, rp_args), "ref_point")
   }
 
-  ## Left axis: the covariate level labels, blanked where the level repeats
-  ## the covariate name (the strip already says it, e.g. a standalone
-  ## Reference panel). Right axis: the estimate column (reference rows show
+  ## Left axis: the covariate level labels, dropped (label and tick) where the
+  ## level repeats the covariate name (the strip already says it, e.g. a
+  ## standalone Reference panel). Right axis: the estimate column (reference rows show
   ## the estimate alone), under a header ("Estimate (90% CI)") drawn as the
   ## right-aligned plot subtitle, the row directly above the panels (a
   ## secondary-axis *title* would land beside the labels instead).
   level_labels <- as.character(plot_data[[cov_level_var_str]])
-  level_labels[level_labels == as.character(plot_data[[cov_name_var_str]])] <- ""
+  show_level <- level_labels != as.character(plot_data[[cov_name_var_str]])
   est_labels <- ifelse(
     plot_data$is_ref,
     plot_data$est_label,
@@ -710,8 +720,8 @@ plot_build_forest <- function(
   header <- paste0("Estimate (", format(stats$config$ci * 100), "% CI)")
   base <- base +
     ggplot2::scale_y_discrete(
-      breaks = rev(row_ids),
-      labels = rev(level_labels),
+      breaks = rev(row_ids[show_level]),
+      labels = rev(level_labels[show_level]),
       sec.axis = ggplot2::dup_axis(
         name = NULL,
         breaks = rev(row_ids),

@@ -659,8 +659,8 @@ test_that("a standalone Reference panel draws through ref_point; no ref_point la
   expect_equal(n_geom(p, "GeomPoint"), 2L)
   expect_equal(as.character(layer_of(p, "GeomPoint", 2L)$data$cov_var), "Reference")
   expect_equal(panel_labels(p, "y.sec")[[1]], "1.00")
-  # the tick label is blank where the level repeats the covariate name
-  expect_equal(panel_labels(p, "y")[[1]], "")
+  # no left tick or label where the level repeats the covariate name
+  expect_length(panel_labels(p, "y")[[1]], 0L)
   expect_equal(panel_labels(p, "y")[[2]], "Fed")
   p2 <- plot_build_forest(df_forest(data_sad_pkforest, cov_name_ref = NULL),
                           metric = "AUCRATIO", ref = 1)
@@ -1072,6 +1072,21 @@ test_that("a palette function in style_forest() colors each covariate", {
   built <- ggplot2::ggplot_build(p)
   is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
   expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
+})
+
+test_that("a fill-shape reference point keeps the role outline when test points are filled by covariate", {
+  stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
+  p <- plot_build_forest(stats, metric = "AUCRATIO", style = style_pmforest())
+  ref_pt <- layer_of(p, "GeomPoint", 2L)
+  expect_false("colour" %in% names(ref_pt$mapping))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))
+  expect_equal(unique(built$data[[is_pt[2]]]$colour), "black")
+  expect_equal(unique(built$data[[is_pt[2]]]$fill), "white")
+  # a non-fill test point (style_forest) still colors the reference by covariate
+  p2 <- plot_build_forest(stats, metric = "AUCRATIO",
+                          style = style_forest(colors = c(FOOD = "red", WTBL = "blue")))
+  expect_true("colour" %in% names(layer_of(p2, "GeomPoint", 2L)$mapping))
 })
 
 test_that("covariate colors match across ref_layout; the Reference panel keeps the ref_point colour", {

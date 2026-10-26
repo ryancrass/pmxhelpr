@@ -11,7 +11,8 @@ plot_build_forest(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  ref_layout = NULL
+  ref_layout = NULL,
+  show_rep = FALSE
 )
 }
 \arguments{
@@ -67,6 +68,11 @@ draw in either. \code{NULL} (default) uses \code{"distributed"} when
 \code{metric}, otherwise \code{"consolidated"}. \code{"distributed"} without one is an
 error. The summary
 statistics are not recomputed; only the drawn rows change.}
+
+\item{show_rep}{Logical. Display the number of replicates (the \code{n}
+column of the plotted rows) as a plot caption. Warns, and shows the
+range, when rows of the metric have different counts. Default \code{FALSE}.
+A \code{caption} set in the style is drawn instead, whatever this value.}
 }
 \value{
 a \code{ggplot} plot object

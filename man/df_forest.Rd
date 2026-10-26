@@ -79,7 +79,8 @@ slots:
 character columns named in \code{metric_name_var} / \code{cov_name_var} /
 \code{cov_level_var}, canonical numeric columns \code{est} (median of the
 draws), \code{lo}, \code{hi} (the \code{(1 - ci) / 2} and \code{1 - (1 - ci) / 2}
-percentiles), the character columns \code{est_label}, \code{lo_label}, and
+percentiles), the integer \code{n} (the number of non-\code{NA} draws behind
+the row), the character columns \code{est_label}, \code{lo_label}, and
 \code{hi_label} (those values formatted per \code{sigdigits}), \code{ci_label}
 (the three combined for tables, e.g. \code{"1.12 (0.95, 1.32)"}), the
 logical \code{is_ref}, and \code{layout}, the reference layout(s) a row draws

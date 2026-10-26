@@ -18,7 +18,8 @@
 Compact summary of a \code{\link[=df_forest]{df_forest()}} result: the same header shown by
 \code{\link[=print.forest_stats]{print.forest_stats()}}, but the body is condensed to one line per row:
 \verb{[metric] covariate: level}, or the covariate alone where the level
-repeats it (the standalone reference row). Rows drawn in only one
+repeats it (the standalone reference row), followed by the row's draw
+count \code{n} when the container has one. Rows drawn in only one
 reference layout are tagged \code{(consolidated)} or \code{(distributed)}; untagged
 rows draw in both. Suitable for vignette output and test snapshots.
 }

@@ -19,6 +19,7 @@ plot_forest(
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
   ref_layout = NULL,
+  show_rep = FALSE,
   style = NULL
 )
 }
@@ -115,6 +116,11 @@ draw in either. \code{NULL} (default) uses \code{"distributed"} when
 error. The summary
 statistics are not recomputed; only the drawn rows change.}
 
+\item{show_rep}{Logical. Display the number of replicates (the \code{n}
+column of the plotted rows) as a plot caption. Warns, and shows the
+range, when rows of the metric have different counts. Default \code{FALSE}.
+A \code{caption} set in the style is drawn instead, whatever this value.}
+
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
@@ -146,8 +152,8 @@ On the precomputed path, pipeline arguments (\code{metric_name_var},
 \code{sigdigits}, \code{cov_name_ref}, \code{cov_level_ref}) cannot be honored because
 the aggregation does not run again — passing any of them aborts with a
 message pointing the caller at \code{\link[=df_forest]{df_forest()}}. Only \code{style}, \code{ref},
-\code{ref_band}, \code{ref_band_type}, \code{ref_layout}, and \code{metric} are accepted on
-both paths.
+\code{ref_band}, \code{ref_band_type}, \code{ref_layout}, \code{show_rep}, and \code{metric} are
+accepted on both paths.
 }
 \examples{
 # Raw-data path: one metric per call

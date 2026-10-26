@@ -81,7 +81,8 @@ forest_stats_header <- function(x) {
 #' Compact summary of a [df_forest()] result: the same header shown by
 #' [print.forest_stats()], but the body is condensed to one line per row:
 #' `[metric] covariate: level`, or the covariate alone where the level
-#' repeats it (the standalone reference row). Rows drawn in only one
+#' repeats it (the standalone reference row), followed by the row's draw
+#' count `n` when the container has one. Rows drawn in only one
 #' reference layout are tagged `(consolidated)` or `(distributed)`; untagged
 #' rows draw in both. Suitable for vignette output and test snapshots.
 #'
@@ -100,8 +101,9 @@ summary.forest_stats <- function(object, ...) {
   cov_level <- as.character(s[[object$config$cov_level_var]])
   row_label <- ifelse(cov_level == cov_name, cov_name,
                       paste0(cov_name, ": ", cov_level))
+  n_tag <- if (is.null(s$n)) "" else paste0("  n = ", s$n)
   layout_tag <- ifelse(s$layout == "both", "", paste0("  (", s$layout, ")"))
   cat("\n  per-row:\n")
-  cat(sprintf("    [%s] %s%s\n", metric, row_label, layout_tag), sep = "")
+  cat(sprintf("    [%s] %s%s%s\n", metric, row_label, n_tag, layout_tag), sep = "")
   invisible(object)
 }

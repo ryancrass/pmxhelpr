@@ -143,7 +143,8 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'        character columns named in `metric_name_var` / `cov_name_var` /
 #'        `cov_level_var`, canonical numeric columns `est` (median of the
 #'        draws), `lo`, `hi` (the `(1 - ci) / 2` and `1 - (1 - ci) / 2`
-#'        percentiles), the character columns `est_label`, `lo_label`, and
+#'        percentiles), the integer `n` (the number of non-`NA` draws behind
+#'        the row), the character columns `est_label`, `lo_label`, and
 #'        `hi_label` (those values formatted per `sigdigits`), `ci_label`
 #'        (the three combined for tables, e.g. `"1.12 (0.95, 1.32)"`), the
 #'        logical `is_ref`, and `layout`, the reference layout(s) a row draws
@@ -244,6 +245,7 @@ df_forest <- function(
       est = stats::median(.data[[metric_value_var_str]], na.rm = TRUE),
       lo = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
       hi = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
+      n = sum(!is.na(.data[[metric_value_var_str]])),
       .groups = "drop"
     ) |>
     as.data.frame()
@@ -343,7 +345,7 @@ df_forest <- function(
     stats$est_label, " (", stats$lo_label, ", ", stats$hi_label, ")"
   )
   stats$ci_label[is.na(stats$est)] <- NA_character_
-  stats <- stats[, c(grp_vars, "est", "lo", "hi", "est_label", "lo_label",
+  stats <- stats[, c(grp_vars, "est", "lo", "hi", "n", "est_label", "lo_label",
                      "hi_label", "ci_label", "is_ref", "layout")]
 
   pmx_stats(
@@ -505,6 +507,10 @@ validate_forest_stats <- function(x) {
 #'    `metric`, otherwise `"consolidated"`. `"distributed"` without one is an
 #'    error. The summary
 #'    statistics are not recomputed; only the drawn rows change.
+#' @param show_rep Logical. Display the number of replicates (the `n`
+#'    column of the plotted rows) as a plot caption. Warns, and shows the
+#'    range, when rows of the metric have different counts. Default `FALSE`.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #'
 #' @family forest plot
 #' @return a `ggplot` plot object
@@ -542,11 +548,13 @@ plot_build_forest <- function(
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  ref_layout = NULL
+  ref_layout = NULL,
+  show_rep = FALSE
 ) {
   validate_forest_stats(stats)
   check_ref(ref)
   check_ref_layout(ref_layout)
+  check_boolean(show_rep, "show_rep")
   ref_band_type <- match.arg(ref_band_type)
   check_ref_band(ref_band, ref_band_type)
   plotstyle <- resolve_style(style, style_forest)
@@ -758,6 +766,25 @@ plot_build_forest <- function(
     ) +
     ggplot2::labs(x = metric, y = NULL, subtitle = header)
 
+  if (isTRUE(show_rep)) {
+    if (is.null(plot_data$n)) {
+      rlang::abort(message = "`show_rep = TRUE` needs an `n` column in `stats$stats`.")
+    }
+    n_rep <- range(plot_data$n)
+    if (n_rep[1] != n_rep[2]) {
+      short <- plot_data[plot_data$n < n_rep[2], , drop = FALSE]
+      short <- unique(paste0(short[[cov_name_var_str]], " ", short[[cov_level_var_str]],
+                             " (n = ", short$n, ")"))
+      rlang::warn(paste0(
+        "metric `", metric, "` rows have different replicate counts; fewer than ",
+        n_rep[2], " in: ", paste(short, collapse = "; ")
+      ))
+    }
+    base <- base + ggplot2::labs(caption = paste0(
+      "Replicates = ", paste(unique(n_rep), collapse = "-")
+    ))
+  }
+
   ## style_plot() builds the covariate colour scale from the `colors` entries
   ## (covariates without one take the house palette); the facet strips
   ## already name each covariate, so the legend is dropped.
@@ -784,8 +811,8 @@ plot_build_forest <- function(
 #' `sigdigits`, `cov_name_ref`, `cov_level_ref`) cannot be honored because
 #' the aggregation does not run again — passing any of them aborts with a
 #' message pointing the caller at [df_forest()]. Only `style`, `ref`,
-#' `ref_band`, `ref_band_type`, `ref_layout`, and `metric` are accepted on
-#' both paths.
+#' `ref_band`, `ref_band_type`, `ref_layout`, `show_rep`, and `metric` are
+#' accepted on both paths.
 #'
 #' @param data Either raw observation/draws data (data.frame) or a
 #'    `forest_stats` object returned by [df_forest()].
@@ -840,6 +867,7 @@ plot_forest <- function(
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
   ref_layout = NULL,
+  show_rep = FALSE,
   style = NULL
 ) {
   if (inherits(data, "forest_stats")) {
@@ -847,7 +875,7 @@ plot_forest <- function(
       call = match.call(),
       plot_only_args = c(
         "data", "style", "ref", "ref_band", "ref_band_type", "ref_layout",
-        "metric"
+        "show_rep", "metric"
       ),
       fn_name = "plot_forest"
     )
@@ -877,6 +905,7 @@ plot_forest <- function(
     ref_band = ref_band,
     ref_band_type = ref_band_type,
     metric = metric,
-    ref_layout = ref_layout
+    ref_layout = ref_layout,
+    show_rep = show_rep
   )
 }

@@ -38,7 +38,7 @@ test_that("Output is a `forest_stats` / `pmx_stats` container", {
 test_that("Output stats slot contains canonical columns, grouping columns as character", {
   out <- df_forest(data_sad_pkforest)
   expect_equal(colnames(out$stats),
-               c("metric", "cov_name", "cov_level", "est", "lo", "hi",
+               c("metric", "cov_name", "cov_level", "est", "lo", "hi", "n",
                  "est_label", "lo_label", "hi_label", "ci_label", "is_ref", "layout"))
   expect_type(out$stats$metric, "character")
   expect_type(out$stats$cov_name, "character")
@@ -417,6 +417,39 @@ test_that("Factor levels on cov_name_var and metric_name_var control panel and m
   # the standalone reference still moves first
   s_ref <- df_forest(d)$stats
   expect_equal(unique(s_ref$cov_name), c("Reference", "WTBL", "FOOD"))
+})
+
+
+#####replicate counts (n, show_rep)#####
+
+test_that("`n` counts the non-NA draws behind each row, including reference copies", {
+  out <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)$stats
+  expect_type(out$n, "integer")
+  expect_true(all(out$n == 500L))
+  d <- data_sad_pkforest
+  d$value[d$metric == "AUCRATIO" & d$cov_level == "90 kg"][1:20] <- NA
+  s <- df_forest(d)$stats
+  expect_equal(s$n[s$metric == "AUCRATIO" & s$cov_level == "90 kg"], 480L)
+})
+
+test_that("show_rep captions the replicate count; off by default", {
+  stats <- df_forest(data_sad_pkforest)
+  expect_null(plot_build_forest(stats, "AUCRATIO")$labels$caption)
+  p <- plot_build_forest(stats, "AUCRATIO", show_rep = TRUE)
+  expect_equal(p$labels$caption, "Replicates = 500")
+  expect_equal(plot_forest(stats, "AUCRATIO", show_rep = TRUE)$labels$caption, "Replicates = 500")
+  expect_error(plot_build_forest(stats, "AUCRATIO", show_rep = "yes"), "show_rep")
+})
+
+test_that("show_rep warns and shows the range when counts differ", {
+  d <- data_sad_pkforest
+  d$value[d$metric == "AUCRATIO" & d$cov_level == "90 kg"][1:20] <- NA
+  expect_warning(p <- plot_build_forest(df_forest(d), "AUCRATIO", show_rep = TRUE),
+                 "fewer than 500 in: WTBL 90 kg \\(n = 480\\)")
+  expect_equal(p$labels$caption, "Replicates = 480-500")
+  stats <- df_forest(data_sad_pkforest)
+  stats$stats$n <- NULL
+  expect_error(plot_build_forest(stats, "AUCRATIO", show_rep = TRUE), "needs an `n` column")
 })
 
 

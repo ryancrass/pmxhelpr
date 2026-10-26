@@ -374,7 +374,7 @@ input data carries only one metric, the `metric` argument does not need to be
 specified and the metric is selected automatically. 
 
 The output is a `ggplot` object with one facet row per covariate, the covariate
-level on the y-axis, and a right-hand estimate column (`1.29  (1.19, 1.41)`) 
+level on the y-axis, and a right-hand estimate column (`1.29 (1.19, 1.41)`) 
 under a header built from `ci` (e.g. `Estimate (90% CI)`). The rendered metric 
 labels the x-axis; there is no title by default.
 
@@ -574,6 +574,20 @@ each covariate. Covariates without an entry take colours from the house palette.
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
             style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"),
                                  logx = TRUE))
+```
+
+## pmforest look
+
+`style_pmforest()` reproduces the default look of Metrum's
+[pmforest](https://github.com/metrumresearchgroup/pmforest/) package: diamonds
+filled per covariate from the ggplot2 hue palette with black outlines, a
+dot-dash reference line, and grey vertical gridlines. It is a regular preset,
+so its fields can be overridden the same way.
+
+```{r plot-pmforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_pmforest(logx = TRUE)) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
 The facet layout is fixed by the renderer (`facet_grid()` rows by covariate, 

@@ -402,7 +402,7 @@ validate_forest_stats <- function(x) {
 #' estimates with horizontal CI lines, optional shaded equivalence band, and
 #' a vertical reference line, one facet row per covariate name. The
 #' `est_label`, `lo_label`, and `hi_label` columns are assembled into the
-#' right-hand secondary y-axis text (`"1.29  (1.19, 1.41)"`) under a header
+#' right-hand secondary y-axis text (`"1.29 (1.19, 1.41)"`) under a header
 #' built from the container's `ci` (e.g. `"Estimate (90% CI)"`), so each
 #' row's estimate sits beside its point. The header is the plot subtitle,
 #' right-aligned so it sits on the top edge of the panels above the column;
@@ -437,7 +437,8 @@ validate_forest_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
-#'    `style = style_forest(...)`, or restyle the returned plot with
+#'    `style = style_forest(...)`, use [style_pmforest()] for the look of
+#'    Metrum's `pmforest` package, or restyle the returned plot with
 #'    [restyle_plot()]. Series roles are `point`, `errorbar`, `ref_point`,
 #'    `ref_line`, and `ref_band`; `colors` entries keyed by covariate name
 #'    opt into per-covariate coloring (see [style_forest()]). The estimate
@@ -573,12 +574,32 @@ plot_build_forest <- function(
   test_data <- plot_data[!plot_data$is_ref, , drop = FALSE]
   ref_data <- plot_data[plot_data$is_ref, , drop = FALSE]
 
-  ## Per-covariate coloring: `colors` entries keyed by a covariate name present
-  ## in the plotted data switch point/errorbar color to a covariate mapping.
-  has_panel_color <- !is.function(plotstyle$colors) &&
-    any(cov_levels %in% names(plotstyle$colors))
+  ## Per-covariate coloring: a palette `function(n)` in `colors`, or entries
+  ## keyed by a covariate name present in the plotted data, switch
+  ## point/errorbar color to a covariate mapping. A palette is resolved to
+  ## named covariate entries here so the fill map below can reuse them.
+  if (is.function(plotstyle$colors)) {
+    pal <- plotstyle$colors(length(cov_levels))
+    if (is.null(names(pal))) pal <- stats::setNames(pal[seq_along(cov_levels)], cov_levels)
+    plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
+  }
+  has_panel_color <- any(cov_levels %in% names(plotstyle$colors))
   pt_mapping <- if (has_panel_color) ggplot2::aes(color = .data[[cov_name_var_str]])
   eb_mapping <- ggplot2::aes(xmin = .data[["lo"]], xmax = .data[["hi"]], !!!pt_mapping)
+
+  ## A fill shape (21-25) carries the covariate color as its fill, keeping the
+  ## `point` role colour as the outline; the covariate colors are copied into
+  ## the fill map so the fill scale matches the error bars.
+  pt_layer_mapping <- pt_mapping
+  pt_outline <- NULL
+  if (has_panel_color && isTRUE(series_aes(plotstyle, "point")$shape %in% 21:25)) {
+    pt_layer_mapping <- ggplot2::aes(fill = .data[[cov_name_var_str]])
+    pt_outline <- series_aes(plotstyle, "point")$colour %||% "black"
+    cov_colors <- plotstyle$colors[intersect(cov_levels, names(plotstyle$colors))]
+    fill_map <- if (is.function(plotstyle$fill)) NULL else plotstyle$fill
+    fill_map[names(cov_colors)] <- cov_colors
+    plotstyle <- ggstylekit::set_style(plotstyle, fill = fill_map)
+  }
 
   ## geom_blank() trains every panel's y scale (and the covariate colour
   ## scale, when mapped) on the full data first, so the row order set above
@@ -622,7 +643,9 @@ plot_build_forest <- function(
       "errorbar"
     ) +
     ggstylekit::series_layer(
-      ggplot2::geom_point(pt_mapping, data = test_data),
+      do.call(ggplot2::geom_point, compact(list(
+        mapping = pt_layer_mapping, data = test_data, colour = pt_outline
+      ))),
       "point"
     )
   ## style_plot() fills a point's colour/shape/size/alpha from the role, but
@@ -648,7 +671,7 @@ plot_build_forest <- function(
   est_labels <- ifelse(
     plot_data$is_ref,
     plot_data$est_label,
-    paste0(plot_data$est_label, "  (", plot_data$lo_label, ", ", plot_data$hi_label, ")")
+    paste0(plot_data$est_label, " (", plot_data$lo_label, ", ", plot_data$hi_label, ")")
   )
   header <- paste0("Estimate (", format(stats$config$ci * 100), "% CI)")
   base <- base +
@@ -674,7 +697,7 @@ plot_build_forest <- function(
   ## style_plot() builds the covariate colour scale from the `colors` entries
   ## (covariates without one take the house palette); the facet strips
   ## already name each covariate, so the legend is dropped.
-  if (has_panel_color) base <- base + ggplot2::guides(colour = "none")
+  if (has_panel_color) base <- base + ggplot2::guides(colour = "none", fill = "none")
 
   ggstylekit::style_plot(base, plotstyle)
 }

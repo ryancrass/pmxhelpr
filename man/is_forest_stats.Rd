@@ -49,6 +49,7 @@ Other forest plot:
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=style_forest]{style_forest()}}
+\code{\link[=style_forest]{style_forest()}},
+\code{\link[=style_pmforest]{style_pmforest()}}
 }
 \concept{forest plot}

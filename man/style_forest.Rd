@@ -11,8 +11,9 @@ style_forest(...)
 preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
 \code{shapes = c(point = 18)} leaves the other roles unchanged; \code{colors = c(FOOD = "red")} adds a covariate color while keeping the role colors);
 all other fields replace their default wholesale. A palette
-\verb{function(n)} in \code{colors} has no effect here: nothing is colour-mapped
-unless the map names covariates, so use named entries instead.}
+\verb{function(n)} in \code{colors} colours every covariate (called with the
+number of covariates); it replaces the role entries, which then fall back
+to the ggplot2 defaults.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.
@@ -59,11 +60,14 @@ style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "gre
 style_forest(logx = TRUE)
 }
 \seealso{
+\code{\link[=style_pmforest]{style_pmforest()}} for the look of Metrum's \code{pmforest} package.
+
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
-\code{\link[=plot_forest]{plot_forest()}}
+\code{\link[=plot_forest]{plot_forest()}},
+\code{\link[=style_pmforest]{style_pmforest()}}
 }
 \concept{forest plot}

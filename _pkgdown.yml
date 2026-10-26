@@ -57,6 +57,7 @@ reference:
       - style_gof
       - style_doseprop
       - style_forest
+      - style_pmforest
       - style_vpc
       - reexports
 

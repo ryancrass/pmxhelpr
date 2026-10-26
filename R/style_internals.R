@@ -138,7 +138,9 @@ series_aes <- function(spec, series) {
 #' per-series map may also be given as a palette `function(n)` (e.g.
 #' `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
 #' with the number of mapped groups; a palette has no entries to merge, so it
-#' replaces the default map wholesale. The merged fields are passed to `ggstylekit::style_spec()`.
+#' replaces the default map wholesale (and is likewise replaced wholesale when
+#' it is the default, e.g. [style_pmforest()]). The merged fields are passed to
+#' `ggstylekit::style_spec()`.
 #'
 #' @param defaults Named list of default `style_spec` arguments.
 #' @param overrides Named list of user overrides (typically `list(...)`).
@@ -156,7 +158,7 @@ build_style <- function(defaults, overrides = list()) {
   for (nm in names(overrides)) {
     ov <- overrides[[nm]]
     if (nm %in% map_fields && !is.null(defaults[[nm]]) && !is.null(ov) &&
-        !is.function(ov)) {
+        !is.function(ov) && !is.function(defaults[[nm]])) {
       base <- defaults[[nm]]
       base[names(ov)] <- ov            # entry-wise merge; override wins per key
       merged[[nm]] <- base

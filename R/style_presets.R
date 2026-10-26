@@ -292,9 +292,11 @@ style_vpc <- function(...) {
 #'   `shapes = c(point = 18)` leaves the other roles unchanged; `colors =
 #'   c(FOOD = "red")` adds a covariate color while keeping the role colors);
 #'   all other fields replace their default wholesale. A palette
-#'   `function(n)` in `colors` has no effect here: nothing is colour-mapped
-#'   unless the map names covariates, so use named entries instead.
+#'   `function(n)` in `colors` colours every covariate (called with the
+#'   number of covariates); it replaces the role entries, which then fall back
+#'   to the ggplot2 defaults.
 #'
+#' @seealso [style_pmforest()] for the look of Metrum's `pmforest` package.
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
 #' @export
@@ -323,6 +325,70 @@ style_forest <- function(...) {
     legend.position = "bottom",
     legend.title.position = "top",
     theme      = pmx_house_theme(forest_panel = TRUE)
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' pmforest-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of Metrum Research
+#' Group's [pmforest](https://github.com/metrumresearchgroup/pmforest/)
+#' package: black-outlined filled diamonds (shape 23, size 3.5) and uncapped
+#' interval lines coloured per covariate with the ggplot2 default hue
+#' palette, a dot-dash reference line, a `grey35` equivalence band at alpha
+#' 0.2, and a `theme_bw()` panel with grey major vertical gridlines, ~9.9 pt
+#' text, a ~7.9 pt estimate column, and no legend.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout: covariate facet strips (pmforest labels groups on
+#' the y-axis), the `est (lo, hi)` estimate column (pmforest prints
+#' `est [lo, hi]`), reference rows drawn as open diamonds (pmforest draws
+#' no point for them), and no minor gridlines (add them through `theme = `
+#' with `panel.grid.minor.x`).
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
+#'   c(point = 3)`). The default `colors` is a hue palette `function(n)`, so
+#'   passing `colors` replaces it wholesale: a different palette function, or
+#'   entries keyed by covariate name (covariates without an entry take the
+#'   house palette). The point fill follows the covariate colour while the
+#'   point shape is a fill shape (21-25); the `point` colour is the outline.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_pmforest()
+#' style_pmforest(fill = c(ref_band = "skyblue"))
+#' style_pmforest(logx = TRUE)
+style_pmforest <- function(...) {
+  defaults <- list(
+    # ggplot2's default discrete hue palette (`scales::hue_pal()`).
+    colors     = function(n) {
+      grDevices::hcl(h = seq(15, 375, length.out = n + 1)[seq_len(n)], c = 100, l = 65)
+    },
+    fill       = c(ref_point = "white", ref_band = "grey35"),
+    shapes     = c(point = 23, ref_point = 23),
+    sizes      = c(point = 3.5, ref_point = 3.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.2),
+    linewidths = c(errorbar = 0.5, ref_line = 0.5),
+    linetypes  = c(errorbar = "solid", ref_line = "dotdash"),
+    legend.position = "none",
+    # pmforest sizes text in mm (`text_size = 3.5`, table text 0.8x that);
+    # 0.352777778 mm per pt.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      text               = ggplot2::element_text(size = 3.5 / 0.352777778),
+      panel.background   = ggplot2::element_rect(fill = NA, colour = "grey20"),
+      panel.grid.major.x = ggplot2::element_line(colour = "grey"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 2.8 / 0.352777778, hjust = 0, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
   )
   build_style(defaults, list(...))
 }

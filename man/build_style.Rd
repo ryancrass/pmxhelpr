@@ -23,6 +23,8 @@ roles' default values; all other fields replace their default wholesale. A
 per-series map may also be given as a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
 with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map wholesale. The merged fields are passed to \code{ggstylekit::style_spec()}.
+replaces the default map wholesale (and is likewise replaced wholesale when
+it is the default, e.g. \code{\link[=style_pmforest]{style_pmforest()}}). The merged fields are passed to
+\code{ggstylekit::style_spec()}.
 }
 \keyword{internal}

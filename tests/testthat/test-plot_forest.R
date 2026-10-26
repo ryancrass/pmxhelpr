@@ -575,7 +575,7 @@ test_that("Covariate level labels may repeat across panels", {
   p <- plot_build_forest(stats, ref = 1)
   expect_equal(panel_labels(p, "y"), list(c("High", "Low"), c("High", "Low")))
   s <- stats$stats
-  col <- paste0(s$est_label, "  (", s$lo_label, ", ", s$hi_label, ")")
+  col <- paste0(s$est_label, " (", s$lo_label, ", ", s$hi_label, ")")
   expect_equal(panel_labels(p, "y.sec"),
                list(rev(col[s$COV == "WTBL"]), rev(col[s$COV == "AGE"])))
 })
@@ -590,11 +590,11 @@ test_that("the label pieces are the secondary y-axis text; reference rows show t
   expect_s3_class(sec_axis_of(p), "AxisSecondary")
   s <- drawn(stats, metric = "AUCRATIO")
   expected <- ifelse(s$is_ref, s$est_label,
-                     paste0(s$est_label, "  (", s$lo_label, ", ", s$hi_label, ")"))
+                     paste0(s$est_label, " (", s$lo_label, ", ", s$hi_label, ")"))
   expect_equal(unlist(panel_labels(p, "y.sec")),
                c(rev(expected[s$cov_var == "FOOD"]), rev(expected[s$cov_var == "WTBL"])))
   expect_equal(expected[s$cov_val %in% c("Fasted", "70 kg")], c("1.00", "1.00"))
-  expect_equal(expected[s$cov_val == "Fed"], "2.32  (2.00, 2.65)")
+  expect_equal(expected[s$cov_val == "Fed"], "2.32 (2.00, 2.65)")
 })
 
 test_that("the estimate column header is the plot subtitle built from ci", {
@@ -984,4 +984,65 @@ test_that("cov_level_ref label matching an existing level warns", {
 test_that("df_forest() column arguments follow the metric-first order", {
   expect_identical(names(formals(df_forest))[2:5],
                    c("metric_name_var", "metric_value_var", "cov_name_var", "cov_level_var"))
+})
+
+
+#####style_pmforest#####
+
+test_that("style_pmforest() returns the pmforest look as a style_spec", {
+  st <- style_pmforest()
+  expect_s3_class(st, "ggstylekit_style_spec")
+  expect_true(is.function(st$colors))
+  expect_equal(st$colors(3), grDevices::hcl(h = c(15, 135, 255), c = 100, l = 65))
+  expect_equal(unname(st$shapes[c("point", "ref_point")]), c(23, 23))
+  expect_equal(unname(st$sizes["point"]), 3.5)
+  expect_equal(unname(st$linetypes["ref_line"]), "dotdash")
+  expect_equal(unname(st$fill[c("ref_point", "ref_band")]), c("white", "grey35"))
+  expect_equal(unname(st$alphas["ref_band"]), 0.2)
+  expect_equal(st$legend.position, "none")
+  th <- st$theme
+  expect_s3_class(ggplot2::calc_element("panel.grid.minor.x", th), "element_blank")
+  expect_equal(th$panel.grid.major.x$colour, "grey")
+  expect_equal(th$strip.placement, "outside")
+  expect_equal(th$axis.text.y.right$size, 2.8 / 0.352777778)
+})
+
+test_that("style_pmforest() overrides: named colors replace the palette; maps merge entry-wise", {
+  st <- style_pmforest(colors = c(FOOD = "red"), sizes = c(point = 3))
+  expect_equal(st$colors, c(FOOD = "red"))
+  expect_equal(unname(st$sizes[c("point", "ref_point")]), c(3, 3.5))
+})
+
+test_that("plot_build_forest() with style_pmforest() fills diamonds per covariate with black outlines", {
+  stats <- df_forest(data_sad_pkforest)
+  p <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+                         style = style_pmforest())
+  pt <- layer_of(p, "GeomPoint", 1L)
+  expect_true("fill" %in% names(pt$mapping))
+  expect_false("colour" %in% names(pt$mapping))
+  expect_equal(pt$aes_params$colour, "black")
+  expect_equal(p$guides$guides$fill, "none")
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  is_eb <- vapply(p$layers, function(L) inherits(L$geom, "GeomLinerange"), logical(1))
+  pts <- built$data[[which(is_pt)[1]]]
+  ebs <- built$data[[which(is_eb)]]
+  expect_equal(unique(pts$shape), 23)
+  expect_equal(pts$fill, ebs$colour)
+  expect_equal(length(unique(pts$fill)), length(unique(p$layers[[which(is_pt)[1]]]$data$cov_var)))
+  rect <- layer_of(p, "GeomRect")
+  expect_equal(rect$aes_params$fill, "grey35")
+  expect_equal(rect$aes_params$alpha, 0.2)
+  vline <- built$data[[which(vapply(p$layers, function(L) inherits(L$geom, "GeomVline"), logical(1)))]]
+  expect_equal(unique(vline$linetype), "dotdash")
+})
+
+test_that("a palette function in style_forest() colors each covariate", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         style = style_forest(colors = function(n) rep("red", n)))
+  pt <- layer_of(p, "GeomPoint", 1L)
+  expect_true("colour" %in% names(pt$mapping))
+  built <- ggplot2::ggplot_build(p)
+  is_pt <- vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1))
+  expect_equal(unique(built$data[[which(is_pt)[1]]]$colour), "red")
 })

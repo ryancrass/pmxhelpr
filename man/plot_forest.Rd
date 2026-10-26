@@ -118,7 +118,8 @@ statistics are not recomputed; only the drawn rows change.}
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
-\code{style = style_forest(...)}, or restyle the returned plot with
+\code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}} for the look of
+Metrum's \code{pmforest} package, or restyle the returned plot with
 \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_point},
 \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
@@ -182,6 +183,7 @@ Other forest plot:
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_build_forest]{plot_build_forest()}},
-\code{\link[=style_forest]{style_forest()}}
+\code{\link[=style_forest]{style_forest()}},
+\code{\link[=style_pmforest]{style_pmforest()}}
 }
 \concept{forest plot}

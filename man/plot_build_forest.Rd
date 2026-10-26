@@ -21,7 +21,8 @@ plot_build_forest(
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
-\code{style = style_forest(...)}, or restyle the returned plot with
+\code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}} for the look of
+Metrum's \code{pmforest} package, or restyle the returned plot with
 \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar}, \code{ref_point},
 \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by covariate name
 opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}). The estimate
@@ -74,7 +75,7 @@ object satisfying the \code{forest_stats} contract). Renders per-row point
 estimates with horizontal CI lines, optional shaded equivalence band, and
 a vertical reference line, one facet row per covariate name. The
 \code{est_label}, \code{lo_label}, and \code{hi_label} columns are assembled into the
-right-hand secondary y-axis text (\code{"1.29  (1.19, 1.41)"}) under a header
+right-hand secondary y-axis text (\code{"1.29 (1.19, 1.41)"}) under a header
 built from the container's \code{ci} (e.g. \code{"Estimate (90\% CI)"}), so each
 row's estimate sits beside its point. The header is the plot subtitle,
 right-aligned so it sits on the top edge of the panels above the column;
@@ -135,6 +136,7 @@ Other forest plot:
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},
 \code{\link[=is_forest_stats]{is_forest_stats()}},
 \code{\link[=plot_forest]{plot_forest()}},
-\code{\link[=style_forest]{style_forest()}}
+\code{\link[=style_forest]{style_forest()}},
+\code{\link[=style_pmforest]{style_pmforest()}}
 }
 \concept{forest plot}

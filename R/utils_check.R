@@ -59,6 +59,12 @@ check_integer <- function(var, name){
   }
 }
 
+check_positive_integer <- function(var, name){
+  if(!is.numeric(var) || length(var) != 1L || is.na(var) || var < 1 || var != round(var)){
+    rlang::abort(message = paste0("argument `", name, "` must be a single whole number >= 1"))
+  }
+}
+
 check_boolean <- function(var, name){
   if(!isTRUE(var) && !isFALSE(var)){
     rlang::abort(message = paste0("argument `", name, "` must be `TRUE` or `FALSE`"))
@@ -158,7 +164,7 @@ check_loglog_args <- function(method, ci, sigdigits) {
     rlang::abort(message = "argument `method` must be `normal` or `tdist`")
   }
   check_quantile_scalar(ci, "ci")
-  check_integer(sigdigits, "sigdigits")
+  check_positive_integer(sigdigits, "sigdigits")
 }
 
 

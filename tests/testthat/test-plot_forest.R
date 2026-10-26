@@ -146,8 +146,10 @@ test_that("Error if `data` is not a data.frame", {
 test_that("Error on malformed ci / sigdigits", {
   expect_error(df_forest(data_sad_pkforest, ci = 1.5),
                regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
-  expect_error(df_forest(data_sad_pkforest, sigdigits = "abc"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
+  for (bad in list("abc", 0, -1, 2.5, c(2, 3), NA_real_)) {
+    expect_error(df_forest(data_sad_pkforest, sigdigits = bad),
+                 regexp = "argument `sigdigits` must be a single whole number >= 1")
+  }
 })
 
 test_that("Error if a named column is missing", {

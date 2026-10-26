@@ -23,9 +23,11 @@ test_that("Error if argument `ci` is not numeric between 0 and 1", {
                regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = 0),
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
 })
 
 
@@ -178,9 +180,9 @@ test_that("Error if argument `ci` is not numeric between 0 and 1", {
                regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
 })
 
 ##Test NSE Bare Names

@@ -196,7 +196,7 @@ df_forest <- function(
 
   check_df(data, "data")
   check_quantile_scalar(ci, "ci")
-  check_integer(sigdigits, "sigdigits")
+  check_positive_integer(sigdigits, "sigdigits")
   check_string(cov_name_ref, "cov_name_ref", null_ok = TRUE)
   if (!is.null(cov_level_ref)) check_named_vector(cov_level_ref, "cov_level_ref")
   check_varsindf(

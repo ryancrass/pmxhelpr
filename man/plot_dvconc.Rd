@@ -59,8 +59,7 @@ A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvconc]{style_dvconc()}}; view the defaults by running \code{style_dvconc()}
-with no arguments. Customize by passing \code{style = style_dvconc(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}.}
+with no arguments. Customize by passing \code{style = style_dvconc(...)}.}
 
 \item{...}{Additional arguments passed to \code{geom_smooth()}}
 }

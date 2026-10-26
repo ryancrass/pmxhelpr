@@ -100,8 +100,8 @@ Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
-with no arguments. Customize by passing \code{style = style_vpc(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Pass the same style to
+with no arguments. Customize by passing \code{style = style_vpc(...)}.
+Pass the same style to
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}

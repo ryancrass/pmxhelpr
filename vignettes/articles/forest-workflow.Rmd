@@ -639,11 +639,11 @@ plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
 ```
 
 For a deeper treatment of the styling system — `style_spec()` fields, 
-per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the 
+per-role maps, and post-hoc `reveal()` — see the 
 [Plot Styling and Aesthetics](plot-styling.html) vignette.
 
 # See also
 
   + [Dose-Proportionality Workflow](doseprop-workflow.html) — the sibling dual-mode pipeline (`df_doseprop()` / `plot_doseprop()`) for power law regression of exposure versus dose.
   + [Visual Predictive Check Workflow](vpc-workflow.html) — simulation-based model evaluation with `df_vpcstats()` and `plot_vpc_cont()`.
-  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.
+  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `reveal()` for customizing plot output.

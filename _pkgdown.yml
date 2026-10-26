@@ -48,8 +48,8 @@ reference:
     desc: >
       Per-plot-family presets returning a `ggstylekit::style_spec()` for the
       `style` argument (customize by passing fields, e.g.
-      `style_dvtime(shapes = ...)`), plus the `ggstylekit` verbs re-exported
-      for adjusting a finished plot: `restyle_plot()`, `reveal()`,
+      `style_dvtime(shapes = ...)`), plus the `ggstylekit` helpers
+      re-exported for surfacing variables and assembling plots: `reveal()`,
       `combine_styled_plots()`, and `legend_spec()`.
     contents:
       - style_dvtime

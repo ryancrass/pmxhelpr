@@ -91,8 +91,8 @@ describing the data plotted. A \code{caption} set in the style is drawn instead,
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_gof]{style_gof()}}; view the defaults by running \code{style_gof()}
-with no arguments. Customize by passing \code{style = style_gof(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The DV/PRED/IPRED (and
+with no arguments. Customize by passing \code{style = style_gof(...)}.
+The DV/PRED/IPRED (and
 OBS) overlays are colored by the \code{colors} map keyed by those labels. The
 error bar cap width is the style's \code{errorbar_width} field; when unset it
 defaults to 2.5\% of the maximum nominal time (\code{ntime_var}).}

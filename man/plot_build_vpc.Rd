@@ -50,8 +50,8 @@ ribbon are shown; the simulated median line is off by default (pass
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
-with no arguments. Customize by passing \code{style = style_vpc(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series names are the VPC roles. For
+with no arguments. Customize by passing \code{style = style_vpc(...)}.
+Series names are the VPC roles. For
 \code{type = "cens"}, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens \code{obs_point} color is
 inherited from \code{obs_median_line} (so points match the obs line); the

@@ -155,9 +155,8 @@ Styling is based on *maps* for plot aesthetics, which are keyed by
 (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are
 keyed by *role*, and only the *roles* specified override the defaults.
 
-A finished plot can be restyled after the fact with `restyle_plot()`,
-additional variables in the dataset can be surfaced with `reveal()`,
-legends are described with `legend_spec()`, and styled plots are
+Additional variables in the dataset can be surfaced after the fact with
+`reveal()`, legends are described with `legend_spec()`, and styled plots are
 assembled with `combine_styled_plots()`.
 
 ### S3 Class System

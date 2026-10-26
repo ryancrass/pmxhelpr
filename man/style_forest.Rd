@@ -54,8 +54,7 @@ through \verb{theme = } with \code{axis.text.y.right} and \code{plot.subtitle}).
 Intervals are drawn as uncapped lines. Set the \code{errorbar_width} field to
 draw capped error bars instead; it is the cap height in row heights (e.g.
 \code{style_forest(errorbar_width = 0.3)}, where 1 spans a full row). The
-preset leaves it unset, which the builder back-fills to 0 (no cap), so a
-built plot can also be capped with \code{restyle_plot(p, errorbar_width = 0.3)}.
+preset leaves it unset, which the builder back-fills to 0 (no cap).
 }
 \examples{
 style_forest()

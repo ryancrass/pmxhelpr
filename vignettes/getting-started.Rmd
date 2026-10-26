@@ -534,9 +534,8 @@ plot_dvtime(
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-A finished plot object can also be restyled after the fact with
-`restyle_plot()`. Additionally, variables can be surfaced and mapped to
-aesthetics after the fact with `reveal()`. Both are re-exported from ggstylekit.
+Variables can also be surfaced and mapped to aesthetics after the fact with
+`reveal()`, re-exported from ggstylekit.
 
 See the [Plot Styling and Aesthetics](plot-styling.html)  article for additional 
 details on plot styling with `pmxhelpr`.

@@ -781,6 +781,12 @@ test_that("the reference line and band are unkeyed: no fill or linetype scale", 
 
 #####plot_build_forest -- metric arg#####
 
+test_that("metric is the second argument of plot_build_forest(), as in plot_forest()", {
+  stats <- df_forest(data_sad_pkforest)
+  p <- plot_build_forest(stats, "AUCRATIO")
+  expect_equal(unique(as.character(p$data$metric)), "AUCRATIO")
+})
+
 test_that("metric picks the single value automatically, filters, and validates", {
   stats <- df_forest(data_sad_pkforest)
   expect_error(plot_build_forest(stats), regexp = "argument `metric` is required")

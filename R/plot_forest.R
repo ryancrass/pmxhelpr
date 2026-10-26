@@ -435,22 +435,23 @@ validate_forest_stats <- function(x) {
 #'
 #' @param stats A `forest_stats` object (typically the output of
 #'    [df_forest()]). Validated by [validate_forest_stats()] at entry.
+#' @param metric Character scalar identifying which value of `metric_name_var` to
+#'    render. `plot_forest()` renders one metric per call (no metric
+#'    facet); the covariate name is the only facet dimension. If `NULL`
+#'    (default) and `stats$stats` contains exactly one unique value of
+#'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
+#'    are present, aborts and asks the caller to pick one.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_forest()]; view the defaults by running
 #'    `style_forest()` with no arguments. Customize by passing
 #'    `style = style_forest(...)`, use [style_pmforest()],
 #'    [style_coveffectsplot()], [style_pmxforest()], or [style_pumas()] for
 #'    the looks of the `pmforest`, `coveffectsplot`, and `PMXForest` packages
-#'    and of `table_forest_plot()` from the Pumas ecosystem, or restyle the
-#'    returned plot with [restyle_plot()]. Series roles are `point`, `errorbar`,
+#'    and of `table_forest_plot()` from the Pumas ecosystem. Series roles are `point`, `errorbar`,
 #'    `ref_point`, `ref_line`, and `ref_band`; `colors` entries keyed by
 #'    covariate name opt into per-covariate coloring (see [style_forest()]).
 #'    The estimate column is axis text styled through the theme's
 #'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
-#'    Per-covariate coloring (named or palette `colors`) and the fill of
-#'    fill-shape points are set when the plot is built, so pass them through
-#'    `style =`; [restyle_plot()] does not add or remove them. The error bar
-#'    cap (`errorbar_width`) can be restyled.
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;
@@ -469,12 +470,6 @@ validate_forest_stats <- function(x) {
 #'    change from baseline; `"absolute"` draws `ref_band` as given. The
 #'    first two require a resolved `ref`; multiplicative limits must be
 #'    positive.
-#' @param metric Character scalar identifying which value of `metric_name_var` to
-#'    render. `plot_forest()` renders one metric per call (no metric
-#'    facet); the covariate name is the only facet dimension. If `NULL`
-#'    (default) and `stats$stats` contains exactly one unique value of
-#'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
-#'    are present, aborts and asks the caller to pick one.
 #' @param ref_layout Where the reference row is drawn: `"distributed"`
 #'    draws it in each covariate panel named in the container's
 #'    `cov_level_ref`, under that covariate's reference label (the rows with
@@ -517,11 +512,11 @@ validate_forest_stats <- function(x) {
 
 plot_build_forest <- function(
   stats,
+  metric = NULL,
   style = NULL,
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  metric = NULL,
   ref_layout = NULL
 ) {
   validate_forest_stats(stats)
@@ -659,14 +654,14 @@ plot_build_forest <- function(
       )
   }
 
-  ## The reference line is a tagged `ref_line` role layer, so it restyles.
+  ## The reference line is a tagged `ref_line` role layer.
   if (!is.null(ref)) {
     base <- base +
       ggstylekit::series_layer(ggplot2::geom_vline(xintercept = ref), "ref_line")
   }
 
-  ## Intervals are always error bars, so restyle_plot() can change the cap.
-  ## style_plot() fills the cap height (in row heights) from the style's
+  ## Intervals are always error bars, so one layer serves capped and uncapped
+  ## styles. style_plot() fills the cap height (in row heights) from the style's
   ## `errorbar_width`; unset, it is back-filled to 0, an uncapped line.
   if (is.null(plotstyle$errorbar_width)) {
     plotstyle <- ggstylekit::set_style(plotstyle, errorbar_width = 0)

@@ -229,8 +229,7 @@ validate_doseprop_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
 #'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`, or restyle the returned plot with
-#'    [restyle_plot()]. The per-metric facet layout is
+#'    `style = style_doseprop(...)`. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.
@@ -327,8 +326,7 @@ plot_build_doseprop <- function(stats,
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
 #'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`, or restyle the returned plot with
-#'    [restyle_plot()]. The per-metric facet layout is
+#'    `style = style_doseprop(...)`. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.

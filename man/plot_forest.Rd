@@ -121,16 +121,11 @@ Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by ru
 \code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}},
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, \code{\link[=style_pmxforest]{style_pmxforest()}}, or \code{\link[=style_pumas]{style_pumas()}} for
 the looks of the \code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages
-and of \code{table_forest_plot()} from the Pumas ecosystem, or restyle the
-returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar},
+and of \code{table_forest_plot()} from the Pumas ecosystem. Series roles are \code{point}, \code{errorbar},
 \code{ref_point}, \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by
 covariate name opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).
 The estimate column is axis text styled through the theme's
-\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).
-Per-covariate coloring (named or palette \code{colors}) and the fill of
-fill-shape points are set when the plot is built, so pass them through
-\verb{style =}; \code{\link[=restyle_plot]{restyle_plot()}} does not add or remove them. The error bar
-cap (\code{errorbar_width}) can be restyled.}
+\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).}
 }
 \value{
 a \code{ggplot} plot object

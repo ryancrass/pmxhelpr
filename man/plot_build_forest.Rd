@@ -6,11 +6,11 @@
 \usage{
 plot_build_forest(
   stats,
+  metric = NULL,
   style = NULL,
   ref = "reference",
   ref_band = NULL,
   ref_band_type = c("multiplicative", "additive", "absolute"),
-  metric = NULL,
   ref_layout = NULL
 )
 }
@@ -18,22 +18,24 @@ plot_build_forest(
 \item{stats}{A \code{forest_stats} object (typically the output of
 \code{\link[=df_forest]{df_forest()}}). Validated by \code{\link[=validate_forest_stats]{validate_forest_stats()}} at entry.}
 
+\item{metric}{Character scalar identifying which value of \code{metric_name_var} to
+render. \code{plot_forest()} renders one metric per call (no metric
+facet); the covariate name is the only facet dimension. If \code{NULL}
+(default) and \code{stats$stats} contains exactly one unique value of
+\code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
+are present, aborts and asks the caller to pick one.}
+
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
 \code{style_forest()} with no arguments. Customize by passing
 \code{style = style_forest(...)}, use \code{\link[=style_pmforest]{style_pmforest()}},
 \code{\link[=style_coveffectsplot]{style_coveffectsplot()}}, \code{\link[=style_pmxforest]{style_pmxforest()}}, or \code{\link[=style_pumas]{style_pumas()}} for
 the looks of the \code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages
-and of \code{table_forest_plot()} from the Pumas ecosystem, or restyle the
-returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series roles are \code{point}, \code{errorbar},
+and of \code{table_forest_plot()} from the Pumas ecosystem. Series roles are \code{point}, \code{errorbar},
 \code{ref_point}, \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by
 covariate name opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).
 The estimate column is axis text styled through the theme's
-\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).
-Per-covariate coloring (named or palette \code{colors}) and the fill of
-fill-shape points are set when the plot is built, so pass them through
-\verb{style =}; \code{\link[=restyle_plot]{restyle_plot()}} does not add or remove them. The error bar
-cap (\code{errorbar_width}) can be restyled.}
+\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).}
 
 \item{ref}{The x-intercept of the vertical reference line: a numeric
 scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
@@ -54,13 +56,6 @@ reference change of zero for a difference metric such as percent
 change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
 first two require a resolved \code{ref}; multiplicative limits must be
 positive.}
-
-\item{metric}{Character scalar identifying which value of \code{metric_name_var} to
-render. \code{plot_forest()} renders one metric per call (no metric
-facet); the covariate name is the only facet dimension. If \code{NULL}
-(default) and \code{stats$stats} contains exactly one unique value of
-\code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
-are present, aborts and asks the caller to pick one.}
 
 \item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
 draws it in each covariate panel named in the container's

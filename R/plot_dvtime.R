@@ -57,8 +57,8 @@
 #'    Accepts bare names or strings. Default is `NTIME`.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_dvtime()]; view the defaults by running `style_dvtime()`
-#'    with no arguments. Customize by passing `style = style_dvtime(...)`, or
-#'    restyle the returned plot with [restyle_plot()]. The error bar cap width
+#'    with no arguments. Customize by passing `style = style_dvtime(...)`.
+#'    The error bar cap width
 #'    is the style's `errorbar_width` field; when unset it defaults to 2.5% of
 #'    the maximum nominal time (`ntime_var`).
 #'

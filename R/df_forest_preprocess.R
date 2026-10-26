@@ -162,6 +162,16 @@ df_forest_preprocess <- function(
       paste(not_numeric, collapse = ", ")
     ))
   }
+  if (isTRUE(ratio)) {
+    ratio_clash <- intersect(paste0(metric_vars, ratio_suffix), names(data))
+    if (length(ratio_clash) > 0) {
+      rlang::abort(message = paste0(
+        "`ratio = TRUE` would overwrite these columns of `data`: ",
+        paste(ratio_clash, collapse = ", "),
+        ". Rename or drop them, set a different `ratio_suffix`, or set `ratio = FALSE`."
+      ))
+    }
+  }
 
   ## ---- Scenario derivation -----------------------------------------------
   ## A scenario is one combination of the `cov_vars` columns. Matching is on

@@ -148,6 +148,25 @@ test_that("`ratio_suffix` names the ratio metrics", {
   expect_true(all(c("AUC_REL", "CMAX_REL") %in% out$metric))
 })
 
+test_that("A ratio name already in `data` aborts, whether a metric or a passthrough column", {
+  clash <- sim_wide
+  clash$AUCRATIO <- 999
+  expect_error(
+    df_forest_preprocess(clash, metric_vars = c("AUC", "AUCRATIO"), cov_vars = c("FOOD", "WTBL"),
+                         cov_val_ref = ref_vals),
+    "would overwrite these columns of `data`: AUCRATIO"
+  )
+  expect_error(
+    df_forest_preprocess(clash, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
+                         cov_val_ref = ref_vals),
+    "would overwrite these columns of `data`: AUCRATIO"
+  )
+  expect_no_error(
+    df_forest_preprocess(clash, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
+                         cov_val_ref = ref_vals, ratio = FALSE)
+  )
+})
+
 test_that("`irep_name` is only required when ratios are requested", {
   no_sim <- sim_wide[sim_wide$SIM == 1, setdiff(names(sim_wide), "SIM")]
   expect_s3_class(

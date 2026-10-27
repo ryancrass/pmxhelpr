@@ -14,7 +14,9 @@ plot_dvtime(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
+  show_loq_value = TRUE,
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
+  show_obs = TRUE,
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,
@@ -44,8 +46,10 @@ observations within each level of the variable.}
 Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
-Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.}
+Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data},
+in which case each row is imputed at its own \code{LLOQ} and the LLOQ line is drawn at the highest value.
+Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.
+Has no effect with \code{loq_method = 0} (the default), which emits a message.}
 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
 
@@ -57,6 +61,11 @@ Options are:
 + Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
    Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 }\if{html}{\out{</div>}}}
+
+\item{show_loq_value}{Logical. If \code{TRUE} (default), the LLOQ line's legend
+entry is titled \code{"LLOQ"} and keyed by its value. If \code{FALSE}, the title is
+dropped and the entry is labeled \code{"LLOQ"} without the value. Applies only
+when the LLOQ line is drawn (\code{loq_method} of \code{1} or \code{2}, \code{dosenorm = FALSE}).}
 
 \item{cent}{Character string specifying the central tendency measure to plot.
 
@@ -70,6 +79,12 @@ Options are:
 \item None: \code{"none"}
 }}
 
+\item{show_obs}{Logical indicating if observed data points should be shown.
+Default is \code{TRUE}. \code{FALSE} omits the point layer entirely, so hidden
+points do not affect axis limits (unlike setting
+\code{alphas = c(obs_point = 0)} in the style). Spaghetti lines are controlled
+separately by \code{id_var}.}
+
 \item{dosenorm}{logical indicating if observed data points should be dose normalized. Default is \code{FALSE},
 Requires variable specified in \code{dose_var} to be present in \code{data}}
 
@@ -80,12 +95,13 @@ change-from-baseline data.}
 \item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
-\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted}
+\item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_dvtime]{style_dvtime()}}; view the defaults by running \code{style_dvtime()}
-with no arguments. Customize by passing \code{style = style_dvtime(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The error bar cap width
+with no arguments. Customize by passing \code{style = style_dvtime(...)}.
+The error bar cap width
 is the style's \code{errorbar_width} field; when unset it defaults to 2.5\% of
 the maximum nominal time (\code{ntime_var}).}
 }

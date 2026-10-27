@@ -75,6 +75,8 @@ prediction-corrected counterparts carry a \code{pc_} prefix
 single (not duplicated). \verb{sim_prop_blq_*} is std-only — LOQ has
 no meaning on the prediction-corrected scale. \code{-Inf} quantile
 values from rank-mode fully-censored bins are masked to \code{NA}.
+\verb{pc_sim_*} quantiles are \code{NA} in bins with no quantifiable
+observations (\code{obs_n == obs_n_blq}).
 Carries attributes \code{n_replicates}, \code{loq}, and \code{strat_var}.}
 \item{\code{obs}}{First-replicate observation rows with \code{MDV == 0}, used as
 the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSDV} carries the
@@ -97,7 +99,8 @@ time via \code{plot_vpc_cont(pcvpc = TRUE/FALSE)}.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                              model = model, replicates = 10,
                               dv_var = ODV)
 result <- df_vpcstats(simout, loq = 1)
 head(result$stats)

@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Constructor for the cacheable stats containers returned by
-#' [df_vpcstats()] and [df_doseprop()]. Each container is a named list with
+#' [df_vpcstats()], [df_doseprop()], and [df_forest()]. Each container is a named list with
 #' three slots — `stats` (the per-row summary frame), `obs` (the observation
 #' overlay used by plot builders, may be `NULL`), and `config` (named list of
 #' run configuration consumed by the plot builders). The class vector is
@@ -15,7 +15,7 @@
 #' @param config A named `list` of run configuration (e.g. column names, CI
 #'    width, replicate count).
 #' @param subclass Character scalar naming the concrete subclass (e.g.
-#'    `"vpc_stats"`, `"doseprop_stats"`).
+#'    `"vpc_stats"`, `"doseprop_stats"`, `"forest_stats"`).
 #'
 #' @family pmx stats class
 #' @return An object of class `c(subclass, "pmx_stats")`.
@@ -36,9 +36,10 @@ pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
 #'
 #' @description
 #' Predicate that returns `TRUE` if `x` carries the `"pmx_stats"` class. This
-#' is the shared base class for [df_vpcstats()] and [df_doseprop()] outputs;
-#' use the subclass-specific predicates [is_vpc_stats()] and
-#' [is_doseprop_stats()] when you need to discriminate between pipelines.
+#' is the shared base class for [df_vpcstats()], [df_doseprop()], and
+#' [df_forest()] outputs; use the subclass-specific predicates
+#' [is_vpc_stats()], [is_doseprop_stats()], and [is_forest_stats()] when you
+#' need to discriminate between pipelines.
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs
@@ -57,20 +58,37 @@ is_pmx_stats <- function(x, strict = FALSE) {
 
 
 
-#' Validate a `pmx_stats` container's structural shape
+#' Validate a `pmx_stats` container
 #'
 #' @description
 #' Internal helper. Asserts that `x` carries the `pmx_stats` class and exposes
 #' the `stats` / `obs` / `config` slots in the expected shape. Subclass
-#' validators delegate to this function for the structural checks before
-#' applying their own column / config-key checks.
+#' validators pass their contract (class, required columns, required config
+#' keys) through the optional arguments, so every container reports missing
+#' pieces with the same messages, and then apply any checks of their own.
 #'
 #' @param x Object to validate.
+#' @param subclass Optional subclass name `x` must carry (e.g.
+#'    `"forest_stats"`).
+#' @param source Name of the function that builds `subclass`, quoted in the
+#'    class error (e.g. `"df_forest"`).
+#' @param stats_cols Columns `x$stats` must contain.
+#' @param obs_cols Columns `x$obs` must contain.
+#' @param config_keys Keys `x$config` must contain.
+#' @param require_obs Logical; whether `x$obs` must be a data.frame rather
+#'    than `NULL`. Implied by a non-empty `obs_cols`.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
 
-validate_pmx_stats <- function(x) {
+validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
+                               stats_cols = NULL, obs_cols = NULL,
+                               config_keys = NULL,
+                               require_obs = length(obs_cols) > 0) {
+  if (!is.null(subclass) && !inherits(x, subclass)) {
+    rlang::abort(paste0("`x` must be a `", subclass, "` object (output of `",
+                        source, "()`)."))
+  }
   if (!inherits(x, "pmx_stats")) {
     rlang::abort("`x` must be a `pmx_stats` object.")
   }
@@ -89,6 +107,48 @@ validate_pmx_stats <- function(x) {
   if (!is.list(x$config)) {
     rlang::abort("`pmx_stats$config` must be a `list`.")
   }
+  name <- subclass %||% "pmx_stats"
+  if (isTRUE(require_obs) && !is.data.frame(x$obs)) {
+    rlang::abort(paste0("`", name, "` object must contain `stats` and `obs` data.frames."))
+  }
+  missing_from <- function(have, need, what, noun) {
+    miss <- setdiff(need, have)
+    if (length(miss) > 0) {
+      rlang::abort(paste0("`", name, "$", what, "` is missing required ", noun,
+                          ": ", paste(miss, collapse = ", ")))
+    }
+  }
+  missing_from(colnames(x$stats), stats_cols, "stats", "columns")
+  missing_from(colnames(x$obs), obs_cols, "obs", "columns")
+  missing_from(names(x$config), config_keys, "config", "keys")
+  invisible(x)
+}
+
+
+#' Internal helper: print the header shared by the `pmx_stats` subclasses
+#'
+#' Prints the class tag, the `stats` dimensions, the `obs` row count (when
+#' `obs` is a data.frame), and the `config` values named in `config_keys` as
+#' one `key = value` line. `NULL` values print as `NULL`, named vectors as an
+#' R `c()` call, and other vectors comma-separated.
+#'
+#' @param x A `pmx_stats` subclass object.
+#' @param config_keys Names of the `x$config` entries to show, in order.
+#'
+#' @return `invisible(x)`.
+#' @keywords internal
+#' @noRd
+pmx_stats_header <- function(x, config_keys) {
+  fmt_value <- function(v) {
+    if (is.null(v)) return("NULL")
+    if (!is.null(names(v))) return(paste(deparse(v), collapse = ""))
+    paste(format(v), collapse = ", ")
+  }
+  cat(sprintf("<%s>\n", class(x)[1]))
+  cat(sprintf("  stats: %d rows x %d columns\n", nrow(x$stats), ncol(x$stats)))
+  if (is.data.frame(x$obs)) cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
+  vals <- vapply(config_keys, function(k) fmt_value(x$config[[k]]), character(1))
+  cat(sprintf("  config: %s\n", paste(config_keys, "=", vals, collapse = ", ")))
   invisible(x)
 }
 

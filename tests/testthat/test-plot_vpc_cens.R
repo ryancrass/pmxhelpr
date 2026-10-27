@@ -356,3 +356,8 @@ test_that("plot_vpc_cens takes its stratification facet layout from the style", 
   expect_true(p_free$facet$params$free$y)
   expect_equal(p_free$facet$params$ncol, 1)
 })
+
+test_that("plot_vpc_cens() rejects a non-logical show_rep before computing", {
+  expect_error(plot_vpc_cens(data_sad, show_rep = 1),
+               "argument `show_rep` must be `TRUE` or `FALSE`")
+})

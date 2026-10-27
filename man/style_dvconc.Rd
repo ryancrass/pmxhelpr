@@ -21,8 +21,8 @@ A \code{ggstylekit_style_spec} object.
 \description{
 Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for \code{\link[=plot_dvconc]{plot_dvconc()}}. Series names:
 \code{obs_point}, \code{ref_line}, \code{loess}, \code{linear}. The \code{loess}/\code{linear} trend lines
-are \code{geom_smooth} (line entity); their SE ribbon fill/alpha come from
-\code{line_fill}/\code{fill_alpha}.
+are \code{geom_smooth} (line entity); their SE ribbon fill is \code{line_fill}, and its
+alpha is the \code{loess} / \code{linear} entry of \code{alphas}.
 }
 \details{
 Like every pmxhelpr preset, it places legend titles above the keys

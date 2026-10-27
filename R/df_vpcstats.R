@@ -55,6 +55,8 @@
 #'        single (not duplicated). `sim_prop_blq_*` is std-only — LOQ has
 #'        no meaning on the prediction-corrected scale. `-Inf` quantile
 #'        values from rank-mode fully-censored bins are masked to `NA`.
+#'        `pc_sim_*` quantiles are `NA` in bins with no quantifiable
+#'        observations (`obs_n == obs_n_blq`).
 #'        Carries attributes `n_replicates`, `loq`, and `strat_var`.}
 #'      \item{`obs`}{First-replicate observation rows with `MDV == 0`, used as
 #'        the scatter overlay in [plot_vpc_cont()]. `OBSDV` carries the
@@ -65,7 +67,8 @@
 #'
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 10,
 #'                               dv_var = ODV)
 #' result <- df_vpcstats(simout, loq = 1)
 #' head(result$stats)

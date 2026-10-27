@@ -180,6 +180,21 @@ test_that("df_prep_dvtime applies BLQ imputation", {
   expect_equal(result$lloq, 1)
 })
 
+test_that("df_prep_dvtime imputes each row at its own LLOQ; the line is the highest", {
+  df <- data.frame(TIME = c(1, 2, 3, 4), NTIME = c(1, 2, 3, 4),
+                   DV = c(NA, NA, 50, NA), MDV = c(1, 1, 0, 1), EVID = 0,
+                   LLOQ = c(1, 10, 10, NA))
+  result <- suppressMessages(pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", loq_method = 2))
+  expect_equal(result$data$LOQ, c(1, 10, 10, NA))
+  expect_equal(result$data$DV, c(0.5, 5, 50, NA))
+  expect_equal(result$lloq, 10)
+  # a leading NA LLOQ no longer blanks every row
+  first_na <- df[c(4, 1, 2, 3), ]
+  result2 <- suppressMessages(pmxhelpr:::df_prep_dvtime(first_na, "TIME", "NTIME", loq_method = 2))
+  expect_equal(result2$data$LOQ, c(NA, 1, 10, 10))
+  expect_equal(result2$lloq, 10)
+})
+
 test_that("df_prep_dvtime applies dose normalization to all output vars", {
   df <- data.frame(TIME = 1:2, NTIME = 1:2, DV = c(10, 20), IPRED = c(12, 22),
                    MDV = c(0, 0), EVID = c(0, 0), DOSE = c(100, 100))
@@ -366,7 +381,7 @@ test_that("check_loglog_args errors on bad method", {
 
 test_that("check_loglog_args errors on ci outside (0,1)", {
   expect_error(pmxhelpr:::check_loglog_args("normal", 1.5, 3),
-               regexp = "must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("check_loglog_args accepts valid arguments silently", {
@@ -377,15 +392,21 @@ test_that("check_loglog_args accepts valid arguments silently", {
 test_that("check_pipeline_args_dropped accepts plot-only args silently", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, style = my_style))
   expect_silent(pmxhelpr:::check_pipeline_args_dropped(
-    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"))
+    fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont",
+    stats_fn = "df_vpcstats"))
 })
 
 test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
   fake_call <- quote(plot_vpc_cont(data = stats_obj, loq = 1, mode = "drop"))
   expect_error(
     pmxhelpr:::check_pipeline_args_dropped(
-      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont"),
+      fake_call, plot_only_args = c("data", "style"), fn_name = "plot_vpc_cont",
+      stats_fn = "df_vpcstats"),
     regexp = "loq|mode"
+  )
+  expect_error(
+    plot_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO", ci = 0.95),
+    regexp = "call `df_forest\\(\\)` with these arguments"
   )
 })
 
@@ -410,6 +431,47 @@ test_that("check_single_cmt is silent when CMT column is absent", {
 test_that("check_single_cmt is silent on empty data", {
   df <- data.frame(CMT = integer(0), EVID = integer(0))
   expect_no_warning(pmxhelpr:::check_single_cmt(df))
+})
+
+
+##Test label_sort_num(): shared numeric sort key for display labels
+test_that("label_sort_num honors the NA contract for unparseable input", {
+  # Both callers gate on NA to decide whether to sort numerically at all, so a
+  # sentinel (Inf, 0) here would silently change behavior at both call sites.
+  got <- pmxhelpr:::label_sort_num(c(NA_character_, "", "-", "--", "  ", "Fasted"))
+  expect_true(all(is.na(got)))
+  expect_type(got, "double")
+})
+
+test_that("label_sort_num reads the first number, sign included", {
+  expect_equal(
+    pmxhelpr:::label_sort_num(c("-5 kg", "10 kg", "-20 kg", "-0.5",
+                                "Age 65 y", "WT70", "2.5 mg", "70 kg")),
+    c(-5, 10, -20, -0.5, 65, 70, 2.5, 70)
+  )
+})
+
+test_that("label_sort_num treats a non-sign hyphen as a hyphen", {
+  # Compound word and range separator: the number is positive in both.
+  expect_equal(pmxhelpr:::label_sort_num(c("Weight-50 kg", "50-60 kg")), c(50, 50))
+  # ... but a real leading sign still reads as negative.
+  expect_equal(pmxhelpr:::label_sort_num("-50 kg"), -50)
+})
+
+test_that("label_sort_num agrees with the legacy leading-number regex", {
+  # order_col_factor() used to gate on `^\\s*-?[0-9]` and parse with the regex
+  # below. Dropping that gate is only safe because the shared key returns the
+  # same value for every label the gate admitted -- pinned here so the
+  # guarantee lives in the suite, not just in review.
+  legacy <- function(x) {
+    suppressWarnings(as.numeric(sub("^\\s*(-?[0-9]+\\.?[0-9]*).*$", "\\1", x)))
+  }
+  corpus <- c("5 mg", "20 mg", "100 mg", "2.5 mg", "0.5 mg", "-5 kg", "-20 kg",
+              "100 mg (n=6)", "20 mg (n=12)", "5-10 mg", "70 kg", "0 kg",
+              " 15 mg", "1000", "12.75 ng/mL", "-0.5", "3 mg/kg", "5 mg q12h",
+              "-0", "0", "7.", "10e3")
+  expect_true(all(grepl("^\\s*-?[0-9]", corpus)))   # all admitted by the old gate
+  expect_equal(pmxhelpr:::label_sort_num(corpus), legacy(corpus))
 })
 
 
@@ -444,6 +506,24 @@ test_that("order_col_factor orders numeric-labelled character col_var by value",
   )
 })
 
+test_that("order_col_factor sorts labels whose number is not leading", {
+  # Previously these failed the `starts with a digit` gate and kept
+  # first-appearance order, so "Dose 10 mg" sorted above "Dose 5 mg".
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Dose 10 mg", "Dose 5 mg"))),
+    c("Dose 5 mg", "Dose 10 mg")
+  )
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Week 2", "Week 10", "Week 1"))),
+    c("Week 1", "Week 2", "Week 10")
+  )
+  # A hyphen in the label is not a minus sign.
+  expect_equal(
+    levels(pmxhelpr:::order_col_factor(c("Weight-50 kg", "Weight-10 kg"))),
+    c("Weight-10 kg", "Weight-50 kg")
+  )
+})
+
 test_that("order_col_factor falls back to first-appearance for non-numeric labels", {
   expect_equal(
     levels(pmxhelpr:::order_col_factor(c("High", "Low", "Medium"))),
@@ -455,3 +535,32 @@ test_that("order_col_factor falls back to first-appearance for non-numeric label
     c("Placebo", "20 mg", "5 mg")
   )
 })
+
+test_that("order_col_factor keeps first-appearance order when labels share a number", {
+  lab <- c("Mild (60-89)", "Moderate (30-59)", "Severe (<30)")
+  expect_equal(levels(pmxhelpr:::order_col_factor(lab)), lab)
+})
+
+
+##Test fmt_sig(): fixed-significant-digit label formatter
+test_that("fmt_sig() keeps trailing zeros, rounds to sigdigits, and passes NA through", {
+  expect_equal(fmt_sig(c(1, 0.8, 23312, 9969, 2.334, NA), 3),
+               c("1.00", "0.800", "23300", "9970", "2.33", NA))
+  expect_equal(fmt_sig(1.5, 2), "1.5")
+  expect_equal(fmt_sig(0.0001234, 3), "0.000123")
+  expect_equal(fmt_sig(c(0, -17.24), 3), c("0.00", "-17.2"))
+  expect_equal(fmt_sig(0, 1), "0")
+  # rounding up a magnitude takes the rounded value's decimals
+  expect_equal(fmt_sig(c(0.9996, 9996), 3), c("1.00", "10000"))
+})
+
+test_that("fmt_sig() with a shared anchor gives every value the same decimal places", {
+  expect_equal(fmt_sig(c(2.321, 0.903, 0.873), 3, anchor = 1.1), c("2.32", "0.90", "0.87"))
+  expect_equal(fmt_sig(c(28812, 9470), 3, anchor = 12459), c("28800", "9500"))
+  # a zero or non-finite anchor falls back to `sigdigits - 1` decimals
+  expect_equal(fmt_sig(c(1.234, 0.5), 3, anchor = 0), c("1.23", "0.50"))
+  expect_equal(fmt_sig(1.234, 3, anchor = NA), "1.23")
+  # rounding to a negative zero prints without the sign
+  expect_equal(fmt_sig(-0.001, 3, anchor = 1), "0.00")
+})
+

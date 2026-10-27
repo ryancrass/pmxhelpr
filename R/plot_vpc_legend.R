@@ -5,11 +5,15 @@
 #'    Should match argument passed to [plot_vpc_cont()]. Default is `0.90`.
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
 #'    Ignored when `type = "cens"` (cens VPCs do not have prediction intervals).
-#' @param lloq Numeric scalar or vector of LLOQ values to label in the legend,
+#' @param loq Numeric scalar or vector of LLOQ values to label in the legend,
 #'    or `NULL` to omit. Each unique value becomes one legend entry rendered
-#'    with the style's `loq_line` linetype. Pass `compute_out$config$loq` from
+#'    with the style's `loq_line` linetype. Pass `stats$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
+#' @param show_loq_value Logical. If `TRUE` (default), each unique `loq` value
+#'    gets its own legend entry labeled `"LLOQ = <value>"`. If `FALSE`, a
+#'    single entry labeled `"LLOQ"` is drawn regardless of how many values
+#'    `loq` holds. Ignored when `loq` is `NULL`.
 #' @param style A [ggstylekit::style_spec()] controlling legend aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
 #'    with no arguments. Should match the `style` passed to [plot_vpc_cont()].
@@ -27,6 +31,7 @@
 #'    VPCs have no prediction interval).
 #' @param ... Other arguments passed to [ggplot2::theme()], applied after the
 #'    style so they override it.
+#' @param lloq Deprecated alias of `loq`; warns. Do not pass both.
 #'
 #' @inheritParams plot_vpc_cont
 #' @family vpc
@@ -43,17 +48,30 @@
 #'  obs_median_line = TRUE,
 #'  sim_median_line = FALSE, sim_median_ci = TRUE))
 #'## Cens VPC legend
-#'plot_vpc_legend(type = "cens", lloq = 1)
+#'plot_vpc_legend(type = "cens", loq = 1)
+#'## LLOQ entry without its value
+#'plot_vpc_legend(loq = c(0.5, 1), show_loq_value = FALSE)
 
 plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
                         shown = NULL,
-                        lloq = NULL,
+                        loq = NULL,
+                        show_loq_value = TRUE,
                         style = NULL,
                         type = c("cont", "cens"),
-                        ...){
+                        ...,
+                        lloq = NULL){
 
   type <- match.arg(type)
+  check_quantile_scalar(ci, "ci")
+  check_quantile_pair(pi, "pi")
+  if (!is.null(lloq)) {
+    if (!is.null(loq)) {
+      rlang::abort("pass `loq` only; `lloq` is its deprecated alias.")
+    }
+    rlang::warn("`lloq` is deprecated; use `loq`.")
+    loq <- lloq
+  }
 
   ## Legend aesthetics from the style. Reshape the style's per-series maps into
   ## a per-role list (with American-spelled `color`) so the proxy-geom /
@@ -71,6 +89,7 @@ plot_vpc_legend <- function(ci = 0.90,
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
+  if (!isTRUE(nlist$loq_line)) loq <- NULL
 
   ## Cens invariant: no prediction intervals on a cens VPC, so the four
   ## *_pi_* keys are forced off regardless of the user's `shown`. This
@@ -83,11 +102,12 @@ plot_vpc_legend <- function(ci = 0.90,
     nlist$sim_pi_area <- FALSE
   }
 
-  if (!is.null(lloq)) check_numeric_strict(lloq, "lloq")
-  lloq_lab <- paste0("LLOQ = ", lloq)
-  df_lloq <- if (!is.null(lloq)) {
-    data.frame(x = rep(NA_real_, length(lloq)),
-               y = rep(NA_real_, length(lloq)),
+  if (!is.null(loq)) check_numeric_strict(loq, "loq")
+  check_boolean(show_loq_value, "show_loq_value")
+  lloq_lab <- if (show_loq_value) paste0("LLOQ = ", loq) else "LLOQ"
+  df_lloq <- if (!is.null(loq)) {
+    data.frame(x = rep(NA_real_, length(lloq_lab)),
+               y = rep(NA_real_, length(lloq_lab)),
                lloq_lab = factor(lloq_lab, levels = lloq_lab))
   } else NULL
   obs <- "Obs"
@@ -126,7 +146,7 @@ plot_vpc_legend <- function(ci = 0.90,
     if (isTRUE(nlist$obs_pi_line))      stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
     if (isTRUE(nlist$sim_median_line))  stats::setNames(plist$sim_median_line$linetype, sim_cent),
     if (isTRUE(nlist$sim_pi_line))      stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
-    if (!is.null(lloq))                 stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
+    if (!is.null(loq))                  stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
   )
 
   fill_vals <- c(
@@ -139,7 +159,7 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(nlist$obs_point == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
                                                   color = plist$obs_point$color,
                                                   size = plist$obs_point$size, na.rm= TRUE)} +
-    {if(!is.null(lloq)) ggplot2::geom_line(data = df_lloq,
+    {if(!is.null(loq)) ggplot2::geom_line(data = df_lloq,
                                            ggplot2::aes(linetype = lloq_lab),
                                            color = plist$loq_line$color,
                                            linewidth = 1, na.rm= TRUE)} +

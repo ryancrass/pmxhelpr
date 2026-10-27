@@ -26,18 +26,67 @@
 #' major gridlines blanked. The VPC family passes `white_panel = TRUE` for a
 #' white panel background with a thin black border.
 #'
+#' The forest family (`forest_panel = TRUE`) inverts the gridline orientation:
+#' it keeps `panel.grid.major.x` as a faint ruler aligned with the point
+#' estimates and blanks `panel.grid.major.y` (the `facet_grid()` rows group the
+#' y-axis by covariate name instead). Panels are transparent with a thin grey
+#' border and no vertical spacing, so the row facets stack into one frame
+#' with their shared borders acting as separator lines. The covariate row
+#' strips are styled for `switch = "y"`: placed outside the y-axis, no
+#' background fill, bold horizontal text aligned to the top-left so each
+#' covariate name heads its group of rows. The y-axis text is black. The
+#' right-hand secondary y-axis carries the estimate column (left-aligned text
+#' at the axis text size, an 8 pt gap from the panel, no ticks) and the plot
+#' subtitle is its bold header, right-aligned across the full plot width
+#' (`plot.title.position = "plot"`) so it sits on the top edge of the panels
+#' above the column.
+#'
 #' @param white_panel Logical. When `TRUE`, sets `panel.background` to a white
 #'   rectangle with a thin black border (VPC family). Default `FALSE`.
+#' @param forest_panel Logical. When `TRUE`, applies the forest-family panel
+#'   variant described above; `white_panel` is then ignored. Default `FALSE`.
 #'
 #' @return A ggplot2 theme object.
 #' @keywords internal
-pmx_house_theme <- function(white_panel = FALSE) {
-  args <- list(panel.grid.minor = ggplot2::element_blank(),
-               panel.grid.major.x = ggplot2::element_blank())
-  if (isTRUE(white_panel)) {
-    args$panel.background <- ggplot2::element_rect(fill = "white",
-                                                   linewidth = 0.5,
-                                                   color = "black")
+pmx_house_theme <- function(white_panel = FALSE, forest_panel = FALSE) {
+  args <- list(panel.grid.minor = ggplot2::element_blank())
+  if (isTRUE(forest_panel)) {
+    # Panels touch (no vertical spacing) so the shared borders read as
+    # separator lines inside one frame rather than as separate boxes.
+    args$panel.background   <- ggplot2::element_rect(fill = NA, color = "grey60")
+    args$panel.spacing.y    <- ggplot2::unit(0, "pt")
+    args$panel.grid.major.x <- ggplot2::element_line(color = "grey85",
+                                                     linewidth = 0.3)
+    args$panel.grid.major.y <- ggplot2::element_blank()
+    args$strip.background   <- ggplot2::element_blank()
+    args$strip.placement    <- "outside"
+    # Top-left aligned, so each covariate name reads as the header of its
+    # group of level rows.
+    args$strip.text.y.left  <- ggplot2::element_text(angle = 0, face = "bold",
+                                                     hjust = 0, vjust = 1)
+    # Titles span the whole plot, so the right-aligned subtitle (the
+    # estimate column header) ends at the column's right edge; the subtitle
+    # row sits directly on top of the panels.
+    args$plot.title          <- ggplot2::element_text(face = "bold")
+    args$plot.title.position <- "plot"
+    args$plot.subtitle       <- ggplot2::element_text(
+      face = "bold", hjust = 1, size = ggplot2::rel(1),
+      margin = ggplot2::margin(b = 4)
+    )
+    args$axis.text.y.left   <- ggplot2::element_text(colour = "black")
+    # Secondary y-axis = the estimate column: black left-aligned text at full
+    # axis size, set off from the panel, no ticks.
+    args$axis.text.y.right  <- ggplot2::element_text(
+      hjust = 0, colour = "black", margin = ggplot2::margin(l = 8)
+    )
+    args$axis.ticks.y.right <- ggplot2::element_blank()
+  } else {
+    args$panel.grid.major.x <- ggplot2::element_blank()
+    if (isTRUE(white_panel)) {
+      args$panel.background <- ggplot2::element_rect(fill = "white",
+                                                     linewidth = 0.5,
+                                                     color = "black")
+    }
   }
   ggplot2::theme_bw() + do.call(ggplot2::theme, args)
 }
@@ -89,7 +138,9 @@ series_aes <- function(spec, series) {
 #' per-series map may also be given as a palette `function(n)` (e.g.
 #' `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
 #' with the number of mapped groups; a palette has no entries to merge, so it
-#' replaces the default map wholesale. The merged fields are passed to `ggstylekit::style_spec()`.
+#' replaces the default map wholesale (and is likewise replaced wholesale when
+#' it is the default, e.g. [style_forest_pmforest()]). The merged fields are passed to
+#' `ggstylekit::style_spec()`.
 #'
 #' @param defaults Named list of default `style_spec` arguments.
 #' @param overrides Named list of user overrides (typically `list(...)`).
@@ -107,7 +158,7 @@ build_style <- function(defaults, overrides = list()) {
   for (nm in names(overrides)) {
     ov <- overrides[[nm]]
     if (nm %in% map_fields && !is.null(defaults[[nm]]) && !is.null(ov) &&
-        !is.function(ov)) {
+        !is.function(ov) && !is.function(defaults[[nm]])) {
       base <- defaults[[nm]]
       base[names(ov)] <- ov            # entry-wise merge; override wins per key
       merged[[nm]] <- base

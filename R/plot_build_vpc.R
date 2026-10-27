@@ -33,6 +33,8 @@
 #'    applied to total obs (`obs_n`) — BLQ-heavy bins are the most
 #'    informative on a cens VPC and are retained.
 #' @param show_rep Logical. Display replicate count as a plot caption.
+#'    A `caption` set in
+#'    the style is drawn instead, whatever this value.
 #' @param shown Layer visibility settings created by [plot_vpc_shown()].
 #'    For `type = "cens"`, only the `obs_point`, `obs_median_line`,
 #'    `sim_median_line`, and `sim_median_ci` keys are read. Defaults follow
@@ -41,8 +43,8 @@
 #'    `plot_vpc_shown(sim_median_line = TRUE)` to enable it).
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
-#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
-#'    restyle the returned plot with [restyle_plot()]. Series names are the VPC roles. For
+#'    with no arguments. Customize by passing `style = style_vpc(...)`.
+#'    Series names are the VPC roles. For
 #'    `type = "cens"`, only the keys corresponding to the four cens layers
 #'    above are read; other keys are ignored. The cens `obs_point` color is
 #'    inherited from `obs_median_line` (so points match the obs line); the
@@ -80,14 +82,15 @@
 #'
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 5,
 #'                               dv_var = ODV, carry_out = "FOOD")
 #' out <- df_vpcstats(simout, strat_var = FOOD)
 #' p <- plot_build_vpc(out, pcvpc = FALSE)
 
 plot_build_vpc <- function(compute_out,
                            type = c("cont", "cens"),
-                           min_bin_count = 1,
+                           min_bin_count = 0,
                            show_rep = TRUE,
                            shown = NULL,
                            style = NULL,
@@ -97,6 +100,8 @@ plot_build_vpc <- function(compute_out,
                            bin_var = BIN_MID_VAR) {
 
   type <- match.arg(type)
+  check_boolean(show_rep, "show_rep")
+  check_boolean(pcvpc, "pcvpc")
 
   validate_vpc_stats(compute_out)
 
@@ -289,7 +294,7 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
 
   ## LOQ ref line: LOQ is meaningless on the pc scale (loq forced NULL
   ## above when pcvpc).
-  if (!is.null(loq)) {
+  if (!is.null(loq) && isTRUE(shown$loq_line)) {
     if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
       loq_facet_df <- unique(
         compute_out$obs[!is.na(compute_out$obs$LOQ),

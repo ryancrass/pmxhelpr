@@ -5,7 +5,7 @@
 \title{Internal helper: abort if pipeline arguments are passed on the
 precomputed-stats path.}
 \usage{
-check_pipeline_args_dropped(call, plot_only_args, fn_name)
+check_pipeline_args_dropped(call, plot_only_args, fn_name, stats_fn)
 }
 \arguments{
 \item{call}{A \code{call} object, typically \code{match.call()} evaluated in the
@@ -17,6 +17,9 @@ The matched data argument should also be included.}
 
 \item{fn_name}{Character scalar, the wrapper's name, used in the error
 message.}
+
+\item{stats_fn}{Character scalar, the stats function the caller should
+run instead (e.g. \code{"df_forest"}), used in the error message.}
 }
 \value{
 \code{invisible(NULL)} on success.

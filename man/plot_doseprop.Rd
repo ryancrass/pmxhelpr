@@ -23,7 +23,7 @@ format is output from \code{PKNCA::pk.nca()}) or a \code{doseprop_stats} object
 returned by \code{\link[=df_doseprop]{df_doseprop()}}.}
 
 \item{metrics}{character vector of exposure metrics in \code{data} to plot.
-Required on the raw-data path; ignored when \code{data} is a
+Required on the raw-data path; must not be passed with a
 \code{doseprop_stats} object.}
 
 \item{metric_name_var}{Column in \code{data} containing the metric names listed in \code{metrics}.
@@ -38,10 +38,15 @@ Accepts bare names or strings. Default is \code{DOSE}.}
 \item{method}{character string specifying the distribution to be used to derive the confidence interval.
 Options are \code{"normal"} (default) and \code{"tdist"}.}
 
-\item{ci}{confidence interval to be calculated.
-Options \code{0.90} (default) and \code{0.95}.}
+\item{ci}{confidence interval to be calculated: a single numeric value
+in \verb{(0, 1)}, e.g. \code{0.90} (default) or \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding.}
+\item{sigdigits}{number of significant digits for the reported
+\code{Intercept}, \code{StandardError}, \code{Power}, \code{LCL}, \code{UCL}, and \code{PowerCI}
+columns. \code{PowerCI} pads every value to this many digits so the facet
+labels line up. The \code{Proportional} / \code{Interpretation} verdict is taken
+from the unrounded confidence bounds, so it never moves with
+\code{sigdigits}.}
 
 \item{se}{logical to display confidence interval around regression.
 Default is \code{TRUE}.}
@@ -49,8 +54,7 @@ Default is \code{TRUE}.}
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_doseprop]{style_doseprop()}}; view the defaults by running
 \code{style_doseprop()} with no arguments. Customize by passing
-\code{style = style_doseprop(...)}, or restyle the returned plot with
-\code{\link[=restyle_plot]{restyle_plot()}}. The per-metric facet layout is
+\code{style = style_doseprop(...)}. The per-metric facet layout is
 taken from the style's \code{facet_scales} (default \code{"free"}), \code{facet_nrow},
 and \code{facet_ncol}; the \code{facet}, \code{logx}, and \code{logy} fields are ignored
 because the builder sets the facet and log-log axes itself.}

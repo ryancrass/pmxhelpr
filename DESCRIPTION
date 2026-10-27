@@ -1,6 +1,6 @@
 Package: pmxhelpr
 Title: Helper Functions for Pharmacometrics
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: 
     person(given="Ryan", family="Crass",
     email = "ryancrass@gmail.com", 
@@ -17,7 +17,8 @@ Depends:
 Imports:
     dplyr,
     ggplot2,
-    ggstylekit (>= 0.4.0),
+    ggstylekit (>= 0.4.1),
+    grDevices,
     mrgsolve,
     rlang,
     stats,
@@ -29,11 +30,10 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     Hmisc,
-    forcats,
-    future.apply
+    forcats
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1

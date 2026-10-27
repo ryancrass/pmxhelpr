@@ -16,14 +16,14 @@ pmx_stats(stats, obs = NULL, config = list(), subclass)
 width, replicate count).}
 
 \item{subclass}{Character scalar naming the concrete subclass (e.g.
-\code{"vpc_stats"}, \code{"doseprop_stats"}).}
+\code{"vpc_stats"}, \code{"doseprop_stats"}, \code{"forest_stats"}).}
 }
 \value{
 An object of class \code{c(subclass, "pmx_stats")}.
 }
 \description{
 Constructor for the cacheable stats containers returned by
-\code{\link[=df_vpcstats]{df_vpcstats()}} and \code{\link[=df_doseprop]{df_doseprop()}}. Each container is a named list with
+\code{\link[=df_vpcstats]{df_vpcstats()}}, \code{\link[=df_doseprop]{df_doseprop()}}, and \code{\link[=df_forest]{df_forest()}}. Each container is a named list with
 three slots — \code{stats} (the per-row summary frame), \code{obs} (the observation
 overlay used by plot builders, may be \code{NULL}), and \code{config} (named list of
 run configuration consumed by the plot builders). The class vector is

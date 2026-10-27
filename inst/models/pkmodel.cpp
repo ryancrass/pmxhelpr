@@ -22,7 +22,7 @@ $CMT GUT CENT PERIPH TRANS1 TRANS2
 $MAIN
 double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);
 double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);
-double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);
+double Q = TVQ*pow(WT/70,WT_Q)*exp(ETA_Q);
 double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);
 double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);
 double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);

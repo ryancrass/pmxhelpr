@@ -14,7 +14,7 @@ plot_vpc_cens(
   strat_var = NULL,
   loq = NULL,
   irep_name = "SIM",
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
@@ -66,7 +66,8 @@ count toward this threshold, in contrast to \code{\link[=plot_vpc_cont]{plot_vpc
 requires quantifiable obs. Rationale: BLQ-heavy bins are the most
 informative on a cens VPC and should be retained.}
 
-\item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.}
+\item{show_rep}{Display number of replicates as a plot caption. Default is \code{TRUE}.
+A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}. The
 cens builder reads four of the keys: \code{obs_point}, \code{obs_median_line},
@@ -77,8 +78,8 @@ the simulated median line is off by default. Pass
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
-with no arguments. Customize by passing \code{style = style_vpc(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Pass the same style to
+with no arguments. Customize by passing \code{style = style_vpc(...)}.
+Pass the same style to
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches. The cens builder reads the same four keys
 listed above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
 \code{sim_median_ci}); other keys are ignored.}

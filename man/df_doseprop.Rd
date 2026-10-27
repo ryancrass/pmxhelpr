@@ -33,10 +33,15 @@ Accepts bare names or strings. Default is \code{DOSE}.}
 \item{method}{character string specifying the distribution to be used to derive the confidence interval.
 Options are \code{"normal"} (default) and \code{"tdist"}.}
 
-\item{ci}{confidence interval to be calculated.
-Options \code{0.90} (default) and \code{0.95}.}
+\item{ci}{confidence interval to be calculated: a single numeric value
+in \verb{(0, 1)}, e.g. \code{0.90} (default) or \code{0.95}.}
 
-\item{sigdigits}{number of significant digits for rounding.}
+\item{sigdigits}{number of significant digits for the reported
+\code{Intercept}, \code{StandardError}, \code{Power}, \code{LCL}, \code{UCL}, and \code{PowerCI}
+columns. \code{PowerCI} pads every value to this many digits so the facet
+labels line up. The \code{Proportional} / \code{Interpretation} verdict is taken
+from the unrounded confidence bounds, so it never moves with
+\code{sigdigits}.}
 }
 \value{
 A \code{doseprop_stats} container (subclass of \code{pmx_stats}) with three
@@ -44,7 +49,12 @@ slots:
 \describe{
 \item{\code{stats}}{One row per metric and columns \code{Intercept},
 \code{StandardError}, \code{CI}, \code{Power}, \code{LCL}, \code{UCL}, \code{Proportional},
-\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_name_var}.}
+\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_name_var}.
+\code{Interpretation} is \code{"Dose-proportional"} when the \code{ci} interval for
+\code{Power} contains 1, and less or greater than dose-proportional when it
+lies wholly below or above 1. It is a screening label: a CI that
+contains 1 does not establish proportionality, and no predefined
+equivalence bounds are applied.}
 \item{\code{obs}}{The filtered observation rows used for the plot scatter
 overlay.}
 \item{\code{config}}{Named list with \code{metric_name_var}, \code{metric_value_var}, \code{dose_var},
@@ -65,7 +75,8 @@ overlay), and \code{config} (regression configuration: \code{metric_name_var}, \
 re-fitting any regressions.
 }
 \examples{
-df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+            metrics = c("aucinf.obs", "cmax"))
 }
 \seealso{
 Other dose proportionality:

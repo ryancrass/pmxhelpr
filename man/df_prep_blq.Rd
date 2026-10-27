@@ -10,8 +10,10 @@ df_prep_blq(data, loq, loq_method, pred_vars = NULL)
 \item{data}{data.frame containing data to censor}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
-Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.}
+Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data},
+in which case each row is imputed at its own \code{LLOQ} and the LLOQ line is drawn at the highest value.
+Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.
+Has no effect with \code{loq_method = 0} (the default), which emits a message.}
 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.
 

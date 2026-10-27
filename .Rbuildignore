@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^README\.html$
 ^data-raw$
 ^_pkgdown\.yml$
 ^docs$
@@ -17,3 +18,4 @@
 ^\.claude$
 ^vignettes/articles$
 ^Rplots\.pdf$
+^\.positai$

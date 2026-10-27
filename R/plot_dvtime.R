@@ -10,8 +10,10 @@
 #' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
 #'   Accepts bare names or strings. Default is `DOSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
+#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`,
+#'  in which case each row is imputed at its own `LLOQ` and the LLOQ line is drawn at the highest value.
 #'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
+#'  Has no effect with `loq_method = 0` (the default), which emits a message.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'
 #'  Options are:
@@ -33,6 +35,15 @@
 #'    + Median +/- Interquartile Range: `median_iqr`
 #'    + None: `"none"`
 #'
+#' @param show_obs Logical indicating if observed data points should be shown.
+#'    Default is `TRUE`. `FALSE` omits the point layer entirely, so hidden
+#'    points do not affect axis limits (unlike setting
+#'    `alphas = c(obs_point = 0)` in the style). Spaghetti lines are controlled
+#'    separately by `id_var`.
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ line's legend
+#'    entry is titled `"LLOQ"` and keyed by its value. If `FALSE`, the title is
+#'    dropped and the entry is labeled `"LLOQ"` without the value. Applies only
+#'    when the LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
 #' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
 #'    Requires variable specified in `dose_var` to be present in `data`
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
@@ -40,15 +51,16 @@
 #'    change-from-baseline data.
 #' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
 #'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
-#' @param show_caption Logical indicating if a caption should be shown describing the data plotted
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.
 #'    Accepts bare names or strings. Default is `NTIME`.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_dvtime()]; view the defaults by running `style_dvtime()`
-#'    with no arguments. Customize by passing `style = style_dvtime(...)`, or
-#'    restyle the returned plot with [restyle_plot()]. The error bar cap width
+#'    with no arguments. Customize by passing `style = style_dvtime(...)`.
+#'    The error bar cap width
 #'    is the style's `errorbar_width` field; when unset it defaults to 2.5% of
 #'    the maximum nominal time (`ntime_var`).
 #'
@@ -72,8 +84,10 @@ plot_dvtime <- function(data,
                         dose_var = "DOSE",
                         loq = NULL,
                         loq_method = 0,
+                        show_loq_value = TRUE,
                         cent = c("mean", "mean_sdl", "mean_sdl_upper",
                                  "median", "median_iqr", "none"),
+                        show_obs = TRUE,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = FALSE,
@@ -81,6 +95,11 @@ plot_dvtime <- function(data,
                         style = NULL){
 
   cent <- match.arg(cent)
+  check_boolean(show_obs, "show_obs")
+  check_boolean(show_loq_value, "show_loq_value")
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(log_y, "log_y")
+  check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   time_var_str  <- resolve_var(rlang::enquo(time_var))
@@ -131,12 +150,13 @@ plot_dvtime <- function(data,
   plot <- add_ref_layer_style(plot, ref)
 
   blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
-                             plotstyle, show_legend = TRUE)
+                             plotstyle, show_legend = TRUE,
+                             show_value = show_loq_value)
   plot <- blq$plot
   caption <- blq$caption
 
   #Show Observed Data Points / Connect within Group
-  plot <- add_obs_layers_style(plot, id_var_str)
+  plot <- add_obs_layers_style(plot, id_var_str, show_point = show_obs)
 
   #Plot Central Tendency (points, lines, error bars)
   plot <- add_cent_layers_style(plot, cent, "DV")

@@ -6,21 +6,21 @@ r_version = "4.6"
 [[packages]]
 name = "BH"
 version = "1.90.0-1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "Formula"
-version = "1.2-5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.2-6"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "Hmisc"
-version = "5.2-6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "5.3-0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "ggplot2",
@@ -42,30 +42,47 @@ dependencies = [
 ]
 
 [[packages]]
+name = "PKNCA"
+version = "0.12.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
+force_source = false
+dependencies = [
+    "checkmate",
+    { name = "dplyr", requirement = "(>= 0.5.0)" },
+    "digest",
+    "nlme",
+    "purrr",
+    "rlang",
+    "tidyr",
+    "tibble",
+    "lifecycle",
+]
+
+[[packages]]
 name = "R6"
 version = "2.6.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "RColorBrewer"
 version = "1.1-3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "Rcpp"
-version = "1.1.1-1.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.1.2"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "RcppArmadillo"
-version = "15.4.0-1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "15.6.0-1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "Rcpp", requirement = "(>= 1.1.1)" },
@@ -74,14 +91,14 @@ dependencies = [
 [[packages]]
 name = "S7"
 version = "0.2.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "askpass"
 version = "1.2.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "sys", requirement = "(>= 2.1)" },
@@ -90,35 +107,35 @@ dependencies = [
 [[packages]]
 name = "backports"
 version = "1.5.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "base64enc"
 version = "0.1-6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "brew"
 version = "1.0-10"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "brio"
 version = "1.1.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "bslib"
-version = "0.11.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "0.12.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "base64enc",
@@ -137,7 +154,7 @@ dependencies = [
 [[packages]]
 name = "cachem"
 version = "1.1.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "rlang",
@@ -147,7 +164,7 @@ dependencies = [
 [[packages]]
 name = "callr"
 version = "3.8.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "otel", requirement = "(>= 0.2.0)" },
@@ -158,7 +175,7 @@ dependencies = [
 [[packages]]
 name = "checkmate"
 version = "2.3.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "backports", requirement = "(>= 1.1.0)" },
@@ -167,14 +184,14 @@ dependencies = [
 [[packages]]
 name = "cli"
 version = "3.6.6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "clipr"
 version = "0.8.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
@@ -186,44 +203,37 @@ force_source = false
 dependencies = []
 
 [[packages]]
-name = "codetools"
-version = "0.2-20"
-source = { builtin = true }
-force_source = false
-dependencies = []
-
-[[packages]]
 name = "colorspace"
-version = "2.1-2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "2.1-4"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "commonmark"
 version = "2.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "cpp11"
 version = "0.5.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "crayon"
 version = "1.5.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "credentials"
 version = "2.0.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "openssl", requirement = "(>= 1.3)" },
@@ -235,22 +245,22 @@ dependencies = [
 
 [[packages]]
 name = "curl"
-version = "7.1.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "8.0.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "data.table"
-version = "1.18.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.18.6.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "desc"
 version = "1.4.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -260,7 +270,7 @@ dependencies = [
 [[packages]]
 name = "devtools"
 version = "2.5.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "usethis", requirement = "(>= 3.2.1)" },
@@ -288,8 +298,8 @@ dependencies = [
 
 [[packages]]
 name = "diffobj"
-version = "0.3.6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "0.3.9"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "crayon", requirement = "(>= 1.3.2)" },
@@ -298,14 +308,14 @@ dependencies = [
 [[packages]]
 name = "digest"
 version = "0.6.39"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "downlit"
 version = "0.4.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "brio",
@@ -323,7 +333,7 @@ dependencies = [
 [[packages]]
 name = "dplyr"
 version = "1.2.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.6.2)" },
@@ -342,7 +352,7 @@ dependencies = [
 [[packages]]
 name = "ellipsis"
 version = "0.3.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "rlang", requirement = "(>= 1.1.7)" },
@@ -351,35 +361,35 @@ dependencies = [
 [[packages]]
 name = "evaluate"
 version = "1.0.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "fansi"
 version = "1.0.7"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "farver"
 version = "2.1.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "fastmap"
 version = "1.2.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "fontawesome"
 version = "0.5.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "rlang", requirement = "(>= 1.0.6)" },
@@ -389,7 +399,7 @@ dependencies = [
 [[packages]]
 name = "forcats"
 version = "1.0.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.4.0)" },
@@ -410,43 +420,21 @@ dependencies = []
 [[packages]]
 name = "fs"
 version = "2.1.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
-name = "future"
-version = "1.70.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
-force_source = false
-dependencies = [
-    "digest",
-    { name = "globals", requirement = "(>= 0.18.0)" },
-    { name = "listenv", requirement = "(>= 0.8.0)" },
-    { name = "parallelly", requirement = "(>= 1.44.0)" },
-]
-
-[[packages]]
-name = "future.apply"
-version = "1.20.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
-force_source = false
-dependencies = [
-    { name = "future", requirement = "(>= 1.49.0)" },
-    "globals",
-]
-
-[[packages]]
 name = "generics"
 version = "0.1.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "gert"
-version = "2.3.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "2.4.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "askpass",
@@ -460,7 +448,7 @@ dependencies = [
 [[packages]]
 name = "ggplot2"
 version = "4.0.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -476,8 +464,8 @@ dependencies = [
 
 [[packages]]
 name = "ggstylekit"
-version = "0.4.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0" }
+version = "0.4.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "ggplot2", requirement = "(>= 3.5.2)" },
@@ -488,8 +476,8 @@ dependencies = [
 
 [[packages]]
 name = "gh"
-version = "1.6.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.6.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.0.1)" },
@@ -505,30 +493,21 @@ dependencies = [
 [[packages]]
 name = "gitcreds"
 version = "0.1.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
-name = "globals"
-version = "0.19.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
-force_source = false
-dependencies = [
-    "codetools",
-]
-
-[[packages]]
 name = "glue"
 version = "1.8.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "gridExtra"
 version = "2.3.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "gtable",
@@ -537,7 +516,7 @@ dependencies = [
 [[packages]]
 name = "gtable"
 version = "0.3.6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -549,7 +528,7 @@ dependencies = [
 [[packages]]
 name = "highr"
 version = "0.12"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "xfun", requirement = "(>= 0.18)" },
@@ -558,7 +537,7 @@ dependencies = [
 [[packages]]
 name = "htmlTable"
 version = "2.5.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "stringr",
@@ -573,7 +552,7 @@ dependencies = [
 [[packages]]
 name = "htmltools"
 version = "0.5.9"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "base64enc",
@@ -585,7 +564,7 @@ dependencies = [
 [[packages]]
 name = "htmlwidgets"
 version = "1.6.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "htmltools", requirement = "(>= 0.5.7)" },
@@ -598,7 +577,7 @@ dependencies = [
 [[packages]]
 name = "httpuv"
 version = "1.6.17"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "later", requirement = "(>= 0.8.0)" },
@@ -609,8 +588,8 @@ dependencies = [
 
 [[packages]]
 name = "httr2"
-version = "1.2.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.3.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.0.0)" },
@@ -620,8 +599,7 @@ dependencies = [
     "magrittr",
     "openssl",
     "R6",
-    "rappdirs",
-    { name = "rlang", requirement = "(>= 1.1.0)" },
+    { name = "rlang", requirement = "(>= 1.3.0)" },
     { name = "vctrs", requirement = "(>= 0.6.3)" },
     "withr",
 ]
@@ -629,14 +607,14 @@ dependencies = [
 [[packages]]
 name = "ini"
 version = "0.3.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "isoband"
 version = "0.3.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -647,7 +625,7 @@ dependencies = [
 [[packages]]
 name = "jquerylib"
 version = "0.1.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "htmltools",
@@ -656,14 +634,14 @@ dependencies = [
 [[packages]]
 name = "jsonlite"
 version = "2.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "knitr"
-version = "1.51"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.52"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "evaluate", requirement = "(>= 0.15)" },
@@ -675,14 +653,14 @@ dependencies = [
 [[packages]]
 name = "labeling"
 version = "0.4.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "later"
 version = "1.4.8"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "Rcpp", requirement = "(>= 1.0.10)" },
@@ -690,9 +668,16 @@ dependencies = [
 ]
 
 [[packages]]
+name = "lattice"
+version = "0.22-9"
+source = { builtin = true }
+force_source = false
+dependencies = []
+
+[[packages]]
 name = "lifecycle"
 version = "1.0.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.4.0)" },
@@ -700,23 +685,16 @@ dependencies = [
 ]
 
 [[packages]]
-name = "listenv"
-version = "1.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
-force_source = false
-dependencies = []
-
-[[packages]]
 name = "magrittr"
 version = "2.0.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "memoise"
 version = "2.0.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "rlang", requirement = "(>= 0.4.10)" },
@@ -726,14 +704,14 @@ dependencies = [
 [[packages]]
 name = "mime"
 version = "0.13"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "miniUI"
 version = "0.1.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "shiny", requirement = "(>= 0.13)" },
@@ -743,7 +721,7 @@ dependencies = [
 [[packages]]
 name = "mrgsolve"
 version = "2.0.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "Rcpp", requirement = "(>= 1.0.7)" },
@@ -759,6 +737,15 @@ dependencies = [
 ]
 
 [[packages]]
+name = "nlme"
+version = "3.1-169"
+source = { builtin = true }
+force_source = false
+dependencies = [
+    "lattice",
+]
+
+[[packages]]
 name = "nnet"
 version = "7.3-20"
 source = { builtin = true }
@@ -768,7 +755,7 @@ dependencies = []
 [[packages]]
 name = "openssl"
 version = "2.4.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "askpass",
@@ -777,28 +764,21 @@ dependencies = [
 [[packages]]
 name = "otel"
 version = "0.2.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "pak"
-version = "0.10.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
-force_source = false
-dependencies = []
-
-[[packages]]
-name = "parallelly"
-version = "1.48.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "0.11.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "patchwork"
 version = "1.3.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "ggplot2", requirement = "(>= 3.0.0)" },
@@ -811,7 +791,7 @@ dependencies = [
 [[packages]]
 name = "pillar"
 version = "1.11.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 2.3.0)" },
@@ -825,7 +805,7 @@ dependencies = [
 [[packages]]
 name = "pkgbuild"
 version = "1.4.8"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "callr", requirement = "(>= 3.2.0)" },
@@ -838,14 +818,14 @@ dependencies = [
 [[packages]]
 name = "pkgconfig"
 version = "2.0.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "pkgdown"
-version = "2.2.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "2.2.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "bslib", requirement = "(>= 0.5.1)" },
@@ -873,7 +853,7 @@ dependencies = [
 [[packages]]
 name = "pkgload"
 version = "1.5.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.3.0)" },
@@ -889,7 +869,7 @@ dependencies = [
 
 [[packages]]
 name = "pmxhelpr"
-version = "0.6.0"
+version = "0.7.0"
 source = { path = "." }
 force_source = true
 dependencies = [
@@ -908,27 +888,26 @@ suggests = [
     { name = "testthat", requirement = "(>= 3.0.0)" },
     "Hmisc",
     "forcats",
-    "future.apply",
 ]
 
 [[packages]]
 name = "praise"
 version = "1.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "prettyunits"
 version = "1.2.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "processx"
 version = "3.9.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "ps", requirement = "(>= 1.9.3)" },
@@ -938,7 +917,7 @@ dependencies = [
 [[packages]]
 name = "profvis"
 version = "0.4.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "htmlwidgets", requirement = "(>= 0.3.2)" },
@@ -949,7 +928,7 @@ dependencies = [
 [[packages]]
 name = "promises"
 version = "1.5.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "fastmap", requirement = "(>= 1.1.0)" },
@@ -964,14 +943,14 @@ dependencies = [
 [[packages]]
 name = "ps"
 version = "1.9.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "purrr"
 version = "1.2.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.6.1)" },
@@ -984,7 +963,7 @@ dependencies = [
 [[packages]]
 name = "ragg"
 version = "1.5.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "systemfonts", requirement = "(>= 1.0.3)" },
@@ -994,14 +973,14 @@ dependencies = [
 [[packages]]
 name = "rappdirs"
 version = "0.3.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "rcmdcheck"
 version = "1.4.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "callr", requirement = "(>= 3.1.1.9000)" },
@@ -1019,16 +998,23 @@ dependencies = [
 ]
 
 [[packages]]
+name = "rdtools"
+version = "0.1.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
+force_source = false
+dependencies = []
+
+[[packages]]
 name = "rlang"
-version = "1.2.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.3.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "rmarkdown"
-version = "2.31"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "2.32"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "bslib", requirement = "(>= 0.2.5.1)" },
@@ -1037,7 +1023,7 @@ dependencies = [
     { name = "htmltools", requirement = "(>= 0.5.1)" },
     "jquerylib",
     "jsonlite",
-    { name = "knitr", requirement = "(>= 1.43)" },
+    { name = "knitr", requirement = "(>= 1.50)" },
     { name = "tinytex", requirement = "(>= 0.31)" },
     { name = "xfun", requirement = "(>= 0.36)" },
     { name = "yaml", requirement = "(>= 2.1.19)" },
@@ -1045,8 +1031,8 @@ dependencies = [
 
 [[packages]]
 name = "roxygen2"
-version = "8.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "8.1.1"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "brew",
@@ -1057,6 +1043,7 @@ dependencies = [
     "lifecycle",
     { name = "pkgload", requirement = "(>= 1.5.2)" },
     { name = "R6", requirement = "(>= 2.1.2)" },
+    { name = "rdtools", requirement = "(>= 0.1.0)" },
     { name = "rlang", requirement = "(>= 1.1.0)" },
     "withr",
     "xml2",
@@ -1073,21 +1060,21 @@ dependencies = []
 [[packages]]
 name = "rprojroot"
 version = "2.1.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "rstudioapi"
 version = "0.19.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "rversions"
 version = "3.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "curl",
@@ -1096,7 +1083,7 @@ dependencies = [
 [[packages]]
 name = "sass"
 version = "0.4.10"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "fs", requirement = "(>= 1.2.4)" },
@@ -1109,7 +1096,7 @@ dependencies = [
 [[packages]]
 name = "scales"
 version = "1.4.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -1126,7 +1113,7 @@ dependencies = [
 [[packages]]
 name = "sessioninfo"
 version = "1.2.4"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.1.0)" },
@@ -1135,7 +1122,7 @@ dependencies = [
 [[packages]]
 name = "shiny"
 version = "1.14.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "bslib", requirement = "(>= 0.6.0)" },
@@ -1163,21 +1150,21 @@ dependencies = [
 [[packages]]
 name = "sourcetools"
 version = "0.1.7-2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "stringi"
-version = "1.8.7"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "1.8.9"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "stringr"
 version = "1.6.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -1192,14 +1179,14 @@ dependencies = [
 [[packages]]
 name = "sys"
 version = "3.4.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "systemfonts"
 version = "1.3.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "base64enc",
@@ -1211,7 +1198,7 @@ dependencies = [
 [[packages]]
 name = "testthat"
 version = "3.3.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "brio", requirement = "(>= 1.1.5)" },
@@ -1235,7 +1222,7 @@ dependencies = [
 [[packages]]
 name = "textshaping"
 version = "1.0.5"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "lifecycle",
@@ -1247,7 +1234,7 @@ dependencies = [
 [[packages]]
 name = "tibble"
 version = "3.3.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -1260,9 +1247,29 @@ dependencies = [
 ]
 
 [[packages]]
+name = "tidyr"
+version = "1.3.2"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
+force_source = false
+dependencies = [
+    { name = "cli", requirement = "(>= 3.4.1)" },
+    { name = "dplyr", requirement = "(>= 1.1.0)" },
+    "glue",
+    { name = "lifecycle", requirement = "(>= 1.0.3)" },
+    "magrittr",
+    { name = "purrr", requirement = "(>= 1.0.1)" },
+    { name = "rlang", requirement = "(>= 1.1.1)" },
+    { name = "stringr", requirement = "(>= 1.5.0)" },
+    { name = "tibble", requirement = "(>= 2.1.1)" },
+    { name = "tidyselect", requirement = "(>= 1.2.1)" },
+    { name = "vctrs", requirement = "(>= 0.5.2)" },
+    { name = "cpp11", requirement = "(>= 0.4.0)" },
+]
+
+[[packages]]
 name = "tidyselect"
 version = "1.2.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.3.0)" },
@@ -1275,8 +1282,8 @@ dependencies = [
 
 [[packages]]
 name = "tinytex"
-version = "0.60"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "0.61"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "xfun", requirement = "(>= 0.48)" },
@@ -1284,19 +1291,21 @@ dependencies = [
 
 [[packages]]
 name = "urlchecker"
-version = "1.0.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "2.0.0"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
     "curl",
+    "gitcreds",
+    { name = "rlang", requirement = "(>= 1.1.0)" },
     "xml2",
 ]
 
 [[packages]]
 name = "usethis"
-version = "3.2.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "3.2.2"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.0.1)" },
@@ -1306,10 +1315,11 @@ dependencies = [
     { name = "desc", requirement = "(>= 1.4.2)" },
     { name = "fs", requirement = "(>= 1.3.0)" },
     { name = "gert", requirement = "(>= 1.4.1)" },
-    { name = "gh", requirement = "(>= 1.2.1)" },
+    { name = "gh", requirement = "(>= 1.6.0)" },
     { name = "glue", requirement = "(>= 1.3.0)" },
     "jsonlite",
     { name = "lifecycle", requirement = "(>= 1.0.0)" },
+    "pak",
     "purrr",
     "rappdirs",
     { name = "rlang", requirement = "(>= 1.1.0)" },
@@ -1323,14 +1333,14 @@ dependencies = [
 [[packages]]
 name = "utf8"
 version = "1.2.6"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "vctrs"
 version = "0.7.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     { name = "cli", requirement = "(>= 3.4.0)" },
@@ -1342,14 +1352,14 @@ dependencies = [
 [[packages]]
 name = "viridisLite"
 version = "0.4.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "waldo"
 version = "0.6.2"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -1361,28 +1371,28 @@ dependencies = [
 [[packages]]
 name = "whisker"
 version = "0.4.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "withr"
 version = "3.0.3"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "xfun"
-version = "0.59"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "0.61"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "xml2"
 version = "1.6.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",
@@ -1392,7 +1402,7 @@ dependencies = [
 [[packages]]
 name = "xopen"
 version = "1.0.1"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "processx",
@@ -1401,21 +1411,21 @@ dependencies = [
 [[packages]]
 name = "xtable"
 version = "1.8-8"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "yaml"
 version = "2.3.12"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = []
 
 [[packages]]
 name = "zip"
-version = "3.0.0"
-source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-06-30" }
+version = "3.0.2"
+source = { repository = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-10-14" }
 force_source = false
 dependencies = [
     "cli",

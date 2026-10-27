@@ -16,7 +16,8 @@
 #' @export is_doseprop_stats
 #'
 #' @examples
-#' stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+#' stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+#'                     metrics = c("aucinf.obs", "cmax"))
 #' is_doseprop_stats(stats)             # TRUE
 #' is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame
 
@@ -46,21 +47,17 @@ is_doseprop_stats <- function(x, strict = FALSE) {
 #' @method print doseprop_stats
 
 print.doseprop_stats <- function(x, ...) {
-  cat("<doseprop_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  obs:   %d rows\n",
-              if (is.data.frame(x$obs)) nrow(x$obs) else 0L))
-  cat(sprintf("  config: metric_name_var = %s, metric_value_var = %s, dose_var = %s, ci = %s, method = %s\n",
-              format(x$config$metric_name_var),
-              format(x$config$metric_value_var),
-              format(x$config$dose_var),
-              format(x$config$ci),
-              format(x$config$method)))
+  doseprop_stats_header(x)
   cat("\n  stats body:\n")
   print(x$stats, ...)
   cat("\n  Use `x$obs` for the observation overlay.\n")
   invisible(x)
+}
+
+
+doseprop_stats_header <- function(x) {
+  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "dose_var",
+                        "ci", "method"))
 }
 
 
@@ -82,17 +79,7 @@ print.doseprop_stats <- function(x, ...) {
 
 summary.doseprop_stats <- function(object, ...) {
   metric_name_var_str <- object$config$metric_name_var
-  cat("<doseprop_stats>\n")
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(object$stats), ncol(object$stats)))
-  cat(sprintf("  obs:   %d rows\n",
-              if (is.data.frame(object$obs)) nrow(object$obs) else 0L))
-  cat(sprintf("  config: metric_name_var = %s, metric_value_var = %s, dose_var = %s, ci = %s, method = %s\n",
-              format(metric_name_var_str),
-              format(object$config$metric_value_var),
-              format(object$config$dose_var),
-              format(object$config$ci),
-              format(object$config$method)))
+  doseprop_stats_header(object)
   cat("\n  per-metric:\n")
   for (i in seq_len(nrow(object$stats))) {
     cat(sprintf("    %s: %s -- %s\n",

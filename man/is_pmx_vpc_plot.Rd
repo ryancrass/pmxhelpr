@@ -18,7 +18,8 @@ i.e., it is the ggplot returned by \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                              model = model, replicates = 5,
                               dv_var = ODV)
 p <- plot_vpc_cont(data = simout)
 is_pmx_vpc_plot(p)         # TRUE

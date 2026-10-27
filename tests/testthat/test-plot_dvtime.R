@@ -105,6 +105,18 @@ test_that("plot_dvtime loq_method = 1 with explicit loq adds an LOQ reference hl
   expect_true(has_hline)
 })
 
+test_that("plot_dvtime draws one LLOQ line at the highest per-row LLOQ", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  d$LLOQ <- ifelse(d$ID %% 2 == 0, 5, 1)
+  p <- suppressMessages(plot_dvtime(d, dv_var = ODV, loq_method = 2, log_y = TRUE))
+  is_h <- vapply(p$layers, function(L) inherits(L$geom, "GeomHline"), logical(1))
+  expect_equal(sum(is_h), 1L)
+  expect_equal(unique(ggplot2::layer_data(p, which(is_h))$yintercept), log10(5))
+  blq <- p$data[p$data$MDV == 1 & p$data$TIME > 0, ]
+  expect_equal(unique(blq$DV[blq$LLOQ == 5]), 2.5)
+  expect_equal(unique(blq$DV[blq$LLOQ == 1]), 0.5)
+})
+
 test_that("plot_dvtime loq_method = 2 with explicit loq adds an LOQ reference hline", {
   p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
                    loq = 0.5, loq_method = 2)
@@ -125,6 +137,13 @@ test_that("plot_dvtime dosenorm = TRUE suppresses LOQ hline but keeps BLQ captio
                            logical(1)))
   expect_false(has_hline)
   expect_match(p$labels$caption, "imputed to 1/2 LLOQ")
+})
+
+test_that("loq with loq_method = 0 messages that it has no effect", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  expect_message(plot_dvtime(d, dv_var = "ODV", loq = 1), "has no effect with `loq_method = 0`")
+  expect_message(plot_gof(data_sad_pkfit, dv_var = "ODV", loq = 1), "has no effect with `loq_method = 0`")
+  expect_no_message(plot_dvtime(d, dv_var = "ODV"))
 })
 
 test_that("plot_dvtime loq_method character aliases add the LOQ hline and BLQ caption", {
@@ -295,4 +314,101 @@ test_that("plot_dvtime fills cent_errorbar aesthetics from the style", {
   lr <- styled_layer(p, "GeomLinerange", "StatSummary")
   expect_equal(unique(lr$linewidth), 1.5)
   expect_equal(unique(lr$alpha), 0.4)
+})
+
+
+##Test show_obs
+obs_point_layer <- function(p) {
+  vapply(p$layers, function(l)
+    inherits(l$geom, "GeomPoint") && inherits(l$stat, "StatIdentity"),
+    logical(1))
+}
+
+test_that("show_obs = FALSE omits the observed point layer", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  expect_true(any(obs_point_layer(plot_dvtime(data, dv_var = "ODV"))))
+  expect_false(any(obs_point_layer(plot_dvtime(data, dv_var = "ODV", show_obs = FALSE))))
+})
+
+test_that("show_obs = FALSE keeps id_var spaghetti lines", {
+  p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
+                   id_var = "ID", show_obs = FALSE)
+  layer_geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_true("GeomLine" %in% layer_geoms)
+})
+
+test_that("show_obs = FALSE hidden points do not train the y axis", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  y_range <- function(show_obs) {
+    p <- plot_dvtime(data, dv_var = "ODV", cent = "mean_sdl", show_obs = show_obs)
+    suppressWarnings(ggplot2::ggplot_build(p))$layout$panel_params[[1]]$y.range
+  }
+  expect_lt(diff(y_range(FALSE)), diff(y_range(TRUE)))
+})
+
+test_that("logical arguments must be TRUE or FALSE", {
+  data <- dplyr::filter(data_sad, CMT != 3)
+  for (arg in c("show_obs", "dosenorm", "log_y", "show_caption")) {
+    args <- list(data, dv_var = "ODV")
+    args[[arg]] <- 1
+    expect_error(do.call(plot_dvtime, args),
+                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+  }
+})
+
+
+test_that("a style caption replaces the builder caption whatever show_caption", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  p <- plot_dvtime(d, dv_var = "ODV", style = style_dvtime(caption = "Mine"))
+  expect_equal(p$labels$caption, "Mine")
+  p <- plot_dvtime(d, dv_var = "ODV", show_caption = FALSE,
+                   style = style_dvtime(caption = "Mine"))
+  expect_equal(p$labels$caption, "Mine")
+  p <- plot_dvtime(d, dv_var = "ODV", show_caption = FALSE)
+  expect_null(p$labels$caption)
+})
+
+test_that("plot_dvtime show_loq_value toggles the LLOQ legend value", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  lt_on <- ggplot2::get_guide_data(
+    plot_dvtime(d, dv_var = "ODV", loq = 0.5, loq_method = 1), "linetype")
+  expect_equal(lt_on$.label, "0.5")
+  p_off <- plot_dvtime(d, dv_var = "ODV", loq = 0.5, loq_method = 1,
+                       show_loq_value = FALSE)
+  expect_equal(ggplot2::get_guide_data(p_off, "linetype")$.label, "LLOQ")
+  expect_null(p_off$scales$get_scales("linetype")$name)
+  expect_error(plot_dvtime(d, dv_var = "ODV", show_loq_value = "no"),
+               regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
+})
+
+#####central tendency values against direct computation#####
+cent_fixture <- data.frame(
+  ID = rep(1:6, 2), TIME = rep(c(1, 2), each = 6), NTIME = rep(c(1, 2), each = 6),
+  DV = c(1, 2, 4, 8, 16, 32, 3, 5, 7, 9, 11, 13), EVID = 0, MDV = 0
+)
+cent_layers <- function(...) {
+  p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, ...)
+  geoms <- vapply(p$layers, function(L) class(L$geom)[1], character(1))
+  built <- ggplot2::ggplot_build(p)$data
+  list(point = built[[which(geoms == "GeomPoint")[1]]],
+       errorbar = if (any(geoms == "GeomErrorbar")) built[[which(geoms == "GeomErrorbar")[1]]])
+}
+by_time <- function(f) as.vector(tapply(cent_fixture$DV, cent_fixture$NTIME, f))
+
+test_that("plot_dvtime central tendency and error bars match direct computation", {
+  m <- cent_layers(cent = "mean")
+  expect_equal(m$point$y, by_time(mean))
+  sdl <- cent_layers(cent = "mean_sdl")
+  expect_equal(sdl$errorbar$ymax - sdl$errorbar$ymin, 2 * by_time(stats::sd))
+  iqr <- cent_layers(cent = "median_iqr")
+  expect_equal(iqr$point$y, by_time(stats::median))
+  expect_equal(iqr$errorbar$ymin, by_time(function(v) unname(stats::quantile(v, 0.25))))
+  expect_equal(iqr$errorbar$ymax, by_time(function(v) unname(stats::quantile(v, 0.75))))
+})
+
+test_that("plot_dvtime mean on a log axis is the geometric mean, as the caption says", {
+  geo <- cent_layers(cent = "mean", log_y = TRUE)
+  expect_equal(10^geo$point$y, by_time(function(v) exp(mean(log(v)))))
+  p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, cent = "mean", log_y = TRUE)
+  expect_match(p$labels$caption, "[Gg]eometric mean")
 })

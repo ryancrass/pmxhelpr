@@ -1,0 +1,625 @@
+---
+title: "Forest Plot Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forest Plot Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup-opts, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%"
+)
+```
+
+This vignette demonstrates the `pmxhelpr` forest plot workflow for visualizing 
+the univariate impact of covariate effects in a model on the integrated model
+output (e.g. exposure metrics, response metrics, ratio to reference)
+
+The pipeline mirrors the [VPC](vpc-workflow.html) and 
+[dose-proportionality](doseprop-workflow.html) workflows. Where to start
+depends on the data in hand:
+
+  + **Wide simulation output** (one row per scenario per replicate, metrics as
+  columns): reshape it with `df_forest_preprocess()`, then continue below.
+  + **Long simulation output** (one row per scenario per replicate per): 
+  call `plot_forest(draws, metric = )` for a single plot, or `df_forest()` once 
+  and pass its result to `plot_forest()` for several metrics or layouts.
+  + **Summary output**: wrap it as a `forest_stats` object and 
+  call `plot_build_forest()` (see "Building a `forest_stats` by hand" in 
+  `?plot_build_forest`).
+
+```{r setup, echo=TRUE, warning=FALSE}
+options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
+library(pmxhelpr)
+library(dplyr, warn.conflicts =  FALSE)
+library(ggplot2, warn.conflicts =  FALSE)
+```
+
+
+
+# Background
+
+A univariate forest plot is a graphical model application used to visualize the
+impact of intrinsic and extrinsic participant factors (i.e., covariates) on 
+integrated model outputs (e.g., exposure metrics, response metrics, ratios of 
+exposure or response) under test conditions relative to reference conditions.
+
+The typical workflow involves establishing the reference scenario
+(i.e., the vector of covariates at the reference level for each individual 
+covariate) and test scenarios, each differing in only one covariate value
+from the reference scenario. 
+
+The model is then applied to generate predictions under each scenario with 
+uncertainty and/or variability arising from unique sets of fixed effects model 
+parameters in each simulation sampled from the uncertainty in parameter 
+estimation (i.e., sampled from a multivariate normal distribution with the mean
+vector set to the vector of final fixed effects parameter estimates). 
+
+The output from the simulation is a distribution of "typical" (fixed effects 
+only) model outputs, from which the median (50th percentile) is interpreted
+as the estimate of central tendency and quantiles (e.g., 2.5th-97.5th, 5th-95th)
+are interpreted as the confidence interval around the central tendency (e.g., 
+95% CI, 90% CI)
+
+The bioequivalence criteria (0.8 to 1.25) provide a conventional reference 
+range for interpretation of covariate impact on exposure. 
+
+
+
+# Data
+
+This vignette uses two internal datasets built using the internal `data_sad`
+dataset and the internal PK model (`pkmodel`). 
+
+  + `data_sad_pkforest_sim`: raw exposure metric simulation output for N = 500 
+    replicates. Dosing of 200 mg once daily to steady state. Exposure metrics 
+    are summarized to one row per scenario (M) per replicate (N) resulting
+    in a dataset of length M x N (6 scenarios * 500 replicates = 3000). 
+    Example input dataset for `df_forest_preprocess()`
+    
+```{r data-sim-glimpse}
+glimpse(data_sad_pkforest_sim)
+```
+
+  + `data_sad_pkforest`: pre-processed simulated exposure metrics. Exposure 
+    metrics are gathered from columns into rows, one row per scenario (M)
+    per replicate (N) per metric (K), resulting in a dataset of length 
+    M x N x K (6 scenarios * 500 replicates * 8 metrics = 24000). Example
+    output dataset from 
+    `df_forest_preprocess` and example input dataset for `df_forest()`. 
+
+```{r data-scenarios}
+glimpse(data_sad_pkforest) 
+```
+
+Relevant variables in these datasets include:
+  + `ID` identifies the scenarios 
+  (1 = reference, 2 = fed, 3 = 50 kg, 4 = 60 kg, 5 = 80 kg, 6 = 90 kg)
+  + `SIM` is the replicate counter 
+  + `metric` holds the the exposure metric names, which include both absolute 
+  (`CMAX`, `CMIN`, `AUC`, `CAVG`) and test/reference ratios 
+  (`CMAXRATIO`, `CMINRATIO`, `AUCRATIO`, `CAVGRATIO`)
+  + `value` holds the exposure metric values
+  + `cov_name` holds the name of the univariate covariate varied
+  (`Reference`, `FOOD`, `WTBL`)
+  + `cov_level` holds the level label of the univariate covariate varied
+  (`Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`)
+
+It also carries a `cov_level_ref` attribute naming each covariate's reference.
+
+
+
+# Preprocessing with `df_forest_preprocess()`
+
+`df_forest_preprocess()` is the entry point from a simulation output to the 
+forest plot pipeline. It reads the scenario structure from the covariate columns
+in the raw simulation output. 
+
+Key arguments are as follows:
+
+  + `data`: data.frame, simulation output dataset for processing
+  + `metric_vars`: character vector, names of metric variables in `data`
+  + `cov_vars`: character vector, names of covariate variables in `data`
+  + `cov_val_ref`: named vector, covariate name: reference value pairs 
+  defining the reference conditions
+  + `cov_labels`: list, covariate value:label pairs or labeling function
+
+```{r preprocess}
+simsum <- df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars   = c("CMAX", "CMIN", "AUC", "CAVG"),
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
+  cov_labels    = list(
+    FOOD = c("0" = "Fasted", "1" = "Fed"),
+    WTBL = function(x) paste(x, "kg")
+  )
+)
+glimpse(simsum)
+```
+
+Every column that is not a metric passes through, so simulation inputs such as
+`ID`, `WTBL`, `FOOD` and `DOSE` stay available for filtering and faceting 
+downstream.
+
+This function call is exactly how the shipped dataset `data_sad_pkforest` is 
+built, so the two are the same frame. The rest of the vignette works from 
+`simsum` to follow the workflow which would be used in a real worked forest 
+plot workflow.
+
+```{r preprocess-identical}
+identical(simsum, data_sad_pkforest)
+```
+
+Each covariate's reference label is attached as an attribute, ready to pass to
+`df_forest()` as `cov_level_ref`. 
+
+```{r preprocess-attr}
+ref_levels <- attr(simsum, "cov_level_ref")
+ref_levels
+```
+
+## Reference Conditions
+
+The reference condition is defined by the `cov_val_ref` argument, which takes a
+vector of covariate name:reference value pairs. `df_forest_preprocess()` labels
+`cov_name` and `cov_level` as `"Reference"` (the `cov_name_ref` argument) in the 
+rows of the dataset with the reference values of every covariate.
+
+```{r}
+ref <- filter(simsum, cov_name == "Reference")
+unique(ref$cov_name)
+unique(ref$cov_level)
+unique(ref$FOOD)
+unique(ref$WTBL)
+```
+
+Every other scenario must differ from the reference in a univariate manner 
+(i.e., by exactly one covariate value), and that covariate becomes the 
+rows `cov_name`, with its labeled value as `cov_level`. No scenario identifier 
+column or separate lookup table is needed, as the covariate combination in the 
+dataset defines the scenario.
+
+Matching is on the character form of the value, so a numeric column and a 
+character reference value still line up. A scenario that varies two covariates 
+at once has no single covariate to attribute the change to, so it aborts. 
+Factorial designs are out of scope.
+
+```{r preprocess-factorial, error=TRUE}
+factorial_sim <- data_sad_pkforest_sim
+factorial_sim$FOOD[factorial_sim$ID == 6] <- 1   # 90 kg *and* fed
+
+df_forest_preprocess(
+  factorial_sim,
+  metric_vars   = "AUC",
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70)
+)
+```
+
+
+## Ratios
+
+Test-to-Reference ratios are derived automatically for each metric producing a 
+within-replicate test/reference ratio named `<metric><ratio_suffix>`. 
+
+Because the parameter set is shared across scenarios within a replicate, 
+uncertainty common to both test and reference cancels in the ratio.
+
+`ratio = FALSE` emits the absolute metrics alone, and `ratio_suffix` renames 
+the ratio metrics.
+
+```{r preprocess-ratio}
+df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars   = "AUC",
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
+  ratio_suffix  = "RAT"
+) %>%
+  distinct(metric)
+```
+
+
+## Labels
+
+`cov_labels` accepts a list of key:value pairs to define labels for each 
+covariate, one entry per covariate, or a labeling function applied to the 
+values. A value with no label falls back to its character form with a warning, 
+which is what happens below for the fed level.
+
+```{r preprocess-labels}
+df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars   = "AUC",
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
+  cov_labels    = list(FOOD = c("0" = "Fasted"))
+) %>%
+  distinct(cov_name, cov_level)
+```
+
+
+
+# Computing summary statistics with `df_forest()`
+
+`df_forest()` is the summary function which produces a class tagged object
+ready for rendering as a forest plot. 
+
+The only required argument is `data`. The column-name arguments default to the
+conventions `df_forest_preprocess()` emits:
+
+  + `metric_name_var`: column of metric names, default `metric`
+  + `metric_value_var`: column of metric values, default `value`
+  + `cov_name_var`: column of covariate names, default `cov_name`
+  + `cov_level_var`: column of covariate levels, default `cov_level`
+
+Every row of a `(metric, covariate, level)` group is aggregated, so no 
+replicate index column (e.g., `SIM`) is needed.
+
+```{r df-forest-obj}
+forest_obj <- df_forest(simsum)
+forest_obj
+```
+
+The `stats` slot holds one row per plotted point, in plotting order: `est`, 
+`lo`, and `hi`, their formatted labels (`ci_label` combines them for tables), 
+the draw count `n`, `is_ref` for the reference rows, and `layout` (see 
+[Where the reference row is drawn](#where-the-reference-row-is-drawn)). Edit 
+`est_label`, `lo_label`, or `hi_label` to change the plotted text.
+
+```{r df-forest-stats}
+forest_obj$stats
+```
+
+
+## Adjusting the summary statistics
+
+The summary can be customized with:
+
+  + `ci`: confidence interval to return, default `0.9` based on the interval 
+  recommended for bioequivalence assessment.
+  + `sigdigits`: number of significant digits in the label columns, default 
+  `3`. Digits are counted on the median estimate of each metric, so every 
+  value of a metric shares one count of decimal places (`0.90` and `2.32` for 
+  a ratio).
+
+```{r df-forest-obj-95ci}
+df_forest(simsum, ci = 0.95, sigdigits = 2)
+```
+
+
+## Reference
+
+Reference rows are identified by `cov_name_ref`, the value of `cov_name` that
+marks the reference condition. The default `"Reference"` matches the 
+`df_forest_preprocess()` output, but the reference can be called anything, as 
+in the example below. Reference rows are flagged `is_ref = TRUE` in the output, 
+drawn as an open circle, and sorted to the top of each metric (the reference
+panel at the top of the plot).
+
+```{r df-forest-ref-name}
+renamed <- simsum %>%
+  mutate(cov_level = ifelse(cov_name == "Reference", "70 kg, fasted", cov_level),
+         cov_name = ifelse(cov_name == "Reference", "Typical subject", cov_name))
+df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
+  filter(metric == "AUCRATIO") %>%
+  select(cov_name, cov_level, is_ref, ci_label)
+```
+
+`cov_level_ref` is a named vector mapping each covariate to its reference 
+level. When supplied, `$stats` also holds a copy of the reference row in each
+named covariate panel, so the plot can draw the reference there (see 
+[Where the reference row is drawn](#where-the-reference-row-is-drawn)).
+
+```{r df-forest-distributed}
+forest_obj <- df_forest(simsum,
+                        cov_level_ref = ref_levels)
+forest_obj$stats %>%
+  filter(metric == "AUCRATIO")
+```
+
+If the data has no reference at all, pass `cov_name_ref = NULL`.
+
+## Row order
+
+Rows of `forest_obj$stats` are drawn in order top to bottom, and the order is read from the input 
+data rather than alphanumerically:
+
+  + Covariate name panels follow their factor levels when the input columns are
+  factors, otherwise they order in order of first appearance.  
+  
+  + Covariate levels within a covariate follow the factor levels of the
+  `cov_level_var` column when those levels cover every label, including a
+  covariate's reference label. Otherwise, if every label carries a distinct
+  number, labels sort ascending by it (`50 kg` above `90 kg`, `-20%` above
+  `-5%`). Any other set keeps the reference label on top, then data order.
+
+To control the order explicitly:
+
+  + a priori set factor levels of `cov_level` before calling `df_forest()`
+  + a posteriori reorder the rows of `forest_obj$stats` before plotting.
+  
+The example below reorders the levels of the unique covariate values in the 
+pre-processed dataset output by `df_forest_preprocess` before passing to 
+`df_forest` to the desired order of descending body weights.
+
+```{r df-forest-order}
+data_wt_desc <- simsum %>%
+  mutate(cov_level = factor(cov_level, levels = c("Reference", "Fasted", "Fed",
+                                              "90 kg", "80 kg", "70 kg", "60 kg", "50 kg")))
+
+wt_desc <- df_forest(data_wt_desc, cov_level_ref = ref_levels)
+wt_desc$stats %>%
+  filter(metric == "AUCRATIO") %>%
+  select(cov_name, cov_level, is_ref, layout, ci_label)
+```
+
+# Plotting with `plot_forest()`
+
+`plot_forest()` is the top-level wrapper that bundles `df_forest()` and 
+`plot_build_forest()`. 
+
+It renders one metric per call specified by the `metric` argument. When the 
+input data carries only one metric, the `metric` argument does not need to be 
+specified and the metric is selected automatically. 
+
+The output is a `ggplot` object with one facet row per covariate, the covariate
+level on the y-axis, and a right-hand estimate column (`1.29 (1.19, 1.41)`) 
+under a header built from `ci` (e.g. `Estimate (90% CI)`). The rendered metric 
+labels the x-axis; there is no title by default.
+
+```{r plot-raw, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUCRATIO")
+```
+
+The vertical reference line defaults to `ref = "reference"`: the reference
+row's estimate (1 for a ratio, the reference exposure for a raw metric). Pass a
+number to place it elsewhere, or `NULL` to suppress it.
+
+## Where the reference row is drawn
+
+The plot above has no `cov_level_ref`, so the reference row sits in the 
+reference panel at the top. With `cov_level_ref`, the reference row is drawn
+inside each covariate panel under its reference label instead, so every panel
+shows the reference next to the varied levels:
+
+```{r plot-ref-distributed, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUCRATIO", cov_level_ref = ref_levels)
+```
+
+`ref_layout` switches between the two on the same summary without 
+re-aggregating: `"distributed"` (in each covariate panel, the default when 
+`cov_level_ref` is given) or `"consolidated"` (the reference panel). The 
+`layout` column of `$stats` records which rows each layout draws.
+
+## The equivalence band
+
+`ref_band` is a numeric vector of length 2 specifying the bounds of a shaded
+equivalence band. Its two values are read according to `ref_band_type`:
+
+  + `"multiplicative"` (default): the band is `ref * ref_band`
+  + `"additive"`: the band is `ref + ref_band`
+  + `"absolute"`: the band is `ref_band`
+
+A multiplicative band is symmetric only on a log axis, which can be applied
+through the style with `style_forest(logx = TRUE)`, or by adding
+`scale_x_log10()` onto the returned `ggplot` object.
+
+```{r plot-band, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUCRATIO",
+            cov_level_ref = ref_levels,
+            ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE))
+```
+## Absolute exposure metrics
+
+The same call works for an absolute metric. The reference line resolves to the
+reference scenario's exposure, and a multiplicative band of
+`c(0.8, 1.25)` scales with it, so the plot reads the same way as the ratio plot
+but on the exposure scale. The intervals are wider than for the ratio.
+
+```{r plot-absolute, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUC",
+            cov_level_ref = ref_levels,
+            ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE))
+```
+
+## Difference metrics
+
+Metrics on an additive scale, such as percent change from the reference, 
+can be negative or zero, so they need a linear axis and an additive band. 
+
+The example derives a percent-change metric from the ratio draws and brackets 
+the reference change of zero with the equivalent of the 0.8 to 1.25 bounds.
+
+```{r plot-additive, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+data_pchg <- simsum %>%
+  filter(metric == "AUCRATIO") %>%
+  mutate(metric = "AUCPCHG", value = 100 * (value - 1))
+
+plot_forest(data_pchg,
+            cov_level_ref = ref_levels,
+            ref_band = c(-20, 25), ref_band_type = "additive")
+```
+
+## The estimate column header
+
+The header above the estimate column is built from `ci` (`Estimate (90% CI)`). 
+It is the plot subtitle, right-aligned so it sits on the top edge of the 
+panels, and can be relabelled after the fact with `labs(subtitle = )`. 
+
+For a ratio metric the conventional label names the quantity rather than the 
+statistic, as in the example below
+
+```{r plot-header, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUCRATIO",
+            cov_level_ref = ref_levels,
+            ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE)) +
+  labs(subtitle = "Ratio (90% CI)")
+```
+
+## Reusing precomputed stats
+
+`plot_forest()` also accepts a `forest_stats` object directly. 
+This skips the aggregation and is the natural way to render several metrics 
+from one summary, or to try different `ref_band` and `style` settings on the 
+same data.
+
+```{r plot-precomputed, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "CMAXRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE))
+
+plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
+            style = style_forest(logx = TRUE))
+```
+
+`forest_obj` was computed with `cov_level_ref`, so `ref_layout` can switch it to
+the reference panel:
+
+```{r plot-ref-layout, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_layout = "consolidated",
+            ref_band = c(0.8, 1.25), style = style_forest(logx = TRUE))
+```
+
+On a precomputed `forest_stats`, only the plot arguments (`metric`, `ref`, 
+`ref_band`, `ref_band_type`, `ref_layout`, `show_rep`, `style`) are accepted; 
+summary arguments such as `ci` abort with a pointer to `df_forest()`.
+
+# Inspecting the `forest_stats` object
+
+`summary()` prints the configuration and one line per metric: its draw count
+and each covariate's levels in plot order, with reference copies drawn in a
+covariate panel marked `*`.
+
+```{r summary-stats}
+summary(forest_obj)
+```
+
+`as.data.frame()` returns the `stats` slot as a plain `data.frame`, and 
+`is_forest_stats()` tests for the class (`strict = TRUE` also validates it).
+
+# Styling
+
+Plot aesthetics are customized via the `style` argument and the `style_forest()`
+preset, which returns a `ggstylekit::style_spec()`. The series roles are:
+
+  + `point` — the point estimate
+  + `errorbar` — the confidence interval line
+  + `ref_point` — the reference row's estimate (an open circle by default)
+  + `ref_line` — the vertical reference line
+  + `ref_band` — the shaded equivalence band (`fill` and `alphas`)
+
+```{r style-defaults}
+style_forest()
+```
+
+A typical override example is provided below using the style to change the
+point sizes and the colors of the reference line and band:
+
+```{r plot-styled, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest(shapes = c(point = 18),
+                                 sizes = c(point = 3),
+                                 colors = c(ref_line = "firebrick"),
+                                 fill = c(ref_band = "steelblue"),
+                                 alphas = c(ref_band = 0.15),
+                                 logx = TRUE))
+```
+
+## Per-covariate coloring
+
+Coloring by covariate is opt-in through the same `colors` map: add entries 
+keyed by covariate name. 
+
+When at least one plotted covariate is named, points and error bars are colored 
+by covariate and the legend is suppressed, since the panel strips already label
+each covariate. Covariates without an entry take colours from the house palette.
+
+```{r plot-colored, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest(colors = c(FOOD = "darkgreen", WTBL = "darkblue"),
+                                 logx = TRUE))
+```
+
+The facet layout is fixed by the renderer (`facet_grid()` rows by covariate, 
+strips outside the y-axis), so the style's `facet*` fields are ignored. 
+
+The estimate column is right-hand axis text styled through the theme's 
+`axis.text.y.right` element, and its header is the plot subtitle 
+(`plot.subtitle`). The x-axis label defaults to the metric and can be replaced 
+with the style's `xlabel` field or `labs(x = )`; a title can be added with the 
+`title` field or `labs(title = )`.
+
+The preset examples below share one log x-axis (`scale_x_log10()` with fixed
+limits) so the looks can be compared directly.
+
+## pmforest styling
+
+`style_forest_pmforest()` reproduces the default look of Metrum's
+[pmforest](https://github.com/metrumresearchgroup/pmforest/) package: diamonds
+filled per covariate from the ggplot2 hue palette with black outlines, a
+dot-dash reference line, and grey vertical gridlines. It is a regular preset,
+so its fields can be overridden the same way.
+
+```{r plot-pmforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest_pmforest()) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+## coveffectsplot styling
+
+`style_forest_coveffectsplot()` reproduces the default look of the `forest_plot()`
+function of the [coveffectsplot](https://github.com/smouksassi/coveffectsplot/)
+package: blue points on thick blue intervals, a dashed reference line, grey
+gridlines on both axes, and grey-filled covariate strips.
+
+```{r plot-coveffectsplot, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest_coveffectsplot()) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+
+## PMXForest styling
+
+`style_forest_pmxforest()` reproduces the default look of the `forestPlot()`
+function of Pharmetheus' [PMXForest](https://github.com/pharmetheus/PMXForest/)
+package, the forest plot of the FREM workflow: black points on uncapped black
+intervals, a dotted reference line, and the grey `theme_grey()` panel.
+
+```{r plot-pmxforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest_pmxforest()) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+## Pumas styling
+
+`style_forest_pumas()` reproduces the look of the `table_forest_plot()` function of
+[Pumas](https://tutorials.pumas.ai/html/forest_plots/forest.html): diamonds
+and capped error bars colored per covariate, a dashed reference line, and an
+open panel without gridlines.
+
+```{r plot-pumas, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
+            style = style_forest_pumas()) + 
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+For a deeper treatment of the styling system — `style_spec()` fields, 
+per-role maps, and post-hoc `reveal()` — see the 
+[Plot Styling and Aesthetics](plot-styling.html) vignette.
+
+# See also
+
+  + [Dose-Proportionality Workflow](doseprop-workflow.html) — the sibling dual-mode pipeline (`df_doseprop()` / `plot_doseprop()`) for power law regression of exposure versus dose.
+  + [Visual Predictive Check Workflow](vpc-workflow.html) — simulation-based model evaluation with `df_vpcstats()` and `plot_vpc_cont()`.
+  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `reveal()` for customizing plot output.

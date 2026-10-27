@@ -35,6 +35,7 @@
 #'    requires quantifiable obs. Rationale: BLQ-heavy bins are the most
 #'    informative on a cens VPC and should be retained.
 #' @param show_rep Display number of replicates as a plot caption. Default is `TRUE`.
+#'    A `caption` set in the style is drawn instead, whatever this value.
 #'
 #' @param shown Layer visibility settings created by [plot_vpc_shown()]. The
 #'    cens builder reads four of the keys: `obs_point`, `obs_median_line`,
@@ -45,8 +46,8 @@
 #'
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
-#'    with no arguments. Customize by passing `style = style_vpc(...)`, or
-#'    restyle the returned plot with [restyle_plot()]. Pass the same style to
+#'    with no arguments. Customize by passing `style = style_vpc(...)`.
+#'    Pass the same style to
 #'    [plot_vpc_legend()] so the legend matches. The cens builder reads the same four keys
 #'    listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
 #'    `sim_median_ci`); other keys are ignored.
@@ -99,11 +100,13 @@ plot_vpc_cens <- function(data,
                           strat_var = NULL,
                           loq = NULL,
                           irep_name = "SIM",
-                          min_bin_count = 1,
+                          min_bin_count = 0,
                           show_rep = TRUE,
                           shown = NULL,
                           style = NULL,
                           ci = 0.90) {
+
+  check_boolean(show_rep, "show_rep")
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute, validate that the container
@@ -114,7 +117,8 @@ plot_vpc_cens <- function(data,
     check_pipeline_args_dropped(
       call           = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
-      fn_name        = "plot_vpc_cens"
+      fn_name        = "plot_vpc_cens",
+      stats_fn       = "df_vpcstats"
     )
     return(plot_build_vpc(
       data,

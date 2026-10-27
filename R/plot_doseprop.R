@@ -8,9 +8,12 @@
 #' @param fit `lm` model object for the log-log regression
 #' @param method character string specifying the distribution to be used to derived the confidence interval.
 #'    Options are "normal" (default) and "tdist"
-#' @param ci confidence interval to be calculated.
-#'    Options 0.90 (default) and 0.95
-#' @param sigdigits number of significant digits for rounding
+#' @param ci confidence interval to be calculated: a single numeric value
+#'    in `(0, 1)`, e.g. `0.90` (default) or `0.95`.
+#' @param sigdigits number of significant digits for the reported
+#'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
+#'    columns. The `Proportional` / `Interpretation` verdict is taken from
+#'    the unrounded confidence bounds, so it never moves with `sigdigits`.
 #'
 #' @return `data.frame`
 #' @keywords internal
@@ -26,26 +29,38 @@ df_loglog <- function(fit,
   int <- stats::coef(fit)[[1]]
   est <- stats::coef(fit)[[2]]
   se <- sqrt(diag(stats::vcov(fit)))[[2]]
-  z <- stats::qt((1 + ci)/2, (length(fit$residuals)-1))
+
+  ## `method` is validated above, so the critical value is a straight choice
+  ## between the normal and t quantile.
+  crit <- switch(
+    method,
+    normal = stats::qnorm((1 + ci)/2),
+    tdist  = stats::qt((1 + ci)/2, fit$df.residual)
+  )
+  lcl <- est - crit*se
+  ucl <- est + crit*se
 
   tab <- data.frame(
     Intercept = signif(int, digits=sigdigits),
     StandardError = signif(se, digits=sigdigits),
     CI = paste0(ci*100, "%"),
     Power = signif(est, digits = sigdigits),
-    LCL = dplyr::case_when(method == "normal" ~ signif(est - stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
-                           method == "tdist" ~ signif(est - z*se, digits=sigdigits),
-                           .default = NA_real_),
-    UCL = dplyr::case_when(method == "normal" ~ signif(est + stats::qnorm((1 + ci)/2)*se, digits=sigdigits),
-                           method == "tdist" ~ signif(est + z*se, digits=sigdigits),
-                           .default = NA_real_)) |>
-    dplyr::mutate(Proportional = dplyr::case_when(.data$LCL < 1 & .data$UCL < 1 ~ FALSE,
-                                        .data$LCL > 1 & .data$UCL > 1 ~ FALSE,
-                                        .default = TRUE),
-                  PowerCI = paste0("Power: ", .data$Power, " (", .data$CI," CI ", .data$LCL ,"-", .data$UCL,")"),
-                  Interpretation = dplyr::case_when(.data$LCL < 1 & .data$UCL < 1 ~ "Less than dose-proportional",
-                                      .data$LCL > 1 & .data$UCL > 1 ~ "Greater than dose-proportional",
-                                      .default = "Dose-proportional"))
+    LCL = signif(lcl, digits=sigdigits),
+    UCL = signif(ucl, digits=sigdigits))
+
+  ## The verdict is judged on the unrounded bounds: `sigdigits` is a display
+  ## setting and must not steer the conclusion. A bound of 1.0004 rounds to
+  ## 1.00 at three digits, which would turn "Greater than dose-proportional"
+  ## into "Dose-proportional".
+  tab$Proportional <- !((lcl < 1 & ucl < 1) | (lcl > 1 & ucl > 1))
+  ## Pad every value to `sigdigits` so the facet labels line up
+  ## ("1.00 (90% CI 0.900-1.20)", not "1 (90% CI 0.9-1.2)").
+  tab$PowerCI <- paste0("Power: ", fmt_sig(est, sigdigits),
+                        " (", tab$CI, " CI ",
+                        fmt_sig(lcl, sigdigits), "-", fmt_sig(ucl, sigdigits), ")")
+  tab$Interpretation <- dplyr::case_when(lcl < 1 & ucl < 1 ~ "Less than dose-proportional",
+                                         lcl > 1 & ucl > 1 ~ "Greater than dose-proportional",
+                                         .default = "Dose-proportional")
 
   tab
 }
@@ -75,9 +90,14 @@ df_loglog <- function(fit,
 #'    Accepts bare names or strings. Default is `DOSE`.
 #' @param method character string specifying the distribution to be used to derive the confidence interval.
 #'    Options are `"normal"` (default) and `"tdist"`.
-#' @param ci confidence interval to be calculated.
-#'    Options `0.90` (default) and `0.95`.
-#' @param sigdigits number of significant digits for rounding.
+#' @param ci confidence interval to be calculated: a single numeric value
+#'    in `(0, 1)`, e.g. `0.90` (default) or `0.95`.
+#' @param sigdigits number of significant digits for the reported
+#'    `Intercept`, `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI`
+#'    columns. `PowerCI` pads every value to this many digits so the facet
+#'    labels line up. The `Proportional` / `Interpretation` verdict is taken
+#'    from the unrounded confidence bounds, so it never moves with
+#'    `sigdigits`.
 #'
 #' @family dose proportionality
 #' @return A `doseprop_stats` container (subclass of `pmx_stats`) with three
@@ -85,7 +105,12 @@ df_loglog <- function(fit,
 #'    \describe{
 #'      \item{`stats`}{One row per metric and columns `Intercept`,
 #'        `StandardError`, `CI`, `Power`, `LCL`, `UCL`, `Proportional`,
-#'        `PowerCI`, `Interpretation`, plus the column named in `metric_name_var`.}
+#'        `PowerCI`, `Interpretation`, plus the column named in `metric_name_var`.
+#'        `Interpretation` is `"Dose-proportional"` when the `ci` interval for
+#'        `Power` contains 1, and less or greater than dose-proportional when it
+#'        lies wholly below or above 1. It is a screening label: a CI that
+#'        contains 1 does not establish proportionality, and no predefined
+#'        equivalence bounds are applied.}
 #'      \item{`obs`}{The filtered observation rows used for the plot scatter
 #'        overlay.}
 #'      \item{`config`}{Named list with `metric_name_var`, `metric_value_var`, `dose_var`,
@@ -96,7 +121,8 @@ df_loglog <- function(fit,
 #' @export df_doseprop
 #'
 #' @examples
-#' df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+#' df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+#'             metrics = c("aucinf.obs", "cmax"))
 
 df_doseprop <- function(data,
                         metrics,
@@ -115,6 +141,12 @@ df_doseprop <- function(data,
   check_varsindf(data, metric_name_var_str, "data", "metric_name_var")
   check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
+  if (!is.character(metrics) || length(metrics) == 0L) {
+    rlang::abort(message = paste0(
+      "argument `metrics` is required: a character vector of values in `",
+      metric_name_var_str, "` to analyze"
+    ))
+  }
   check_levelsinvar(data, metric_name_var_str, metrics, "metric_name_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
 
@@ -167,25 +199,12 @@ df_doseprop <- function(data,
 #' @keywords internal
 
 validate_doseprop_stats <- function(x) {
-  if (!inherits(x, "doseprop_stats")) {
-    rlang::abort("`x` must be a `doseprop_stats` object (output of `df_doseprop()`).")
-  }
-  validate_pmx_stats(x)
-  required_cols <- c("Intercept", "Power", "LCL", "UCL", "PowerCI")
-  missing_cols <- setdiff(required_cols, colnames(x$stats))
-  if (length(missing_cols) > 0) {
-    rlang::abort(paste0("`doseprop_stats` is missing required columns: ",
-                        paste(missing_cols, collapse = ", ")))
-  }
-  required_config <- c("metric_name_var", "metric_value_var", "dose_var", "ci")
-  missing_config <- setdiff(required_config, names(x$config))
-  if (length(missing_config) > 0) {
-    rlang::abort(paste0("`doseprop_stats` is missing required config keys: ",
-                        paste(missing_config, collapse = ", ")))
-  }
-  if (!is.data.frame(x$obs)) {
-    rlang::abort("`doseprop_stats$obs` must be a data.frame.")
-  }
+  validate_pmx_stats(
+    x, "doseprop_stats", "df_doseprop",
+    stats_cols = c("Intercept", "Power", "LCL", "UCL", "PowerCI"),
+    config_keys = c("metric_name_var", "metric_value_var", "dose_var", "ci"),
+    require_obs = TRUE
+  )
   check_varsindf(x$obs, x$config$metric_name_var,  "obs", "config$metric_name_var")
   check_varsindf(x$obs, x$config$metric_value_var, "obs", "config$metric_value_var")
   check_varsindf(x$obs, x$config$dose_var,         "obs", "config$dose_var")
@@ -216,8 +235,7 @@ validate_doseprop_stats <- function(x) {
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
 #'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`, or restyle the returned plot with
-#'    [restyle_plot()]. The per-metric facet layout is
+#'    `style = style_doseprop(...)`. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.
@@ -238,6 +256,7 @@ plot_build_doseprop <- function(stats,
                                 style = NULL,
                                 se = TRUE) {
 
+  check_boolean(se, "se")
   validate_doseprop_stats(stats)
 
   metric_name_var_str <- stats$config$metric_name_var
@@ -306,15 +325,14 @@ plot_build_doseprop <- function(stats,
 #'    format is output from `PKNCA::pk.nca()`) or a `doseprop_stats` object
 #'    returned by [df_doseprop()].
 #' @param metrics character vector of exposure metrics in `data` to plot.
-#'    Required on the raw-data path; ignored when `data` is a
+#'    Required on the raw-data path; must not be passed with a
 #'    `doseprop_stats` object.
 #' @param se logical to display confidence interval around regression.
 #'    Default is `TRUE`.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_doseprop()]; view the defaults by running
 #'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`, or restyle the returned plot with
-#'    [restyle_plot()]. The per-metric facet layout is
+#'    `style = style_doseprop(...)`. The per-metric facet layout is
 #'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
 #'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
 #'    because the builder sets the facet and log-log axes itself.
@@ -350,7 +368,8 @@ plot_doseprop <- function(data,
     check_pipeline_args_dropped(
       call           = match.call(),
       plot_only_args = c("data", "style", "se"),
-      fn_name        = "plot_doseprop"
+      fn_name        = "plot_doseprop",
+      stats_fn       = "df_doseprop"
     )
     return(plot_build_doseprop(data, style = style, se = se))
   }

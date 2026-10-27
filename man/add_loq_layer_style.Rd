@@ -11,7 +11,8 @@ add_loq_layer_style(
   loq,
   dosenorm,
   style,
-  show_legend = FALSE
+  show_legend = FALSE,
+  show_value = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ add_loq_layer_style(
 \item{style}{A \code{ggstylekit_style_spec} supplying the \code{loq_line} aesthetics.}
 
 \item{show_legend}{Logical; whether to add LLOQ to the linetype legend.}
+
+\item{show_value}{Logical; whether the legend key shows the LLOQ value.}
 }
 \value{
 A named list with \code{plot} (modified ggplot) and \code{caption} (modified
@@ -37,7 +40,8 @@ string).
 Draws the LLOQ line (suppressed under \code{dosenorm}) and appends the BLQ
 imputation caption. The line's fixed aesthetics come from the \code{"loq_line"}
 series of \code{style}. When \code{show_legend} is \code{TRUE}, the linetype is mapped to a
-\code{"LLOQ = <value>"} label with a manual scale so the line joins the legend;
-\code{style_plot()} preserves this manual scale.
+manual scale titled \code{"LLOQ"} and keyed by the value so the line joins the
+legend; with \code{show_value = FALSE} the title is dropped and the key is
+labeled \code{"LLOQ"}. \code{style_plot()} preserves this manual scale.
 }
 \keyword{internal}

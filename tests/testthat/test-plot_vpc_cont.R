@@ -275,6 +275,24 @@ test_that("plot_vpc_cont(pcvpc = TRUE) suppresses the LOQ reference line", {
   expect_false(has_hline(p_pc))
 })
 
+##Test shown$loq_line hides the LOQ ref line, including an inherited LLOQ
+test_that("plot_vpc_shown(loq_line = FALSE) hides the LOQ reference line", {
+  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
+                                 model = model_mread_load("pkmodel"),
+                                 replicates = 10, dv_var = "ODV",
+                                 carry_out = "LLOQ")
+  has_hline <- function(p) {
+    any(vapply(p$layers, function(l) inherits(l$geom, "GeomHline"), logical(1)))
+  }
+  expect_true(has_hline(plot_vpc_cont(data = testsim)))
+  hidden <- plot_vpc_cont(data = testsim, shown = plot_vpc_shown(loq_line = FALSE))
+  expect_false(has_hline(hidden))
+  expect_false(has_hline(plot_vpc_cont(data = testsim, loq = 10,
+                                       shown = plot_vpc_shown(loq_line = FALSE))))
+  # observed quantiles are unaffected; only the line is hidden
+  expect_equal(hidden$data, plot_vpc_cont(data = testsim)$data)
+})
+
 ##Test LLOQ inheritance from sim column
 test_that("loq is inherited from LLOQ column in sim when not explicitly provided", {
   testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
@@ -544,4 +562,13 @@ test_that("pmx_vpc_plot class is preserved after adding non-facet layers", {
   expect_s3_class(p, "pmx_vpc_plot")
   expect_warning(p + ggplot2::facet_wrap(~FOOD),
                  regexp = "facet_\\*\\(\\).*plot_vpc_cont")
+})
+
+test_that("plot_vpc_cont() and plot_build_vpc() reject non-logical flags before computing", {
+  expect_error(plot_vpc_cont(data_sad, pcvpc = NA),
+               "argument `pcvpc` must be `TRUE` or `FALSE`")
+  expect_error(plot_vpc_cont(data_sad, show_rep = "yes"),
+               "argument `show_rep` must be `TRUE` or `FALSE`")
+  expect_error(plot_build_vpc(list(), show_rep = 1),
+               "argument `show_rep` must be `TRUE` or `FALSE`")
 })

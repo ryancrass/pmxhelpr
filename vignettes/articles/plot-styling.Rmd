@@ -80,10 +80,9 @@ model <- model_mread_load("pkmodel")
 
 # Plot Styling with `ggstylekit` in `pmxhelpr`
 
-`pmxhelpr` re-exports four functions from `ggstylekit`:
+`pmxhelpr` re-exports these functions from `ggstylekit`:
 
   + `reveal()`: map a new data variable to an aesthetic or facet, then re-style
-  + `restyle_plot()`: adjust a plot style after it has been styled.
   + `combine_styled_plots()`: combine styled plots and collect legends
   + `legend_spec()`: describe one legend, for the `legends` style field
   
@@ -182,7 +181,8 @@ style_dvtime()$alphas
 
 A few aesthetic decisions belong to the plot builder rather than to the style,
 because the builder needs them to decide *what to draw*, not just how to draw 
-it. Where the two overlap, the builder argument wins:
+it. Where the two overlap, the builder argument wins (the one exception, the
+caption, follows the list):
 
   + **`log_y`**:  `plot_dvtime()`, `plot_dvconc()`, and `plot_gof()` set the 
   style `logy` from the plotting function `log_y` argument. This is because 
@@ -192,11 +192,28 @@ it. Where the two overlap, the builder argument wins:
   log-log `scale_*_log10()` and per-metric `facet_wrap()`, so the style spec's
   `logx`/`logy`/`xbreaks`/`facet` fields are ignored. The facet *layout* fields
   (`facet_scales`, default `"free"`; `facet_nrow`; `facet_ncol`) are honored.
+  + **`plot_forest()` facets**: the forest builder draws its own covariate row 
+  facets (`facet_grid()` with strips outside the y-axis), so the style spec's 
+  `facet*` fields are ignored; see `style_forest()`.
   + **Visibility**: `plot_gof_shown()` / `plot_vpc_shown()` control which 
   layers are *built* and the style spec controls how the built layers *look*. 
   Setting `style_vpc(alphas = c(obs_point = 0))` draws an invisible layer and 
   includes it in the legend whereas `plot_vpc_shown(obs_point = FALSE)` omits 
   it entirely. `shown` is the preferred method when a layer is not wanted.
+  `plot_dvtime()` and `plot_dvconc()` expose the same choice for observed points
+  through `show_obs = FALSE`, the counterpart of `plot_gof_shown(obs = FALSE)`
+  and `plot_vpc_shown(obs_point = FALSE)` (a single flag, since the observed
+  points are their only optional layer); an invisible layer still sets the axis
+  limits.
+
+The **caption** is the exception: the style wins. `plot_dvtime()`, 
+`plot_dvconc()`, and `plot_gof()` write a caption describing the plotted data 
+(`show_caption`), and the VPC builders write the replicate count (`show_rep`). 
+A `caption` set in the style (`style_dvtime(caption = "...")`) is drawn regardless of `show_caption` or `show_rep`, 
+replacing the builder's caption, since a caption written into the style is an 
+explicit request. To 
+drop the caption entirely, set `show_caption = FALSE` (or `show_rep = FALSE`) 
+and leave the style `caption` unset.
 
 
 ## Examples
@@ -209,8 +226,8 @@ call.
 ```{r ex-inline, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(
   data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-  cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  cent = "mean_sdl", log_y = TRUE, loq_method = 2, show_obs = FALSE,
+  style = style_dvtime(linewidths = c(cent_line = 1.5))
 ) +
   scale_x_continuous(breaks = seq(0, 168, 24))+
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
@@ -225,7 +242,6 @@ object can be used to specify axis elements, labels, legends, and themes.
 
 ```{r ex-reusable, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 new_dvtime_style <- style_dvtime(
-  alphas     = c(obs_point = 0),
   xbreaks = seq(0, 168, 24),
   ybreaks = c(0.1, 1, 10, 100, 1000),
   ylims   = c(0.1, 2000),
@@ -236,7 +252,7 @@ new_dvtime_style <- style_dvtime(
 
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = new_dvtime_style) 
+            show_obs = FALSE, style = new_dvtime_style) 
 ```
 
 ### Error bar cap width
@@ -249,7 +265,7 @@ in the style to override:
 ```{r ex-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = style_dvtime(alphas = c(obs_point = 0), errorbar_width = 10))
+            show_obs = FALSE, style = style_dvtime(errorbar_width = 10))
 ```
 
 
@@ -438,7 +454,7 @@ plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
 
 ## GOF overlay colors (`plot_gof()`)
 
-The DV (OBS), PRED, and PRED central tendency lines are the **role** keys for
+The observed points (`OBS`) and the DV, PRED, and IPRED central tendency lines are the **role** keys for
 the **per-series map** `colors`.
 
 ```{r ex-gof, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -510,10 +526,11 @@ a standalone legend plot intended to be combined with the VPC plot into a
 single figure. 
 
 Pass the **same** style object along with the same `shown`, `ci`, and `pi` as
-the plotting function to generate the corresponding legend. 
+the plotting function to generate the corresponding legend. The pcVPC above
+draws no LLOQ line, so the legend has no `loq` entry.
 
 ```{r ex-vpc-legend, fig.height=2.5, fig.width=4, message=FALSE, warning=FALSE}
-plot_vpc_legend(style = pcvpc_style, lloq = 1)
+plot_vpc_legend(style = pcvpc_style)
 ```
 
 # Updating the plot theme
@@ -536,38 +553,23 @@ plot_dvtime(
 )
 ```
 
-# Post-hoc styling: making aesthetic changes with `restyle_plot()`
-
-`ggstylekit` not only handles plot styling *a priori*, it also handles plot
-styling *a posteriori* after a finished plot object has been generated.
-
-`restyle_plot()` merges style fields onto a finished plot. Restyling works 
-analogously to the up front styling with style specs. 
-
-For example, if one wanted to remove points and the legend from an existing 
-plot, this can be accomplished as follows with `restyle_plot`.
-
-```{r restyle, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
-p <- plot_dvtime(data_pk, dv_var = ODV, cent = "median", log_y = TRUE, 
-                 loq_method = 2,
-                 style = style_dvtime(
-                   xlabel = "Time (hours)", 
-                   ylabel = "Dose-normalized Conc. (ng/mL/mg)",
-                   xbreaks = seq(0, 168, 24)
-                 ))
-p
-
-restyle_plot(p, 
-             alphas = c(obs_point = 0), 
-             legends = legend_spec(channel = "linetype", hide = TRUE))
-```
-
 # Post-hoc styling: surfacing new variables with `reveal()`
 
 One of the most powerful features of `ggstylekit` is the `reveal()` function.
 
 `reveal()` maps a variable present in the underlying plot dataset that is not
 currently mapped to a graphical channel (or a facet). 
+
+```{r reveal-base, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+p <- plot_dvtime(data_pk, dv_var = ODV, cent = "median", log_y = TRUE, 
+                 loq_method = 2,
+                 style = style_dvtime(
+                   xlabel = "Time (hours)", 
+                   ylabel = "Concentration (ng/mL)",
+                   xbreaks = seq(0, 168, 24)
+                 ))
+p
+```
 
 
 ## Mapping to all layers with `as = `
@@ -669,23 +671,33 @@ p_combo <- combine_styled_plots(p_mean, p_median, ncol = 2, axes = "collect")
 p_combo
 ```
 
-The combined figure is still a styled object, so `restyle_plot()` and `reveal()`
-continue to work. Here the collected legend is re-titled and moved to the
-bottom of the figure:
-
-```{r combine-restyle, fig.height=5, fig.width=9, message=FALSE, warning=FALSE}
-restyle_plot(p_combo, 
-             legends = legend_spec(`Food Status`, title = "Meal Status",
-                                   labels = c(Fasted = "Fasted (overnight)", 
-                                              Fed = "Fed (high-fat)")),
-             colors = c(Fasted = "#3388cc", Fed = "firebrick"),
-             legend.position = "bottom")
-```
-
-`legend.position` moves the collected legend on the combined figure, as
-`restyle_plot()` reaches the assembled figure and not only the individual
+To change the collected legend, set it in the panel styles before combining.
+Here the legend is re-titled and relabeled and the colors changed in both
 panels. Note that `labels` is not a style field: legend entries are relabeled
-through the `labels` argument of `legend_spec()`, as above.
+through the `labels` argument of `legend_spec()`.
+
+```{r combine-legend, fig.height=4, fig.width=9, message=FALSE, warning=FALSE}
+meal_style <- function(title) {
+  style_dvtime(
+    alphas = c(obs_point = 0.3),
+    xlabel = "Time (hours)",
+    ylabel = "Concentration (ng/mL)",
+    title = title,
+    colors = c(Fasted = "#3388cc", Fed = "firebrick"),
+    legends = legend_spec(`Food Status`, title = "Meal Status",
+                          labels = c(Fasted = "Fasted (overnight)",
+                                     Fed = "Fed (high-fat)"))
+  )
+}
+
+combine_styled_plots(
+  plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
+              cent = "mean", log_y = TRUE, style = meal_style("Geometric Mean")),
+  plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
+              cent = "median", log_y = TRUE, style = meal_style("Median")),
+  ncol = 2
+)
+```
 
 Panels do not have to come from the same plot family; however, legends need 
 to be **identical** and drawn from the same layer sets. Here concentration vs

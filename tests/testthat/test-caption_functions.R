@@ -141,6 +141,26 @@ test_that("Caption for no fits returns points only text", {
   expect_no_match(cap, "overlaid")
 })
 
+test_that("An SE flag for an undrawn fit does not drop the fit description", {
+  grid <- expand.grid(loess = c(TRUE, FALSE), linear = c(TRUE, FALSE),
+                      se_loess = c(TRUE, FALSE), se_linear = c(TRUE, FALSE))
+  for (i in seq_len(nrow(grid))) {
+    g <- grid[i, ]
+    cap <- caption_dvconc(ref = NULL, loess = g$loess, linear = g$linear,
+                          se_loess = g$se_loess, se_linear = g$se_linear)
+    masked <- caption_dvconc(ref = NULL, loess = g$loess, linear = g$linear,
+                             se_loess = g$se_loess && g$loess,
+                             se_linear = g$se_linear && g$linear)
+    expect_identical(cap, masked)
+    if (g$loess) expect_match(cap, "LOESS")
+    if (g$linear) expect_match(cap, "[Ll]inear")
+  }
+  expect_identical(
+    caption_dvconc(ref = NULL, loess = FALSE, linear = TRUE, se_loess = TRUE, se_linear = TRUE),
+    "Points are observations  \n Linear fit overlaid with 95% CIs"
+  )
+})
+
 ##Test Edge Cases
 test_that("linear = TRUE, loess = FALSE produces only linear smooth (no loess)", {
   p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",

@@ -15,17 +15,19 @@
 #'    Accepts bare names or strings. Default is `IPRED`.
 #' @param shown Layer visibility settings created by [plot_gof_shown()].
 #'    Defaults can be viewed by running `plot_gof_shown()` with no arguments.
-#' @param loq Numeric value of the lower limit of quantification (LLOQ).
-#'    BLQ imputation behavior on the DV / prediction layers is controlled by
+#' @param loq Numeric value of the lower limit of quantification (LLOQ), or
+#'    `NULL` to impute each row at its own `LLOQ` column value (the LLOQ line
+#'    is drawn at the highest). Has no effect with `loq_method = 0` (the
+#'    default), which emits a message. BLQ imputation behavior on the DV / prediction layers is controlled by
 #'    `blq_mode` and `loq_method`. Default is `NULL`.
 #' @param loq_method Method for handling BLQ data. See [plot_dvtime()] for
 #'    option details. Default is `0` (no imputation).
 #' @param blq_mode One of `"obs"` (default) or `"all"`. Controls which layers
 #'    receive BLQ imputation: `"obs"` imputes the observed `DV` layer only,
 #'    leaving `PRED` / `IPRED` untouched (mirrors [plot_dvtime()]); `"all"`
-#'    additionally imputes the prediction layers, useful when the GOF visual
-#'    should mirror an estimation engine that censored predictions to LLOQ.
-#'    Has no effect when `loq_method = 0`.
+#'    applies the same 1/2 LLOQ imputation to `PRED` / `IPRED`, so observed and
+#'    predicted lines are summarized on the same imputed basis. Has no effect
+#'    when `loq_method = 0`.
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.
@@ -36,6 +38,10 @@
 #'    Accepts bare names or strings. Default is `DOSE`.
 #' @param cent Character string specifying the central tendency measure. See
 #'    [plot_dvtime()] for option details. Default is `"mean"`.
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ line's legend
+#'    entry is titled `"LLOQ"` and keyed by its value. If `FALSE`, the title is
+#'    dropped and the entry is labeled `"LLOQ"` without the value. Applies only
+#'    when the LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
 #' @param dosenorm Logical indicating if observed data points should be dose
 #'    normalized. Default is `FALSE`. Requires variable specified in
 #'    `dose_var` to be present in `data`.
@@ -45,11 +51,11 @@
 #'    Also controls whether the caption reports arithmetic or geometric mean
 #'    when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown
-#'    describing the data plotted.
+#'    describing the data plotted. A `caption` set in the style is drawn instead, whatever this value.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
 #'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
-#'    with no arguments. Customize by passing `style = style_gof(...)`, or
-#'    restyle the returned plot with [restyle_plot()]. The DV/PRED/IPRED (and
+#'    with no arguments. Customize by passing `style = style_gof(...)`.
+#'    The DV/PRED/IPRED (and
 #'    OBS) overlays are colored by the `colors` map keyed by those labels. The
 #'    error bar cap width is the style's `errorbar_width` field; when unset it
 #'    defaults to 2.5% of the maximum nominal time (`ntime_var`).
@@ -73,6 +79,7 @@ plot_gof <- function(data,
                         dose_var = "DOSE",
                         loq = NULL,
                         loq_method = 0,
+                        show_loq_value = TRUE,
                         blq_mode = c("obs", "all"),
                         cent = c("mean", "mean_sdl", "mean_sdl_upper",
                                  "median", "median_iqr", "none"),
@@ -84,6 +91,10 @@ plot_gof <- function(data,
 
   cent <- match.arg(cent)
   blq_mode <- match.arg(blq_mode)
+  check_boolean(show_loq_value, "show_loq_value")
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(log_y, "log_y")
+  check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
   pred_var_str  <- resolve_var(rlang::enquo(pred_var))
@@ -146,7 +157,8 @@ plot_gof <- function(data,
   plot <- add_ref_layer_style(plot, ref)
 
   blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
-                             plotstyle, show_legend = TRUE)
+                             plotstyle, show_legend = TRUE,
+                             show_value = show_loq_value)
   plot <- blq$plot
   caption <- blq$caption
 

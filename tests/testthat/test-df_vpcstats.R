@@ -139,6 +139,17 @@ test_that("min_bin_count gates on (obs_n - obs_n_blq), not total record count", 
   expect_false(any(ribbon_layers))
 })
 
+test_that("pc simulated quantiles are NA in bins with no quantifiable obs", {
+  result <- run_vpcstats(testsim_raw, loq = 1)
+  s <- result$stats
+  no_quant <- (s$obs_n - s$obs_n_blq) == 0
+  expect_true(any(no_quant))
+  pc_sim_cols <- paste0("pc_", pmxhelpr:::.vpc_sim_quantile_cols)
+  expect_true(all(is.na(as.matrix(s[no_quant, pc_sim_cols]))))
+  ## Std simulated quantiles are untouched
+  expect_true(any(!is.na(s$sim_med_med[no_quant])))
+})
+
 test_that("df_vpcstats returns one row per unique bin value", {
   result <- run_vpcstats(testsim_raw)
   obs_bins <- unique(testsim_raw$NTIME[testsim_raw$EVID == 0 &

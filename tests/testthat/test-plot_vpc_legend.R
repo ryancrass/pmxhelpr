@@ -58,17 +58,17 @@ test_that("Custom pi = c(0.025, 0.975) produces label text with '2.5th' and '97.
 })
 
 ##Test layer composition
-test_that("plot_vpc_legend with lloq adds layers vs the no-lloq default", {
+test_that("plot_vpc_legend with loq adds layers vs the no-loq default", {
   p_no  <- plot_vpc_legend()
-  p_loq <- plot_vpc_legend(lloq = c(0.1, 1.0))
+  p_loq <- plot_vpc_legend(loq = c(0.1, 1.0))
   expect_gt(length(p_loq$layers), length(p_no$layers))
 })
 
-test_that("plot_vpc_legend rejects non-numeric lloq", {
-  expect_error(plot_vpc_legend(lloq = "0.1"),
-               regexp = "argument `lloq` must be class `numeric`")
-  expect_error(plot_vpc_legend(lloq = c(0.1, NA)),
-               regexp = "argument `lloq` must be class `numeric`")
+test_that("plot_vpc_legend rejects non-numeric loq", {
+  expect_error(plot_vpc_legend(loq = "0.1"),
+               regexp = "argument `loq` must be class `numeric`")
+  expect_error(plot_vpc_legend(loq = c(0.1, NA)),
+               regexp = "argument `loq` must be class `numeric`")
 })
 
 test_that("plot_vpc_legend obs_point = FALSE removes the obs point geom", {
@@ -163,11 +163,22 @@ test_that("type = 'cens' still respects shown toggles for central-tendency layer
   expect_true("Obs Prop BLQ" %in% lt)
 })
 
-test_that("lloq labeling still works under type = 'cens'", {
-  p <- plot_vpc_legend(type = "cens", lloq = c(1, 2))
+test_that("loq labeling still works under type = 'cens'", {
+  p <- plot_vpc_legend(type = "cens", loq = c(1, 2))
   lt <- linetype_breaks(p)
   expect_true("LLOQ = 1" %in% lt)
   expect_true("LLOQ = 2" %in% lt)
+})
+
+test_that("show_loq_value = FALSE collapses LLOQ entries to a single 'LLOQ' label", {
+  p <- plot_vpc_legend(loq = c(0.1, 1), show_loq_value = FALSE)
+  lt <- linetype_breaks(p)
+  expect_equal(sum(grepl("^LLOQ", lt)), 1L)
+  expect_true("LLOQ" %in% lt)
+  expect_false(any(grepl("LLOQ = ", lt)))
+  expect_false(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(show_loq_value = FALSE)))))
+  expect_error(plot_vpc_legend(loq = 1, show_loq_value = NA),
+               regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
 })
 
 test_that("type = 'cens' suppresses pi-related geom layers regardless of shown", {
@@ -209,4 +220,22 @@ test_that("legend_style_theme is empty when the style sets neither field", {
   th <- pmxhelpr:::legend_style_theme(style_vpc(legend.title.position = NULL))
   expect_s3_class(th, "theme")
   expect_null(th$legend.title.position)
+})
+
+test_that("lloq is a deprecated alias of loq", {
+  expect_warning(p_old <- plot_vpc_legend(lloq = c(0.1, 1)), "`lloq` is deprecated")
+  expect_equal(linetype_breaks(p_old), linetype_breaks(plot_vpc_legend(loq = c(0.1, 1))))
+  expect_error(plot_vpc_legend(loq = 1, lloq = 1), "pass `loq` only")
+})
+
+test_that("plot_vpc_legend validates ci and pi", {
+  expect_error(plot_vpc_legend(ci = 90), "argument `ci` must be a single numeric value in \\(0, 1\\)")
+  expect_error(plot_vpc_legend(pi = c(0.95, 0.05)), "argument `pi` must be ordered")
+  expect_error(plot_vpc_legend(pi = c(5, 95)), "argument `pi` values must be in \\[0, 1\\]")
+})
+
+test_that("shown$loq_line = FALSE drops the LLOQ legend entry", {
+  hidden <- plot_vpc_legend(loq = 1, shown = plot_vpc_shown(loq_line = FALSE))
+  expect_false(any(grepl("LLOQ", linetype_breaks(hidden))))
+  expect_true(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(loq = 1)))))
 })

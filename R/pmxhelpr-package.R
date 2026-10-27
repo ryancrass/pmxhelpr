@@ -12,8 +12,8 @@
 #' * Visual predictive checks -- [plot_vpc_cont()], [df_vpcstats()]
 #' * Dose-proportionality assessment -- [plot_doseprop()], [df_doseprop()]
 #' * Plot styling -- `style_*()` presets returning a [ggstylekit::style_spec()]
-#'   for the `style` argument; adjust finished plots with [restyle_plot()],
-#'   [reveal()], and [combine_styled_plots()]
+#'   for the `style` argument; surface extra variables with [reveal()] and
+#'   assemble plots with [combine_styled_plots()]
 #'
 #' Full narrative documentation with worked examples lives on the package
 #' website at <https://ryancrass.github.io/pmxhelpr/>.

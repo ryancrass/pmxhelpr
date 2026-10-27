@@ -7,7 +7,7 @@
 plot_build_vpc(
   compute_out,
   type = c("cont", "cens"),
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
@@ -37,7 +37,9 @@ records do not count toward it. For \code{type = "cens"}, the threshold is
 applied to total obs (\code{obs_n}) — BLQ-heavy bins are the most
 informative on a cens VPC and are retained.}
 
-\item{show_rep}{Logical. Display replicate count as a plot caption.}
+\item{show_rep}{Logical. Display replicate count as a plot caption.
+A \code{caption} set in
+the style is drawn instead, whatever this value.}
 
 \item{shown}{Layer visibility settings created by \code{\link[=plot_vpc_shown]{plot_vpc_shown()}}.
 For \code{type = "cens"}, only the \code{obs_point}, \code{obs_median_line},
@@ -48,8 +50,8 @@ ribbon are shown; the simulated median line is off by default (pass
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
-with no arguments. Customize by passing \code{style = style_vpc(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. Series names are the VPC roles. For
+with no arguments. Customize by passing \code{style = style_vpc(...)}.
+Series names are the VPC roles. For
 \code{type = "cens"}, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens \code{obs_point} color is
 inherited from \code{obs_median_line} (so points match the obs line); the
@@ -106,7 +108,8 @@ compatible columns.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                              model = model, replicates = 5,
                               dv_var = ODV, carry_out = "FOOD")
 out <- df_vpcstats(simout, strat_var = FOOD)
 p <- plot_build_vpc(out, pcvpc = FALSE)

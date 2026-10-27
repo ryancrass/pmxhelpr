@@ -20,12 +20,68 @@ test_that("Error if argument `method` not one of normal or tdist", {
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), ci = 1.1),
-               regexp = "argument `ci` must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = 0),
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
+})
+
+
+##Test `sigdigits` is display-only: it must not steer the verdict
+supra_fit <- function() {
+  d <- data.frame(DOSE = c(5, 10, 20, 50, 100, 200))
+  d$VAL <- d$DOSE^1.3 * c(1.01, 0.99, 1.02, 0.98, 1.01, 0.995)
+  stats::lm(log(VAL) ~ log(DOSE), data = d)
+}
+
+test_that("Proportional/Interpretation come from the unrounded bounds", {
+  # Power ~ 1.30, CI ~ [1.29, 1.31]: clearly supra-proportional, but both
+  # bounds round to 1 at `sigdigits = 1`. Judging the verdict on the rounded
+  # columns would report "Dose-proportional".
+  coarse <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 1)
+  fine   <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 6)
+
+  expect_equal(coarse$LCL, 1)                   # rounded column still rounds
+  expect_equal(coarse$UCL, 1)
+  expect_equal(coarse$Interpretation, "Greater than dose-proportional")
+  expect_false(coarse$Proportional)
+  expect_equal(coarse$Interpretation, fine$Interpretation)
+  expect_equal(coarse$Proportional, fine$Proportional)
+})
+
+
+##Test `PowerCI` pads to a fixed significant-digit count
+test_that("PowerCI carries `sigdigits` significant digits for every value", {
+  nsig <- function(x) {
+    x <- sub("^-", "", x)
+    x <- sub("^0\\.0*", "", sub("[.]", "", x))
+    nchar(x)
+  }
+  for (sd in c(2, 3, 4)) {
+    lbl <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = sd)$PowerCI
+    vals <- regmatches(lbl, gregexpr("[0-9]*[.][0-9]+", lbl))[[1]]
+    expect_length(vals, 3)                       # Power, LCL, UCL
+    expect_equal(vapply(vals, nsig, integer(1), USE.NAMES = FALSE),
+                 rep(sd, 3))
+    expect_false(grepl("e[-+]", lbl))            # never scientific notation
+  }
+})
+
+test_that("PowerCI pads a trailing zero the old signif()+paste0() dropped", {
+  # Power is 1.2977: signif(, 3) is 1.30, which paste0() renders as "1.3".
+  expect_equal(pmxhelpr:::df_loglog(supra_fit(), sigdigits = 3)$PowerCI,
+               "Power: 1.30 (90% CI 1.29-1.31)")
+})
+
+
+test_that("PowerCI pads trailing zeros rather than dropping them", {
+  # signif() + paste0() renders 1.2 as "1.2"; fmt_sig() renders "1.200".
+  expect_equal(pmxhelpr:::fmt_sig(c(1, 0.9, 1.2), 4),
+               c("1.000", "0.9000", "1.200"))
 })
 
 
@@ -121,12 +177,12 @@ test_that("Error if argument `method` is not one of normal or tdist", {
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
-               regexp = "argument `ci` must be a numeric value between 0 and 1")
+               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
 })
 
-test_that("Error if argument `sigdigits` is not coercible to an integer", {
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be coercible to class `integer`")
+               regexp = "argument `sigdigits` must be a single whole number >= 1")
 })
 
 ##Test NSE Bare Names
@@ -395,4 +451,47 @@ test_that("plot_build_doseprop takes its facet layout from the style", {
   expect_false(p_style$facet$params$free$x)
   expect_false(p_style$facet$params$free$y)
   expect_equal(p_style$facet$params$ncol, 1)
+})
+
+test_that("plot_doseprop() rejects a non-logical se", {
+  stats <- df_doseprop(data_sad_nca, metrics = "aucinf.obs")
+  expect_error(plot_doseprop(stats, se = "no"),
+               "argument `se` must be `TRUE` or `FALSE`")
+  expect_error(plot_build_doseprop(stats, se = NA),
+               "argument `se` must be `TRUE` or `FALSE`")
+})
+
+
+test_that("df_doseprop() / plot_doseprop() require metrics on the raw path", {
+  expect_error(df_doseprop(data_sad_nca, metrics = NULL), "argument `metrics` is required")
+  expect_error(plot_doseprop(data_sad_nca), "argument `metrics` is required")
+})
+
+test_that("method selects the normal or t critical value for the CI", {
+  ci_halfwidth <- function(method) {
+    s <- df_doseprop(data_sad_nca, metrics = "cmax", method = method, sigdigits = 12)$stats
+    (s$UCL - s$LCL) / (2 * s$StandardError)
+  }
+  n <- sum(data_sad_nca$PPTESTCD == "cmax" & !is.na(data_sad_nca$PPORRES))
+  expect_equal(ci_halfwidth("normal"), stats::qnorm(0.95), tolerance = 1e-8)
+  expect_equal(ci_halfwidth("tdist"), stats::qt(0.95, n - 2), tolerance = 1e-8)
+})
+
+test_that("the tdist CI matches confint() of the log-log fit at small n", {
+  d <- data.frame(PPTESTCD = "cmax", DOSE = c(1, 3, 10, 30),
+                  PPORRES = c(1, 2.6, 7.1, 16))
+  s <- df_doseprop(d, metrics = "cmax", method = "tdist", sigdigits = 12)$stats
+  fit <- stats::lm(log(PPORRES) ~ log(DOSE), data = d)
+  expect_equal(c(s$LCL, s$UCL), unname(stats::confint(fit, level = 0.9)[2, ]),
+               tolerance = 1e-8)
+})
+
+test_that("a sub-proportional power is labeled less than dose-proportional", {
+  set.seed(7)
+  d <- data.frame(PPTESTCD = "cmax", DOSE = rep(c(10, 30, 100, 300), each = 6))
+  d$PPORRES <- d$DOSE^0.7 * exp(stats::rnorm(nrow(d), 0, 0.05))
+  s <- df_doseprop(d, metrics = "cmax")$stats
+  expect_lt(s$UCL, 1)
+  expect_false(s$Proportional)
+  expect_equal(s$Interpretation, "Less than dose-proportional")
 })

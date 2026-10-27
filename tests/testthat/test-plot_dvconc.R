@@ -135,3 +135,36 @@ test_that("plot_dvconc (col_trend) legend follows factor level order, not row or
   sc <- suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
   expect_equal(as.character(sc$get_breaks()), levels(d$Dose))
 })
+
+
+##Test show_obs
+test_that("show_obs = FALSE omits the observed point layer", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", show_obs = FALSE)
+  layer_types <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_false("GeomPoint" %in% layer_types)
+})
+
+test_that("show_obs = FALSE drops the observations clause from the caption", {
+  p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", show_obs = FALSE)
+  expect_false(grepl("Points are observations", p$labels$caption))
+  expect_true(grepl("^LOESS fit overlaid", p$labels$caption))
+})
+
+test_that("logical arguments must be TRUE or FALSE", {
+  for (arg in c("col_trend", "show_obs", "loess", "linear", "se_loess",
+                "se_linear", "log_y", "show_caption")) {
+    args <- list(data_sad, dv_var = "ODV", idv_var = "CONC")
+    args[[arg]] <- NA
+    expect_error(do.call(plot_dvconc, args),
+                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+  }
+})
+
+
+test_that("show_obs = FALSE does not train the y axis on the observations", {
+  y_span <- function(p) diff(ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range)
+  with_obs <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC"))
+  no_obs <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                         show_obs = FALSE))
+  expect_lt(suppressWarnings(y_span(no_obs)), suppressWarnings(y_span(with_obs)))
+})

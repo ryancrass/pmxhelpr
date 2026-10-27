@@ -206,3 +206,11 @@ test_that("plot_build_vpc() respects the pcvpc toggle on the same compute output
   expect_true(has_hline(p_std))
   expect_false(has_hline(p_pc))
 })
+
+test_that("print.vpc_stats shows NULL loq / strat_var in the config line", {
+  out <- df_vpcstats(testsim)
+  out$config$loq <- NULL
+  out$config$strat_var <- NULL
+  expect_output(print(out, n_head = 0),
+                "config: n_replicates = .*, loq = NULL, strat_var = NULL")
+})

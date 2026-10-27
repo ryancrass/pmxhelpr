@@ -22,7 +22,7 @@ on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/).
 Exported functions follow a `ReturnType_Purpose` naming convention:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame` (often class-tagged)
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`, `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside `mutate()`)
 - `style_*` — returns a `ggstylekit::style_spec()` style object
 
@@ -104,6 +104,14 @@ data_gof <- data_sad_pkfit %>%
          Regimen = var_addn(DoseFood, ID)) 
 ```
 
+## `data_sad_pkforest`
+
+`data_sad_pkforest` is a per replicate simulation dataset of PK exposure metrics (absolute and test/reference ratios) across six covariate scenarios (reference, fed, and 50, 60, 80, 90 kg body weight), built from the raw replicate output in `data_sad_pkforest_sim`. The reference scenario is fasted at 70 kg; that mapping is passed to `df_forest()` as `cov_level_ref` below.
+
+```{r data-pkforest}
+glimpse(data_sad_pkforest)
+```
+
 
 # Longitudinal concentration and response with `plot_dvtime()`
 
@@ -120,7 +128,7 @@ pk_plot <- plot_dvtime(
   cent = "mean_sdl",
   col_var = Regimen,
   log_y = TRUE,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 pk_plot
@@ -132,7 +140,7 @@ pd_plot <- plot_dvtime(
   dv_var = "CFB",
   cent = "mean_sdl",
   col_var = Regimen,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
@@ -193,7 +201,7 @@ article for additional details on exploratory data analyses with `pmxhelpr`.
 # Dose-proportionality with `df_doseprop()` and `plot_doseprop()`
 
 `df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and 
-AUC) versus dose and returns a class-tagged `doseprop_stats` data frame.
+AUC) versus dose and returns a `doseprop_stats` container.
 
 ```{r doseprop-stats}
 tab <- df_doseprop(data_nca_part1, metrics = c("aucinf.obs", "cmax"))
@@ -242,6 +250,8 @@ plot_gof(data = filter(data_gof, MDV == 0), dv_var = ODV, log_y = TRUE) +
 See the [Goodness-of-Fit Diagnostics](gof-diagnostics.html) article for 
 additional details on GOF diagnostics.
 
+
+
 # VPC model evaluation with `plot_vpc_cont()` and `plot_vpc_cens()`
 
 The VPC workflow is an end to end process within `pmxhelpr`, starting from a 
@@ -255,10 +265,9 @@ From a validated model file, the VPC pipeline includes functionality to:
 
 ## Run the simulation with `df_mrgsim_replicate()`
 
-`df_mrgsim_replicate()` is a wrapper function for `mrgsim::mrgsim_df()`, 
+`df_mrgsim_replicate()` is a wrapper function for `mrgsolve::mrgsim_df()`, 
 which uses `lapply()` to iterate from 1 to the integer value passed to 
-`replicates`. This can be parallelized using `future.apply::future_lapply()` 
-when `parallel = TRUE` and a corresponding `future::plan()` is in place.
+`replicates`.
 
 There are 3 required arguments to `df_mrgsim_replicate()`:
 
@@ -366,10 +375,10 @@ cens_vpc_regimen <- plot_vpc_cens(
 cens_vpc_regimen
 ```
 
-## Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
+## Adding panels and legends with `patchwork` and `plot_vpc_legend()`
 
 `plot_vpc_legend()` returns a legend that can be combined with the VPC plots
-using the `patwork` package. The four row layout below stacks the continuous 
+using the `patchwork` package. The four row layout below stacks the continuous 
 and censored VPCs with their corresponding legends. 
 
 The two-stage plot building from a`vpc_stats` objects is also demonstrated, 
@@ -395,6 +404,84 @@ vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend +
 See the [Visual Predictive Check Workflow](vpc-workflow.html) article for 
 additional details on the VPC toolchain with `pmxhelpr`.
 
+
+
+# Forest plots of covariate impact with `df_forest()` and `plot_forest()`
+
+`df_forest_preprocess()` is an upstream pre-processing function which reshapes 
+raw replicate simulation output containing one row per scenario per 
+replicate with the exposure metrics as columns, into the long form consumed by
+`df_forest()`. Within-replicate test-to-reference ratios are computed along
+the way. That is how `data_sad_pkforest` is built from `data_sad_pkforest_sim`.
+See the [Forest Plot Workflow](forest-workflow.html) article for more 
+information.
+
+```{r forest-preprocess}
+forest_preprocess <- df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars   = c("CMAX", "CMIN", "AUC", "CAVG"),
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
+  cov_labels    = list(
+    FOOD = c("0" = "Fasted", "1" = "Fed"),
+    WTBL = function(x) paste(x, "kg")
+  )
+)
+glimpse(forest_preprocess)
+```
+
+`df_forest()` turns the draws into a median and 90% CI per covariate level.
+`cov_level_ref` also draws the reference row inside each covariate panel 
+(`Fasted`, `70 kg`). Rows plot in the order of `$stats`; reorder it, or set
+factor levels on `cov_level`, to change it.
+
+```{r forest-stats}
+forest_obj <- df_forest(data_sad_pkforest,
+                        cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+forest_obj
+```
+
+`plot_forest()` is dual-mode plotting function which can accept the raw 
+pre-processed long-form simulation data (one-stage, calling `df_forest()` 
+internally) or a precomputed `forest_stats` object (two-stage). 
+
+The two-stage workflow below renders one metric at a time and composes with
+`ggplot2` for axis customization.
+
+```{r plot-forest-default, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+Per-covariate panel colors are opt-in through the `colors` map of 
+`style_forest()`. Add entries keyed by covariate name (matching the `cov_name` 
+column). Covariate names omitted from the map take colors from the house palette.
+
+```{r plot-forest-styled, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
+new_forest_style <- style_forest(
+  colors = c(FOOD = "darkgreen", WTBL = "darkblue")
+)
+
+plot_forest(forest_obj, metric = "AUCRATIO",
+            ref_band = c(0.8, 1.25), style = new_forest_style) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+Reference rows (here the `Fasted` and `70 kg` copies) draw as an
+open circle through the `ref_point` style role and show the estimate alone in
+the right-hand column.
+
+The reference can instead be drawn in a reference panel at the top with
+`ref_layout = "consolidated"`, from the same `forest_obj`. Without `cov_level_ref`, the reference panel is always used.
+
+```{r plot-forest-reference, fig.width=8, fig.height=4.5, warning=FALSE, message=FALSE}
+plot_forest(forest_obj,
+            metric = "AUCRATIO", ref_layout = "consolidated",
+            ref_band = c(0.8, 1.25), style = new_forest_style) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+
+
 # Plot themes with `ggstylekit`
 
 `pmxhelpr` leverages the functionality of the `ggstylekit` package to control
@@ -409,19 +496,18 @@ function with no arguments
 style_dvtime()
 ```
 
-Styling is keyed by  *roles* (e.g. `obs_point`, `cent_line`, `cent_errorbar`,
-`ref_line`, `loq_line`). The *values* for each key are individual plot 
-aesthetics (e.g, `colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, 
-`alphas`) with partial overrides merge onto the defaults so setting one role 
-leaves the others untouched.
+Each aesthetic map (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`,
+`alphas`) is keyed by *role* (e.g. `obs_point`, `cent_line`, `cent_errorbar`,
+`ref_line`, `loq_line`). Partial overrides merge onto the defaults, so setting
+one role leaves the others untouched.
 
 New styles can be defined as an object and recycled across plots. This revised
-style object removes the observed points and increases the linewidth of the 
-central tendency line and error bars.
+style object increases the linewidth of the central tendency line and error 
+bars. Observed points are hidden with the `show_obs = FALSE` argument, which 
+omits the layer so it does not affect the axis limits.
 
 ```{r style-new}
 new_dvtime_style <- style_dvtime(
-    alphas     = c(obs_point = 0),
     linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
 new_dvtime_style
@@ -434,14 +520,14 @@ plot_dvtime(
   cent = "mean_sdl",
   col_var = "Regimen",
   log_y = TRUE,
+  show_obs = FALSE,
   style = new_dvtime_style
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 
-A finished plot object can also be restyled after the fact with
-`restyle_plot()`. Additionally, variables can be surfaced and mapped to
-aesthetics after the fact with `reveal()`. Both are re-exported from ggstylekit.
+Variables can also be surfaced and mapped to aesthetics after the fact with
+`reveal()`, re-exported from ggstylekit.
 
 See the [Plot Styling and Aesthetics](plot-styling.html)  article for additional 
 details on plot styling with `pmxhelpr`.

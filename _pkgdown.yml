@@ -21,6 +21,7 @@ articles:
       - matches("articles/gof-diagnostics")
       - matches("articles/vpc-workflow")
       - matches("articles/doseprop-workflow")
+      - matches("articles/forest-workflow")
       - matches("articles/plot-styling")
 
 reference:
@@ -33,6 +34,7 @@ reference:
       - plot_vpc_cont
       - plot_vpc_cens
       - plot_doseprop
+      - plot_forest
       - plot_vpc_legend
 
   - title: Plot Builders
@@ -40,19 +42,25 @@ reference:
     contents:
       - plot_build_vpc
       - plot_build_doseprop
+      - plot_build_forest
 
   - title: Styling
     desc: >
       Per-plot-family presets returning a `ggstylekit::style_spec()` for the
       `style` argument (customize by passing fields, e.g.
-      `style_dvtime(shapes = ...)`), plus the `ggstylekit` verbs re-exported
-      for adjusting a finished plot: `restyle_plot()`, `reveal()`,
+      `style_dvtime(shapes = ...)`), plus the `ggstylekit` helpers
+      re-exported for surfacing variables and assembling plots: `reveal()`,
       `combine_styled_plots()`, and `legend_spec()`.
     contents:
       - style_dvtime
       - style_dvconc
       - style_gof
       - style_doseprop
+      - style_forest
+      - style_forest_pmforest
+      - style_forest_coveffectsplot
+      - style_forest_pmxforest
+      - style_forest_pumas
       - style_vpc
       - reexports
 
@@ -71,6 +79,12 @@ reference:
     desc: Power law (log-log) regression helpers.
     contents:
       - df_doseprop
+
+  - title: Forest Plot Statistics
+    desc: Test/reference comparison summaries for forest plots.
+    contents:
+      - df_forest
+      - df_forest_preprocess
 
   - title: Vectorized Helpers
     desc: Vectorized utilities intended for use inside `dplyr::mutate()`.
@@ -94,6 +108,7 @@ reference:
       - is_pmx_vpc_plot
       - is_vpc_stats
       - is_doseprop_stats
+      - is_forest_stats
       - "`+.pmx_vpc_plot`"
       - print.pmx_stats
       - summary.pmx_stats
@@ -102,6 +117,8 @@ reference:
       - summary.vpc_stats
       - print.doseprop_stats
       - summary.doseprop_stats
+      - print.forest_stats
+      - summary.forest_stats
 
   - title: Datasets
     desc: Internal example datasets used in vignettes and worked examples.
@@ -109,3 +126,5 @@ reference:
       - data_sad
       - data_sad_nca
       - data_sad_pkfit
+      - data_sad_pkforest
+      - data_sad_pkforest_sim

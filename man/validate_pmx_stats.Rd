@@ -2,12 +2,35 @@
 % Please edit documentation in R/pmx_stats_class.R
 \name{validate_pmx_stats}
 \alias{validate_pmx_stats}
-\title{Validate a \code{pmx_stats} container's structural shape}
+\title{Validate a \code{pmx_stats} container}
 \usage{
-validate_pmx_stats(x)
+validate_pmx_stats(
+  x,
+  subclass = NULL,
+  source = NULL,
+  stats_cols = NULL,
+  obs_cols = NULL,
+  config_keys = NULL,
+  require_obs = length(obs_cols) > 0
+)
 }
 \arguments{
 \item{x}{Object to validate.}
+
+\item{subclass}{Optional subclass name \code{x} must carry (e.g.
+\code{"forest_stats"}).}
+
+\item{source}{Name of the function that builds \code{subclass}, quoted in the
+class error (e.g. \code{"df_forest"}).}
+
+\item{stats_cols}{Columns \code{x$stats} must contain.}
+
+\item{obs_cols}{Columns \code{x$obs} must contain.}
+
+\item{config_keys}{Keys \code{x$config} must contain.}
+
+\item{require_obs}{Logical; whether \code{x$obs} must be a data.frame rather
+than \code{NULL}. Implied by a non-empty \code{obs_cols}.}
 }
 \value{
 \code{invisible(x)} on success.
@@ -15,7 +38,8 @@ validate_pmx_stats(x)
 \description{
 Internal helper. Asserts that \code{x} carries the \code{pmx_stats} class and exposes
 the \code{stats} / \code{obs} / \code{config} slots in the expected shape. Subclass
-validators delegate to this function for the structural checks before
-applying their own column / config-key checks.
+validators pass their contract (class, required columns, required config
+keys) through the optional arguments, so every container reports missing
+pieces with the same messages, and then apply any checks of their own.
 }
 \keyword{internal}

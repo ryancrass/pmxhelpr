@@ -229,7 +229,7 @@ colnames(simout)
 
 ## Setting the seed
 
-The unique seed can be set using the `seed` argument. The default is `1234567889`.
+The unique seed can be set using the `seed` argument. The default is `123456789`.
 
 ```{r df_mrgsim_replicate-seed}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
@@ -263,31 +263,6 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
 nrow(simout)
 ```
 
-## Parallel processing
-
-For large `replicates` values or expensive model evaluations, `df_mrgsim_replicate()` accepts `parallel = TRUE` to dispatch per-replicate simulations across worker processes via `future.apply::future_lapply()`. This requires the `future.apply` package and a parallel plan set by the user. `df_mrgsim_replicate()` does not modify the plan itself, so the user retains full control over the worker topology and is responsible for restoring the prior plan after the call.
-
-The pattern is to wrap the parallel simulation between a `future::plan()` setup and a teardown back to `future::sequential`:
-
-```{r df_mrgsim_replicate-parallel, eval=FALSE}
-future::plan(future::multisession, workers = 4)
-
-simout <- df_mrgsim_replicate(data = data_sad_pk,
-                     model = model,
-                     replicates = 1000,
-                     dv_var = ODV,
-                     carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
-                     recover  = c("PART", "DoseFood"),
-                     parallel = TRUE)
-
-future::plan(future::sequential)
-```
-
-Under `parallel = TRUE`, per-replicate RNG streams are generated from `seed` using L'Ecuyer-CMRG (via the `future.seed = seed` argument to `future_lapply()`), so output is reproducible given the same `seed` and `future::plan()`. The numerical output differs from `parallel = FALSE` because the RNG mechanism differs, but the two are statistically equivalent — the same per-replicate distribution is sampled, only the per-record realizations change. As a consequence, downstream `df_vpcstats()` summary statistics (quantiles, BLQ proportions, simulated CI bands) will not match bit-for-bit between the sequential and parallel paths even when the seed is held constant; both are valid Monte Carlo samples of the same target distribution.
-
-Speedup is best for high `replicates` (the per-worker dispatch overhead amortizes over many replicates) and models with expensive numerical integration. For modest workloads — e.g., the 100-replicate examples used throughout this vignette — the sequential path is typically faster end-to-end because worker-startup cost dominates the simulation cost.
-
-
 # Calculating the summary statistics with `df_vpcstats()`
 
 `pmxhelpr` contains a function to pre-process and derive summary statistics from the observed and simulated data for plotting in downstream VPC and pcVPC plots to evaluate the model fit for longitudinal, continuous repeated measures data: `df_vpcstats()` 
@@ -305,7 +280,7 @@ VPC summary statistics are calculated for the input dataset `data` at the study 
 
 Outputs are grouped by the variables passed to `ntime_var` and `strat_var`. 
 
-The remaining arguments control processing for prediction-correction (`pcvpc`) and BLQ handling (`loq`).
+The remaining arguments control BLQ handling (`loq`).
 
 `df_vpcstats()` returns a [`pmx_stats`][is_pmx_stats] container with three slots:
 
@@ -473,9 +448,9 @@ plot_vpc_cont(
 
 ## Dropping small sample bins
 
-There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count` (default = 1), which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
+There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count`, which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. The default (`min_bin_count = 0`) retains all bins; `min_bin_count = 1` drops bins in which every observation is BLQ. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
-When setting `min_bin_count = 10`, summary statistics are not plotted for the final two timepoints containing fewer than 10 quantifiable observations; however, the observations themselves are still plotted.
+When setting `min_bin_count = 10`, summary statistics are dropped for the bins with fewer than 10 quantifiable observations (0, 120, 144, and 168 h here; only 120 h, with 4, changes visibly, since the others have none); the observations themselves are still plotted.
 
 ```{r plot-vpc-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(
@@ -507,7 +482,6 @@ A common approach to plotting VPCs, especially pcVPCs, is to exclude all `MDV=1`
 ```{r plot-vpc-blq-drop, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_vpc_cont(
   data = filter(sim100, MDV == 0),
-  pcvpc = TRUE,
   strat_var = PART
 ) +
   vpc_scales_labs
@@ -515,7 +489,7 @@ plot_vpc_cont(
 
 The observed median appears consistent with the exploratory concentration-time profiles generated earlier excluding data below the lower limit of quantification (i.e., plotting `"ODV"`). Notice that the increasing trend in the observed quantiles at later timelines coincides with completely overlapping simulated confidence intervals for all quantiles. This is due to the decreasing sample size with time due to exclusion of timepoints where `MDV=1`.
 
-Let's instead try specifying a new argument `loq` to `plot_vpc_cont()`.
+Let's instead keep the `MDV=1` rows and give `plot_vpc_cont()` the LLOQ with the `loq` argument. This is the only change from the previous plot.
 
 `loq` is the numeric value of the lower limit of quantification in the units of the dependent variable. When specified, observed quantiles are computed using censored quantile estimation, where values below the LLOQ (including missing values) are treated as left-censored. If the quantile of the observed data falls below the LLOQ, it is returned as `NA`.
 
@@ -530,7 +504,7 @@ vpc <- plot_vpc_cont(
 vpc
 ```
 
-Now we see a red horizontal line depicting the LLOQ (1 ng/mL). Notice also the increase in the y-axis range, the change in the shape of the observed quantiles, and the greater resolution in separation between the confidence intervals.
+Keeping the BLQ observations changes the shape of the observed quantiles and separates the confidence intervals more clearly. The red horizontal line at the LLOQ (1 ng/mL) appears in both plots because `sim100` carries an `LLOQ` column (see below).
 
 Specifying `loq` is the preferred method for plotting VPC diagnostics with the `pmxhelpr` package. This is not the default method due to the all-too-common case where the assay LLOQ is not known to the analyst.
 
@@ -577,7 +551,7 @@ Each facet renders only the LLOQ(s) applicable to that strat-level: Part 1-SAD s
 `plot_vpc_legend()` accepts the same vector and registers one entry per unique LLOQ value.
 
 ```{r vpc-multi-loq-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_multi_legend <- plot_vpc_legend(lloq = out_multi$config$loq)
+vpc_multi_legend <- plot_vpc_legend(loq = out_multi$config$loq)
 vpc_multi_legend
 ```
 
@@ -804,10 +778,10 @@ This section will review the functionality for generating legends for VPC plots 
 
 To obtain a legend for a quantifiable range VPC plot using default aesthetics, run `plot_vpc_legend()`. The default type argument is `type="cont"` for continuous range VPC. 
 
-Pass `lloq` to include an LLOQ entry that mirrors the reference line drawn by `plot_vpc_cont()`. 
+Pass `loq` to include an LLOQ entry that mirrors the reference line drawn by `plot_vpc_cont()`. 
 
 ```{r vpc-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_legend <- plot_vpc_legend(lloq = 1)
+vpc_legend <- plot_vpc_legend(loq = 1)
 vpc_legend
 ```
 
@@ -829,10 +803,10 @@ plot_vpc_legend(shown = shown_elements)
 
 ## Updating the Continuous Range Legend Style with `plot_vpc_legend()`
 
-The legend can also be updated with the same VPC style. This is easiest to do by reusing the `vpc_new_style` object we created earlier with `style_vpc()`. We pass the same style to both `plot_vpc_cont()` and `plot_vpc_legend()`, again passing `lloq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
+The legend can also be updated with the same VPC style. This is easiest to do by reusing the `vpc_new_style` object we created earlier with `style_vpc()`. We pass the same style to both `plot_vpc_cont()` and `plot_vpc_legend()`, again passing `loq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
 
 ```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_new_legend <- plot_vpc_legend(lloq = 1, style = vpc_new_style)
+vpc_new_legend <- plot_vpc_legend(loq = 1, style = vpc_new_style)
 vpc_new_legend
 ```
 
@@ -883,7 +857,7 @@ cens_vpc_styled
 ```{r vpc-cens-legend-styled, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 cens_legend_styled <- plot_vpc_legend(
   type = "cens",
-  lloq = 1,
+  loq = 1,
   shown = cens_shown,
   style = cens_style
 )
@@ -896,10 +870,10 @@ cens_vpc_styled + cens_legend_styled + plot_layout(heights = c(2.5, 1))
 
 `plot_vpc_legend()` accepts `type = "cens"` argument to produce a legend with the default labels for a censored data VPC (`"Obs Prop BLQ"`, `"Sim Prop BLQ"`, `"Sim 90% CI Prop BLQ"`). Prediction-interval related entries are suppressed regardless of `shown`. 
 
-Pass `lloq` to mirror the LOQ source the cens VPC was built against.
+Pass `loq` to mirror the LOQ source the cens VPC was built against.
 
 ```{r vpc-cens-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-cens_legend <- plot_vpc_legend(type = "cens", lloq = 1)
+cens_legend <- plot_vpc_legend(type = "cens", loq = 1)
 cens_legend
 ```
 
@@ -913,8 +887,10 @@ cens_vpc + cens_legend + plot_layout(heights = c(2.5, 1))
 
 We can add legends to our stacked continuous data range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
+The pcVPC draws no LLOQ line, so its legend is built without `loq`.
+
 ```{r plot-vpc-pc-cens-stack-w-legends, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-pcvpc_patch / vpc_legend / cens_vpc_patch / cens_legend + 
+pcvpc_patch / plot_vpc_legend() / cens_vpc_patch / cens_legend + 
   plot_layout(heights = c(2, 0.5, 2, 0.5))
 ```
 

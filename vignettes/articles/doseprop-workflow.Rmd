@@ -38,9 +38,13 @@ $$\log(Exposure) = intercept + \gamma \cdot \log(DOSE)$$
 
 Hypothesis testing proceeds via the confidence interval around the power estimate ($\gamma$): the null is dose-proportional ($\gamma = 1$); the alternative is non-proportional ($\gamma \ne 1$). Interpretation rules of thumb:
 
-  + CI includes 1: dose-proportional
+  + CI includes 1: no evidence against dose-proportionality (labeled `"Dose-proportional"`)
   + CI excludes 1, upper bound below 1: less than dose-proportional
   + CI excludes 1, lower bound above 1: greater than dose-proportional
+
+These labels are a screening summary. A CI that includes 1 does not establish
+dose-proportionality; a formal assessment compares the CI to predefined bounds
+that depend on the dose range studied.
 
 This assessment is typically performed on both Cmax and AUC. The combination informs which phase of the PK profile is contributing most to non-linearity (absorption rate, absorption extent, or elimination). 
 
@@ -90,7 +94,7 @@ The `stats` slot holds the per-metric estimates from the log log regression, whi
 
 The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
 
-  + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
+  + `method`: critical value for the confidence interval. Default is `"normal"`. Alternative is `"tdist"`, a t critical value on the regression's residual degrees of freedom (n - 2), which is preferred for small sample sizes (e.g., < 30).
   + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequivalence assessment.
   + `sigdigits`: number of significant digits to return in outputs
   
@@ -117,12 +121,8 @@ The default appearance uses open circles at `alpha = 0.7` for the observation po
 
 ## Passing summary-statistic arguments through `plot_doseprop()`
 
-The summary statistics calculated from the log-log regression of exposure versus dose can be customized using the following arguments:
+`plot_doseprop()` accepts the same `method`, `ci`, and `sigdigits` arguments as `df_doseprop()`.
 
-  + `method`: distribution used to calculate the confidence interval: Default is `"normal"`. Alternative is `"tdist"`, which may be preferred for analysis with a small sample size where normality cannot be assumed (e.g, < 30).
-  + `ci`: confidence interval to return expressed as a proportion. Default is `"0.9"` based on the CI recommended for the bioequivalence assessment.
-  + `sigdigits`: number of significant digits to return in outputs
- 
 ```{r plot-doseprop-obj-95ci-tdist, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_doseprop(data_nca1, 
               metrics = c("aucinf.obs", "cmax"),
@@ -211,9 +211,9 @@ plot_doseprop(
 )
 ```
 
-For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `restyle_plot()` / `reveal()` — see the [Plot Styling and Aesthetics](plot-styling.html) vignette.
+For a deeper treatment of the styling system — `style_spec()` fields, per-role maps, and post-hoc `reveal()` — see the [Plot Styling and Aesthetics](plot-styling.html) vignette.
 
 # See also
 
   + [PK and PK/PD EDA workflow](eda-pk-pkpd-workflow.html) — exploratory analysis of continuous longitudinal concentration-time data, response-time, and response-concentration data.
-  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `restyle_plot()` / `reveal()` for customizing plot output.
+  + [Plot Styling and Aesthetics](plot-styling.html) — the `style_*()` presets, `style_spec()` fields and per-role maps, and post-hoc `reveal()` for customizing plot output.

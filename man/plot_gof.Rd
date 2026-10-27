@@ -16,6 +16,7 @@ plot_gof(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
+  show_loq_value = TRUE,
   blq_mode = c("obs", "all"),
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
@@ -52,19 +53,26 @@ Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).}
 \item{dose_var}{Column to use in dose-normalization when \code{dosenorm = TRUE}.
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ).
-BLQ imputation behavior on the DV / prediction layers is controlled by
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ), or
+\code{NULL} to impute each row at its own \code{LLOQ} column value (the LLOQ line
+is drawn at the highest). Has no effect with \code{loq_method = 0} (the
+default), which emits a message. BLQ imputation behavior on the DV / prediction layers is controlled by
 \code{blq_mode} and \code{loq_method}. Default is \code{NULL}.}
 
 \item{loq_method}{Method for handling BLQ data. See \code{\link[=plot_dvtime]{plot_dvtime()}} for
 option details. Default is \code{0} (no imputation).}
 
+\item{show_loq_value}{Logical. If \code{TRUE} (default), the LLOQ line's legend
+entry is titled \code{"LLOQ"} and keyed by its value. If \code{FALSE}, the title is
+dropped and the entry is labeled \code{"LLOQ"} without the value. Applies only
+when the LLOQ line is drawn (\code{loq_method} of \code{1} or \code{2}, \code{dosenorm = FALSE}).}
+
 \item{blq_mode}{One of \code{"obs"} (default) or \code{"all"}. Controls which layers
 receive BLQ imputation: \code{"obs"} imputes the observed \code{DV} layer only,
 leaving \code{PRED} / \code{IPRED} untouched (mirrors \code{\link[=plot_dvtime]{plot_dvtime()}}); \code{"all"}
-additionally imputes the prediction layers, useful when the GOF visual
-should mirror an estimation engine that censored predictions to LLOQ.
-Has no effect when \code{loq_method = 0}.}
+applies the same 1/2 LLOQ imputation to \code{PRED} / \code{IPRED}, so observed and
+predicted lines are summarized on the same imputed basis. Has no effect
+when \code{loq_method = 0}.}
 
 \item{cent}{Character string specifying the central tendency measure. See
 \code{\link[=plot_dvtime]{plot_dvtime()}} for option details. Default is \code{"mean"}.}
@@ -81,12 +89,12 @@ Also controls whether the caption reports arithmetic or geometric mean
 when \code{show_caption = TRUE}.}
 
 \item{show_caption}{Logical indicating if a caption should be shown
-describing the data plotted.}
+describing the data plotted. A \code{caption} set in the style is drawn instead, whatever this value.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
 Defaults to \code{\link[=style_gof]{style_gof()}}; view the defaults by running \code{style_gof()}
-with no arguments. Customize by passing \code{style = style_gof(...)}, or
-restyle the returned plot with \code{\link[=restyle_plot]{restyle_plot()}}. The DV/PRED/IPRED (and
+with no arguments. Customize by passing \code{style = style_gof(...)}.
+The DV/PRED/IPRED (and
 OBS) overlays are colored by the \code{colors} map keyed by those labels. The
 error bar cap width is the style's \code{errorbar_width} field; when unset it
 defaults to 2.5\% of the maximum nominal time (\code{ntime_var}).}

@@ -114,8 +114,8 @@ style_gof <- function(...) {
 #'
 #' Default [ggstylekit::style_spec()] for [plot_dvconc()]. Series names:
 #' `obs_point`, `ref_line`, `loess`, `linear`. The `loess`/`linear` trend lines
-#' are `geom_smooth` (line entity); their SE ribbon fill/alpha come from
-#' `line_fill`/`fill_alpha`.
+#' are `geom_smooth` (line entity); their SE ribbon fill is `line_fill`, and its
+#' alpha is the `loess` / `linear` entry of `alphas`.
 #'
 #' Like every pmxhelpr preset, it places legend titles above the keys
 #' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived
@@ -250,4 +250,399 @@ style_vpc <- function(...) {
     theme      = pmx_house_theme(white_panel = TRUE)
   )
   build_style(defaults, list(...))
+}
+
+
+#' Forest plot style (`plot_forest`)
+#'
+#' Default [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()]. Series names are the plot roles: `point` (the
+#' estimate), `errorbar` (the CI line range), `ref_point` (the estimate of a
+#' reference row: a reference copy in a covariate panel or the reference
+#' panel; an open circle by default), `ref_line` (the
+#' vertical reference line drawn at `ref`), and `ref_band` (the equivalence
+#' band drawn at `ref_band`; a `geom_rect` annotation whose `fill`
+#' and `alpha` come from the `fill` / `alphas` maps).
+#'
+#' Per-covariate coloring is opt-in through the same `colors` map: add entries
+#' keyed by covariate name (the values of the `cov_name_var` column, e.g.
+#' `colors = c(FOOD = "darkgreen", WTBL = "darkblue")`). When at least one
+#' covariate present in the plotted data has an entry, the builder maps point
+#' and error bar color to the covariate (facet) and suppresses the legend,
+#' since the facet strips already label each covariate. Covariates without an
+#' entry take colours from the house palette, as for `col_var` in
+#' [plot_dvtime()]. The `point`, `errorbar`, and `ref_point` role colours are
+#' then replaced by the covariate colour; the reference panel keeps
+#' the `ref_point` colour unless `colors` names it. `ref_line` is unaffected.
+#'
+#' The builder draws the covariate row facet itself (`facet_grid(rows =
+#' cov_name, switch = "y")`), so the `facet*` fields are ignored. It labels
+#' the x-axis with the rendered metric unless the `xlabel` field is supplied,
+#' and draws no title unless the `title` field is supplied.
+#' The house theme uses the forest panel variant of `theme_bw()`: a faint
+#' vertical ruler, no horizontal gridlines, covariate panels stacked without
+#' spacing into one frame, bold top-left covariate strips placed outside the y-axis,
+#' and the estimate column as right-hand axis text under a bold header drawn
+#' as the right-aligned subtitle on the top edge of the panels (style them
+#' through `theme = ` with `axis.text.y.right` and `plot.subtitle`). Set
+#' `logx = TRUE` for a log x-axis.
+#'
+#' Intervals are drawn as uncapped lines. Set the `errorbar_width` field to
+#' draw capped error bars instead; it is the cap height in row heights (e.g.
+#' `style_forest(errorbar_width = 0.3)`, where 1 spans a full row). The
+#' preset leaves it unset, which the builder back-fills to 0 (no cap).
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them. Per-series maps merge entry-wise onto the defaults (e.g.
+#'   `shapes = c(point = 18)` leaves the other roles unchanged; `colors =
+#'   c(FOOD = "red")` adds a covariate color while keeping the role colors);
+#'   all other fields replace their default wholesale. A palette
+#'   `function(n)` in `colors` colours every covariate (called with the
+#'   number of covariates); it replaces the role entries, which then fall back
+#'   to the ggplot2 defaults.
+#'
+#' @seealso [style_forest_pmforest()], [style_forest_coveffectsplot()], [style_forest_pmxforest()],
+#'   and [style_forest_pumas()] for the looks of the `pmforest`, `coveffectsplot`,
+#'   and `PMXForest` packages and of Pumas.
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_forest()
+#' style_forest(shapes = c(point = 18), sizes = c(point = 3))
+#' style_forest(fill = c(ref_band = "skyblue"), alphas = c(ref_band = 0.2))
+#' style_forest(shapes = c(ref_point = 16), colors = c(ref_point = "grey50"))
+#' style_forest(colors = c(FOOD = "firebrick", WTBL = "steelblue", Reference = "grey20"))
+#' style_forest(logx = TRUE)
+#' style_forest(errorbar_width = 0.3)
+style_forest <- function(...) {
+  defaults <- list(
+    colors     = c(point = "black", errorbar = "black", ref_point = "black",
+                   ref_line = "grey30"),
+    fill       = c(ref_point = "white", ref_band = "grey80"),
+    shapes     = c(point = 16, ref_point = 21),
+    # Compact markers; the thinner CI line keeps the estimate legible when the
+    # interval is narrow.
+    sizes      = c(point = 2.2, ref_point = 2.2),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.3),
+    linewidths = c(errorbar = 0.6, ref_line = 0.6),
+    linetypes  = c(errorbar = "solid", ref_line = "dashed"),
+    # The builder draws no legend; the facet strips name each covariate.
+    legend.position = "none",
+    theme      = pmx_house_theme(forest_panel = TRUE)
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' pmforest-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of Metrum Research
+#' Group's [pmforest](https://github.com/metrumresearchgroup/pmforest/)
+#' package: black-outlined filled diamonds (shape 23, size 3.5) and uncapped
+#' interval lines coloured per covariate with the ggplot2 default hue
+#' palette, a dot-dash reference line, a `grey35` equivalence band at alpha
+#' 0.2, and a `theme_bw()` panel with grey major vertical gridlines, ~9.9 pt
+#' text, a ~7.9 pt estimate column, and no legend.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout: covariate facet strips (pmforest labels groups on
+#' the y-axis), the `est (lo, hi)` estimate column (pmforest prints
+#' `est [lo, hi]`), reference rows drawn as open diamonds (pmforest draws
+#' no point for them), and no minor gridlines (add them through `theme = `
+#' with `panel.grid.minor.x`).
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
+#'   c(point = 3)`). The default `colors` is a hue palette `function(n)`, so
+#'   passing `colors` replaces it wholesale: a different palette function, or
+#'   entries keyed by covariate name (covariates without an entry take the
+#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
+#'   turns covariate coloring off, with a warning. The point fill follows the
+#'   covariate colour while the
+#'   point shape is a fill shape (21-25); the `point` colour is the outline.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_forest_pmforest()
+#' style_forest_pmforest(fill = c(ref_band = "skyblue"))
+#' style_forest_pmforest(logx = TRUE)
+style_forest_pmforest <- function(...) {
+  defaults <- list(
+    # ggplot2's default discrete hue palette (`scales::hue_pal()`).
+    colors     = function(n) {
+      grDevices::hcl(h = seq(15, 375, length.out = n + 1)[seq_len(n)], c = 100, l = 65)
+    },
+    fill       = c(ref_point = "white", ref_band = "grey35"),
+    shapes     = c(point = 23, ref_point = 23),
+    sizes      = c(point = 3.5, ref_point = 3.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.2),
+    linewidths = c(errorbar = 0.5, ref_line = 0.5),
+    linetypes  = c(errorbar = "solid", ref_line = "dotdash"),
+    legend.position = "none",
+    # pmforest sizes text in mm (`text_size = 3.5`, table text 0.8x that);
+    # 0.352777778 mm per pt.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      text               = ggplot2::element_text(size = 3.5 / 0.352777778),
+      panel.background   = ggplot2::element_rect(fill = NA, colour = "grey20"),
+      panel.grid.major.x = ggplot2::element_line(colour = "grey"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 2.8 / 0.352777778, hjust = 0, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
+  )
+  overrides <- list(...)
+  warn_forest_palette_dropped(overrides$colors, "style_forest_pmforest")
+  build_style(defaults, overrides)
+}
+
+
+#' coveffectsplot-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of the
+#' `forest_plot()` function of the
+#' [coveffectsplot](https://github.com/smouksassi/coveffectsplot/) package:
+#' blue points (shape 16, size 4) on thick blue interval lines, blue
+#' reference points, a thick dashed black reference line, a grey
+#' equivalence band at alpha 80/255, grey major gridlines on both axes,
+#' grey-filled covariate strips placed between the level labels and the
+#' panels, separated panels, and a centered estimate column.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from coveffectsplot in that: text is
+#' scaled to an 11 pt base (coveffectsplot uses `base_size = 22`), with the
+#' covariate strips raised to the axis text size for legibility; there are
+#' no minor gridlines and no legend; the band is drawn only when `ref_band`
+#' is supplied (coveffectsplot shows 0.8-1.25 by default); the estimate
+#' column is `est (lo, hi)` axis text under an `Estimate (CI)` header rather
+#' than a separate bordered table; reference rows show a point without an
+#' interval; and the x-axis is labeled with the metric.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `colors =
+#'   c(point = "darkred")` leaves the other roles blue); `colors` entries
+#'   keyed by covariate name opt into per-covariate coloring as in
+#'   [style_forest()]. All other fields replace their default wholesale.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_forest_coveffectsplot()
+#' style_forest_coveffectsplot(colors = c(point = "darkred", errorbar = "darkred"))
+#' style_forest_coveffectsplot(logx = TRUE)
+style_forest_coveffectsplot <- function(...) {
+  defaults <- list(
+    colors     = c(point = "blue", errorbar = "blue", ref_point = "blue",
+                   ref_line = "black"),
+    # coveffectsplot's "#BEBEBE50": grey (#BEBEBE) with hex alpha 0x50.
+    fill       = c(ref_band = "grey"),
+    shapes     = c(point = 16, ref_point = 16),
+    # geom_pointrange(size = 1, fatten = 4) draws a size-4 point.
+    sizes      = c(point = 4, ref_point = 4),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 80 / 255),
+    linewidths = c(errorbar = 1, ref_line = 1),
+    linetypes  = c(errorbar = "solid", ref_line = "dashed"),
+    legend.position = "none",
+    # Text sizes are coveffectsplot's halved (base 22 -> 11 pt), keeping its
+    # proportions at pmxhelpr figure sizes; table text 7 mm -> 3.5 mm. Strip
+    # text is raised to the 8 pt axis text (13 pt halves to an illegible 6.5).
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      text               = ggplot2::element_text(size = 11),
+      panel.background   = ggplot2::element_rect(fill = "white", colour = NA),
+      panel.spacing.y    = ggplot2::unit(5.5, "pt"),
+      panel.grid.major.x = ggplot2::element_line(colour = "gray"),
+      panel.grid.major.y = ggplot2::element_line(colour = "gray"),
+      strip.placement    = "inside",
+      strip.background   = ggplot2::element_rect(fill = "#E5E5E5", colour = "grey20"),
+      strip.text.y.left  = ggplot2::element_text(
+        size = 8, face = "bold", angle = 0, hjust = 0.5, vjust = 0.5
+      ),
+      axis.text.x        = ggplot2::element_text(size = 8),
+      axis.text.y.left   = ggplot2::element_text(size = 8, colour = "black"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 3.5 / 0.352777778, hjust = 0.5, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' PMXForest-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the default look of the
+#' `forestPlot()` function of Pharmetheus'
+#' [PMXForest](https://github.com/pharmetheus/PMXForest/) package, the
+#' forest plot of the FREM workflow: black points (shape 16, size 2.5) on
+#' uncapped black interval lines, a thick dotted black reference line, a
+#' `lightgrey` equivalence band at alpha 0.7 (PMXForest's 0.4, raised so the
+#' band stands out from the grey panel), and the ggplot2 default
+#' `theme_grey()` panel (grey background, white gridlines on both axes,
+#' grey strips) that PMXForest inherits.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from PMXForest in that: covariate
+#' strips sit on the left rather than the right; there are no minor
+#' gridlines and no legend (PMXForest keys every layer in a legend above the
+#' plot); the band is drawn only when `ref_band` is supplied (PMXForest
+#' shows 0.8-1.25 by default); the estimate column is `est (lo, hi)` axis
+#' text under an `Estimate (CI)` header rather than a separate
+#' `est [lo-hi]` "Statistics" panel; no reference-subject footnote is added;
+#' reference rows are drawn as points like the test rows but without an
+#' interval; and the x-axis is labeled with the metric.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `colors =
+#'   c(point = "navy")` leaves the other roles black); `colors` entries keyed
+#'   by covariate name opt into per-covariate coloring as in
+#'   [style_forest()]. All other fields replace their default wholesale.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_forest_pmxforest()
+#' style_forest_pmxforest(alphas = c(ref_band = 1))
+#' style_forest_pmxforest(logx = TRUE)
+style_forest_pmxforest <- function(...) {
+  defaults <- list(
+    colors     = c(point = "black", errorbar = "black", ref_point = "black",
+                   ref_line = "black"),
+    fill       = c(ref_band = "lightgrey"),
+    shapes     = c(point = 16, ref_point = 16),
+    sizes      = c(point = 2.5, ref_point = 2.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.7),
+    linewidths = c(errorbar = 0.7, ref_line = 1),
+    linetypes  = c(errorbar = "solid", ref_line = "dotted"),
+    legend.position = "none",
+    # PMXForest sets no theme, so it renders in the default theme_grey():
+    # grey92 panel, white gridlines, grey85 strips, grey30 axis text. Its
+    # table text is `tabTextSize * 0.36` = 3.6 mm.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      panel.background   = ggplot2::element_rect(fill = "grey92", colour = NA),
+      panel.border       = ggplot2::element_blank(),
+      panel.spacing.y    = ggplot2::unit(5.5, "pt"),
+      panel.grid.major.x = ggplot2::element_line(colour = "white"),
+      panel.grid.major.y = ggplot2::element_line(colour = "white"),
+      strip.placement    = "inside",
+      strip.background   = ggplot2::element_rect(fill = "grey85", colour = NA),
+      strip.text.y.left  = ggplot2::element_text(
+        colour = "grey10", face = "plain", angle = 0, hjust = 0.5, vjust = 0.5
+      ),
+      axis.text.y.left   = ggplot2::element_text(colour = "grey30"),
+      axis.text.y.right  = ggplot2::element_text(
+        size = 3.6 / 0.352777778, hjust = 0.5, colour = "black",
+        margin = ggplot2::margin(l = 8)
+      )
+    )
+  )
+  build_style(defaults, list(...))
+}
+
+
+#' Pumas-style forest plot style (`plot_forest`)
+#'
+#' An alternative [ggstylekit::style_spec()] for [plot_forest()] /
+#' [plot_build_forest()] that reproduces the look of the
+#' `table_forest_plot()` function of Pumas; see the [Pumas forest plot
+#' tutorial](https://tutorials.pumas.ai/html/forest_plots/forest.html):
+#' filled diamonds on thin capped error bars, coloured per covariate from
+#' Makie's default Wong palette, a dashed black reference line, a light grey
+#' equivalence band, and an open panel with no gridlines and only the x-axis
+#' line.
+#'
+#' Series roles are those of [style_forest()]. The plot keeps the
+#' `plot_forest()` layout, so it differs from Pumas in that: the estimate
+#' column is on the right as `est (lo, hi)` (Pumas puts a `Scenario` /
+#' `Median [90% CI]` table on the left); covariate names head their rows as
+#' strips rather than `COV (ref: X)` headers; the band is drawn only when
+#' `ref_band` is supplied; and Pumas' optional density ridges are not drawn.
+#'
+#' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
+#'   preset defaults; call the preset with no arguments to view them.
+#'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
+#'   c(point = 3)`). The default `colors` is a palette `function(n)`, so
+#'   passing `colors` replaces it wholesale: a different palette function,
+#'   or entries keyed by covariate name (covariates without an entry take the
+#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
+#'   turns covariate coloring off, with a warning. `errorbar_width` sets the
+#'   cap height in row heights.
+#'
+#' @family forest plot
+#' @return A `ggstylekit_style_spec` object.
+#' @export
+#' @examples
+#' style_forest_pumas()
+#' style_forest_pumas(errorbar_width = 0.5)
+#' style_forest_pumas(logx = TRUE)
+style_forest_pumas <- function(...) {
+  defaults <- list(
+    # Makie's default categorical palette (Wong 2011), in Makie's order.
+    colors     = function(n) {
+      rep_len(c("#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9",
+                "#D55E00", "#F0E442"), n)
+    },
+    fill       = c(ref_band = "grey50"),
+    shapes     = c(point = 18, ref_point = 18),
+    sizes      = c(point = 3.5, ref_point = 3.5),
+    alphas     = c(point = 1, errorbar = 1, ref_point = 1, ref_line = 1,
+                   ref_band = 0.2),
+    linewidths = c(errorbar = 0.5, ref_line = 0.6),
+    linetypes  = c(errorbar = "solid", ref_line = "dashed"),
+    errorbar_width = 0.3,
+    legend.position = "none",
+    # Open panel: no box or gridlines, only the x-axis line. The house
+    # forest theme's zero panel spacing keeps the line and band unbroken.
+    theme      = pmx_house_theme(forest_panel = TRUE) + ggplot2::theme(
+      panel.background   = ggplot2::element_blank(),
+      panel.border       = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_blank(),
+      axis.line.x        = ggplot2::element_line(colour = "black", linewidth = 0.4),
+      axis.ticks.y.left  = ggplot2::element_blank()
+    )
+  )
+  overrides <- list(...)
+  warn_forest_palette_dropped(overrides$colors, "style_forest_pumas")
+  build_style(defaults, overrides)
+}
+
+
+#' Internal helper: warn when a palette preset loses its covariate coloring
+#'
+#' In [style_forest_pmforest()] and [style_forest_pumas()] the default
+#' `colors` is a palette function, which a named `colors` vector replaces
+#' wholesale. A vector naming only series roles therefore turns
+#' per-covariate coloring off; warn so that is not silent.
+#'
+#' @param colors The user's `colors` override, or `NULL`.
+#' @param preset Name of the calling preset, for the message.
+#' @return `NULL`, invisibly.
+#' @keywords internal
+#' @noRd
+warn_forest_palette_dropped <- function(colors, preset) {
+  roles <- c("point", "errorbar", "ref_point", "ref_line", "ref_band")
+  if (is.null(colors) || is.function(colors) || !all(names(colors) %in% roles)) {
+    return(invisible(NULL))
+  }
+  rlang::warn(paste0(
+    "`colors` replaces the covariate palette of `", preset, "()`, so ",
+    "covariates are no longer colored. To keep per-covariate coloring, key ",
+    "`colors` by covariate name or pass a palette `function(n)`."
+  ))
+  invisible(NULL)
 }

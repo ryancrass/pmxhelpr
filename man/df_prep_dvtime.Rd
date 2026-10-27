@@ -54,7 +54,8 @@ additionally imputes any \code{PRED} / \code{IPRED} columns that were renamed vi
 \code{pred_var_str} / \code{ipred_var_str}. Has no effect when \code{loq_method = 0}.}
 }
 \value{
-A named list with elements \code{data} (processed data.frame) and \code{lloq} (numeric LLOQ value).
+A named list with elements \code{data} (processed data.frame) and \code{lloq}
+(the LLOQ line value: the highest LLOQ in the data, or \code{NA}).
 }
 \description{
 Validates inputs, renames time and output variables to internal standards,

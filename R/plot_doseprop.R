@@ -35,7 +35,7 @@ df_loglog <- function(fit,
   crit <- switch(
     method,
     normal = stats::qnorm((1 + ci)/2),
-    tdist  = stats::qt((1 + ci)/2, (length(fit$residuals) - 1))
+    tdist  = stats::qt((1 + ci)/2, fit$df.residual)
   )
   lcl <- est - crit*se
   ucl <- est + crit*se

@@ -474,5 +474,14 @@ test_that("method selects the normal or t critical value for the CI", {
   }
   n <- sum(data_sad_nca$PPTESTCD == "cmax" & !is.na(data_sad_nca$PPORRES))
   expect_equal(ci_halfwidth("normal"), stats::qnorm(0.95), tolerance = 1e-8)
-  expect_equal(ci_halfwidth("tdist"), stats::qt(0.95, n - 1), tolerance = 1e-8)
+  expect_equal(ci_halfwidth("tdist"), stats::qt(0.95, n - 2), tolerance = 1e-8)
+})
+
+test_that("the tdist CI matches confint() of the log-log fit at small n", {
+  d <- data.frame(PPTESTCD = "cmax", DOSE = c(1, 3, 10, 30),
+                  PPORRES = c(1, 2.6, 7.1, 16))
+  s <- df_doseprop(d, metrics = "cmax", method = "tdist", sigdigits = 12)$stats
+  fit <- stats::lm(log(PPORRES) ~ log(DOSE), data = d)
+  expect_equal(c(s$LCL, s$UCL), unname(stats::confint(fit, level = 0.9)[2, ]),
+               tolerance = 1e-8)
 })

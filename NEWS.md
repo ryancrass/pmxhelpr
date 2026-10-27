@@ -109,6 +109,9 @@
   own `LLOQ` value. Previously the first row's `LLOQ` was applied to every
   row (and a leading `NA` disabled imputation and broke the LLOQ line). With
   several LLOQs, the LLOQ line is drawn at the highest.
+* `df_doseprop()` / `plot_doseprop()` with `method = "tdist"` use the
+  regression's residual degrees of freedom (n - 2) instead of n - 1, matching
+  `confint()`. Intervals widen slightly, noticeably only for small n.
 
 # pmxhelpr 0.6.0
 

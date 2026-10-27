@@ -12,7 +12,8 @@ The goal of pmxhelpr is to make pharmacometrics workflows more
 standardized, efficient, and reproducible. This package provides helper
 and wrapper functions for common steps in the modeling analysis
 workflow, outside of model parameter estimation. Currently, workflows
-cover key steps in exploratory data analysis and model evaluation.
+cover key steps in exploratory data analysis, model evaluation, and
+forest plot model applications.
 
 ## Documentation
 
@@ -95,7 +96,8 @@ Exported functions follow a `ReturnType_Purpose` naming convention where
 the prefix indicates what the function returns:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`, `$obs`, `$config`) for the stats functions
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`,
+  `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
 - `style_*` — returns a `ggstylekit::style_spec` (plot-family style
@@ -156,8 +158,8 @@ Styling is based on *maps* for plot aesthetics, which are keyed by
 keyed by *role*, and only the *roles* specified override the defaults.
 
 Additional variables in the dataset can be surfaced after the fact with
-`reveal()`, legends are described with `legend_spec()`, and styled plots are
-assembled with `combine_styled_plots()`.
+`reveal()`, legends are described with `legend_spec()`, and styled plots
+are assembled with `combine_styled_plots()`.
 
 ### S3 Class System
 

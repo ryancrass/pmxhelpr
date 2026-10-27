@@ -104,8 +104,8 @@ cancels in the ratio, which is why ratio intervals are narrower than
 absolute-exposure intervals.
 
 Reference rows carry \code{cov_name_ref} as both their covariate name and their
-covariate level, so \code{\link[=df_forest]{df_forest()}} renders them as a standalone reference
-panel by default. To place the reference inside each covariate panel
+covariate level, so \code{\link[=df_forest]{df_forest()}} renders them as the reference panel by
+default. To place the reference inside each covariate panel
 instead, pass the per-covariate reference labels to \code{\link[=df_forest]{df_forest()}} as
 \code{cov_level_ref}; the mapping is returned on the \code{"cov_level_ref"}
 attribute of the output and is not read automatically, since that would
@@ -142,7 +142,7 @@ attr(draws, "cov_level_ref")
 # Feed straight into the forest pipeline
 df_forest(draws)
 
-# ... or distribute the reference into each covariate panel
+# ... or draw the reference row in each covariate panel
 df_forest(draws, cov_level_ref = attr(draws, "cov_level_ref"))
 
 # Absolute metrics only

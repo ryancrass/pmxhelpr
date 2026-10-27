@@ -29,12 +29,12 @@
 #'   \item{metric}{PK exposure metric name: absolute (`CMAX`, `CMIN`, `AUC`, `CAVG`) or test/reference ratio (`CMAXRATIO`, `CMINRATIO`, `AUCRATIO`, `CAVGRATIO`)}
 #'   \item{value}{Numeric value of the metric for this `(ID x SIM)` replicate}
 #'   \item{cov_name}{Covariate varied in the scenario (values: `Reference`, `FOOD`, `WTBL`)}
-#'   \item{cov_level}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`). The reference levels of the varied covariates are `Fasted` (`FOOD`) and `70 kg` (`WTBL`); pass them to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to distribute the reference row into each covariate panel.}
+#'   \item{cov_level}{Covariate level label (values: `Reference`, `Fed`, `50 kg`, `60 kg`, `80 kg`, `90 kg`). The reference levels of the varied covariates are `Fasted` (`FOOD`) and `70 kg` (`WTBL`); pass them to [df_forest()] as `cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")` to draw the reference row in each covariate panel.}
 #' }
 #' @section Attributes:
 #' Carries a `"cov_level_ref"` attribute, `c(FOOD = "Fasted", WTBL = "70 kg")`,
 #' giving each varied covariate's reference level label. Pass it to
-#' [df_forest()] as `cov_level_ref` to distribute the reference row into every
+#' [df_forest()] as `cov_level_ref` to draw the reference row in every
 #' covariate panel.
 #' @seealso [data_sad_pkforest_sim] for the raw replicate output,
 #'    [df_forest_preprocess()] for the function that builds this frame.

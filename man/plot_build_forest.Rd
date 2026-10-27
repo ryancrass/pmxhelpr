@@ -47,12 +47,12 @@ metric). With \code{"reference"} and no reference row in the plotted
 metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
-\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the shaded equivalence interval, read according to
-\code{ref_band_type}. Default \code{NULL} (no shaded band).}
+\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the equivalence band, read according to
+\code{ref_band_type}. Default \code{NULL} (no band).}
 
 \item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
 \code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}
-is the bioequivalence band on a ratio or a raw exposure scale;
+gives the bioequivalence bounds on a ratio or a raw exposure scale;
 \code{"additive"} draws \code{ref + ref_band}, so \code{c(-10, 10)} brackets a
 reference change of zero for a difference metric such as percent
 change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
@@ -62,8 +62,8 @@ positive.}
 \item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
 draws it in each covariate panel named in the container's
 \code{cov_level_ref}, under that covariate's reference label (the rows with
-\code{layout = "distributed"}); \code{"consolidated"} draws it in its own panel
-at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
+\code{layout = "distributed"}); \code{"consolidated"} draws it in the reference
+panel at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
 draw in either. \code{NULL} (default) uses \code{"distributed"} when
 \code{\link[=df_forest]{df_forest()}} was given a \code{cov_level_ref} entry for a covariate of
 \code{metric}, otherwise \code{"consolidated"}. \code{"distributed"} without one is an
@@ -98,12 +98,12 @@ labels may repeat across panels (\code{Low} / \code{High} under two covariates).
 The \code{layout} column selects the rows for the chosen reference layout (see
 \code{ref_layout}).
 
-Rows flagged \code{is_ref} (the distributed per-covariate reference label, or the
-standalone \code{cov_name_ref} panel) draw through the \code{ref_point} style role
+Rows flagged \code{is_ref} (the reference copies in each covariate panel, or the
+reference panel) draw through the \code{ref_point} style role
 (an open circle by default) and show the point estimate alone in the
 estimate column, since their CI collapses onto the estimate. A row whose
-level label repeats its covariate name (the standalone reference panel)
-gets an empty tick label, since the strip already carries the name.
+level label repeats its covariate name (the reference panel) has no
+left-axis tick or label, since the strip already carries the name.
 
 Returns a plain \code{ggplot} object so callers can compose additional layers,
 themes, and scales with the standard \code{+} operator.
@@ -127,7 +127,7 @@ Summaries computed elsewhere can be plotted by wrapping them with
 \code{ci_label} (character; their combined form);
 \item \code{is_ref} (logical, no \code{NA}; the reference rows);
 \item \code{layout}: \code{"both"} for covariate rows, \code{"consolidated"} for a
-standalone reference row, \code{"distributed"} for a reference copy inside a
+reference-panel row, \code{"distributed"} for a reference copy inside a
 covariate panel;
 \item optionally \code{n} (integer draw count), needed only for \code{show_rep}.
 }
@@ -144,7 +144,7 @@ stats <- df_forest(
 )
 plot_build_forest(stats, metric = "AUCRATIO")
 plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
-# The same stats with the reference in its own panel
+# The same stats with the reference panel
 plot_build_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 # Raw exposure: the line sits at the reference exposure and the band is
 # 0.8 to 1.25 times it

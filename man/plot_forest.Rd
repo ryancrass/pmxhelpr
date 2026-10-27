@@ -61,7 +61,7 @@ exposure near 12500). Trailing zeros are kept. Default \code{3}.}
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
 Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of each metric's rows (standalone panel). With
+role, and sort to the top of each metric's rows (the reference panel). With
 \code{cov_level_ref}, a copy is also placed in each covariate panel, and
 \code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
 copies are drawn. \code{NULL} marks no row as the reference.
@@ -70,20 +70,20 @@ which is the numeric value of the x-intercept for the vertical reference line.}
 
 \item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label (e.g.
-\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the distributed
-reference layout and makes it the default in \code{\link[=plot_build_forest]{plot_build_forest()}} /
-\code{\link[=plot_forest]{plot_forest()}}: the reference row of each metric is drawn in every
-named covariate that is present in \code{data}, under that label, in place
-of the standalone reference panel (\code{ref_layout = "consolidated"} draws
-the standalone panel instead). Covariates not named show no reference
+\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the reference row in
+each covariate panel (\code{ref_layout = "distributed"}) and makes it the
+default in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}: the reference row of
+each metric is drawn in every named covariate that is present in
+\code{data}, under that label, in place of the reference panel
+(\code{ref_layout = "consolidated"} draws the reference panel instead). Covariates not named show no reference
 row. Names not found in \code{cov_name_var}, or naming the reference row
 itself, are ignored with a warning; a label matching an existing level
 of that covariate also warns, since both rows would share the label.
-\code{stats$stats} keeps both the standalone reference rows and the
-per-covariate copies, told apart by the \code{layout} column.
+\code{stats$stats} keeps both the reference-panel rows and the reference
+copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
-Default is \code{NULL} (the reference renders in
-its own panel at the top).}
+Default is \code{NULL} (the reference renders in the reference panel at the
+top).}
 
 \item{ref}{The x-intercept of the vertical reference line: a numeric
 scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
@@ -93,12 +93,12 @@ metric). With \code{"reference"} and no reference row in the plotted
 metric, a warning is issued and no line is drawn. Distinct from
 \code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
 
-\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the shaded equivalence interval, read according to
-\code{ref_band_type}. Default \code{NULL} (no shaded band).}
+\item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the equivalence band, read according to
+\code{ref_band_type}. Default \code{NULL} (no band).}
 
 \item{ref_band_type}{How \code{ref_band} is placed around the resolved \code{ref}:
 \code{"multiplicative"} (default) draws \code{ref * ref_band}, so \code{c(0.8, 1.25)}
-is the bioequivalence band on a ratio or a raw exposure scale;
+gives the bioequivalence bounds on a ratio or a raw exposure scale;
 \code{"additive"} draws \code{ref + ref_band}, so \code{c(-10, 10)} brackets a
 reference change of zero for a difference metric such as percent
 change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
@@ -108,8 +108,8 @@ positive.}
 \item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
 draws it in each covariate panel named in the container's
 \code{cov_level_ref}, under that covariate's reference label (the rows with
-\code{layout = "distributed"}); \code{"consolidated"} draws it in its own panel
-at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
+\code{layout = "distributed"}); \code{"consolidated"} draws it in the reference
+panel at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
 draw in either. \code{NULL} (default) uses \code{"distributed"} when
 \code{\link[=df_forest]{df_forest()}} was given a \code{cov_level_ref} entry for a covariate of
 \code{metric}, otherwise \code{"consolidated"}. \code{"distributed"} without one is an
@@ -170,7 +170,7 @@ stats <- df_forest(
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
 
-# Same stats, reference in its own panel instead of each covariate panel
+# Same stats, reference panel instead of a reference row in each covariate panel
 plot_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 
 # Raw exposure from the same stats: reference line at the reference

@@ -409,7 +409,7 @@ additional details on the VPC toolchain with `pmxhelpr`.
 # Forest plots of covariate impact with `df_forest()` and `plot_forest()`
 
 `df_forest_preprocess()` is an upstream pre-processing function which reshapes 
-raw replicate simulation output containing one row per covariate condition per 
+raw replicate simulation output containing one row per scenario per 
 replicate with the exposure metrics as columns, into the long form consumed by
 `df_forest()`. Within-replicate test-to-reference ratios are computed along
 the way. That is how `data_sad_pkforest` is built from `data_sad_pkforest_sim`.
@@ -435,7 +435,7 @@ confidence interval for each covariate level, returning a class-tagged
 `forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats`
 and `vpc_stats`). The `stats` slot is the plot-ready frame with one row per 
 forest plot entry in the order drawn top to bottom. Supplying `cov_level_ref`
-lets the plot distribute the `Reference` row into each named covariate panel
+draws the `Reference` row in each named covariate panel
 under that label (flagged `is_ref`); the `layout` column of `$stats` records
 which reference rows each layout draws. Reorder the rows of `forest_stats$stats`, or set factor
 levels of `cov_level` in the input dataset to control the plotted order.
@@ -472,13 +472,13 @@ plot_forest(forest_stats, metric = "AUCRATIO",
             ref_band = c(0.8, 1.25), style = new_forest_style) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
-Reference rows (here the distributed `Fasted` and `70 kg` labels) draw as an
+Reference rows (here the `Fasted` and `70 kg` copies) draw as an
 open circle through the `ref_point` style role and show the estimate alone in
 the right-hand column.
 
-Reference values can instead be consolidated into a separate reference panel
-with `ref_layout = "consolidated"`, from the same precomputed `forest_stats`
-object. Without `cov_level_ref`, the reference is always consolidated.
+The reference can instead be drawn in a reference panel at the top with
+`ref_layout = "consolidated"`, from the same precomputed `forest_stats`
+object. Without `cov_level_ref`, the reference panel is always used.
 
 ```{r plot-forest-reference, fig.width=8, fig.height=4.5, warning=FALSE, message=FALSE}
 plot_forest(forest_stats,

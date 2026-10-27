@@ -21,8 +21,8 @@ A data.frame of rows in top-to-bottom draw order.
 \description{
 Returns \code{stats$stats} (optionally restricted to one metric) filtered to the
 requested reference layout through its \code{layout} column: rows marked
-\code{"both"} always draw, \code{"consolidated"} rows (the standalone reference
-panel) only in that layout, \code{"distributed"} rows (the per-covariate
-reference copies) only in that one.
+\code{"both"} always draw, \code{"consolidated"} rows (the reference panel) only in
+that layout, \code{"distributed"} rows (the reference copies in each covariate
+panel) only in that one.
 }
 \keyword{internal}

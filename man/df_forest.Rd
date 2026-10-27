@@ -47,7 +47,7 @@ exposure near 12500). Trailing zeros are kept. Default \code{3}.}
 \code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
 \code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
 Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of each metric's rows (standalone panel). With
+role, and sort to the top of each metric's rows (the reference panel). With
 \code{cov_level_ref}, a copy is also placed in each covariate panel, and
 \code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
 copies are drawn. \code{NULL} marks no row as the reference.
@@ -56,20 +56,20 @@ which is the numeric value of the x-intercept for the vertical reference line.}
 
 \item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
 values to the per-covariate reference label (e.g.
-\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the distributed
-reference layout and makes it the default in \code{\link[=plot_build_forest]{plot_build_forest()}} /
-\code{\link[=plot_forest]{plot_forest()}}: the reference row of each metric is drawn in every
-named covariate that is present in \code{data}, under that label, in place
-of the standalone reference panel (\code{ref_layout = "consolidated"} draws
-the standalone panel instead). Covariates not named show no reference
+\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the reference row in
+each covariate panel (\code{ref_layout = "distributed"}) and makes it the
+default in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}: the reference row of
+each metric is drawn in every named covariate that is present in
+\code{data}, under that label, in place of the reference panel
+(\code{ref_layout = "consolidated"} draws the reference panel instead). Covariates not named show no reference
 row. Names not found in \code{cov_name_var}, or naming the reference row
 itself, are ignored with a warning; a label matching an existing level
 of that covariate also warns, since both rows would share the label.
-\code{stats$stats} keeps both the standalone reference rows and the
-per-covariate copies, told apart by the \code{layout} column.
+\code{stats$stats} keeps both the reference-panel rows and the reference
+copies, told apart by the \code{layout} column.
 Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
-Default is \code{NULL} (the reference renders in
-its own panel at the top).}
+Default is \code{NULL} (the reference renders in the reference panel at the
+top).}
 }
 \value{
 A \code{forest_stats} container (subclass of \code{pmx_stats}) with three
@@ -84,9 +84,9 @@ the row), the character columns \code{est_label}, \code{lo_label}, and
 \code{hi_label} (those values formatted per \code{sigdigits}), \code{ci_label}
 (the three combined for tables, e.g. \code{"1.12 (0.95, 1.32)"}), the
 logical \code{is_ref}, and \code{layout}, the reference layout(s) a row draws
-in: \code{"both"} (covariate rows), \code{"consolidated"} (the standalone
-reference panel), or \code{"distributed"} (the reference copies placed
-in each \code{cov_level_ref} covariate). The \code{cov_name_var} value drives the per-row
+in: \code{"both"} (covariate rows), \code{"consolidated"} (the reference
+panel), or \code{"distributed"} (the reference copies placed in each
+\code{cov_level_ref} covariate). The \code{cov_name_var} value drives the per-row
 facet strip; the \code{cov_level_var} value drives the y-axis tick label;
 \code{\link[=plot_build_forest]{plot_build_forest()}} assembles \code{est_label}, \code{lo_label}, and
 \code{hi_label} into the right-hand secondary y-axis text, so edit those
@@ -112,9 +112,9 @@ columns),
 
 The rows are sorted into the order \code{\link[=plot_build_forest]{plot_build_forest()}} draws them, top
 to bottom; reorder the rows of \code{stats$stats} to change the plotted order.
-Within each metric, the reference row sits in its own panel at the top. When
-\code{cov_level_ref} is supplied, a copy of it is also placed in each named
-covariate panel, and the \code{layout} column records which rows each
+Within each metric, the reference row sits in the reference panel at the
+top. When \code{cov_level_ref} is supplied, a copy of it is also placed in each
+named covariate panel, and the \code{layout} column records which rows each
 reference layout draws, so one container renders either layout (see
 \code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}}) without re-aggregating.
 }
@@ -123,12 +123,12 @@ reference layout draws, so one container renders either layout (see
 Rows of \code{stats$stats} are sorted into display order, top to bottom:
 metrics and covariates follow their factor levels when the input columns
 are factors, otherwise their order of first appearance in \code{data}, with the
-standalone reference covariate moved first. Within a covariate, factor
-levels of \code{cov_level_var} win when they cover every label (including the
-distributed reference label); otherwise, if every label carries a distinct
+reference panel moved first. Within a covariate, factor levels of
+\code{cov_level_var} win when they cover every label (including the
+covariate's reference label); otherwise, if every label carries a distinct
 number, labels sort ascending by it, sign included (\verb{50 kg} above \verb{90 kg});
-any other set puts the reference label on top followed by the data order. The distributed reference rows
-are placed by the same rules, so the covariate rows keep one order in both
+any other set puts the reference label on top followed by the data order.
+The reference copies are placed by the same rules, so the covariate rows keep one order in both
 layouts.
 }
 
@@ -144,8 +144,8 @@ renamed <- dplyr::mutate(
 )
 df_forest(renamed, cov_name_ref = "Typical subject")
 
-# Per-covariate reference labels (Reference distributed into each panel
-# at plot time)
+# Per-covariate reference labels: the reference row is drawn in each
+# covariate panel
 df_forest(
   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")

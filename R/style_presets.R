@@ -258,10 +258,10 @@ style_vpc <- function(...) {
 #' Default [ggstylekit::style_spec()] for [plot_forest()] /
 #' [plot_build_forest()]. Series names are the plot roles: `point` (the
 #' estimate), `errorbar` (the CI line range), `ref_point` (the estimate of a
-#' reference row: the distributed per-covariate reference label or the
-#' standalone reference panel; an open circle by default), `ref_line` (the
-#' vertical reference line drawn at `ref`), and `ref_band` (the shaded
-#' equivalence band drawn at `ref_band`; a `geom_rect` annotation whose `fill`
+#' reference row: a reference copy in a covariate panel or the reference
+#' panel; an open circle by default), `ref_line` (the
+#' vertical reference line drawn at `ref`), and `ref_band` (the equivalence
+#' band drawn at `ref_band`; a `geom_rect` annotation whose `fill`
 #' and `alpha` come from the `fill` / `alphas` maps).
 #'
 #' Per-covariate coloring is opt-in through the same `colors` map: add entries
@@ -272,7 +272,7 @@ style_vpc <- function(...) {
 #' since the facet strips already label each covariate. Covariates without an
 #' entry take colours from the house palette, as for `col_var` in
 #' [plot_dvtime()]. The `point`, `errorbar`, and `ref_point` role colours are
-#' then replaced by the covariate colour; a standalone reference panel keeps
+#' then replaced by the covariate colour; the reference panel keeps
 #' the `ref_point` colour unless `colors` names it. `ref_line` is unaffected.
 #'
 #' The builder draws the covariate row facet itself (`facet_grid(rows =

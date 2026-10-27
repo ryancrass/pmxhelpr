@@ -19,9 +19,9 @@ level_order <- function(x) {
 #'
 #' Returns `stats$stats` (optionally restricted to one metric) filtered to the
 #' requested reference layout through its `layout` column: rows marked
-#' `"both"` always draw, `"consolidated"` rows (the standalone reference
-#' panel) only in that layout, `"distributed"` rows (the per-covariate
-#' reference copies) only in that one.
+#' `"both"` always draw, `"consolidated"` rows (the reference panel) only in
+#' that layout, `"distributed"` rows (the reference copies in each covariate
+#' panel) only in that one.
 #'
 #' @param stats A `forest_stats` object.
 #' @param ref_layout `NULL`, `"distributed"`, or `"consolidated"`. `NULL`
@@ -37,7 +37,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
     rows <- rows[as.character(rows[[stats$config$metric_name_var]]) == metric, , drop = FALSE]
   }
   ## Resolved per metric: a metric whose covariates have no `cov_level_ref`
-  ## entry keeps its standalone reference panel.
+  ## entry keeps its reference panel.
   has_distributed <- any(rows$layout == "distributed")
   if (is.null(ref_layout)) {
     ref_layout <- if (has_distributed) "distributed" else "consolidated"
@@ -71,9 +71,9 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'
 #' The rows are sorted into the order [plot_build_forest()] draws them, top
 #' to bottom; reorder the rows of `stats$stats` to change the plotted order.
-#' Within each metric, the reference row sits in its own panel at the top. When
-#' `cov_level_ref` is supplied, a copy of it is also placed in each named
-#' covariate panel, and the `layout` column records which rows each
+#' Within each metric, the reference row sits in the reference panel at the
+#' top. When `cov_level_ref` is supplied, a copy of it is also placed in each
+#' named covariate panel, and the `layout` column records which rows each
 #' reference layout draws, so one container renders either layout (see
 #' `ref_layout` in [plot_build_forest()]) without re-aggregating.
 #'
@@ -100,7 +100,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
 #'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
 #'    Reference rows are flagged `is_ref`, draw through the `ref_point` style
-#'    role, and sort to the top of each metric's rows (standalone panel). With
+#'    role, and sort to the top of each metric's rows (the reference panel). With
 #'    `cov_level_ref`, a copy is also placed in each covariate panel, and
 #'    `ref_layout` in [plot_build_forest()] / [plot_forest()] chooses which
 #'    copies are drawn. `NULL` marks no row as the reference.
@@ -108,31 +108,31 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    which is the numeric value of the x-intercept for the vertical reference line.
 #' @param cov_level_ref Optional named vector mapping `cov_name_var`
 #'    values to the per-covariate reference label (e.g.
-#'    `c(FOOD = "Fasted", WTBL = "70 kg")`). Enables the distributed
-#'    reference layout and makes it the default in [plot_build_forest()] /
-#'    [plot_forest()]: the reference row of each metric is drawn in every
-#'    named covariate that is present in `data`, under that label, in place
-#'    of the standalone reference panel (`ref_layout = "consolidated"` draws
-#'    the standalone panel instead). Covariates not named show no reference
+#'    `c(FOOD = "Fasted", WTBL = "70 kg")`). Enables the reference row in
+#'    each covariate panel (`ref_layout = "distributed"`) and makes it the
+#'    default in [plot_build_forest()] / [plot_forest()]: the reference row of
+#'    each metric is drawn in every named covariate that is present in
+#'    `data`, under that label, in place of the reference panel
+#'    (`ref_layout = "consolidated"` draws the reference panel instead). Covariates not named show no reference
 #'    row. Names not found in `cov_name_var`, or naming the reference row
 #'    itself, are ignored with a warning; a label matching an existing level
 #'    of that covariate also warns, since both rows would share the label.
-#'    `stats$stats` keeps both the standalone reference rows and the
-#'    per-covariate copies, told apart by the `layout` column.
+#'    `stats$stats` keeps both the reference-panel rows and the reference
+#'    copies, told apart by the `layout` column.
 #'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
-#'    Default is `NULL` (the reference renders in
-#'    its own panel at the top).
+#'    Default is `NULL` (the reference renders in the reference panel at the
+#'    top).
 #'
 #' @section Row order:
 #' Rows of `stats$stats` are sorted into display order, top to bottom:
 #' metrics and covariates follow their factor levels when the input columns
 #' are factors, otherwise their order of first appearance in `data`, with the
-#' standalone reference covariate moved first. Within a covariate, factor
-#' levels of `cov_level_var` win when they cover every label (including the
-#' distributed reference label); otherwise, if every label carries a distinct
+#' reference panel moved first. Within a covariate, factor levels of
+#' `cov_level_var` win when they cover every label (including the
+#' covariate's reference label); otherwise, if every label carries a distinct
 #' number, labels sort ascending by it, sign included (`50 kg` above `90 kg`);
-#' any other set puts the reference label on top followed by the data order. The distributed reference rows
-#' are placed by the same rules, so the covariate rows keep one order in both
+#' any other set puts the reference label on top followed by the data order.
+#' The reference copies are placed by the same rules, so the covariate rows keep one order in both
 #' layouts.
 #'
 #' @family forest plot
@@ -148,9 +148,9 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'        `hi_label` (those values formatted per `sigdigits`), `ci_label`
 #'        (the three combined for tables, e.g. `"1.12 (0.95, 1.32)"`), the
 #'        logical `is_ref`, and `layout`, the reference layout(s) a row draws
-#'        in: `"both"` (covariate rows), `"consolidated"` (the standalone
-#'        reference panel), or `"distributed"` (the reference copies placed
-#'        in each `cov_level_ref` covariate). The `cov_name_var` value drives the per-row
+#'        in: `"both"` (covariate rows), `"consolidated"` (the reference
+#'        panel), or `"distributed"` (the reference copies placed in each
+#'        `cov_level_ref` covariate). The `cov_name_var` value drives the per-row
 #'        facet strip; the `cov_level_var` value drives the y-axis tick label;
 #'        [plot_build_forest()] assembles `est_label`, `lo_label`, and
 #'        `hi_label` into the right-hand secondary y-axis text, so edit those
@@ -174,8 +174,8 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #' )
 #' df_forest(renamed, cov_name_ref = "Typical subject")
 #'
-#' # Per-covariate reference labels (Reference distributed into each panel
-#' # at plot time)
+#' # Per-covariate reference labels: the reference row is drawn in each
+#' # covariate panel
 #' df_forest(
 #'   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
 #'   cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
@@ -256,8 +256,8 @@ df_forest <- function(
     as.data.frame()
   for (v in grp_vars) stats[[v]] <- as.character(stats[[v]])
 
-  ## Reference rows match `cov_name_ref` and form the standalone reference
-  ## panel, drawn only in the consolidated layout. With `cov_level_ref`, a
+  ## Reference rows match `cov_name_ref` and form the reference panel, drawn
+  ## only in the consolidated layout. With `cov_level_ref`, a
   ## copy of each metric's reference row is added to every named covariate
   ## that metric has, under that covariate's reference label, drawn only in
   ## the distributed layout. All other rows draw in both.
@@ -449,12 +449,12 @@ validate_forest_stats <- function(x) {
 #' The `layout` column selects the rows for the chosen reference layout (see
 #' `ref_layout`).
 #'
-#' Rows flagged `is_ref` (the distributed per-covariate reference label, or the
-#' standalone `cov_name_ref` panel) draw through the `ref_point` style role
+#' Rows flagged `is_ref` (the reference copies in each covariate panel, or the
+#' reference panel) draw through the `ref_point` style role
 #' (an open circle by default) and show the point estimate alone in the
 #' estimate column, since their CI collapses onto the estimate. A row whose
-#' level label repeats its covariate name (the standalone reference panel)
-#' gets an empty tick label, since the strip already carries the name.
+#' level label repeats its covariate name (the reference panel) has no
+#' left-axis tick or label, since the strip already carries the name.
 #'
 #' Returns a plain `ggplot` object so callers can compose additional layers,
 #' themes, and scales with the standard `+` operator.
@@ -493,11 +493,11 @@ validate_forest_stats <- function(x) {
 #'    metric, a warning is issued and no line is drawn. Distinct from
 #'    `cov_name_ref` in [df_forest()], which identifies the reference row.
 #' @param ref_band Length-2 increasing numeric vector (`ref_band[1] <
-#'    ref_band[2]`) giving the shaded equivalence interval, read according to
-#'    `ref_band_type`. Default `NULL` (no shaded band).
+#'    ref_band[2]`) giving the equivalence band, read according to
+#'    `ref_band_type`. Default `NULL` (no band).
 #' @param ref_band_type How `ref_band` is placed around the resolved `ref`:
 #'    `"multiplicative"` (default) draws `ref * ref_band`, so `c(0.8, 1.25)`
-#'    is the bioequivalence band on a ratio or a raw exposure scale;
+#'    gives the bioequivalence bounds on a ratio or a raw exposure scale;
 #'    `"additive"` draws `ref + ref_band`, so `c(-10, 10)` brackets a
 #'    reference change of zero for a difference metric such as percent
 #'    change from baseline; `"absolute"` draws `ref_band` as given. The
@@ -506,8 +506,8 @@ validate_forest_stats <- function(x) {
 #' @param ref_layout Where the reference row is drawn: `"distributed"`
 #'    draws it in each covariate panel named in the container's
 #'    `cov_level_ref`, under that covariate's reference label (the rows with
-#'    `layout = "distributed"`); `"consolidated"` draws it in its own panel
-#'    at the top (`layout = "consolidated"`). Rows with `layout = "both"`
+#'    `layout = "distributed"`); `"consolidated"` draws it in the reference
+#'    panel at the top (`layout = "consolidated"`). Rows with `layout = "both"`
 #'    draw in either. `NULL` (default) uses `"distributed"` when
 #'    [df_forest()] was given a `cov_level_ref` entry for a covariate of
 #'    `metric`, otherwise `"consolidated"`. `"distributed"` without one is an
@@ -529,7 +529,7 @@ validate_forest_stats <- function(x) {
 #'   `ci_label` (character; their combined form);
 #' * `is_ref` (logical, no `NA`; the reference rows);
 #' * `layout`: `"both"` for covariate rows, `"consolidated"` for a
-#'   standalone reference row, `"distributed"` for a reference copy inside a
+#'   reference-panel row, `"distributed"` for a reference copy inside a
 #'   covariate panel;
 #' * optionally `n` (integer draw count), needed only for `show_rep`.
 #'
@@ -548,7 +548,7 @@ validate_forest_stats <- function(x) {
 #' )
 #' plot_build_forest(stats, metric = "AUCRATIO")
 #' plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))
-#' # The same stats with the reference in its own panel
+#' # The same stats with the reference panel
 #' plot_build_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 #' # Raw exposure: the line sits at the reference exposure and the band is
 #' # 0.8 to 1.25 times it
@@ -660,7 +660,7 @@ plot_build_forest <- function(
   ## Per-covariate coloring: a palette `function(n)` in `colors`, or entries
   ## keyed by a covariate name present in the plotted data, switch
   ## point/errorbar color to a covariate mapping. Only covariates with test
-  ## rows are colored, so a standalone reference panel takes no palette slot
+  ## rows are colored, so the reference panel takes no palette slot
   ## and colors match across `ref_layout`. A palette is resolved to named
   ## covariate entries here so the fill map below can reuse them; a palette
   ## returning fewer than n colors is recycled.
@@ -678,7 +678,7 @@ plot_build_forest <- function(
     plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
   }
   has_panel_color <- any(color_levels %in% names(plotstyle$colors))
-  ## A reference-only panel (the consolidated Reference) keeps the `ref_point`
+  ## The reference panel keeps the `ref_point`
   ## role colour unless `colors` names it.
   ref_only <- setdiff(unique(as.character(ref_data[[cov_name_var_str]])), color_levels)
   ref_only <- setdiff(ref_only, names(plotstyle$colors))
@@ -781,7 +781,7 @@ plot_build_forest <- function(
 
   ## Left axis: the covariate level labels, dropped (label and tick) where the
   ## level repeats the covariate name (the strip already says it, e.g. a
-  ## standalone Reference panel). Right axis: the estimate column (reference rows show
+  ## reference panel). Right axis: the estimate column (reference rows show
   ## the estimate alone), under a header ("Estimate (90% CI)") drawn as the
   ## right-aligned plot subtitle, the row directly above the panels (a
   ## secondary-axis *title* would land beside the labels instead).
@@ -885,7 +885,7 @@ plot_build_forest <- function(
 #' plot_forest(stats, metric = "AUCRATIO")
 #' plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))
 #'
-#' # Same stats, reference in its own panel instead of each covariate panel
+#' # Same stats, reference panel instead of a reference row in each covariate panel
 #' plot_forest(stats, metric = "AUCRATIO", ref_layout = "consolidated")
 #'
 #' # Raw exposure from the same stats: reference line at the reference

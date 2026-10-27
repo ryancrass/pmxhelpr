@@ -28,8 +28,8 @@
 #' absolute-exposure intervals.
 #'
 #' Reference rows carry `cov_name_ref` as both their covariate name and their
-#' covariate level, so [df_forest()] renders them as a standalone reference
-#' panel by default. To place the reference inside each covariate panel
+#' covariate level, so [df_forest()] renders them as the reference panel by
+#' default. To place the reference inside each covariate panel
 #' instead, pass the per-covariate reference labels to [df_forest()] as
 #' `cov_level_ref`; the mapping is returned on the `"cov_level_ref"`
 #' attribute of the output and is not read automatically, since that would
@@ -108,7 +108,7 @@
 #' # Feed straight into the forest pipeline
 #' df_forest(draws)
 #'
-#' # ... or distribute the reference into each covariate panel
+#' # ... or draw the reference row in each covariate panel
 #' df_forest(draws, cov_level_ref = attr(draws, "cov_level_ref"))
 #'
 #' # Absolute metrics only

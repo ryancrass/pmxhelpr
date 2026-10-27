@@ -46,10 +46,10 @@ impact of intrinsic and extrinsic participant factors (i.e., covariates) on
 integrated model outputs (e.g., exposure metrics, response metrics, ratios of 
 exposure or response) under test conditions relative to reference conditions.
 
-The typical workflow involves establishing the "reference" virtual participant
+The typical workflow involves establishing the reference scenario
 (i.e., the vector of covariates at the reference level for each individual 
-covariate) and unique "test" virtual participants differing in only one 
-covariate value from the reference participant. 
+covariate) and test scenarios, each differing in only one covariate value
+from the reference scenario. 
 
 The model is then applied to generate predictions under each scenario with 
 uncertainty and/or variability arising from unique sets of fixed effects model 
@@ -75,8 +75,8 @@ dataset and the internal PK model (`pkmodel`).
 
   + `data_sad_pkforest_sim`: raw exposure metric simulation output for N = 500 
     replicates. Dosing of 200 mg once daily to steady state. Exposure metrics 
-    are summarized to one row per covariate set (M) per replicate (N) resulting
-    in a dataset of length M x N (6 covariate sets * 500 replicates = 3000). 
+    are summarized to one row per scenario (M) per replicate (N) resulting
+    in a dataset of length M x N (6 scenarios * 500 replicates = 3000). 
     Example input dataset for `df_forest_preprocess()`
     
 ```{r data-sim-glimpse}
@@ -84,9 +84,9 @@ glimpse(data_sad_pkforest_sim)
 ```
 
   + `data_sad_pkforest`: pre-processed simulated exposure metrics. Exposure 
-    metrics are gathered from columns into rows, one row per covariate set (M)
+    metrics are gathered from columns into rows, one row per scenario (M)
     per replicate (N) per metric (K), resulting in a dataset of length 
-    M x N x K (6 covariate sets * 500 replicates * 8 metrics = 24000). Example
+    M x N x K (6 scenarios * 500 replicates * 8 metrics = 24000). Example
     output dataset from 
     `df_forest_preprocess` and example input dataset for `df_forest()`. 
 
@@ -95,7 +95,7 @@ glimpse(data_sad_pkforest)
 ```
 
 Relevant variables in these datasets include:
-  + `ID` identifies the unique covariate sets 
+  + `ID` identifies the scenarios 
   (1 = reference, 2 = fed, 3 = 50 kg, 4 = 60 kg, 5 = 80 kg, 6 = 90 kg)
   + `SIM` is the replicate counter 
   + `metric` holds the the exposure metric names, which include both absolute 
@@ -299,8 +299,8 @@ Reference rows are identified by `cov_name_ref`, the value of `cov_name` that
 marks the reference condition. The default `"Reference"` matches the 
 `df_forest_preprocess()` output, but the reference can be called anything, as 
 in the example below. Reference rows are flagged `is_ref = TRUE` in the output, 
-drawn as an open circle, and sorted to the top of each metric (the top of the
-plot in the consolidated layout).
+drawn as an open circle, and sorted to the top of each metric (the reference
+panel at the top of the plot).
 
 ```{r df-forest-ref-name}
 renamed <- simsum %>%
@@ -312,10 +312,10 @@ df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
 ```
 
 `cov_level_ref` is a named vector mapping each covariate to the reference level
-of that covariate. When supplied, the plot distributes the reference row into
-each named covariate panel under that label in place of the standalone
-reference panel, so every panel shows the reference alongside the varied levels.
-`$stats` then holds both: the standalone reference rows (`layout = 
+of that covariate. When supplied, the plot draws the reference row in each
+named covariate panel under that label in place of the reference panel, so
+every panel shows the reference alongside the varied levels.
+`$stats` then holds both: the reference-panel rows (`layout = 
 "consolidated"`) and a copy of them in each named covariate panel at its sorted
 position (`layout = "distributed"`). Covariate rows are drawn in either layout
 (`layout = "both"`).
@@ -339,7 +339,7 @@ data rather than alphanumerically:
   
   + Covariate levels within a covariate follow the factor levels of the
   `cov_level_var` column when those levels cover every label, including a
-  distributed reference label. Otherwise, if every label carries a distinct
+  covariate's reference label. Otherwise, if every label carries a distinct
   number, labels sort ascending by it (`50 kg` above `90 kg`, `-20%` above
   `-5%`). Any other set keeps the reference label on top, then data order.
 
@@ -384,10 +384,10 @@ plot_forest(simsum, metric = "AUCRATIO")
 The vertical reference line defaults to `ref = "reference"`. Pass a number to 
 place it elsewhere, or `NULL` to suppress it.
 
-## The reference band
+## The equivalence band
 
 `ref_band` is a numeric vector of length 2 specifying the bounds of a shaded
-reference interval. Its two values are read according to `ref_band_type`:
+equivalence band. Its two values are read according to `ref_band_type`:
 
   + `"multiplicative"` (default): the band is `ref * ref_band`
   + `"additive"`: the band is `ref + ref_band`
@@ -406,7 +406,7 @@ plot_forest(simsum, metric = "AUCRATIO",
 ## Absolute exposure metrics
 
 The same call works for an absolute metric. The reference line resolves to the
-reference virtual participant's exposure, and a multiplicative band of
+reference scenario's exposure, and a multiplicative band of
 `c(0.8, 1.25)` scales with it, so the plot reads the same way as the ratio plot
 but on the exposure scale. The intervals are wider than for the ratio.
 
@@ -468,8 +468,8 @@ plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
 ```
 
 The reference layout can also be switched on precomputed stats. `forest_obj`
-was computed with `cov_level_ref`, so the reference is distributed into each
-covariate panel by default; `ref_layout = "consolidated"` draws it in its own
+was computed with `cov_level_ref`, so the reference row is drawn in each
+covariate panel by default; `ref_layout = "consolidated"` draws the reference
 panel instead, with no re-aggregation.
 
 ```{r plot-ref-layout, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}

@@ -100,6 +100,11 @@
   missing `doseprop_stats` columns.
 * `print()` and `summary()` of a `vpc_stats` object no longer drop the
   `config:` line when `strat_var` or `loq` is `NULL`; it shows `NULL`.
+* `df_mrgsim_addpred()` passes `...` to `mrgsolve::mrgsim_df()` as
+  documented. It previously passed them to `mrgsolve::zero_re()`, so any
+  extra argument left the random effects in and `PRED` was stochastic. A
+  `carry_out` in `...` is merged with `output_var`, and arguments that change
+  the number of rows (e.g. `obsonly`) now abort.
 
 # pmxhelpr 0.6.0
 

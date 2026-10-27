@@ -14,7 +14,10 @@ df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
 \item{output_var}{Name of output from \code{model} to be captured as \code{PRED}
 after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}. Accepts bare names or strings. Default is \code{IPRED}.}
 
-\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}.}
+\item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}. A
+\code{carry_out} is merged with \code{output_var}. Arguments that change the
+number of output rows (e.g. \code{obsonly}) are an error, since \code{PRED} is
+matched to \code{data} by row.}
 }
 \value{
 A data.frame with the same number of rows as \code{data} and on additional

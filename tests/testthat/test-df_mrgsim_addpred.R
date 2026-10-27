@@ -60,3 +60,34 @@ test_that("df_mrgsim_addpred errors on zero-row data", {
     regexp = "must have at least one row"
   )
 })
+
+##Test `...` forwarding
+test_that("arguments in `...` reach mrgsim_df() and leave PRED deterministic", {
+  model <- model_mread_load(model = "pkmodel")
+  data <- dplyr::filter(data_sad, CMT != 3)
+  base <- df_mrgsim_addpred(data, model)
+  set.seed(1)
+  d1 <- df_mrgsim_addpred(data, model, recover = "USUBJID")
+  set.seed(2)
+  d2 <- df_mrgsim_addpred(data, model, recover = "USUBJID")
+  expect_equal(d1$PRED, base$PRED)
+  expect_equal(d2$PRED, base$PRED)
+  # PRED is the simulation with every random effect zeroed
+  ref <- mrgsolve::mrgsim_df(mrgsolve::zero_re(model), data = data, carry_out = "IPRED")
+  expect_equal(base$PRED, ref$IPRED)
+})
+
+test_that("a `carry_out` in `...` is merged with `output_var`", {
+  model <- model_mread_load(model = "pkmodel")
+  data <- dplyr::filter(data_sad, CMT != 3)
+  expect_equal(df_mrgsim_addpred(data, model, carry_out = "DOSE")$PRED,
+               df_mrgsim_addpred(data, model)$PRED)
+})
+
+test_that("arguments in `...` that change the row count abort", {
+  expect_error(
+    df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model_mread_load("pkmodel"),
+                      obsonly = TRUE),
+    regexp = "needs one output row per input row"
+  )
+})

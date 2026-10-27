@@ -58,28 +58,16 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #' Compute Summary Statistics for Covariate Forest Plots
 #'
 #' @description
-#' Aggregates a dataset with replicate level data into a cacheable, replottable
-#' container suitable for a covariate forest plots. Returns a [pmx_stats()]
-#' container with class `c("forest_stats", "pmx_stats")` and three slots:
-#'
-#'   + `stats` (plot-ready frame: one row per plotted point, in display order,
-#'      with canonical `est`, `lo`, `hi`, the formatted `est_label`,
-#'      `lo_label`, `hi_label`, and `ci_label`, and `is_ref` and `layout`
-#'      columns),
-#'   + `obs` (always `NULL`; no scatter overlay),
-#'   + `config` (column names + CI configuration)
-#'
-#' The rows are sorted into the order [plot_build_forest()] draws them, top
-#' to bottom; reorder the rows of `stats$stats` to change the plotted order.
-#' Within each metric, the reference row sits in the reference panel at the
-#' top. When `cov_level_ref` is supplied, a copy of it is also placed in each
-#' named covariate panel, and the `layout` column records which rows each
-#' reference layout draws, so one container renders either layout (see
-#' `ref_layout` in [plot_build_forest()]) without re-aggregating.
+#' Summarizes replicate draws for each metric and covariate level into a
+#' median and a `ci` percentile interval, with formatted labels, and returns
+#' a `forest_stats` object for [plot_forest()] / [plot_build_forest()]. Rows
+#' are in plot order, top to bottom; reorder `stats$stats` to change it. One
+#' object draws either reference layout (see `ref_layout` in
+#' [plot_build_forest()]) without re-aggregating.
 #'
 #' @param data Input data.frame. Replicate level long format dataset: one row
 #'    per metric, covariate, covariate level, and replicate.
-#' @param metric_name_var Column in `data` contain metric variable names.
+#' @param metric_name_var Column in `data` containing metric names.
 #'    Accepts bare names or strings. Default is `metric`.
 #' @param metric_value_var Column in `data` containing replicate draws of the
 #'    test/reference comparison statistic.
@@ -96,32 +84,24 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
 #'    which fixes one count of decimal places for every value of that metric
 #'    (`"1.00"`, `"0.95"`, `"2.32"` for a ratio; `"12500"`, `"9500"` for an
 #'    exposure near 12500). Trailing zeros are kept. Default `3`.
-#' @param cov_name_ref Character string identifying the reference row(s) in the
-#'    `cov_name_var` column. Default is `"Reference"` (matches the bundled
-#'    `data_sad_pkforest` convention and the [df_forest_preprocess()] output).
-#'    Reference rows are flagged `is_ref`, draw through the `ref_point` style
-#'    role, and sort to the top of each metric's rows (the reference panel). With
-#'    `cov_level_ref`, a copy is also placed in each covariate panel, and
-#'    `ref_layout` in [plot_build_forest()] / [plot_forest()] chooses which
-#'    copies are drawn. `NULL` marks no row as the reference.
-#'    Not to be confused with `ref` in [plot_build_forest()] / [plot_forest()],
-#'    which is the numeric value of the x-intercept for the vertical reference line.
-#' @param cov_level_ref Optional named vector mapping `cov_name_var`
-#'    values to the per-covariate reference label (e.g.
-#'    `c(FOOD = "Fasted", WTBL = "70 kg")`). Enables the reference row in
-#'    each covariate panel (`ref_layout = "distributed"`) and makes it the
-#'    default in [plot_build_forest()] / [plot_forest()]: the reference row of
-#'    each metric is drawn in every named covariate that is present in
-#'    `data`, under that label, in place of the reference panel
-#'    (`ref_layout = "consolidated"` draws the reference panel instead). Covariates not named show no reference
-#'    row. Names not found in `cov_name_var`, or naming the reference row
-#'    itself, are ignored with a warning; a label matching an existing level
-#'    of that covariate also warns, since both rows would share the label.
-#'    `stats$stats` keeps both the reference-panel rows and the reference
-#'    copies, told apart by the `layout` column.
-#'    Requires a reference row, identified by a non-`NULL` `cov_name_ref`.
-#'    Default is `NULL` (the reference renders in the reference panel at the
-#'    top).
+#' @param cov_name_ref The value of `cov_name_var` that marks the reference
+#'    rows, drawn in the reference panel at the top. Default `"Reference"`,
+#'    as in [df_forest_preprocess()] output; `NULL` for no reference row.
+#' @param cov_level_ref Optional named vector of per-covariate reference
+#'    labels, e.g. `c(FOOD = "Fasted", WTBL = "70 kg")`. When given, the
+#'    reference row is also drawn inside each named covariate panel under
+#'    that label, and this becomes the default `ref_layout`. Unnamed
+#'    covariates show no reference row. Requires `cov_name_ref`. Default
+#'    `NULL` (reference panel only).
+#'
+#' @section Reference rows:
+#' Reference rows are flagged `is_ref` and drawn through the `ref_point` style
+#' role. With `cov_level_ref`, `stats$stats` holds both the reference-panel
+#' rows and a copy in each named covariate panel, told apart by the `layout`
+#' column. `cov_level_ref` names not found in `cov_name_var`, or naming the
+#' reference itself, are ignored with a warning; a label equal to an
+#' existing level of that covariate also warns, since both rows would share
+#' it.
 #'
 #' @section Row order:
 #' Rows of `stats$stats` are sorted into display order, top to bottom:
@@ -474,24 +454,16 @@ validate_forest_stats <- function(x) {
 #'    (default) and `stats$stats` contains exactly one unique value of
 #'    `metric_name_var`, that value is used. If `NULL` and multiple metrics
 #'    are present, aborts and asks the caller to pick one.
-#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
-#'    Defaults to [style_forest()]; view the defaults by running
-#'    `style_forest()` with no arguments. Customize by passing
-#'    `style = style_forest(...)`, use [style_forest_pmforest()],
-#'    [style_forest_coveffectsplot()], [style_forest_pmxforest()], or [style_forest_pumas()] for
-#'    the looks of the `pmforest`, `coveffectsplot`, and `PMXForest` packages
-#'    and of `table_forest_plot()` from the Pumas ecosystem. Series roles are `point`, `errorbar`,
-#'    `ref_point`, `ref_line`, and `ref_band`; `colors` entries keyed by
-#'    covariate name opt into per-covariate coloring (see [style_forest()]).
-#'    The estimate column is axis text styled through the theme's
-#'    `axis.text.y.right` element; its header is the subtitle (`plot.subtitle`).
+#' @param style A [ggstylekit::style_spec()]; default [style_forest()], which
+#'    documents the roles, per-covariate coloring, and theme elements.
+#'    Alternatives: [style_forest_pmforest()], [style_forest_coveffectsplot()],
+#'    [style_forest_pmxforest()], [style_forest_pumas()].
 #' @param ref The x-intercept of the vertical reference line: a numeric
 #'    scalar, `NULL` to suppress the line, or `"reference"` (default) to use
 #'    the estimate of the metric's reference row (the row flagged `is_ref`;
 #'    exactly `1` for a ratio metric, the reference exposure for a raw
 #'    metric). With `"reference"` and no reference row in the plotted
-#'    metric, a warning is issued and no line is drawn. Distinct from
-#'    `cov_name_ref` in [df_forest()], which identifies the reference row.
+#'    metric, a warning is issued and no line is drawn.
 #' @param ref_band Length-2 increasing numeric vector (`ref_band[1] <
 #'    ref_band[2]`) giving the equivalence band, read according to
 #'    `ref_band_type`. Default `NULL` (no band).
@@ -503,16 +475,11 @@ validate_forest_stats <- function(x) {
 #'    change from baseline; `"absolute"` draws `ref_band` as given. The
 #'    first two require a resolved `ref`; multiplicative limits must be
 #'    positive.
-#' @param ref_layout Where the reference row is drawn: `"distributed"`
-#'    draws it in each covariate panel named in the container's
-#'    `cov_level_ref`, under that covariate's reference label (the rows with
-#'    `layout = "distributed"`); `"consolidated"` draws it in the reference
-#'    panel at the top (`layout = "consolidated"`). Rows with `layout = "both"`
-#'    draw in either. `NULL` (default) uses `"distributed"` when
-#'    [df_forest()] was given a `cov_level_ref` entry for a covariate of
-#'    `metric`, otherwise `"consolidated"`. `"distributed"` without one is an
-#'    error. The summary
-#'    statistics are not recomputed; only the drawn rows change.
+#' @param ref_layout `"distributed"` draws the reference row inside each
+#'    covariate panel named in `cov_level_ref`; `"consolidated"` draws it once
+#'    in the reference panel at the top. Default `NULL`: distributed if
+#'    [df_forest()] was given `cov_level_ref` for a covariate of `metric`,
+#'    else consolidated.
 #' @param show_rep Logical. Display the number of replicates (the `n`
 #'    column of the plotted rows) as a plot caption. Warns, and shows the
 #'    range, when rows of the metric have different counts. Default `FALSE`.

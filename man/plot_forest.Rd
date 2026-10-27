@@ -34,7 +34,7 @@ facet); the covariate name is the only facet dimension. If \code{NULL}
 \code{metric_name_var}, that value is used. If \code{NULL} and multiple metrics
 are present, aborts and asks the caller to pick one.}
 
-\item{metric_name_var}{Column in \code{data} contain metric variable names.
+\item{metric_name_var}{Column in \code{data} containing metric names.
 Accepts bare names or strings. Default is \code{metric}.}
 
 \item{metric_value_var}{Column in \code{data} containing replicate draws of the
@@ -57,41 +57,23 @@ which fixes one count of decimal places for every value of that metric
 (\code{"1.00"}, \code{"0.95"}, \code{"2.32"} for a ratio; \code{"12500"}, \code{"9500"} for an
 exposure near 12500). Trailing zeros are kept. Default \code{3}.}
 
-\item{cov_name_ref}{Character string identifying the reference row(s) in the
-\code{cov_name_var} column. Default is \code{"Reference"} (matches the bundled
-\code{data_sad_pkforest} convention and the \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output).
-Reference rows are flagged \code{is_ref}, draw through the \code{ref_point} style
-role, and sort to the top of each metric's rows (the reference panel). With
-\code{cov_level_ref}, a copy is also placed in each covariate panel, and
-\code{ref_layout} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}} chooses which
-copies are drawn. \code{NULL} marks no row as the reference.
-Not to be confused with \code{ref} in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}},
-which is the numeric value of the x-intercept for the vertical reference line.}
+\item{cov_name_ref}{The value of \code{cov_name_var} that marks the reference
+rows, drawn in the reference panel at the top. Default \code{"Reference"},
+as in \code{\link[=df_forest_preprocess]{df_forest_preprocess()}} output; \code{NULL} for no reference row.}
 
-\item{cov_level_ref}{Optional named vector mapping \code{cov_name_var}
-values to the per-covariate reference label (e.g.
-\code{c(FOOD = "Fasted", WTBL = "70 kg")}). Enables the reference row in
-each covariate panel (\code{ref_layout = "distributed"}) and makes it the
-default in \code{\link[=plot_build_forest]{plot_build_forest()}} / \code{\link[=plot_forest]{plot_forest()}}: the reference row of
-each metric is drawn in every named covariate that is present in
-\code{data}, under that label, in place of the reference panel
-(\code{ref_layout = "consolidated"} draws the reference panel instead). Covariates not named show no reference
-row. Names not found in \code{cov_name_var}, or naming the reference row
-itself, are ignored with a warning; a label matching an existing level
-of that covariate also warns, since both rows would share the label.
-\code{stats$stats} keeps both the reference-panel rows and the reference
-copies, told apart by the \code{layout} column.
-Requires a reference row, identified by a non-\code{NULL} \code{cov_name_ref}.
-Default is \code{NULL} (the reference renders in the reference panel at the
-top).}
+\item{cov_level_ref}{Optional named vector of per-covariate reference
+labels, e.g. \code{c(FOOD = "Fasted", WTBL = "70 kg")}. When given, the
+reference row is also drawn inside each named covariate panel under
+that label, and this becomes the default \code{ref_layout}. Unnamed
+covariates show no reference row. Requires \code{cov_name_ref}. Default
+\code{NULL} (reference panel only).}
 
 \item{ref}{The x-intercept of the vertical reference line: a numeric
 scalar, \code{NULL} to suppress the line, or \code{"reference"} (default) to use
 the estimate of the metric's reference row (the row flagged \code{is_ref};
 exactly \code{1} for a ratio metric, the reference exposure for a raw
 metric). With \code{"reference"} and no reference row in the plotted
-metric, a warning is issued and no line is drawn. Distinct from
-\code{cov_name_ref} in \code{\link[=df_forest]{df_forest()}}, which identifies the reference row.}
+metric, a warning is issued and no line is drawn.}
 
 \item{ref_band}{Length-2 increasing numeric vector (\code{ref_band[1] < ref_band[2]}) giving the equivalence band, read according to
 \code{ref_band_type}. Default \code{NULL} (no band).}
@@ -105,33 +87,21 @@ change from baseline; \code{"absolute"} draws \code{ref_band} as given. The
 first two require a resolved \code{ref}; multiplicative limits must be
 positive.}
 
-\item{ref_layout}{Where the reference row is drawn: \code{"distributed"}
-draws it in each covariate panel named in the container's
-\code{cov_level_ref}, under that covariate's reference label (the rows with
-\code{layout = "distributed"}); \code{"consolidated"} draws it in the reference
-panel at the top (\code{layout = "consolidated"}). Rows with \code{layout = "both"}
-draw in either. \code{NULL} (default) uses \code{"distributed"} when
-\code{\link[=df_forest]{df_forest()}} was given a \code{cov_level_ref} entry for a covariate of
-\code{metric}, otherwise \code{"consolidated"}. \code{"distributed"} without one is an
-error. The summary
-statistics are not recomputed; only the drawn rows change.}
+\item{ref_layout}{\code{"distributed"} draws the reference row inside each
+covariate panel named in \code{cov_level_ref}; \code{"consolidated"} draws it once
+in the reference panel at the top. Default \code{NULL}: distributed if
+\code{\link[=df_forest]{df_forest()}} was given \code{cov_level_ref} for a covariate of \code{metric},
+else consolidated.}
 
 \item{show_rep}{Logical. Display the number of replicates (the \code{n}
 column of the plotted rows) as a plot caption. Warns, and shows the
 range, when rows of the metric have different counts. Default \code{FALSE}.
 A \code{caption} set in the style is drawn instead, whatever this value.}
 
-\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling plot aesthetics.
-Defaults to \code{\link[=style_forest]{style_forest()}}; view the defaults by running
-\code{style_forest()} with no arguments. Customize by passing
-\code{style = style_forest(...)}, use \code{\link[=style_forest_pmforest]{style_forest_pmforest()}},
-\code{\link[=style_forest_coveffectsplot]{style_forest_coveffectsplot()}}, \code{\link[=style_forest_pmxforest]{style_forest_pmxforest()}}, or \code{\link[=style_forest_pumas]{style_forest_pumas()}} for
-the looks of the \code{pmforest}, \code{coveffectsplot}, and \code{PMXForest} packages
-and of \code{table_forest_plot()} from the Pumas ecosystem. Series roles are \code{point}, \code{errorbar},
-\code{ref_point}, \code{ref_line}, and \code{ref_band}; \code{colors} entries keyed by
-covariate name opt into per-covariate coloring (see \code{\link[=style_forest]{style_forest()}}).
-The estimate column is axis text styled through the theme's
-\code{axis.text.y.right} element; its header is the subtitle (\code{plot.subtitle}).}
+\item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}; default \code{\link[=style_forest]{style_forest()}}, which
+documents the roles, per-covariate coloring, and theme elements.
+Alternatives: \code{\link[=style_forest_pmforest]{style_forest_pmforest()}}, \code{\link[=style_forest_coveffectsplot]{style_forest_coveffectsplot()}},
+\code{\link[=style_forest_pmxforest]{style_forest_pmxforest()}}, \code{\link[=style_forest_pumas]{style_forest_pumas()}}.}
 }
 \value{
 a \code{ggplot} plot object

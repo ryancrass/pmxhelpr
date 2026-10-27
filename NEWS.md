@@ -44,6 +44,9 @@
 * `plot_dvtime()` and `plot_dvconc()` gain `show_obs` to omit the observed
   point layer. Unlike `alphas = c(obs_point = 0)`, hidden points no longer
   affect the axis limits.
+* `plot_vpc_shown()` gains `loq_line` (default `TRUE`); `FALSE` hides the
+  LLOQ reference line on standard VPCs, including one inherited from an
+  `LLOQ` column, and its `plot_vpc_legend()` entry.
 * `plot_vpc_legend()`, `plot_dvtime()`, and `plot_gof()` gain
   `show_loq_value`. Set `show_loq_value = FALSE` to label the LLOQ linetype
   as a single `"LLOQ"` legend entry without its value.

@@ -24,7 +24,8 @@
 #'
 #'    The LLOQ line (`loq_line` role) is drawn at each unique LLOQ on standard
 #'    VPCs only, since the LLOQ has no meaning on the prediction-corrected
-#'    scale. The observed points show `MDV == 0` rows only.
+#'    scale; hide it with `shown = plot_vpc_shown(loq_line = FALSE)`. The
+#'    observed points show `MDV == 0` rows only.
 #' @param min_bin_count Minimum number of quantifiable observations
 #'    (`obs_n - obs_n_blq` in the summary statistics frame) per exact bin
 #'    required for inclusion in binned plot layers. BLQ-encoded records

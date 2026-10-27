@@ -89,6 +89,7 @@ plot_vpc_legend <- function(ci = 0.90,
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
+  if (!isTRUE(nlist$loq_line)) loq <- NULL
 
   ## Cens invariant: no prediction intervals on a cens VPC, so the four
   ## *_pi_* keys are forced off regardless of the user's `shown`. This

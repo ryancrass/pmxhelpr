@@ -294,7 +294,7 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
 
   ## LOQ ref line: LOQ is meaningless on the pc scale (loq forced NULL
   ## above when pcvpc).
-  if (!is.null(loq)) {
+  if (!is.null(loq) && isTRUE(shown$loq_line)) {
     if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
       loq_facet_df <- unique(
         compute_out$obs[!is.na(compute_out$obs$LOQ),

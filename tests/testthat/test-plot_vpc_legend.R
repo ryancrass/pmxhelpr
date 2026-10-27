@@ -233,3 +233,9 @@ test_that("plot_vpc_legend validates ci and pi", {
   expect_error(plot_vpc_legend(pi = c(0.95, 0.05)), "argument `pi` must be ordered")
   expect_error(plot_vpc_legend(pi = c(5, 95)), "argument `pi` values must be in \\[0, 1\\]")
 })
+
+test_that("shown$loq_line = FALSE drops the LLOQ legend entry", {
+  hidden <- plot_vpc_legend(loq = 1, shown = plot_vpc_shown(loq_line = FALSE))
+  expect_false(any(grepl("LLOQ", linetype_breaks(hidden))))
+  expect_true(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(loq = 1)))))
+})

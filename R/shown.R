@@ -38,6 +38,8 @@ plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
 #' @param sim_pi_area Show simulated prediction interval as shaded area. Default is `FALSE`.
 #' @param sim_median_line Show simulated median line. Default is `FALSE`.
 #' @param sim_median_ci Show simulated median CI ribbon. Default is `TRUE`.
+#' @param loq_line Show the LLOQ reference line on standard VPCs, and its
+#'    entry in [plot_vpc_legend()]. Default is `TRUE`.
 #'
 #' @family vpc
 #' @return A named list of logicals
@@ -48,16 +50,18 @@ plot_gof_shown <- function(obs = NULL, dv = NULL, pred = NULL, ipred = NULL) {
 #' plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 plot_vpc_shown <- function(obs_point = NULL, obs_pi_line = NULL, obs_median_line = NULL,
                            sim_pi_line = NULL, sim_pi_ci = NULL, sim_pi_area = NULL,
-                           sim_median_line = NULL, sim_median_ci = NULL) {
+                           sim_median_line = NULL, sim_median_ci = NULL,
+                           loq_line = NULL) {
   defaults <- list(
     obs_point = TRUE, obs_pi_line = TRUE, obs_median_line = TRUE,
     sim_pi_line = FALSE, sim_pi_ci = TRUE, sim_pi_area = FALSE,
-    sim_median_line = FALSE, sim_median_ci = TRUE
+    sim_median_line = FALSE, sim_median_ci = TRUE, loq_line = TRUE
   )
   user <- compact(list(obs_point = obs_point, obs_pi_line = obs_pi_line,
                        obs_median_line = obs_median_line, sim_pi_line = sim_pi_line,
                        sim_pi_ci = sim_pi_ci, sim_pi_area = sim_pi_area,
-                       sim_median_line = sim_median_line, sim_median_ci = sim_median_ci))
+                       sim_median_line = sim_median_line, sim_median_ci = sim_median_ci,
+                       loq_line = loq_line))
   out <- defaults
   for (nm in names(user)) out[[nm]] <- user[[nm]]
   out

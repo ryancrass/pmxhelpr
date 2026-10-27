@@ -12,7 +12,8 @@ plot_vpc_shown(
   sim_pi_ci = NULL,
   sim_pi_area = NULL,
   sim_median_line = NULL,
-  sim_median_ci = NULL
+  sim_median_ci = NULL,
+  loq_line = NULL
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ plot_vpc_shown(
 \item{sim_median_line}{Show simulated median line. Default is \code{FALSE}.}
 
 \item{sim_median_ci}{Show simulated median CI ribbon. Default is \code{TRUE}.}
+
+\item{loq_line}{Show the LLOQ reference line on standard VPCs, and its
+entry in \code{\link[=plot_vpc_legend]{plot_vpc_legend()}}. Default is \code{TRUE}.}
 }
 \value{
 A named list of logicals

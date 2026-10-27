@@ -149,7 +149,10 @@ caption_dvconc <- function(ref, loess, linear, se_loess, se_linear,
     "TRUE.TRUE.FALSE.TRUE"    = "\n LOESS fit and linear fit with 95% CI overlaid"
   )
 
-  key <- paste(loess, linear, se_loess, se_linear, sep = ".")
+  ## A fit's SE flag only counts when that fit is drawn, so every flag
+  ## combination maps onto one of the labels above.
+  key <- paste(loess, linear, isTRUE(se_loess && loess), isTRUE(se_linear && linear),
+               sep = ".")
   fit_lab <- fit_labels[[key]]
 
   trimws(paste(obs_lab, ref_lab, fit_lab), which = "left")

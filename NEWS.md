@@ -112,6 +112,9 @@
 * `df_doseprop()` / `plot_doseprop()` with `method = "tdist"` use the
   regression's residual degrees of freedom (n - 2) instead of n - 1, matching
   `confint()`. Intervals widen slightly, noticeably only for small n.
+* The `plot_dvconc()` caption no longer drops the fit description when the
+  `se_*` flag of a fit that is not drawn is `TRUE` (e.g. `linear = TRUE,
+  loess = FALSE, se_loess = TRUE`).
 
 # pmxhelpr 0.6.0
 

@@ -14,15 +14,16 @@
   + Accepts raw draws or a precomputed `forest_stats` container, so a
     summary can be re-plotted without re-aggregating.
   + `ref_layout` draws the reference row in a reference panel
-    (`"consolidated"`) or in each covariate panel (`"distributed"`), so one
-    `forest_stats` container renders either layout.
+    (`"consolidated"`) or in each covariate panel (`"distributed"`, which
+    needs `cov_level_ref` in `df_forest()`), from one `forest_stats`
+    container.
+  + `show_rep` (default `FALSE`) captions the replicate count.
   + Returns a plain `ggplot` object.
   
-* `df_forest()` summarizes replicate draws into a plot-ready `forest_stats`
-  container (estimate, CI bounds, formatted labels, `is_ref` flag, `layout`) in display
-  order. Reference rows are identified by name (`cov_name_ref`);
-  `cov_level_ref` supplies the per-covariate reference labels under which the
-  reference row is drawn in each covariate panel.
+* `df_forest()` summarizes replicate draws into medians and `ci` percentile
+  intervals with formatted labels, in plot order. `cov_level_ref` also draws
+  the reference row inside each covariate panel under its own label (e.g.
+  `Fasted`, `70 kg`).
 * `df_forest_preprocess()` reshapes wide replicate simulation output (one row
   per scenario per replicate) into the long draws `df_forest()` consumes,
   inferring each scenario's covariate from its difference to the reference
@@ -33,20 +34,10 @@
   `colors` keyed by covariate name, or a palette `function(n)`, color each
   covariate panel; `errorbar_width` (in row heights) draws capped error bars
   instead of uncapped interval lines.
-* `style_forest_pmforest()` is an alternative `plot_forest()` preset reproducing the
-  look of the `pmforest` package: hue-filled diamonds with black
-  outlines, dot-dash reference line, and grey vertical gridlines.
-* `style_forest_coveffectsplot()` is an alternative `plot_forest()` preset
-  reproducing the look of `coveffectsplot::forest_plot()`: blue points on
-  thick blue intervals, dashed reference line, grey gridlines on both axes,
-  and grey-filled covariate strips.
-* `style_forest_pmxforest()` is an alternative `plot_forest()` preset reproducing the
-  look of `PMXForest::forestPlot()`: black points on uncapped
-  black intervals, dotted reference line, and the grey `theme_grey()` panel.
-* `style_forest_pumas()` is an alternative `plot_forest()` preset reproducing the
-  look of Pumas' `table_forest_plot()`: diamonds and capped error bars
-  colored per covariate, dashed reference line, and an open panel without
-  gridlines.
+* `style_forest_pmforest()`, `style_forest_coveffectsplot()`,
+  `style_forest_pmxforest()`, and `style_forest_pumas()` approximate the
+  default looks of pmforest, `coveffectsplot::forest_plot()`,
+  `PMXForest::forestPlot()`, and Pumas' `table_forest_plot()`.
 * `is_forest_stats()` tests for a `forest_stats` object.
 
 ### New arguments

@@ -430,21 +430,15 @@ forest_preprocess <- df_forest_preprocess(
 glimpse(forest_preprocess)
 ```
 
-`df_forest()` aggregates values across replicates into a point estimate and 
-confidence interval for each covariate level, returning a class-tagged 
-`forest_stats` object (a `pmx_stats` subclass that parallels `doseprop_stats`
-and `vpc_stats`). The `stats` slot is the plot-ready frame with one row per 
-forest plot entry in the order drawn top to bottom. Supplying `cov_level_ref`
-draws the `Reference` row in each named covariate panel
-under that label (flagged `is_ref`); the `layout` column of `$stats` records
-which reference rows each layout draws. Reorder the rows of `forest_stats$stats`, or set factor
-levels of `cov_level` in the input dataset to control the plotted order.
+`df_forest()` turns the draws into a median and 90% CI per covariate level.
+`cov_level_ref` also draws the reference row inside each covariate panel 
+(`Fasted`, `70 kg`). Rows plot in the order of `$stats`; reorder it, or set
+factor levels on `cov_level`, to change it.
 
 ```{r forest-stats}
-forest_stats <- df_forest(data_sad_pkforest,
-                          cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
-glimpse(forest_stats)
-glimpse(forest_stats$stats)
+forest_obj <- df_forest(data_sad_pkforest,
+                        cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+forest_obj
 ```
 
 `plot_forest()` is dual-mode plotting function which can accept the raw 
@@ -455,7 +449,7 @@ The two-stage workflow below renders one metric at a time and composes with
 `ggplot2` for axis customization.
 
 ```{r plot-forest-default, fig.width=8, fig.height=4, warning=FALSE, message=FALSE}
-plot_forest(forest_stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
@@ -468,7 +462,7 @@ new_forest_style <- style_forest(
   colors = c(FOOD = "darkgreen", WTBL = "darkblue")
 )
 
-plot_forest(forest_stats, metric = "AUCRATIO",
+plot_forest(forest_obj, metric = "AUCRATIO",
             ref_band = c(0.8, 1.25), style = new_forest_style) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
@@ -477,11 +471,10 @@ open circle through the `ref_point` style role and show the estimate alone in
 the right-hand column.
 
 The reference can instead be drawn in a reference panel at the top with
-`ref_layout = "consolidated"`, from the same precomputed `forest_stats`
-object. Without `cov_level_ref`, the reference panel is always used.
+`ref_layout = "consolidated"`, from the same `forest_obj`. Without `cov_level_ref`, the reference panel is always used.
 
 ```{r plot-forest-reference, fig.width=8, fig.height=4.5, warning=FALSE, message=FALSE}
-plot_forest(forest_stats,
+plot_forest(forest_obj,
             metric = "AUCRATIO", ref_layout = "consolidated",
             ref_band = c(0.8, 1.25), style = new_forest_style) +
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))

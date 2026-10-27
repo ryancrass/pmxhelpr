@@ -392,11 +392,11 @@ library(ggplot2)
 glimpse(data_sad_pkforest)
 
 #Generate the summary dataset using df_forest()
-forest_stats <- df_forest(data_sad_pkforest, 
-                          cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+forest_obj <- df_forest(data_sad_pkforest, 
+                        cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
 
 #Consume the summary dataset to generate the Forest Plot using plot_forest()
-plot_forest(forest_stats, 
+plot_forest(forest_obj, 
             metric = "AUCRATIO",
             ref_band = c(0.8, 1.25)) +
   scale_x_log10(limits = c(0.5, 5), 

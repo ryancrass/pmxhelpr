@@ -528,7 +528,7 @@ single figure.
 
 Pass the **same** style object along with the same `shown`, `ci`, and `pi` as
 the plotting function to generate the corresponding legend. The pcVPC above
-draws no LLOQ line, so the legend has no `lloq` entry.
+draws no LLOQ line, so the legend has no `loq` entry.
 
 ```{r ex-vpc-legend, fig.height=2.5, fig.width=4, message=FALSE, warning=FALSE}
 plot_vpc_legend(style = pcvpc_style)

@@ -14,7 +14,7 @@ plot_dvtime(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
-  show_lloq_value = TRUE,
+  show_loq_value = TRUE,
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   show_obs = TRUE,
   dosenorm = FALSE,
@@ -61,7 +61,7 @@ Options are:
    Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
 }\if{html}{\out{</div>}}}
 
-\item{show_lloq_value}{Logical. If \code{TRUE} (default), the LLOQ line's legend
+\item{show_loq_value}{Logical. If \code{TRUE} (default), the LLOQ line's legend
 entry is titled \code{"LLOQ"} and keyed by its value. If \code{FALSE}, the title is
 dropped and the entry is labeled \code{"LLOQ"} without the value. Applies only
 when the LLOQ line is drawn (\code{loq_method} of \code{1} or \code{2}, \code{dosenorm = FALSE}).}

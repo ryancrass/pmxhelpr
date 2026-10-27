@@ -551,7 +551,7 @@ Each facet renders only the LLOQ(s) applicable to that strat-level: Part 1-SAD s
 `plot_vpc_legend()` accepts the same vector and registers one entry per unique LLOQ value.
 
 ```{r vpc-multi-loq-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_multi_legend <- plot_vpc_legend(lloq = out_multi$config$loq)
+vpc_multi_legend <- plot_vpc_legend(loq = out_multi$config$loq)
 vpc_multi_legend
 ```
 
@@ -778,10 +778,10 @@ This section will review the functionality for generating legends for VPC plots 
 
 To obtain a legend for a quantifiable range VPC plot using default aesthetics, run `plot_vpc_legend()`. The default type argument is `type="cont"` for continuous range VPC. 
 
-Pass `lloq` to include an LLOQ entry that mirrors the reference line drawn by `plot_vpc_cont()`. 
+Pass `loq` to include an LLOQ entry that mirrors the reference line drawn by `plot_vpc_cont()`. 
 
 ```{r vpc-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_legend <- plot_vpc_legend(lloq = 1)
+vpc_legend <- plot_vpc_legend(loq = 1)
 vpc_legend
 ```
 
@@ -803,10 +803,10 @@ plot_vpc_legend(shown = shown_elements)
 
 ## Updating the Continuous Range Legend Style with `plot_vpc_legend()`
 
-The legend can also be updated with the same VPC style. This is easiest to do by reusing the `vpc_new_style` object we created earlier with `style_vpc()`. We pass the same style to both `plot_vpc_cont()` and `plot_vpc_legend()`, again passing `lloq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
+The legend can also be updated with the same VPC style. This is easiest to do by reusing the `vpc_new_style` object we created earlier with `style_vpc()`. We pass the same style to both `plot_vpc_cont()` and `plot_vpc_legend()`, again passing `loq = 1` to keep the legend in sync with the LLOQ ref line on `vpc2`.
 
 ```{r vpc-legend2, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_new_legend <- plot_vpc_legend(lloq = 1, style = vpc_new_style)
+vpc_new_legend <- plot_vpc_legend(loq = 1, style = vpc_new_style)
 vpc_new_legend
 ```
 
@@ -857,7 +857,7 @@ cens_vpc_styled
 ```{r vpc-cens-legend-styled, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
 cens_legend_styled <- plot_vpc_legend(
   type = "cens",
-  lloq = 1,
+  loq = 1,
   shown = cens_shown,
   style = cens_style
 )
@@ -870,10 +870,10 @@ cens_vpc_styled + cens_legend_styled + plot_layout(heights = c(2.5, 1))
 
 `plot_vpc_legend()` accepts `type = "cens"` argument to produce a legend with the default labels for a censored data VPC (`"Obs Prop BLQ"`, `"Sim Prop BLQ"`, `"Sim 90% CI Prop BLQ"`). Prediction-interval related entries are suppressed regardless of `shown`. 
 
-Pass `lloq` to mirror the LOQ source the cens VPC was built against.
+Pass `loq` to mirror the LOQ source the cens VPC was built against.
 
 ```{r vpc-cens-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-cens_legend <- plot_vpc_legend(type = "cens", lloq = 1)
+cens_legend <- plot_vpc_legend(type = "cens", loq = 1)
 cens_legend
 ```
 
@@ -887,7 +887,7 @@ cens_vpc + cens_legend + plot_layout(heights = c(2.5, 1))
 
 We can add legends to our stacked continuous data range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
-The pcVPC draws no LLOQ line, so its legend is built without `lloq`.
+The pcVPC draws no LLOQ line, so its legend is built without `loq`.
 
 ```{r plot-vpc-pc-cens-stack-w-legends, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 pcvpc_patch / plot_vpc_legend() / cens_vpc_patch / cens_legend + 

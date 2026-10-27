@@ -45,7 +45,7 @@
   point layer. Unlike `alphas = c(obs_point = 0)`, hidden points no longer
   affect the axis limits.
 * `plot_vpc_legend()`, `plot_dvtime()`, and `plot_gof()` gain
-  `show_lloq_value`. Set `show_lloq_value = FALSE` to label the LLOQ linetype
+  `show_loq_value`. Set `show_loq_value = FALSE` to label the LLOQ linetype
   as a single `"LLOQ"` legend entry without its value.
 
 ### New datasets
@@ -66,6 +66,10 @@
 
 ## Changed behavior
 
+* `plot_vpc_legend()`'s `lloq` argument is renamed `loq`, matching every other
+  function. `lloq` still works for now with a deprecation warning. `ci` and
+  `pi` are validated as in `df_vpcstats()`, so `ci = 90` aborts instead of
+  labeling a "9000% CI".
 * Character `col_var` labels in `plot_dvconc()`, `plot_dvtime()`, and
   `plot_gof()` now order by a number anywhere in the label (e.g.
   `"Dose 5 mg"` before `"Dose 10 mg"`), not only a leading one. Label sets

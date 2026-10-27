@@ -37,7 +37,7 @@
 #'    Accepts bare names or strings. Default is `DOSE`.
 #' @param cent Character string specifying the central tendency measure. See
 #'    [plot_dvtime()] for option details. Default is `"mean"`.
-#' @param show_lloq_value Logical. If `TRUE` (default), the LLOQ line's legend
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ line's legend
 #'    entry is titled `"LLOQ"` and keyed by its value. If `FALSE`, the title is
 #'    dropped and the entry is labeled `"LLOQ"` without the value. Applies only
 #'    when the LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
@@ -78,7 +78,7 @@ plot_gof <- function(data,
                         dose_var = "DOSE",
                         loq = NULL,
                         loq_method = 0,
-                        show_lloq_value = TRUE,
+                        show_loq_value = TRUE,
                         blq_mode = c("obs", "all"),
                         cent = c("mean", "mean_sdl", "mean_sdl_upper",
                                  "median", "median_iqr", "none"),
@@ -90,7 +90,7 @@ plot_gof <- function(data,
 
   cent <- match.arg(cent)
   blq_mode <- match.arg(blq_mode)
-  check_boolean(show_lloq_value, "show_lloq_value")
+  check_boolean(show_loq_value, "show_loq_value")
   check_boolean(dosenorm, "dosenorm")
   check_boolean(log_y, "log_y")
   check_boolean(show_caption, "show_caption")
@@ -157,7 +157,7 @@ plot_gof <- function(data,
 
   blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
                              plotstyle, show_legend = TRUE,
-                             show_value = show_lloq_value)
+                             show_value = show_loq_value)
   plot <- blq$plot
   caption <- blq$caption
 

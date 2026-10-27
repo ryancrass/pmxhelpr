@@ -17,6 +17,11 @@ n_geom <- function(p, cls) {
 scale_aes_of <- function(p) {
   vapply(p$scales$scales, function(s) s$aesthetics[1], character(1))
 }
+# Built data of the first (or `which_one`-th) layer of a geom class
+built_layer <- function(p, cls, which_one = 1L) {
+  idx <- which(vapply(p$layers, function(L) inherits(L$geom, cls), logical(1)))
+  ggplot2::ggplot_build(p)$data[[idx[which_one]]]
+}
 sec_axis_of <- function(p) p$scales$get_scales("y")$secondary.axis
 # Per-panel axis labels in bottom-to-top order
 panel_labels <- function(p, axis = c("y", "y.sec")) {
@@ -313,6 +318,16 @@ test_that("ref_layout errors: distributed without distributed rows; bad values",
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = NA_character_), "ref_layout")
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = c("distributed", "consolidated")),
                "ref_layout")
+})
+
+test_that("A covariate lacking a metric gets no reference copy for that metric", {
+  d <- dplyr::filter(data_sad_pkforest, !(metric == "CMINRATIO" & cov_name == "FOOD"))
+  stats <- df_forest(d, cov_level_ref = ref_map)
+  cmin <- drawn(stats, metric = "CMINRATIO")
+  expect_false("FOOD" %in% cmin$cov_name)
+  expect_equal(cmin$cov_level[cmin$is_ref], "70 kg")
+  auc <- drawn(stats, metric = "AUCRATIO")
+  expect_setequal(auc$cov_level[auc$is_ref], c("Fasted", "70 kg"))
 })
 
 test_that("The default ref_layout is resolved per metric", {
@@ -737,12 +752,12 @@ test_that("ref_band = NULL produces no rect layer; setting it adds one styled fr
   expect_true(has_geom(p, "GeomRect"))
   rect <- layer_of(p, "GeomRect")
   expect_equal(rect$aes_params$alpha, 0.3)
-  expect_equal(unique(ggplot2::ggplot_build(p)$data[[2]]$fill), "grey80")
+  expect_equal(unique(built_layer(p, "GeomRect")$fill), "grey80")
   p2 <- plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
                           style = style_forest(fill = c(ref_band = "skyblue"),
                                                alphas = c(ref_band = 0.2)))
   expect_equal(layer_of(p2, "GeomRect")$aes_params$alpha, 0.2)
-  expect_equal(unique(ggplot2::ggplot_build(p2)$data[[2]]$fill), "skyblue")
+  expect_equal(unique(built_layer(p2, "GeomRect")$fill), "skyblue")
 })
 
 test_that("ref = NULL suppresses the vline; a numeric ref places it; the default resolves to the reference row", {
@@ -956,6 +971,21 @@ test_that("plot_forest() raw-data path returns a ggplot and forwards the pipelin
   expect_false(any(p2$data$is_ref))
 })
 
+test_that("plot_forest() raw-data path forwards ci, sigdigits, and column names", {
+  p <- plot_forest(data_sad_pkforest, metric = "AUCRATIO", ci = 0.95, sigdigits = 2)
+  s <- df_forest(data_sad_pkforest, ci = 0.95, sigdigits = 2)$stats
+  s <- s[s$metric == "AUCRATIO", ]
+  expect_equal(p$data$est_label, s$est_label)
+  expect_equal(p$data$lo, s$lo)
+  expect_equal(p$labels$subtitle, "Estimate (95% CI)")
+  renamed <- dplyr::rename(data_sad_pkforest, METRIC = metric, VALUE = value,
+                           COV = cov_name, COVLVL = cov_level)
+  p2 <- plot_forest(renamed, metric = "AUCRATIO", metric_name_var = METRIC,
+                    metric_value_var = VALUE, cov_name_var = COV, cov_level_var = COVLVL)
+  expect_equal(p2$data$est, plot_forest(data_sad_pkforest, metric = "AUCRATIO")$data$est)
+  expect_equal(levels(p2$data$COV), c("Reference", "FOOD", "WTBL"))
+})
+
 test_that("plot_forest() precomputed-stats path returns a ggplot and honors plot args", {
   stats <- df_forest(data_sad_pkforest)
   expect_s3_class(plot_forest(stats, metric = "AUCRATIO"), "ggplot")
@@ -1053,7 +1083,7 @@ test_that("ref = \"reference\" aborts on distinct reference-row estimates", {
   copy <- which(stats$stats$layout == "distributed")[1]
   stats$stats$est[copy] <- 2
   expect_error(plot_build_forest(stats), "multiple distinct reference-row estimates")
-  expect_s3_class(plot_build_forest(stats, ref = 1), "ggplot")
+  expect_equal(layer_of(plot_build_forest(stats, ref = 1), "GeomVline")$data$xintercept, 1)
 })
 
 test_that("cov_level_ref naming the reference row itself warns and is ignored", {
@@ -1153,6 +1183,15 @@ test_that("a fill-shape reference point keeps the role outline when test points 
   p2 <- plot_build_forest(stats, metric = "AUCRATIO",
                           style = style_forest(colors = c(FOOD = "red", WTBL = "blue")))
   expect_true("colour" %in% names(layer_of(p2, "GeomPoint", 2L)$mapping))
+})
+
+test_that("a fill-shape test point is outlined in the `point` role colour", {
+  p <- plot_build_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO",
+                         style = style_forest(shapes = c(point = 21),
+                                              colors = c(point = "red", FOOD = "blue")))
+  pts <- built_layer(p, "GeomPoint")
+  expect_equal(unique(pts$colour), "red")
+  expect_true("blue" %in% pts$fill)
 })
 
 test_that("covariate colors match across ref_layout; the Reference panel keeps the ref_point colour", {

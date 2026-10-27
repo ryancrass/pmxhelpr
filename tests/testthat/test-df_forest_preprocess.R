@@ -178,6 +178,17 @@ test_that("A ratio name already in `data` aborts, whether a metric or a passthro
   )
 })
 
+test_that("`NA` in the replicate column aborts when ratios are requested", {
+  na_rep <- sim_wide
+  na_rep$SIM[2] <- NA
+  run <- function(...) {
+    df_forest_preprocess(na_rep, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
+                         cov_val_ref = ref_vals, ...)
+  }
+  expect_error(run(), "column `SIM` must not contain `NA`")
+  expect_no_error(run(ratio = FALSE))
+})
+
 test_that("`irep_name` is only required when ratios are requested", {
   no_sim <- sim_wide[sim_wide$SIM == 1, setdiff(names(sim_wide), "SIM")]
   expect_s3_class(

@@ -22,7 +22,7 @@ on the [pmxhelpr website](https://ryancrass.github.io/pmxhelpr/).
 Exported functions follow a `ReturnType_Purpose` naming convention:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame` (often class-tagged)
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`, `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside `mutate()`)
 - `style_*` — returns a `ggstylekit::style_spec()` style object
 
@@ -201,7 +201,7 @@ article for additional details on exploratory data analyses with `pmxhelpr`.
 # Dose-proportionality with `df_doseprop()` and `plot_doseprop()`
 
 `df_doseprop()` fits a log-log regression of exposure metrics (e.g., Cmax and 
-AUC) versus dose and returns a class-tagged `doseprop_stats` data frame.
+AUC) versus dose and returns a `doseprop_stats` container.
 
 ```{r doseprop-stats}
 tab <- df_doseprop(data_nca_part1, metrics = c("aucinf.obs", "cmax"))
@@ -265,7 +265,7 @@ From a validated model file, the VPC pipeline includes functionality to:
 
 ## Run the simulation with `df_mrgsim_replicate()`
 
-`df_mrgsim_replicate()` is a wrapper function for `mrgsim::mrgsim_df()`, 
+`df_mrgsim_replicate()` is a wrapper function for `mrgsolve::mrgsim_df()`, 
 which uses `lapply()` to iterate from 1 to the integer value passed to 
 `replicates`.
 
@@ -375,10 +375,10 @@ cens_vpc_regimen <- plot_vpc_cens(
 cens_vpc_regimen
 ```
 
-## Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
+## Adding panels and legends with `patchwork` and `plot_vpc_legend()`
 
 `plot_vpc_legend()` returns a legend that can be combined with the VPC plots
-using the `patwork` package. The four row layout below stacks the continuous 
+using the `patchwork` package. The four row layout below stacks the continuous 
 and censored VPCs with their corresponding legends. 
 
 The two-stage plot building from a`vpc_stats` objects is also demonstrated, 
@@ -496,11 +496,10 @@ function with no arguments
 style_dvtime()
 ```
 
-Styling is keyed by  *roles* (e.g. `obs_point`, `cent_line`, `cent_errorbar`,
-`ref_line`, `loq_line`). The *values* for each key are individual plot 
-aesthetics (e.g, `colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, 
-`alphas`) with partial overrides merge onto the defaults so setting one role 
-leaves the others untouched.
+Each aesthetic map (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`,
+`alphas`) is keyed by *role* (e.g. `obs_point`, `cent_line`, `cent_errorbar`,
+`ref_line`, `loq_line`). Partial overrides merge onto the defaults, so setting
+one role leaves the others untouched.
 
 New styles can be defined as an object and recycled across plots. This revised
 style object increases the linewidth of the central tendency line and error 

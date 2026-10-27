@@ -95,7 +95,7 @@ Exported functions follow a `ReturnType_Purpose` naming convention where
 the prefix indicates what the function returns:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame`
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`, `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
 - `style_*` — returns a `ggstylekit::style_spec` (plot-family style
@@ -296,7 +296,7 @@ data <- data_sad_pkfit %>%
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
 plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +
   facet_wrap(~Food) +
-  labs(y = "Dose-normalized Conc. (ng/mL)")
+  labs(y = "Dose-normalized Conc. (ng/mL/mg)")
 
 plot_gof(data = data, dv_var = "ODV", log_y = TRUE) +
   facet_wrap(~Regimen) +

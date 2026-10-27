@@ -29,7 +29,7 @@
 \item{RACE}{Subject race}
 \item{AGEBL}{Subject age at baseline (units: years)}
 \item{WTBL}{Subject body weight at baseline (units: kg)}
-\item{SCRBL}{Subject serum creatinine at baseline (units: g/dL)}
+\item{SCRBL}{Subject serum creatinine at baseline (units: mg/dL)}
 \item{CRCLBL}{Subject creatinine clearance at baseline (units: mL/min)}
 \item{USUBJID}{Study subject identifier}
 \item{PART}{Study part}

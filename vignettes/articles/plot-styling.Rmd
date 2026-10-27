@@ -243,7 +243,6 @@ object can be used to specify axis elements, labels, legends, and themes.
 
 ```{r ex-reusable, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 new_dvtime_style <- style_dvtime(
-  alphas     = c(obs_point = 0),
   xbreaks = seq(0, 168, 24),
   ybreaks = c(0.1, 1, 10, 100, 1000),
   ylims   = c(0.1, 2000),
@@ -254,7 +253,7 @@ new_dvtime_style <- style_dvtime(
 
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = new_dvtime_style) 
+            show_obs = FALSE, style = new_dvtime_style) 
 ```
 
 ### Error bar cap width
@@ -267,7 +266,7 @@ in the style to override:
 ```{r ex-ebwidth, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = style_dvtime(alphas = c(obs_point = 0), errorbar_width = 10))
+            show_obs = FALSE, style = style_dvtime(errorbar_width = 10))
 ```
 
 
@@ -456,7 +455,7 @@ plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
 
 ## GOF overlay colors (`plot_gof()`)
 
-The DV (OBS), PRED, and PRED central tendency lines are the **role** keys for
+The observed points (`OBS`) and the DV, PRED, and IPRED central tendency lines are the **role** keys for
 the **per-series map** `colors`.
 
 ```{r ex-gof, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
@@ -567,7 +566,7 @@ p <- plot_dvtime(data_pk, dv_var = ODV, cent = "median", log_y = TRUE,
                  loq_method = 2,
                  style = style_dvtime(
                    xlabel = "Time (hours)", 
-                   ylabel = "Dose-normalized Conc. (ng/mL/mg)",
+                   ylabel = "Concentration (ng/mL)",
                    xbreaks = seq(0, 168, 24)
                  ))
 p

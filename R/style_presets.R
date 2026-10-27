@@ -114,8 +114,8 @@ style_gof <- function(...) {
 #'
 #' Default [ggstylekit::style_spec()] for [plot_dvconc()]. Series names:
 #' `obs_point`, `ref_line`, `loess`, `linear`. The `loess`/`linear` trend lines
-#' are `geom_smooth` (line entity); their SE ribbon fill/alpha come from
-#' `line_fill`/`fill_alpha`.
+#' are `geom_smooth` (line entity); their SE ribbon fill is `line_fill`, and its
+#' alpha is the `loess` / `linear` entry of `alphas`.
 #'
 #' Like every pmxhelpr preset, it places legend titles above the keys
 #' (`legend.title.position = "top"`) and applies the house `theme_bw()`-derived

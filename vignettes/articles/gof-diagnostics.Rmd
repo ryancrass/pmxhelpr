@@ -103,7 +103,7 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 
 ## Applying Dose-normalization
 
-The pooled analysis population includes multiple dose levels in a single plot, which is probably not optimal as a population PK model diagnostic. A better minimal plot representation of these data can be obtained by dose-normalizing and stratifying by study part to separate out the fast and food effect portions:
+The pooled analysis population includes multiple dose levels in a single plot, which is probably not optimal as a population PK model diagnostic. A better minimal plot representation of these data can be obtained by dose-normalizing and stratifying by food status to separate out the fasted and fed portions:
 
 ```{r plot-popgof-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE, dose_var = DOSE) +
@@ -184,7 +184,7 @@ In `plot_gof()`, variability (SD, IQR) is plotted for the observed data (DV) and
 
 An often overlooked feature of `stat_summary()`, is that it calculates the summary statistics *after* any transformations to the data performed by changing the scales. This means that when `scale_y_log10()` is applied to the plot, the data are log-transformed for plotting and the central tendency measure returned with `"mean"` is the *geometric mean*. 
 
-If the `log_y` argument is used to generate semi-log plots along with `show_captions = TRUE`, then the caption will delineate where arithmetic and geometric means are being returned. 
+If the `log_y` argument is used to generate semi-log plots along with `show_caption = TRUE`, then the caption will delineate where arithmetic and geometric means are being returned. 
 
 ```{r plot-popgof-dosegrp-meansd, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl",
@@ -207,7 +207,7 @@ plot_gof(data = plot_data, dv_var = "ODV", cent = "mean_sdl") +
 Transformation of the plot to a semi-log scale (log-scale y-axis only) is recommended to be performed using the `log_y` argument for the following benefits:
 
   + Includes log tick marks on the y-axis
-  + Updates the caption with the correct central tendency measure if `show_captions = TRUE`.
+  + Updates the caption with the correct central tendency measure if `show_caption = TRUE`.
 
 
 ## Handling Below-the-Limit-of-Quantification (BLQ) Data
@@ -216,7 +216,7 @@ By default `plot_gof()` excludes BLQ records (`MDV == 1`) from the central tende
 
 The `loq` and `loq_method` arguments in `plot_gof()` inherit the BLQ handling pipeline from  `plot_dvtime()`. `plot_gof` includes one additional argument in the pipeline, `blq_mode`, which controls whether the imputation extends to the prediction layers (`PRED`, `IPRED`) or stays scoped to the observed layer (`DV`) only.
 
-The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and ~169 BLQ rows. Without BLQ handling, the observed line drops or terminates at late times because those records are filtered out of the central tendency.
+The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and 178 BLQ rows (142 post-dose). Without BLQ handling, the observed line drops or terminates at late times because those records are filtered out of the central tendency.
 
 ```{r gof-blq-none, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(plot_data, dv_var = "ODV", log_y = TRUE) +

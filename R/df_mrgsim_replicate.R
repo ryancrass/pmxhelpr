@@ -12,11 +12,14 @@
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.
 #'    Accepts bare names or strings. Default is `NTIME`.
-#' @param pred_var Name of population prediction output from `model`.
-#'    Accepts bare names or strings. Default is `PRED`.
-#' @param ipred_var Name of individual prediction output from `model`.
+#' @param pred_var Must be `"PRED"` (the default). The population prediction
+#'    is computed by [df_mrgsim_addpred()] from `ipred_var` with random
+#'    effects zeroed, and is always returned as `PRED`.
+#' @param ipred_var Name of the individual prediction output captured by
+#'    `model` (a model output, not a column of `data`). Returned as `IPRED`.
 #'    Accepts bare names or strings. Default is `IPRED`.
-#' @param sim_dv_var Name of simulated DV output from `model`.
+#' @param sim_dv_var Name of the simulated DV output captured by `model` (a
+#'    model output, not a column of `data`). Returned as `SIMDV`.
 #'    Accepts bare names or strings. Default is `DV`.
 #' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param seed Random seed. Default is `123456789`.
@@ -68,6 +71,13 @@ df_mrgsim_replicate <- function(data,
   check_df(data, "data")
   check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
+  if (pred_var_str != "PRED") {
+    rlang::abort(paste0(
+      "argument `pred_var` must be \"PRED\": the population prediction is ",
+      "computed from `ipred_var` with random effects zeroed and is always ",
+      "returned as `PRED`."
+    ))
+  }
   check_integer(replicates, "replicates")
   if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
   check_varsindf(data, dv_var_str, "data", "dv_var")

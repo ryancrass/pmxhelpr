@@ -70,6 +70,8 @@
   function. `lloq` still works for now with a deprecation warning. `ci` and
   `pi` are validated as in `df_vpcstats()`, so `ci = 90` aborts instead of
   labeling a "9000% CI".
+* `df_mrgsim_replicate()` aborts with a clear message when `pred_var` is not
+  `"PRED"`, which previously failed with an internal column-selection error.
 * `plot_dvtime()` and `plot_gof()` message when `loq` is given with
   `loq_method = 0`, where it has no effect.
 * Character `col_var` labels in `plot_dvconc()`, `plot_dvtime()`, and

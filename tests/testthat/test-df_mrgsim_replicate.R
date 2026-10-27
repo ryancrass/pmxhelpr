@@ -147,4 +147,11 @@ test_that("Error if the removed parallel argument is supplied", {
                regexp = "argument `parallel` was removed in pmxhelpr 0.7.0")
 })
 
-
+test_that("pred_var other than PRED aborts with a clear message", {
+  expect_error(
+    df_mrgsim_replicate(dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                        model_mread_load("pkmodel"), replicates = 1,
+                        dv_var = ODV, pred_var = "CP"),
+    regexp = "argument `pred_var` must be \"PRED\""
+  )
+})

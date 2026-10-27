@@ -35,13 +35,16 @@ Accepts bare names or strings. Default is \code{TIME}.}
 \item{ntime_var}{Column containing the nominal time variable.
 Accepts bare names or strings. Default is \code{NTIME}.}
 
-\item{pred_var}{Name of population prediction output from \code{model}.
-Accepts bare names or strings. Default is \code{PRED}.}
+\item{pred_var}{Must be \code{"PRED"} (the default). The population prediction
+is computed by \code{\link[=df_mrgsim_addpred]{df_mrgsim_addpred()}} from \code{ipred_var} with random
+effects zeroed, and is always returned as \code{PRED}.}
 
-\item{ipred_var}{Name of individual prediction output from \code{model}.
+\item{ipred_var}{Name of the individual prediction output captured by
+\code{model} (a model output, not a column of \code{data}). Returned as \code{IPRED}.
 Accepts bare names or strings. Default is \code{IPRED}.}
 
-\item{sim_dv_var}{Name of simulated DV output from \code{model}.
+\item{sim_dv_var}{Name of the simulated DV output captured by \code{model} (a
+model output, not a column of \code{data}). Returned as \code{SIMDV}.
 Accepts bare names or strings. Default is \code{DV}.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}

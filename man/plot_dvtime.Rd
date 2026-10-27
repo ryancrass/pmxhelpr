@@ -46,7 +46,8 @@ observations within each level of the variable.}
 Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data}
+Must be coercible to a numeric if specified. Can be \code{NULL} if variable \code{LLOQ} is present in \code{data},
+in which case each row is imputed at its own \code{LLOQ} and the LLOQ line is drawn at the highest value.
 Specifying this argument implies that \code{DV} is missing in \code{data} where < LLOQ.}
 
 \item{loq_method}{Method for handling data below the lower limit of quantification (BLQ) in the plot.

@@ -105,6 +105,18 @@ test_that("plot_dvtime loq_method = 1 with explicit loq adds an LOQ reference hl
   expect_true(has_hline)
 })
 
+test_that("plot_dvtime draws one LLOQ line at the highest per-row LLOQ", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  d$LLOQ <- ifelse(d$ID %% 2 == 0, 5, 1)
+  p <- suppressMessages(plot_dvtime(d, dv_var = ODV, loq_method = 2, log_y = TRUE))
+  is_h <- vapply(p$layers, function(L) inherits(L$geom, "GeomHline"), logical(1))
+  expect_equal(sum(is_h), 1L)
+  expect_equal(unique(ggplot2::layer_data(p, which(is_h))$yintercept), log10(5))
+  blq <- p$data[p$data$MDV == 1 & p$data$TIME > 0, ]
+  expect_equal(unique(blq$DV[blq$LLOQ == 5]), 2.5)
+  expect_equal(unique(blq$DV[blq$LLOQ == 1]), 0.5)
+})
+
 test_that("plot_dvtime loq_method = 2 with explicit loq adds an LOQ reference hline", {
   p <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
                    loq = 0.5, loq_method = 2)

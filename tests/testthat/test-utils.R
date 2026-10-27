@@ -180,6 +180,21 @@ test_that("df_prep_dvtime applies BLQ imputation", {
   expect_equal(result$lloq, 1)
 })
 
+test_that("df_prep_dvtime imputes each row at its own LLOQ; the line is the highest", {
+  df <- data.frame(TIME = c(1, 2, 3, 4), NTIME = c(1, 2, 3, 4),
+                   DV = c(NA, NA, 50, NA), MDV = c(1, 1, 0, 1), EVID = 0,
+                   LLOQ = c(1, 10, 10, NA))
+  result <- suppressMessages(pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", loq_method = 2))
+  expect_equal(result$data$LOQ, c(1, 10, 10, NA))
+  expect_equal(result$data$DV, c(0.5, 5, 50, NA))
+  expect_equal(result$lloq, 10)
+  # a leading NA LLOQ no longer blanks every row
+  first_na <- df[c(4, 1, 2, 3), ]
+  result2 <- suppressMessages(pmxhelpr:::df_prep_dvtime(first_na, "TIME", "NTIME", loq_method = 2))
+  expect_equal(result2$data$LOQ, c(NA, 1, 10, 10))
+  expect_equal(result2$lloq, 10)
+})
+
 test_that("df_prep_dvtime applies dose normalization to all output vars", {
   df <- data.frame(TIME = 1:2, NTIME = 1:2, DV = c(10, 20), IPRED = c(12, 22),
                    MDV = c(0, 0), EVID = c(0, 0), DOSE = c(100, 100))

@@ -125,7 +125,7 @@ add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
     return(list(plot = plot, caption = caption))
   }
 
-  if (!isTRUE(dosenorm)) {
+  if (!isTRUE(dosenorm) && !is.na(loq)) {
     el <- series_aes(style, "loq_line")
     if (isTRUE(show_legend)) {
       loq_lab <- if (show_value) paste0(loq) else "LLOQ"

@@ -85,7 +85,7 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
   }
 
   data <- data |>
-    dplyr::mutate(LOQ = ifelse(is.null(loq), .data$LLOQ, loq))
+    dplyr::mutate(LOQ = if (is.null(loq)) .data$LLOQ else loq)
 
   if(loq_method == 1) {
     data <- data |>
@@ -143,7 +143,8 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #'    additionally imputes any `PRED` / `IPRED` columns that were renamed via
 #'    `pred_var_str` / `ipred_var_str`. Has no effect when `loq_method = 0`.
 #'
-#' @return A named list with elements `data` (processed data.frame) and `lloq` (numeric LLOQ value).
+#' @return A named list with elements `data` (processed data.frame) and `lloq`
+#'    (the LLOQ line value: the highest LLOQ in the data, or `NA`).
 #' @keywords internal
 #' @examples
 #' data <- dplyr::rename(dplyr::filter(data_sad, CMT %in% c(1,2)), DV = ODV)
@@ -207,7 +208,9 @@ df_prep_dvtime <- function(data,
   } else NULL
   data <- df_prep_blq(data, loq, loq_method, pred_vars = pred_vars)
 
-  lloq <- if ("LOQ" %in% colnames(data)) unique(data$LOQ[!is.na(data$LOQ)]) else NA_real_
+  ## One LLOQ line: with several assays, the highest LLOQ (the most censoring).
+  loq_vals <- if ("LOQ" %in% colnames(data)) data$LOQ[!is.na(data$LOQ)] else numeric(0)
+  lloq <- if (length(loq_vals) > 0) max(loq_vals) else NA_real_
 
   if (isTRUE(dosenorm)) {
     data$DV <- var_dosenorm(data$DV, data$DOSE)

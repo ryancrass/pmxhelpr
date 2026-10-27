@@ -10,7 +10,8 @@
 #' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
 #'   Accepts bare names or strings. Default is `DOSE`.
 #' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
-#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`
+#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`,
+#'  in which case each row is imputed at its own `LLOQ` and the LLOQ line is drawn at the highest value.
 #'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'

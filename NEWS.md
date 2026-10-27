@@ -105,6 +105,10 @@
   extra argument left the random effects in and `PRED` was stochastic. A
   `carry_out` in `...` is merged with `output_var`, and arguments that change
   the number of rows (e.g. `obsonly`) now abort.
+* `plot_dvtime()` and `plot_gof()` with `loq = NULL` impute each row at its
+  own `LLOQ` value. Previously the first row's `LLOQ` was applied to every
+  row (and a leading `NA` disabled imputation and broke the LLOQ line). With
+  several LLOQs, the LLOQ line is drawn at the highest.
 
 # pmxhelpr 0.6.0
 

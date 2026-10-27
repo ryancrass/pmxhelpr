@@ -53,8 +53,9 @@ Accepts bare names or strings. Default is \code{NULL} (no spaghetti lines).}
 \item{dose_var}{Column to use in dose-normalization when \code{dosenorm = TRUE}.
 Accepts bare names or strings. Default is \code{DOSE}.}
 
-\item{loq}{Numeric value of the lower limit of quantification (LLOQ).
-BLQ imputation behavior on the DV / prediction layers is controlled by
+\item{loq}{Numeric value of the lower limit of quantification (LLOQ), or
+\code{NULL} to impute each row at its own \code{LLOQ} column value (the LLOQ line
+is drawn at the highest). BLQ imputation behavior on the DV / prediction layers is controlled by
 \code{blq_mode} and \code{loq_method}. Default is \code{NULL}.}
 
 \item{loq_method}{Method for handling BLQ data. See \code{\link[=plot_dvtime]{plot_dvtime()}} for

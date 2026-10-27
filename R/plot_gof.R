@@ -15,8 +15,9 @@
 #'    Accepts bare names or strings. Default is `IPRED`.
 #' @param shown Layer visibility settings created by [plot_gof_shown()].
 #'    Defaults can be viewed by running `plot_gof_shown()` with no arguments.
-#' @param loq Numeric value of the lower limit of quantification (LLOQ).
-#'    BLQ imputation behavior on the DV / prediction layers is controlled by
+#' @param loq Numeric value of the lower limit of quantification (LLOQ), or
+#'    `NULL` to impute each row at its own `LLOQ` column value (the LLOQ line
+#'    is drawn at the highest). BLQ imputation behavior on the DV / prediction layers is controlled by
 #'    `blq_mode` and `loq_method`. Default is `NULL`.
 #' @param loq_method Method for handling BLQ data. See [plot_dvtime()] for
 #'    option details. Default is `0` (no imputation).

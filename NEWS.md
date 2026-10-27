@@ -1,5 +1,46 @@
 # pmxhelpr 0.7.0
 
+This release fixes bugs in previously released functions. `df_mrgsim_addpred()` 
+returned a stochastic `PRED` whenever extra arguments were passed through `...`,
+which also affected prediction-corrected VPCs built on it. `plot_dvtime()`  and
+`plot_gof()` imputed every BLQ row at the first row's `LLOQ` when `loq = NULL` 
+and `LLOQ` varied. Dose-proportionality `tdist` intervals and the
+bundled `pkmodel` are also corrected. See Bug fixes below.
+
+## Bug fixes
+
+* `df_mrgsim_addpred()` passes `...` to `mrgsolve::mrgsim_df()` as
+  documented. It previously passed them to `mrgsolve::zero_re()`, so any
+  extra argument left the random effects in and `PRED` was stochastic. A
+  `carry_out` in `...` is merged with `output_var`, and arguments that change
+  the number of rows (e.g. `obsonly`) now abort.
+* `plot_dvtime()` and `plot_gof()` with `loq = NULL` impute each row at its
+  own `LLOQ` value. Previously the first row's `LLOQ` was applied to every
+  row (and a leading `NA` disabled imputation and broke the LLOQ line). With
+  several LLOQs, the LLOQ line is drawn at the highest.
+* `df_doseprop()` / `plot_doseprop()` with `method = "tdist"` use the
+  regression's residual degrees of freedom (n - 2) instead of n - 1, matching
+  `confint()`. Intervals widen slightly, noticeably only for small n.
+* `df_doseprop()` / `plot_doseprop()` judge dose proportionality on unrounded
+  confidence bounds, so bounds within rounding distance of 1 are no longer
+  misclassified as "Dose-proportional".
+* The bundled `pkmodel` (`model_mread_load("pkmodel")`) computed
+  intercompartmental clearance from the clearance typical value
+  (`Q = TVCL * ...`); it now uses `TVQ`. Simulations from `pkmodel` change,
+  and `data_sad`, `data_sad_nca`, and `data_sad_pkfit` are regenerated with
+  the corrected model.
+* `df_doseprop()` `PowerCI` labels pad to `sigdigits` significant digits
+  (e.g. `Power: 1.00 (90% CI 0.900-1.20)`) and no longer use scientific
+  notation.
+* `df_doseprop()` / `plot_doseprop()` called without `metrics` abort with a
+  message saying `metrics` is required, instead of a misleading error about
+  missing `doseprop_stats` columns.
+* `print()` and `summary()` of a `vpc_stats` object no longer drop the
+  `config:` line when `strat_var` or `loq` is `NULL`; it shows `NULL`.
+* The `plot_dvconc()` caption no longer drops the fit description when the
+  `se_*` flag of a fit that is not drawn is `TRUE` (e.g. `linear = TRUE,
+  loess = FALSE, se_loess = TRUE`).
+
 ## New features
 
 ### Forest plots
@@ -92,40 +133,6 @@
   `show_caption`, `pcvpc`, `show_rep`, `se`) is not `TRUE` or `FALSE`,
   instead of silently treating it as `FALSE` or failing later with an
   unclear error.
-
-## Bug fixes
-
-* The bundled `pkmodel` (`model_mread_load("pkmodel")`) computed
-  intercompartmental clearance from the clearance typical value
-  (`Q = TVCL * ...`); it now uses `TVQ`. Simulations from `pkmodel` change,
-  and `data_sad`, `data_sad_nca`, and `data_sad_pkfit` are regenerated with
-  the corrected model.
-* `df_doseprop()` / `plot_doseprop()` judge dose proportionality on unrounded
-  confidence bounds, so bounds within rounding distance of 1 are no longer
-  misclassified as "Dose-proportional".
-* `df_doseprop()` `PowerCI` labels pad to `sigdigits` significant digits
-  (e.g. `Power: 1.00 (90% CI 0.900-1.20)`) and no longer use scientific
-  notation.
-* `df_doseprop()` / `plot_doseprop()` called without `metrics` abort with a
-  message saying `metrics` is required, instead of a misleading error about
-  missing `doseprop_stats` columns.
-* `print()` and `summary()` of a `vpc_stats` object no longer drop the
-  `config:` line when `strat_var` or `loq` is `NULL`; it shows `NULL`.
-* `df_mrgsim_addpred()` passes `...` to `mrgsolve::mrgsim_df()` as
-  documented. It previously passed them to `mrgsolve::zero_re()`, so any
-  extra argument left the random effects in and `PRED` was stochastic. A
-  `carry_out` in `...` is merged with `output_var`, and arguments that change
-  the number of rows (e.g. `obsonly`) now abort.
-* `plot_dvtime()` and `plot_gof()` with `loq = NULL` impute each row at its
-  own `LLOQ` value. Previously the first row's `LLOQ` was applied to every
-  row (and a leading `NA` disabled imputation and broke the LLOQ line). With
-  several LLOQs, the LLOQ line is drawn at the highest.
-* `df_doseprop()` / `plot_doseprop()` with `method = "tdist"` use the
-  regression's residual degrees of freedom (n - 2) instead of n - 1, matching
-  `confint()`. Intervals widen slightly, noticeably only for small n.
-* The `plot_dvconc()` caption no longer drops the fit description when the
-  `se_*` flag of a fit that is not drawn is `TRUE` (e.g. `linear = TRUE,
-  loess = FALSE, se_loess = TRUE`).
 
 # pmxhelpr 0.6.0
 

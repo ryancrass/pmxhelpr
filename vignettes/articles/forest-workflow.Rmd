@@ -20,15 +20,17 @@ the univariate impact of covariate effects in a model on the integrated model
 output (e.g. exposure metrics, response metrics, ratio to reference)
 
 The pipeline mirrors the [VPC](vpc-workflow.html) and 
-[dose-proportionality](doseprop-workflow.html) workflows with one additional 
-upstream function for pre-processing of raw simulated output:
+[dose-proportionality](doseprop-workflow.html) workflows. Where to start
+depends on the data in hand:
 
-  + `df_forest_preprocess()`: reshapes raw simulation output into summary 
-  metrics for aggregation into summary statistics for forest plotting
-  + `df_forest()`: aggregates summary metrics into a class-tagged summary object
-  + `plot_forest()`: dual-mode plotting function which can consume either
-  the reshaped output of `df_forest_preprocess()` for one-step summary and 
-  plotting or the class-tagged summary output of `df_forest()`.
+  + **Wide simulation output** (one row per scenario per replicate, metrics as
+  columns): reshape it with `df_forest_preprocess()`, then continue below.
+  + **Long simulation output** (one row per scenario per replicate per): 
+  call `plot_forest(draws, metric = )` for a single plot, or `df_forest()` once 
+  and pass its result to `plot_forest()` for several metrics or layouts.
+  + **Summary output**: wrap it as a `forest_stats` object and 
+  call `plot_build_forest()` (see "Building a `forest_stats` by hand" in 
+  `?plot_build_forest`).
 
 ```{r setup, echo=TRUE, warning=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
@@ -153,9 +155,8 @@ plot workflow.
 identical(simsum, data_sad_pkforest)
 ```
 
-The reference rows are labeled `Reference` in both `cov_name` and `cov_level`. The 
-reference labels are attached as an attribute, ready to pass to `df_forest()` 
-as `cov_level_ref`. 
+Each covariate's reference label is attached as an attribute, ready to pass to
+`df_forest()` as `cov_level_ref`. 
 
 ```{r preprocess-attr}
 ref_levels <- attr(simsum, "cov_level_ref")
@@ -265,12 +266,11 @@ forest_obj <- df_forest(simsum)
 forest_obj
 ```
 
-The `stats` slot holds one row per plotted point with the canonical columns
-`est`, `lo`, and `hi`, their formatted text `est_label`, `lo_label`, and 
-`hi_label`, and `ci_label` combining the three for tables. The plotted 
-estimate column is assembled from the three label columns. The logical `is_ref` flags the 
-reference rows, and `layout` records the reference layout each row is drawn in 
-(see below). The data.frame is output in plotting order.
+The `stats` slot holds one row per plotted point, in plotting order: `est`, 
+`lo`, and `hi`, their formatted labels (`ci_label` combines them for tables), 
+the draw count `n`, `is_ref` for the reference rows, and `layout` (see 
+[Where the reference row is drawn](#where-the-reference-row-is-drawn)). Edit 
+`est_label`, `lo_label`, or `hi_label` to change the plotted text.
 
 ```{r df-forest-stats}
 forest_obj$stats
@@ -311,14 +311,10 @@ df_forest(renamed, cov_name_ref = "Typical subject")$stats %>%
   select(cov_name, cov_level, is_ref, ci_label)
 ```
 
-`cov_level_ref` is a named vector mapping each covariate to the reference level
-of that covariate. When supplied, the plot draws the reference row in each
-named covariate panel under that label in place of the reference panel, so
-every panel shows the reference alongside the varied levels.
-`$stats` then holds both: the reference-panel rows (`layout = 
-"consolidated"`) and a copy of them in each named covariate panel at its sorted
-position (`layout = "distributed"`). Covariate rows are drawn in either layout
-(`layout = "both"`).
+`cov_level_ref` is a named vector mapping each covariate to its reference 
+level. When supplied, `$stats` also holds a copy of the reference row in each
+named covariate panel, so the plot can draw the reference there (see 
+[Where the reference row is drawn](#where-the-reference-row-is-drawn)).
 
 ```{r df-forest-distributed}
 forest_obj <- df_forest(simsum,
@@ -381,8 +377,25 @@ labels the x-axis; there is no title by default.
 plot_forest(simsum, metric = "AUCRATIO")
 ```
 
-The vertical reference line defaults to `ref = "reference"`. Pass a number to 
-place it elsewhere, or `NULL` to suppress it.
+The vertical reference line defaults to `ref = "reference"`: the reference
+row's estimate (1 for a ratio, the reference exposure for a raw metric). Pass a
+number to place it elsewhere, or `NULL` to suppress it.
+
+## Where the reference row is drawn
+
+The plot above has no `cov_level_ref`, so the reference row sits in the 
+reference panel at the top. With `cov_level_ref`, the reference row is drawn
+inside each covariate panel under its reference label instead, so every panel
+shows the reference next to the varied levels:
+
+```{r plot-ref-distributed, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+plot_forest(simsum, metric = "AUCRATIO", cov_level_ref = ref_levels)
+```
+
+`ref_layout` switches between the two on the same summary without 
+re-aggregating: `"distributed"` (in each covariate panel, the default when 
+`cov_level_ref` is given) or `"consolidated"` (the reference panel). The 
+`layout` column of `$stats` records which rows each layout draws.
 
 ## The equivalence band
 
@@ -467,70 +480,30 @@ plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
             style = style_forest(logx = TRUE))
 ```
 
-The reference layout can also be switched on precomputed stats. `forest_obj`
-was computed with `cov_level_ref`, so the reference row is drawn in each
-covariate panel by default; `ref_layout = "consolidated"` draws the reference
-panel instead, with no re-aggregation.
+`forest_obj` was computed with `cov_level_ref`, so `ref_layout` can switch it to
+the reference panel:
 
 ```{r plot-ref-layout, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_layout = "consolidated",
             ref_band = c(0.8, 1.25), style = style_forest(logx = TRUE))
 ```
 
-When `data` is a precomputed `forest_stats` result, the pipeline arguments 
-(`metric_name_var`, `metric_value_var`, `cov_name_var`, `cov_level_var`, `ci`,
-`sigdigits`, `cov_name_ref`, `cov_level_ref`) **cannot** be 
-honored in `plot_forest` — those decisions were already made when `df_forest()`
-ran. 
-
-Passing any of these arguments aborts with a message pointing the caller back 
-at `df_forest()`. Only the plot-only arguments (`metric`, `ref`, `ref_band`, 
-`ref_band_type`, `ref_layout`, `style`) are accepted on this path. 
+On a precomputed `forest_stats`, only the plot arguments (`metric`, `ref`, 
+`ref_band`, `ref_band_type`, `ref_layout`, `show_rep`, `style`) are accepted; 
+summary arguments such as `ci` abort with a pointer to `df_forest()`.
 
 # Inspecting the `forest_stats` object
 
-`df_forest()` returns a `forest_stats` [`pmx_stats`][is_pmx_stats] object with 
-three slots:
-
-  + `stats` (one row per plotted point, in display order)
-  + `obs` (always `NULL`; the forest family has no scatter overlay)
-  + `config` (column names and summary configuration)
-
-The returned object is class-tagged `c("forest_stats", "pmx_stats")`, which 
-provides three S3 methods designed for interactive inspection.
-
-`print()` shows a focused summary — object dimensions, the configuration values
-(`metric_name_var`, `cov_name_var`, `cov_level_var`, `ci`, `sigdigits`, 
-`cov_name_ref`, `cov_level_ref`), and the per-row stats body.
-
-```{r print-stats}
-print(forest_obj)
-```
-
-`summary()` shares the header but condenses the body to one line per row,
-`[metric] covariate: level`. Rows drawn in only one reference layout are tagged
-`(consolidated)` or `(distributed)`; untagged rows draw in both.
+`summary()` prints the configuration and one line per row, 
+`[metric] covariate: level` with its draw count; rows drawn in only one 
+reference layout are tagged `(consolidated)` or `(distributed)`.
 
 ```{r summary-stats}
 summary(forest_obj)
 ```
 
-`as.data.frame()` returns the `stats` slot as a plain `data.frame`. The run 
-configuration remains accessible via `forest_obj$config`.
-
-```{r as-data-frame-stats}
-plain <- as.data.frame(forest_obj)
-class(plain)
-forest_obj$config$cov_level_ref
-```
-
-Use `is_forest_stats()` to test class membership programmatically. 
-Pass `strict = TRUE` to additionally validate structural integrity.
-
-```{r predicate-stats}
-is_forest_stats(forest_obj)
-is_forest_stats(plain)  # FALSE -- coerced to a plain data.frame
-```
+`as.data.frame()` returns the `stats` slot as a plain `data.frame`, and 
+`is_forest_stats()` tests for the class (`strict = TRUE` also validates it).
 
 # Styling
 
@@ -584,6 +557,9 @@ The estimate column is right-hand axis text styled through the theme's
 with the style's `xlabel` field or `labs(x = )`; a title can be added with the 
 `title` field or `labs(title = )`.
 
+The preset examples below share one log x-axis (`scale_x_log10()` with fixed
+limits) so the looks can be compared directly.
+
 ## pmforest styling
 
 `style_forest_pmforest()` reproduces the default look of Metrum's
@@ -594,7 +570,7 @@ so its fields can be overridden the same way.
 
 ```{r plot-pmforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_forest_pmforest(logx = TRUE)) + 
+            style = style_forest_pmforest()) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
@@ -607,7 +583,7 @@ gridlines on both axes, and grey-filled covariate strips.
 
 ```{r plot-coveffectsplot, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_forest_coveffectsplot(logx = TRUE)) + 
+            style = style_forest_coveffectsplot()) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
@@ -621,7 +597,7 @@ intervals, a dotted reference line, and the grey `theme_grey()` panel.
 
 ```{r plot-pmxforest, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_forest_pmxforest(logx = TRUE)) + 
+            style = style_forest_pmxforest()) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 
@@ -634,7 +610,7 @@ open panel without gridlines.
 
 ```{r plot-pumas, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25),
-            style = style_forest_pumas(logx = TRUE)) + 
+            style = style_forest_pumas()) + 
   scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
 ```
 

@@ -67,7 +67,8 @@
 #'
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 10,
 #'                               dv_var = ODV)
 #' result <- df_vpcstats(simout, loq = 1)
 #' head(result$stats)

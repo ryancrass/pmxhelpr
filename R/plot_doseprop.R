@@ -116,7 +116,8 @@ df_loglog <- function(fit,
 #' @export df_doseprop
 #'
 #' @examples
-#' df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+#' df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+#'             metrics = c("aucinf.obs", "cmax"))
 
 df_doseprop <- function(data,
                         metrics,

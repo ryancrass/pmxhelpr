@@ -108,7 +108,8 @@ compatible columns.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                              model = model, replicates = 5,
                               dv_var = ODV, carry_out = "FOOD")
 out <- df_vpcstats(simout, strat_var = FOOD)
 p <- plot_build_vpc(out, pcvpc = FALSE)

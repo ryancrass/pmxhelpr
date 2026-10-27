@@ -888,8 +888,10 @@ cens_vpc + cens_legend + plot_layout(heights = c(2.5, 1))
 
 We can add legends to our stacked continuous data range pcVPC on top and censored data range VPC on bottom. Both panels are built from the same `sim100` data and the same `PART` stratification, so the time bins align across the figure.
 
+The pcVPC draws no LLOQ line, so its legend is built without `lloq`.
+
 ```{r plot-vpc-pc-cens-stack-w-legends, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-pcvpc_patch / vpc_legend / cens_vpc_patch / cens_legend + 
+pcvpc_patch / plot_vpc_legend() / cens_vpc_patch / cens_legend + 
   plot_layout(heights = c(2, 0.5, 2, 0.5))
 ```
 

@@ -26,7 +26,8 @@ plot_vpc_cont(
 )
 }
 \arguments{
-\item{data}{Input dataset. `}
+\item{data}{Simulated replicate data (e.g. from \code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}}), or
+a \code{vpc_stats} object from \code{\link[=df_vpcstats]{df_vpcstats()}}.}
 
 \item{time_var}{Column containing the actual time variable in \code{data}.
 Accepts bare names or strings. Default is \code{TIME}.}
@@ -50,28 +51,19 @@ and \code{facet_ncol}.}
 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}.}
 
-\item{loq}{Numeric scalar, or \code{NULL}. Lower limit of quantification (LLOQ).
-When \code{NULL} and column \code{LLOQ} is present in \code{data}, per-row \code{LLOQ}
-values are used as the censoring threshold; a scalar \code{loq} broadcasts
-to a constant threshold across rows. For standard VPCs (\code{pcvpc = FALSE})
+\item{loq}{Numeric LLOQ, or \code{NULL} (default) to use a per-row \code{LLOQ}
+column when \code{data} has one. Observations with \code{MDV == 1}, missing, or
+below the LOQ are treated as BLQ; they are not dropped, even with no LOQ
+source.
++ Standard VPC (\code{pcvpc = FALSE}): BLQ observations rank below all
+quantifiable values in the observed quantiles; simulated values are
+not censored.
++ pcVPC (\code{pcvpc = TRUE}): observed and simulated BLQ values are set to
+missing before prediction correction, so both are censored alike.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ + If a LOQ source is available (scalar `loq` or `LLOQ` column), all
- observations (including BLQ) are processed and censoring is performed
- at the quantile level. Filter to `EVID==0` so that doses are dropped.
- + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is
- filtered to `MDV==0` since `loq` is unknown.
-}\if{html}{\out{</div>}}
-
-For prediction-corrected VPCs (\code{pcvpc = TRUE})
-+ If a LOQ source is available, all \code{SIMDV} and \code{OBSDV} values
-\verb{< LOQ} (per row) are set to missing (\code{NA_real_}) so that both
-observed and simulated data are censored in the same way before
-quantile calculation.
-+ If \code{loq=NULL} and \code{LLOQ} is NOT present in \code{data}, filter to
-\code{MDV==0} since \code{loq} is unknown.
-Dashed horizontal line plotted at each unique LLOQ value by default for
-standard VPCs (styled via the \code{loq_line} role); suppressed for \code{pcvpc = TRUE}
-since \code{loq} has no meaning on the prediction-corrected scale.}
+The LLOQ line (\code{loq_line} role) is drawn at each unique LLOQ on standard
+VPCs only, since the LLOQ has no meaning on the prediction-corrected
+scale. The observed points show \code{MDV == 0} rows only.}
 
 \item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 

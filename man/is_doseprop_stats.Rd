@@ -23,7 +23,8 @@ Predicate that returns \code{TRUE} if \code{x} carries the \code{"doseprop_stats
 fast path).
 }
 \examples{
-stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                    metrics = c("aucinf.obs", "cmax"))
 is_doseprop_stats(stats)             # TRUE
 is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame
 }

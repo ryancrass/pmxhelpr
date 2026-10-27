@@ -321,6 +321,7 @@ model <- model_mread_load("pkmodel")
 
 #Process Data
 data <- data_sad %>% 
+  filter(CMT %in% c(1, 2)) %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
   mutate(Food = var_addn(Food, ID))
 
@@ -348,7 +349,7 @@ plot_obj_cens
 
 #Add Legend
 shown_cens <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, obs_point = FALSE)
-plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens)
+plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens, type = "cens")
 plot_obj_cens_leg
 
 plot_obj_cens_wleg <- plot_obj_cens + plot_obj_cens_leg + plot_layout(heights = c(2,1))

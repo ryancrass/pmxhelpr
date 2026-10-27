@@ -16,7 +16,8 @@
 #'
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
-#' simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 5,
 #'                               dv_var = ODV)
 #' out <- df_vpcstats(simout)
 #' is_vpc_stats(out)        # TRUE

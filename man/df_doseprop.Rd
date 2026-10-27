@@ -70,7 +70,8 @@ overlay), and \code{config} (regression configuration: \code{metric_name_var}, \
 re-fitting any regressions.
 }
 \examples{
-df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+            metrics = c("aucinf.obs", "cmax"))
 }
 \seealso{
 Other dose proportionality:

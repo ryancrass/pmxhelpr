@@ -209,8 +209,7 @@ caption, follows the list):
 The **caption** is the exception: the style wins. `plot_dvtime()`, 
 `plot_dvconc()`, and `plot_gof()` write a caption describing the plotted data 
 (`show_caption`), and the VPC builders write the replicate count (`show_rep`). 
-A `caption` set in the style (`style_dvtime(caption = "...")`, available from 
-ggstylekit 0.4.1) is drawn regardless of `show_caption` or `show_rep`, 
+A `caption` set in the style (`style_dvtime(caption = "...")`) is drawn regardless of `show_caption` or `show_rep`, 
 replacing the builder's caption, since a caption written into the style is an 
 explicit request. To 
 drop the caption entirely, set `show_caption = FALSE` (or `show_rep = FALSE`) 

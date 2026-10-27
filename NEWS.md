@@ -110,6 +110,8 @@ bundled `pkmodel` are also corrected. See Bug fixes below.
 
 ## Changed behavior
 
+* pmxhelpr now requires ggstylekit >= 0.4.1 (was 0.4.0), which adds the
+  `caption` style field used by the `style_*()` presets.
 * `plot_vpc_legend()`'s `lloq` argument is renamed `loq`, matching every other
   function. `lloq` still works for now with a deprecation warning. `ci` and
   `pi` are validated as in `df_vpcstats()`, so `ci = 90` aborts instead of

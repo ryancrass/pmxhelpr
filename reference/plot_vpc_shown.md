@@ -17,7 +17,8 @@ plot_vpc_shown(
   sim_pi_ci = NULL,
   sim_pi_area = NULL,
   sim_median_line = NULL,
-  sim_median_ci = NULL
+  sim_median_ci = NULL,
+  loq_line = NULL
 )
 ```
 
@@ -54,6 +55,12 @@ plot_vpc_shown(
 - sim_median_ci:
 
   Show simulated median CI ribbon. Default is `TRUE`.
+
+- loq_line:
+
+  Show the LLOQ reference line on standard VPCs, and its entry in
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md).
+  Default is `TRUE`.
 
 ## Value
 
@@ -99,6 +106,9 @@ plot_vpc_shown()
 #> $sim_median_ci
 #> [1] TRUE
 #> 
+#> $loq_line
+#> [1] TRUE
+#> 
 plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 #> $obs_point
 #> [1] FALSE
@@ -122,6 +132,9 @@ plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 #> [1] FALSE
 #> 
 #> $sim_median_ci
+#> [1] TRUE
+#> 
+#> $loq_line
 #> [1] TRUE
 #> 
 ```

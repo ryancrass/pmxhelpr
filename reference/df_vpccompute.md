@@ -5,7 +5,9 @@ summary statistics: the std flavor uses raw `OBSDV`/`SIMDV`; the pc
 flavor applies `var_loqcens` to `SIMDV` (when `loq` is supplied) and
 [`var_predcorr()`](https://ryancrass.github.io/pmxhelpr/reference/var_predcorr.md)
 per (`bin_var` × `strat_var` × `CMT`) to both `OBSDV` and `SIMDV`. The
-pc columns are returned with a `pc_` prefix.
+pc columns are returned with a `pc_` prefix. `pc_sim_*` quantiles are
+masked to `NA` in bins with no quantifiable observations
+(`obs_n == obs_n_blq`).
 
 ## Usage
 

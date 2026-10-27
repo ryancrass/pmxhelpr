@@ -3,8 +3,10 @@
 Draws the LLOQ line (suppressed under `dosenorm`) and appends the BLQ
 imputation caption. The line's fixed aesthetics come from the
 `"loq_line"` series of `style`. When `show_legend` is `TRUE`, the
-linetype is mapped to a `"LLOQ = <value>"` label with a manual scale so
-the line joins the legend; `style_plot()` preserves this manual scale.
+linetype is mapped to a manual scale titled `"LLOQ"` and keyed by the
+value so the line joins the legend; with `show_value = FALSE` the title
+is dropped and the key is labeled `"LLOQ"`. `style_plot()` preserves
+this manual scale.
 
 ## Usage
 
@@ -16,7 +18,8 @@ add_loq_layer_style(
   loq,
   dosenorm,
   style,
-  show_legend = FALSE
+  show_legend = FALSE,
+  show_value = TRUE
 )
 ```
 
@@ -49,6 +52,10 @@ add_loq_layer_style(
 - show_legend:
 
   Logical; whether to add LLOQ to the linetype legend.
+
+- show_value:
+
+  Logical; whether the legend key shows the LLOQ value.
 
 ## Value
 

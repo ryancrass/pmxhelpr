@@ -18,6 +18,8 @@ Top-level functions returning a `ggplot` object.
 - [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
   : Plot a dose-proportionality assessment via power law (log-log)
   regression
+- [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
+  : Plot a forest plot of test and reference comparisons
 - [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
   : Plot a legend for a visual predictive check (VPC)
 
@@ -35,14 +37,18 @@ Lower-level renderers that draw plots from precomputed stats objects.
 
   Build a dose-proportionality ggplot from a `doseprop_stats` object
 
+- [`plot_build_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.md)
+  :
+
+  Build a forest plot ggplot from a `forest_stats` object
+
 ## Styling
 
 Per-plot-family presets returning a
 [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
 for the `style` argument (customize by passing fields,
-e.g. `style_dvtime(shapes = ...)`), plus the `ggstylekit` verbs
-re-exported for adjusting a finished plot:
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
+e.g. `style_dvtime(shapes = ...)`), plus the `ggstylekit` helpers
+re-exported for surfacing variables and assembling plots:
 [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html),
 [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html),
 and
@@ -67,6 +73,31 @@ and
   :
 
   Dose-proportionality plot style (`plot_doseprop`)
+
+- [`style_forest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest.md)
+  :
+
+  Forest plot style (`plot_forest`)
+
+- [`style_forest_pmforest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pmforest.md)
+  :
+
+  pmforest-style forest plot style (`plot_forest`)
+
+- [`style_forest_coveffectsplot()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_coveffectsplot.md)
+  :
+
+  coveffectsplot-style forest plot style (`plot_forest`)
+
+- [`style_forest_pmxforest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pmxforest.md)
+  :
+
+  PMXForest-style forest plot style (`plot_forest`)
+
+- [`style_forest_pumas()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pumas.md)
+  :
+
+  Pumas-style forest plot style (`plot_forest`)
 
 - [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
   :
@@ -102,6 +133,15 @@ Power law (log-log) regression helpers.
 
 - [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
   : Compute and tabulate estimates for log-log regression
+
+## Forest Plot Statistics
+
+Test/reference comparison summaries for forest plots.
+
+- [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+  : Compute Summary Statistics for Covariate Forest Plots
+- [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md)
+  : Reshape Replicate Simulation Output for Covariate Forest Plots
 
 ## Vectorized Helpers
 
@@ -163,6 +203,11 @@ siblings, plus the `pmx_vpc_plot` ggplot subclass.
 
   Test whether an object is a `doseprop_stats` container
 
+- [`is_forest_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_forest_stats.md)
+  :
+
+  Test whether an object is a `forest_stats` container
+
 - [`` `+`( ``*`<pmx_vpc_plot>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_vpc_plot.md)
   :
 
@@ -203,6 +248,16 @@ siblings, plus the `pmx_vpc_plot` ggplot subclass.
 
   Summary method for `doseprop_stats`
 
+- [`print(`*`<forest_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/print.forest_stats.md)
+  :
+
+  Print method for `forest_stats`
+
+- [`summary(`*`<forest_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.forest_stats.md)
+  :
+
+  Summary method for `forest_stats`
+
 ## Datasets
 
 Internal example datasets used in vignettes and worked examples.
@@ -215,3 +270,9 @@ Internal example datasets used in vignettes and worked examples.
 - [`data_sad_pkfit`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkfit.md)
   : Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single
   Ascending Dose Study
+- [`data_sad_pkforest`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkforest.md)
+  : Example Replicate-Draws Dataset for Forest Plots of PK
+  Test/Reference Comparisons
+- [`data_sad_pkforest_sim`](https://ryancrass.github.io/pmxhelpr/reference/data_sad_pkforest_sim.md)
+  : Example Replicate Simulation Output of PK Exposure Metrics Across
+  Covariate Scenarios

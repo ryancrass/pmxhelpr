@@ -11,7 +11,7 @@ CMT or EVID == 0) before calling — see the example below."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ CMT or EVID == 0) before calling — see the example below."><meta property="og:
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -59,6 +60,7 @@ rows internally. Pre-filter the input to observation rows (typically by
 <span>  idv_var <span class="op">=</span> <span class="st">"CONC"</span>,</span>
 <span>  col_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_trend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  show_obs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  loess <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  linear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  se_loess <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -96,6 +98,14 @@ records). Filter by <code>CMT</code> or <code>EVID == 0</code> before passing.</
 <dd><p>Logical indicating if the variable specified in <code>col_var</code> should be used to stratify trend lines</p></dd>
 
 
+<dt id="arg-show-obs">show_obs<a class="anchor" aria-label="anchor" href="#arg-show-obs"></a></dt>
+<dd><p>Logical indicating if observed data points should be shown.
+Default is <code>TRUE</code>. <code>FALSE</code> omits the point layer entirely, so hidden
+points do not affect axis limits (unlike setting
+<code>alphas = c(obs_point = 0)</code> in the style). Spaghetti lines are controlled
+separately by <code>id_var</code>.</p></dd>
+
+
 <dt id="arg-loess">loess<a class="anchor" aria-label="anchor" href="#arg-loess"></a></dt>
 <dd><p>Logical indicating if a loess smoother fit should be shown. Default is <code>TRUE</code></p></dd>
 
@@ -123,14 +133,14 @@ change-from-baseline data.</p></dd>
 
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>
-<dd><p>Logical indicating if a caption should be shown describing the data plotted</p></dd>
+<dd><p>Logical indicating if a caption should be shown describing the data plotted.
+A <code>caption</code> set in the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_dvconc.html">style_dvconc()</a></code>; view the defaults by running <code><a href="style_dvconc.html">style_dvconc()</a></code>
-with no arguments. Customize by passing <code>style = style_dvconc(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>.</p></dd>
+with no arguments. Customize by passing <code>style = style_dvconc(...)</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

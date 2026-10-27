@@ -43,7 +43,8 @@ Other dose proportionality:
 ## Examples
 
 ``` r
-stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                    metrics = c("aucinf.obs", "cmax"))
 is_doseprop_stats(stats)             # TRUE
 #> [1] TRUE
 is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame

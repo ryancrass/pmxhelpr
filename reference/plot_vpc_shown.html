@@ -11,7 +11,7 @@ Each element maps 1:1 with a style_vpc() role/series key."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ Each element maps 1:1 with a style_vpc() role/series key."><meta property="og:im
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -61,7 +62,8 @@ Each element maps 1:1 with a <code><a href="style_vpc.html">style_vpc()</a></cod
 <span>  sim_pi_ci <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sim_pi_area <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sim_median_line <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sim_median_ci <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  sim_median_ci <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  loq_line <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -99,6 +101,11 @@ Each element maps 1:1 with a <code><a href="style_vpc.html">style_vpc()</a></cod
 
 <dt id="arg-sim-median-ci">sim_median_ci<a class="anchor" aria-label="anchor" href="#arg-sim-median-ci"></a></dt>
 <dd><p>Show simulated median CI ribbon. Default is <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-loq-line">loq_line<a class="anchor" aria-label="anchor" href="#arg-loq-line"></a></dt>
+<dd><p>Show the LLOQ reference line on standard VPCs, and its
+entry in <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code>. Default is <code>TRUE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -145,6 +152,9 @@ Each element maps 1:1 with a <code><a href="style_vpc.html">style_vpc()</a></cod
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sim_median_ci</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $loq_line</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">plot_vpc_shown</span><span class="op">(</span>obs_point <span class="op">=</span> <span class="cn">FALSE</span>, sim_pi_line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $obs_point</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
@@ -168,6 +178,9 @@ Each element maps 1:1 with a <code><a href="style_vpc.html">style_vpc()</a></cod
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sim_median_ci</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $loq_line</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>

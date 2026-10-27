@@ -51,8 +51,8 @@ glimpse(data_sad_pkfit)
 #> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
 #> $ AMT     <dbl> NA, 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
 #> $ EVID    <dbl> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, NA, 2.02, 4.02, 3.50, 7.18, 9.31, 12.46, 13.43, 12.11,…
-#> $ LDV     <dbl> NA, NA, NA, 0.7031, 1.3913, 1.2528, 1.9713, 2.2311, 2.5225, 2.…
+#> $ ODV     <dbl> NA, NA, NA, 1.96, 3.86, 3.34, 6.83, 8.87, 11.92, 13.08, 12.09,…
+#> $ LDV     <dbl> NA, NA, NA, 0.6729, 1.3507, 1.2060, 1.9213, 2.1827, 2.4782, 2.…
 #> $ CMT     <dbl> 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,…
 #> $ MDV     <dbl> 1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1…
 #> $ BLQ     <dbl> -1, NA, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, …
@@ -66,8 +66,8 @@ glimpse(data_sad_pkfit)
 #> $ CRCLBL  <dbl> 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 12…
 #> $ USUBJID <chr> "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-1", "STUDYNUM-SITENUM-…
 #> $ PART    <chr> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part …
-#> $ IPRED   <dbl> 0.0000000000, 0.0000000000, 0.2399127105, 0.5809776251, 1.4434…
-#> $ PRED    <dbl> 0.0000000000, 0.0000000000, 1.0373644222, 2.4699025938, 5.8692…
+#> $ IPRED   <dbl> 0.000000000000, 0.000000000000, 0.235847746922, 0.565977888471…
+#> $ PRED    <dbl> 0.0000000000, 0.0000000000, 1.0167419653, 2.3937058312, 5.5900…
 ```
 
 This dataset contains two additional variables representing model
@@ -139,7 +139,7 @@ mrgsolve::see(model)
 #> $MAIN
 #> double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);
 #> double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);
-#> double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);
+#> double Q = TVQ*pow(WT/70,WT_Q)*exp(ETA_Q);
 #> double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);
 #> double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);
 #> double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);
@@ -208,8 +208,8 @@ plot_gof(data = plot_data, dv_var = "ODV") +
 The pooled analysis population includes multiple dose levels in a single
 plot, which is probably not optimal as a population PK model diagnostic.
 A better minimal plot representation of these data can be obtained by
-dose-normalizing and stratifying by study part to separate out the fast
-and food effect portions:
+dose-normalizing and stratifying by food status to separate out the
+fasted and fed portions:
 
 ``` r
 
@@ -346,7 +346,7 @@ the central tendency measure returned with `"mean"` is the *geometric
 mean*.
 
 If the `log_y` argument is used to generate semi-log plots along with
-`show_captions = TRUE`, then the caption will delineate where arithmetic
+`show_caption = TRUE`, then the caption will delineate where arithmetic
 and geometric means are being returned.
 
 ``` r
@@ -383,7 +383,7 @@ following benefits:
 
 - Includes log tick marks on the y-axis
 - Updates the caption with the correct central tendency measure if
-  `show_captions = TRUE`.
+  `show_caption = TRUE`.
 
 ### Handling Below-the-Limit-of-Quantification (BLQ) Data
 
@@ -401,10 +401,10 @@ inherit the BLQ handling pipeline from
 which controls whether the imputation extends to the prediction layers
 (`PRED`, `IPRED`) or stays scoped to the observed layer (`DV`) only.
 
-The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and
-~169 BLQ rows. Without BLQ handling, the observed line drops or
-terminates at late times because those records are filtered out of the
-central tendency.
+The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and 178
+BLQ rows (142 post-dose). Without BLQ handling, the observed line drops
+or terminates at late times because those records are filtered out of
+the central tendency.
 
 ``` r
 
@@ -453,11 +453,11 @@ the observed plateau and the prediction trajectory below the LLOQ is
 itself diagnostic information.
 
 Setting `blq_mode = "all"` extends the imputation to `PRED` and `IPRED`
-as well — any prediction below the LLOQ snaps to `0.5 * LOQ`. Use this
-when the GOF visual should mirror an estimation engine that censored
-predictions during the fit (e.g., M3-style likelihood with explicit BLQ
-censoring), so the rendered prediction lines reflect the same data the
-likelihood saw.
+as well — any prediction below the LLOQ snaps to `0.5 * LOQ`, so the
+observed and predicted lines are summarized on the same imputed basis.
+This is a display choice: likelihood-based BLQ methods such as M3 do not
+alter the model predictions, so `"obs"` remains the faithful view of an
+M3 fit.
 
 ``` r
 
@@ -474,8 +474,8 @@ In short: pick `blq_mode = "obs"` (default) when you want to see how
 well the model’s natural prediction (uncensored) matches censored
 observations — predictions extending below the LLOQ signal where the
 model expects sub-quantifiable concentrations. Pick `blq_mode = "all"`
-when you want a like-for-like visual against an estimation pipeline that
-censored the predictions.
+when you want observed and predicted central tendencies compared after
+the same imputation.
 
 `loq_method = 1` is also available: it imputes only the post-dose BLQ
 records to `0.5 * LOQ` and pre-dose BLQ to `0` — useful for plotting on
@@ -537,6 +537,7 @@ style_gof()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -692,6 +693,5 @@ lapply(1:n_pgs, function(n_pg) {
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
   — the `style_*()` presets, `style_spec()` fields and per-role maps,
   and post-hoc
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
   customizing plot output.

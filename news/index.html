@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -40,6 +41,89 @@
       <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="pmxhelpr-070">pmxhelpr 0.7.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-070"></a></h2>
+<p>This release fixes bugs in previously released functions. <code><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code> returned a stochastic <code>PRED</code> whenever extra arguments were passed through <code>...</code>, which also affected prediction-corrected VPCs built on it. <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> imputed every BLQ row at the first row’s <code>LLOQ</code> when <code>loq = NULL</code> and <code>LLOQ</code> varied. Dose-proportionality <code>tdist</code> intervals and the bundled <code>pkmodel</code> are also corrected. See Bug fixes below.</p>
+<div class="section level3">
+<h3 id="bug-fixes-0-7-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7-0"></a></h3>
+<ul><li>
+<code><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code> passes <code>...</code> to <code><a href="https://mrgsolve.org/docs/reference/mrgsim.html" class="external-link">mrgsolve::mrgsim_df()</a></code> as documented. It previously passed them to <code><a href="https://mrgsolve.org/docs/reference/zero_re.html" class="external-link">mrgsolve::zero_re()</a></code>, so any extra argument left the random effects in and <code>PRED</code> was stochastic. A <code>carry_out</code> in <code>...</code> is merged with <code>output_var</code>, and arguments that change the number of rows (e.g. <code>obsonly</code>) now abort.</li>
+<li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> with <code>loq = NULL</code> impute each row at its own <code>LLOQ</code> value. Previously the first row’s <code>LLOQ</code> was applied to every row (and a leading <code>NA</code> disabled imputation and broke the LLOQ line). With several LLOQs, the LLOQ line is drawn at the highest.</li>
+<li>
+<code><a href="../reference/df_doseprop.html">df_doseprop()</a></code> / <code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code> with <code>method = "tdist"</code> use the regression’s residual degrees of freedom (n - 2) instead of n - 1, matching <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>. Intervals widen slightly, noticeably only for small n.</li>
+<li>
+<code><a href="../reference/df_doseprop.html">df_doseprop()</a></code> / <code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code> judge dose proportionality on unrounded confidence bounds, so bounds within rounding distance of 1 are no longer misclassified as “Dose-proportional”.</li>
+<li>The bundled <code>pkmodel</code> (<code>model_mread_load("pkmodel")</code>) computed intercompartmental clearance from the clearance typical value (<code>Q = TVCL * ...</code>); it now uses <code>TVQ</code>. Simulations from <code>pkmodel</code> change, and <code>data_sad</code>, <code>data_sad_nca</code>, and <code>data_sad_pkfit</code> are regenerated with the corrected model.</li>
+<li>
+<code><a href="../reference/df_doseprop.html">df_doseprop()</a></code> <code>PowerCI</code> labels pad to <code>sigdigits</code> significant digits (e.g. <code>Power: 1.00 (90% CI 0.900-1.20)</code>) and no longer use scientific notation.</li>
+<li>
+<code><a href="../reference/df_doseprop.html">df_doseprop()</a></code> / <code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code> called without <code>metrics</code> abort with a message saying <code>metrics</code> is required, instead of a misleading error about missing <code>doseprop_stats</code> columns.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> of a <code>vpc_stats</code> object no longer drop the <code>config:</code> line when <code>strat_var</code> or <code>loq</code> is <code>NULL</code>; it shows <code>NULL</code>.</li>
+<li>The <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code> caption no longer drops the fit description when the <code>se_*</code> flag of a fit that is not drawn is <code>TRUE</code> (e.g. <code>linear = TRUE, loess = FALSE, se_loess = TRUE</code>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-0"></a></h3>
+<div class="section level4">
+<h4 id="forest-plots-0-7-0">Forest plots<a class="anchor" aria-label="anchor" href="#forest-plots-0-7-0"></a></h4>
+<ul><li>
+<p><code><a href="../reference/plot_forest.html">plot_forest()</a></code> draws a forest plot of test/reference comparisons for one exposure metric, faceted by covariate, with an <code>Estimate (CI)</code> text column on the right.</p>
+<p>Key features:</p>
+<ul><li>Reference line (<code>ref</code>) and optional band (<code>ref_band</code>, <code>ref_band_type</code> of <code>"multiplicative"</code>, <code>"additive"</code>, or <code>"absolute"</code>).</li>
+<li>Accepts raw draws or a precomputed <code>forest_stats</code> container, so a summary can be re-plotted without re-aggregating.</li>
+<li>
+<code>ref_layout</code> draws the reference row in a reference panel (<code>"consolidated"</code>) or in each covariate panel (<code>"distributed"</code>, which needs <code>cov_level_ref</code> in <code><a href="../reference/df_forest.html">df_forest()</a></code>), from one <code>forest_stats</code> container.</li>
+<li>Returns a plain <code>ggplot</code> object.</li>
+</ul></li>
+<li><p><code><a href="../reference/df_forest.html">df_forest()</a></code> summarizes replicate draws into medians and <code>ci</code> percentile intervals with formatted labels, in plot order. <code>cov_level_ref</code> also draws the reference row inside each covariate panel under its own label (e.g. <code>Fasted</code>, <code>70 kg</code>).</p></li>
+<li><p><code><a href="../reference/df_forest_preprocess.html">df_forest_preprocess()</a></code> reshapes wide replicate simulation output (one row per scenario per replicate) into the long draws <code><a href="../reference/df_forest.html">df_forest()</a></code> consumes, inferring each scenario’s covariate from its difference to the reference (<code>cov_val_ref</code>) and optionally adding test/reference ratios (<code>ratio</code>).</p></li>
+<li><p><code><a href="../reference/plot_build_forest.html">plot_build_forest()</a></code> renders any <code>forest_stats</code> container, including manually built ones from external pipelines.</p></li>
+<li><p><code><a href="../reference/style_forest.html">style_forest()</a></code> is the <code>ggstylekit</code> style preset for <code><a href="../reference/plot_forest.html">plot_forest()</a></code>; <code>colors</code> keyed by covariate name, or a palette <code>function(n)</code>, color each covariate panel; <code>errorbar_width</code> (in row heights) draws capped error bars instead of uncapped interval lines.</p></li>
+<li><p><code><a href="../reference/style_forest_pmforest.html">style_forest_pmforest()</a></code>, <code><a href="../reference/style_forest_coveffectsplot.html">style_forest_coveffectsplot()</a></code>, <code><a href="../reference/style_forest_pmxforest.html">style_forest_pmxforest()</a></code>, and <code><a href="../reference/style_forest_pumas.html">style_forest_pumas()</a></code> approximate the default looks of pmforest, <code>coveffectsplot::forest_plot()</code>, <code>PMXForest::forestPlot()</code>, and Pumas’ <code>table_forest_plot()</code>.</p></li>
+<li><p><code><a href="../reference/is_forest_stats.html">is_forest_stats()</a></code> tests for a <code>forest_stats</code> object.</p></li>
+</ul></div>
+<div class="section level4">
+<h4 id="new-arguments-0-7-0">New arguments<a class="anchor" aria-label="anchor" href="#new-arguments-0-7-0"></a></h4>
+<ul><li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code> gain <code>show_obs</code> to omit the observed point layer. Unlike <code>alphas = c(obs_point = 0)</code>, hidden points no longer affect the axis limits.</li>
+<li>
+<code><a href="../reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> gains <code>loq_line</code> (default <code>TRUE</code>); <code>FALSE</code> hides the LLOQ reference line on standard VPCs, including one inherited from an <code>LLOQ</code> column, and its <code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> entry.</li>
+<li>
+<code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code>, <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> gain <code>show_loq_value</code>. Set <code>show_loq_value = FALSE</code> to label the LLOQ linetype as a single <code>"LLOQ"</code> legend entry without its value.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="new-datasets-0-7-0">New datasets<a class="anchor" aria-label="anchor" href="#new-datasets-0-7-0"></a></h4>
+<ul><li>
+<code>data_sad_pkforest_sim</code>: example raw replicate simulation output (500 bootstrap replicates of steady-state <code>CMAX</code>, <code>CMIN</code>, <code>AUC</code>, <code>CAVG</code> under six covariate scenarios).</li>
+<li>
+<code>data_sad_pkforest</code>: <code>data_sad_pkforest_sim</code> processed by <code><a href="../reference/df_forest_preprocess.html">df_forest_preprocess()</a></code>, ready for <code><a href="../reference/df_forest.html">df_forest()</a></code> / <code><a href="../reference/plot_forest.html">plot_forest()</a></code>.</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="breaking-changes-0-7-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-7-0"></a></h3>
+<div class="section level4">
+<h4 id="removed-arguments-0-7-0">Removed arguments<a class="anchor" aria-label="anchor" href="#removed-arguments-0-7-0"></a></h4>
+<ul><li>
+<code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> no longer has a <code>parallel</code> argument; replicates always run sequentially under <code>seed</code>. Passing <code>parallel</code> aborts with a message. <code>future.apply</code> is no longer a suggested dependency.</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="changed-behavior-0-7-0">Changed behavior<a class="anchor" aria-label="anchor" href="#changed-behavior-0-7-0"></a></h3>
+<ul><li>pmxhelpr now requires ggstylekit &gt;= 0.4.1 (was 0.4.0), which adds the <code>caption</code> style field used by the <code>style_*()</code> presets.</li>
+<li>
+<code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code>’s <code>lloq</code> argument is renamed <code>loq</code>, matching every other function. <code>lloq</code> still works for now with a deprecation warning. <code>ci</code> and <code>pi</code> are validated as in <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>, so <code>ci = 90</code> aborts instead of labeling a “9000% CI”.</li>
+<li>
+<code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> aborts with a clear message when <code>pred_var</code> is not <code>"PRED"</code>, which previously failed with an internal column-selection error.</li>
+<li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> message when <code>loq</code> is given with <code>loq_method = 0</code>, where it has no effect.</li>
+<li>Character <code>col_var</code> labels in <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> now order by a number anywhere in the label (e.g. <code>"Dose 5 mg"</code> before <code>"Dose 10 mg"</code>), not only a leading one. Label sets with any number-free value keep first-appearance order; factors are unaffected.</li>
+<li>
+<code>min_bin_count</code> in <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code>, and <code><a href="../reference/plot_build_vpc.html">plot_build_vpc()</a></code> now defaults to <code>0</code> (was <code>1</code>), so no bins are filtered by default. Prediction-corrected simulated quantiles (<code>pc_sim_*</code>) are <code>NA</code> in bins with no quantifiable observations, so pcVPCs do not draw them.</li>
+<li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, <code><a href="../reference/plot_gof.html">plot_gof()</a></code>, <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code>, <code><a href="../reference/plot_build_vpc.html">plot_build_vpc()</a></code>, <code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code>, and <code><a href="../reference/plot_build_doseprop.html">plot_build_doseprop()</a></code> abort when a logical argument (e.g. <code>log_y</code>, <code>show_caption</code>, <code>pcvpc</code>, <code>show_rep</code>, <code>se</code>) is not <code>TRUE</code> or <code>FALSE</code>, instead of silently treating it as <code>FALSE</code> or failing later with an unclear error.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="pmxhelpr-060">pmxhelpr 0.6.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-060"></a></h2>
 <p>Plot styling is now powered by the <code>ggstylekit</code> package, replacing the bespoke <code>pmx_*</code> element/theme system introduced in 0.5.0.</p>
@@ -180,7 +264,7 @@
 <div class="section level4">
 <h4 id="new-arguments-0-5-0">New arguments<a class="anchor" aria-label="anchor" href="#new-arguments-0-5-0"></a></h4>
 <ul><li>
-<code>df_mrgsim_replicate(parallel = FALSE)</code> — when <code>TRUE</code>, replicate simulations run via <code><a href="https://future.apply.futureverse.org/reference/future_lapply.html" class="external-link">future.apply::future_lapply()</a></code> using the active <code>future</code> plan, with per-replicate L’Ecuyer-CMRG RNG streams so output stays reproducible under a fixed <code>seed</code>. Adds <code>future.apply</code> to <code>Suggests</code>.</li>
+<code>df_mrgsim_replicate(parallel = FALSE)</code> — when <code>TRUE</code>, replicate simulations run via <code>future.apply::future_lapply()</code> using the active <code>future</code> plan, with per-replicate L’Ecuyer-CMRG RNG streams so output stays reproducible under a fixed <code>seed</code>. Adds <code>future.apply</code> to <code>Suggests</code>.</li>
 <li>
 <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> and <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> gain <code>mode = c("auto", "rank", "drop")</code> controlling how BLQ-encoded values flow into quantile aggregation. <code>"auto"</code> (default) resolves to <code>"rank"</code> for std VPC and <code>"drop"</code> for pcVPC.</li>
 <li>

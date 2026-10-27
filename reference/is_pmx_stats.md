@@ -2,13 +2,15 @@
 
 Predicate that returns `TRUE` if `x` carries the `"pmx_stats"` class.
 This is the shared base class for
-[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+[`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
 and
-[`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
 outputs; use the subclass-specific predicates
-[`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md)
+[`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md),
+[`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md),
 and
-[`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md)
+[`is_forest_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_forest_stats.md)
 when you need to discriminate between pipelines.
 
 ## Usage

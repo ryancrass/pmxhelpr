@@ -3,7 +3,7 @@
 This vignette will demonstrate `pmxhelpr` functions for exploratory data
 analysis of dose-concentration-time data to inform population PK
 modeling analysis. This includes package functions to visualize
-concentration-time data and to assess dose-proportionality of exposure.
+concentration-time and exposure-response data.
 
 ``` r
 
@@ -39,10 +39,10 @@ glimpse(data_sad)
 #> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
 #> $ AMT     <dbl> 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
 #> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 2.02000, 99.44932, 4.02000, 9…
-#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.70310, 99.44932, 1.39130, 9…
+#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 1.96000, 99.44932, 3.86000, 9…
+#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.67290, 99.44932, 1.35070, 9…
 #> $ CFB     <dbl> NA, NA, 0.0000000, NA, -0.1229974, NA, -0.5506789, NA, -2.3928…
-#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 2.02, NA, 4.02, NA, 3.50, NA, 7.18…
+#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 1.96, NA, 3.86, NA, 3.34, NA, 6.83…
 #> $ LINE    <dbl> 2, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,…
 #> $ CMT     <dbl> 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,…
 #> $ MDV     <dbl> NA, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
@@ -271,7 +271,7 @@ adding the layer to the returned object with
 
 - Includes log tick marks on the y-axis
 - Updates the caption with the correct central tendency measure if
-  `show_captions = TRUE`.
+  `show_caption = TRUE`.
 
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
 uses the
@@ -286,7 +286,7 @@ is applied to the plot, the data are log-transformed for plotting and
 the central tendency measure returned when requesting `"mean"` from
 [`stat_summary()`](https://ggplot2.tidyverse.org/reference/stat_summary.html)
 is the *geometric mean*. If the `log_y` argument is used to generate
-semi-log plots along with `show_captions = TRUE`, then the caption will
+semi-log plots along with `show_caption = TRUE`, then the caption will
 delineate where arithmetic and geometric means are being returned.
 
 ``` r
@@ -341,7 +341,7 @@ calculation is performed *after* any transformations to the data and
 this option will return the geometric mean when `log_y=TRUE`.
 
 If the `log_y` argument is used to generate semi-log plots along with
-`show_captions = TRUE`, then the caption will automatically delineate
+`show_caption = TRUE`, then the caption will automatically delineate
 where arithmetic and geometric means are being returned.
 
 ``` r
@@ -372,13 +372,13 @@ plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, cent =
 The plot can be simplified to show mean +/- standard deviation by
 specifying `cent = "mean_sdl"`. The observed points just add noise when
 combined with error bars and can be hidden by setting
-`alphas = c(obs_point = 0)` in the style.
+`show_obs = FALSE`.
 
 ``` r
 
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl",log_y = TRUE,
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -394,7 +394,7 @@ requested by specifying `cent = "mean_sdl_upper"`.
 
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "mean_sdl_upper",
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -410,7 +410,7 @@ specifying `cent = "median_iqr"`.
 
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`, 
             cent = "median_iqr",log_y = TRUE,
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            show_obs = FALSE) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
@@ -594,6 +594,7 @@ style_dvtime()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -631,7 +632,6 @@ to 2.5% of the maximum nominal time.
 ``` r
 
 dvtime_new_style <- style_dvtime(
-  alphas = c(obs_point = 0),
   errorbar_width = 10
 )
 ```
@@ -639,7 +639,7 @@ dvtime_new_style <- style_dvtime(
 ``` r
 
 plot_dvtime(data = plot_data_pk, dv_var = ODV, col_var = `Dose and Food`,
-            cent = "mean_sdl",log_y = TRUE,
+            cent = "mean_sdl",log_y = TRUE, show_obs = FALSE,
             style = dvtime_new_style) +
   scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)") +
@@ -1030,6 +1030,7 @@ style_dvconc()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -1090,6 +1091,5 @@ plot_dvconc(data = plot_data_pd, dv_var = CFB, idv_var = CONC,ref = 0,
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
   — the `style_*()` presets, `style_spec()` fields and per-role maps,
   and post-hoc
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
   customizing plot output.

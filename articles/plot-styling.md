@@ -68,12 +68,10 @@ model <- model_mread_load("pkmodel")
 
 ## Plot Styling with `ggstylekit` in `pmxhelpr`
 
-`pmxhelpr` re-exports four functions from `ggstylekit`:
+`pmxhelpr` re-exports these functions from `ggstylekit`:
 
 - [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html): map a
   new data variable to an aesthetic or facet, then re-style
-- [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html):
-  adjust a plot style after it has been styled.
 - [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html):
   combine styled plots and collect legends
 - [`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html):
@@ -157,6 +155,7 @@ style_dvtime()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -255,7 +254,8 @@ style_dvtime()$alphas
 
 A few aesthetic decisions belong to the plot builder rather than to the
 style, because the builder needs them to decide *what to draw*, not just
-how to draw it. Where the two overlap, the builder argument wins:
+how to draw it. Where the two overlap, the builder argument wins (the
+one exception, the caption, follows the list):
 
 - **`log_y`**:
   [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
@@ -273,6 +273,12 @@ how to draw it. Where the two overlap, the builder argument wins:
   so the style spec’s `logx`/`logy`/`xbreaks`/`facet` fields are
   ignored. The facet *layout* fields (`facet_scales`, default `"free"`;
   `facet_nrow`; `facet_ncol`) are honored.
+- **[`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
+  facets**: the forest builder draws its own covariate row facets
+  ([`facet_grid()`](https://ggplot2.tidyverse.org/reference/facet_grid.html)
+  with strips outside the y-axis), so the style spec’s `facet*` fields
+  are ignored; see
+  [`style_forest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest.md).
 - **Visibility**:
   [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
   /
@@ -282,6 +288,27 @@ how to draw it. Where the two overlap, the builder argument wins:
   draws an invisible layer and includes it in the legend whereas
   `plot_vpc_shown(obs_point = FALSE)` omits it entirely. `shown` is the
   preferred method when a layer is not wanted.
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+  expose the same choice for observed points through `show_obs = FALSE`,
+  the counterpart of `plot_gof_shown(obs = FALSE)` and
+  `plot_vpc_shown(obs_point = FALSE)` (a single flag, since the observed
+  points are their only optional layer); an invisible layer still sets
+  the axis limits.
+
+The **caption** is the exception: the style wins.
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+[`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+and
+[`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+write a caption describing the plotted data (`show_caption`), and the
+VPC builders write the replicate count (`show_rep`). A `caption` set in
+the style (`style_dvtime(caption = "...")`) is drawn regardless of
+`show_caption` or `show_rep`, replacing the builder’s caption, since a
+caption written into the style is an explicit request. To drop the
+caption entirely, set `show_caption = FALSE` (or `show_rep = FALSE`) and
+leave the style `caption` unset.
 
 ### Examples
 
@@ -294,8 +321,8 @@ function call.
 
 plot_dvtime(
   data = data_pk, dv_var = ODV, col_var = `Dose and Food`,
-  cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  cent = "mean_sdl", log_y = TRUE, loq_method = 2, show_obs = FALSE,
+  style = style_dvtime(linewidths = c(cent_line = 1.5))
 ) +
   scale_x_continuous(breaks = seq(0, 168, 24))+
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
@@ -314,7 +341,6 @@ labels, legends, and themes.
 ``` r
 
 new_dvtime_style <- style_dvtime(
-  alphas     = c(obs_point = 0),
   xbreaks = seq(0, 168, 24),
   ybreaks = c(0.1, 1, 10, 100, 1000),
   ylims   = c(0.1, 2000),
@@ -325,7 +351,7 @@ new_dvtime_style <- style_dvtime(
 
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = new_dvtime_style) 
+            show_obs = FALSE, style = new_dvtime_style) 
 ```
 
 ![](plot-styling_files/figure-html/ex-reusable-1.png)
@@ -344,7 +370,7 @@ with the time axis. Set it in the style to override:
 
 plot_dvtime(data_pk, dv_var = ODV, col_var = `Dose and Food`,
             cent = "mean_sdl", log_y = TRUE, loq_method = 2,
-            style = style_dvtime(alphas = c(obs_point = 0), errorbar_width = 10))
+            show_obs = FALSE, style = style_dvtime(errorbar_width = 10))
 ```
 
 ![](plot-styling_files/figure-html/ex-ebwidth-1.png)
@@ -557,8 +583,8 @@ plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
 
 ### GOF overlay colors (`plot_gof()`)
 
-The DV (OBS), PRED, and PRED central tendency lines are the **role**
-keys for the **per-series map** `colors`.
+The observed points (`OBS`) and the DV, PRED, and IPRED central tendency
+lines are the **role** keys for the **per-series map** `colors`.
 
 ``` r
 
@@ -640,11 +666,12 @@ builds a standalone legend plot intended to be combined with the VPC
 plot into a single figure.
 
 Pass the **same** style object along with the same `shown`, `ci`, and
-`pi` as the plotting function to generate the corresponding legend.
+`pi` as the plotting function to generate the corresponding legend. The
+pcVPC above draws no LLOQ line, so the legend has no `loq` entry.
 
 ``` r
 
-plot_vpc_legend(style = pcvpc_style, lloq = 1)
+plot_vpc_legend(style = pcvpc_style)
 ```
 
 ![](plot-styling_files/figure-html/ex-vpc-legend-1.png)
@@ -673,43 +700,6 @@ plot_dvtime(
 
 ![](plot-styling_files/figure-html/ex-theme-1.png)
 
-## Post-hoc styling: making aesthetic changes with `restyle_plot()`
-
-`ggstylekit` not only handles plot styling *a priori*, it also handles
-plot styling *a posteriori* after a finished plot object has been
-generated.
-
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-merges style fields onto a finished plot. Restyling works analogously to
-the up front styling with style specs.
-
-For example, if one wanted to remove points and the legend from an
-existing plot, this can be accomplished as follows with `restyle_plot`.
-
-``` r
-
-p <- plot_dvtime(data_pk, dv_var = ODV, cent = "median", log_y = TRUE, 
-                 loq_method = 2,
-                 style = style_dvtime(
-                   xlabel = "Time (hours)", 
-                   ylabel = "Dose-normalized Conc. (ng/mL/mg)",
-                   xbreaks = seq(0, 168, 24)
-                 ))
-p
-```
-
-![](plot-styling_files/figure-html/restyle-1.png)
-
-``` r
-
-
-restyle_plot(p, 
-             alphas = c(obs_point = 0), 
-             legends = legend_spec(channel = "linetype", hide = TRUE))
-```
-
-![](plot-styling_files/figure-html/restyle-2.png)
-
 ## Post-hoc styling: surfacing new variables with `reveal()`
 
 One of the most powerful features of `ggstylekit` is the
@@ -718,6 +708,20 @@ One of the most powerful features of `ggstylekit` is the
 [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) maps a
 variable present in the underlying plot dataset that is not currently
 mapped to a graphical channel (or a facet).
+
+``` r
+
+p <- plot_dvtime(data_pk, dv_var = ODV, cent = "median", log_y = TRUE, 
+                 loq_method = 2,
+                 style = style_dvtime(
+                   xlabel = "Time (hours)", 
+                   ylabel = "Concentration (ng/mL)",
+                   xbreaks = seq(0, 168, 24)
+                 ))
+p
+```
+
+![](plot-styling_files/figure-html/reveal-base-1.png)
 
 ### Mapping to all layers with `as =`
 
@@ -844,31 +848,37 @@ p_combo
 
 ![](plot-styling_files/figure-html/combine-1.png)
 
-The combined figure is still a styled object, so
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-and [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html)
-continue to work. Here the collected legend is re-titled and moved to
-the bottom of the figure:
+To change the collected legend, set it in the panel styles before
+combining. Here the legend is re-titled and relabeled and the colors
+changed in both panels. Note that `labels` is not a style field: legend
+entries are relabeled through the `labels` argument of
+[`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html).
 
 ``` r
 
-restyle_plot(p_combo, 
-             legends = legend_spec(`Food Status`, title = "Meal Status",
-                                   labels = c(Fasted = "Fasted (overnight)", 
-                                              Fed = "Fed (high-fat)")),
-             colors = c(Fasted = "#3388cc", Fed = "firebrick"),
-             legend.position = "bottom")
+meal_style <- function(title) {
+  style_dvtime(
+    alphas = c(obs_point = 0.3),
+    xlabel = "Time (hours)",
+    ylabel = "Concentration (ng/mL)",
+    title = title,
+    colors = c(Fasted = "#3388cc", Fed = "firebrick"),
+    legends = legend_spec(`Food Status`, title = "Meal Status",
+                          labels = c(Fasted = "Fasted (overnight)",
+                                     Fed = "Fed (high-fat)"))
+  )
+}
+
+combine_styled_plots(
+  plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
+              cent = "mean", log_y = TRUE, style = meal_style("Geometric Mean")),
+  plot_dvtime(data_pk, dv_var = ODV, col_var = `Food Status`,
+              cent = "median", log_y = TRUE, style = meal_style("Median")),
+  ncol = 2
+)
 ```
 
-![](plot-styling_files/figure-html/combine-restyle-1.png)
-
-`legend.position` moves the collected legend on the combined figure, as
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-reaches the assembled figure and not only the individual panels. Note
-that `labels` is not a style field: legend entries are relabeled through
-the `labels` argument of
-[`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html),
-as above.
+![](plot-styling_files/figure-html/combine-legend-1.png)
 
 Panels do not have to come from the same plot family; however, legends
 need to be **identical** and drawn from the same layer sets. Here

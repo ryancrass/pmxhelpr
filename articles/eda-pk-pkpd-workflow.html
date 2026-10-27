@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
@@ -72,8 +73,7 @@
 <p>This vignette will demonstrate <code>pmxhelpr</code> functions for
 exploratory data analysis of dose-concentration-time data to inform
 population PK modeling analysis. This includes package functions to
-visualize concentration-time data and to assess dose-proportionality of
-exposure.</p>
+visualize concentration-time and exposure-response data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span>, rmarkdown.html_vignette.check_title <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
@@ -103,10 +103,10 @@ A quick summary of variables and types is printed below.</p>
 <span><span class="co">#&gt; $ DOSE    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10…</span></span>
 <span><span class="co">#&gt; $ AMT     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 10<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span>…</span></span>
 <span><span class="co">#&gt; $ EVID    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ ODV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>100.00000<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>99.87700<span style="color: #949494;">, </span>2.02000<span style="color: #949494;">, </span>99.44932<span style="color: #949494;">, </span>4.02000<span style="color: #949494;">, </span>9…</span></span>
-<span><span class="co">#&gt; $ LDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>100.00000<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>99.87700<span style="color: #949494;">, </span>0.70310<span style="color: #949494;">, </span>99.44932<span style="color: #949494;">, </span>1.39130<span style="color: #949494;">, </span>9…</span></span>
+<span><span class="co">#&gt; $ ODV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>100.00000<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>99.87700<span style="color: #949494;">, </span>1.96000<span style="color: #949494;">, </span>99.44932<span style="color: #949494;">, </span>3.86000<span style="color: #949494;">, </span>9…</span></span>
+<span><span class="co">#&gt; $ LDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>100.00000<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>99.87700<span style="color: #949494;">, </span>0.67290<span style="color: #949494;">, </span>99.44932<span style="color: #949494;">, </span>1.35070<span style="color: #949494;">, </span>9…</span></span>
 <span><span class="co">#&gt; $ CFB     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.0000000<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>-0.1229974<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>-0.5506789<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>-2.3928…</span></span>
-<span><span class="co">#&gt; $ CONC    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.00<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.00<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.02<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>4.02<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.50<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>7.18…</span></span>
+<span><span class="co">#&gt; $ CONC    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.00<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.00<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>1.96<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.86<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.34<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>6.83…</span></span>
 <span><span class="co">#&gt; $ LINE    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ CMT     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ MDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0…</span></span>
@@ -317,7 +317,7 @@ layer to the returned object with <code><a href="https://ggplot2.tidyverse.org/r
 <ul>
 <li>Includes log tick marks on the y-axis</li>
 <li>Updates the caption with the correct central tendency measure if
-<code>show_captions = TRUE</code>.</li>
+<code>show_caption = TRUE</code>.</li>
 </ul>
 <p><code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> uses the <code><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary()</a></code>
 function from <code>ggplot2</code> to calculate and plot the central
@@ -329,7 +329,7 @@ is applied to the plot, the data are log-transformed for plotting and
 the central tendency measure returned when requesting
 <code>"mean"</code> from <code><a href="https://ggplot2.tidyverse.org/reference/stat_summary.html" class="external-link">stat_summary()</a></code> is the
 <em>geometric mean</em>. If the <code>log_y</code> argument is used to
-generate semi-log plots along with <code>show_captions = TRUE</code>,
+generate semi-log plots along with <code>show_caption = TRUE</code>,
 then the caption will delineate where arithmetic and geometric means are
 being returned.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -372,7 +372,7 @@ passed to the <code>col_var</code>. The default is
 performed <em>after</em> any transformations to the data and this option
 will return the geometric mean when <code>log_y=TRUE</code>.</p>
 <p>If the <code>log_y</code> argument is used to generate semi-log plots
-along with <code>show_captions = TRUE</code>, then the caption will
+along with <code>show_caption = TRUE</code>, then the caption will
 automatically delineate where arithmetic and geometric means are being
 returned.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -394,11 +394,11 @@ Therefore, we can facet by PART by simply adding in another layer to our
 <p>The plot can be simplified to show mean +/- standard deviation by
 specifying <code>cent = "mean_sdl"</code>. The observed points just add
 noise when combined with error bars and can be hidden by setting
-<code>alphas = c(obs_point = 0)</code> in the style.</p>
+<code>show_obs = FALSE</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, </span>
 <span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>,log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>            show_obs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since First Dose (hours)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -409,7 +409,7 @@ may be requested by specifying <code>cent = "mean_sdl_upper"</code>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, </span>
 <span>            cent <span class="op">=</span> <span class="st">"mean_sdl_upper"</span>,</span>
-<span>            style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>            show_obs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since First Dose (hours)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -420,7 +420,7 @@ specifying <code>cent = "median_iqr"</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>, </span>
 <span>            cent <span class="op">=</span> <span class="st">"median_iqr"</span>,log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>            show_obs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since First Dose (hours)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span></code></pre></div>
@@ -583,6 +583,7 @@ Response-Time aesthetics.</p>
 <span><span class="co">#&gt;   title                  NULL</span></span>
 <span><span class="co">#&gt;   xlabel                 NULL</span></span>
 <span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   caption                NULL</span></span>
 <span><span class="co">#&gt;   xlims                  NULL</span></span>
 <span><span class="co">#&gt;   ylims                  NULL</span></span>
 <span><span class="co">#&gt;   logx                   NULL</span></span>
@@ -616,12 +617,11 @@ dose and food passed to the color aesthetic. Error bar cap width is the
 defaults to 2.5% of the maximum nominal time.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dvtime_new_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
-<span>  alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  errorbar_width <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>,</span>
-<span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>,log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>,log_y <span class="op">=</span> <span class="cn">TRUE</span>, show_obs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>            style <span class="op">=</span> <span class="va">dvtime_new_style</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time Since First Dose (hours)"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -932,6 +932,7 @@ examples of customizing Response-Concentration aesthetics.</p>
 <span><span class="co">#&gt;   title                  NULL</span></span>
 <span><span class="co">#&gt;   xlabel                 NULL</span></span>
 <span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   caption                NULL</span></span>
 <span><span class="co">#&gt;   xlims                  NULL</span></span>
 <span><span class="co">#&gt;   ylims                  NULL</span></span>
 <span><span class="co">#&gt;   logx                   NULL</span></span>
@@ -986,8 +987,8 @@ exposure using power law (log-log) regression</li>
 <li>
 <a href="plot-styling.html">Plot Styling and Aesthetics</a> — the
 <code>style_*()</code> presets, <code>style_spec()</code> fields and
-per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> /
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot output.</li>
+per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot
+output.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -15,7 +15,7 @@ selectively hide variables."><meta property="og:image" content="https://ryancras
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,7 @@ selectively hide variables."><meta property="og:image" content="https://ryancras
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -71,6 +72,7 @@ selectively hide variables.</p>
 <span>  dose_var <span class="op">=</span> <span class="st">"DOSE"</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  show_loq_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  blq_mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"obs"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
 <span>  cent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"mean_sdl"</span>, <span class="st">"mean_sdl_upper"</span>, <span class="st">"median"</span>, <span class="st">"median_iqr"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  dosenorm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -130,8 +132,10 @@ Accepts bare names or strings. Default is <code>DOSE</code>.</p></dd>
 
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
-<dd><p>Numeric value of the lower limit of quantification (LLOQ).
-BLQ imputation behavior on the DV / prediction layers is controlled by
+<dd><p>Numeric value of the lower limit of quantification (LLOQ), or
+<code>NULL</code> to impute each row at its own <code>LLOQ</code> column value (the LLOQ line
+is drawn at the highest). Has no effect with <code>loq_method = 0</code> (the
+default), which emits a message. BLQ imputation behavior on the DV / prediction layers is controlled by
 <code>blq_mode</code> and <code>loq_method</code>. Default is <code>NULL</code>.</p></dd>
 
 
@@ -140,13 +144,20 @@ BLQ imputation behavior on the DV / prediction layers is controlled by
 option details. Default is <code>0</code> (no imputation).</p></dd>
 
 
+<dt id="arg-show-loq-value">show_loq_value<a class="anchor" aria-label="anchor" href="#arg-show-loq-value"></a></dt>
+<dd><p>Logical. If <code>TRUE</code> (default), the LLOQ line's legend
+entry is titled <code>"LLOQ"</code> and keyed by its value. If <code>FALSE</code>, the title is
+dropped and the entry is labeled <code>"LLOQ"</code> without the value. Applies only
+when the LLOQ line is drawn (<code>loq_method</code> of <code>1</code> or <code>2</code>, <code>dosenorm = FALSE</code>).</p></dd>
+
+
 <dt id="arg-blq-mode">blq_mode<a class="anchor" aria-label="anchor" href="#arg-blq-mode"></a></dt>
 <dd><p>One of <code>"obs"</code> (default) or <code>"all"</code>. Controls which layers
 receive BLQ imputation: <code>"obs"</code> imputes the observed <code>DV</code> layer only,
 leaving <code>PRED</code> / <code>IPRED</code> untouched (mirrors <code><a href="plot_dvtime.html">plot_dvtime()</a></code>); <code>"all"</code>
-additionally imputes the prediction layers, useful when the GOF visual
-should mirror an estimation engine that censored predictions to LLOQ.
-Has no effect when <code>loq_method = 0</code>.</p></dd>
+applies the same 1/2 LLOQ imputation to <code>PRED</code> / <code>IPRED</code>, so observed and
+predicted lines are summarized on the same imputed basis. Has no effect
+when <code>loq_method = 0</code>.</p></dd>
 
 
 <dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
@@ -173,14 +184,14 @@ when <code>show_caption = TRUE</code>.</p></dd>
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>
 <dd><p>Logical indicating if a caption should be shown
-describing the data plotted.</p></dd>
+describing the data plotted. A <code>caption</code> set in the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_gof.html">style_gof()</a></code>; view the defaults by running <code><a href="style_gof.html">style_gof()</a></code>
-with no arguments. Customize by passing <code>style = style_gof(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. The DV/PRED/IPRED (and
+with no arguments. Customize by passing <code>style = style_gof(...)</code>.
+The DV/PRED/IPRED (and
 OBS) overlays are colored by the <code>colors</code> map keyed by those labels. The
 error bar cap width is the style's <code>errorbar_width</code> field; when unset it
 defaults to 2.5% of the maximum nominal time (<code>ntime_var</code>).</p></dd>
@@ -200,11 +211,11 @@ defaults to 2.5% of the maximum nominal time (<code>ntime_var</code>).</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">plot_gof</span><span class="op">(</span><span class="va">data_sad_pkfit</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing non-finite outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing non-finite outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`stat_summary()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing non-finite outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing non-finite outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`stat_summary()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing missing values or values outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing missing values or values outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_point()`).</span>
 <span class="r-plt img"><img src="plot_gof-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

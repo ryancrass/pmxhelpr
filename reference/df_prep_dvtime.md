@@ -91,8 +91,8 @@ df_prep_dvtime(
 
 ## Value
 
-A named list with elements `data` (processed data.frame) and `lloq`
-(numeric LLOQ value).
+A named list with elements `data` (processed data.frame) and `lloq` (the
+LLOQ line value: the highest LLOQ in the data, or `NA`).
 
 ## Examples
 
@@ -105,10 +105,10 @@ head(prep$data)
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>
 #> 1     1  0      0       1    10    NA     0 NA    NA        NA    NA     1     2
 #> 2     1  0.48   0.5     1    10    NA     0 NA    NA        NA    NA     3     2
-#> 3     1  0.81   1       1    10    NA     0  2.02  0.703    NA    NA     4     2
-#> 4     1  1.49   1.5     1    10    NA     0  4.02  1.39     NA    NA     5     2
-#> 5     1  2.11   2       1    10    NA     0  3.5   1.25     NA    NA     6     2
-#> 6     1  3.05   3       1    10    NA     0  7.18  1.97     NA    NA     7     2
+#> 3     1  0.81   1       1    10    NA     0  1.96  0.673    NA    NA     4     2
+#> 4     1  1.49   1.5     1    10    NA     0  3.86  1.35     NA    NA     5     2
+#> 5     1  2.11   2       1    10    NA     0  3.34  1.21     NA    NA     6     2
+#> 6     1  3.05   3       1    10    NA     0  6.83  1.92     NA    NA     7     2
 #> # ℹ 12 more variables: MDV <dbl>, BLQ <dbl>, LLOQ <dbl>, FOOD <dbl>,
 #> #   SEXF <dbl>, RACE <dbl>, AGEBL <int>, WTBL <dbl>, SCRBL <dbl>, CRCLBL <dbl>,
 #> #   USUBJID <chr>, PART <chr>

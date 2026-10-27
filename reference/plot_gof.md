@@ -22,6 +22,7 @@ plot_gof(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
+  show_loq_value = TRUE,
   blq_mode = c("obs", "all"),
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
@@ -83,9 +84,12 @@ plot_gof(
 
 - loq:
 
-  Numeric value of the lower limit of quantification (LLOQ). BLQ
-  imputation behavior on the DV / prediction layers is controlled by
-  `blq_mode` and `loq_method`. Default is `NULL`.
+  Numeric value of the lower limit of quantification (LLOQ), or `NULL`
+  to impute each row at its own `LLOQ` column value (the LLOQ line is
+  drawn at the highest). Has no effect with `loq_method = 0` (the
+  default), which emits a message. BLQ imputation behavior on the DV /
+  prediction layers is controlled by `blq_mode` and `loq_method`.
+  Default is `NULL`.
 
 - loq_method:
 
@@ -93,15 +97,22 @@ plot_gof(
   [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
   for option details. Default is `0` (no imputation).
 
+- show_loq_value:
+
+  Logical. If `TRUE` (default), the LLOQ line's legend entry is titled
+  `"LLOQ"` and keyed by its value. If `FALSE`, the title is dropped and
+  the entry is labeled `"LLOQ"` without the value. Applies only when the
+  LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
+
 - blq_mode:
 
   One of `"obs"` (default) or `"all"`. Controls which layers receive BLQ
   imputation: `"obs"` imputes the observed `DV` layer only, leaving
   `PRED` / `IPRED` untouched (mirrors
   [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md));
-  `"all"` additionally imputes the prediction layers, useful when the
-  GOF visual should mirror an estimation engine that censored
-  predictions to LLOQ. Has no effect when `loq_method = 0`.
+  `"all"` applies the same 1/2 LLOQ imputation to `PRED` / `IPRED`, so
+  observed and predicted lines are summarized on the same imputed basis.
+  Has no effect when `loq_method = 0`.
 
 - cent:
 
@@ -129,7 +140,8 @@ plot_gof(
 - show_caption:
 
   Logical indicating if a caption should be shown describing the data
-  plotted.
+  plotted. A `caption` set in the style is drawn instead, whatever this
+  value.
 
 - style:
 
@@ -139,11 +151,9 @@ plot_gof(
   [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md);
   view the defaults by running
   [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md)
-  with no arguments. Customize by passing `style = style_gof(...)`, or
-  restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
-  The DV/PRED/IPRED (and OBS) overlays are colored by the `colors` map
-  keyed by those labels. The error bar cap width is the style's
+  with no arguments. Customize by passing `style = style_gof(...)`. The
+  DV/PRED/IPRED (and OBS) overlays are colored by the `colors` map keyed
+  by those labels. The error bar cap width is the style's
   `errorbar_width` field; when unset it defaults to 2.5% of the maximum
   nominal time (`ntime_var`).
 
@@ -161,11 +171,11 @@ Other goodness-of-fit:
 
 ``` r
 plot_gof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
-#> Warning: Removed 169 rows containing non-finite outside the scale range
+#> Warning: Removed 178 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 169 rows containing non-finite outside the scale range
+#> Warning: Removed 178 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 169 rows containing missing values or values outside the scale range
+#> Warning: Removed 178 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 ```

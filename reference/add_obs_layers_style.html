@@ -15,7 +15,7 @@ are filled by ggstylekit::style_plot()."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,7 @@ are filled by ggstylekit::style_plot()."><meta property="og:image" content="http
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -59,7 +60,7 @@ are filled by <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_plot.html"
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_obs_layers_style</span><span class="op">(</span><span class="va">plot</span>, <span class="va">id_var_str</span>, col_var_str <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_obs_layers_style</span><span class="op">(</span><span class="va">plot</span>, <span class="va">id_var_str</span>, col_var_str <span class="op">=</span> <span class="cn">NULL</span>, show_point <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -77,6 +78,11 @@ are filled by <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_plot.html"
 <dt id="arg-col-var-str">col_var_str<a class="anchor" aria-label="anchor" href="#arg-col-var-str"></a></dt>
 <dd><p>Column name to map to color at the layer level, or <code>NULL</code>
 to inherit color from the plot's global mapping.</p></dd>
+
+
+<dt id="arg-show-point">show_point<a class="anchor" aria-label="anchor" href="#arg-show-point"></a></dt>
+<dd><p>Logical; whether to add the observed point layer. When
+<code>FALSE</code> the layer is omitted entirely, so it does not train the axes.</p></dd>
 
 </dl></div>
     <div class="section level2">

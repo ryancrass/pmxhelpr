@@ -26,9 +26,9 @@ Recommended entry points by task:
 
 - Plot styling – `style_*()` presets returning a
   [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html)
-  for the `style` argument; adjust finished plots with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
-  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html), and
+  for the `style` argument; surface extra variables with
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) and
+  assemble plots with
   [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html)
 
 Full narrative documentation with worked examples lives on the package

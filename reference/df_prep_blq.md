@@ -18,8 +18,11 @@ df_prep_blq(data, loq, loq_method, pred_vars = NULL)
 
   Numeric value of the lower limit of quantification (LLOQ) for the
   assay. Must be coercible to a numeric if specified. Can be `NULL` if
-  variable `LLOQ` is present in `data` Specifying this argument implies
-  that `DV` is missing in `data` where \< LLOQ.
+  variable `LLOQ` is present in `data`, in which case each row is
+  imputed at its own `LLOQ` and the LLOQ line is drawn at the highest
+  value. Specifying this argument implies that `DV` is missing in `data`
+  where \< LLOQ. Has no effect with `loq_method = 0` (the default),
+  which emits a message.
 
 - loq_method:
 

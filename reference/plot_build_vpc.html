@@ -31,7 +31,7 @@ compatible columns."><meta property="og:image" content="https://ryancrass.github
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ compatible columns."><meta property="og:image" content="https://ryancrass.github
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -86,7 +87,7 @@ compatible columns.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_build_vpc</span><span class="op">(</span></span>
 <span>  <span class="va">compute_out</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cont"</span>, <span class="st">"cens"</span><span class="op">)</span>,</span>
-<span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -127,7 +128,9 @@ informative on a cens VPC and are retained.</p></dd>
 
 
 <dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
-<dd><p>Logical. Display replicate count as a plot caption.</p></dd>
+<dd><p>Logical. Display replicate count as a plot caption.
+A <code>caption</code> set in
+the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
@@ -142,8 +145,8 @@ ribbon are shown; the simulated median line is off by default (pass
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
-with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Series names are the VPC roles. For
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>.
+Series names are the VPC roles. For
 <code>type = "cens"</code>, only the keys corresponding to the four cens layers
 above are read; other keys are ignored. The cens <code>obs_point</code> color is
 inherited from <code>obs_median_line</code> (so points match the obs line); the
@@ -209,12 +212,10 @@ handled automatically. Facet layout is taken from the <code>style</code>:
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"pkmodel"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
-<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad</span>, <span class="va">CMT</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                              model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">5</span>,</span></span>
 <span class="r-in"><span>                              dv_var <span class="op">=</span> <span class="va">ODV</span>, carry_out <span class="op">=</span> <span class="st">"FOOD"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_vpcstats.html">df_vpcstats</a></span><span class="op">(</span><span class="va">simout</span>, strat_var <span class="op">=</span> <span class="va">FOOD</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Multiple unique values of `CMT` detected in `data` after filtering to `EVID == 0`: 2, 3.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Functions assume a single observation type per call.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == &lt;n&gt;)`) before passing to this function.</span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">plot_build_vpc</span><span class="op">(</span><span class="va">out</span>, pcvpc <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

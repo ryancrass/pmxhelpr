@@ -13,7 +13,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -67,7 +68,7 @@ construction.</p>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
-<span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"rank"</span>, <span class="st">"drop"</span><span class="op">)</span>,</span>
@@ -83,7 +84,8 @@ construction.</p>
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Input dataset. `</p></dd>
+<dd><p>Simulated replicate data (e.g. from <code><a href="df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code>), or
+a <code>vpc_stats</code> object from <code><a href="df_vpcstats.html">df_vpcstats()</a></code>.</p></dd>
 
 
 <dt id="arg-time-var">time_var<a class="anchor" aria-label="anchor" href="#arg-time-var"></a></dt>
@@ -123,25 +125,19 @@ and <code>facet_ncol</code>.</p></dd>
 
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
-<dd><p>Numeric scalar, or <code>NULL</code>. Lower limit of quantification (LLOQ).
-When <code>NULL</code> and column <code>LLOQ</code> is present in <code>data</code>, per-row <code>LLOQ</code>
-values are used as the censoring threshold; a scalar <code>loq</code> broadcasts
-to a constant threshold across rows. For standard VPCs (<code>pcvpc = FALSE</code>)</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a> <span class="sc">+</span> If a LOQ source is <span class="fu">available</span> (scalar <span class="st">`</span><span class="at">loq</span><span class="st">`</span> or <span class="st">`</span><span class="at">LLOQ</span><span class="st">`</span> column), all</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a> <span class="fu">observations</span> (including BLQ) are processed and censoring is performed</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a> at the quantile level. Filter to <span class="st">`</span><span class="at">EVID==0</span><span class="st">`</span> so that doses are dropped.</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a> <span class="sc">+</span> If <span class="st">`</span><span class="at">loq=NULL</span><span class="st">`</span> and <span class="st">`</span><span class="at">LLOQ</span><span class="st">`</span> is NOT present <span class="cf">in</span> <span class="st">`</span><span class="at">data</span><span class="st">`</span>, the dataset is</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a> filtered to <span class="st">`</span><span class="at">MDV==0</span><span class="st">`</span> since <span class="st">`</span><span class="at">loq</span><span class="st">`</span> is unknown.</span></code></pre><p></p></div>
-<p>For prediction-corrected VPCs (<code>pcvpc = TRUE</code>)
-+ If a LOQ source is available, all <code>SIMDV</code> and <code>OBSDV</code> values
-<code>&lt; LOQ</code> (per row) are set to missing (<code>NA_real_</code>) so that both
-observed and simulated data are censored in the same way before
-quantile calculation.
-+ If <code>loq=NULL</code> and <code>LLOQ</code> is NOT present in <code>data</code>, filter to
-<code>MDV==0</code> since <code>loq</code> is unknown.
-Dashed horizontal line plotted at each unique LLOQ value by default for
-standard VPCs (styled via the <code>loq_line</code> role); suppressed for <code>pcvpc = TRUE</code>
-since <code>loq</code> has no meaning on the prediction-corrected scale.</p></dd>
+<dd><p>Numeric LLOQ, or <code>NULL</code> (default) to use a per-row <code>LLOQ</code>
+column when <code>data</code> has one. Observations with <code>MDV == 1</code>, missing, or
+below the LOQ are treated as BLQ; they are not dropped, even with no LOQ
+source.
++ Standard VPC (<code>pcvpc = FALSE</code>): BLQ observations rank below all
+quantifiable values in the observed quantiles; simulated values are
+not censored.
++ pcVPC (<code>pcvpc = TRUE</code>): observed and simulated BLQ values are set to
+missing before prediction correction, so both are censored alike.</p>
+<p>The LLOQ line (<code>loq_line</code> role) is drawn at each unique LLOQ on standard
+VPCs only, since the LLOQ has no meaning on the prediction-corrected
+scale; hide it with <code>shown = plot_vpc_shown(loq_line = FALSE)</code>. The
+observed points show <code>MDV == 0</code> rows only.</p></dd>
 
 
 <dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
@@ -158,7 +154,8 @@ observations as data points.</p></dd>
 
 
 <dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
-<dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.</p></dd>
+<dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.
+A <code>caption</code> set in the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-lower-bound">lower_bound<a class="anchor" aria-label="anchor" href="#arg-lower-bound"></a></dt>
@@ -183,8 +180,8 @@ Defaults can be viewed by running <code><a href="plot_vpc_shown.html">plot_vpc_s
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
-with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Pass the same style to
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>.
+Pass the same style to
 <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> so the legend matches.</p></dd>
 
 

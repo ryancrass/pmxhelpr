@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -57,7 +58,9 @@
 <span>  dose_var <span class="op">=</span> <span class="st">"DOSE"</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq_method <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  show_loq_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  cent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"mean_sdl"</span>, <span class="st">"mean_sdl_upper"</span>, <span class="st">"median"</span>, <span class="st">"median_iqr"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  show_obs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  dosenorm <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -106,8 +109,10 @@ Accepts bare names or strings. Default is <code>DOSE</code>.</p></dd>
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>
-Specifying this argument implies that <code>DV</code> is missing in <code>data</code> where &lt; LLOQ.</p></dd>
+Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>,
+in which case each row is imputed at its own <code>LLOQ</code> and the LLOQ line is drawn at the highest value.
+Specifying this argument implies that <code>DV</code> is missing in <code>data</code> where &lt; LLOQ.
+Has no effect with <code>loq_method = 0</code> (the default), which emits a message.</p></dd>
 
 
 <dt id="arg-loq-method">loq_method<a class="anchor" aria-label="anchor" href="#arg-loq-method"></a></dt>
@@ -120,6 +125,13 @@ Specifying this argument implies that <code>DV</code> is missing in <code>data</
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>   Useful <span class="cf">for</span> plotting concentration<span class="sc">-</span>time data with some data BLQ on the log scale where <span class="dv">0</span> cannot be displayed</span></code></pre><p></p></div></dd>
 
 
+<dt id="arg-show-loq-value">show_loq_value<a class="anchor" aria-label="anchor" href="#arg-show-loq-value"></a></dt>
+<dd><p>Logical. If <code>TRUE</code> (default), the LLOQ line's legend
+entry is titled <code>"LLOQ"</code> and keyed by its value. If <code>FALSE</code>, the title is
+dropped and the entry is labeled <code>"LLOQ"</code> without the value. Applies only
+when the LLOQ line is drawn (<code>loq_method</code> of <code>1</code> or <code>2</code>, <code>dosenorm = FALSE</code>).</p></dd>
+
+
 <dt id="arg-cent">cent<a class="anchor" aria-label="anchor" href="#arg-cent"></a></dt>
 <dd><p>Character string specifying the central tendency measure to plot.</p>
 <p>Options are:</p><ul><li><p>Mean only: <code>"mean"</code> (default)</p></li>
@@ -129,6 +141,14 @@ Specifying this argument implies that <code>DV</code> is missing in <code>data</
 <li><p>Median +/- Interquartile Range: <code>median_iqr</code></p></li>
 <li><p>None: <code>"none"</code></p></li>
 </ul></dd>
+
+
+<dt id="arg-show-obs">show_obs<a class="anchor" aria-label="anchor" href="#arg-show-obs"></a></dt>
+<dd><p>Logical indicating if observed data points should be shown.
+Default is <code>TRUE</code>. <code>FALSE</code> omits the point layer entirely, so hidden
+points do not affect axis limits (unlike setting
+<code>alphas = c(obs_point = 0)</code> in the style). Spaghetti lines are controlled
+separately by <code>id_var</code>.</p></dd>
 
 
 <dt id="arg-dosenorm">dosenorm<a class="anchor" aria-label="anchor" href="#arg-dosenorm"></a></dt>
@@ -148,14 +168,15 @@ the caption reports arithmetic or geometric mean when <code>show_caption = TRUE<
 
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>
-<dd><p>Logical indicating if a caption should be shown describing the data plotted</p></dd>
+<dd><p>Logical indicating if a caption should be shown describing the data plotted.
+A <code>caption</code> set in the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_dvtime.html">style_dvtime()</a></code>; view the defaults by running <code><a href="style_dvtime.html">style_dvtime()</a></code>
-with no arguments. Customize by passing <code>style = style_dvtime(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. The error bar cap width
+with no arguments. Customize by passing <code>style = style_dvtime(...)</code>.
+The error bar cap width
 is the style's <code>errorbar_width</code> field; when unset it defaults to 2.5% of
 the maximum nominal time (<code>ntime_var</code>).</p></dd>
 
@@ -177,11 +198,11 @@ the maximum nominal time (<code>ntime_var</code>).</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data_sad_pk</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad</span>, <span class="va">CMT</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">data_sad_pk</span>, Dose <span class="op">=</span> <span class="fu"><a href="var_addn.html">var_addn</a></span><span class="op">(</span><span class="va">DOSE</span>, <span class="va">ID</span>, sep <span class="op">=</span> <span class="st">"mg"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">plot_dvtime</span><span class="op">(</span><span class="va">data</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"median"</span>, col_var <span class="op">=</span> <span class="va">Dose</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing non-finite outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing non-finite outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`stat_summary()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing non-finite outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing non-finite outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`stat_summary()`).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 169 rows containing missing values or values outside the scale range</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Removed 178 rows containing missing values or values outside the scale range</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> (`geom_point()`).</span>
 <span class="r-plt img"><img src="plot_dvtime-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>

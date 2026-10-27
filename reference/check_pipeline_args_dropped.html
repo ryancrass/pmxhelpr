@@ -17,7 +17,7 @@ remainder is non-empty — making the silent-shadow case audible."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,7 @@ remainder is non-empty — making the silent-shadow case audible."><meta propert
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -62,7 +63,7 @@ remainder is non-empty — making the silent-shadow case audible.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_pipeline_args_dropped</span><span class="op">(</span><span class="va">call</span>, <span class="va">plot_only_args</span>, <span class="va">fn_name</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_pipeline_args_dropped</span><span class="op">(</span><span class="va">call</span>, <span class="va">plot_only_args</span>, <span class="va">fn_name</span>, <span class="va">stats_fn</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,6 +84,11 @@ The matched data argument should also be included.</p></dd>
 <dt id="arg-fn-name">fn_name<a class="anchor" aria-label="anchor" href="#arg-fn-name"></a></dt>
 <dd><p>Character scalar, the wrapper's name, used in the error
 message.</p></dd>
+
+
+<dt id="arg-stats-fn">stats_fn<a class="anchor" aria-label="anchor" href="#arg-stats-fn"></a></dt>
+<dd><p>Character scalar, the stats function the caller should
+run instead (e.g. <code>"df_forest"</code>), used in the error message.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -60,8 +61,10 @@
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric value of the lower limit of quantification (LLOQ) for the assay.
-Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>
-Specifying this argument implies that <code>DV</code> is missing in <code>data</code> where &lt; LLOQ.</p></dd>
+Must be coercible to a numeric if specified. Can be <code>NULL</code> if variable <code>LLOQ</code> is present in <code>data</code>,
+in which case each row is imputed at its own <code>LLOQ</code> and the LLOQ line is drawn at the highest value.
+Specifying this argument implies that <code>DV</code> is missing in <code>data</code> where &lt; LLOQ.
+Has no effect with <code>loq_method = 0</code> (the default), which emits a message.</p></dd>
 
 
 <dt id="arg-loq-method">loq_method<a class="anchor" aria-label="anchor" href="#arg-loq-method"></a></dt>

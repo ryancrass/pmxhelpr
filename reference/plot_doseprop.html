@@ -31,7 +31,7 @@ se are accepted on both paths."><meta property="og:image" content="https://ryanc
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ se are accepted on both paths."><meta property="og:image" content="https://ryanc
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -106,7 +107,7 @@ returned by <code><a href="df_doseprop.html">df_doseprop()</a></code>.</p></dd>
 
 <dt id="arg-metrics">metrics<a class="anchor" aria-label="anchor" href="#arg-metrics"></a></dt>
 <dd><p>character vector of exposure metrics in <code>data</code> to plot.
-Required on the raw-data path; ignored when <code>data</code> is a
+Required on the raw-data path; must not be passed with a
 <code>doseprop_stats</code> object.</p></dd>
 
 
@@ -131,12 +132,17 @@ Options are <code>"normal"</code> (default) and <code>"tdist"</code>.</p></dd>
 
 
 <dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>
-<dd><p>confidence interval to be calculated.
-Options <code>0.90</code> (default) and <code>0.95</code>.</p></dd>
+<dd><p>confidence interval to be calculated: a single numeric value
+in <code>(0, 1)</code>, e.g. <code>0.90</code> (default) or <code>0.95</code>.</p></dd>
 
 
 <dt id="arg-sigdigits">sigdigits<a class="anchor" aria-label="anchor" href="#arg-sigdigits"></a></dt>
-<dd><p>number of significant digits for rounding.</p></dd>
+<dd><p>number of significant digits for the reported
+<code>Intercept</code>, <code>StandardError</code>, <code>Power</code>, <code>LCL</code>, <code>UCL</code>, and <code>PowerCI</code>
+columns. <code>PowerCI</code> pads every value to this many digits so the facet
+labels line up. The <code>Proportional</code> / <code>Interpretation</code> verdict is taken
+from the unrounded confidence bounds, so it never moves with
+<code>sigdigits</code>.</p></dd>
 
 
 <dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
@@ -148,8 +154,7 @@ Default is <code>TRUE</code>.</p></dd>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_doseprop.html">style_doseprop()</a></code>; view the defaults by running
 <code><a href="style_doseprop.html">style_doseprop()</a></code> with no arguments. Customize by passing
-<code>style = style_doseprop(...)</code>, or restyle the returned plot with
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. The per-metric facet layout is
+<code>style = style_doseprop(...)</code>. The per-metric facet layout is
 taken from the style's <code>facet_scales</code> (default <code>"free"</code>), <code>facet_nrow</code>,
 and <code>facet_ncol</code>; the <code>facet</code>, <code>logx</code>, and <code>logy</code> fields are ignored
 because the builder sets the facet and log-log axes itself.</p></dd>

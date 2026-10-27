@@ -90,6 +90,7 @@ style_doseprop()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -155,6 +156,7 @@ style_doseprop(colors = c(linear = "navy"), facet_ncol = 1)
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL

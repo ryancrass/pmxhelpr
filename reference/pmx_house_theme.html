@@ -13,7 +13,7 @@ white panel background with a thin black border."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ white panel background with a thin black border."><meta property="og:image" cont
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -56,7 +57,7 @@ white panel background with a thin black border.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pmx_house_theme</span><span class="op">(</span>white_panel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">pmx_house_theme</span><span class="op">(</span>white_panel <span class="op">=</span> <span class="cn">FALSE</span>, forest_panel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,10 +68,32 @@ white panel background with a thin black border.</p>
 <dd><p>Logical. When <code>TRUE</code>, sets <code>panel.background</code> to a white
 rectangle with a thin black border (VPC family). Default <code>FALSE</code>.</p></dd>
 
+
+<dt id="arg-forest-panel">forest_panel<a class="anchor" aria-label="anchor" href="#arg-forest-panel"></a></dt>
+<dd><p>Logical. When <code>TRUE</code>, applies the forest-family panel
+variant described above; <code>white_panel</code> is then ignored. Default <code>FALSE</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A ggplot2 theme object.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The forest family (<code>forest_panel = TRUE</code>) inverts the gridline orientation:
+it keeps <code>panel.grid.major.x</code> as a faint ruler aligned with the point
+estimates and blanks <code>panel.grid.major.y</code> (the <code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid()</a></code> rows group the
+y-axis by covariate name instead). Panels are transparent with a thin grey
+border and no vertical spacing, so the row facets stack into one frame
+with their shared borders acting as separator lines. The covariate row
+strips are styled for <code>switch = "y"</code>: placed outside the y-axis, no
+background fill, bold horizontal text aligned to the top-left so each
+covariate name heads its group of rows. The y-axis text is black. The
+right-hand secondary y-axis carries the estimate column (left-aligned text
+at the axis text size, an 8 pt gap from the panel, no ticks) and the plot
+subtitle is its bold header, right-aligned across the full plot width
+(<code>plot.title.position = "plot"</code>) so it sits on the top edge of the panels
+above the column.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

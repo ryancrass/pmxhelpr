@@ -1,9 +1,10 @@
 # Construct a `pmx_stats` container
 
 Constructor for the cacheable stats containers returned by
-[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+[`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
 and
-[`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md).
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md).
 Each container is a named list with three slots — `stats` (the per-row
 summary frame), `obs` (the observation overlay used by plot builders,
 may be `NULL`), and `config` (named list of run configuration consumed
@@ -37,7 +38,7 @@ pmx_stats(stats, obs = NULL, config = list(), subclass)
 - subclass:
 
   Character scalar naming the concrete subclass (e.g. `"vpc_stats"`,
-  `"doseprop_stats"`).
+  `"doseprop_stats"`, `"forest_stats"`).
 
 ## Value
 

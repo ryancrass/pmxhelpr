@@ -26,7 +26,7 @@ produces compatible columns.
 plot_build_vpc(
   compute_out,
   type = c("cont", "cens"),
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
@@ -72,7 +72,8 @@ plot_build_vpc(
 
 - show_rep:
 
-  Logical. Display replicate count as a plot caption.
+  Logical. Display replicate count as a plot caption. A `caption` set in
+  the style is drawn instead, whatever this value.
 
 - shown:
 
@@ -93,9 +94,7 @@ plot_build_vpc(
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
   view the defaults by running
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
-  with no arguments. Customize by passing `style = style_vpc(...)`, or
-  restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  with no arguments. Customize by passing `style = style_vpc(...)`.
   Series names are the VPC roles. For `type = "cens"`, only the keys
   corresponding to the four cens layers above are read; other keys are
   ignored. The cens `obs_point` color is inherited from
@@ -163,11 +162,9 @@ Other vpc:
 ``` r
 model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                              model = model, replicates = 5,
                               dv_var = ODV, carry_out = "FOOD")
 out <- df_vpcstats(simout, strat_var = FOOD)
-#> Warning: Multiple unique values of `CMT` detected in `data` after filtering to `EVID == 0`: 2, 3.
-#> ℹ Functions assume a single observation type per call.
-#> ℹ Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == <n>)`) before passing to this function.
 p <- plot_build_vpc(out, pcvpc = FALSE)
 ```

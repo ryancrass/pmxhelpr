@@ -14,7 +14,7 @@ by
 ## Usage
 
 ``` r
-add_obs_layers_style(plot, id_var_str, col_var_str = NULL)
+add_obs_layers_style(plot, id_var_str, col_var_str = NULL, show_point = TRUE)
 ```
 
 ## Arguments
@@ -31,6 +31,11 @@ add_obs_layers_style(plot, id_var_str, col_var_str = NULL)
 
   Column name to map to color at the layer level, or `NULL` to inherit
   color from the plot's global mapping.
+
+- show_point:
+
+  Logical; whether to add the observed point layer. When `FALSE` the
+  layer is omitted entirely, so it does not train the axes.
 
 ## Value
 

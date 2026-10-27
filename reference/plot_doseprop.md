@@ -50,7 +50,7 @@ plot_doseprop(
 - metrics:
 
   character vector of exposure metrics in `data` to plot. Required on
-  the raw-data path; ignored when `data` is a `doseprop_stats` object.
+  the raw-data path; must not be passed with a `doseprop_stats` object.
 
 - metric_name_var:
 
@@ -74,12 +74,16 @@ plot_doseprop(
 
 - ci:
 
-  confidence interval to be calculated. Options `0.90` (default) and
-  `0.95`.
+  confidence interval to be calculated: a single numeric value in
+  `(0, 1)`, e.g. `0.90` (default) or `0.95`.
 
 - sigdigits:
 
-  number of significant digits for rounding.
+  number of significant digits for the reported `Intercept`,
+  `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI` columns.
+  `PowerCI` pads every value to this many digits so the facet labels
+  line up. The `Proportional` / `Interpretation` verdict is taken from
+  the unrounded confidence bounds, so it never moves with `sigdigits`.
 
 - se:
 
@@ -94,9 +98,7 @@ plot_doseprop(
   [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md);
   view the defaults by running
   [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
-  with no arguments. Customize by passing `style = style_doseprop(...)`,
-  or restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  with no arguments. Customize by passing `style = style_doseprop(...)`.
   The per-metric facet layout is taken from the style's `facet_scales`
   (default `"free"`), `facet_nrow`, and `facet_ncol`; the `facet`,
   `logx`, and `logy` fields are ignored because the builder sets the

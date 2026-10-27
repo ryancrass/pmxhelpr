@@ -19,7 +19,7 @@ plot_vpc_cont(
   pcvpc = FALSE,
   loq = NULL,
   irep_name = "SIM",
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
@@ -34,7 +34,10 @@ plot_vpc_cont(
 
 - data:
 
-  Input dataset. \`
+  Simulated replicate data (e.g. from
+  [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)),
+  or a `vpc_stats` object from
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md).
 
 - time_var:
 
@@ -73,26 +76,20 @@ plot_vpc_cont(
 
 - loq:
 
-  Numeric scalar, or `NULL`. Lower limit of quantification (LLOQ). When
-  `NULL` and column `LLOQ` is present in `data`, per-row `LLOQ` values
-  are used as the censoring threshold; a scalar `loq` broadcasts to a
-  constant threshold across rows. For standard VPCs (`pcvpc = FALSE`)
+  Numeric LLOQ, or `NULL` (default) to use a per-row `LLOQ` column when
+  `data` has one. Observations with `MDV == 1`, missing, or below the
+  LOQ are treated as BLQ; they are not dropped, even with no LOQ
+  source. + Standard VPC (`pcvpc = FALSE`): BLQ observations rank below
+  all quantifiable values in the observed quantiles; simulated values
+  are not censored. + pcVPC (`pcvpc = TRUE`): observed and simulated BLQ
+  values are set to missing before prediction correction, so both are
+  censored alike.
 
-       + If a LOQ source is available (scalar `loq` or `LLOQ` column), all
-       observations (including BLQ) are processed and censoring is performed
-       at the quantile level. Filter to `EVID==0` so that doses are dropped.
-       + If `loq=NULL` and `LLOQ` is NOT present in `data`, the dataset is
-       filtered to `MDV==0` since `loq` is unknown.
-
-  For prediction-corrected VPCs (`pcvpc = TRUE`) + If a LOQ source is
-  available, all `SIMDV` and `OBSDV` values `< LOQ` (per row) are set to
-  missing (`NA_real_`) so that both observed and simulated data are
-  censored in the same way before quantile calculation. + If `loq=NULL`
-  and `LLOQ` is NOT present in `data`, filter to `MDV==0` since `loq` is
-  unknown. Dashed horizontal line plotted at each unique LLOQ value by
-  default for standard VPCs (styled via the `loq_line` role); suppressed
-  for `pcvpc = TRUE` since `loq` has no meaning on the
-  prediction-corrected scale.
+  The LLOQ line (`loq_line` role) is drawn at each unique LLOQ on
+  standard VPCs only, since the LLOQ has no meaning on the
+  prediction-corrected scale; hide it with
+  `shown = plot_vpc_shown(loq_line = FALSE)`. The observed points show
+  `MDV == 0` rows only.
 
 - irep_name:
 
@@ -110,7 +107,8 @@ plot_vpc_cont(
 
 - show_rep:
 
-  Display number of replicates as a plot caption. Default is `TRUE`.
+  Display number of replicates as a plot caption. Default is `TRUE`. A
+  `caption` set in the style is drawn instead, whatever this value.
 
 - lower_bound:
 
@@ -143,10 +141,8 @@ plot_vpc_cont(
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
   view the defaults by running
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
-  with no arguments. Customize by passing `style = style_vpc(...)`, or
-  restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
-  Pass the same style to
+  with no arguments. Customize by passing `style = style_vpc(...)`. Pass
+  the same style to
   [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
   so the legend matches.
 

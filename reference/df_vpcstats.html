@@ -25,7 +25,7 @@ time via plot_vpc_cont(pcvpc = TRUE/FALSE)."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ time via plot_vpc_cont(pcvpc = TRUE/FALSE)."><meta property="og:image" content="
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -175,6 +176,8 @@ prediction-corrected counterparts carry a <code>pc_</code> prefix
 single (not duplicated). <code>sim_prop_blq_*</code> is std-only — LOQ has
 no meaning on the prediction-corrected scale. <code>-Inf</code> quantile
 values from rank-mode fully-censored bins are masked to <code>NA</code>.
+<code>pc_sim_*</code> quantiles are <code>NA</code> in bins with no quantifiable
+observations (<code>obs_n == obs_n_blq</code>).
 Carries attributes <code>n_replicates</code>, <code>loq</code>, and <code>strat_var</code>.</p></dd>
 
 <dt><code>obs</code></dt>
@@ -202,22 +205,20 @@ counterpart.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"pkmodel"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
-<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad</span>, model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad</span>, <span class="va">CMT</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                              model <span class="op">=</span> <span class="va">model</span>, replicates <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>                              dv_var <span class="op">=</span> <span class="va">ODV</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">df_vpcstats</span><span class="op">(</span><span class="va">simout</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Multiple unique values of `CMT` detected in `data` after filtering to `EVID == 0`: 2, 3.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Functions assume a single observation type per call.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == &lt;n&gt;)`) before passing to this function.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">stats</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 34</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   BIN_MID obs_n obs_n_blq obs_prop_blq sim_prop_blq_low sim_prop_blq_med</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0      72        72       1                1                1     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     0.5    72         4       0.055<span style="text-decoration: underline;">6</span>           0.061<span style="text-decoration: underline;">8</span>           0.090<span style="text-decoration: underline;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     1      72         0       0                0                0.027<span style="text-decoration: underline;">8</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     1.5    72         0       0                0                0     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     2      72         0       0                0                0     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     3      72         0       0                0                0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     0      36        36       1                1                1     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     0.5    36         2       0.055<span style="text-decoration: underline;">6</span>           0.068<span style="text-decoration: underline;">1</span>           0.111 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     1      36         0       0                0                0.027<span style="text-decoration: underline;">8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>     1.5    36         0       0                0                0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>     2      36         0       0                0                0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>     3      36         0       0                0                0     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 28 more variables: sim_prop_blq_hi &lt;dbl&gt;, obs_low &lt;dbl&gt;, obs_med &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   obs_hi &lt;dbl&gt;, sim_low_low &lt;dbl&gt;, sim_low_med &lt;dbl&gt;, sim_low_hi &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   sim_med_low &lt;dbl&gt;, sim_med_med &lt;dbl&gt;, sim_med_hi &lt;dbl&gt;, sim_hi_low &lt;dbl&gt;,</span></span>
@@ -226,20 +227,20 @@ counterpart.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   pc_sim_low_hi &lt;dbl&gt;, pc_sim_med_low &lt;dbl&gt;, pc_sim_med_med &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   pc_sim_med_hi &lt;dbl&gt;, pc_sim_hi_low &lt;dbl&gt;, pc_sim_hi_med &lt;dbl&gt;, …</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">obs</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ID TIME BIN_MID     PRED     IPRED     SIMDV    OBSDV EVID CMT MDV      GUT</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 0.81     1.0 2.469903 0.5809776 0.6000915  2.02000    0   2   0 4.132762</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1 0.81     1.0 2.469903 0.5809776 0.6106797 99.44932    0   3   0 4.132762</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1 1.49     1.5 5.869272 1.4434493 1.7538614  4.02000    0   2   0 3.724851</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1 1.49     1.5 5.869272 1.4434493 1.5973721 97.60720    0   3   0 3.724851</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1 2.11     2.0 8.672230 2.2412012 2.3345173  3.50000    0   2   0 3.388126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1 2.11     2.0 8.672230 2.2412012 2.5344445 95.25727    0   3   0 3.388126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         CENT      PERIPH    TRANS1     TRANS2         Y SIM LOQ   PC_OBSDV</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.02369888 0.003378545 0.5115784 0.03166314 0.6000915   1   1   42.00469</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02369888 0.003378545 0.5115784 0.03166314 0.6106797   1   1 2067.98928</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.05888029 0.016219628 0.8481680 0.09656615 1.7538614   1   1   70.01649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.05888029 0.016219628 0.8481680 0.09656615 1.5973721   1   1 1700.02826</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.09142169 0.036971977 1.0925184 0.17614404 2.3345173   1   1   62.31583</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.09142169 0.036971977 1.0925184 0.17614404 2.5344445   1   1 1696.01013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID TIME BIN_MID      PRED     IPRED     SIMDV OBSDV EVID CMT MDV      GUT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1 0.81     1.0  2.393706 0.5659779 0.7298292  1.96    0   2   0 4.132762</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1 1.49     1.5  5.590033 1.3880030 1.0785968  3.86    0   2   0 3.724851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1 2.11     2.0  8.176810 2.1407808 2.2112115  3.34    0   2   0 3.388126</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1 3.05     3.0 10.974942 3.1429334 3.3036137  6.83    0   2   0 2.934755</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1 4.14     4.0 12.666037 4.0503191 4.9213355  8.87    0   2   0 2.484441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1 5.14     5.0 13.168275 4.6617823 5.1588934 11.92    0   2   0 2.132351</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         CENT      PERIPH    TRANS1     TRANS2         Y SIM LOQ  PC_OBSDV</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.02308702 0.004109114 0.5115784 0.03166314 0.7298292   1   1  40.64147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.05661856 0.019382671 0.8481680 0.09656615 1.0785968   1   1  67.33181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.08732541 0.043617826 1.0925184 0.17614404 2.2112115   1   1  59.59779</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.12820460 0.095402436 1.3679129 0.31879759 3.3036137   1   1 132.56808</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.16521811 0.170075613 1.5718669 0.49724779 4.9213355   1   1 183.28737</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.19016054 0.244844700 1.6749763 0.65785251 5.1588934   1   1 259.15132</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

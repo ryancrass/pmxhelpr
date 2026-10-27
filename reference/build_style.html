@@ -7,7 +7,9 @@ roles' default values; all other fields replace their default wholesale. A
 per-series map may also be given as a palette function(n) (e.g.
 function(n) grDevices::hcl.colors(n, &quot;Viridis&quot;)), which ggstylekit calls
 with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map wholesale. The merged fields are passed to ggstylekit::style_spec()."><meta property="og:description" content="Each style_*() preset supplies a named list of default style_spec fields.
+replaces the default map wholesale (and is likewise replaced wholesale when
+it is the default, e.g. style_forest_pmforest()). The merged fields are passed to
+ggstylekit::style_spec()."><meta property="og:description" content="Each style_*() preset supplies a named list of default style_spec fields.
 Per-series map fields (colors, fill, linetypes, alphas, shapes,
 sizes, linewidths) are merged entry-wise onto the defaults so that a
 partial override (e.g. colors = c(obs_point = &quot;red&quot;)) keeps the other
@@ -15,7 +17,9 @@ roles' default values; all other fields replace their default wholesale. A
 per-series map may also be given as a palette function(n) (e.g.
 function(n) grDevices::hcl.colors(n, &quot;Viridis&quot;)), which ggstylekit calls
 with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map wholesale. The merged fields are passed to ggstylekit::style_spec()."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+replaces the default map wholesale (and is likewise replaced wholesale when
+it is the default, e.g. style_forest_pmforest()). The merged fields are passed to
+ggstylekit::style_spec()."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +27,7 @@ replaces the default map wholesale. The merged fields are passed to ggstylekit::
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +43,7 @@ replaces the default map wholesale. The merged fields are passed to ggstylekit::
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -66,7 +71,9 @@ roles' default values; all other fields replace their default wholesale. A
 per-series map may also be given as a palette <code>function(n)</code> (e.g.
 <code>function(n) grDevices::hcl.colors(n, "Viridis")</code>), which <code>ggstylekit</code> calls
 with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map wholesale. The merged fields are passed to <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code>.</p>
+replaces the default map wholesale (and is likewise replaced wholesale when
+it is the default, e.g. <code><a href="style_forest_pmforest.html">style_forest_pmforest()</a></code>). The merged fields are passed to
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code>.</p>
     </div>
 
     <div class="section level2">

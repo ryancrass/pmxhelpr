@@ -9,10 +9,12 @@ plot_vpc_legend(
   ci = 0.9,
   pi = c(0.05, 0.95),
   shown = NULL,
-  lloq = NULL,
+  loq = NULL,
+  show_loq_value = TRUE,
   style = NULL,
   type = c("cont", "cens"),
-  ...
+  ...,
+  lloq = NULL
 )
 ```
 
@@ -40,15 +42,21 @@ plot_vpc_legend(
   [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
   with no arguments.
 
-- lloq:
+- loq:
 
   Numeric scalar or vector of LLOQ values to label in the legend, or
   `NULL` to omit. Each unique value becomes one legend entry rendered
-  with the style's `loq_line` linetype. Pass `compute_out$config$loq`
-  from a
+  with the style's `loq_line` linetype. Pass `stats$config$loq` from a
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   result to mirror the reference lines drawn by
   [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md).
+
+- show_loq_value:
+
+  Logical. If `TRUE` (default), each unique `loq` value gets its own
+  legend entry labeled `"LLOQ = <value>"`. If `FALSE`, a single entry
+  labeled `"LLOQ"` is drawn regardless of how many values `loq` holds.
+  Ignored when `loq` is `NULL`.
 
 - style:
 
@@ -83,6 +91,10 @@ plot_vpc_legend(
   [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
   applied after the style so they override it.
 
+- lloq:
+
+  Deprecated alias of `loq`; warns. Do not pass both.
+
 ## Value
 
 a ggplot2 object
@@ -113,5 +125,8 @@ ci = 0.95,
  sim_median_line = FALSE, sim_median_ci = TRUE))
 
 ## Cens VPC legend
-plot_vpc_legend(type = "cens", lloq = 1)
+plot_vpc_legend(type = "cens", loq = 1)
+
+## LLOQ entry without its value
+plot_vpc_legend(loq = c(0.5, 1), show_loq_value = FALSE)
 ```

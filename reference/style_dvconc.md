@@ -6,7 +6,8 @@ for
 [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md).
 Series names: `obs_point`, `ref_line`, `loess`, `linear`. The
 `loess`/`linear` trend lines are `geom_smooth` (line entity); their SE
-ribbon fill/alpha come from `line_fill`/`fill_alpha`.
+ribbon fill is `line_fill`, and its alpha is the `loess` / `linear`
+entry of `alphas`.
 
 ## Usage
 
@@ -88,6 +89,7 @@ style_dvconc()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -153,6 +155,7 @@ style_dvconc(colors = c(loess = "blue", linear = "red"))
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL

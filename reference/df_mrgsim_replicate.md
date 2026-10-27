@@ -19,7 +19,6 @@ df_mrgsim_replicate(
   sim_dv_var = "DV",
   irep_name = "SIM",
   seed = 123456789,
-  parallel = FALSE,
   ...
 )
 ```
@@ -58,17 +57,22 @@ df_mrgsim_replicate(
 
 - pred_var:
 
-  Name of population prediction output from `model`. Accepts bare names
-  or strings. Default is `PRED`.
+  Must be `"PRED"` (the default). The population prediction is computed
+  by
+  [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md)
+  from `ipred_var` with random effects zeroed, and is always returned as
+  `PRED`.
 
 - ipred_var:
 
-  Name of individual prediction output from `model`. Accepts bare names
-  or strings. Default is `IPRED`.
+  Name of the individual prediction output captured by `model` (a model
+  output, not a column of `data`). Returned as `IPRED`. Accepts bare
+  names or strings. Default is `IPRED`.
 
 - sim_dv_var:
 
-  Name of simulated DV output from `model`. Accepts bare names or
+  Name of the simulated DV output captured by `model` (a model output,
+  not a column of `data`). Returned as `SIMDV`. Accepts bare names or
   strings. Default is `DV`.
 
 - irep_name:
@@ -79,14 +83,6 @@ df_mrgsim_replicate(
 - seed:
 
   Random seed. Default is `123456789`.
-
-- parallel:
-
-  Logical. If `TRUE`, replicates run in parallel via
-  [`future.apply::future_lapply()`](https://future.apply.futureverse.org/reference/future_lapply.html).
-  Requires the `future.apply` package and a parallel plan set by the
-  user (e.g., `future::plan(future::multisession, workers = 4)`).
-  Default is `FALSE` (sequential).
 
 - ...:
 
@@ -105,16 +101,6 @@ passed to
 and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus any
 input columns listed in `carry_out` / `recover`.
 
-## Details
-
-Under `parallel = TRUE`, per-replicate RNG streams are generated from
-`seed` using L'Ecuyer-CMRG (via `future.seed = seed`), so output is
-reproducible given the same `seed` and
-[`future::plan()`](https://future.futureverse.org/reference/plan.html).
-Output under `parallel = TRUE` will differ numerically from
-`parallel = FALSE` because the RNG mechanism differs, but is
-statistically equivalent.
-
 ## See also
 
 Other mrgsolve wrappers:
@@ -132,12 +118,4 @@ dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover = c("USUBJID", "PART"),
 irep_name = SIM)
-
-if (FALSE) { # \dontrun{
-future::plan(future::multisession, workers = 4)
-simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
-                              replicates = 1000, dv_var = ODV,
-                              parallel = TRUE)
-future::plan(future::sequential)
-} # }
 ```

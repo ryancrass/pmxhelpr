@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
@@ -101,11 +102,15 @@ the alternative is non-proportional
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>≠</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma \ne 1</annotation></semantics></math>).
 Interpretation rules of thumb:</p>
 <ul>
-<li>CI includes 1: dose-proportional</li>
+<li>CI includes 1: no evidence against dose-proportionality (labeled
+<code>"Dose-proportional"</code>)</li>
 <li>CI excludes 1, upper bound below 1: less than dose-proportional</li>
 <li>CI excludes 1, lower bound above 1: greater than
 dose-proportional</li>
 </ul>
+<p>These labels are a screening summary. A CI that includes 1 does not
+establish dose-proportionality; a formal assessment compares the CI to
+predefined bounds that depend on the dose range studied.</p>
 <p>This assessment is typically performed on both Cmax and AUC. The
 combination informs which phase of the PK profile is contributing most
 to non-linearity (absorption rate, absorption extent, or
@@ -129,7 +134,7 @@ subject per parameter.</p>
 <span><span class="co">#&gt; $ start      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ end        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">, </span>Inf<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ PPTESTCD   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "auclast"<span style="color: #949494;">, </span>"cmax"<span style="color: #949494;">, </span>"tmax"<span style="color: #949494;">, </span>"tlast"<span style="color: #949494;">, </span>"clast.obs"<span style="color: #949494;">, </span>"lambda.z"…</span></span>
-<span><span class="co">#&gt; $ PPORRES    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 277.7701457207<span style="color: #949494;">, </span>13.4300000000<span style="color: #949494;">, </span>7.8100000000<span style="color: #949494;">, </span>35.9500000000<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ PPORRES    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 278.48468681530<span style="color: #949494;">, </span>13.08000000000<span style="color: #949494;">, </span>7.81000000000<span style="color: #949494;">, </span>35.95000000…</span></span>
 <span><span class="co">#&gt; $ exclude    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ units_dose <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">, </span>"mg"<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ units_conc <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "ng/mL"<span style="color: #949494;">, </span>"ng/mL"<span style="color: #949494;">, </span>"ng/mL"<span style="color: #949494;">, </span>"ng/mL"<span style="color: #949494;">, </span>"ng/mL"<span style="color: #949494;">, </span>"ng/mL"<span style="color: #949494;">, </span>"ng/m…</span></span>
@@ -164,8 +169,8 @@ evaluate</li>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   stats body:</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
-<span><span class="co">#&gt; 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE</span></span>
-<span><span class="co">#&gt; 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE</span></span>
+<span><span class="co">#&gt; 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE</span></span>
+<span><span class="co">#&gt; 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE</span></span>
 <span><span class="co">#&gt;                            PowerCI    Interpretation   PPTESTCD</span></span>
 <span><span class="co">#&gt; 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs</span></span>
 <span><span class="co">#&gt; 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax</span></span>
@@ -188,8 +193,8 @@ containing exposure metric values, default <code>PPORRES</code>.</li>
 <code class="sourceCode R"><span><span class="va">stats</span> <span class="op">&lt;-</span> <span class="va">dose_prop_obj</span><span class="op">$</span><span class="va">stats</span></span>
 <span><span class="va">stats</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
-<span><span class="co">#&gt; 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE</span></span>
-<span><span class="co">#&gt; 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE</span></span>
+<span><span class="co">#&gt; 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE</span></span>
+<span><span class="co">#&gt; 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE</span></span>
 <span><span class="co">#&gt;                            PowerCI    Interpretation   PPTESTCD</span></span>
 <span><span class="co">#&gt; 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs</span></span>
 <span><span class="co">#&gt; 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax</span></span></code></pre></div>
@@ -204,10 +209,10 @@ exposure versus dose can be customized using the following
 arguments:</p>
 <ul>
 <li>
-<code>method</code>: distribution used to calculate the confidence
-interval: Default is <code>"normal"</code>. Alternative is
-<code>"tdist"</code>, which may be preferred for analysis with a small
-sample size where normality cannot be assumed (e.g, &lt; 30).</li>
+<code>method</code>: critical value for the confidence interval.
+Default is <code>"normal"</code>. Alternative is <code>"tdist"</code>, a
+t critical value on the regression’s residual degrees of freedom (n -
+2), which is preferred for small sample sizes (e.g., &lt; 30).</li>
 <li>
 <code>ci</code>: confidence interval to return expressed as a
 proportion. Default is <code>"0.9"</code> based on the CI recommended
@@ -233,11 +238,11 @@ digits.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   stats body:</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power  LCL UCL Proportional</span></span>
-<span><span class="co">#&gt; 1       4.0         0.044 95%  0.98 0.89 1.1         TRUE</span></span>
-<span><span class="co">#&gt; 2       1.1         0.062 95%  1.10 0.93 1.2         TRUE</span></span>
+<span><span class="co">#&gt; 1         4         0.044 95%  0.98 0.89 1.1         TRUE</span></span>
+<span><span class="co">#&gt; 2         1         0.060 95%  1.10 0.94 1.2         TRUE</span></span>
 <span><span class="co">#&gt;                         PowerCI    Interpretation   PPTESTCD</span></span>
 <span><span class="co">#&gt; 1 Power: 0.98 (95% CI 0.89-1.1) Dose-proportional aucinf.obs</span></span>
-<span><span class="co">#&gt; 2  Power: 1.1 (95% CI 0.93-1.2) Dose-proportional       cmax</span></span>
+<span><span class="co">#&gt; 2  Power: 1.1 (95% CI 0.94-1.2) Dose-proportional       cmax</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Use `x$obs` for the observation overlay.</span></span></code></pre></div>
 </div>
@@ -263,23 +268,9 @@ To restore filled black circles with full opacity, override
 <h3 id="passing-summary-statistic-arguments-through-plot_doseprop">Passing summary-statistic arguments through
 <code>plot_doseprop()</code><a class="anchor" aria-label="anchor" href="#passing-summary-statistic-arguments-through-plot_doseprop"></a>
 </h3>
-<p>The summary statistics calculated from the log-log regression of
-exposure versus dose can be customized using the following
-arguments:</p>
-<ul>
-<li>
-<code>method</code>: distribution used to calculate the confidence
-interval: Default is <code>"normal"</code>. Alternative is
-<code>"tdist"</code>, which may be preferred for analysis with a small
-sample size where normality cannot be assumed (e.g, &lt; 30).</li>
-<li>
-<code>ci</code>: confidence interval to return expressed as a
-proportion. Default is <code>"0.9"</code> based on the CI recommended
-for the bioequivalence assessment.</li>
-<li>
-<code>sigdigits</code>: number of significant digits to return in
-outputs</li>
-</ul>
+<p><code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code> accepts the same <code>method</code>,
+<code>ci</code>, and <code>sigdigits</code> arguments as
+<code><a href="../reference/df_doseprop.html">df_doseprop()</a></code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="va">data_nca1</span>, </span>
 <span>              metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span>,</span>
@@ -353,8 +344,8 @@ scatter overlay, and the per-metric stats body.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   stats body:</span></span>
 <span><span class="co">#&gt;   Intercept StandardError  CI Power   LCL  UCL Proportional</span></span>
-<span><span class="co">#&gt; 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE</span></span>
-<span><span class="co">#&gt; 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE</span></span>
+<span><span class="co">#&gt; 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE</span></span>
+<span><span class="co">#&gt; 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE</span></span>
 <span><span class="co">#&gt;                            PowerCI    Interpretation   PPTESTCD</span></span>
 <span><span class="co">#&gt; 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs</span></span>
 <span><span class="co">#&gt; 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax</span></span>
@@ -451,6 +442,7 @@ SE ribbon (base <code>line_fill</code>, ribbon alpha via the
 <span><span class="co">#&gt;   title                  NULL</span></span>
 <span><span class="co">#&gt;   xlabel                 NULL</span></span>
 <span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   caption                NULL</span></span>
 <span><span class="co">#&gt;   xlims                  NULL</span></span>
 <span><span class="co">#&gt;   ylims                  NULL</span></span>
 <span><span class="co">#&gt;   logx                   NULL</span></span>
@@ -491,7 +483,8 @@ SE ribbon (base <code>line_fill</code>, ribbon alpha via the
 <p><img src="doseprop-workflow_files/figure-html/plot-styled-1.png" class="r-plt" alt="" width="100%"></p>
 <p>For a deeper treatment of the styling system —
 <code>style_spec()</code> fields, per-role maps, and post-hoc
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> / <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> — see the <a href="plot-styling.html">Plot Styling and Aesthetics</a> vignette.</p>
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> — see the <a href="plot-styling.html">Plot Styling
+and Aesthetics</a> vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
@@ -504,8 +497,8 @@ response-time, and response-concentration data.</li>
 <li>
 <a href="plot-styling.html">Plot Styling and Aesthetics</a> — the
 <code>style_*()</code> presets, <code>style_spec()</code> fields and
-per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> /
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot output.</li>
+per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot
+output.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

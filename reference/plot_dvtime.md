@@ -15,7 +15,9 @@ plot_dvtime(
   dose_var = "DOSE",
   loq = NULL,
   loq_method = 0,
+  show_loq_value = TRUE,
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
+  show_obs = TRUE,
   dosenorm = FALSE,
   ref = NULL,
   log_y = FALSE,
@@ -66,8 +68,11 @@ plot_dvtime(
 
   Numeric value of the lower limit of quantification (LLOQ) for the
   assay. Must be coercible to a numeric if specified. Can be `NULL` if
-  variable `LLOQ` is present in `data` Specifying this argument implies
-  that `DV` is missing in `data` where \< LLOQ.
+  variable `LLOQ` is present in `data`, in which case each row is
+  imputed at its own `LLOQ` and the LLOQ line is drawn at the highest
+  value. Specifying this argument implies that `DV` is missing in `data`
+  where \< LLOQ. Has no effect with `loq_method = 0` (the default),
+  which emits a message.
 
 - loq_method:
 
@@ -81,6 +86,13 @@ plot_dvtime(
          Useful for plotting concentration-time data with some data BLQ on the linear scale
       + Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
          Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+
+- show_loq_value:
+
+  Logical. If `TRUE` (default), the LLOQ line's legend entry is titled
+  `"LLOQ"` and keyed by its value. If `FALSE`, the title is dropped and
+  the entry is labeled `"LLOQ"` without the value. Applies only when the
+  LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
 
 - cent:
 
@@ -100,6 +112,13 @@ plot_dvtime(
   - Median +/- Interquartile Range: `median_iqr`
 
   - None: `"none"`
+
+- show_obs:
+
+  Logical indicating if observed data points should be shown. Default is
+  `TRUE`. `FALSE` omits the point layer entirely, so hidden points do
+  not affect axis limits (unlike setting `alphas = c(obs_point = 0)` in
+  the style). Spaghetti lines are controlled separately by `id_var`.
 
 - dosenorm:
 
@@ -122,7 +141,8 @@ plot_dvtime(
 - show_caption:
 
   Logical indicating if a caption should be shown describing the data
-  plotted
+  plotted. A `caption` set in the style is drawn instead, whatever this
+  value.
 
 - style:
 
@@ -132,9 +152,7 @@ plot_dvtime(
   [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md);
   view the defaults by running
   [`style_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)
-  with no arguments. Customize by passing `style = style_dvtime(...)`,
-  or restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  with no arguments. Customize by passing `style = style_dvtime(...)`.
   The error bar cap width is the style's `errorbar_width` field; when
   unset it defaults to 2.5% of the maximum nominal time (`ntime_var`).
 
@@ -155,11 +173,11 @@ Other exploratory analysis:
 data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
 data <- dplyr::mutate(data_sad_pk, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
-#> Warning: Removed 169 rows containing non-finite outside the scale range
+#> Warning: Removed 178 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 169 rows containing non-finite outside the scale range
+#> Warning: Removed 178 rows containing non-finite outside the scale range
 #> (`stat_summary()`).
-#> Warning: Removed 169 rows containing missing values or values outside the scale range
+#> Warning: Removed 178 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 ```

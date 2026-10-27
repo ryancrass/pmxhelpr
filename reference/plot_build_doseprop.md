@@ -41,9 +41,7 @@ plot_build_doseprop(stats, style = NULL, se = TRUE)
   [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md);
   view the defaults by running
   [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md)
-  with no arguments. Customize by passing `style = style_doseprop(...)`,
-  or restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  with no arguments. Customize by passing `style = style_doseprop(...)`.
   The per-metric facet layout is taken from the style's `facet_scales`
   (default `"free"`), `facet_nrow`, and `facet_ncol`; the `facet`,
   `logx`, and `logy` fields are ignored because the builder sets the

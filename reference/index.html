@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -93,6 +94,13 @@
 
         <dt>
 
+          <code><a href="plot_forest.html">plot_forest()</a></code>
+
+        </dt>
+        <dd>Plot a forest plot of test and reference comparisons</dd>
+
+        <dt>
+
           <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code>
 
         </dt>
@@ -120,10 +128,17 @@
 
         </dt>
         <dd>Build a dose-proportionality ggplot from a <code>doseprop_stats</code> object</dd>
+
+        <dt>
+
+          <code><a href="plot_build_forest.html">plot_build_forest()</a></code>
+
+        </dt>
+        <dd>Build a forest plot ggplot from a <code>forest_stats</code> object</dd>
       </dl></div><div class="section level2">
       <h2 id="styling">Styling<a class="anchor" aria-label="anchor" href="#styling"></a></h2>
 
-      <div class="section-desc"><p>Per-plot-family presets returning a <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> for the <code>style</code> argument (customize by passing fields, e.g. <code>style_dvtime(shapes = ...)</code>), plus the <code>ggstylekit</code> verbs re-exported for adjusting a finished plot: <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>, and <code><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec()</a></code>.</p></div>
+      <div class="section-desc"><p>Per-plot-family presets returning a <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> for the <code>style</code> argument (customize by passing fields, e.g. <code>style_dvtime(shapes = ...)</code>), plus the <code>ggstylekit</code> helpers re-exported for surfacing variables and assembling plots: <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>, and <code><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec()</a></code>.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -157,6 +172,41 @@
 
         </dt>
         <dd>Dose-proportionality plot style (<code>plot_doseprop</code>)</dd>
+
+        <dt>
+
+          <code><a href="style_forest.html">style_forest()</a></code>
+
+        </dt>
+        <dd>Forest plot style (<code>plot_forest</code>)</dd>
+
+        <dt>
+
+          <code><a href="style_forest_pmforest.html">style_forest_pmforest()</a></code>
+
+        </dt>
+        <dd>pmforest-style forest plot style (<code>plot_forest</code>)</dd>
+
+        <dt>
+
+          <code><a href="style_forest_coveffectsplot.html">style_forest_coveffectsplot()</a></code>
+
+        </dt>
+        <dd>coveffectsplot-style forest plot style (<code>plot_forest</code>)</dd>
+
+        <dt>
+
+          <code><a href="style_forest_pmxforest.html">style_forest_pmxforest()</a></code>
+
+        </dt>
+        <dd>PMXForest-style forest plot style (<code>plot_forest</code>)</dd>
+
+        <dt>
+
+          <code><a href="style_forest_pumas.html">style_forest_pumas()</a></code>
+
+        </dt>
+        <dd>Pumas-style forest plot style (<code>plot_forest</code>)</dd>
 
         <dt>
 
@@ -226,6 +276,29 @@
 
         </dt>
         <dd>Compute and tabulate estimates for log-log regression</dd>
+      </dl></div><div class="section level2">
+      <h2 id="forest-plot-statistics">Forest Plot Statistics<a class="anchor" aria-label="anchor" href="#forest-plot-statistics"></a></h2>
+
+      <div class="section-desc"><p>Test/reference comparison summaries for forest plots.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="df_forest.html">df_forest()</a></code>
+
+        </dt>
+        <dd>Compute Summary Statistics for Covariate Forest Plots</dd>
+
+        <dt>
+
+          <code><a href="df_forest_preprocess.html">df_forest_preprocess()</a></code>
+
+        </dt>
+        <dd>Reshape Replicate Simulation Output for Covariate Forest Plots</dd>
       </dl></div><div class="section level2">
       <h2 id="vectorized-helpers">Vectorized Helpers<a class="anchor" aria-label="anchor" href="#vectorized-helpers"></a></h2>
 
@@ -333,6 +406,13 @@
 
         <dt>
 
+          <code><a href="is_forest_stats.html">is_forest_stats()</a></code>
+
+        </dt>
+        <dd>Test whether an object is a <code>forest_stats</code> container</dd>
+
+        <dt>
+
           <code><a href="plus-.pmx_vpc_plot.html">`+`(<i>&lt;pmx_vpc_plot&gt;</i>)</a></code>
 
         </dt>
@@ -386,6 +466,20 @@
 
         </dt>
         <dd>Summary method for <code>doseprop_stats</code></dd>
+
+        <dt>
+
+          <code><a href="print.forest_stats.html">print(<i>&lt;forest_stats&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print method for <code>forest_stats</code></dd>
+
+        <dt>
+
+          <code><a href="summary.forest_stats.html">summary(<i>&lt;forest_stats&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summary method for <code>forest_stats</code></dd>
       </dl></div><div class="section level2">
       <h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a></h2>
 
@@ -416,6 +510,20 @@
 
         </dt>
         <dd>Example NONMEM Analysis-Ready Dataset for PK Modeling of a Single Ascending Dose Study</dd>
+
+        <dt>
+
+          <code><a href="data_sad_pkforest.html">data_sad_pkforest</a></code>
+
+        </dt>
+        <dd>Example Replicate-Draws Dataset for Forest Plots of PK Test/Reference Comparisons</dd>
+
+        <dt>
+
+          <code><a href="data_sad_pkforest_sim.html">data_sad_pkforest_sim</a></code>
+
+        </dt>
+        <dd>Example Replicate Simulation Output of PK Exposure Metrics Across Covariate Scenarios</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

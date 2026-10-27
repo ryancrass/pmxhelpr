@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
@@ -112,8 +113,8 @@ a package function.</p>
 <span><span class="co">#&gt; $ DOSE    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>10…</span></span>
 <span><span class="co">#&gt; $ AMT     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>10<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span>…</span></span>
 <span><span class="co">#&gt; $ EVID    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ ODV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.02<span style="color: #949494;">, </span>4.02<span style="color: #949494;">, </span>3.50<span style="color: #949494;">, </span>7.18<span style="color: #949494;">, </span>9.31<span style="color: #949494;">, </span>12.46<span style="color: #949494;">, </span>13.43<span style="color: #949494;">, </span>12.11<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ LDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.7031<span style="color: #949494;">, </span>1.3913<span style="color: #949494;">, </span>1.2528<span style="color: #949494;">, </span>1.9713<span style="color: #949494;">, </span>2.2311<span style="color: #949494;">, </span>2.5225<span style="color: #949494;">, </span>2.…</span></span>
+<span><span class="co">#&gt; $ ODV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>1.96<span style="color: #949494;">, </span>3.86<span style="color: #949494;">, </span>3.34<span style="color: #949494;">, </span>6.83<span style="color: #949494;">, </span>8.87<span style="color: #949494;">, </span>11.92<span style="color: #949494;">, </span>13.08<span style="color: #949494;">, </span>12.09<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ LDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.6729<span style="color: #949494;">, </span>1.3507<span style="color: #949494;">, </span>1.2060<span style="color: #949494;">, </span>1.9213<span style="color: #949494;">, </span>2.1827<span style="color: #949494;">, </span>2.4782<span style="color: #949494;">, </span>2.…</span></span>
 <span><span class="co">#&gt; $ CMT     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ MDV     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1…</span></span>
 <span><span class="co">#&gt; $ BLQ     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -1<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>…</span></span>
@@ -127,8 +128,8 @@ a package function.</p>
 <span><span class="co">#&gt; $ CRCLBL  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>128<span style="color: #949494;">, </span>12…</span></span>
 <span><span class="co">#&gt; $ USUBJID <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-1"<span style="color: #949494;">, </span>"STUDYNUM-SITENUM-…</span></span>
 <span><span class="co">#&gt; $ PART    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part 1-SAD"<span style="color: #949494;">, </span>"Part …</span></span>
-<span><span class="co">#&gt; $ IPRED   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.0000000000<span style="color: #949494;">, </span>0.0000000000<span style="color: #949494;">, </span>0.2399127105<span style="color: #949494;">, </span>0.5809776251<span style="color: #949494;">, </span>1.4434…</span></span>
-<span><span class="co">#&gt; $ PRED    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.0000000000<span style="color: #949494;">, </span>0.0000000000<span style="color: #949494;">, </span>1.0373644222<span style="color: #949494;">, </span>2.4699025938<span style="color: #949494;">, </span>5.8692…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ IPRED   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.000000000000<span style="color: #949494;">, </span>0.000000000000<span style="color: #949494;">, </span>0.235847746922<span style="color: #949494;">, </span>0.565977888471…</span></span>
+<span><span class="co">#&gt; $ PRED    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.0000000000<span style="color: #949494;">, </span>0.0000000000<span style="color: #949494;">, </span>1.0167419653<span style="color: #949494;">, </span>2.3937058312<span style="color: #949494;">, </span>5.5900…</span></span></code></pre></div>
 <p>This dataset contains two additional variables representing model
 predictions:</p>
 <ul>
@@ -193,7 +194,7 @@ using the helper function <code><a href="../reference/model_mread_load.html">mod
 <span><span class="co">#&gt; $MAIN</span></span>
 <span><span class="co">#&gt; double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);</span></span>
 <span><span class="co">#&gt; double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);</span></span>
-<span><span class="co">#&gt; double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);</span></span>
+<span><span class="co">#&gt; double Q = TVQ*pow(WT/70,WT_Q)*exp(ETA_Q);</span></span>
 <span><span class="co">#&gt; double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);</span></span>
 <span><span class="co">#&gt; double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);</span></span>
 <span><span class="co">#&gt; double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);</span></span>
@@ -262,8 +263,8 @@ obtained with:</p>
 <p>The pooled analysis population includes multiple dose levels in a
 single plot, which is probably not optimal as a population PK model
 diagnostic. A better minimal plot representation of these data can be
-obtained by dose-normalizing and stratifying by study part to separate
-out the fast and food effect portions:</p>
+obtained by dose-normalizing and stratifying by food status to separate
+out the fasted and fed portions:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gof.html">plot_gof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>, dose_var <span class="op">=</span> <span class="va">DOSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -373,7 +374,7 @@ to the data performed by changing the scales. This means that when
 log-transformed for plotting and the central tendency measure returned
 with <code>"mean"</code> is the <em>geometric mean</em>.</p>
 <p>If the <code>log_y</code> argument is used to generate semi-log plots
-along with <code>show_captions = TRUE</code>, then the caption will
+along with <code>show_caption = TRUE</code>, then the caption will
 delineate where arithmetic and geometric means are being returned.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gof.html">plot_gof</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>,</span>
@@ -398,7 +399,7 @@ argument for the following benefits:</p>
 <ul>
 <li>Includes log tick marks on the y-axis</li>
 <li>Updates the caption with the correct central tendency measure if
-<code>show_captions = TRUE</code>.</li>
+<code>show_caption = TRUE</code>.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -416,9 +417,9 @@ controls whether the imputation extends to the prediction layers
 (<code>PRED</code>, <code>IPRED</code>) or stays scoped to the observed
 layer (<code>DV</code>) only.</p>
 <p>The example dataset <code>data_sad_pkfit</code> carries an
-<code>LLOQ = 1</code> ng/mL and ~169 BLQ rows. Without BLQ handling, the
-observed line drops or terminates at late times because those records
-are filtered out of the central tendency.</p>
+<code>LLOQ = 1</code> ng/mL and 178 BLQ rows (142 post-dose). Without
+BLQ handling, the observed line drops or terminates at late times
+because those records are filtered out of the central tendency.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gof.html">plot_gof</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Time (h)"</span>, y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span><span class="op">)</span></span></code></pre></div>
@@ -455,10 +456,11 @@ the observed plateau and the prediction trajectory below the LLOQ is
 itself diagnostic information.</p>
 <p>Setting <code>blq_mode = "all"</code> extends the imputation to
 <code>PRED</code> and <code>IPRED</code> as well — any prediction below
-the LLOQ snaps to <code>0.5 * LOQ</code>. Use this when the GOF visual
-should mirror an estimation engine that censored predictions during the
-fit (e.g., M3-style likelihood with explicit BLQ censoring), so the
-rendered prediction lines reflect the same data the likelihood saw.</p>
+the LLOQ snaps to <code>0.5 * LOQ</code>, so the observed and predicted
+lines are summarized on the same imputed basis. This is a display
+choice: likelihood-based BLQ methods such as M3 do not alter the model
+predictions, so <code>"obs"</code> remains the faithful view of an M3
+fit.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gof.html">plot_gof</a></span><span class="op">(</span><span class="va">plot_data</span>, dv_var <span class="op">=</span> <span class="st">"ODV"</span>,</span>
 <span>         loq <span class="op">=</span> <span class="fl">1</span>, loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -470,8 +472,8 @@ rendered prediction lines reflect the same data the likelihood saw.</p>
 to see how well the model’s natural prediction (uncensored) matches
 censored observations — predictions extending below the LLOQ signal
 where the model expects sub-quantifiable concentrations. Pick
-<code>blq_mode = "all"</code> when you want a like-for-like visual
-against an estimation pipeline that censored the predictions.</p>
+<code>blq_mode = "all"</code> when you want observed and predicted
+central tendencies compared after the same imputation.</p>
 <p><code>loq_method = 1</code> is also available: it imputes only the
 post-dose BLQ records to <code>0.5 * LOQ</code> and pre-dose BLQ to
 <code>0</code> — useful for plotting on linear scales. See <a href="eda-pk-pkpd-workflow.html"><code>plot_dvtime()</code></a> for the
@@ -526,6 +528,7 @@ appearance.</p>
 <span><span class="co">#&gt;   title                  NULL</span></span>
 <span><span class="co">#&gt;   xlabel                 NULL</span></span>
 <span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   caption                NULL</span></span>
 <span><span class="co">#&gt;   xlims                  NULL</span></span>
 <span><span class="co">#&gt;   ylims                  NULL</span></span>
 <span><span class="co">#&gt;   logx                   NULL</span></span>
@@ -650,8 +653,8 @@ response-time, and response-concentration data.</li>
 <li>
 <a href="plot-styling.html">Plot Styling and Aesthetics</a> — the
 <code>style_*()</code> presets, <code>style_spec()</code> fields and
-per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> /
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot output.</li>
+per-role maps, and post-hoc <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> for customizing plot
+output.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

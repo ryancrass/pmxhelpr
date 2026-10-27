@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -51,10 +52,12 @@
 <span>  ci <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  lloq <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_loq_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cont"</span>, <span class="st">"cens"</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  lloq <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -77,12 +80,19 @@ Ignored when <code>type = "cens"</code> (cens VPCs do not have prediction interv
 Defaults can be viewed by running <code><a href="plot_vpc_shown.html">plot_vpc_shown()</a></code> with no arguments.</p></dd>
 
 
-<dt id="arg-lloq">lloq<a class="anchor" aria-label="anchor" href="#arg-lloq"></a></dt>
+<dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric scalar or vector of LLOQ values to label in the legend,
 or <code>NULL</code> to omit. Each unique value becomes one legend entry rendered
-with the style's <code>loq_line</code> linetype. Pass <code>compute_out$config$loq</code> from
+with the style's <code>loq_line</code> linetype. Pass <code>stats$config$loq</code> from
 a <code><a href="df_vpcstats.html">df_vpcstats()</a></code> result to mirror the reference lines drawn by
 <code><a href="plot_build_vpc.html">plot_build_vpc()</a></code>.</p></dd>
+
+
+<dt id="arg-show-loq-value">show_loq_value<a class="anchor" aria-label="anchor" href="#arg-show-loq-value"></a></dt>
+<dd><p>Logical. If <code>TRUE</code> (default), each unique <code>loq</code> value
+gets its own legend entry labeled <code>"LLOQ = &lt;value&gt;"</code>. If <code>FALSE</code>, a
+single entry labeled <code>"LLOQ"</code> is drawn regardless of how many values
+<code>loq</code> holds. Ignored when <code>loq</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
@@ -109,6 +119,10 @@ VPCs have no prediction interval).</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Other arguments passed to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>, applied after the
 style so they override it.</p></dd>
+
+
+<dt id="arg-lloq">lloq<a class="anchor" aria-label="anchor" href="#arg-lloq"></a></dt>
+<dd><p>Deprecated alias of <code>loq</code>; warns. Do not pass both.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -141,8 +155,11 @@ style so they override it.</p></dd>
 <span class="r-in"><span> sim_median_line <span class="op">=</span> <span class="cn">FALSE</span>, sim_median_ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_vpc_legend-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co">## Cens VPC legend</span></span></span>
-<span class="r-in"><span><span class="fu">plot_vpc_legend</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"cens"</span>, lloq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_vpc_legend</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"cens"</span>, loq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_vpc_legend-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co">## LLOQ entry without its value</span></span></span>
+<span class="r-in"><span><span class="fu">plot_vpc_legend</span><span class="op">(</span>loq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, show_loq_value <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_vpc_legend-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

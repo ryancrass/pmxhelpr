@@ -1,5 +1,223 @@
 # Changelog
 
+## pmxhelpr 0.7.0
+
+This release fixes bugs in previously released functions.
+[`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md)
+returned a stochastic `PRED` whenever extra arguments were passed
+through `...`, which also affected prediction-corrected VPCs built on
+it.
+[`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+and
+[`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+imputed every BLQ row at the first row’s `LLOQ` when `loq = NULL` and
+`LLOQ` varied. Dose-proportionality `tdist` intervals and the bundled
+`pkmodel` are also corrected. See Bug fixes below.
+
+### Bug fixes
+
+- [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md)
+  passes `...` to
+  [`mrgsolve::mrgsim_df()`](https://mrgsolve.org/docs/reference/mrgsim.html)
+  as documented. It previously passed them to
+  [`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html),
+  so any extra argument left the random effects in and `PRED` was
+  stochastic. A `carry_out` in `...` is merged with `output_var`, and
+  arguments that change the number of rows (e.g. `obsonly`) now abort.
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  with `loq = NULL` impute each row at its own `LLOQ` value. Previously
+  the first row’s `LLOQ` was applied to every row (and a leading `NA`
+  disabled imputation and broke the LLOQ line). With several LLOQs, the
+  LLOQ line is drawn at the highest.
+- [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  /
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  with `method = "tdist"` use the regression’s residual degrees of
+  freedom (n - 2) instead of n - 1, matching
+  [`confint()`](https://rdrr.io/r/stats/confint.html). Intervals widen
+  slightly, noticeably only for small n.
+- [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  /
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  judge dose proportionality on unrounded confidence bounds, so bounds
+  within rounding distance of 1 are no longer misclassified as
+  “Dose-proportional”.
+- The bundled `pkmodel` (`model_mread_load("pkmodel")`) computed
+  intercompartmental clearance from the clearance typical value
+  (`Q = TVCL * ...`); it now uses `TVQ`. Simulations from `pkmodel`
+  change, and `data_sad`, `data_sad_nca`, and `data_sad_pkfit` are
+  regenerated with the corrected model.
+- [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  `PowerCI` labels pad to `sigdigits` significant digits
+  (e.g. `Power: 1.00 (90% CI 0.900-1.20)`) and no longer use scientific
+  notation.
+- [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
+  /
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  called without `metrics` abort with a message saying `metrics` is
+  required, instead of a misleading error about missing `doseprop_stats`
+  columns.
+- [`print()`](https://rdrr.io/r/base/print.html) and
+  [`summary()`](https://rdrr.io/r/base/summary.html) of a `vpc_stats`
+  object no longer drop the `config:` line when `strat_var` or `loq` is
+  `NULL`; it shows `NULL`.
+- The
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+  caption no longer drops the fit description when the `se_*` flag of a
+  fit that is not drawn is `TRUE`
+  (e.g. `linear = TRUE, loess = FALSE, se_loess = TRUE`).
+
+### New features
+
+#### Forest plots
+
+- [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
+  draws a forest plot of test/reference comparisons for one exposure
+  metric, faceted by covariate, with an `Estimate (CI)` text column on
+  the right.
+
+  Key features:
+
+  - Reference line (`ref`) and optional band (`ref_band`,
+    `ref_band_type` of `"multiplicative"`, `"additive"`, or
+    `"absolute"`).
+  - Accepts raw draws or a precomputed `forest_stats` container, so a
+    summary can be re-plotted without re-aggregating.
+  - `ref_layout` draws the reference row in a reference panel
+    (`"consolidated"`) or in each covariate panel (`"distributed"`,
+    which needs `cov_level_ref` in
+    [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)),
+    from one `forest_stats` container.
+  - Returns a plain `ggplot` object.
+
+- [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+  summarizes replicate draws into medians and `ci` percentile intervals
+  with formatted labels, in plot order. `cov_level_ref` also draws the
+  reference row inside each covariate panel under its own label (e.g.
+  `Fasted`, `70 kg`).
+
+- [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md)
+  reshapes wide replicate simulation output (one row per scenario per
+  replicate) into the long draws
+  [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+  consumes, inferring each scenario’s covariate from its difference to
+  the reference (`cov_val_ref`) and optionally adding test/reference
+  ratios (`ratio`).
+
+- [`plot_build_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.md)
+  renders any `forest_stats` container, including manually built ones
+  from external pipelines.
+
+- [`style_forest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest.md)
+  is the `ggstylekit` style preset for
+  [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md);
+  `colors` keyed by covariate name, or a palette `function(n)`, color
+  each covariate panel; `errorbar_width` (in row heights) draws capped
+  error bars instead of uncapped interval lines.
+
+- [`style_forest_pmforest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pmforest.md),
+  [`style_forest_coveffectsplot()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_coveffectsplot.md),
+  [`style_forest_pmxforest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pmxforest.md),
+  and
+  [`style_forest_pumas()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pumas.md)
+  approximate the default looks of pmforest,
+  `coveffectsplot::forest_plot()`, `PMXForest::forestPlot()`, and Pumas’
+  `table_forest_plot()`.
+
+- [`is_forest_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_forest_stats.md)
+  tests for a `forest_stats` object.
+
+#### New arguments
+
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+  gain `show_obs` to omit the observed point layer. Unlike
+  `alphas = c(obs_point = 0)`, hidden points no longer affect the axis
+  limits.
+- [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
+  gains `loq_line` (default `TRUE`); `FALSE` hides the LLOQ reference
+  line on standard VPCs, including one inherited from an `LLOQ` column,
+  and its
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  entry.
+- [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  gain `show_loq_value`. Set `show_loq_value = FALSE` to label the LLOQ
+  linetype as a single `"LLOQ"` legend entry without its value.
+
+#### New datasets
+
+- `data_sad_pkforest_sim`: example raw replicate simulation output (500
+  bootstrap replicates of steady-state `CMAX`, `CMIN`, `AUC`, `CAVG`
+  under six covariate scenarios).
+- `data_sad_pkforest`: `data_sad_pkforest_sim` processed by
+  [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md),
+  ready for
+  [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+  /
+  [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md).
+
+### Breaking changes
+
+#### Removed arguments
+
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  no longer has a `parallel` argument; replicates always run
+  sequentially under `seed`. Passing `parallel` aborts with a message.
+  `future.apply` is no longer a suggested dependency.
+
+### Changed behavior
+
+- pmxhelpr now requires ggstylekit \>= 0.4.1 (was 0.4.0), which adds the
+  `caption` style field used by the `style_*()` presets.
+- [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)’s
+  `lloq` argument is renamed `loq`, matching every other function.
+  `lloq` still works for now with a deprecation warning. `ci` and `pi`
+  are validated as in
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+  so `ci = 90` aborts instead of labeling a “9000% CI”.
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  aborts with a clear message when `pred_var` is not `"PRED"`, which
+  previously failed with an internal column-selection error.
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  message when `loq` is given with `loq_method = 0`, where it has no
+  effect.
+- Character `col_var` labels in
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  now order by a number anywhere in the label (e.g. `"Dose 5 mg"` before
+  `"Dose 10 mg"`), not only a leading one. Label sets with any
+  number-free value keep first-appearance order; factors are unaffected.
+- `min_bin_count` in
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  and
+  [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
+  now defaults to `0` (was `1`), so no bins are filtered by default.
+  Prediction-corrected simulated quantiles (`pc_sim_*`) are `NA` in bins
+  with no quantifiable observations, so pcVPCs do not draw them.
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md),
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md),
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
+  and
+  [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md)
+  abort when a logical argument (e.g. `log_y`, `show_caption`, `pcvpc`,
+  `show_rep`, `se`) is not `TRUE` or `FALSE`, instead of silently
+  treating it as `FALSE` or failing later with an unclear error.
+
 ## pmxhelpr 0.6.0
 
 Plot styling is now powered by the `ggstylekit` package, replacing the
@@ -277,11 +495,10 @@ proportion of data BLQ over time.
 #### New arguments
 
 - `df_mrgsim_replicate(parallel = FALSE)` — when `TRUE`, replicate
-  simulations run via
-  [`future.apply::future_lapply()`](https://future.apply.futureverse.org/reference/future_lapply.html)
-  using the active `future` plan, with per-replicate L’Ecuyer-CMRG RNG
-  streams so output stays reproducible under a fixed `seed`. Adds
-  `future.apply` to `Suggests`.
+  simulations run via `future.apply::future_lapply()` using the active
+  `future` plan, with per-replicate L’Ecuyer-CMRG RNG streams so output
+  stays reproducible under a fixed `seed`. Adds `future.apply` to
+  `Suggests`.
 - [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   and
   [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)

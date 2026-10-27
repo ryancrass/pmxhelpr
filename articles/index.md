@@ -12,5 +12,7 @@
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md):
 - [Dose-Proportionality
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.md):
+- [Forest Plot
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.md):
 - [Plot Styling and
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md):

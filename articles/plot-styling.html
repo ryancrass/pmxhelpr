@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul>
 </li>
@@ -128,15 +129,12 @@ the helper function <code><a href="../reference/model_mread_load.html">model_mre
 <h2 id="plot-styling-with-ggstylekit-in-pmxhelpr">Plot Styling with <code>ggstylekit</code> in
 <code>pmxhelpr</code><a class="anchor" aria-label="anchor" href="#plot-styling-with-ggstylekit-in-pmxhelpr"></a>
 </h2>
-<p><code>pmxhelpr</code> re-exports four functions from
+<p><code>pmxhelpr</code> re-exports these functions from
 <code>ggstylekit</code>:</p>
 <ul>
 <li>
 <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code>: map a new data variable to an aesthetic or
 facet, then re-style</li>
-<li>
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>: adjust a plot style after it has been
-styled.</li>
 <li>
 <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>: combine styled plots and
 collect legends</li>
@@ -222,6 +220,7 @@ defaults.</p>
 <span><span class="co">#&gt;   title                  NULL</span></span>
 <span><span class="co">#&gt;   xlabel                 NULL</span></span>
 <span><span class="co">#&gt;   ylabel                 NULL</span></span>
+<span><span class="co">#&gt;   caption                NULL</span></span>
 <span><span class="co">#&gt;   xlims                  NULL</span></span>
 <span><span class="co">#&gt;   ylims                  NULL</span></span>
 <span><span class="co">#&gt;   logx                   NULL</span></span>
@@ -345,7 +344,7 @@ operator.</p>
 <p>A few aesthetic decisions belong to the plot builder rather than to
 the style, because the builder needs them to decide <em>what to
 draw</em>, not just how to draw it. Where the two overlap, the builder
-argument wins:</p>
+argument wins (the one exception, the caption, follows the list):</p>
 <ul>
 <li>
 <strong><code>log_y</code></strong>: <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>,
@@ -363,15 +362,36 @@ fields are ignored. The facet <em>layout</em> fields
 (<code>facet_scales</code>, default <code>"free"</code>;
 <code>facet_nrow</code>; <code>facet_ncol</code>) are honored.</li>
 <li>
+<strong><code><a href="../reference/plot_forest.html">plot_forest()</a></code> facets</strong>: the forest
+builder draws its own covariate row facets (<code><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid()</a></code>
+with strips outside the y-axis), so the style spec’s <code>facet*</code>
+fields are ignored; see <code><a href="../reference/style_forest.html">style_forest()</a></code>.</li>
+<li>
 <strong>Visibility</strong>: <code><a href="../reference/plot_gof_shown.html">plot_gof_shown()</a></code> /
 <code><a href="../reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> control which layers are <em>built</em>
 and the style spec controls how the built layers <em>look</em>. Setting
 <code>style_vpc(alphas = c(obs_point = 0))</code> draws an invisible
 layer and includes it in the legend whereas
 <code>plot_vpc_shown(obs_point = FALSE)</code> omits it entirely.
-<code>shown</code> is the preferred method when a layer is not
-wanted.</li>
+<code>shown</code> is the preferred method when a layer is not wanted.
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code> expose the
+same choice for observed points through <code>show_obs = FALSE</code>,
+the counterpart of <code>plot_gof_shown(obs = FALSE)</code> and
+<code>plot_vpc_shown(obs_point = FALSE)</code> (a single flag, since the
+observed points are their only optional layer); an invisible layer still
+sets the axis limits.</li>
 </ul>
+<p>The <strong>caption</strong> is the exception: the style wins.
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, and
+<code><a href="../reference/plot_gof.html">plot_gof()</a></code> write a caption describing the plotted data
+(<code>show_caption</code>), and the VPC builders write the replicate
+count (<code>show_rep</code>). A <code>caption</code> set in the style
+(<code>style_dvtime(caption = "...")</code>) is drawn regardless of
+<code>show_caption</code> or <code>show_rep</code>, replacing the
+builder’s caption, since a caption written into the style is an explicit
+request. To drop the caption entirely, set
+<code>show_caption = FALSE</code> (or <code>show_rep = FALSE</code>) and
+leave the style <code>caption</code> unset.</p>
 </div>
 <div class="section level3">
 <h3 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
@@ -384,8 +404,8 @@ function call.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>,</span>
-<span>  cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span>  cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, loq_method <span class="op">=</span> <span class="fl">2</span>, show_obs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>linewidths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cent_line <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>, x <span class="op">=</span> <span class="st">"Time (hours)"</span><span class="op">)</span></span></code></pre></div>
@@ -401,7 +421,6 @@ aesthetic layers, the style spec object can be used to specify axis
 elements, labels, legends, and themes.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_dvtime_style</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
-<span>  alphas     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  xbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span>,</span>
 <span>  ybreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span><span class="op">)</span>,</span>
 <span>  ylims   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2000</span><span class="op">)</span>,</span>
@@ -412,7 +431,7 @@ elements, labels, legends, and themes.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>,</span>
 <span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>            style <span class="op">=</span> <span class="va">new_dvtime_style</span><span class="op">)</span> </span></code></pre></div>
+<span>            show_obs <span class="op">=</span> <span class="cn">FALSE</span>, style <span class="op">=</span> <span class="va">new_dvtime_style</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/ex-reusable-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level4">
@@ -426,7 +445,7 @@ Set it in the style to override:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Dose and Food`</span>,</span>
 <span>            cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>            style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, errorbar_width <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>            show_obs <span class="op">=</span> <span class="cn">FALSE</span>, style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>errorbar_width <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/ex-ebwidth-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
@@ -628,9 +647,9 @@ metrics are stacked in a single column.</p>
 <div class="section level3">
 <h3 id="gof-overlay-colors-plot_gof">GOF overlay colors (<code>plot_gof()</code>)<a class="anchor" aria-label="anchor" href="#gof-overlay-colors-plot_gof"></a>
 </h3>
-<p>The DV (OBS), PRED, and PRED central tendency lines are the
-<strong>role</strong> keys for the <strong>per-series map</strong>
-<code>colors</code>.</p>
+<p>The observed points (<code>OBS</code>) and the DV, PRED, and IPRED
+central tendency lines are the <strong>role</strong> keys for the
+<strong>per-series map</strong> <code>colors</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_gof.html">plot_gof</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">data_pkfit</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"mean"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -703,9 +722,10 @@ VPC plotting functions, the user is not able to change the
 to be combined with the VPC plot into a single figure.</p>
 <p>Pass the <strong>same</strong> style object along with the same
 <code>shown</code>, <code>ci</code>, and <code>pi</code> as the plotting
-function to generate the corresponding legend.</p>
+function to generate the corresponding legend. The pcVPC above draws no
+LLOQ line, so the legend has no <code>loq</code> entry.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>style <span class="op">=</span> <span class="va">pcvpc_style</span>, lloq <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>style <span class="op">=</span> <span class="va">pcvpc_style</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/ex-vpc-legend-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 </div>
@@ -731,36 +751,6 @@ house theme by adding to it rather than starting over:</p>
 <p><img src="plot-styling_files/figure-html/ex-theme-1.png" class="r-plt" alt="" width="100%"></p>
 </div>
 <div class="section level2">
-<h2 id="post-hoc-styling-making-aesthetic-changes-with-restyle_plot">Post-hoc styling: making aesthetic changes with
-<code>restyle_plot()</code><a class="anchor" aria-label="anchor" href="#post-hoc-styling-making-aesthetic-changes-with-restyle_plot"></a>
-</h2>
-<p><code>ggstylekit</code> not only handles plot styling <em>a
-priori</em>, it also handles plot styling <em>a posteriori</em> after a
-finished plot object has been generated.</p>
-<p><code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> merges style fields onto a finished plot.
-Restyling works analogously to the up front styling with style
-specs.</p>
-<p>For example, if one wanted to remove points and the legend from an
-existing plot, this can be accomplished as follows with
-<code>restyle_plot</code>.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"median"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>                 loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                 style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
-<span>                   xlabel <span class="op">=</span> <span class="st">"Time (hours)"</span>, </span>
-<span>                   ylabel <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL/mg)"</span>,</span>
-<span>                   xbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span></span>
-<span>                 <span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">p</span></span></code></pre></div>
-<p><img src="plot-styling_files/figure-html/restyle-1.png" class="r-plt" alt="" width="100%"></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot</a></span><span class="op">(</span><span class="va">p</span>, </span>
-<span>             alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, </span>
-<span>             legends <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec</a></span><span class="op">(</span>channel <span class="op">=</span> <span class="st">"linetype"</span>, hide <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plot-styling_files/figure-html/restyle-2.png" class="r-plt" alt="" width="100%"></p>
-</div>
-<div class="section level2">
 <h2 id="post-hoc-styling-surfacing-new-variables-with-reveal">Post-hoc styling: surfacing new variables with
 <code>reveal()</code><a class="anchor" aria-label="anchor" href="#post-hoc-styling-surfacing-new-variables-with-reveal"></a>
 </h2>
@@ -769,22 +759,32 @@ existing plot, this can be accomplished as follows with
 <p><code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> maps a variable present in the underlying plot
 dataset that is not currently mapped to a graphical channel (or a
 facet).</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"median"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                 loq_method <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                 style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
+<span>                   xlabel <span class="op">=</span> <span class="st">"Time (hours)"</span>, </span>
+<span>                   ylabel <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
+<span>                   xbreaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">168</span>, <span class="fl">24</span><span class="op">)</span></span>
+<span>                 <span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">p</span></span></code></pre></div>
+<p><img src="plot-styling_files/figure-html/reveal-base-1.png" class="r-plt" alt="" width="100%"></p>
 <div class="section level3">
 <h3 id="mapping-to-all-layers-with-as">Mapping to all layers with <code>as =</code><a class="anchor" aria-label="anchor" href="#mapping-to-all-layers-with-as"></a>
 </h3>
 <p>Use <code>as =</code> to inherit that channel’s default values.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal</a></span><span class="op">(</span><span class="va">p</span>, <span class="va">`Food Status`</span>, as <span class="op">=</span> <span class="st">"colors"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/reveal-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Alternatively, the values can be supplied manually.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal</a></span><span class="op">(</span><span class="va">p</span>, <span class="va">`Food Status`</span>,</span>
 <span>       colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"#3388cc"</span>, Fed <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
 <span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"Fasted (overnight)"</span>, Fed <span class="op">=</span> <span class="st">"Fed (high-fat)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/reveal-values-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Facets are also a channel that can be mapped like any other with
 <code>reveal</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal</a></span><span class="op">(</span><span class="va">p</span>, <span class="va">`Food Status`</span>, as <span class="op">=</span> <span class="st">"facet"</span>, </span>
 <span>       colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"#3388cc"</span>, Fed <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
 <span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"Fasted (overnight)"</span>, Fed <span class="op">=</span> <span class="st">"Fed (high-fat)"</span><span class="op">)</span><span class="op">)</span></span>
@@ -803,7 +803,7 @@ to an <strong>entity</strong> — <code>"point"</code>,
 <p>Here the central tendency line and its error bars are left unmapped,
 reflecting the totality of the data, while the points are mapped to food
 status with <code>on</code></p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_sdl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, cent <span class="op">=</span> <span class="st">"mean_sdl"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     style <span class="op">=</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span>xlabel <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
 <span>                                          ylabel <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
@@ -813,7 +813,7 @@ status with <code>on</code></p>
 <p><img src="plot-styling_files/figure-html/reveal-on-point-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Values are supplied with <code>on</code> exactly as they are without
 it.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal</a></span><span class="op">(</span><span class="va">p_sdl</span>, <span class="va">`Food Status`</span>, on <span class="op">=</span> <span class="st">"point"</span>,</span>
 <span>       colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"#3388cc"</span>, Fed <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
 <span>       labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"Fasted (overnight)"</span>, Fed <span class="op">=</span> <span class="st">"Fed (high-fat)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -835,7 +835,7 @@ channel are drawn in a single legend, so revealing onto a free channel —
 into one figure with a <strong>single collected legend</strong>.</p>
 <p>Build the panels with a shared style so the collected legend is
 meaningful.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel_style_gm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
 <span>  alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>,</span>
 <span>  xlabel <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
@@ -861,28 +861,37 @@ meaningful.</p>
 pass through to <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html" class="external-link">patchwork::wrap_plots()</a></code>, so
 <code>axes = "collect"</code> also de-duplicates the shared axis
 labels.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_combo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots</a></span><span class="op">(</span><span class="va">p_mean</span>, <span class="va">p_median</span>, ncol <span class="op">=</span> <span class="fl">2</span>, axes <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span></span>
 <span><span class="va">p_combo</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/combine-1.png" class="r-plt" alt="" width="100%"></p>
-<p>The combined figure is still a styled object, so
-<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> and <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> continue to work.
-Here the collected legend is re-titled and moved to the bottom of the
-figure:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot</a></span><span class="op">(</span><span class="va">p_combo</span>, </span>
-<span>             legends <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec</a></span><span class="op">(</span><span class="va">`Food Status`</span>, title <span class="op">=</span> <span class="st">"Meal Status"</span>,</span>
-<span>                                   labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"Fasted (overnight)"</span>, </span>
-<span>                                              Fed <span class="op">=</span> <span class="st">"Fed (high-fat)"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>             colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"#3388cc"</span>, Fed <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
-<span>             legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plot-styling_files/figure-html/combine-restyle-1.png" class="r-plt" alt="" width="100%"></p>
-<p><code>legend.position</code> moves the collected legend on the
-combined figure, as <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> reaches the assembled
-figure and not only the individual panels. Note that <code>labels</code>
-is not a style field: legend entries are relabeled through the
-<code>labels</code> argument of <code><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec()</a></code>, as
-above.</p>
+<p>To change the collected legend, set it in the panel styles before
+combining. Here the legend is re-titled and relabeled and the colors
+changed in both panels. Note that <code>labels</code> is not a style
+field: legend entries are relabeled through the <code>labels</code>
+argument of <code><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec()</a></code>.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">meal_style</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">title</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/style_dvtime.html">style_dvtime</a></span><span class="op">(</span></span>
+<span>    alphas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>obs_point <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>,</span>
+<span>    xlabel <span class="op">=</span> <span class="st">"Time (hours)"</span>,</span>
+<span>    ylabel <span class="op">=</span> <span class="st">"Concentration (ng/mL)"</span>,</span>
+<span>    title <span class="op">=</span> <span class="va">title</span>,</span>
+<span>    colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"#3388cc"</span>, Fed <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
+<span>    legends <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/legend_spec.html" class="external-link">legend_spec</a></span><span class="op">(</span><span class="va">`Food Status`</span>, title <span class="op">=</span> <span class="st">"Meal Status"</span>,</span>
+<span>                          labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Fasted <span class="op">=</span> <span class="st">"Fasted (overnight)"</span>,</span>
+<span>                                     Fed <span class="op">=</span> <span class="st">"Fed (high-fat)"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Food Status`</span>,</span>
+<span>              cent <span class="op">=</span> <span class="st">"mean"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, style <span class="op">=</span> <span class="fu">meal_style</span><span class="op">(</span><span class="st">"Geometric Mean"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">`Food Status`</span>,</span>
+<span>              cent <span class="op">=</span> <span class="st">"median"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>, style <span class="op">=</span> <span class="fu">meal_style</span><span class="op">(</span><span class="st">"Median"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="plot-styling_files/figure-html/combine-legend-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Panels do not have to come from the same plot family; however,
 legends need to be <strong>identical</strong> and drawn from the same
 layer sets. Here concentration vs time and response vs concentration
@@ -891,7 +900,7 @@ panels colored by an indicator variable for female sex (SEXF).</p>
 legend collected into the paneled combined plot, as even though the
 legends are visually identical, they are built from different
 layers.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_pk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">data_pk</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>, col_var <span class="op">=</span> <span class="va">SEXF</span>,</span>
 <span>                    dose_var <span class="op">=</span> <span class="va">DOSE</span>, dosenorm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    cent <span class="op">=</span> <span class="st">"mean"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -920,7 +929,7 @@ titles and tags to the combined plot returned with
 <code>guides = "collect"</code> is the default. Pass
 <code>guides</code> explicitly to override it.</li>
 </ul>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots</a></span><span class="op">(</span><span class="va">p_pk</span>, <span class="va">p_pd</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Single ascending dose PK/PD"</span>, tag_levels <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plot-styling_files/figure-html/combine-annotate-1.png" class="r-plt" alt="" width="100%"></p>

@@ -8,8 +8,10 @@ the other roles' default values; all other fields replace their default
 wholesale. A per-series map may also be given as a palette `function(n)`
 (e.g. `function(n) grDevices::hcl.colors(n, "Viridis")`), which
 `ggstylekit` calls with the number of mapped groups; a palette has no
-entries to merge, so it replaces the default map wholesale. The merged
-fields are passed to
+entries to merge, so it replaces the default map wholesale (and is
+likewise replaced wholesale when it is the default, e.g.
+[`style_forest_pmforest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest_pmforest.md)).
+The merged fields are passed to
 [`ggstylekit::style_spec()`](https://rdrr.io/pkg/ggstylekit/man/style_spec.html).
 
 ## Usage

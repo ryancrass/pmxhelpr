@@ -17,6 +17,7 @@ plot_dvconc(
   idv_var = "CONC",
   col_var = NULL,
   col_trend = FALSE,
+  show_obs = TRUE,
   loess = TRUE,
   linear = FALSE,
   se_loess = FALSE,
@@ -56,6 +57,13 @@ plot_dvconc(
   Logical indicating if the variable specified in `col_var` should be
   used to stratify trend lines
 
+- show_obs:
+
+  Logical indicating if observed data points should be shown. Default is
+  `TRUE`. `FALSE` omits the point layer entirely, so hidden points do
+  not affect axis limits (unlike setting `alphas = c(obs_point = 0)` in
+  the style). Spaghetti lines are controlled separately by `id_var`.
+
 - loess:
 
   Logical indicating if a loess smoother fit should be shown. Default is
@@ -89,7 +97,8 @@ plot_dvconc(
 - show_caption:
 
   Logical indicating if a caption should be shown describing the data
-  plotted
+  plotted. A `caption` set in the style is drawn instead, whatever this
+  value.
 
 - style:
 
@@ -99,9 +108,7 @@ plot_dvconc(
   [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md);
   view the defaults by running
   [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md)
-  with no arguments. Customize by passing `style = style_dvconc(...)`,
-  or restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
+  with no arguments. Customize by passing `style = style_dvconc(...)`.
 
 - ...:
 

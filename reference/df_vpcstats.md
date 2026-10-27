@@ -119,7 +119,9 @@ A list with two data.frames (class `c("vpc_stats", "list")`):
   `pi_low`, `pi_hi` are single (not duplicated). `sim_prop_blq_*` is
   std-only — LOQ has no meaning on the prediction-corrected scale.
   `-Inf` quantile values from rank-mode fully-censored bins are masked
-  to `NA`. Carries attributes `n_replicates`, `loq`, and `strat_var`.
+  to `NA`. `pc_sim_*` quantiles are `NA` in bins with no quantifiable
+  observations (`obs_n == obs_n_blq`). Carries attributes
+  `n_replicates`, `loq`, and `strat_var`.
 
 - `obs`:
 
@@ -146,22 +148,20 @@ Other vpc:
 ``` r
 model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 10,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                              model = model, replicates = 10,
                               dv_var = ODV)
 result <- df_vpcstats(simout, loq = 1)
-#> Warning: Multiple unique values of `CMT` detected in `data` after filtering to `EVID == 0`: 2, 3.
-#> ℹ Functions assume a single observation type per call.
-#> ℹ Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == <n>)`) before passing to this function.
 head(result$stats)
 #> # A tibble: 6 × 34
 #>   BIN_MID obs_n obs_n_blq obs_prop_blq sim_prop_blq_low sim_prop_blq_med
 #>     <dbl> <int>     <int>        <dbl>            <dbl>            <dbl>
-#> 1     0      72        72       1                1                1     
-#> 2     0.5    72         4       0.0556           0.0618           0.0903
-#> 3     1      72         0       0                0                0.0278
-#> 4     1.5    72         0       0                0                0     
-#> 5     2      72         0       0                0                0     
-#> 6     3      72         0       0                0                0     
+#> 1     0      36        36       1                1                1     
+#> 2     0.5    36         2       0.0556           0.0681           0.111 
+#> 3     1      36         0       0                0                0.0278
+#> 4     1.5    36         0       0                0                0     
+#> 5     2      36         0       0                0                0     
+#> 6     3      36         0       0                0                0     
 #> # ℹ 28 more variables: sim_prop_blq_hi <dbl>, obs_low <dbl>, obs_med <dbl>,
 #> #   obs_hi <dbl>, sim_low_low <dbl>, sim_low_med <dbl>, sim_low_hi <dbl>,
 #> #   sim_med_low <dbl>, sim_med_med <dbl>, sim_med_hi <dbl>, sim_hi_low <dbl>,
@@ -170,18 +170,18 @@ head(result$stats)
 #> #   pc_sim_low_hi <dbl>, pc_sim_med_low <dbl>, pc_sim_med_med <dbl>,
 #> #   pc_sim_med_hi <dbl>, pc_sim_hi_low <dbl>, pc_sim_hi_med <dbl>, …
 head(result$obs)
-#>   ID TIME BIN_MID     PRED     IPRED     SIMDV    OBSDV EVID CMT MDV      GUT
-#> 1  1 0.81     1.0 2.469903 0.5809776 0.6000915  2.02000    0   2   0 4.132762
-#> 2  1 0.81     1.0 2.469903 0.5809776 0.6106797 99.44932    0   3   0 4.132762
-#> 3  1 1.49     1.5 5.869272 1.4434493 1.7538614  4.02000    0   2   0 3.724851
-#> 4  1 1.49     1.5 5.869272 1.4434493 1.5973721 97.60720    0   3   0 3.724851
-#> 5  1 2.11     2.0 8.672230 2.2412012 2.3345173  3.50000    0   2   0 3.388126
-#> 6  1 2.11     2.0 8.672230 2.2412012 2.5344445 95.25727    0   3   0 3.388126
-#>         CENT      PERIPH    TRANS1     TRANS2         Y SIM LOQ   PC_OBSDV
-#> 1 0.02369888 0.003378545 0.5115784 0.03166314 0.6000915   1   1   42.00469
-#> 2 0.02369888 0.003378545 0.5115784 0.03166314 0.6106797   1   1 2067.98928
-#> 3 0.05888029 0.016219628 0.8481680 0.09656615 1.7538614   1   1   70.01649
-#> 4 0.05888029 0.016219628 0.8481680 0.09656615 1.5973721   1   1 1700.02826
-#> 5 0.09142169 0.036971977 1.0925184 0.17614404 2.3345173   1   1   62.31583
-#> 6 0.09142169 0.036971977 1.0925184 0.17614404 2.5344445   1   1 1696.01013
+#>   ID TIME BIN_MID      PRED     IPRED     SIMDV OBSDV EVID CMT MDV      GUT
+#> 1  1 0.81     1.0  2.393706 0.5659779 0.7298292  1.96    0   2   0 4.132762
+#> 2  1 1.49     1.5  5.590033 1.3880030 1.0785968  3.86    0   2   0 3.724851
+#> 3  1 2.11     2.0  8.176810 2.1407808 2.2112115  3.34    0   2   0 3.388126
+#> 4  1 3.05     3.0 10.974942 3.1429334 3.3036137  6.83    0   2   0 2.934755
+#> 5  1 4.14     4.0 12.666037 4.0503191 4.9213355  8.87    0   2   0 2.484441
+#> 6  1 5.14     5.0 13.168275 4.6617823 5.1588934 11.92    0   2   0 2.132351
+#>         CENT      PERIPH    TRANS1     TRANS2         Y SIM LOQ  PC_OBSDV
+#> 1 0.02308702 0.004109114 0.5115784 0.03166314 0.7298292   1   1  40.64147
+#> 2 0.05661856 0.019382671 0.8481680 0.09656615 1.0785968   1   1  67.33181
+#> 3 0.08732541 0.043617826 1.0925184 0.17614404 2.2112115   1   1  59.59779
+#> 4 0.12820460 0.095402436 1.3679129 0.31879759 3.3036137   1   1 132.56808
+#> 5 0.16521811 0.170075613 1.5718669 0.49724779 4.9213355   1   1 183.28737
+#> 6 0.19016054 0.244844700 1.6749763 0.65785251 5.1588934   1   1 259.15132
 ```

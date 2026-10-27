@@ -61,12 +61,16 @@ df_doseprop(
 
 - ci:
 
-  confidence interval to be calculated. Options `0.90` (default) and
-  `0.95`.
+  confidence interval to be calculated: a single numeric value in
+  `(0, 1)`, e.g. `0.90` (default) or `0.95`.
 
 - sigdigits:
 
-  number of significant digits for rounding.
+  number of significant digits for the reported `Intercept`,
+  `StandardError`, `Power`, `LCL`, `UCL`, and `PowerCI` columns.
+  `PowerCI` pads every value to this many digits so the facet labels
+  line up. The `Proportional` / `Interpretation` verdict is taken from
+  the unrounded confidence bounds, so it never moves with `sigdigits`.
 
 ## Value
 
@@ -76,7 +80,12 @@ A `doseprop_stats` container (subclass of `pmx_stats`) with three slots:
 
   One row per metric and columns `Intercept`, `StandardError`, `CI`,
   `Power`, `LCL`, `UCL`, `Proportional`, `PowerCI`, `Interpretation`,
-  plus the column named in `metric_name_var`.
+  plus the column named in `metric_name_var`. `Interpretation` is
+  `"Dose-proportional"` when the `ci` interval for `Power` contains 1,
+  and less or greater than dose-proportional when it lies wholly below
+  or above 1. It is a screening label: a CI that contains 1 does not
+  establish proportionality, and no predefined equivalence bounds are
+  applied.
 
 - `obs`:
 
@@ -104,19 +113,20 @@ Other dose proportionality:
 ## Examples
 
 ``` r
-df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+            metrics = c("aucinf.obs", "cmax"))
 #> <doseprop_stats>
 #>   stats: 2 rows x 10 columns
-#>   obs:   72 rows
+#>   obs:   60 rows
 #>   config: metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal
 #> 
 #>   stats body:
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      4.04        0.0663 90% 0.997 0.888 1.11         TRUE
-#> 2      1.09        0.0616 90% 1.070 0.967 1.17         TRUE
+#> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE
+#> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
-#> 1 Power: 0.997 (90% CI 0.888-1.11) Dose-proportional aucinf.obs
-#> 2  Power: 1.07 (90% CI 0.967-1.17) Dose-proportional       cmax
+#> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs
+#> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax
 #> 
 #>   Use `x$obs` for the observation overlay.
 ```

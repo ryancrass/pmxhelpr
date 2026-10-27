@@ -3,11 +3,15 @@
 summary statistics: the std flavor uses raw OBSDV/SIMDV; the pc flavor
 applies var_loqcens to SIMDV (when loq is supplied) and
 var_predcorr() per (bin_var × strat_var × CMT) to both
-OBSDV and SIMDV. The pc columns are returned with a pc_ prefix."><meta property="og:description" content="Internal function. Always emits both standard and prediction-corrected
+OBSDV and SIMDV. The pc columns are returned with a pc_ prefix.
+pc_sim_* quantiles are masked to NA in bins with no quantifiable
+observations (obs_n == obs_n_blq)."><meta property="og:description" content="Internal function. Always emits both standard and prediction-corrected
 summary statistics: the std flavor uses raw OBSDV/SIMDV; the pc flavor
 applies var_loqcens to SIMDV (when loq is supplied) and
 var_predcorr() per (bin_var × strat_var × CMT) to both
-OBSDV and SIMDV. The pc columns are returned with a pc_ prefix."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+OBSDV and SIMDV. The pc columns are returned with a pc_ prefix.
+pc_sim_* quantiles are masked to NA in bins with no quantifiable
+observations (obs_n == obs_n_blq)."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +19,7 @@ OBSDV and SIMDV. The pc columns are returned with a pc_ prefix."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +35,7 @@ OBSDV and SIMDV. The pc columns are returned with a pc_ prefix."><meta property=
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -54,7 +59,9 @@ OBSDV and SIMDV. The pc columns are returned with a pc_ prefix."><meta property=
 summary statistics: the std flavor uses raw <code>OBSDV</code>/<code>SIMDV</code>; the pc flavor
 applies <code>var_loqcens</code> to <code>SIMDV</code> (when <code>loq</code> is supplied) and
 <code><a href="var_predcorr.html">var_predcorr()</a></code> per (<code>bin_var</code> × <code>strat_var</code> × <code>CMT</code>) to both
-<code>OBSDV</code> and <code>SIMDV</code>. The pc columns are returned with a <code>pc_</code> prefix.</p>
+<code>OBSDV</code> and <code>SIMDV</code>. The pc columns are returned with a <code>pc_</code> prefix.
+<code>pc_sim_*</code> quantiles are masked to <code>NA</code> in bins with no quantifiable
+observations (<code>obs_n == obs_n_blq</code>).</p>
     </div>
 
     <div class="section level2">

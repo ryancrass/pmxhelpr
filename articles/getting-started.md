@@ -8,7 +8,8 @@ website](https://ryancrass.github.io/pmxhelpr/).
 Exported functions follow a `ReturnType_Purpose` naming convention:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame` (often class-tagged)
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`,
+  `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside
   [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html))
 - `style_*` — returns a
@@ -56,10 +57,10 @@ glimpse(data_sad)
 #> $ DOSE    <dbl> 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10…
 #> $ AMT     <dbl> 10, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
 #> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 2.02000, 99.44932, 4.02000, 9…
-#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.70310, 99.44932, 1.39130, 9…
+#> $ ODV     <dbl> NA, NA, 100.00000, NA, 99.87700, 1.96000, 99.44932, 3.86000, 9…
+#> $ LDV     <dbl> NA, NA, 100.00000, NA, 99.87700, 0.67290, 99.44932, 1.35070, 9…
 #> $ CFB     <dbl> NA, NA, 0.0000000, NA, -0.1229974, NA, -0.5506789, NA, -2.3928…
-#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 2.02, NA, 4.02, NA, 3.50, NA, 7.18…
+#> $ CONC    <dbl> NA, NA, 0.00, NA, 0.00, NA, 1.96, NA, 3.86, NA, 3.34, NA, 6.83…
 #> $ LINE    <dbl> 2, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,…
 #> $ CMT     <dbl> 1, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3,…
 #> $ MDV     <dbl> NA, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
@@ -118,7 +119,7 @@ glimpse(data_sad_nca)
 #> $ start      <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ end        <dbl> Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf,…
 #> $ PPTESTCD   <chr> "auclast", "cmax", "tmax", "tlast", "clast.obs", "lambda.z"…
-#> $ PPORRES    <dbl> 277.7701457207, 13.4300000000, 7.8100000000, 35.9500000000,…
+#> $ PPORRES    <dbl> 278.48468681530, 13.08000000000, 7.81000000000, 35.95000000…
 #> $ exclude    <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 #> $ units_dose <chr> "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg",…
 #> $ units_conc <chr> "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/m…
@@ -163,7 +164,7 @@ see(pkmodel)
 #> $MAIN
 #> double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);
 #> double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);
-#> double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);
+#> double Q = TVQ*pow(WT/70,WT_Q)*exp(ETA_Q);
 #> double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);
 #> double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);
 #> double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);
@@ -199,6 +200,32 @@ data_gof <- data_sad_pkfit %>%
          Regimen = var_addn(DoseFood, ID)) 
 ```
 
+### `data_sad_pkforest`
+
+`data_sad_pkforest` is a per replicate simulation dataset of PK exposure
+metrics (absolute and test/reference ratios) across six covariate
+scenarios (reference, fed, and 50, 60, 80, 90 kg body weight), built
+from the raw replicate output in `data_sad_pkforest_sim`. The reference
+scenario is fasted at 70 kg; that mapping is passed to
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+as `cov_level_ref` below.
+
+``` r
+
+glimpse(data_sad_pkforest)
+#> Rows: 24,000
+#> Columns: 9
+#> $ ID        <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#> $ SIM       <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, …
+#> $ WTBL      <dbl> 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, …
+#> $ FOOD      <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+#> $ DOSE      <dbl> 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, …
+#> $ metric    <chr> "CMAX", "CMIN", "AUC", "CAVG", "CMAXRATIO", "CMINRATIO", "AU…
+#> $ value     <dbl> 844.8669, 200.0502, 12006.2897, 500.2621, 1.0000, 1.0000, 1.…
+#> $ cov_name  <chr> "Reference", "Reference", "Reference", "Reference", "Referen…
+#> $ cov_level <chr> "Reference", "Reference", "Reference", "Reference", "Referen…
+```
+
 ## Longitudinal concentration and response with `plot_dvtime()`
 
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
@@ -216,7 +243,7 @@ pk_plot <- plot_dvtime(
   cent = "mean_sdl",
   col_var = Regimen,
   log_y = TRUE,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 pk_plot
@@ -231,7 +258,7 @@ pd_plot <- plot_dvtime(
   dv_var = "CFB",
   cent = "mean_sdl",
   col_var = Regimen,
-  style = style_dvtime(alphas = c(obs_point = 0))
+  show_obs = FALSE
 ) +
   labs(y = "Response (% Change from Baseline)", x = "Time (hours)")
 pd_plot
@@ -311,7 +338,7 @@ article for additional details on exploratory data analyses with
 
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
 fits a log-log regression of exposure metrics (e.g., Cmax and AUC)
-versus dose and returns a class-tagged `doseprop_stats` data frame.
+versus dose and returns a `doseprop_stats` container.
 
 ``` r
 
@@ -324,8 +351,8 @@ tab
 #> 
 #>   stats body:
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE
-#> 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE
+#> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE
+#> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
 #> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs
 #> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax
@@ -414,13 +441,10 @@ From a validated model file, the VPC pipeline includes functionality to:
 ### Run the simulation with `df_mrgsim_replicate()`
 
 [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
-is a wrapper function for `mrgsim::mrgsim_df()`, which uses
-[`lapply()`](https://rdrr.io/r/base/lapply.html) to iterate from 1 to
-the integer value passed to `replicates`. This can be parallelized using
-[`future.apply::future_lapply()`](https://future.apply.futureverse.org/reference/future_lapply.html)
-when `parallel = TRUE` and a corresponding
-[`future::plan()`](https://future.futureverse.org/reference/plan.html)
-is in place.
+is a wrapper function for
+[`mrgsolve::mrgsim_df()`](https://mrgsolve.org/docs/reference/mrgsim.html),
+which uses [`lapply()`](https://rdrr.io/r/base/lapply.html) to iterate
+from 1 to the integer value passed to `replicates`.
 
 There are 3 required arguments to
 [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md):
@@ -456,10 +480,10 @@ glimpse(simout)
 #> $ ID      <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,…
 #> $ TIME    <dbl> 0.00, 0.00, 0.48, 0.81, 1.49, 2.11, 3.05, 4.14, 5.14, 7.81, 12…
 #> $ NTIME   <dbl> 0.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 8.0, 12.0, 16.0, …
-#> $ PRED    <dbl> 0.0000000000, 0.0000000000, 1.0373644222, 2.4699025938, 5.8692…
-#> $ IPRED   <dbl> 0.00000000000, 0.00000000000, 0.23991271053, 0.58097762508, 1.…
-#> $ SIMDV   <dbl> 0.00000000000, 0.00000000000, 0.27955022508, 0.74917139938, 1.…
-#> $ OBSDV   <dbl> NA, NA, NA, 2.02, 4.02, 3.50, 7.18, 9.31, 12.46, 13.43, 12.11,…
+#> $ PRED    <dbl> 0.0000000000, 0.0000000000, 1.0167419653, 2.3937058312, 5.5900…
+#> $ IPRED   <dbl> 0.000000000000, 0.000000000000, 0.235847746922, 0.565977888471…
+#> $ SIMDV   <dbl> 0.00000000000, 0.00000000000, 0.27481366281, 0.72982921961, 1.…
+#> $ OBSDV   <dbl> NA, NA, NA, 1.96, 3.86, 3.34, 6.83, 8.87, 11.92, 13.08, 12.09,…
 #> $ EVID    <dbl> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,…
 #> $ CMT     <dbl> 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,…
 #> $ MDV     <dbl> NA, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, N…
@@ -467,12 +491,12 @@ glimpse(simout)
 #> $ FOOD    <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ BLQ     <dbl> NA, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, …
 #> $ LLOQ    <dbl> NA, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, N…
-#> $ GUT     <dbl> 4.67735141287198175, 4.67735141287198175, 4.34652773939926984,…
-#> $ CENT    <dbl> 0.000000000000, 0.000000000000, 0.009786371098, 0.023698880423…
-#> $ PERIPH  <dbl> 0.00000000000, 0.00000000000, 0.00080390625, 0.00337854545, 0.…
-#> $ TRANS1  <dbl> 0.0000000000000000, 0.0000000000000000, 0.3188382667608536, 0.…
-#> $ TRANS2  <dbl> 0.00000000000000, 0.00000000000000, 0.01169414527583, 0.031663…
-#> $ Y       <dbl> 0.00000000000, 0.00000000000, 0.27955022508, 0.74917139938, 1.…
+#> $ GUT     <dbl> 4.67735141287198175, 4.67735141287198175, 4.34652773934869341,…
+#> $ CENT    <dbl> 0.0000000000000, 0.0000000000000, 0.0096205556135, 0.023087020…
+#> $ PERIPH  <dbl> 0.000000000000, 0.000000000000, 0.000987768543, 0.004109113878…
+#> $ TRANS1  <dbl> 0.0000000000000000, 0.0000000000000000, 0.3188382669140359, 0.…
+#> $ TRANS2  <dbl> 0.00000000000000, 0.00000000000000, 0.01169414511677, 0.031663…
+#> $ Y       <dbl> 0.00000000000, 0.00000000000, 0.27481366281, 0.72982921961, 1.…
 #> $ PART    <chr> "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part 1-SAD", "Part …
 #> $ Regimen <fct> 10 mg x1 Fasted (n=6), 10 mg x1 Fasted (n=6), 10 mg x1 Fasted …
 #> $ SIM     <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
@@ -509,7 +533,7 @@ vpcstats_obj_regimen <- df_vpcstats(simout, strat_var = Regimen)
 vpcstats_obj_part
 #> <vpc_stats>
 #>   stats: 38 rows x 35 columns
-#>   obs:   515 rows
+#>   obs:   506 rows
 #>   config: n_replicates = 100, loq = 1, strat_var = PART
 #>   column groups (stats):
 #>     identifiers  : BIN_MID, PART
@@ -607,11 +631,11 @@ cens_vpc_regimen
 
 ![](getting-started_files/figure-html/plot-vpc-cens-regimen-1.png)
 
-### Adding a panels and legends with `patchwork` and `plot_vpc_legend()`
+### Adding panels and legends with `patchwork` and `plot_vpc_legend()`
 
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
 returns a legend that can be combined with the VPC plots using the
-`patwork` package. The four row layout below stacks the continuous and
+`patchwork` package. The four row layout below stacks the continuous and
 censored VPCs with their corresponding legends.
 
 The two-stage plot building from a`vpc_stats` objects is also
@@ -641,6 +665,125 @@ vpc_plot_cont / cont_legend / vpc_plot_cens / cens_legend +
 See the [Visual Predictive Check
 Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.md)
 article for additional details on the VPC toolchain with `pmxhelpr`.
+
+## Forest plots of covariate impact with `df_forest()` and `plot_forest()`
+
+[`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md)
+is an upstream pre-processing function which reshapes raw replicate
+simulation output containing one row per scenario per replicate with the
+exposure metrics as columns, into the long form consumed by
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md).
+Within-replicate test-to-reference ratios are computed along the way.
+That is how `data_sad_pkforest` is built from `data_sad_pkforest_sim`.
+See the [Forest Plot
+Workflow](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.md)
+article for more information.
+
+``` r
+
+forest_preprocess <- df_forest_preprocess(
+  data_sad_pkforest_sim,
+  metric_vars   = c("CMAX", "CMIN", "AUC", "CAVG"),
+  cov_vars      = c("FOOD", "WTBL"),
+  cov_val_ref = c(FOOD = 0, WTBL = 70),
+  cov_labels    = list(
+    FOOD = c("0" = "Fasted", "1" = "Fed"),
+    WTBL = function(x) paste(x, "kg")
+  )
+)
+glimpse(forest_preprocess)
+#> Rows: 24,000
+#> Columns: 9
+#> $ ID        <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#> $ SIM       <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, …
+#> $ WTBL      <dbl> 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, …
+#> $ FOOD      <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+#> $ DOSE      <dbl> 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, …
+#> $ metric    <chr> "CMAX", "CMIN", "AUC", "CAVG", "CMAXRATIO", "CMINRATIO", "AU…
+#> $ value     <dbl> 844.8669, 200.0502, 12006.2897, 500.2621, 1.0000, 1.0000, 1.…
+#> $ cov_name  <chr> "Reference", "Reference", "Reference", "Reference", "Referen…
+#> $ cov_level <chr> "Reference", "Reference", "Reference", "Reference", "Referen…
+```
+
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+turns the draws into a median and 90% CI per covariate level.
+`cov_level_ref` also draws the reference row inside each covariate panel
+(`Fasted`, `70 kg`). Rows plot in the order of `$stats`; reorder it, or
+set factor levels on `cov_level`, to change it.
+
+``` r
+
+forest_obj <- df_forest(data_sad_pkforest,
+                        cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+forest_obj
+#> <forest_stats>
+#>   stats: 64 rows x 13 columns
+#>   config: metric_name_var = metric, metric_value_var = value, cov_name_var = cov_name, cov_level_var = cov_level, ci = 0.9, sigdigits = 3, cov_name_ref = Reference, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+#> 
+#>   head(stats, 3):
+#>   metric  cov_name cov_level       est       lo       hi   n est_label lo_label
+#> 1   CMAX Reference Reference  861.3751  741.241 1005.205 500       861      741
+#> 2   CMAX      FOOD    Fasted  861.3751  741.241 1005.205 500       861      741
+#> 3   CMAX      FOOD       Fed 1465.1054 1180.176 1830.221 500      1465     1180
+#>   hi_label          ci_label is_ref       layout
+#> 1     1005   861 (741, 1005)   TRUE consolidated
+#> 2     1005   861 (741, 1005)   TRUE  distributed
+#> 3     1830 1465 (1180, 1830)  FALSE         both
+#> 
+#>   Use `x$stats` for the full data.frame.
+```
+
+[`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
+is dual-mode plotting function which can accept the raw pre-processed
+long-form simulation data (one-stage, calling
+[`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+internally) or a precomputed `forest_stats` object (two-stage).
+
+The two-stage workflow below renders one metric at a time and composes
+with `ggplot2` for axis customization.
+
+``` r
+
+plot_forest(forest_obj, metric = "AUCRATIO", ref_band = c(0.8, 1.25)) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+![](getting-started_files/figure-html/plot-forest-default-1.png)
+
+Per-covariate panel colors are opt-in through the `colors` map of
+[`style_forest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest.md).
+Add entries keyed by covariate name (matching the `cov_name` column).
+Covariate names omitted from the map take colors from the house palette.
+
+``` r
+
+new_forest_style <- style_forest(
+  colors = c(FOOD = "darkgreen", WTBL = "darkblue")
+)
+
+plot_forest(forest_obj, metric = "AUCRATIO",
+            ref_band = c(0.8, 1.25), style = new_forest_style) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+![](getting-started_files/figure-html/plot-forest-styled-1.png)
+Reference rows (here the `Fasted` and `70 kg` copies) draw as an open
+circle through the `ref_point` style role and show the estimate alone in
+the right-hand column.
+
+The reference can instead be drawn in a reference panel at the top with
+`ref_layout = "consolidated"`, from the same `forest_obj`. Without
+`cov_level_ref`, the reference panel is always used.
+
+``` r
+
+plot_forest(forest_obj,
+            metric = "AUCRATIO", ref_layout = "consolidated",
+            ref_band = c(0.8, 1.25), style = new_forest_style) +
+  scale_x_log10(limits = c(0.5, 5), breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5))
+```
+
+![](getting-started_files/figure-html/plot-forest-reference-1.png)
 
 ## Plot themes with `ggstylekit`
 
@@ -694,6 +837,7 @@ style_dvtime()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -722,20 +866,21 @@ style_dvtime()
 #>   theme                  <ggplot2 theme>
 ```
 
-Styling is keyed by *roles* (e.g. `obs_point`, `cent_line`,
-`cent_errorbar`, `ref_line`, `loq_line`). The *values* for each key are
-individual plot aesthetics (e.g, `colors`, `shapes`, `sizes`,
-`linetypes`, `linewidths`, `alphas`) with partial overrides merge onto
-the defaults so setting one role leaves the others untouched.
+Each aesthetic map (`colors`, `shapes`, `sizes`, `linetypes`,
+`linewidths`, `alphas`) is keyed by *role* (e.g. `obs_point`,
+`cent_line`, `cent_errorbar`, `ref_line`, `loq_line`). Partial overrides
+merge onto the defaults, so setting one role leaves the others
+untouched.
 
 New styles can be defined as an object and recycled across plots. This
-revised style object removes the observed points and increases the
-linewidth of the central tendency line and error bars.
+revised style object increases the linewidth of the central tendency
+line and error bars. Observed points are hidden with the
+`show_obs = FALSE` argument, which omits the layer so it does not affect
+the axis limits.
 
 ``` r
 
 new_dvtime_style <- style_dvtime(
-    alphas     = c(obs_point = 0),
     linewidths = c(cent_line = 1.5, cent_errorbar = 1.5)
   )
 new_dvtime_style
@@ -743,7 +888,7 @@ new_dvtime_style
 #>   colors                 NULL
 #>   fill                   NULL
 #>   linetypes              solid , solid , dashed, dashed
-#>   alphas                 0.0, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0
+#>   alphas                 0.5, 0.5, 0.0, 1.0, 1.0, 1.0, 1.0
 #>   shapes                  1, 16
 #>   sizes                  0.75, 1.25
 #>   linewidths             0.5, 1.5, 1.5, 0.5, 0.5
@@ -777,6 +922,7 @@ new_dvtime_style
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -813,6 +959,7 @@ plot_dvtime(
   cent = "mean_sdl",
   col_var = "Regimen",
   log_y = TRUE,
+  show_obs = FALSE,
   style = new_dvtime_style
 ) +
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
@@ -820,11 +967,8 @@ plot_dvtime(
 
 ![](getting-started_files/figure-html/plot-dvtime-styled-1.png)
 
-A finished plot object can also be restyled after the fact with
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
-Additionally, variables can be surfaced and mapped to aesthetics after
-the fact with
-[`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html). Both are
+Variables can also be surfaced and mapped to aesthetics after the fact
+with [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html),
 re-exported from ggstylekit.
 
 See the [Plot Styling and

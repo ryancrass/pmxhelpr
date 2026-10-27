@@ -33,6 +33,9 @@ df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
 
   Additional arguments passed to
   [`mrgsolve::mrgsim_df()`](https://mrgsolve.org/docs/reference/mrgsim.html).
+  A `carry_out` is merged with `output_var`. Arguments that change the
+  number of output rows (e.g. `obsonly`) are an error, since `PRED` is
+  matched to `data` by row.
 
 ## Value
 

@@ -23,7 +23,7 @@ re-fitting any regressions.'><meta property="og:image" content="https://ryancras
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ re-fitting any regressions.'><meta property="og:image" content="https://ryancras
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -117,12 +118,17 @@ Options are <code>"normal"</code> (default) and <code>"tdist"</code>.</p></dd>
 
 
 <dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>
-<dd><p>confidence interval to be calculated.
-Options <code>0.90</code> (default) and <code>0.95</code>.</p></dd>
+<dd><p>confidence interval to be calculated: a single numeric value
+in <code>(0, 1)</code>, e.g. <code>0.90</code> (default) or <code>0.95</code>.</p></dd>
 
 
 <dt id="arg-sigdigits">sigdigits<a class="anchor" aria-label="anchor" href="#arg-sigdigits"></a></dt>
-<dd><p>number of significant digits for rounding.</p></dd>
+<dd><p>number of significant digits for the reported
+<code>Intercept</code>, <code>StandardError</code>, <code>Power</code>, <code>LCL</code>, <code>UCL</code>, and <code>PowerCI</code>
+columns. <code>PowerCI</code> pads every value to this many digits so the facet
+labels line up. The <code>Proportional</code> / <code>Interpretation</code> verdict is taken
+from the unrounded confidence bounds, so it never moves with
+<code>sigdigits</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -131,7 +137,12 @@ Options <code>0.90</code> (default) and <code>0.95</code>.</p></dd>
 slots:</p><dl><dt><code>stats</code></dt>
 <dd><p>One row per metric and columns <code>Intercept</code>,
 <code>StandardError</code>, <code>CI</code>, <code>Power</code>, <code>LCL</code>, <code>UCL</code>, <code>Proportional</code>,
-<code>PowerCI</code>, <code>Interpretation</code>, plus the column named in <code>metric_name_var</code>.</p></dd>
+<code>PowerCI</code>, <code>Interpretation</code>, plus the column named in <code>metric_name_var</code>.
+<code>Interpretation</code> is <code>"Dose-proportional"</code> when the <code>ci</code> interval for
+<code>Power</code> contains 1, and less or greater than dose-proportional when it
+lies wholly below or above 1. It is a screening label: a CI that
+contains 1 does not establish proportionality, and no predefined
+equivalence bounds are applied.</p></dd>
 
 <dt><code>obs</code></dt>
 <dd><p>The filtered observation rows used for the plot scatter
@@ -156,19 +167,20 @@ without refitting.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">df_doseprop</span><span class="op">(</span><span class="va">data_sad_nca</span>, metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">df_doseprop</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad_nca</span>, <span class="va">PART</span> <span class="op">==</span> <span class="st">"Part 1-SAD"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>            metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"aucinf.obs"</span>, <span class="st">"cmax"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;doseprop_stats&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stats: 2 rows x 10 columns</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   obs:   72 rows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   obs:   60 rows</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   config: metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE, ci = 0.9, method = normal</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stats body:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Intercept StandardError  CI Power   LCL  UCL Proportional</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      4.04        0.0663 90% 0.997 0.888 1.11         TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      1.09        0.0616 90% 1.070 0.967 1.17         TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                            PowerCI    Interpretation   PPTESTCD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Power: 0.997 (90% CI 0.888-1.11) Dose-proportional aucinf.obs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Power: 1.07 (90% CI 0.967-1.17) Dose-proportional       cmax</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Use `x$obs` for the observation overlay.</span>
 </code></pre></div>

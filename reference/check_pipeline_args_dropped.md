@@ -14,7 +14,7 @@ the remainder is non-empty — making the silent-shadow case audible.
 ## Usage
 
 ``` r
-check_pipeline_args_dropped(call, plot_only_args, fn_name)
+check_pipeline_args_dropped(call, plot_only_args, fn_name, stats_fn)
 ```
 
 ## Arguments
@@ -34,6 +34,11 @@ check_pipeline_args_dropped(call, plot_only_args, fn_name)
 - fn_name:
 
   Character scalar, the wrapper's name, used in the error message.
+
+- stats_fn:
+
+  Character scalar, the stats function the caller should run instead
+  (e.g. `"df_forest"`), used in the error message.
 
 ## Value
 

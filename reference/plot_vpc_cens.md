@@ -31,7 +31,7 @@ plot_vpc_cens(
   strat_var = NULL,
   loq = NULL,
   irep_name = "SIM",
-  min_bin_count = 1,
+  min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
@@ -112,7 +112,8 @@ plot_vpc_cens(
 
 - show_rep:
 
-  Display number of replicates as a plot caption. Default is `TRUE`.
+  Display number of replicates as a plot caption. Default is `TRUE`. A
+  `caption` set in the style is drawn instead, whatever this value.
 
 - shown:
 
@@ -133,10 +134,8 @@ plot_vpc_cens(
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md);
   view the defaults by running
   [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
-  with no arguments. Customize by passing `style = style_vpc(...)`, or
-  restyle the returned plot with
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html).
-  Pass the same style to
+  with no arguments. Customize by passing `style = style_vpc(...)`. Pass
+  the same style to
   [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
   so the legend matches. The cens builder reads the same four keys
   listed above (`obs_point`, `obs_median_line`, `sim_median_line`,

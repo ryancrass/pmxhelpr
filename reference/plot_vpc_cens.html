@@ -27,7 +27,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
     <li><a class="dropdown-item" href="../articles/gof-diagnostics.html">Standard Overlay Goodness-of-Fit Diagnostics</a></li>
     <li><a class="dropdown-item" href="../articles/vpc-workflow.html">Visual Predictive Check Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/doseprop-workflow.html">Dose-Proportionality Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/forest-workflow.html">Forest Plot Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/plot-styling.html">Plot Styling and Aesthetics</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -87,7 +88,7 @@ source is available are the sole source of plot data.</p>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
-<span>  min_bin_count <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -164,7 +165,8 @@ informative on a cens VPC and should be retained.</p></dd>
 
 
 <dt id="arg-show-rep">show_rep<a class="anchor" aria-label="anchor" href="#arg-show-rep"></a></dt>
-<dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.</p></dd>
+<dd><p>Display number of replicates as a plot caption. Default is <code>TRUE</code>.
+A <code>caption</code> set in the style is drawn instead, whatever this value.</p></dd>
 
 
 <dt id="arg-shown">shown<a class="anchor" aria-label="anchor" href="#arg-shown"></a></dt>
@@ -179,8 +181,8 @@ the simulated median line is off by default. Pass
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
 <dd><p>A <code><a href="https://rdrr.io/pkg/ggstylekit/man/style_spec.html" class="external-link">ggstylekit::style_spec()</a></code> controlling plot aesthetics.
 Defaults to <code><a href="style_vpc.html">style_vpc()</a></code>; view the defaults by running <code><a href="style_vpc.html">style_vpc()</a></code>
-with no arguments. Customize by passing <code>style = style_vpc(...)</code>, or
-restyle the returned plot with <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code>. Pass the same style to
+with no arguments. Customize by passing <code>style = style_vpc(...)</code>.
+Pass the same style to
 <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> so the legend matches. The cens builder reads the same four keys
 listed above (<code>obs_point</code>, <code>obs_median_line</code>, <code>sim_median_line</code>,
 <code>sim_median_ci</code>); other keys are ignored.</p></dd>

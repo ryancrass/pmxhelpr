@@ -47,12 +47,10 @@ Other vpc:
 ``` r
 model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
-simout <- df_mrgsim_replicate(data = data_sad, model = model, replicates = 5,
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                              model = model, replicates = 5,
                               dv_var = ODV)
 out <- df_vpcstats(simout)
-#> Warning: Multiple unique values of `CMT` detected in `data` after filtering to `EVID == 0`: 2, 3.
-#> ℹ Functions assume a single observation type per call.
-#> ℹ Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == <n>)`) before passing to this function.
 is_vpc_stats(out)        # TRUE
 #> [1] TRUE
 is_vpc_stats(out$stats)  # FALSE — that's the inner data.frame

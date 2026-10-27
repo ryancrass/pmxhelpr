@@ -4,7 +4,8 @@ The goal of pmxhelpr is to make pharmacometrics workflows more
 standardized, efficient, and reproducible. This package provides helper
 and wrapper functions for common steps in the modeling analysis
 workflow, outside of model parameter estimation. Currently, workflows
-cover key steps in exploratory data analysis and model evaluation.
+cover key steps in exploratory data analysis, model evaluation, and
+forest plot model applications.
 
 ## Documentation
 
@@ -24,50 +25,64 @@ articles:
   Diagnostics](https://ryancrass.github.io/pmxhelpr/articles/gof-diagnostics.html)
 - [Visual Predictive Check
   Workflow](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html)
+- [Forest Plot
+  Workflow](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.html)
 - [Plot Styling and
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 
 ## Installation
 
-pmxhelpr depends on `ggstylekit`, which is distributed through the PRISM
-package repository rather than CRAN, so the repository must be declared
-alongside the pmxhelpr release.
+pmxhelpr and its styling dependency `ggstylekit` are distributed through
+the PRISM package repository rather than CRAN. Each release of each
+package has its own PRISM repository, so declare both alongside a CRAN
+mirror for the remaining dependencies.
 
 The recommended way to install pmxhelpr is with
-[rv](https://github.com/A2-ai/rv). Add the `ggstylekit` PRISM repository
-and the most recent [tagged
-release](https://github.com/ryancrass/pmxhelpr/releases/latest) of
+[rv](https://github.com/A2-ai/rv). Add the two PRISM repositories and
 pmxhelpr to your project’s `rproject.toml`, then run `rv sync`:
 
 ``` toml
 repositories = [
     { alias = "CRAN", url = "https://packagemanager.posit.co/cran/latest" },
-    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0/" }
+    { alias = "pmxhelpr", url = "https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0/" },
+    { alias = "ggstylekit", url = "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1/" }
 ]
 
 dependencies = [
-    { name = "pmxhelpr", git = "https://github.com/ryancrass/pmxhelpr.git", tag = "v0.6.0" }
+    "pmxhelpr"
 ]
 ```
 
-Alternatively, install `ggstylekit` from PRISM and then the tagged
-pmxhelpr release from GitHub with `devtools`:
+Alternatively, install from the same repositories with
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html):
+
+``` r
+
+install.packages("pmxhelpr",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0",
+                           "https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
+                           getOption("repos")))
+```
+
+To install a development version or another [tagged
+release](https://github.com/ryancrass/pmxhelpr/releases) from GitHub,
+install `ggstylekit` from PRISM first, then use `devtools`:
 
 ``` r
 
 # install.packages("devtools")
 install.packages("ggstylekit",
-                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.0",
+                 repos = c("https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1",
                            getOption("repos")))
-devtools::install_github("ryancrass/pmxhelpr@v0.6.0")
+devtools::install_github("ryancrass/pmxhelpr@v0.7.0")
 ```
 
-The README examples use a few packages from `Suggests` that aren’t
-installed automatically:
+The README examples use a package from `Suggests` that isn’t installed
+automatically:
 
 ``` r
 
-install.packages(c("dplyr", "ggplot2", "forcats", "patchwork"))
+install.packages("patchwork")
 ```
 
 ## Function Naming Conventions
@@ -76,7 +91,8 @@ Exported functions follow a `ReturnType_Purpose` naming convention where
 the prefix indicates what the function returns:
 
 - `plot_*` — returns a `ggplot` object
-- `df_*` — returns a `data.frame`
+- `df_*` — returns a `data.frame`, or a `pmx_stats` container (`$stats`,
+  `$obs`, `$config`) for the stats functions
 - `var_*` — returns a vector (vectorized helpers for use inside
   `mutate`)
 - `style_*` — returns a
@@ -118,6 +134,16 @@ the prefix indicates what the function returns:
   - [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
     — legend for a VPC plot
 
+### Model Application
+
+- Forest Plots:
+  - [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md)
+    — Reshape replicate simulation output into forest plot draws
+  - [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+    — Forest plot summary statistics
+  - [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
+    — Forest plot of covariate impact
+
 ### Styling
 
 Plot aesthetics are controlled with `ggstylekit`. Each plot function has
@@ -129,7 +155,8 @@ pre-filled with the plot family defaults:
   [`style_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/style_dvconc.md),
   [`style_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/style_doseprop.md),
   [`style_gof()`](https://ryancrass.github.io/pmxhelpr/reference/style_gof.md),
-  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
+  [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md),
+  [`style_forest()`](https://ryancrass.github.io/pmxhelpr/reference/style_forest.md)
   — pass one to the `style` argument of the matching plot function
 - [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
   /
@@ -142,9 +169,7 @@ Styling is based on *maps* for plot aesthetics, which are keyed by
 (`colors`, `shapes`, `sizes`, `linetypes`, `linewidths`, `alphas`) are
 keyed by *role*, and only the *roles* specified override the defaults.
 
-A finished plot can be restyled after the fact with
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html),
-additional variables in the dataset can be surfaced with
+Additional variables in the dataset can be surfaced after the fact with
 [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html), legends
 are described with
 [`legend_spec()`](https://rdrr.io/pkg/ggstylekit/man/legend_spec.html),
@@ -159,28 +184,36 @@ predicates and
 methods for interactive inspection and programmatic validation.
 
 - Stats classes —
-  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
-  returns a `vpc_stats` list and
-  [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md)
-  returns a `doseprop_stats` data.frame. Each carries
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+  [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
+  and
+  [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md)
+  return `pmx_stats` containers of class `vpc_stats`, `doseprop_stats`,
+  and `forest_stats` (`stats`, `obs`, and `config` slots). Each carries
   [`print()`](https://rdrr.io/r/base/print.html),
   [`summary()`](https://rdrr.io/r/base/summary.html), and
   [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) methods
   plus a predicate
   ([`is_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.md),
-  [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md)).
+  [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md),
+  [`is_forest_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_forest_stats.md)).
 - Dual-mode plotting —
-  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md),
   and
-  [`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+  [`plot_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_forest.md)
   accept either raw input data or a precomputed stats object. The
   precomputed path skips the summarization / regression refit, enabling
   compute-once / replot-many workflows (e.g. flipping
   `pcvpc = TRUE/FALSE`, varying `style`, trying different
-  `min_bin_count`). The lower-level renderers
+  `min_bin_count`, or switching the forest `metric` / `ref_layout`). The
+  lower-level renderers
   [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
   /
   [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md)
+  /
+  [`plot_build_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.md)
   are exported for custom workflows that produce class-compatible
   objects outside `pmxhelpr`.
 
@@ -194,6 +227,8 @@ Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.html)
 and
 [VPC](https://ryancrass.github.io/pmxhelpr/articles/vpc-workflow.html) /
 [Dose-Proportionality](https://ryancrass.github.io/pmxhelpr/articles/doseprop-workflow.html)
+/ [Forest
+Plot](https://ryancrass.github.io/pmxhelpr/articles/forest-workflow.html)
 workflow articles for worked examples.
 
 ### Vectorized Helpers
@@ -223,6 +258,11 @@ workflow articles for worked examples.
   analysis (NCA)
 - `data_sad_pkfit` — `data_sad` with individual (IPRED) and population
   (PRED) PK model predictions
+- `data_sad_pkforest_sim` — `data_sad` PK model replicate simulation
+  output: exposure metrics across covariate scenarios, one row per
+  scenario per replicate
+- `data_sad_pkforest` — long-format replicate draws of absolute and
+  test/reference ratio exposure metrics for a forest plot
 
 **Note on bundled data.** `data_sad` and `data_sad_pkfit` use `ODV`
 (original DV), to note that it is provided in original units from the
@@ -254,8 +294,7 @@ data <- data_sad %>%
 
 #Plot drug concentration-time
 plot_dvtime(data = filter(data, CMT == 2), dv_var = "ODV", cent = "mean_sdl",
-            col_var = "Regimen", log_y = TRUE,
-            style = style_dvtime(alphas = c(obs_point = 0))) +
+            col_var = "Regimen", log_y = TRUE, show_obs = FALSE) +
   labs(y = "Concentration (ng/mL)")
 
 #Plot response versus concentration
@@ -299,7 +338,7 @@ data <- data_sad_pkfit %>%
 ##Generate Population Overlay Goodness-of-fit Fit Plots by Food Status
 plot_gof(data = data, dv_var = "ODV", dosenorm = TRUE) +
   facet_wrap(~Food) +
-  labs(y = "Dose-normalized Conc. (ng/mL)")
+  labs(y = "Dose-normalized Conc. (ng/mL/mg)")
 
 plot_gof(data = data, dv_var = "ODV", log_y = TRUE) +
   facet_wrap(~Regimen) +
@@ -325,6 +364,7 @@ model <- model_mread_load("pkmodel")
 
 #Process Data
 data <- data_sad %>% 
+  filter(CMT %in% c(1, 2)) %>% 
   mutate(Food = ifelse(FOOD == 1, "Fed", "Fasted")) %>% 
   mutate(Food = var_addn(Food, ID))
 
@@ -352,7 +392,7 @@ plot_obj_cens
 
 #Add Legend
 shown_cens <- plot_vpc_shown(obs_pi_line = FALSE, sim_pi_ci = FALSE, obs_point = FALSE)
-plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens)
+plot_obj_cens_leg <- plot_vpc_legend(shown = shown_cens, type = "cens")
 plot_obj_cens_leg
 
 plot_obj_cens_wleg <- plot_obj_cens + plot_obj_cens_leg + plot_layout(heights = c(2,1))
@@ -380,4 +420,31 @@ plot_obj_leg
 
 plot_obj_food_wleg <- plot_obj_food + plot_obj_leg + plot_layout(heights = c(2,1))
 plot_obj_food_wleg
+```
+
+## Example Forest Plot Workflow
+
+This is a basic example which illustrates a forest plot workflow using
+pmxhelpr:
+
+``` r
+
+library(pmxhelpr)
+library(dplyr)
+library(ggplot2)
+
+#Read View Internal Datasets
+glimpse(data_sad_pkforest)
+
+#Generate the summary dataset using df_forest()
+forest_obj <- df_forest(data_sad_pkforest, 
+                        cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+
+#Consume the summary dataset to generate the Forest Plot using plot_forest()
+plot_forest(forest_obj, 
+            metric = "AUCRATIO",
+            ref_band = c(0.8, 1.25)) +
+  scale_x_log10(limits = c(0.5, 5), 
+            breaks = c(0.5, 0.8, 1, 1.25, 2, 3, 4, 5)) +
+  labs(subtitle = "Ratio (90% CI)")
 ```

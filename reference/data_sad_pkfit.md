@@ -93,7 +93,7 @@ data_sad_pkfit
 
 - SCRBL:
 
-  Subject serum creatinine at baseline (units: g/dL)
+  Subject serum creatinine at baseline (units: mg/dL)
 
 - CRCLBL:
 

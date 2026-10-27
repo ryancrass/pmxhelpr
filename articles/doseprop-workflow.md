@@ -43,9 +43,14 @@ estimate ($`\gamma`$): the null is dose-proportional ($`\gamma = 1`$);
 the alternative is non-proportional ($`\gamma \ne 1`$). Interpretation
 rules of thumb:
 
-- CI includes 1: dose-proportional
+- CI includes 1: no evidence against dose-proportionality (labeled
+  `"Dose-proportional"`)
 - CI excludes 1, upper bound below 1: less than dose-proportional
 - CI excludes 1, lower bound above 1: greater than dose-proportional
+
+These labels are a screening summary. A CI that includes 1 does not
+establish dose-proportionality; a formal assessment compares the CI to
+predefined bounds that depend on the dose range studied.
 
 This assessment is typically performed on both Cmax and AUC. The
 combination informs which phase of the PK profile is contributing most
@@ -69,7 +74,7 @@ glimpse(data_sad_nca)
 #> $ start      <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
 #> $ end        <dbl> Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf, Inf,…
 #> $ PPTESTCD   <chr> "auclast", "cmax", "tmax", "tlast", "clast.obs", "lambda.z"…
-#> $ PPORRES    <dbl> 277.7701457207, 13.4300000000, 7.8100000000, 35.9500000000,…
+#> $ PPORRES    <dbl> 278.48468681530, 13.08000000000, 7.81000000000, 35.95000000…
 #> $ exclude    <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
 #> $ units_dose <chr> "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg", "mg",…
 #> $ units_conc <chr> "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/mL", "ng/m…
@@ -106,8 +111,8 @@ dose_prop_obj
 #> 
 #>   stats body:
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE
-#> 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE
+#> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE
+#> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
 #> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs
 #> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax
@@ -130,8 +135,8 @@ The default argument for the numeric dose variable `dose_var` is `DOSE`.
 stats <- dose_prop_obj$stats
 stats
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE
-#> 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE
+#> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE
+#> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
 #> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs
 #> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax
@@ -146,10 +151,10 @@ output table.
 The summary statistics calculated from the log-log regression of
 exposure versus dose can be customized using the following arguments:
 
-- `method`: distribution used to calculate the confidence interval:
-  Default is `"normal"`. Alternative is `"tdist"`, which may be
-  preferred for analysis with a small sample size where normality cannot
-  be assumed (e.g, \< 30).
+- `method`: critical value for the confidence interval. Default is
+  `"normal"`. Alternative is `"tdist"`, a t critical value on the
+  regression’s residual degrees of freedom (n - 2), which is preferred
+  for small sample sizes (e.g., \< 30).
 - `ci`: confidence interval to return expressed as a proportion. Default
   is `"0.9"` based on the CI recommended for the bioequivalence
   assessment.
@@ -173,11 +178,11 @@ dose_prop_obj_95ci_tdist
 #> 
 #>   stats body:
 #>   Intercept StandardError  CI Power  LCL UCL Proportional
-#> 1       4.0         0.044 95%  0.98 0.89 1.1         TRUE
-#> 2       1.1         0.062 95%  1.10 0.93 1.2         TRUE
+#> 1         4         0.044 95%  0.98 0.89 1.1         TRUE
+#> 2         1         0.060 95%  1.10 0.94 1.2         TRUE
 #>                         PowerCI    Interpretation   PPTESTCD
 #> 1 Power: 0.98 (95% CI 0.89-1.1) Dose-proportional aucinf.obs
-#> 2  Power: 1.1 (95% CI 0.93-1.2) Dose-proportional       cmax
+#> 2  Power: 1.1 (95% CI 0.94-1.2) Dose-proportional       cmax
 #> 
 #>   Use `x$obs` for the observation overlay.
 ```
@@ -209,17 +214,9 @@ the `style` argument (see [Styling](#styling) below).
 
 ### Passing summary-statistic arguments through `plot_doseprop()`
 
-The summary statistics calculated from the log-log regression of
-exposure versus dose can be customized using the following arguments:
-
-- `method`: distribution used to calculate the confidence interval:
-  Default is `"normal"`. Alternative is `"tdist"`, which may be
-  preferred for analysis with a small sample size where normality cannot
-  be assumed (e.g, \< 30).
-- `ci`: confidence interval to return expressed as a proportion. Default
-  is `"0.9"` based on the CI recommended for the bioequivalence
-  assessment.
-- `sigdigits`: number of significant digits to return in outputs
+[`plot_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_doseprop.md)
+accepts the same `method`, `ci`, and `sigdigits` arguments as
+[`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md).
 
 ``` r
 
@@ -303,8 +300,8 @@ print(dose_prop_obj)
 #> 
 #>   stats body:
 #>   Intercept StandardError  CI Power   LCL  UCL Proportional
-#> 1      3.97        0.0438 90% 0.979 0.907 1.05         TRUE
-#> 2      1.06        0.0616 90% 1.060 0.959 1.16         TRUE
+#> 1      3.97        0.0437 90% 0.979 0.907 1.05         TRUE
+#> 2      1.02        0.0597 90% 1.060 0.959 1.16         TRUE
 #>                            PowerCI    Interpretation   PPTESTCD
 #> 1 Power: 0.979 (90% CI 0.907-1.05) Dose-proportional aucinf.obs
 #> 2  Power: 1.06 (90% CI 0.959-1.16) Dose-proportional       cmax
@@ -414,6 +411,7 @@ style_doseprop()
 #>   title                  NULL
 #>   xlabel                 NULL
 #>   ylabel                 NULL
+#>   caption                NULL
 #>   xlims                  NULL
 #>   ylims                  NULL
 #>   logx                   NULL
@@ -461,8 +459,7 @@ plot_doseprop(
 
 For a deeper treatment of the styling system — `style_spec()` fields,
 per-role maps, and post-hoc
-[`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-/ [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) — see the
+[`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) — see the
 [Plot Styling and
 Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
 vignette.
@@ -477,6 +474,5 @@ vignette.
   Aesthetics](https://ryancrass.github.io/pmxhelpr/articles/plot-styling.md)
   — the `style_*()` presets, `style_spec()` fields and per-role maps,
   and post-hoc
-  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
-  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) for
   customizing plot output.

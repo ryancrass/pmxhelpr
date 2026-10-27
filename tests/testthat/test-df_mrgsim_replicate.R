@@ -155,3 +155,16 @@ test_that("pred_var other than PRED aborts with a clear message", {
     regexp = "argument `pred_var` must be \"PRED\""
   )
 })
+
+test_that("`seed` controls the simulation and replicates are independent draws", {
+  run <- function(seed) {
+    df_mrgsim_replicate(dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                        model_mread_load("pkmodel"), replicates = 2,
+                        dv_var = ODV, seed = seed)
+  }
+  a <- run(1)
+  expect_identical(a$SIMDV, run(1)$SIMDV)
+  expect_false(identical(a$SIMDV, run(2)$SIMDV))
+  expect_false(identical(a$SIMDV[a$SIM == 1], a$SIMDV[a$SIM == 2]))
+  expect_equal(a$PRED[a$SIM == 1], a$PRED[a$SIM == 2])
+})

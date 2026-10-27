@@ -541,7 +541,11 @@ test_that("print and summary produce the forest_stats header", {
   out <- df_forest(data_sad_pkforest)
   expect_output(print(out), "<forest_stats>")
   expect_output(summary(out), "<forest_stats>")
-  expect_output(summary(out), "per-row")
+  summ <- capture.output(summary(out))
+  expect_true(any(grepl("per metric", summ)))
+  # one line per metric, not per row
+  expect_equal(sum(grepl("^    \\[", summ)), length(unique(out$stats$metric)))
+  expect_true(any(grepl("metric_value_var = value", summ)))
   printed <- capture.output(print(out))
   expect_true(any(grepl("head(stats, 3)", printed, fixed = TRUE)))
   expect_true(any(grepl("^3 ", printed)))

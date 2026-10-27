@@ -129,13 +129,13 @@ accepted on both paths.
 # Raw-data path: one metric per call
 plot_forest(
   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+  cov_level_ref = attr(data_sad_pkforest, "cov_level_ref")
 )
 
 # Precomputed path: compute once, render different metrics from the same stats
 stats <- df_forest(
   data_sad_pkforest,
-  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+  cov_level_ref = attr(data_sad_pkforest, "cov_level_ref")
 )
 plot_forest(stats, metric = "AUCRATIO")
 plot_forest(stats, metric = "CMAXRATIO", ref_band = c(0.8, 1.25))

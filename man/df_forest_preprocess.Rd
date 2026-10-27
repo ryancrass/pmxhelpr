@@ -108,8 +108,8 @@ covariate level, so \code{\link[=df_forest]{df_forest()}} renders them as the re
 default. To place the reference inside each covariate panel
 instead, pass the per-covariate reference labels to \code{\link[=df_forest]{df_forest()}} as
 \code{cov_level_ref}; the mapping is returned on the \code{"cov_level_ref"}
-attribute of the output and is not read automatically, since that would
-change the default rendering from invisible metadata.
+attribute of the output. Pass it explicitly; \code{df_forest()} does not read
+it.
 }
 \section{Output columns}{
 

@@ -32,8 +32,8 @@
 #' default. To place the reference inside each covariate panel
 #' instead, pass the per-covariate reference labels to [df_forest()] as
 #' `cov_level_ref`; the mapping is returned on the `"cov_level_ref"`
-#' attribute of the output and is not read automatically, since that would
-#' change the default rendering from invisible metadata.
+#' attribute of the output. Pass it explicitly; `df_forest()` does not read
+#' it.
 #'
 #' @param data Input data.frame. One row per covariate scenario per
 #'    replicate, with exposure metrics as columns.

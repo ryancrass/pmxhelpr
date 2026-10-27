@@ -16,10 +16,8 @@
 }
 \description{
 Compact summary of a \code{\link[=df_forest]{df_forest()}} result: the same header shown by
-\code{\link[=print.forest_stats]{print.forest_stats()}}, but the body is condensed to one line per row:
-\verb{[metric] covariate: level}, or the covariate alone where the level
-repeats it (the reference-panel row), followed by the row's draw
-count \code{n} when the container has one. Rows drawn in only one
-reference layout are tagged \code{(consolidated)} or \code{(distributed)}; untagged
-rows draw in both. Suitable for vignette output and test snapshots.
+\code{\link[=print.forest_stats]{print.forest_stats()}}, then one line per metric with its draw count \code{n}
+and each covariate's levels in plot order. A covariate whose level repeats
+its name (the reference panel) shows the name alone; reference copies
+drawn in a covariate panel are marked \code{*}.
 }

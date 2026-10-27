@@ -494,9 +494,9 @@ summary arguments such as `ci` abort with a pointer to `df_forest()`.
 
 # Inspecting the `forest_stats` object
 
-`summary()` prints the configuration and one line per row, 
-`[metric] covariate: level` with its draw count; rows drawn in only one 
-reference layout are tagged `(consolidated)` or `(distributed)`.
+`summary()` prints the configuration and one line per metric: its draw count
+and each covariate's levels in plot order, with reference copies drawn in a
+covariate panel marked `*`.
 
 ```{r summary-stats}
 summary(forest_obj)

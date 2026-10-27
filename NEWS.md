@@ -17,7 +17,6 @@
     (`"consolidated"`) or in each covariate panel (`"distributed"`, which
     needs `cov_level_ref` in `df_forest()`), from one `forest_stats`
     container.
-  + `show_rep` (default `FALSE`) captions the replicate count.
   + Returns a plain `ggplot` object.
   
 * `df_forest()` summarizes replicate draws into medians and `ci` percentile

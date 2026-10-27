@@ -127,7 +127,7 @@ covariate panel;
 \examples{
 stats <- df_forest(
   data_sad_pkforest,
-  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+  cov_level_ref = attr(data_sad_pkforest, "cov_level_ref")
 )
 plot_build_forest(stats, metric = "AUCRATIO")
 plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(0.8, 1.25))

@@ -5,15 +5,9 @@
     Output
       <forest_stats>
         stats: 8 rows x 13 columns
-        config: metric_name_var = metric, cov_name_var = cov_name, cov_level_var = cov_level, ci = 0.9, sigdigits = 3, cov_name_ref = Reference, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+        config: metric_name_var = metric, metric_value_var = value, cov_name_var = cov_name, cov_level_var = cov_level, ci = 0.9, sigdigits = 3, cov_name_ref = Reference, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
       
-        per-row:
-          [AUCRATIO] Reference  n = 500  (consolidated)
-          [AUCRATIO] FOOD: Fasted  n = 500  (distributed)
-          [AUCRATIO] FOOD: Fed  n = 500
-          [AUCRATIO] WTBL: 50 kg  n = 500
-          [AUCRATIO] WTBL: 60 kg  n = 500
-          [AUCRATIO] WTBL: 70 kg  n = 500  (distributed)
-          [AUCRATIO] WTBL: 80 kg  n = 500
-          [AUCRATIO] WTBL: 90 kg  n = 500
+        per metric:
+          [AUCRATIO]  n = 500  Reference | FOOD: Fasted*, Fed | WTBL: 50 kg, 60 kg, 70 kg*, 80 kg, 90 kg
+        * reference copy in a covariate panel (ref_layout = "distributed")
 

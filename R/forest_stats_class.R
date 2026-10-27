@@ -75,8 +75,9 @@ print.forest_stats <- function(x, n_head = 3, ...) {
 
 
 forest_stats_header <- function(x) {
-  pmx_stats_header(x, c("metric_name_var", "cov_name_var", "cov_level_var",
-                        "ci", "sigdigits", "cov_name_ref", "cov_level_ref"))
+  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "cov_name_var",
+                        "cov_level_var", "ci", "sigdigits", "cov_name_ref",
+                        "cov_level_ref"))
 }
 
 
@@ -85,12 +86,10 @@ forest_stats_header <- function(x) {
 #'
 #' @description
 #' Compact summary of a [df_forest()] result: the same header shown by
-#' [print.forest_stats()], but the body is condensed to one line per row:
-#' `[metric] covariate: level`, or the covariate alone where the level
-#' repeats it (the reference-panel row), followed by the row's draw
-#' count `n` when the container has one. Rows drawn in only one
-#' reference layout are tagged `(consolidated)` or `(distributed)`; untagged
-#' rows draw in both. Suitable for vignette output and test snapshots.
+#' [print.forest_stats()], then one line per metric with its draw count `n`
+#' and each covariate's levels in plot order. A covariate whose level repeats
+#' its name (the reference panel) shows the name alone; reference copies
+#' drawn in a covariate panel are marked `*`.
 #'
 #' @param object A `forest_stats` object.
 #' @param ... Currently unused.
@@ -105,11 +104,25 @@ summary.forest_stats <- function(object, ...) {
   metric <- as.character(s[[object$config$metric_name_var]])
   cov_name <- as.character(s[[object$config$cov_name_var]])
   cov_level <- as.character(s[[object$config$cov_level_var]])
-  row_label <- ifelse(cov_level == cov_name, cov_name,
-                      paste0(cov_name, ": ", cov_level))
-  n_tag <- if (is.null(s$n)) "" else paste0("  n = ", s$n)
-  layout_tag <- ifelse(s$layout == "both", "", paste0("  (", s$layout, ")"))
-  cat("\n  per-row:\n")
-  cat(sprintf("    [%s] %s%s%s\n", metric, row_label, n_tag, layout_tag), sep = "")
+  level_label <- ifelse(s$layout == "distributed", paste0(cov_level, "*"), cov_level)
+  metric_line <- function(m) {
+    in_m <- metric == m
+    covs <- unique(cov_name[in_m])
+    panels <- vapply(covs, function(cn) {
+      k <- in_m & cov_name == cn
+      if (all(cov_level[k] == cn)) return(cn)
+      paste0(cn, ": ", paste(level_label[k], collapse = ", "))
+    }, character(1))
+    n_tag <- if (is.null(s$n)) "" else {
+      n_rng <- unique(range(s$n[in_m]))
+      paste0("  n = ", paste(n_rng, collapse = "-"))
+    }
+    sprintf("    [%s]%s  %s\n", m, n_tag, paste(panels, collapse = " | "))
+  }
+  cat("\n  per metric:\n")
+  cat(vapply(unique(metric), metric_line, character(1)), sep = "")
+  if (any(s$layout == "distributed")) {
+    cat("  * reference copy in a covariate panel (ref_layout = \"distributed\")\n")
+  }
   invisible(object)
 }

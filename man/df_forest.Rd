@@ -125,18 +125,19 @@ renamed <- dplyr::mutate(
 )
 df_forest(renamed, cov_name_ref = "Typical subject")
 
-# Per-covariate reference labels: the reference row is drawn in each
+# Per-covariate reference labels (the dataset's attribute,
+# c(FOOD = "Fasted", WTBL = "70 kg")): the reference row is drawn in each
 # covariate panel
 df_forest(
   dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
-  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg")
+  cov_level_ref = attr(data_sad_pkforest, "cov_level_ref")
 )
 
 # Control the row order with factor levels on the input
 d <- dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")
 d$cov_level <- factor(d$cov_level, levels = c("Reference", "Fed", "Fasted",
                                           "50 kg", "70 kg", "90 kg"))
-df_forest(d, cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+df_forest(d, cov_level_ref = attr(data_sad_pkforest, "cov_level_ref"))
 }
 \seealso{
 Other forest plot:

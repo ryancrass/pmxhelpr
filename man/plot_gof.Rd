@@ -55,7 +55,8 @@ Accepts bare names or strings. Default is \code{DOSE}.}
 
 \item{loq}{Numeric value of the lower limit of quantification (LLOQ), or
 \code{NULL} to impute each row at its own \code{LLOQ} column value (the LLOQ line
-is drawn at the highest). BLQ imputation behavior on the DV / prediction layers is controlled by
+is drawn at the highest). Has no effect with \code{loq_method = 0} (the
+default), which emits a message. BLQ imputation behavior on the DV / prediction layers is controlled by
 \code{blq_mode} and \code{loq_method}. Default is \code{NULL}.}
 
 \item{loq_method}{Method for handling BLQ data. See \code{\link[=plot_dvtime]{plot_dvtime()}} for

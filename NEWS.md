@@ -70,6 +70,8 @@
   function. `lloq` still works for now with a deprecation warning. `ci` and
   `pi` are validated as in `df_vpcstats()`, so `ci = 90` aborts instead of
   labeling a "9000% CI".
+* `plot_dvtime()` and `plot_gof()` message when `loq` is given with
+  `loq_method = 0`, where it has no effect.
 * Character `col_var` labels in `plot_dvconc()`, `plot_dvtime()`, and
   `plot_gof()` now order by a number anywhere in the label (e.g.
   `"Dose 5 mg"` before `"Dose 10 mg"`), not only a leading one. Label sets

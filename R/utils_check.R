@@ -112,6 +112,11 @@ check_loq_method <- function(loq, loq_method, data) {
         rlang::abort(message = "argument `loq` must be numeric or variable `LLOQ` must be present in `data` when `loq_method` is 1 or 2")
       }
     }
+  } else if (!is.null(loq)) {
+    rlang::inform(paste0(
+      "`loq` has no effect with `loq_method = 0`; set `loq_method` to 1 or 2 ",
+      "to impute BLQ values and draw the LLOQ line."
+    ))
   }
   loq_method
 }

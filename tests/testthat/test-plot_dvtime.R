@@ -139,6 +139,13 @@ test_that("plot_dvtime dosenorm = TRUE suppresses LOQ hline but keeps BLQ captio
   expect_match(p$labels$caption, "imputed to 1/2 LLOQ")
 })
 
+test_that("loq with loq_method = 0 messages that it has no effect", {
+  d <- dplyr::filter(data_sad, CMT != 3)
+  expect_message(plot_dvtime(d, dv_var = "ODV", loq = 1), "has no effect with `loq_method = 0`")
+  expect_message(plot_gof(data_sad_pkfit, dv_var = "ODV", loq = 1), "has no effect with `loq_method = 0`")
+  expect_no_message(plot_dvtime(d, dv_var = "ODV"))
+})
+
 test_that("plot_dvtime loq_method character aliases add the LOQ hline and BLQ caption", {
   d <- dplyr::filter(data_sad, CMT != 3)
   for (alias in c("postdose", "all")) {

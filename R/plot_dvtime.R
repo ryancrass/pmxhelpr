@@ -13,6 +13,7 @@
 #'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`,
 #'  in which case each row is imputed at its own `LLOQ` and the LLOQ line is drawn at the highest value.
 #'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
+#'  Has no effect with `loq_method = 0` (the default), which emits a message.
 #' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
 #'
 #'  Options are:

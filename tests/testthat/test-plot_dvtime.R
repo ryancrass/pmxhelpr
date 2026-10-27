@@ -380,3 +380,35 @@ test_that("plot_dvtime show_loq_value toggles the LLOQ legend value", {
   expect_error(plot_dvtime(d, dv_var = "ODV", show_loq_value = "no"),
                regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
 })
+
+#####central tendency values against direct computation#####
+cent_fixture <- data.frame(
+  ID = rep(1:6, 2), TIME = rep(c(1, 2), each = 6), NTIME = rep(c(1, 2), each = 6),
+  DV = c(1, 2, 4, 8, 16, 32, 3, 5, 7, 9, 11, 13), EVID = 0, MDV = 0
+)
+cent_layers <- function(...) {
+  p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, ...)
+  geoms <- vapply(p$layers, function(L) class(L$geom)[1], character(1))
+  built <- ggplot2::ggplot_build(p)$data
+  list(point = built[[which(geoms == "GeomPoint")[1]]],
+       errorbar = if (any(geoms == "GeomErrorbar")) built[[which(geoms == "GeomErrorbar")[1]]])
+}
+by_time <- function(f) as.vector(tapply(cent_fixture$DV, cent_fixture$NTIME, f))
+
+test_that("plot_dvtime central tendency and error bars match direct computation", {
+  m <- cent_layers(cent = "mean")
+  expect_equal(m$point$y, by_time(mean))
+  sdl <- cent_layers(cent = "mean_sdl")
+  expect_equal(sdl$errorbar$ymax - sdl$errorbar$ymin, 2 * by_time(stats::sd))
+  iqr <- cent_layers(cent = "median_iqr")
+  expect_equal(iqr$point$y, by_time(stats::median))
+  expect_equal(iqr$errorbar$ymin, by_time(function(v) unname(stats::quantile(v, 0.25))))
+  expect_equal(iqr$errorbar$ymax, by_time(function(v) unname(stats::quantile(v, 0.75))))
+})
+
+test_that("plot_dvtime mean on a log axis is the geometric mean, as the caption says", {
+  geo <- cent_layers(cent = "mean", log_y = TRUE)
+  expect_equal(10^geo$point$y, by_time(function(v) exp(mean(log(v)))))
+  p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, cent = "mean", log_y = TRUE)
+  expect_match(p$labels$caption, "[Gg]eometric mean")
+})

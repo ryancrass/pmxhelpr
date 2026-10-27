@@ -485,3 +485,13 @@ test_that("the tdist CI matches confint() of the log-log fit at small n", {
   expect_equal(c(s$LCL, s$UCL), unname(stats::confint(fit, level = 0.9)[2, ]),
                tolerance = 1e-8)
 })
+
+test_that("a sub-proportional power is labeled less than dose-proportional", {
+  set.seed(7)
+  d <- data.frame(PPTESTCD = "cmax", DOSE = rep(c(10, 30, 100, 300), each = 6))
+  d$PPORRES <- d$DOSE^0.7 * exp(stats::rnorm(nrow(d), 0, 0.05))
+  s <- df_doseprop(d, metrics = "cmax")$stats
+  expect_lt(s$UCL, 1)
+  expect_false(s$Proportional)
+  expect_equal(s$Interpretation, "Less than dose-proportional")
+})

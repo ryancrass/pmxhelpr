@@ -105,7 +105,12 @@ df_loglog <- function(fit,
 #'    \describe{
 #'      \item{`stats`}{One row per metric and columns `Intercept`,
 #'        `StandardError`, `CI`, `Power`, `LCL`, `UCL`, `Proportional`,
-#'        `PowerCI`, `Interpretation`, plus the column named in `metric_name_var`.}
+#'        `PowerCI`, `Interpretation`, plus the column named in `metric_name_var`.
+#'        `Interpretation` is `"Dose-proportional"` when the `ci` interval for
+#'        `Power` contains 1, and less or greater than dose-proportional when it
+#'        lies wholly below or above 1. It is a screening label: a CI that
+#'        contains 1 does not establish proportionality, and no predefined
+#'        equivalence bounds are applied.}
 #'      \item{`obs`}{The filtered observation rows used for the plot scatter
 #'        overlay.}
 #'      \item{`config`}{Named list with `metric_name_var`, `metric_value_var`, `dose_var`,
@@ -320,7 +325,7 @@ plot_build_doseprop <- function(stats,
 #'    format is output from `PKNCA::pk.nca()`) or a `doseprop_stats` object
 #'    returned by [df_doseprop()].
 #' @param metrics character vector of exposure metrics in `data` to plot.
-#'    Required on the raw-data path; ignored when `data` is a
+#'    Required on the raw-data path; must not be passed with a
 #'    `doseprop_stats` object.
 #' @param se logical to display confidence interval around regression.
 #'    Default is `TRUE`.

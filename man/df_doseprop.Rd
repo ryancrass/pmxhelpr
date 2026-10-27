@@ -49,7 +49,12 @@ slots:
 \describe{
 \item{\code{stats}}{One row per metric and columns \code{Intercept},
 \code{StandardError}, \code{CI}, \code{Power}, \code{LCL}, \code{UCL}, \code{Proportional},
-\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_name_var}.}
+\code{PowerCI}, \code{Interpretation}, plus the column named in \code{metric_name_var}.
+\code{Interpretation} is \code{"Dose-proportional"} when the \code{ci} interval for
+\code{Power} contains 1, and less or greater than dose-proportional when it
+lies wholly below or above 1. It is a screening label: a CI that
+contains 1 does not establish proportionality, and no predefined
+equivalence bounds are applied.}
 \item{\code{obs}}{The filtered observation rows used for the plot scatter
 overlay.}
 \item{\code{config}}{Named list with \code{metric_name_var}, \code{metric_value_var}, \code{dose_var},

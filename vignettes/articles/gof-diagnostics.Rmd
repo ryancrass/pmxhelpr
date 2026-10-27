@@ -243,7 +243,7 @@ plot_gof(plot_data, dv_var = "ODV",
 
 This is the recommended setting for evaluating model fit, since the prediction lines are unaltered model output and any divergence between the observed plateau and the prediction trajectory below the LLOQ is itself diagnostic information.
 
-Setting `blq_mode = "all"` extends the imputation to `PRED` and `IPRED` as well — any prediction below the LLOQ snaps to `0.5 * LOQ`. Use this when the GOF visual should mirror an estimation engine that censored predictions during the fit (e.g., M3-style likelihood with explicit BLQ censoring), so the rendered prediction lines reflect the same data the likelihood saw.
+Setting `blq_mode = "all"` extends the imputation to `PRED` and `IPRED` as well — any prediction below the LLOQ snaps to `0.5 * LOQ`, so the observed and predicted lines are summarized on the same imputed basis. This is a display choice: likelihood-based BLQ methods such as M3 do not alter the model predictions, so `"obs"` remains the faithful view of an M3 fit.
 
 ```{r gof-blq-all, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(plot_data, dv_var = "ODV",
@@ -253,7 +253,7 @@ plot_gof(plot_data, dv_var = "ODV",
   labs(x = "Time (h)", y = "Concentration (ng/mL)")
 ```
 
-In short: pick `blq_mode = "obs"` (default) when you want to see how well the model's natural prediction (uncensored) matches censored observations — predictions extending below the LLOQ signal where the model expects sub-quantifiable concentrations. Pick `blq_mode = "all"` when you want a like-for-like visual against an estimation pipeline that censored the predictions.
+In short: pick `blq_mode = "obs"` (default) when you want to see how well the model's natural prediction (uncensored) matches censored observations — predictions extending below the LLOQ signal where the model expects sub-quantifiable concentrations. Pick `blq_mode = "all"` when you want observed and predicted central tendencies compared after the same imputation.
 
 `loq_method = 1` is also available: it imputes only the post-dose BLQ records to `0.5 * LOQ` and pre-dose BLQ to `0` — useful for plotting on linear scales. See [`plot_dvtime()`](eda-pk-pkpd-workflow.html) for the full method semantics.
 

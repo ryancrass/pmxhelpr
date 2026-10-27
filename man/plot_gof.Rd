@@ -69,9 +69,9 @@ when the LLOQ line is drawn (\code{loq_method} of \code{1} or \code{2}, \code{do
 \item{blq_mode}{One of \code{"obs"} (default) or \code{"all"}. Controls which layers
 receive BLQ imputation: \code{"obs"} imputes the observed \code{DV} layer only,
 leaving \code{PRED} / \code{IPRED} untouched (mirrors \code{\link[=plot_dvtime]{plot_dvtime()}}); \code{"all"}
-additionally imputes the prediction layers, useful when the GOF visual
-should mirror an estimation engine that censored predictions to LLOQ.
-Has no effect when \code{loq_method = 0}.}
+applies the same 1/2 LLOQ imputation to \code{PRED} / \code{IPRED}, so observed and
+predicted lines are summarized on the same imputed basis. Has no effect
+when \code{loq_method = 0}.}
 
 \item{cent}{Character string specifying the central tendency measure. See
 \code{\link[=plot_dvtime]{plot_dvtime()}} for option details. Default is \code{"mean"}.}

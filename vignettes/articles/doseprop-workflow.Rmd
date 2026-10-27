@@ -38,9 +38,13 @@ $$\log(Exposure) = intercept + \gamma \cdot \log(DOSE)$$
 
 Hypothesis testing proceeds via the confidence interval around the power estimate ($\gamma$): the null is dose-proportional ($\gamma = 1$); the alternative is non-proportional ($\gamma \ne 1$). Interpretation rules of thumb:
 
-  + CI includes 1: dose-proportional
+  + CI includes 1: no evidence against dose-proportionality (labeled `"Dose-proportional"`)
   + CI excludes 1, upper bound below 1: less than dose-proportional
   + CI excludes 1, lower bound above 1: greater than dose-proportional
+
+These labels are a screening summary. A CI that includes 1 does not establish
+dose-proportionality; a formal assessment compares the CI to predefined bounds
+that depend on the dose range studied.
 
 This assessment is typically performed on both Cmax and AUC. The combination informs which phase of the PK profile is contributing most to non-linearity (absorption rate, absorption extent, or elimination). 
 

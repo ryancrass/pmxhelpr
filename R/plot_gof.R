@@ -24,9 +24,9 @@
 #' @param blq_mode One of `"obs"` (default) or `"all"`. Controls which layers
 #'    receive BLQ imputation: `"obs"` imputes the observed `DV` layer only,
 #'    leaving `PRED` / `IPRED` untouched (mirrors [plot_dvtime()]); `"all"`
-#'    additionally imputes the prediction layers, useful when the GOF visual
-#'    should mirror an estimation engine that censored predictions to LLOQ.
-#'    Has no effect when `loq_method = 0`.
+#'    applies the same 1/2 LLOQ imputation to `PRED` / `IPRED`, so observed and
+#'    predicted lines are summarized on the same imputed basis. Has no effect
+#'    when `loq_method = 0`.
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.

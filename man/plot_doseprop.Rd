@@ -23,7 +23,7 @@ format is output from \code{PKNCA::pk.nca()}) or a \code{doseprop_stats} object
 returned by \code{\link[=df_doseprop]{df_doseprop()}}.}
 
 \item{metrics}{character vector of exposure metrics in \code{data} to plot.
-Required on the raw-data path; ignored when \code{data} is a
+Required on the raw-data path; must not be passed with a
 \code{doseprop_stats} object.}
 
 \item{metric_name_var}{Column in \code{data} containing the metric names listed in \code{metrics}.

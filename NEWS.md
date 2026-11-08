@@ -5,6 +5,10 @@
 * `plot_dvtime()` and `plot_gof()` with `cent = "mean_sdl"` no longer need
   Hmisc installed. The error bars previously failed at print time without it;
   Hmisc is dropped from Suggests.
+* `plot_dvtime()`, `plot_gof()`, and `plot_dvconc()` honor a style's `logy`
+  field. `log_y` now defaults to `NULL` (use the style); a `log_y` passed to
+  the function still overrides the style. Previously the style's `logy` was
+  ignored.
 
 # pmxhelpr 0.7.0
 

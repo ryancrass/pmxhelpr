@@ -414,3 +414,19 @@ test_that("plot_dvtime mean on a log axis is the geometric mean, as the caption 
   p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, cent = "mean", log_y = TRUE)
   expect_match(p$labels$caption, "[Gg]eometric mean")
 })
+
+y_trans <- function(p) {
+  suppressMessages(suppressWarnings(ggplot2::layer_scales(p)$y$get_transformation()$name))
+}
+
+test_that("plot_dvtime log_y falls back to the style's logy; a passed log_y wins", {
+  p_style <- plot_dvtime(cent_fixture, dv_var = "DV", cent = "mean",
+                         style = style_dvtime(logy = TRUE))
+  expect_equal(y_trans(p_style), "log-10")
+  expect_match(p_style$labels$caption, "[Gg]eometric mean")
+  p_arg <- plot_dvtime(cent_fixture, dv_var = "DV", cent = "mean", log_y = FALSE,
+                       style = style_dvtime(logy = TRUE))
+  expect_equal(y_trans(p_arg), "identity")
+  expect_no_match(p_arg$labels$caption, "[Gg]eometric")
+  expect_equal(y_trans(plot_dvtime(cent_fixture, dv_var = "DV")), "identity")
+})

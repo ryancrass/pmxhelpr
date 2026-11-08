@@ -49,7 +49,9 @@
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
 #'    no reference line. For example, `ref = 0` draws a baseline reference for
 #'    change-from-baseline data.
-#' @param log_y Logical indicator for log10 transformation of the y-axis. Also controls whether
+#' @param log_y Logical indicator for log10 transformation of the y-axis, or
+#'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
+#'    value passed here overrides the style's `logy`. Also controls whether
 #'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
 #'    A `caption` set in the style is drawn instead, whatever this value.
@@ -90,7 +92,7 @@ plot_dvtime <- function(data,
                         show_obs = TRUE,
                         dosenorm = FALSE,
                         ref = NULL,
-                        log_y = FALSE,
+                        log_y = NULL,
                         show_caption = TRUE,
                         style = NULL){
 
@@ -98,7 +100,6 @@ plot_dvtime <- function(data,
   check_boolean(show_obs, "show_obs")
   check_boolean(show_loq_value, "show_loq_value")
   check_boolean(dosenorm, "dosenorm")
-  check_boolean(log_y, "log_y")
   check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
@@ -127,13 +128,16 @@ plot_dvtime <- function(data,
   lloq <- prep$lloq
   loq_method <- prep$loq_method
 
-  caption <- caption_dvtime(cent, log_y)
-
-  # Resolve style: preset default, with the log_y arg driving the y axis and
-  # the error bar cap width defaulted from the data when the style leaves it unset.
+  # Resolve style: preset default, with log_y (falling back to the style's
+  # logy) driving the y axis and caption, and the error bar cap width defaulted
+  # from the data when the style leaves it unset.
   plotstyle <- resolve_style(style, style_dvtime)
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
+  log_y <- log_y %||% isTRUE(plotstyle$logy)
+  check_boolean(log_y, "log_y")
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
   plotstyle <- style_errorbar_width(plotstyle, data)
+
+  caption <- caption_dvtime(cent, log_y)
 
 ###Plot
 

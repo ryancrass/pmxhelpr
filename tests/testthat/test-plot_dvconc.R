@@ -56,10 +56,24 @@ test_that("Color aesthetic is not mapped when col_trend = FALSE", {
 })
 
 ##Test log transforms
+y_trans <- function(p) {
+  suppressMessages(suppressWarnings(ggplot2::layer_scales(p)$y$get_transformation()$name))
+}
+
 test_that("Log y-axis is applied when log_y = TRUE", {
   p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", log_y = TRUE)
-  scale_classes <- vapply(p$scales$scales, function(s) class(s)[1], character(1))
-  expect_true(any(grepl("ScaleContinuousPosition", scale_classes)))
+  expect_equal(y_trans(p), "log-10")
+})
+
+test_that("plot_dvconc log_y falls back to the style's logy; a passed log_y wins", {
+  p_style <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                          style = style_dvconc(logy = TRUE)))
+  expect_equal(y_trans(p_style), "log-10")
+  p_arg <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                        log_y = FALSE, style = style_dvconc(logy = TRUE)))
+  expect_equal(y_trans(p_arg), "identity")
+  p_default <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC"))
+  expect_equal(y_trans(p_default), "identity")
 })
 
 test_that("Log x-axis is applied via ggplot2 scale", {

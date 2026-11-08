@@ -260,3 +260,16 @@ test_that("plot_gof show_loq_value toggles the LLOQ legend value", {
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", show_loq_value = NA),
                regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
 })
+
+test_that("plot_gof log_y falls back to the style's logy; a passed log_y wins", {
+  y_trans <- function(p) {
+    suppressMessages(suppressWarnings(ggplot2::layer_scales(p)$y$get_transformation()$name))
+  }
+  p_style <- plot_gof(data_sad_pkfit, dv_var = "ODV", style = style_gof(logy = TRUE))
+  expect_equal(y_trans(p_style), "log-10")
+  expect_match(p_style$labels$caption, "[Gg]eometric mean")
+  p_arg <- plot_gof(data_sad_pkfit, dv_var = "ODV", log_y = FALSE,
+                    style = style_gof(logy = TRUE))
+  expect_equal(y_trans(p_arg), "identity")
+  expect_equal(y_trans(plot_gof(data_sad_pkfit, dv_var = "ODV")), "identity")
+})

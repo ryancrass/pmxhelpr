@@ -208,6 +208,62 @@ test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
   }
 })
 
+## Per-row LLOQ imputation fixture: three subjects at TIME 0/1/2, LLOQ 1 for
+## ID 1 and 4 for IDs 2-3, BLQ records (MDV = 1) at and after time zero, and
+## predictions below, at, and above each row's LLOQ.
+blq_fixture <- data.frame(
+  ID    = rep(1:3, each = 3),
+  TIME  = rep(c(0, 1, 2), 3),
+  NTIME = rep(c(0, 1, 2), 3),
+  DV    = c(NA, 5, NA,   NA, NA, 6,   4.5, 8, NA),
+  MDV   = c(1, 0, 1,     1, 1, 0,     0, 0, 1),
+  LLOQ  = rep(c(1, 4, 4), each = 3),
+  PRED  = c(0.2, 1, 0.5, 0.3, 4, 3,   5, 6, 2),
+  IPRED = c(0.1, 3, 0.8, 0.2, 2, 4,   6, 7, 4.5),
+  EVID  = 0, CMT = 2
+)
+
+prep_blq <- function(loq_method) {
+  suppressMessages(pmxhelpr:::df_prep_dvtime(
+    blq_fixture, time_var_str = "TIME", ntime_var_str = "NTIME",
+    dv_var_str = "DV", pred_var_str = "PRED", ipred_var_str = "IPRED",
+    loq = NULL, loq_method = loq_method, blq_mode = "all"))
+}
+
+## Prediction imputation written out independently of df_prep_blq()
+pred_ref <- function(x, loq, time, zero_at_dose) {
+  out <- ifelse(x >= loq, x, 0.5 * loq)
+  if (zero_at_dose) out[time <= 0] <- 0
+  out
+}
+
+test_that("loq_method = 1 imputes BLQ DV per row: 0 at time zero, else half that row's LLOQ", {
+  d <- prep_blq(1)$data
+  f <- blq_fixture
+  expected <- ifelse(f$MDV == 0, f$DV, ifelse(f$TIME <= 0, 0, 0.5 * f$LLOQ))
+  expect_equal(d$DV, expected)
+})
+
+test_that("loq_method = 1 with blq_mode = 'all' imputes PRED / IPRED per row", {
+  d <- prep_blq(1)$data
+  f <- blq_fixture
+  expect_equal(d$PRED,  pred_ref(f$PRED,  f$LLOQ, f$TIME, zero_at_dose = TRUE))
+  expect_equal(d$IPRED, pred_ref(f$IPRED, f$LLOQ, f$TIME, zero_at_dose = TRUE))
+})
+
+test_that("loq_method = 2 imputes BLQ DV and predictions to half each row's LLOQ", {
+  d <- prep_blq(2)$data
+  f <- blq_fixture
+  expect_equal(d$DV, ifelse(f$MDV == 0, f$DV, 0.5 * f$LLOQ))
+  expect_equal(d$PRED,  pred_ref(f$PRED,  f$LLOQ, f$TIME, zero_at_dose = FALSE))
+  expect_equal(d$IPRED, pred_ref(f$IPRED, f$LLOQ, f$TIME, zero_at_dose = FALSE))
+})
+
+test_that("the LLOQ line is drawn at the highest per-row LLOQ", {
+  expect_equal(prep_blq(1)$lloq, 4)
+  expect_equal(prep_blq(2)$lloq, 4)
+})
+
 test_that("plot_gof cent = 'mean_sdl' error bars are mean +/- SD of DV by NTIME", {
   d <- data.frame(ID = rep(1:4, each = 2), NTIME = rep(c(1, 2), 4),
                   TIME = rep(c(1, 2), 4), ODV = c(1, 4, 2, 6, 3, 5, 6, 9),

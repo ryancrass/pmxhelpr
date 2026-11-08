@@ -5,20 +5,18 @@
 \title{Build a VPC ggplot from a \code{vpc_stats} object}
 \usage{
 plot_build_vpc(
-  compute_out,
+  stats,
   type = c("cont", "cens"),
   min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
   pcvpc = FALSE,
-  loq = NULL,
-  strat_var = NULL,
-  bin_var = BIN_MID_VAR
+  loq = NULL
 )
 }
 \arguments{
-\item{compute_out}{A \code{vpc_stats} object (typically the output of
+\item{stats}{A \code{vpc_stats} object (typically the output of
 \code{\link[=df_vpcstats]{df_vpcstats()}}). Must contain \code{stats} and \code{obs} data.frames with the
 columns documented in \code{\link[=df_vpcstats]{df_vpcstats()}}. Validated by
 \code{validate_vpc_stats()} at entry.}
@@ -27,7 +25,7 @@ columns documented in \code{\link[=df_vpcstats]{df_vpcstats()}}. Validated by
 continuous concentration VPC (quantile ribbons and obs scatter).
 \code{"cens"} plots the BLQ-proportion VPC (proportion CI ribbon plus
 observed per-bin proportion line/points); requires \verb{sim_prop_blq_*}
-columns in \code{compute_out$stats} (i.e., \code{df_vpcstats()} was called with
+columns in \code{stats$stats} (i.e., \code{df_vpcstats()} was called with
 a LOQ source). \code{type = "cens"} is incompatible with \code{pcvpc = TRUE}.}
 
 \item{min_bin_count}{Minimum number of observations per bin required for
@@ -64,7 +62,8 @@ when \code{type = "cont"}.}
 
 \item{loq}{Numeric scalar or vector of LOQ values for the reference line,
 or \code{NULL} to suppress. When omitted (inherited from
-\code{compute_out$config$loq}) and \code{strat_var} is set and \code{compute_out$obs}
+\code{stats$config$loq}), the container is stratified
+(\code{stats$config$strat_var}), and \code{stats$obs}
 carries a row-aligned \code{LOQ} column, ref lines are drawn per facet —
 each facet shows only the LLOQ values applicable to its strat-level
 rows. When \code{loq} is supplied explicitly, the value always wins and
@@ -74,18 +73,10 @@ In the no-stratification or no-\code{obs$LOQ} cases, a global reference
 line is drawn per unique value of \code{loq} regardless of inheritance.
 The legend entry for LLOQ is \emph{not} attached here — pass the same
 value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} when composing the legend panel.
-\code{compute_out$config$loq} is already a vector of unique non-NA LOQ
+\code{stats$config$loq} is already a vector of unique non-NA LOQ
 values when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the container. Forced to \code{NULL}
 when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
 scale).}
-
-\item{strat_var}{Stratification variable. Accepts bare names or strings.
-Default is \code{NULL}. When \code{NULL}, the value is read from
-\code{compute_out$config$strat_var} so output of \code{\link[=df_vpcstats]{df_vpcstats()}} is
-handled automatically. Facet layout is taken from the \code{style}:
-\code{facet_scales}, \code{facet_nrow}, and \code{facet_ncol}.}
-
-\item{bin_var}{String. Binning variable name. Default is \code{"BIN_MID"}.}
 }
 \value{
 A \code{ggplot2} object.
@@ -105,6 +96,10 @@ Most users will reach this function indirectly via \code{\link[=plot_vpc_cont]{p
 manually-constructed or cached \code{vpc_stats} object — for example, plotting
 a precomputed result from disk or a custom pipeline that produces
 compatible columns.
+
+Stratification and binning are read from the container: facets come from
+\code{stats$config$strat_var} and the x-axis from the \code{BIN_MID} column. To
+stratify, pass \code{strat_var} to \code{\link[=df_vpcstats]{df_vpcstats()}}.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")

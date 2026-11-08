@@ -16,7 +16,11 @@
 #' a precomputed result from disk or a custom pipeline that produces
 #' compatible columns.
 #'
-#' @param compute_out A `vpc_stats` object (typically the output of
+#' Stratification and binning are read from the container: facets come from
+#' `stats$config$strat_var` and the x-axis from the `BIN_MID` column. To
+#' stratify, pass `strat_var` to [df_vpcstats()].
+#'
+#' @param stats A `vpc_stats` object (typically the output of
 #'    [df_vpcstats()]). Must contain `stats` and `obs` data.frames with the
 #'    columns documented in [df_vpcstats()]. Validated by
 #'    `validate_vpc_stats()` at entry.
@@ -24,7 +28,7 @@
 #'    continuous concentration VPC (quantile ribbons and obs scatter).
 #'    `"cens"` plots the BLQ-proportion VPC (proportion CI ribbon plus
 #'    observed per-bin proportion line/points); requires `sim_prop_blq_*`
-#'    columns in `compute_out$stats` (i.e., `df_vpcstats()` was called with
+#'    columns in `stats$stats` (i.e., `df_vpcstats()` was called with
 #'    a LOQ source). `type = "cens"` is incompatible with `pcvpc = TRUE`.
 #' @param min_bin_count Minimum number of observations per bin required for
 #'    inclusion in binned plot layers. For `type = "cont"`, the threshold is
@@ -55,7 +59,8 @@
 #'    when `type = "cont"`.
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
 #'    or `NULL` to suppress. When omitted (inherited from
-#'    `compute_out$config$loq`) and `strat_var` is set and `compute_out$obs`
+#'    `stats$config$loq`), the container is stratified
+#'    (`stats$config$strat_var`), and `stats$obs`
 #'    carries a row-aligned `LOQ` column, ref lines are drawn per facet —
 #'    each facet shows only the LLOQ values applicable to its strat-level
 #'    rows. When `loq` is supplied explicitly, the value always wins and
@@ -65,16 +70,10 @@
 #'    line is drawn per unique value of `loq` regardless of inheritance.
 #'    The legend entry for LLOQ is *not* attached here — pass the same
 #'    value to [plot_vpc_legend()] when composing the legend panel.
-#'    `compute_out$config$loq` is already a vector of unique non-NA LOQ
+#'    `stats$config$loq` is already a vector of unique non-NA LOQ
 #'    values when [df_vpcstats()] populated the container. Forced to `NULL`
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
 #'    scale).
-#' @param strat_var Stratification variable. Accepts bare names or strings.
-#'    Default is `NULL`. When `NULL`, the value is read from
-#'    `compute_out$config$strat_var` so output of [df_vpcstats()] is
-#'    handled automatically. Facet layout is taken from the `style`:
-#'    `facet_scales`, `facet_nrow`, and `facet_ncol`.
-#' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #'
 #' @family vpc
 #' @return A `ggplot2` object.
@@ -88,25 +87,23 @@
 #' out <- df_vpcstats(simout, strat_var = FOOD)
 #' p <- plot_build_vpc(out, pcvpc = FALSE)
 
-plot_build_vpc <- function(compute_out,
+plot_build_vpc <- function(stats,
                            type = c("cont", "cens"),
                            min_bin_count = 0,
                            show_rep = TRUE,
                            shown = NULL,
                            style = NULL,
                            pcvpc = FALSE,
-                           loq = NULL,
-                           strat_var = NULL,
-                           bin_var = BIN_MID_VAR) {
+                           loq = NULL) {
 
   type <- match.arg(type)
   check_boolean(show_rep, "show_rep")
   check_boolean(pcvpc, "pcvpc")
 
-  validate_vpc_stats(compute_out)
+  validate_vpc_stats(stats)
 
   if (type == "cens") {
-    if (is.null(compute_out$config$loq)) {
+    if (is.null(stats$config$loq)) {
       rlang::abort(
         "`type = \"cens\"` requires a LOQ source; call `df_vpcstats()` with `loq = <numeric>` or include an `LLOQ` column in `data`."
       )
@@ -118,12 +115,9 @@ plot_build_vpc <- function(compute_out,
     }
   }
 
-  ## Strat var dispatch: explicit user input takes precedence; otherwise
-  ## inherit from the container's config slot (set by df_vpccompute).
-  strat_var_str <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  if (is.null(strat_var_str)) {
-    strat_var_str <- compute_out$config$strat_var
-  }
+  ## Stratification and binning are fixed by df_vpcstats(); facets and x
+  ## positions must match the summary stats, so both come from the container.
+  strat_var_str <- stats$config$strat_var
 
   ## LOQ dispatch: missing() distinguishes "not passed" (inherit from config),
   ## "explicit NULL" (suppress ref line), and "explicit value" (override). The
@@ -131,17 +125,16 @@ plot_build_vpc <- function(compute_out,
   ## the cont internal is reserved for the inherited case; an explicit `loq`
   ## always draws a global hline.
   loq_inherited <- missing(loq)
-  if (loq_inherited) loq <- compute_out$config$loq
+  if (loq_inherited) loq <- stats$config$loq
 
   shown    <- merge_element(shown, plot_vpc_shown())
   vpcstyle <- resolve_style(style, style_vpc)
 
   plot <- switch(type,
-    cont = plot_build_vpc_cont(compute_out, min_bin_count, shown, vpcstyle,
+    cont = plot_build_vpc_cont(stats, min_bin_count, shown, vpcstyle,
                                pcvpc, loq, loq_inherited,
-                               strat_var_str, bin_var),
-    cens = plot_build_vpc_cens(compute_out, min_bin_count, shown, vpcstyle,
-                               bin_var)
+                               strat_var_str),
+    cens = plot_build_vpc_cens(stats, min_bin_count, shown, vpcstyle)
   )
 
   ## Stratification facets are built here rather than by ggstylekit (the
@@ -158,7 +151,7 @@ plot_build_vpc <- function(compute_out,
   if (isTRUE(show_rep)) {
     plot <- plot +
       ggplot2::labs(caption = paste0(
-        "Replicates = ", compute_out$config$n_replicates))
+        "Replicates = ", stats$config$n_replicates))
   }
 
   ## Finalize with the house theme (white VPC panel) via style_plot(); it
@@ -175,9 +168,9 @@ plot_build_vpc <- function(compute_out,
 ## the dispatcher.
 ##
 ## @noRd
-plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
+plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
                                 pcvpc, loq, loq_inherited,
-                                strat_var_str, bin_var) {
+                                strat_var_str) {
 
   ## Per-role aesthetics read inline from the style (VPC geoms are not
   ## series_layer-tagged; style_plot() applies only the house theme).
@@ -185,9 +178,9 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
 
   ## min_bin_count predicate for cont: only quantifiable obs count
   ## (BLQ-encoded records excluded).
-  vpcstats <- dplyr::filter(compute_out$stats,
+  vpcstats <- dplyr::filter(stats$stats,
                             (.data$obs_n - .data$obs_n_blq) >= min_bin_count)
-  obs <- compute_out$obs
+  obs <- stats$obs
 
   ## Column-name dispatch: std flavor uses unprefixed stats columns and
   ## OBSDV in the obs frame; pc flavor uses pc_* stats columns and PC_OBSDV
@@ -199,7 +192,7 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
   ## LOQ ref line is meaningless on the pc scale; force off.
   if (isTRUE(pcvpc)) loq <- NULL
 
-  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
+  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[.vpc_bin_col]]))
 
   if (isTRUE(shown$sim_pi_area)) {
     plot <- plot +
@@ -266,7 +259,7 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
   if (isTRUE(shown$obs_median_line)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_med")]]),
+        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_med")]]),
         inherit.aes = FALSE,
         color = el("obs_median_line")$colour,
         linetype = el("obs_median_line")$linetype,
@@ -277,14 +270,14 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
   if (isTRUE(shown$obs_pi_line)) {
     plot <- plot +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_low")]]),
+        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_low")]]),
         inherit.aes = FALSE,
         color = el("obs_pi_line")$colour,
         linetype = el("obs_pi_line")$linetype,
         linewidth = el("obs_pi_line")$linewidth
       ) +
       ggplot2::geom_line(
-        ggplot2::aes(x = .data[[bin_var]], y = .data[[col("obs_hi")]]),
+        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_hi")]]),
         inherit.aes = FALSE,
         color = el("obs_pi_line")$colour,
         linetype = el("obs_pi_line")$linetype,
@@ -295,9 +288,9 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
   ## LOQ ref line: LOQ is meaningless on the pc scale (loq forced NULL
   ## above when pcvpc).
   if (!is.null(loq) && isTRUE(shown$loq_line)) {
-    if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(compute_out$obs)) {
+    if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(stats$obs)) {
       loq_facet_df <- unique(
-        compute_out$obs[!is.na(compute_out$obs$LOQ),
+        stats$obs[!is.na(stats$obs$LOQ),
                         c(strat_var_str, "LOQ"),
                         drop = FALSE]
       )
@@ -342,16 +335,15 @@ plot_build_vpc_cont <- function(compute_out, min_bin_count, shown, vpcstyle,
 ## panel theme, and class are added by the dispatcher.
 ##
 ## @noRd
-plot_build_vpc_cens <- function(compute_out, min_bin_count, shown, vpcstyle,
-                                bin_var) {
+plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle) {
 
   el <- function(role) series_aes(vpcstyle, role)
 
   ## min_bin_count predicate for cens: applied to total obs. BLQ-heavy bins
   ## are the most informative on a cens VPC and are retained.
-  vpcstats <- dplyr::filter(compute_out$stats, .data$obs_n >= min_bin_count)
+  vpcstats <- dplyr::filter(stats$stats, .data$obs_n >= min_bin_count)
 
-  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[bin_var]]))
+  plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[.vpc_bin_col]]))
 
   ## Cens layers map to a subset of the shown/theme keys used by cont:
   ##   sim_median_ci    -> ribbon of (sim_prop_blq_low, sim_prop_blq_hi)

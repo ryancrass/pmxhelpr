@@ -50,9 +50,9 @@ is_vpc_stats <- function(x, strict = FALSE) {
 print.vpc_stats <- function(x, n_head = 3, ...) {
   pmx_stats_header(x, c("n_replicates", "loq", "strat_var"))
 
-  bin_present  <- BIN_MID_VAR %in% colnames(x$stats)
+  bin_present  <- .vpc_bin_col %in% colnames(x$stats)
   strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))
-  identifiers <- c(if (bin_present) BIN_MID_VAR, strat_in_stats)
+  identifiers <- c(if (bin_present) .vpc_bin_col, strat_in_stats)
   blq_present <- intersect(.vpc_blq_cols, colnames(x$stats))
   std_obs <- intersect(.vpc_obs_quantile_cols, colnames(x$stats))
   std_sim <- intersect(.vpc_sim_quantile_cols, colnames(x$stats))

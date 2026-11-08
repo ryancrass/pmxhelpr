@@ -169,7 +169,7 @@ test_that("plot_build_vpc() is callable on a df_vpcstats() result", {
   expect_s3_class(p, "ggplot")
 })
 
-test_that("plot_build_vpc() inherits strat_var from the stats attribute when not passed", {
+test_that("plot_build_vpc() facets by config$strat_var and takes no strat_var argument", {
   testsim_strat <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
                                        model = model_mread_load("pkmodel"),
                                        replicates = 5,
@@ -177,23 +177,13 @@ test_that("plot_build_vpc() inherits strat_var from the stats attribute when not
                                        carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
   out <- df_vpcstats(testsim_strat, strat_var = FOOD_f)
-  p <- plot_build_vpc(out)  # no strat_var passed
+  p <- plot_build_vpc(out)
   expect_s3_class(p, "ggplot")
   expect_true("FacetWrap" %in% class(p$facet))
-})
-
-test_that("plot_build_vpc() accepts strat_var as a bare name (NSE)", {
-  testsim_strat <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                       model = model_mread_load("pkmodel"),
-                                       replicates = 5,
-                                       dv_var = "ODV",
-                                       carry_out = "FOOD")
-  testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
-  out <- df_vpcstats(testsim_strat, strat_var = FOOD_f)
-  p_bare <- plot_build_vpc(out, strat_var = FOOD_f)
-  p_str  <- plot_build_vpc(out, strat_var = "FOOD_f")
-  expect_s3_class(p_bare, "ggplot")
-  expect_s3_class(p_str,  "ggplot")
+  layout <- suppressWarnings(ggplot2::ggplot_build(p))$layout$layout
+  expect_setequal(as.character(layout$FOOD_f), levels(testsim_strat$FOOD_f))
+  expect_error(plot_build_vpc(out, strat_var = "FOOD_f"), "unused argument")
+  expect_error(plot_build_vpc(out, bin_var = "BIN_MID"), "unused argument")
 })
 
 test_that("plot_build_vpc() respects the pcvpc toggle on the same compute output", {

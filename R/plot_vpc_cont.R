@@ -134,8 +134,7 @@ plot_vpc_cont <- function(data,
       show_rep      = show_rep,
       shown         = shown,
       style         = style,
-      pcvpc         = pcvpc,
-      bin_var       = BIN_MID_VAR
+      pcvpc         = pcvpc
     ))
   }
 
@@ -166,7 +165,6 @@ plot_vpc_cont <- function(data,
     show_rep = show_rep,
     shown = shown,
     style = style,
-    pcvpc = pcvpc,
-    bin_var = BIN_MID_VAR
+    pcvpc = pcvpc
   )
 }

@@ -126,8 +126,7 @@ plot_vpc_cens <- function(data,
       min_bin_count = min_bin_count,
       show_rep      = show_rep,
       shown         = shown,
-      style         = style,
-      bin_var       = BIN_MID_VAR
+      style         = style
     ))
   }
 
@@ -158,7 +157,6 @@ plot_vpc_cens <- function(data,
     min_bin_count = min_bin_count,
     show_rep      = show_rep,
     shown         = shown,
-    style         = style,
-    bin_var       = BIN_MID_VAR
+    style         = style
   )
 }

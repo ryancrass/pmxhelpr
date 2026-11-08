@@ -1,5 +1,15 @@
 # pmxhelpr (development version)
 
+## Breaking changes
+
+* `plot_build_vpc()` reads stratification and binning only from the
+  container: facets come from `stats$config$strat_var` (set by
+  `df_vpcstats(strat_var = )`). Its `strat_var` and `bin_var` arguments are
+  removed; an explicit `strat_var` could facet the observations while every
+  panel repeated the pooled statistics. The first argument is renamed
+  `compute_out` → `stats` to match `plot_build_doseprop()` and
+  `plot_build_forest()`.
+
 ## Bug fixes
 
 * `plot_dvtime()` and `plot_gof()` with `cent = "mean_sdl"` no longer need

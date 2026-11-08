@@ -2,10 +2,10 @@
 ## Internal registry of column-naming conventions and column groups produced
 ## by df_vpccompute(). Used by compute_vpcstat() (var_infna mutate),
 ## df_vpccompute() (relocate, pc select + rename), validate_vpc_stats(), and
-## the public-API default values for `bin_var`. Keep these in sync if a new
+## the plot_build_vpc() x aesthetic. Keep these in sync if a new
 ## column or group is added.
 ##
-##   BIN_MID_VAR              standardized internal name for the bin column
+##   .vpc_bin_col             standardized internal name for the bin column
 ##   .vpc_count_cols          single, flavor-independent (counts of rows)
 ##   .vpc_blq_cols            std-only (LOQ has no meaning on the pc scale)
 ##   .vpc_obs_quantile_cols   mirrored under pc_*
@@ -13,7 +13,7 @@
 ##   .vpc_quantile_cols       union of obs + sim quantile cols
 ##   .vpc_meta_cols           single, run-config (ci, pi_low, pi_hi)
 
-BIN_MID_VAR <- "BIN_MID"
+.vpc_bin_col <- "BIN_MID"
 
 .vpc_count_cols <- c("obs_n", "obs_n_blq", "obs_prop_blq")
 
@@ -96,7 +96,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
                                               SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
-  data <- dplyr::rename(data, !!BIN_MID_VAR := "NTIME")
+  data <- dplyr::rename(data, !!.vpc_bin_col := "NTIME")
   data <- dplyr::filter(data, .data$EVID == 0)
   check_single_cmt(data)
 
@@ -256,7 +256,7 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
 df_vpccompute <- function(data,
                           pi = c(0.05, 0.95),
                           ci = 0.90,
-                          bin_var = BIN_MID_VAR,
+                          bin_var = .vpc_bin_col,
                           strat_var = NULL,
                           irep_name = "SIM",
                           lower_bound = 0,
@@ -387,7 +387,7 @@ validate_vpc_stats <- function(x) {
   ## depend on every CI bound being present.
   validate_pmx_stats(
     x, "vpc_stats", "df_vpcstats",
-    stats_cols = c(BIN_MID_VAR, .vpc_count_cols,
+    stats_cols = c(.vpc_bin_col, .vpc_count_cols,
                    "obs_low", "obs_med", "obs_hi",
                    "sim_low_med", "sim_med_med", "sim_hi_med",
                    "pc_obs_low", "pc_obs_med", "pc_obs_hi",

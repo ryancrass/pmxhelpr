@@ -41,9 +41,6 @@ test_that("df_mrgsim_replicate -> plot_vpc_cont: simulated data produces a VPC w
                               replicates = 5, dv_var = "ODV")
   p <- plot_vpc_cont(data = sim)
   expect_s3_class(p, "ggplot")
-  has_geom <- function(p, cls) any(vapply(p$layers,
-                                            function(l) inherits(l$geom, cls),
-                                            logical(1)))
   expect_true(has_geom(p, "GeomRibbon"))   # sim PI CI ribbon
   expect_true(has_geom(p, "GeomPoint"))    # obs points
 })

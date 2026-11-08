@@ -2,10 +2,7 @@
 
 ## Setup: shared simulation output. Drop LLOQ so loq stays NULL through the
 ## pipeline by default; tests that exercise loq behavior pass it explicitly.
-testsim_raw <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                   model = model_mread_load("pkmodel"),
-                                   replicates = 10,
-                                   dv_var = "ODV")
+testsim_raw <- sim_pk()
 testsim_raw$LLOQ <- NULL
 
 ## Helper: preprocess + compute, returning list(stats, obs) — matches public
@@ -159,12 +156,7 @@ test_that("df_vpcstats returns one row per unique bin value", {
 
 ## Test Stratification
 test_that("df_vpcstats with strat_var returns rows for each bin x stratum", {
-  testsim_strat <- df_mrgsim_replicate(
-    data = dplyr::filter(data_sad, CMT != 3),
-    model = model_mread_load("pkmodel"),
-    replicates = 10,
-    dv_var = "ODV",
-    carry_out = "FOOD")
+  testsim_strat <- sim_pk(carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
 
   result <- run_vpcstats(testsim_strat, strat_var_str = "FOOD_f")

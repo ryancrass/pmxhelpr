@@ -1,10 +1,6 @@
 ##### Tests for the `vpc_stats` S3 class and validator #####
 
-testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                               model = model_mread_load("pkmodel"),
-                               replicates = 5,
-                               dv_var = "ODV",
-                               carry_out = "FOOD")
+testsim <- sim_pk(5, carry_out = "FOOD")
 
 test_that("df_vpcstats() output carries the vpc_stats and pmx_stats classes", {
   out <- df_vpcstats(testsim)
@@ -170,11 +166,7 @@ test_that("plot_build_vpc() is callable on a df_vpcstats() result", {
 })
 
 test_that("plot_build_vpc() facets by config$strat_var and takes no strat_var argument", {
-  testsim_strat <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                       model = model_mread_load("pkmodel"),
-                                       replicates = 5,
-                                       dv_var = "ODV",
-                                       carry_out = "FOOD")
+  testsim_strat <- sim_pk(5, carry_out = "FOOD")
   testsim_strat <- dplyr::mutate(testsim_strat, FOOD_f = factor(FOOD))
   out <- df_vpcstats(testsim_strat, strat_var = FOOD_f)
   p <- plot_build_vpc(out)

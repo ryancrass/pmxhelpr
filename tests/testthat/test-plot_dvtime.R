@@ -194,15 +194,6 @@ test_that("plot_dvtime warns when input has multiple CMT values after EVID filte
 # from the style_*() preset maps keyed by role name. A ggstylekit regression
 # (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults; this guard
 # fails loudly if that recurs. Expected values mirror R/style_presets.R.
-styled_layer <- function(p, geom, stat = NULL) {
-  b   <- suppressWarnings(ggplot2::ggplot_build(p))
-  idx <- which(vapply(b$plot$layers, function(L)
-    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
-    logical(1)))[1]
-  expect_false(is.na(idx))
-  b$data[[idx]]
-}
-
 test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
   sd <- style_dvtime()
   p  <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")
@@ -225,10 +216,6 @@ test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
 # Discrete legends and per-series values follow the factor's declared level
 # order. `ggplot_build()` trains the scale; benign "Removed rows" warnings from
 # BLQ/NA data are unrelated and suppressed.
-colour_scale <- function(p) {
-  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
-}
-
 test_that("plot_dvtime legend follows factor level order regardless of row order", {
   d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
   d <- dplyr::mutate(d, Dose = var_addn(DOSE, ID, sep = "mg"))
@@ -414,10 +401,6 @@ test_that("plot_dvtime mean on a log axis is the geometric mean, as the caption 
   p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, cent = "mean", log_y = TRUE)
   expect_match(p$labels$caption, "[Gg]eometric mean")
 })
-
-y_trans <- function(p) {
-  suppressMessages(suppressWarnings(ggplot2::layer_scales(p)$y$get_transformation()$name))
-}
 
 test_that("plot_dvtime log_y falls back to the style's logy; a passed log_y wins", {
   p_style <- plot_dvtime(cent_fixture, dv_var = "DV", cent = "mean",

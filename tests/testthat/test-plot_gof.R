@@ -106,10 +106,6 @@ test_that("plot_gof warns when shown has no active elements", {
 # scale, while `series_layer` fills the role-keyed fixed aesthetics and leaves
 # the mapped color channel to that scale. `ggplot_build()` trains the scale;
 # the benign data-driven "Removed rows" warnings are unrelated and suppressed.
-colour_scale <- function(p) {
-  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
-}
-
 test_that("plot_gof color legend is driven by style$colors", {
   sg <- style_gof()
   p  <- plot_gof(data_sad_pkfit, dv_var = "ODV")
@@ -262,9 +258,6 @@ test_that("plot_gof show_loq_value toggles the LLOQ legend value", {
 })
 
 test_that("plot_gof log_y falls back to the style's logy; a passed log_y wins", {
-  y_trans <- function(p) {
-    suppressMessages(suppressWarnings(ggplot2::layer_scales(p)$y$get_transformation()$name))
-  }
   p_style <- plot_gof(data_sad_pkfit, dv_var = "ODV", style = style_gof(logy = TRUE))
   expect_equal(y_trans(p_style), "log-10")
   expect_match(p_style$labels$caption, "[Gg]eometric mean")

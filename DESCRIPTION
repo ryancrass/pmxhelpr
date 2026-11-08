@@ -22,8 +22,7 @@ Imports:
     mrgsolve,
     rlang,
     stats,
-    withr,
-    labeling
+    withr
 Suggests:
     knitr,
     patchwork,

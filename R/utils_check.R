@@ -39,13 +39,6 @@ check_factor <- function(data, var, name){
   }
 }
 
-check_numeric <- function(var, name){
-  num <- suppressWarnings(as.numeric(var))
-  if(any(is.na(num)) || !is.numeric(num)){
-    rlang::abort(message = paste0("argument `", name, "` must be coercible to class `numeric`"))
-  }
-}
-
 check_numeric_strict <- function(var, name){
   if(any(is.na(var)) || !is.numeric(var)){
     rlang::abort(message = paste0("argument `", name, "` must be class `numeric`"))

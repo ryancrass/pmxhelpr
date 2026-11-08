@@ -212,6 +212,20 @@ test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
   }
 })
 
+test_that("plot_gof cent = 'mean_sdl' error bars are mean +/- SD of DV by NTIME", {
+  d <- data.frame(ID = rep(1:4, each = 2), NTIME = rep(c(1, 2), 4),
+                  TIME = rep(c(1, 2), 4), ODV = c(1, 4, 2, 6, 3, 5, 6, 9),
+                  PRED = 1, IPRED = 1, CMT = 2, MDV = 0, EVID = 0)
+  p <- plot_gof(d, dv_var = "ODV", cent = "mean_sdl", show_caption = FALSE)
+  b <- ggplot2::ggplot_build(p)
+  idx <- which(vapply(b$plot$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1)))[1]
+  eb <- b$data[[idx]]
+  eb <- eb[order(eb$x), ]
+  by_time <- function(f) as.vector(tapply(d$ODV, d$NTIME, f))
+  expect_equal(eb$ymin, by_time(function(v) mean(v) - stats::sd(v)))
+  expect_equal(eb$ymax, by_time(function(v) mean(v) + stats::sd(v)))
+})
+
 ##Test errorbar_width (style field)
 test_that("plot_gof errorbar_width from the style reaches the errorbar layer", {
   p <- plot_gof(data_sad_pkfit, dv_var = "ODV", cent = "mean_sdl",

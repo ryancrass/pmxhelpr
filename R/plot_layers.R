@@ -203,14 +203,16 @@ add_errorbar_layers_style <- function(plot, cent, mapping) {
       ggplot2::stat_summary(mapping, geom = "errorbar", ...), "cent_errorbar")
   }
   if (cent == "mean_sdl") {
-    plot <- plot + errorbar(fun.data = "mean_sdl", fun.args = list(mult = 1))
+    plot <- plot + errorbar(fun.max = function(x) mean(x) + stats::sd(x),
+                            fun.min = function(x) mean(x) - stats::sd(x))
   }
   if (cent == "mean_sdl_upper") {
-    upper <- function(x) mean(x) + stats::sd(x)
-    plot <- plot + errorbar(fun.max = upper, fun.min = function(x) NA_real_)
+    plot <- plot + errorbar(fun.max = function(x) mean(x) + stats::sd(x),
+                            fun.min = function(x) NA_real_)
     plot <- plot + ggstylekit::series_layer(
       ggplot2::stat_summary(mapping, geom = "linerange", show.legend = FALSE,
-                            fun.max = upper, fun.min = function(x) mean(x)),
+                            fun.max = function(x) mean(x) + stats::sd(x),
+                            fun.min = function(x) mean(x)),
       "cent_errorbar")
   }
   if (cent == "median_iqr") {

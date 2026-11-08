@@ -1,5 +1,11 @@
 # pmxhelpr (development version)
 
+## Bug fixes
+
+* `plot_dvtime()` and `plot_gof()` with `cent = "mean_sdl"` no longer need
+  Hmisc installed. The error bars previously failed at print time without it;
+  Hmisc is dropped from Suggests.
+
 # pmxhelpr 0.7.0
 
 This release fixes bugs in previously released functions. `df_mrgsim_addpred()` 

@@ -400,6 +400,8 @@ test_that("plot_dvtime central tendency and error bars match direct computation"
   expect_equal(m$point$y, by_time(mean))
   sdl <- cent_layers(cent = "mean_sdl")
   expect_equal(sdl$errorbar$ymax - sdl$errorbar$ymin, 2 * by_time(stats::sd))
+  expect_equal(sdl$errorbar$ymin, by_time(function(v) mean(v) - stats::sd(v)))
+  expect_equal(sdl$errorbar$ymax, by_time(function(v) mean(v) + stats::sd(v)))
   iqr <- cent_layers(cent = "median_iqr")
   expect_equal(iqr$point$y, by_time(stats::median))
   expect_equal(iqr$errorbar$ymin, by_time(function(v) unname(stats::quantile(v, 0.25))))

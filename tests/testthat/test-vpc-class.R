@@ -196,3 +196,52 @@ test_that("print.vpc_stats shows NULL loq / strat_var in the config line", {
   expect_output(print(out, n_head = 0),
                 "config: n_replicates = .*, loq = NULL, strat_var = NULL")
 })
+
+
+##### pmx_vpc_plot facet guard #####
+
+vpc_plot <- function() suppressMessages(plot_vpc_cont(sim_pk(carry_out = "FOOD")))
+facet_msg <- "incorrect VPC statistics"
+n_panels <- function(p) nrow(suppressWarnings(ggplot2::ggplot_build(p))$layout$layout)
+
+test_that("is_pmx_vpc_plot() identifies VPC plots only", {
+  expect_true(is_pmx_vpc_plot(vpc_plot()))
+  expect_true(is_pmx_vpc_plot(suppressMessages(plot_vpc_cens(sim_pk(carry_out = "LLOQ")))))
+  expect_false(is_pmx_vpc_plot(ggplot2::ggplot()))
+  expect_false(is_pmx_vpc_plot(sim_pk()))
+})
+
+test_that("adding a facet to a VPC warns, directly or inside a list()", {
+  p <- vpc_plot()
+  expect_warning(p + ggplot2::facet_wrap(~FOOD), facet_msg)
+  expect_warning(p + ggplot2::facet_grid(FOOD ~ .), facet_msg)
+  expect_warning(p + list(ggplot2::facet_wrap(~FOOD)), facet_msg)
+})
+
+test_that("non-facet additions do not warn and keep the class", {
+  p <- vpc_plot()
+  expect_no_warning(p1 <- p + ggplot2::theme_bw())
+  expect_no_warning(p2 <- p + list(ggplot2::labs(x = "Time (h)")))
+  expect_no_warning(p3 <- p + ggplot2::labs(x = "t") + ggplot2::scale_y_log10())
+  expect_true(all(vapply(list(p1, p2, p3), is_pmx_vpc_plot, logical(1))))
+  expect_warning(p3 + ggplot2::facet_wrap(~FOOD), facet_msg)
+})
+
+test_that("restyle_plot() keeps the class and warns when it sets a facet", {
+  p <- vpc_plot()
+  expect_no_warning(p_log <- restyle_plot(p, logy = TRUE))
+  expect_true(is_pmx_vpc_plot(p_log))
+  expect_warning(p_log + ggplot2::facet_wrap(~FOOD), facet_msg)
+  expect_warning(p_fac <- restyle_plot(p, facet = "FOOD"), facet_msg)
+  expect_true(is_pmx_vpc_plot(p_fac))
+})
+
+test_that("reveal() keeps the class, warns once for as = 'facet', and maps the column", {
+  p <- vpc_plot()
+  expect_warning(p_fac <- reveal(p, FOOD, as = "facet"), facet_msg)
+  expect_true(is_pmx_vpc_plot(p_fac))
+  expect_equal(n_panels(p_fac), 2)
+  expect_no_warning(p_col <- reveal(p, FOOD, as = "colors"))
+  expect_true(is_pmx_vpc_plot(p_col))
+  expect_no_warning(reveal(p, "FOOD", as = "colors"))
+})

@@ -19,6 +19,11 @@
   field. `log_y` now defaults to `NULL` (use the style); a `log_y` passed to
   the function still overrides the style. Previously the style's `logy` was
   ignored.
+* The VPC facet warning now also fires for `reveal(as = "facet")`,
+  `restyle_plot(facet = )`, and facets added inside a `list()`, and
+  `restyle_plot()` / `reveal()` keep a VPC plot's `pmx_vpc_plot` class, so
+  later `+ facet_*()` calls are still caught. Previously these paths drew
+  pooled statistics in every panel without a warning.
 
 # pmxhelpr 0.7.0
 

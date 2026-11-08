@@ -2,14 +2,25 @@
 % Please edit documentation in R/pmx_vpc_plot_class.R
 \name{+.pmx_vpc_plot}
 \alias{+.pmx_vpc_plot}
+\alias{restyle_plot.pmx_vpc_plot}
+\alias{reveal.pmx_vpc_plot}
 \title{Add a layer to a \code{pmx_vpc_plot} with a facet warning}
 \usage{
 \method{+}{pmx_vpc_plot}(e1, e2)
+
+\method{restyle_plot}{pmx_vpc_plot}(p, ...)
+
+\method{reveal}{pmx_vpc_plot}(p, col, ..., as = NULL, on = NULL)
 }
 \arguments{
 \item{e1}{A \code{pmx_vpc_plot} object.}
 
 \item{e2}{A ggplot2 layer, scale, theme, facet, or other addable object.}
+
+\item{p}{A \code{pmx_vpc_plot} object.}
+
+\item{col, as, on, ...}{Passed to the ggstylekit \code{\link[=reveal]{reveal()}} or \code{\link[=restyle_plot]{restyle_plot()}}
+method.}
 }
 \value{
 A \code{pmx_vpc_plot} object.
@@ -22,6 +33,10 @@ specification, a warning is issued because the VPC summary statistics are
 pre-computed and will not reflect the added stratification.
 Use \code{strat_var} in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, or \code{\link[=df_vpcstats]{df_vpcstats()}}
 to stratify both statistics and panels.
+
+Facets inside a \code{list()} are caught the same way. \code{\link[=restyle_plot]{restyle_plot()}} and
+\code{\link[=reveal]{reveal()}} keep the \code{pmx_vpc_plot} class, and \code{reveal(as = "facet")} and
+\code{restyle_plot(facet = )} warn like \verb{+ facet_*()}.
 
 The \code{pmx_vpc_plot} class is preserved on the result so that subsequent \code{+}
 calls are also intercepted.

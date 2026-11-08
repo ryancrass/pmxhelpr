@@ -156,9 +156,7 @@ plot_build_vpc <- function(stats,
 
   ## Finalize with the house theme (white VPC panel) via style_plot(); it
   ## applies the theme without overriding the layers' inline aesthetics.
-  p <- ggstylekit::style_plot(plot, vpcstyle)
-  class(p) <- c("pmx_vpc_plot", class(p))
-  p
+  as_pmx_vpc_plot(ggstylekit::style_plot(plot, vpcstyle))
 }
 
 

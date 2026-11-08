@@ -32,13 +32,6 @@ check_capture <- function(mod, var, mod_name, name){
   }
 }
 
-check_factor <- function(data, var, name){
-  var_vect <- suppressWarnings(as.factor(data[[var]]))
-  if(!is.factor(var_vect)){
-    rlang::abort(message = paste0("argument `", name, "` must be coercible to class `factor`"))
-  }
-}
-
 check_numeric_strict <- function(var, name){
   if(any(is.na(var)) || !is.numeric(var)){
     rlang::abort(message = paste0("argument `", name, "` must be class `numeric`"))

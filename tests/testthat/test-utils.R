@@ -56,13 +56,6 @@ test_that("check_varsindf lists all missing columns when multiple are absent", {
   )
 })
 
-#####check_factor####
-
-test_that("check_factor does not error on factor-coercible column", {
-  df <- data.frame(x = c("a", "b", "c"))
-  expect_no_error(pmxhelpr:::check_factor(df, "x", "x"))
-})
-
 #####check_loq_method####
 
 test_that("check_loq_method does not error when loq_method = 0", {

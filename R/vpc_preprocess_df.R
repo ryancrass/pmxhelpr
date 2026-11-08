@@ -78,7 +78,6 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                    "MDV", "EVID", irep_name_str),
                  "data", "vars")
   if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var")
-  if (!is.null(strat_var_str)) check_factor(data, strat_var_str, "strat_var")
 
   if (!is.null(strat_var_str) && any(is.na(data[[strat_var_str]]))) {
     rlang::warn(paste0("`strat_var` ('", strat_var_str,

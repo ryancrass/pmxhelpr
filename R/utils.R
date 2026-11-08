@@ -176,10 +176,7 @@ df_prep_dvtime <- function(data,
   if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var")
   check_varsindf(data, "MDV", "data", "MDV")
   check_varsindf(data, "EVID", "data", "EVID")
-  if (!is.null(col_var_str)) {
-    check_varsindf(data, col_var_str, "data", "col_var")
-    check_factor(data, col_var_str, "col_var")
-  }
+  if (!is.null(col_var_str)) check_varsindf(data, col_var_str, "data", "col_var")
   if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var")
   if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
   loq_method <- check_loq_method(loq, loq_method, data)

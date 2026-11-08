@@ -15,12 +15,13 @@
 A \code{pmx_vpc_plot} object.
 }
 \description{
-S3 method for \code{+} applied to objects returned by \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} and
-\code{\link[=plot_build_vpc]{plot_build_vpc()}}. Delegates to the standard ggplot2 \code{+} operation for all
+S3 method for \code{+} applied to objects returned by \code{\link[=plot_vpc_cont]{plot_vpc_cont()}},
+\code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, and \code{\link[=plot_build_vpc]{plot_build_vpc()}}. Delegates to the standard ggplot2 \code{+} operation for all
 layer types. When \code{e2} is a \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap()}} or \code{\link[ggplot2:facet_grid]{ggplot2::facet_grid()}}
 specification, a warning is issued because the VPC summary statistics are
 pre-computed and will not reflect the added stratification.
-Use \code{strat_var} in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} to stratify both statistics and panels.
+Use \code{strat_var} in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, or \code{\link[=df_vpcstats]{df_vpcstats()}}
+to stratify both statistics and panels.
 
 The \code{pmx_vpc_plot} class is preserved on the result so that subsequent \code{+}
 calls are also intercepted.

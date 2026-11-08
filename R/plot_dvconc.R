@@ -71,7 +71,6 @@ plot_dvconc <- function(data,
   check_varsindf(data, dv_var_str, "data", "dv_var")
   check_varsindf(data, idv_var_str, "data", "idv_var")
   check_varsindf(data, col_var_str, "data", "col_var")
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
 
   ##Handle DV and IDV Variables
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))

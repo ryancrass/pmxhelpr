@@ -2,7 +2,8 @@
 #'
 #' @description
 #' Predicate that returns `TRUE` if `x` carries the `"pmx_vpc_plot"` class —
-#' i.e., it is the ggplot returned by [plot_vpc_cont()] or [plot_build_vpc()].
+#' i.e., it is the ggplot returned by [plot_vpc_cont()], [plot_vpc_cens()], or
+#' [plot_build_vpc()].
 #'
 #' @param x Object to test.
 #' @return Logical scalar.
@@ -27,12 +28,13 @@ is_pmx_vpc_plot <- function(x) {
 #' Add a layer to a `pmx_vpc_plot` with a facet warning
 #'
 #' @description
-#' S3 method for `+` applied to objects returned by [plot_vpc_cont()] and
-#' [plot_build_vpc()]. Delegates to the standard ggplot2 `+` operation for all
+#' S3 method for `+` applied to objects returned by [plot_vpc_cont()],
+#' [plot_vpc_cens()], and [plot_build_vpc()]. Delegates to the standard ggplot2 `+` operation for all
 #' layer types. When `e2` is a [ggplot2::facet_wrap()] or [ggplot2::facet_grid()]
 #' specification, a warning is issued because the VPC summary statistics are
 #' pre-computed and will not reflect the added stratification.
-#' Use `strat_var` in [plot_vpc_cont()] to stratify both statistics and panels.
+#' Use `strat_var` in [plot_vpc_cont()], [plot_vpc_cens()], or [df_vpcstats()]
+#' to stratify both statistics and panels.
 #'
 #' The `pmx_vpc_plot` class is preserved on the result so that subsequent `+`
 #' calls are also intercepted.
@@ -48,9 +50,9 @@ is_pmx_vpc_plot <- function(x) {
   if (inherits(e2, "FacetWrap") || inherits(e2, "FacetGrid")) {
     rlang::warn(
       c(
-        "Adding `facet_*()` to a `plot_vpc_cont()` plot produces incorrect VPC statistics.",
+        "Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.",
         "i" = "Summary statistics are pre-computed before plotting.",
-        "i" = "Pass `strat_var` to `plot_vpc_cont()` to stratify both statistics and panels correctly."
+        "i" = "Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly."
       )
     )
   }

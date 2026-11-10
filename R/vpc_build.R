@@ -78,6 +78,7 @@
 #'    scale).
 #'
 #' @family vpc
+#' @seealso [autoplot()][autoplot.pmx_stats], which draws a container with its builder.
 #' @return A `ggplot2` object.
 #' @export plot_build_vpc
 #'

@@ -12,6 +12,11 @@
   `is_pmx_stats(strict = TRUE)` now apply that contract too, rather than
   only the shared slot checks; packages defining their own `pmx_stats`
   subclass can add a method.
+* `autoplot()` draws a `vpc_stats`, `doseprop_stats`, or `forest_stats`
+  container with its builder (`plot_build_vpc()`, `plot_build_doseprop()`,
+  `plot_build_forest()`), passing other arguments through, e.g.
+  `autoplot(stats, type = "cens")`. `autoplot()` is re-exported from
+  ggplot2.
 
 ## Minor improvements
 

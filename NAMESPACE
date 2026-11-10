@@ -2,6 +2,9 @@
 
 S3method("+",pmx_vpc_plot)
 S3method(as.data.frame,pmx_stats)
+S3method(ggplot2::autoplot,doseprop_stats)
+S3method(ggplot2::autoplot,forest_stats)
+S3method(ggplot2::autoplot,vpc_stats)
 S3method(ggstylekit::restyle_plot,pmx_vpc_plot)
 S3method(ggstylekit::reveal,pmx_vpc_plot)
 S3method(print,doseprop_stats)
@@ -20,6 +23,7 @@ S3method(validate_pmx_stats,default)
 S3method(validate_pmx_stats,doseprop_stats)
 S3method(validate_pmx_stats,forest_stats)
 S3method(validate_pmx_stats,vpc_stats)
+export(autoplot)
 export(combine_styled_plots)
 export(df_doseprop)
 export(df_forest)
@@ -64,6 +68,7 @@ export(validate_pmx_stats)
 export(var_addn)
 export(var_dosenorm)
 export(var_predcorr)
+importFrom(ggplot2,autoplot)
 importFrom(ggstylekit,
   combine_styled_plots,
   legend_spec,

@@ -112,6 +112,8 @@ out <- df_vpcstats(simout, strat_var = FOOD)
 p <- plot_build_vpc(out, pcvpc = FALSE)
 }
 \seealso{
+\link[=autoplot.pmx_stats]{autoplot()}, which draws a container with its builder.
+
 Other vpc:
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},

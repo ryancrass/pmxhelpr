@@ -28,6 +28,7 @@
 #'    is `TRUE`.
 #'
 #' @family dose proportionality
+#' @seealso [autoplot()][autoplot.pmx_stats], which draws a container with its builder.
 #' @return a `ggplot` plot object
 #' @export plot_build_doseprop
 #'

@@ -48,6 +48,8 @@ plot_build_doseprop(stats)
 plot_build_doseprop(stats, se = FALSE)
 }
 \seealso{
+\link[=autoplot.pmx_stats]{autoplot()}, which draws a container with its builder.
+
 Other dose proportionality:
 \code{\link[=df_doseprop]{df_doseprop()}},
 \code{\link[=is_doseprop_stats]{is_doseprop_stats()}},

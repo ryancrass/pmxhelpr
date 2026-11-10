@@ -480,6 +480,8 @@ plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
             style = style_forest(logx = TRUE))
 ```
 
+`autoplot(forest_obj, metric = "CMAX")` does the same with `plot_build_forest()`.
+
 `forest_obj` was computed with `cov_level_ref`, so `ref_layout` can switch it to
 the reference panel:
 

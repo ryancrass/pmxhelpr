@@ -655,6 +655,8 @@ For downstream code or custom workflows that produce a `vpc_stats`-shaped object
 plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 ```
 
+`autoplot(out, pcvpc = FALSE)` is equivalent: `autoplot()` draws any `vpc_stats`, `doseprop_stats`, or `forest_stats` container with its builder.
+
 
 # Adjusting Plot Style with `style_vpc()`
 

@@ -138,6 +138,7 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL,
 #' `sigdigits` (a whole number `>= 1`). The object is checked when plotted.
 #'
 #' @family forest plot
+#' @seealso [autoplot()][autoplot.pmx_stats], which draws a container with its builder.
 #' @return a `ggplot` plot object
 #' @export plot_build_forest
 #'

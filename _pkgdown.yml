@@ -43,6 +43,7 @@ reference:
       - plot_build_vpc
       - plot_build_doseprop
       - plot_build_forest
+      - autoplot.pmx_stats
 
   - title: Styling
     desc: >

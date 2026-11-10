@@ -172,6 +172,8 @@ manual <- pmx_stats(
 plot_build_forest(manual)
 }
 \seealso{
+\link[=autoplot.pmx_stats]{autoplot()}, which draws a container with its builder.
+
 Other forest plot:
 \code{\link[=df_forest]{df_forest()}},
 \code{\link[=df_forest_preprocess]{df_forest_preprocess()}},

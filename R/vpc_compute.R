@@ -15,20 +15,25 @@
 
 .vpc_bin_col <- "BIN_MID"
 
+
 .vpc_count_cols <- c("obs_n", "obs_n_blq", "obs_prop_blq")
+
 
 .vpc_blq_cols <- c("sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")
 
+
 .vpc_obs_quantile_cols <- c("obs_low", "obs_med", "obs_hi")
+
 
 .vpc_sim_quantile_cols <- c("sim_low_low", "sim_low_med", "sim_low_hi",
                             "sim_med_low", "sim_med_med", "sim_med_hi",
                             "sim_hi_low",  "sim_hi_med",  "sim_hi_hi")
 
+
 .vpc_quantile_cols <- c(.vpc_obs_quantile_cols, .vpc_sim_quantile_cols)
 
-.vpc_meta_cols <- c("ci", "pi_low", "pi_hi")
 
+.vpc_meta_cols <- c("ci", "pi_low", "pi_hi")
 
 
 #' Preprocess simulation data for VPC statistics
@@ -109,7 +114,6 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   }
   data
 }
-
 
 
 #' Internal helper: per-flavor VPC quantile aggregation
@@ -203,7 +207,6 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
   out |>
     dplyr::mutate(dplyr::across(dplyr::all_of(.vpc_quantile_cols), var_infna))
 }
-
 
 
 #' Compute VPC quantile statistics from preprocessed data
@@ -363,48 +366,4 @@ df_vpccompute <- function(data,
     ),
     subclass = "vpc_stats"
   )
-}
-
-
-
-#' Validate a `vpc_stats` object
-#'
-#' @description
-#' Internal helper. Asserts that `x` carries the `vpc_stats` class, contains
-#' the `stats` and `obs` data.frames, and that each carries the column groups
-#' downstream consumers (notably [plot_build_vpc()]) depend on. Aborts with a
-#' clear message on failure; returns `x` invisibly on success.
-#'
-#' @param x Object to validate.
-#'
-#' @return `invisible(x)` on success.
-#' @keywords internal
-
-validate_vpc_stats <- function(x) {
-  ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
-  ## Use the medians as the canonical column for each group so we don't
-  ## depend on every CI bound being present.
-  validate_pmx_stats(
-    x, "vpc_stats", "df_vpcstats",
-    stats_cols = c(.vpc_bin_col, .vpc_count_cols,
-                   "obs_low", "obs_med", "obs_hi",
-                   "sim_low_med", "sim_med_med", "sim_hi_med",
-                   "pc_obs_low", "pc_obs_med", "pc_obs_hi",
-                   "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med"),
-    obs_cols = c("OBSDV", "PC_OBSDV", "TIME"),
-    config_keys = c("n_replicates", "loq", "strat_var")
-  )
-
-  ## Cens invariant: if df_vpcstats() was called with a LOQ source, the
-  ## sim_prop_blq_* columns must be present. Catches malformed
-  ## manually-constructed containers; legit no-LOQ containers (config$loq
-  ## NULL, columns absent) are handled by the cens user-facing check in
-  ## plot_build_vpc().
-  if (!is.null(x$config$loq) && !"sim_prop_blq_med" %in% colnames(x$stats)) {
-    rlang::abort(
-      "`vpc_stats$config$loq` is set but `stats` is missing `sim_prop_blq_*` columns."
-    )
-  }
-
-  invisible(x)
 }

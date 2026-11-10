@@ -1,4 +1,3 @@
-
 #' Compute estimate table for log-log regression
 #'
 #' Internal per-fit helper used by [df_doseprop()]. Converts a single `lm` fit
@@ -212,177 +211,101 @@ validate_doseprop_stats <- function(x) {
 }
 
 
-
-#' Build a dose-proportionality ggplot from a `doseprop_stats` object
+#' Test whether an object is a `doseprop_stats` container
 #'
 #' @description
-#' Constructs a log-log regression scatter plot from a [df_doseprop()] result
-#' (or any object satisfying the `doseprop_stats` contract). Recovers the
-#' observation rows and column names from the object's attributes, builds the
-#' faceting label from the per-metric `PowerCI` text, and renders the scatter
-#' + trend layers.
+#' Predicate that returns `TRUE` if `x` carries the `"doseprop_stats"` class
+#' -- i.e., it is the container returned by [df_doseprop()] (also accepted by
+#' [plot_doseprop()] and [plot_build_doseprop()] on the precomputed-stats
+#' fast path).
 #'
-#' Most users will reach this function indirectly via [plot_doseprop()].
-#' Call `plot_build_doseprop()` directly when working from a manually-
-#' constructed or cached `doseprop_stats` object — for example, plotting a
-#' precomputed result from disk or a custom pipeline that produces compatible
-#' columns and attributes.
-#'
-#' @param stats A `doseprop_stats` object (typically the output of
-#'    [df_doseprop()]). Must contain `$obs` and `$config` slots with
-#'    `metric_name_var`, `metric_value_var`, `dose_var`, and `ci`. Validated by
-#'    `validate_doseprop_stats()` at entry.
-#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
-#'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`. The per-metric facet layout is
-#'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
-#'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
-#'    because the builder sets the facet and log-log axes itself.
-#' @param se logical to display confidence interval around regression. Default
-#'    is `TRUE`.
+#' @param x Object to test.
+#' @param strict Logical. When `TRUE`, additionally runs
+#'    `validate_doseprop_stats()` and returns `FALSE` on validation failure.
+#'    Default `FALSE` (class-tag check only, cheap).
 #'
 #' @family dose proportionality
-#' @return a `ggplot` plot object
-#' @export plot_build_doseprop
+#' @return Logical scalar.
+#' @export is_doseprop_stats
 #'
 #' @examples
 #' stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
-#'                       metrics = c("aucinf.obs", "cmax"))
-#' plot_build_doseprop(stats)
-#' plot_build_doseprop(stats, se = FALSE)
+#'                     metrics = c("aucinf.obs", "cmax"))
+#' is_doseprop_stats(stats)             # TRUE
+#' is_doseprop_stats(as.data.frame(stats))  # FALSE -- coerced to plain frame
 
-plot_build_doseprop <- function(stats,
-                                style = NULL,
-                                se = TRUE) {
-
-  check_boolean(se, "se")
-  validate_doseprop_stats(stats)
-
-  metric_name_var_str <- stats$config$metric_name_var
-  metric_value_var_str    <- stats$config$metric_value_var
-  dose_var_str   <- stats$config$dose_var
-  ci             <- stats$config$ci
-  obs            <- stats$obs
-
-  plotstyle <- resolve_style(style, style_doseprop)
-
-  tab <- stats$stats
-  tab$label <- paste0(tab[[metric_name_var_str]], "\n", tab$PowerCI)
-
-  plot_data <- dplyr::left_join(obs, tab, by = metric_name_var_str)
-
-  base <- ggplot2::ggplot(plot_data, ggplot2::aes(
-    x = .data[[dose_var_str]], y = .data[[metric_value_var_str]]))
-
-  plot <- add_obs_layers_style(base, id_var_str = NULL)
-  plot <- add_trend_layers_style(plot, method = "lm", show = TRUE, se = se,
-                                 series = "linear",
-                                 col_var_str = NULL, col_trend = FALSE,
-                                 formula = y ~ x, level = ci)
-  plot <- plot +
-    ggplot2::labs(x = "Dose", y = "Exposure") +
-    ggplot2::scale_x_log10(
-      guide  = "axis_logticks",
-      limits = function(x) c(10^floor(log10(x[1])), 10^ceiling(log10(x[2]))),
-      expand = ggplot2::expansion(mult = 0.02)
-    ) +
-    ggplot2::scale_y_log10(
-      guide  = "axis_logticks",
-      limits = function(x) c(10^floor(log10(x[1])), 10^ceiling(log10(x[2]))),
-      expand = ggplot2::expansion(mult = 0.02)
-    ) +
-    ## The per-metric facet is built here (its label carries the fitted power
-    ## text), so ggstylekit's own facet path is bypassed; the style's facet
-    ## layout fields are forwarded explicitly, as in plot_build_vpc().
-    ggplot2::facet_wrap(~label,
-                        nrow   = plotstyle$facet_nrow,
-                        ncol   = plotstyle$facet_ncol,
-                        scales = plotstyle$facet_scales %||% "free")
-
-  ggstylekit::style_plot(plot, plotstyle)
+is_doseprop_stats <- function(x, strict = FALSE) {
+  ok <- inherits(x, "doseprop_stats")
+  if (!ok || !isTRUE(strict)) return(ok)
+  tryCatch({validate_doseprop_stats(x); TRUE}, error = function(e) FALSE)
 }
 
 
-#' Plot a dose-proportionality assessment via power law (log-log) regression
+#' Print method for `doseprop_stats`
 #'
 #' @description
-#' Dual-mode wrapper that delegates to [df_doseprop()] for computation and
-#' [plot_build_doseprop()] for rendering. Accepts either:
+#' Focused summary of a [df_doseprop()] result: object dimensions, the
+#' regression configuration values (`metric_name_var`, `metric_value_var`, `dose_var`,
+#' `ci`, `method`), the number of observation rows attached for the plot
+#' scatter overlay, and the per-metric stats body. Inspect the underlying
+#' frames directly via `x$stats` and `x$obs`; inspect run config via
+#' `x$config`.
 #'
-#' * raw observation data (e.g. PKNCA output) plus a `metrics` vector — the
-#'   common one-shot mode; or
-#' * a precomputed `doseprop_stats` object returned by [df_doseprop()] — skip
-#'   the regression refit and replot with different `style` / `se` settings.
+#' @param x A `doseprop_stats` object.
+#' @param ... Passed to the underlying `print.data.frame()` call for the body.
 #'
-#' On the precomputed path, pipeline arguments (`metrics`, `metric_name_var`,
-#' `metric_value_var`, `dose_var`, `method`, `ci`, `sigdigits`) cannot be honored
-#' because the regression does not run again — passing any of them aborts
-#' with a message pointing the caller at [df_doseprop()]. Only `style` and
-#' `se` are accepted on both paths.
-#'
-#' @param data Either raw observation data (data.frame, default expected
-#'    format is output from `PKNCA::pk.nca()`) or a `doseprop_stats` object
-#'    returned by [df_doseprop()].
-#' @param metrics character vector of exposure metrics in `data` to plot.
-#'    Required on the raw-data path; must not be passed with a
-#'    `doseprop_stats` object.
-#' @param se logical to display confidence interval around regression.
-#'    Default is `TRUE`.
-#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
-#'    Defaults to [style_doseprop()]; view the defaults by running
-#'    `style_doseprop()` with no arguments. Customize by passing
-#'    `style = style_doseprop(...)`. The per-metric facet layout is
-#'    taken from the style's `facet_scales` (default `"free"`), `facet_nrow`,
-#'    and `facet_ncol`; the `facet`, `logx`, and `logy` fields are ignored
-#'    because the builder sets the facet and log-log axes itself.
-#' @inheritParams df_doseprop
-#'
-#' @family dose proportionality
-#' @return a `ggplot` plot object
-#' @export plot_doseprop
-#'
-#' @examples
-#' # Raw-data path
-#' plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
-#'                metrics = c("aucinf.obs", "cmax"))
-#'
-#' # Precomputed path: compute once, replot many times
-#' stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
-#'                       metrics = c("aucinf.obs", "cmax"))
-#' plot_doseprop(stats)
-#' plot_doseprop(stats, se = FALSE)
+#' @return `invisible(x)`.
+#' @export
+#' @method print doseprop_stats
 
-plot_doseprop <- function(data,
-                          metrics = NULL,
-                          metric_name_var = "PPTESTCD",
-                          metric_value_var = "PPORRES",
-                          dose_var = "DOSE",
-                          method = "normal",
-                          ci = 0.9,
-                          sigdigits = 3,
-                          se = TRUE,
-                          style = NULL) {
+print.doseprop_stats <- function(x, ...) {
+  doseprop_stats_header(x)
+  cat("\n  stats body:\n")
+  print(x$stats, ...)
+  cat("\n  Use `x$obs` for the observation overlay.\n")
+  invisible(x)
+}
 
-  if (inherits(data, "doseprop_stats")) {
-    check_pipeline_args_dropped(
-      call           = match.call(),
-      plot_only_args = c("data", "style", "se"),
-      fn_name        = "plot_doseprop",
-      stats_fn       = "df_doseprop"
-    )
-    return(plot_build_doseprop(data, style = style, se = se))
+
+doseprop_stats_header <- function(x) {
+  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "dose_var",
+                        "ci", "method"))
+}
+
+
+#' Summary method for `doseprop_stats`
+#'
+#' @description
+#' Compact summary of a [df_doseprop()] result: the same header and
+#' configuration values shown by [print.doseprop_stats()], but the body is
+#' condensed to one line per metric using the `PowerCI` and `Interpretation`
+#' columns. Suitable for vignette output and test snapshots.
+#'
+#' @param object A `doseprop_stats` object.
+#' @param ... Currently unused.
+#'
+#' @return `invisible(object)`.
+#' @export
+#' @method summary doseprop_stats
+
+summary.doseprop_stats <- function(object, ...) {
+  metric_name_var_str <- object$config$metric_name_var
+  doseprop_stats_header(object)
+  cat("\n  per-metric:\n")
+  for (i in seq_len(nrow(object$stats))) {
+    cat(sprintf("    %s: %s -- %s\n",
+                object$stats[[metric_name_var_str]][i],
+                object$stats$PowerCI[i],
+                object$stats$Interpretation[i]))
   }
+  invisible(object)
+}
 
-  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
-  metric_value_var_str    <- resolve_var(rlang::enquo(metric_value_var))
-  dose_var_str   <- resolve_var(rlang::enquo(dose_var))
 
-  stats <- df_doseprop(data, metrics,
-                       metric_name_var = metric_name_var_str,
-                       metric_value_var = metric_value_var_str,
-                       dose_var = dose_var_str,
-                       method = method, ci = ci, sigdigits = sigdigits)
-
-  plot_build_doseprop(stats, style = style, se = se)
+check_loglog_args <- function(method, ci, sigdigits) {
+  if (!method %in% c("normal", "tdist")) {
+    rlang::abort(message = "argument `method` must be `normal` or `tdist`")
+  }
+  check_quantile_scalar(ci, "ci")
+  check_positive_integer(sigdigits, "sigdigits")
 }

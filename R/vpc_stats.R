@@ -122,3 +122,153 @@ df_vpcstats <- function(data,
     mode = mode
   )
 }
+
+
+#' Test whether an object is a `vpc_stats` container
+#'
+#' @description
+#' Predicate that returns `TRUE` if `x` carries the `"vpc_stats"` class — i.e.,
+#' it is the container returned by [df_vpcstats()] (also accepted by
+#' [plot_vpc_cont()] on the precomputed-stats fast path).
+#'
+#' @param x Object to test.
+#' @param strict Logical. When `TRUE`, additionally runs
+#'    `validate_vpc_stats()` and returns `FALSE` on validation failure.
+#'    Default `FALSE` (class-tag check only, cheap).
+#'
+#' @family vpc
+#' @return Logical scalar.
+#' @export is_vpc_stats
+#'
+#' @examples
+#' model <- model_mread_load(model = "pkmodel")
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 5,
+#'                               dv_var = ODV)
+#' out <- df_vpcstats(simout)
+#' is_vpc_stats(out)        # TRUE
+#' is_vpc_stats(out$stats)  # FALSE — that's the inner data.frame
+
+is_vpc_stats <- function(x, strict = FALSE) {
+  ok <- inherits(x, "vpc_stats")
+  if (!ok || !isTRUE(strict)) return(ok)
+  tryCatch({validate_vpc_stats(x); TRUE}, error = function(e) FALSE)
+}
+
+
+#' Print method for `vpc_stats`
+#'
+#' @description
+#' Focused summary of a [df_vpcstats()] result: object dimensions, run-config
+#' values (`n_replicates`, `loq`, `strat_var`), the column groups present
+#' in `stats`, and a short head preview. Inspect the underlying data.frames
+#' directly via `x$stats` and `x$obs`; inspect run config via `x$config`.
+#'
+#' @param x A `vpc_stats` object.
+#' @param n_head Integer. Number of rows of `stats` to preview.
+#' @param ... Currently unused.
+#'
+#' @return `invisible(x)`.
+#' @export
+#' @method print vpc_stats
+
+print.vpc_stats <- function(x, n_head = 3, ...) {
+  pmx_stats_header(x, c("n_replicates", "loq", "strat_var"))
+
+  bin_present  <- .vpc_bin_col %in% colnames(x$stats)
+  strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))
+  identifiers <- c(if (bin_present) .vpc_bin_col, strat_in_stats)
+  blq_present <- intersect(.vpc_blq_cols, colnames(x$stats))
+  std_obs <- intersect(.vpc_obs_quantile_cols, colnames(x$stats))
+  std_sim <- intersect(.vpc_sim_quantile_cols, colnames(x$stats))
+  pc_obs  <- intersect(paste0("pc_", .vpc_obs_quantile_cols), colnames(x$stats))
+  pc_sim  <- intersect(paste0("pc_", .vpc_sim_quantile_cols), colnames(x$stats))
+  meta_present <- intersect(.vpc_meta_cols, colnames(x$stats))
+
+  fmt_group <- function(label, cols) {
+    if (length(cols) == 0) return(invisible())
+    cat(sprintf("    %-13s: %s\n", label, paste(cols, collapse = ", ")))
+  }
+
+  cat("  column groups (stats):\n")
+  fmt_group("identifiers",  identifiers)
+  fmt_group("counts",       intersect(.vpc_count_cols, colnames(x$stats)))
+  if (length(blq_present) > 0) {
+    cat(sprintf("    %-13s: %s  [std-only]\n", "sim BLQ",
+                paste(blq_present, collapse = ", ")))
+  }
+  fmt_group("std observed", std_obs)
+  fmt_group("std simulated", std_sim)
+  fmt_group("pc observed",  pc_obs)
+  fmt_group("pc simulated", pc_sim)
+  fmt_group("metadata",     meta_present)
+
+  if (n_head > 0 && nrow(x$stats) > 0) {
+    cat(sprintf("\n  head(stats, %d):\n", n_head))
+    print(utils::head(x$stats, n_head))
+  }
+
+  cat("\n  Use `x$stats` and `x$obs` for the underlying data.frames.\n")
+  invisible(x)
+}
+
+
+#' Summary method for `vpc_stats`
+#'
+#' @description
+#' Same content as [print.vpc_stats()] but without the head preview. Suitable
+#' for vignette output and test snapshots.
+#'
+#' @param object A `vpc_stats` object.
+#' @param ... Currently unused.
+#'
+#' @return `invisible(object)`.
+#' @export
+#' @method summary vpc_stats
+
+summary.vpc_stats <- function(object, ...) {
+  print.vpc_stats(object, n_head = 0)
+}
+
+
+#' Validate a `vpc_stats` object
+#'
+#' @description
+#' Internal helper. Asserts that `x` carries the `vpc_stats` class, contains
+#' the `stats` and `obs` data.frames, and that each carries the column groups
+#' downstream consumers (notably [plot_build_vpc()]) depend on. Aborts with a
+#' clear message on failure; returns `x` invisibly on success.
+#'
+#' @param x Object to validate.
+#'
+#' @return `invisible(x)` on success.
+#' @keywords internal
+
+validate_vpc_stats <- function(x) {
+  ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
+  ## Use the medians as the canonical column for each group so we don't
+  ## depend on every CI bound being present.
+  validate_pmx_stats(
+    x, "vpc_stats", "df_vpcstats",
+    stats_cols = c(.vpc_bin_col, .vpc_count_cols,
+                   "obs_low", "obs_med", "obs_hi",
+                   "sim_low_med", "sim_med_med", "sim_hi_med",
+                   "pc_obs_low", "pc_obs_med", "pc_obs_hi",
+                   "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med"),
+    obs_cols = c("OBSDV", "PC_OBSDV", "TIME"),
+    config_keys = c("n_replicates", "loq", "strat_var")
+  )
+
+  ## Cens invariant: if df_vpcstats() was called with a LOQ source, the
+  ## sim_prop_blq_* columns must be present. Catches malformed
+  ## manually-constructed containers; legit no-LOQ containers (config$loq
+  ## NULL, columns absent) are handled by the cens user-facing check in
+  ## plot_build_vpc().
+  if (!is.null(x$config$loq) && !"sim_prop_blq_med" %in% colnames(x$stats)) {
+    rlang::abort(
+      "`vpc_stats$config$loq` is set but `stats` is missing `sim_prop_blq_*` columns."
+    )
+  }
+
+  invisible(x)
+}

@@ -169,3 +169,29 @@ build_style <- function(defaults, overrides = list()) {
   }
   do.call(ggstylekit::style_spec, merged)
 }
+
+
+#' Internal helper: resolve and validate the `style` argument
+#'
+#' Every plot builder accepts `style = NULL` (use the family preset) or a
+#' [ggstylekit::style_spec()] object. This helper applies the default and
+#' aborts early, with a pmxhelpr-branded message, when `style` is anything
+#' else; without it, a bad `style` fails deep inside `ggstylekit` or, for
+#' [plot_vpc_legend()], with an uninformative R error.
+#'
+#' @param style `NULL` or a `ggstylekit_style_spec` object.
+#' @param default A function returning the family preset (e.g. [style_dvtime]),
+#'    called only when `style` is `NULL`.
+#'
+#' @return A `ggstylekit_style_spec` object.
+#' @keywords internal
+resolve_style <- function(style, default) {
+  if (is.null(style)) return(default())
+  if (!inherits(style, "ggstylekit_style_spec")) {
+    rlang::abort(paste0(
+      "argument `style` must be a `ggstylekit::style_spec()` object, ",
+      "typically from a `style_*()` preset (got <",
+      paste(class(style), collapse = "/"), ">)"))
+  }
+  style
+}

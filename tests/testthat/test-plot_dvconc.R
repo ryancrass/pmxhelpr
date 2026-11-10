@@ -58,8 +58,18 @@ test_that("Color aesthetic is not mapped when col_trend = FALSE", {
 ##Test log transforms
 test_that("Log y-axis is applied when log_y = TRUE", {
   p <- plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC", log_y = TRUE)
-  scale_classes <- vapply(p$scales$scales, function(s) class(s)[1], character(1))
-  expect_true(any(grepl("ScaleContinuousPosition", scale_classes)))
+  expect_equal(y_trans(p), "log-10")
+})
+
+test_that("plot_dvconc log_y falls back to the style's logy; a passed log_y wins", {
+  p_style <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                          style = style_dvconc(logy = TRUE)))
+  expect_equal(y_trans(p_style), "log-10")
+  p_arg <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC",
+                                        log_y = FALSE, style = style_dvconc(logy = TRUE)))
+  expect_equal(y_trans(p_arg), "identity")
+  p_default <- suppressMessages(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC"))
+  expect_equal(y_trans(p_default), "identity")
 })
 
 test_that("Log x-axis is applied via ggplot2 scale", {
@@ -102,15 +112,6 @@ test_that("plot_dvconc bare names match string output", {
 # regression (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults;
 # for the loess trend line that meant the line colour flipped to ggplot2's
 # geom_smooth default (#3366FF). Expected values mirror R/style_presets.R.
-styled_layer <- function(p, geom, stat = NULL) {
-  b   <- suppressWarnings(ggplot2::ggplot_build(p))
-  idx <- which(vapply(b$plot$layers, function(L)
-    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
-    logical(1)))[1]
-  expect_false(is.na(idx))
-  b$data[[idx]]
-}
-
 test_that("plot_dvconc fills role-keyed fixed aesthetics from style_dvconc()", {
   sd <- style_dvconc()
   p  <- suppressWarnings(plot_dvconc(data_sad, dv_var = "ODV", idv_var = "CONC"))

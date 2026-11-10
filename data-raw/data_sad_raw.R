@@ -1,3 +1,9 @@
+## Regenerates every bundled dataset. Run from the package root. Needs, beyond
+## the package's own dependencies: MASS, PKNCA, tidyr, usethis.
+## tests/testthat/test-data-drift.R checks these outputs against
+## inst/models/pkmodel.cpp and df_forest_preprocess(); re-run this script when
+## either changes.
+
 #####Load the development package (functions + inst/models via pkgload)#####
 devtools::load_all()
 

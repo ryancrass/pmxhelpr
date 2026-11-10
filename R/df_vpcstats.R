@@ -45,7 +45,8 @@
 #' @inheritParams var_predcorr
 #'
 #' @family vpc
-#' @return A list with two data.frames (class `c("vpc_stats", "list")`):
+#' @return A `vpc_stats` container (subclass of `pmx_stats`) with three
+#'    slots:
 #'    \describe{
 #'      \item{`stats`}{Wide summary statistics. Standard-VPC columns are
 #'        unprefixed (`obs_low/med/hi`, `sim_low_low/med/hi`, etc.);
@@ -56,13 +57,16 @@
 #'        no meaning on the prediction-corrected scale. `-Inf` quantile
 #'        values from rank-mode fully-censored bins are masked to `NA`.
 #'        `pc_sim_*` quantiles are `NA` in bins with no quantifiable
-#'        observations (`obs_n == obs_n_blq`).
-#'        Carries attributes `n_replicates`, `loq`, and `strat_var`.}
+#'        observations (`obs_n == obs_n_blq`).}
 #'      \item{`obs`}{First-replicate observation rows with `MDV == 0`, used as
 #'        the scatter overlay in [plot_vpc_cont()]. `OBSDV` carries the
 #'        std-scale value; `PC_OBSDV` carries the prediction-corrected
 #'        counterpart.}
+#'      \item{`config`}{Named list with `n_replicates`, `loq` (unique non-NA
+#'        LOQ values, or `NULL`), and `strat_var`.}
 #'    }
+#'    Pass directly to [plot_vpc_cont()], [plot_vpc_cens()], or
+#'    [plot_build_vpc()] to replot without recomputing.
 #' @export df_vpcstats
 #'
 #' @examples
@@ -111,7 +115,7 @@ df_vpcstats <- function(data,
   df_vpccompute(
     pre,
     pi = pi, ci = ci,
-    bin_var = BIN_MID_VAR,
+    bin_var = .vpc_bin_col,
     strat_var = strat_var_str,
     irep_name = irep_name_str,
     lower_bound = lower_bound,

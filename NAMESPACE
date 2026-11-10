@@ -2,6 +2,8 @@
 
 S3method("+",pmx_vpc_plot)
 S3method(as.data.frame,pmx_stats)
+S3method(ggstylekit::restyle_plot,pmx_vpc_plot)
+S3method(ggstylekit::reveal,pmx_vpc_plot)
 S3method(print,doseprop_stats)
 S3method(print,forest_stats)
 S3method(print,pmx_stats)

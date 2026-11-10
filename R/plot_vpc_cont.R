@@ -78,7 +78,8 @@
 #' @examples
 #' model <- model_mread_load(model = "pkmodel")
 #' data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
-#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
+#' # 20 replicates keeps the example fast; use >= 100 for a real VPC
+#' simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 20,
 #' dv_var = ODV,
 #' carry_out = c("LLOQ", "WTBL", "FOOD"),
 #' recover  = c("USUBJID", "PART"),
@@ -134,8 +135,7 @@ plot_vpc_cont <- function(data,
       show_rep      = show_rep,
       shown         = shown,
       style         = style,
-      pcvpc         = pcvpc,
-      bin_var       = BIN_MID_VAR
+      pcvpc         = pcvpc
     ))
   }
 
@@ -166,7 +166,6 @@ plot_vpc_cont <- function(data,
     show_rep = show_rep,
     shown = shown,
     style = style,
-    pcvpc = pcvpc,
-    bin_var = BIN_MID_VAR
+    pcvpc = pcvpc
   )
 }

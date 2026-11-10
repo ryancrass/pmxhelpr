@@ -116,7 +116,8 @@ construction.
 \examples{
 model <- model_mread_load(model = "pkmodel")
 data_sad_pk <- dplyr::filter(data_sad, CMT \%in\% c(1,2))
-simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 100,
+# 20 replicates keeps the example fast; use >= 100 for a real VPC
+simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 20,
 dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover  = c("USUBJID", "PART"),

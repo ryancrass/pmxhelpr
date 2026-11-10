@@ -12,7 +12,9 @@
 #' @param se_loess Logical indicating if the standard error should be shown for the loess fit. Default is `FALSE`
 #' @param linear Logical indicating if a linear regression fit should be shown. Default is `FALSE`.
 #' @param se_linear Logical indicating if the standard error should be shown for the linear fit. Default is `FALSE`
-#' @param log_y Logical indicator for log10 transformation of the y-axis.
+#' @param log_y Logical indicator for log10 transformation of the y-axis, or
+#'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
+#'    value passed here overrides the style's `logy`.
 #' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
 #'    A `caption` set in the style is drawn instead, whatever this value.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
@@ -43,7 +45,7 @@ plot_dvconc <- function(data,
                         se_loess = FALSE,
                         se_linear = FALSE,
                         ref = NULL,
-                        log_y = FALSE,
+                        log_y = NULL,
                         show_caption = TRUE,
                         style = NULL,
                         ...){
@@ -58,7 +60,6 @@ plot_dvconc <- function(data,
   check_boolean(linear, "linear")
   check_boolean(se_loess, "se_loess")
   check_boolean(se_linear, "se_linear")
-  check_boolean(log_y, "log_y")
   check_boolean(show_caption, "show_caption")
 
   if (!is.null(col_var_str) && !isTRUE(col_trend)) {
@@ -70,7 +71,6 @@ plot_dvconc <- function(data,
   check_varsindf(data, dv_var_str, "data", "dv_var")
   check_varsindf(data, idv_var_str, "data", "idv_var")
   check_varsindf(data, col_var_str, "data", "col_var")
-  if(!is.null(col_var_str)) {check_factor(data, col_var_str, "col_var")}
 
   ##Handle DV and IDV Variables
   data <- dplyr::rename(data, dplyr::any_of(c(DV = dv_var_str, IDV = idv_var_str)))
@@ -81,9 +81,11 @@ plot_dvconc <- function(data,
   #Determine Caption
   caption <- caption_dvconc(ref, loess, linear, se_loess, se_linear, show_obs)
 
-  #Resolve style (log_y arg drives the y axis)
+  #Resolve style (log_y, falling back to the style's logy, drives the y axis)
   plotstyle <- resolve_style(style, style_dvconc)
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
+  log_y <- log_y %||% isTRUE(plotstyle$logy)
+  check_boolean(log_y, "log_y")
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
 
 
 ###Plot

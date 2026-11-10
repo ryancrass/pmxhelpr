@@ -106,10 +106,6 @@ test_that("plot_gof warns when shown has no active elements", {
 # scale, while `series_layer` fills the role-keyed fixed aesthetics and leaves
 # the mapped color channel to that scale. `ggplot_build()` trains the scale;
 # the benign data-driven "Removed rows" warnings are unrelated and suppressed.
-colour_scale <- function(p) {
-  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
-}
-
 test_that("plot_gof color legend is driven by style$colors", {
   sg <- style_gof()
   p  <- plot_gof(data_sad_pkfit, dv_var = "ODV")
@@ -212,6 +208,76 @@ test_that("blq_mode = 'all' imputes PRED / IPRED alongside DV", {
   }
 })
 
+## Per-row LLOQ imputation fixture: three subjects at TIME 0/1/2, LLOQ 1 for
+## ID 1 and 4 for IDs 2-3, BLQ records (MDV = 1) at and after time zero, and
+## predictions below, at, and above each row's LLOQ.
+blq_fixture <- data.frame(
+  ID    = rep(1:3, each = 3),
+  TIME  = rep(c(0, 1, 2), 3),
+  NTIME = rep(c(0, 1, 2), 3),
+  DV    = c(NA, 5, NA,   NA, NA, 6,   4.5, 8, NA),
+  MDV   = c(1, 0, 1,     1, 1, 0,     0, 0, 1),
+  LLOQ  = rep(c(1, 4, 4), each = 3),
+  PRED  = c(0.2, 1, 0.5, 0.3, 4, 3,   5, 6, 2),
+  IPRED = c(0.1, 3, 0.8, 0.2, 2, 4,   6, 7, 4.5),
+  EVID  = 0, CMT = 2
+)
+
+prep_blq <- function(loq_method) {
+  suppressMessages(pmxhelpr:::df_prep_dvtime(
+    blq_fixture, time_var_str = "TIME", ntime_var_str = "NTIME",
+    dv_var_str = "DV", pred_var_str = "PRED", ipred_var_str = "IPRED",
+    loq = NULL, loq_method = loq_method, blq_mode = "all"))
+}
+
+## Prediction imputation written out independently of df_prep_blq()
+pred_ref <- function(x, loq, time, zero_at_dose) {
+  out <- ifelse(x >= loq, x, 0.5 * loq)
+  if (zero_at_dose) out[time <= 0] <- 0
+  out
+}
+
+test_that("loq_method = 1 imputes BLQ DV per row: 0 at time zero, else half that row's LLOQ", {
+  d <- prep_blq(1)$data
+  f <- blq_fixture
+  expected <- ifelse(f$MDV == 0, f$DV, ifelse(f$TIME <= 0, 0, 0.5 * f$LLOQ))
+  expect_equal(d$DV, expected)
+})
+
+test_that("loq_method = 1 with blq_mode = 'all' imputes PRED / IPRED per row", {
+  d <- prep_blq(1)$data
+  f <- blq_fixture
+  expect_equal(d$PRED,  pred_ref(f$PRED,  f$LLOQ, f$TIME, zero_at_dose = TRUE))
+  expect_equal(d$IPRED, pred_ref(f$IPRED, f$LLOQ, f$TIME, zero_at_dose = TRUE))
+})
+
+test_that("loq_method = 2 imputes BLQ DV and predictions to half each row's LLOQ", {
+  d <- prep_blq(2)$data
+  f <- blq_fixture
+  expect_equal(d$DV, ifelse(f$MDV == 0, f$DV, 0.5 * f$LLOQ))
+  expect_equal(d$PRED,  pred_ref(f$PRED,  f$LLOQ, f$TIME, zero_at_dose = FALSE))
+  expect_equal(d$IPRED, pred_ref(f$IPRED, f$LLOQ, f$TIME, zero_at_dose = FALSE))
+})
+
+test_that("the LLOQ line is drawn at the highest per-row LLOQ", {
+  expect_equal(prep_blq(1)$lloq, 4)
+  expect_equal(prep_blq(2)$lloq, 4)
+})
+
+test_that("plot_gof cent = 'mean_sdl' error bars are mean +/- SD of DV by NTIME", {
+  d <- data.frame(ID = rep(1:4, each = 2), NTIME = rep(c(1, 2), 4),
+                  TIME = rep(c(1, 2), 4), ODV = c(1, 4, 2, 6, 3, 5, 6, 9),
+                  PRED = 1, IPRED = 1, CMT = 2, MDV = 0, EVID = 0)
+  p <- plot_gof(d, dv_var = "ODV", cent = "mean_sdl", show_caption = FALSE)
+  b <- ggplot2::ggplot_build(p)
+  idx <- which(vapply(b$plot$layers, function(L) inherits(L$geom, "GeomErrorbar"), logical(1)))[1]
+  eb <- b$data[[idx]]
+  eb <- eb[order(eb$x), ]
+  by_time <- function(f) as.vector(tapply(d$ODV, d$NTIME, f))
+  expect_equal(eb$ymin, by_time(function(v) mean(v) - stats::sd(v)))
+  expect_equal(eb$ymax, by_time(function(v) mean(v) + stats::sd(v)))
+})
+
 ##Test errorbar_width (style field)
 test_that("plot_gof errorbar_width from the style reaches the errorbar layer", {
   p <- plot_gof(data_sad_pkfit, dv_var = "ODV", cent = "mean_sdl",
@@ -245,4 +311,14 @@ test_that("plot_gof show_loq_value toggles the LLOQ legend value", {
   expect_null(p_off$scales$get_scales("linetype")$name)
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", show_loq_value = NA),
                regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
+})
+
+test_that("plot_gof log_y falls back to the style's logy; a passed log_y wins", {
+  p_style <- plot_gof(data_sad_pkfit, dv_var = "ODV", style = style_gof(logy = TRUE))
+  expect_equal(y_trans(p_style), "log-10")
+  expect_match(p_style$labels$caption, "[Gg]eometric mean")
+  p_arg <- plot_gof(data_sad_pkfit, dv_var = "ODV", log_y = FALSE,
+                    style = style_gof(logy = TRUE))
+  expect_equal(y_trans(p_arg), "identity")
+  expect_equal(y_trans(plot_gof(data_sad_pkfit, dv_var = "ODV")), "identity")
 })

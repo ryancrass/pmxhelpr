@@ -21,7 +21,7 @@ plot_gof(
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL
 )
@@ -84,8 +84,9 @@ normalized. Default is \code{FALSE}. Requires variable specified in
 \item{ref}{Numeric y-intercept for a horizontal reference line, or \code{NULL}
 for no reference line.}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis.
-Also controls whether the caption reports arithmetic or geometric mean
+\item{log_y}{Logical indicator for log10 transformation of the y-axis, or
+\code{NULL} (default) to use the style's \code{logy} field (\code{FALSE} when unset). A
+value passed here overrides the style's \code{logy}. Also controls whether the caption reports arithmetic or geometric mean
 when \code{show_caption = TRUE}.}
 
 \item{show_caption}{Logical indicating if a caption should be shown

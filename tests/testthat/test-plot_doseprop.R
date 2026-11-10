@@ -412,15 +412,6 @@ test_that("plot_build_doseprop facet limits are full log10 decades with 2% paddi
 # regression (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults;
 # for the linear trend line that meant the line colour flipped to ggplot2's
 # geom_smooth default (#3366FF). Expected values mirror R/style_presets.R.
-styled_layer <- function(p, geom, stat = NULL) {
-  b   <- suppressWarnings(ggplot2::ggplot_build(p))
-  idx <- which(vapply(b$plot$layers, function(L)
-    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
-    logical(1)))[1]
-  expect_false(is.na(idx))
-  b$data[[idx]]
-}
-
 test_that("plot_doseprop fills role-keyed fixed aesthetics from style_doseprop()", {
   sd <- style_doseprop()
   p  <- plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))

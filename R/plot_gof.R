@@ -47,8 +47,9 @@
 #'    `dose_var` to be present in `data`.
 #' @param ref Numeric y-intercept for a horizontal reference line, or `NULL`
 #'    for no reference line.
-#' @param log_y Logical indicator for log10 transformation of the y-axis.
-#'    Also controls whether the caption reports arithmetic or geometric mean
+#' @param log_y Logical indicator for log10 transformation of the y-axis, or
+#'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
+#'    value passed here overrides the style's `logy`. Also controls whether the caption reports arithmetic or geometric mean
 #'    when `show_caption = TRUE`.
 #' @param show_caption Logical indicating if a caption should be shown
 #'    describing the data plotted. A `caption` set in the style is drawn instead, whatever this value.
@@ -85,7 +86,7 @@ plot_gof <- function(data,
                                  "median", "median_iqr", "none"),
                         dosenorm = FALSE,
                         ref = NULL,
-                        log_y = FALSE,
+                        log_y = NULL,
                         show_caption = TRUE,
                         style = NULL){
 
@@ -93,7 +94,6 @@ plot_gof <- function(data,
   blq_mode <- match.arg(blq_mode)
   check_boolean(show_loq_value, "show_loq_value")
   check_boolean(dosenorm, "dosenorm")
-  check_boolean(log_y, "log_y")
   check_boolean(show_caption, "show_caption")
 
   dv_var_str    <- resolve_var(rlang::enquo(dv_var))
@@ -125,12 +125,15 @@ plot_gof <- function(data,
   lloq <- prep$lloq
   loq_method <- prep$loq_method
 
-  caption <- caption_dvtime(cent, log_y)
-
   #Resolve style. `style$colors` is the single source of color truth: the
   #manual scale_color_manual() below supplies only the legend name/breaks/order
   #(with placeholder values), and style_plot() injects style$colors into it.
   plotstyle <- resolve_style(style, style_gof)
+
+  #log_y falls back to the style's logy and drives the y axis and caption.
+  log_y <- log_y %||% isTRUE(plotstyle$logy)
+  check_boolean(log_y, "log_y")
+  caption <- caption_dvtime(cent, log_y)
 
   #Error bar cap width: defaulted from the data when the style leaves it unset.
   plotstyle <- style_errorbar_width(plotstyle, data)
@@ -189,6 +192,6 @@ plot_gof <- function(data,
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
 
   #Finalize: house theme, log axis; colors come from plotstyle via style_plot().
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = isTRUE(log_y))
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
   ggstylekit::style_plot(plot, plotstyle)
 }

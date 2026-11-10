@@ -14,7 +14,8 @@ Logical scalar.
 }
 \description{
 Predicate that returns \code{TRUE} if \code{x} carries the \code{"pmx_vpc_plot"} class —
-i.e., it is the ggplot returned by \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} or \code{\link[=plot_build_vpc]{plot_build_vpc()}}.
+i.e., it is the ggplot returned by \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, or
+\code{\link[=plot_build_vpc]{plot_build_vpc()}}.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")

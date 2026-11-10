@@ -1,0 +1,59 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+# Reports line coverage in the job summary (no external service, no threshold).
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+name: test-coverage.yaml
+
+permissions: read-all
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Same reason as R-CMD-check.yaml: the tracked rv .Rprofile would shadow
+      # the ~/.Rprofile that setup-r writes, hiding the PRISM repository from pak.
+      - name: Remove rv project profile
+        run: rm -f .Rprofile
+        shell: bash
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          # ggstylekit is served from PRISM; keep in sync with R-CMD-check.yaml.
+          extra-repositories: https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr
+          needs: coverage
+
+      - name: Test coverage
+        shell: Rscript {0}
+        run: |
+          cov <- covr::package_coverage(quiet = FALSE, clean = FALSE,
+            install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package"))
+          lines <- covr::tally_coverage(cov, by = "line")
+          by_file <- aggregate(covered ~ filename,
+                               transform(lines, covered = value > 0), mean)
+          by_file <- by_file[order(by_file$covered), ]
+          summary_md <- c(
+            sprintf("## Test coverage: %.1f%%", covr::percent_coverage(cov)),
+            "", "| File | Lines covered |", "|---|---:|",
+            sprintf("| `%s` | %.1f%% |", by_file$filename, 100 * by_file$covered))
+          cat(summary_md, sep = "\n", file = Sys.getenv("GITHUB_STEP_SUMMARY"))
+          print(cov)
+
+      - name: Show testthat output
+        if: always()
+        run: find "${RUNNER_TEMP}/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash

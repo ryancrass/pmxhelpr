@@ -8,18 +8,9 @@ base_plot <- function() {
 
 # Built data for the first layer matching `geom` (and `stat`); benign
 # "Removed rows" warnings from BLQ/NA data are unrelated and suppressed.
-built_layer <- function(p, geom, stat = NULL) {
-  b <- suppressWarnings(ggplot2::ggplot_build(p))
-  idx <- which(vapply(b$plot$layers, function(L)
-    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
-    logical(1)))[1]
-  expect_false(is.na(idx))
-  b$data[[idx]]
-}
-
 test_that("restyle_plot() recolors a role-tagged layer on a pmxhelpr plot", {
   p   <- restyle_plot(base_plot(), colors = c(obs_point = "#FF0000"))
-  obs <- built_layer(p, "GeomPoint", "StatIdentity")
+  obs <- styled_layer(p, "GeomPoint", "StatIdentity")
   expect_equal(unique(obs$colour), "#FF0000")
 })
 

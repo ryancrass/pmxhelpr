@@ -16,7 +16,7 @@ plot_dvconc(
   se_loess = FALSE,
   se_linear = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL,
   ...
@@ -52,7 +52,9 @@ separately by \code{id_var}.}
 no reference line. For example, \code{ref = 0} draws a baseline reference for
 change-from-baseline data.}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis.}
+\item{log_y}{Logical indicator for log10 transformation of the y-axis, or
+\code{NULL} (default) to use the style's \code{logy} field (\code{FALSE} when unset). A
+value passed here overrides the style's \code{logy}.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
 A \code{caption} set in the style is drawn instead, whatever this value.}

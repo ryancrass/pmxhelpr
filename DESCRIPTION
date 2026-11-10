@@ -1,6 +1,6 @@
 Package: pmxhelpr
 Title: Helper Functions for Pharmacometrics
-Version: 0.7.0
+Version: 0.7.1
 Authors@R: 
     person(given="Ryan", family="Crass",
     email = "ryancrass@gmail.com", 
@@ -15,21 +15,19 @@ BugReports: https://github.com/ryancrass/pmxhelpr/issues
 Depends: 
     R (>= 4.1)
 Imports:
-    dplyr,
-    ggplot2,
+    dplyr (>= 1.1.0),
+    ggplot2 (>= 3.5.0),
     ggstylekit (>= 0.4.1),
     grDevices,
     mrgsolve,
     rlang,
     stats,
-    withr,
-    labeling
+    withr
 Suggests:
     knitr,
     patchwork,
     rmarkdown,
     testthat (>= 3.0.0),
-    Hmisc,
     forcats
 Config/testthat/edition: 3
 VignetteBuilder: knitr

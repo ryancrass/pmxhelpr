@@ -649,7 +649,7 @@ plot_vpc_cont(
 
 ## Building plots from a `vpc_stats` object directly
 
-For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). `strat_var` and `loq` inherit from the container's `$config` slot when not passed explicitly.
+For downstream code or custom workflows that produce a `vpc_stats`-shaped object outside `df_vpcstats()` (e.g. external preprocessing, snapshot fixtures), `plot_build_vpc()` is exported as the public renderer. It is the same engine that `plot_vpc_cont()` uses internally and accepts the same plot-only arguments (`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). Stratification comes from the container's `$config` slot (stratify in `df_vpcstats()`); `loq` inherits from `$config` unless passed explicitly.
 
 ```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
 plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs

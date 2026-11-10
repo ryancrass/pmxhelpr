@@ -194,15 +194,6 @@ test_that("plot_dvtime warns when input has multiple CMT values after EVID filte
 # from the style_*() preset maps keyed by role name. A ggstylekit regression
 # (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults; this guard
 # fails loudly if that recurs. Expected values mirror R/style_presets.R.
-styled_layer <- function(p, geom, stat = NULL) {
-  b   <- suppressWarnings(ggplot2::ggplot_build(p))
-  idx <- which(vapply(b$plot$layers, function(L)
-    inherits(L$geom, geom) && (is.null(stat) || inherits(L$stat, stat)),
-    logical(1)))[1]
-  expect_false(is.na(idx))
-  b$data[[idx]]
-}
-
 test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
   sd <- style_dvtime()
   p  <- plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV")
@@ -225,10 +216,6 @@ test_that("plot_dvtime fills role-keyed fixed aesthetics from style_dvtime()", {
 # Discrete legends and per-series values follow the factor's declared level
 # order. `ggplot_build()` trains the scale; benign "Removed rows" warnings from
 # BLQ/NA data are unrelated and suppressed.
-colour_scale <- function(p) {
-  suppressWarnings(ggplot2::ggplot_build(p))$plot$scales$get_scales("colour")
-}
-
 test_that("plot_dvtime legend follows factor level order regardless of row order", {
   d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
   d <- dplyr::mutate(d, Dose = var_addn(DOSE, ID, sep = "mg"))
@@ -400,6 +387,8 @@ test_that("plot_dvtime central tendency and error bars match direct computation"
   expect_equal(m$point$y, by_time(mean))
   sdl <- cent_layers(cent = "mean_sdl")
   expect_equal(sdl$errorbar$ymax - sdl$errorbar$ymin, 2 * by_time(stats::sd))
+  expect_equal(sdl$errorbar$ymin, by_time(function(v) mean(v) - stats::sd(v)))
+  expect_equal(sdl$errorbar$ymax, by_time(function(v) mean(v) + stats::sd(v)))
   iqr <- cent_layers(cent = "median_iqr")
   expect_equal(iqr$point$y, by_time(stats::median))
   expect_equal(iqr$errorbar$ymin, by_time(function(v) unname(stats::quantile(v, 0.25))))
@@ -411,4 +400,16 @@ test_that("plot_dvtime mean on a log axis is the geometric mean, as the caption 
   expect_equal(10^geo$point$y, by_time(function(v) exp(mean(log(v)))))
   p <- plot_dvtime(cent_fixture, dv_var = "DV", show_obs = FALSE, cent = "mean", log_y = TRUE)
   expect_match(p$labels$caption, "[Gg]eometric mean")
+})
+
+test_that("plot_dvtime log_y falls back to the style's logy; a passed log_y wins", {
+  p_style <- plot_dvtime(cent_fixture, dv_var = "DV", cent = "mean",
+                         style = style_dvtime(logy = TRUE))
+  expect_equal(y_trans(p_style), "log-10")
+  expect_match(p_style$labels$caption, "[Gg]eometric mean")
+  p_arg <- plot_dvtime(cent_fixture, dv_var = "DV", cent = "mean", log_y = FALSE,
+                       style = style_dvtime(logy = TRUE))
+  expect_equal(y_trans(p_arg), "identity")
+  expect_no_match(p_arg$labels$caption, "[Gg]eometric")
+  expect_equal(y_trans(plot_dvtime(cent_fixture, dv_var = "DV")), "identity")
 })

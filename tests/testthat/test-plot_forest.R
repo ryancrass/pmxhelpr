@@ -8,9 +8,6 @@ layer_of <- function(p, cls, which_one = 1L) {
   idx <- which(vapply(p$layers, function(L) inherits(L$geom, cls), logical(1)))
   p$layers[[idx[which_one]]]
 }
-has_geom <- function(p, cls) {
-  any(vapply(p$layers, function(L) inherits(L$geom, cls), logical(1)))
-}
 n_geom <- function(p, cls) {
   sum(vapply(p$layers, function(L) inherits(L$geom, cls), logical(1)))
 }

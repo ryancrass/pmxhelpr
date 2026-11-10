@@ -24,7 +24,6 @@ options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)
 library(pmxhelpr)
 library(dplyr, warn.conflicts =  FALSE)
 library(ggplot2, warn.conflicts =  FALSE)
-library(Hmisc, warn.conflicts = FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
@@ -184,10 +183,10 @@ because the builder needs them to decide *what to draw*, not just how to draw
 it. Where the two overlap, the builder argument wins (the one exception, the
 caption, follows the list):
 
-  + **`log_y`**:  `plot_dvtime()`, `plot_dvconc()`, and `plot_gof()` set the 
-  style `logy` from the plotting function `log_y` argument. This is because 
-  `log_y` argument in the plotting function also controls the central tendency 
-  summary measure (e.g., arithmetic versus geometric mean). 
+  + **`log_y`**: in `plot_dvtime()`, `plot_dvconc()`, and `plot_gof()`,
+  `log_y` defaults to the style's `logy`. A `log_y` passed to the plotting
+  function overrides the style, because it also chooses the central tendency
+  summary measure and caption (e.g., arithmetic versus geometric mean).
   + **`plot_doseprop()` axes and facets**: this plotting family applies its own
   log-log `scale_*_log10()` and per-metric `facet_wrap()`, so the style spec's
   `logx`/`logy`/`xbreaks`/`facet` fields are ignored. The facet *layout* fields

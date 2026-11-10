@@ -19,7 +19,7 @@ plot_dvtime(
   show_obs = TRUE,
   dosenorm = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL
 )
@@ -92,7 +92,9 @@ Requires variable specified in \code{dose_var} to be present in \code{data}}
 no reference line. For example, \code{ref = 0} draws a baseline reference for
 change-from-baseline data.}
 
-\item{log_y}{Logical indicator for log10 transformation of the y-axis. Also controls whether
+\item{log_y}{Logical indicator for log10 transformation of the y-axis, or
+\code{NULL} (default) to use the style's \code{logy} field (\code{FALSE} when unset). A
+value passed here overrides the style's \code{logy}. Also controls whether
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.

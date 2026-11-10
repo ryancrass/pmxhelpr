@@ -65,7 +65,8 @@ Default is \code{c(0.05, 0.95)}.}
 (e.g., \code{0.90} for a 90\% CI). Default is \code{0.90}.}
 }
 \value{
-A list with two data.frames (class \code{c("vpc_stats", "list")}):
+A \code{vpc_stats} container (subclass of \code{pmx_stats}) with three
+slots:
 \describe{
 \item{\code{stats}}{Wide summary statistics. Standard-VPC columns are
 unprefixed (\code{obs_low/med/hi}, \code{sim_low_low/med/hi}, etc.);
@@ -76,13 +77,16 @@ single (not duplicated). \verb{sim_prop_blq_*} is std-only — LOQ has
 no meaning on the prediction-corrected scale. \code{-Inf} quantile
 values from rank-mode fully-censored bins are masked to \code{NA}.
 \verb{pc_sim_*} quantiles are \code{NA} in bins with no quantifiable
-observations (\code{obs_n == obs_n_blq}).
-Carries attributes \code{n_replicates}, \code{loq}, and \code{strat_var}.}
+observations (\code{obs_n == obs_n_blq}).}
 \item{\code{obs}}{First-replicate observation rows with \code{MDV == 0}, used as
 the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSDV} carries the
 std-scale value; \code{PC_OBSDV} carries the prediction-corrected
 counterpart.}
+\item{\code{config}}{Named list with \code{n_replicates}, \code{loq} (unique non-NA
+LOQ values, or \code{NULL}), and \code{strat_var}.}
 }
+Pass directly to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, or
+\code{\link[=plot_build_vpc]{plot_build_vpc()}} to replot without recomputing.
 }
 \description{
 Returns the VPC summary statistics and observation overlay underlying a

@@ -1,3 +1,28 @@
+# pmxhelpr 0.7.1
+
+## Breaking changes
+
+* `plot_build_vpc()` reads stratification and binning only from the container: 
+  facets come from `stats$config$strat_var`, set by `df_vpcstats(strat_var = )`. 
+  Its `strat_var` and `bin_var` arguments are removed. The first argument is 
+  renamed `compute_out` → `stats` to match `plot_build_doseprop()` and 
+  `plot_build_forest()`.
+
+## Bug fixes
+
+* `plot_dvtime()` and `plot_gof()` with `cent = "mean_sdl"` drop Hmisc 
+  dependency. The error bars previously failed without Hmisc. 
+  Hmisc dropped from Suggests.
+* `plot_dvtime()`, `plot_gof()`, and `plot_dvconc()` honor a style's `logy`
+  field. `log_y` now defaults to `NULL` (use the style); a `log_y` passed to
+  the function still overrides the style. Previously the style's `logy` was
+  ignored.
+* The VPC facet warning now also fires for `reveal(as = "facet")`,
+  `restyle_plot(facet = )`, and facets added inside a `list()`. `restyle_plot()`
+  / `reveal()` keep a VPC plot's `pmx_vpc_plot` class, so later `+ facet_*()` 
+  calls are still caught. Previously these paths drew pooled statistics in every
+  panel without a warning.
+
 # pmxhelpr 0.7.0
 
 This release fixes bugs in previously released functions. `df_mrgsim_addpred()` 

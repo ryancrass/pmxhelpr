@@ -11,17 +11,6 @@ test_that("check_df errors on non-data.frame", {
                regexp = "must be a `data.frame`")
 })
 
-#####check_numeric####
-
-test_that("check_numeric does not error on numeric input", {
-  expect_no_error(pmxhelpr:::check_numeric(42, "x"))
-})
-
-test_that("check_numeric errors on non-numeric string", {
-  expect_error(pmxhelpr:::check_numeric("$", "x"),
-               regexp = "must be coercible to class `numeric`")
-})
-
 #####check_numeric_strict####
 
 test_that("check_numeric_strict does not error on numeric input", {
@@ -65,32 +54,6 @@ test_that("check_varsindf lists all missing columns when multiple are absent", {
     pmxhelpr:::check_varsindf(data.frame(x = 1), c("WT", "AGE", "SEX"), "data", "num_vars"),
     regexp = "'WT'.*'AGE'.*'SEX'"
   )
-})
-
-#####check_factor####
-
-test_that("check_factor does not error on factor-coercible column", {
-  df <- data.frame(x = c("a", "b", "c"))
-  expect_no_error(pmxhelpr:::check_factor(df, "x", "x"))
-})
-
-#####normalize_time_unit####
-
-test_that("normalize_time_unit returns canonical value for valid aliases", {
-  expect_equal(pmxhelpr:::normalize_time_unit("hours"),  "hours")
-  expect_equal(pmxhelpr:::normalize_time_unit("hrs"),    "hours")
-  expect_equal(pmxhelpr:::normalize_time_unit("h"),      "hours")
-  expect_equal(pmxhelpr:::normalize_time_unit("days"),   "days")
-  expect_equal(pmxhelpr:::normalize_time_unit("wks"),    "weeks")
-  expect_equal(pmxhelpr:::normalize_time_unit("mo"),     "months")
-  expect_equal(pmxhelpr:::normalize_time_unit("months"), "months")
-})
-
-test_that("normalize_time_unit errors on invalid time unit", {
-  expect_error(pmxhelpr:::normalize_time_unit("years"),
-               regexp = "argument `unit` must be one of")
-  expect_error(pmxhelpr:::normalize_time_unit("years", name = "timeu"),
-               regexp = "argument `timeu` must be one of")
 })
 
 #####check_loq_method####

@@ -2,29 +2,20 @@
 
 ##Test Output
 test_that("Output is a `ggplot`/`pmx_vpc_plot` object", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   p <- plot_vpc_cens(data = testsim, loq = 1)
   expect_s3_class(p, "pmx_vpc_plot")
   expect_s3_class(p, "ggplot")
 })
 
 test_that("Output plot contains a caption with number of replicates by default", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   expect_equal(plot_vpc_cens(data = testsim, loq = 1)$labels$caption,
                "Replicates = 10")
 })
 
 test_that("show_rep = FALSE removes the replicates caption", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   expect_no_match(names(plot_vpc_cens(data = testsim, loq = 1,
                                       show_rep = FALSE)$labels),
                   regexp = "caption")
@@ -32,29 +23,19 @@ test_that("show_rep = FALSE removes the replicates caption", {
 
 ##Test LOQ requirement
 test_that("plot_vpc_cens errors when neither loq arg nor LLOQ column is available", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   expect_false("LLOQ" %in% colnames(testsim))
   expect_error(plot_vpc_cens(data = testsim),
                regexp = "requires a LOQ source")
 })
 
 test_that("plot_vpc_cens accepts scalar loq arg", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   expect_s3_class(plot_vpc_cens(testsim, loq = 1), "ggplot")
 })
 
 test_that("plot_vpc_cens inherits loq from LLOQ column when not supplied", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV",
-                                 carry_out = "LLOQ")
+  testsim <- sim_pk(carry_out = "LLOQ")
   expect_message(p <- plot_vpc_cens(data = testsim),
                  regexp = "Inheriting per-row `loq` from `LLOQ` column")
   expect_s3_class(p, "ggplot")
@@ -67,10 +48,7 @@ test_that("Error if incorrect class for argument `data`", {
 })
 
 test_that("Error if time_var/ntime_var/pred_var/sim_dv_var/obs_dv_var missing in `data`", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   expect_error(plot_vpc_cens(data = testsim, loq = 1, time_var = "ATFD"),
                regexp = "must be variable.*in `data`")
   expect_error(plot_vpc_cens(data = testsim, loq = 1, ntime_var = "NTFD"),
@@ -85,10 +63,7 @@ test_that("Error if time_var/ntime_var/pred_var/sim_dv_var/obs_dv_var missing in
 
 ##Test layer composition
 test_that("Default cens plot draws ribbon + obs line + obs points (no sim median line)", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   p <- plot_vpc_cens(testsim, loq = 1)
   geom_class <- function(L) class(L$geom)[1]
   classes <- vapply(p$layers, geom_class, character(1))
@@ -100,10 +75,7 @@ test_that("Default cens plot draws ribbon + obs line + obs points (no sim median
 })
 
 test_that("No GeomHline LOQ ref line is drawn on a cens plot", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   p <- plot_vpc_cens(testsim, loq = 1)
   has_hline <- any(vapply(p$layers,
                           function(L) inherits(L$geom, "GeomHline"),
@@ -112,10 +84,7 @@ test_that("No GeomHline LOQ ref line is drawn on a cens plot", {
 })
 
 test_that("sim_median_line defaults OFF in cens; opt-in via shown adds the layer", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   ## Default: one line layer (obs only).
   p_default <- plot_vpc_cens(testsim, loq = 1)
   line_default <- Filter(function(L) inherits(L$geom, "GeomLine"), p_default$layers)
@@ -129,10 +98,7 @@ test_that("sim_median_line defaults OFF in cens; opt-in via shown adds the layer
 })
 
 test_that("shown toggles disable individual cens layers", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   geom_class <- function(L) class(L$geom)[1]
 
   ## obs_point off → no GeomPoint layers
@@ -145,10 +111,7 @@ test_that("shown toggles disable individual cens layers", {
 })
 
 test_that("Cens obs points inherit color from obs_median_line for color coherence", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   custom_style <- style_vpc(
     colors     = c(obs_median_line = "#00AA00", obs_point = "#FF00FF"),
     linetypes  = c(obs_median_line = "solid"),
@@ -168,10 +131,7 @@ test_that("Cens obs points inherit color from obs_median_line for color coherenc
 })
 
 test_that("style overrides apply to cens layers via mapped keys", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   custom_style <- style_vpc(
     fill       = c(sim_median_ci = "#00FF00"),
     alphas     = c(sim_median_ci = 0.5),
@@ -196,11 +156,7 @@ test_that("style overrides apply to cens layers via mapped keys", {
 
 ##Test stratification
 test_that("Stratified cens VPC produces a faceted plot", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV",
-                                 carry_out = "FOOD")
+  testsim <- sim_pk(carry_out = "FOOD")
   testsim <- dplyr::mutate(testsim, FOOD_f = factor(FOOD))
   p <- plot_vpc_cens(data = testsim, loq = 1, strat_var = FOOD_f)
   expect_s3_class(p, "ggplot")
@@ -209,10 +165,7 @@ test_that("Stratified cens VPC produces a faceted plot", {
 
 ##Test min_bin_count semantics (cens uses obs_n, not obs_n - obs_n_blq)
 test_that("min_bin_count filters cens layers on obs_n (total obs)", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   threshold <- max(out$stats$obs_n) + 1L
   p <- plot_vpc_cens(testsim, loq = 1, min_bin_count = threshold)
@@ -225,20 +178,14 @@ test_that("min_bin_count filters cens layers on obs_n (total obs)", {
 
 ##Test default y-axis range
 test_that("Default y-axis range is [0, 1] via coord_cartesian", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   p <- plot_vpc_cens(testsim, loq = 1)
   expect_equal(p$coordinates$limits$y, c(0, 1))
 })
 
 ##Test y-axis range
 test_that("Plotted proportion data lies in [0, 1]", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   p <- plot_vpc_cens(testsim, loq = 1)
   built <- ggplot2::ggplot_build(p)
   for (d in built$data) {
@@ -255,10 +202,7 @@ test_that("Plotted proportion data lies in [0, 1]", {
 ##### Test plot_vpc_cens() with precomputed df_vpcstats() output #####
 
 test_that("plot_vpc_cens accepts a precomputed vpc_stats container", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   expect_s3_class(out, "vpc_stats")
   p <- plot_vpc_cens(out)
@@ -266,10 +210,7 @@ test_that("plot_vpc_cens accepts a precomputed vpc_stats container", {
 })
 
 test_that("plot_vpc_cens errors when precomputed vpc_stats lacks sim_prop_blq_*", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out_no_loq <- df_vpcstats(testsim)
   expect_false("sim_prop_blq_med" %in% colnames(out_no_loq$stats))
   expect_error(plot_vpc_cens(out_no_loq),
@@ -277,10 +218,7 @@ test_that("plot_vpc_cens errors when precomputed vpc_stats lacks sim_prop_blq_*"
 })
 
 test_that("plot_vpc_cens aborts when pipeline args are passed on the precomputed path", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   expect_error(plot_vpc_cens(out, strat_var = "FOOD"),
                regexp = "cannot accept pipeline arguments")
@@ -291,10 +229,7 @@ test_that("plot_vpc_cens aborts when pipeline args are passed on the precomputed
 })
 
 test_that("plot_vpc_cens accepts plot-only args on the precomputed path", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   expect_s3_class(plot_vpc_cens(out, min_bin_count = 2), "ggplot")
   expect_s3_class(plot_vpc_cens(out, show_rep = FALSE), "ggplot")
@@ -303,10 +238,7 @@ test_that("plot_vpc_cens accepts plot-only args on the precomputed path", {
 })
 
 test_that("precomputed and raw paths produce structurally equivalent cens plots", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   p_pre <- plot_vpc_cens(out)
   p_raw <- plot_vpc_cens(testsim, loq = 1)
@@ -320,20 +252,14 @@ test_that("precomputed and raw paths produce structurally equivalent cens plots"
 ##### Test plot_build_vpc(type = "cens") guards #####
 
 test_that("plot_build_vpc(type = 'cens', pcvpc = TRUE) is rejected", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out <- df_vpcstats(testsim, loq = 1)
   expect_error(plot_build_vpc(out, type = "cens", pcvpc = TRUE),
                regexp = "not supported for `type = \"cens\"`")
 })
 
 test_that("plot_build_vpc(type = 'cens') errors when LOQ source is absent", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV")
+  testsim <- sim_pk()
   out_no_loq <- df_vpcstats(testsim)
   expect_error(plot_build_vpc(out_no_loq, type = "cens"),
                regexp = "requires a LOQ source")
@@ -341,11 +267,7 @@ test_that("plot_build_vpc(type = 'cens') errors when LOQ source is absent", {
 
 ##Test style facet layout fields reach the internal facet_wrap()
 test_that("plot_vpc_cens takes its stratification facet layout from the style", {
-  testsim <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT != 3),
-                                 model = model_mread_load("pkmodel"),
-                                 replicates = 10,
-                                 dv_var = "ODV",
-                                 carry_out = "FOOD")
+  testsim <- sim_pk(carry_out = "FOOD")
   p_fixed <- plot_vpc_cens(testsim, loq = 1, strat_var = FOOD)
   expect_true("FacetWrap" %in% class(p_fixed$facet))
   expect_false(p_fixed$facet$params$free$y)

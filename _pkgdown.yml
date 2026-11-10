@@ -101,7 +101,7 @@ reference:
       - df_mrgsim_addpred
 
   - title: S3 Class System
-    desc: Predicates, constructors, operators, and methods for the shared `pmx_stats` base class and its `vpc_stats` and `doseprop_stats` siblings, plus the `pmx_vpc_plot` ggplot subclass.
+    desc: Predicates, constructors, operators, and methods for the shared `pmx_stats` base class and its `vpc_stats`, `doseprop_stats`, and `forest_stats` subclasses, plus the `pmx_vpc_plot` ggplot subclass.
     contents:
       - pmx_stats
       - is_pmx_stats
@@ -121,7 +121,7 @@ reference:
       - summary.forest_stats
 
   - title: Datasets
-    desc: Internal example datasets used in vignettes and worked examples.
+    desc: Example datasets used in vignettes and worked examples.
     contents:
       - data_sad
       - data_sad_nca

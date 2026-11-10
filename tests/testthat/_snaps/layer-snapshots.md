@@ -271,8 +271,8 @@
         y: [1, 2150] mean=223.3
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
-      label x: BIN_MID
-      label y: obs_med
+      label x: TIME
+      label y: DV
       label caption: Replicates = 10
 
 # plot_vpc_cont: prediction-corrected VPC stratified by FOOD
@@ -316,8 +316,8 @@
         y: [0.179, 1185] mean=185.4
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
-      label x: BIN_MID
-      label y: pc_obs_med
+      label x: TIME
+      label y: Prediction-corrected DV
       label caption: Replicates = 10
 
 # plot_vpc_cens: BLQ-proportion VPC
@@ -341,8 +341,8 @@
         y: [0, 1] mean=0.2602
       scales: x=identity y=identity
       facet: FacetNull panels=1
-      label x: BIN_MID
-      label y: obs_prop_blq
+      label x: TIME
+      label y: Proportion BLQ
       label caption: Replicates = 10
 
 # plot_vpc_legend: default legend panel

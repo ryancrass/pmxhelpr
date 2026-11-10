@@ -283,3 +283,17 @@ test_that("plot_vpc_cens() rejects a non-logical show_rep before computing", {
   expect_error(plot_vpc_cens(data_sad, show_rep = 1),
                "argument `show_rep` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("cens VPC points and the cens legend Obs key take the obs line colour", {
+  p <- suppressMessages(plot_vpc_cens(sim_pk(carry_out = "LLOQ")))
+  geoms <- vapply(p$layers, function(L) class(L$geom)[1], "")
+  line_col <- style_vpc()$colors[["obs_median_line"]]
+  expect_equal(unique(ggplot2::layer_data(p, which(geoms == "GeomPoint"))$colour), line_col)
+  leg <- plot_vpc_legend(type = "cens")
+  leg_geoms <- vapply(leg$layers, function(L) class(L$geom)[1], "")
+  expect_equal(unique(ggplot2::layer_data(leg, which(leg_geoms == "GeomPoint"))$colour), line_col)
+  ## Restyling obs_point directly still recolours the cens points
+  r <- restyle_plot(p, colors = c(obs_point = "purple"))
+  expect_equal(unique(ggplot2::layer_data(r, which(geoms == "GeomPoint"))$colour), "purple")
+})

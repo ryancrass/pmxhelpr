@@ -466,3 +466,43 @@ test_that("plot_vpc_cont() and plot_build_vpc() reject non-logical flags before 
   expect_error(plot_build_vpc(list(), show_rep = 1),
                "argument `show_rep` must be `TRUE` or `FALSE`")
 })
+
+
+## Role-tagged layers: post-hoc styling and default labels
+
+vpc_layer_values <- function(p, geom, field) {
+  idx <- which(vapply(p$layers, function(L) inherits(L$geom, geom), logical(1)))
+  unique(unlist(lapply(idx, function(i) unique(ggplot2::layer_data(p, i)[[field]]))))
+}
+
+test_that("restyle_plot() reaches VPC layers by role", {
+  p <- suppressMessages(plot_vpc_cont(sim_pk(carry_out = "FOOD")))
+  r <- restyle_plot(p, colors = c(obs_median_line = "purple"),
+                    fill = c(sim_pi_ci = "orange"))
+  expect_true("purple" %in% vpc_layer_values(r, "GeomLine", "colour"))
+  expect_true("orange" %in% vpc_layer_values(r, "GeomRibbon", "fill"))
+  ## Other roles keep their style colours
+  expect_true(style_vpc()$colors[["obs_pi_line"]] %in% vpc_layer_values(r, "GeomLine", "colour"))
+  expect_true(style_vpc()$fill[["sim_median_ci"]] %in% vpc_layer_values(r, "GeomRibbon", "fill"))
+  expect_false("purple" %in% vpc_layer_values(p, "GeomLine", "colour"))
+})
+
+test_that("reveal() maps a variable onto the VPC observation points", {
+  p <- suppressMessages(plot_vpc_cont(sim_pk(carry_out = "FOOD")))
+  r <- reveal(p, FOOD, on = "point", as = "colors")
+  expect_gt(length(vpc_layer_values(r, "GeomPoint", "colour")), 1)
+  expect_length(vpc_layer_values(p, "GeomPoint", "colour"), 1)
+})
+
+test_that("VPC plots label their axes TIME and DV by default; labs() overrides", {
+  sim <- sim_pk(carry_out = "LLOQ")
+  labs_of <- function(p) ggplot2::get_labs(p)[c("x", "y")]
+  expect_equal(labs_of(suppressMessages(plot_vpc_cont(sim))),
+               list(x = "TIME", y = "DV"))
+  expect_equal(labs_of(suppressMessages(plot_vpc_cont(sim, pcvpc = TRUE))),
+               list(x = "TIME", y = "Prediction-corrected DV"))
+  expect_equal(labs_of(suppressMessages(plot_vpc_cens(sim))),
+               list(x = "TIME", y = "Proportion BLQ"))
+  p <- suppressMessages(plot_vpc_cont(sim)) + ggplot2::labs(x = "Time (h)")
+  expect_equal(ggplot2::get_labs(p)$x, "Time (h)")
+})

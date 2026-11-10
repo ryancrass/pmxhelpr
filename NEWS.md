@@ -1,6 +1,16 @@
 # pmxhelpr (development version)
 
+## New features
+
+* VPC plots can be restyled after the fact: `restyle_plot()` and `reveal()`
+  now reach VPC layers, which are tagged by role like every other plot
+  family.
+
 ## Minor improvements
+
+* VPC plots label their axes `TIME` and `DV` (`Prediction-corrected DV`,
+  `Proportion BLQ`) by default instead of internal column names. The
+  censored-VPC legend's `Obs` key now matches the plot's point colour.
 
 * `plot_dvconc()` captions no longer contain stray spaces after line breaks,
   and `plot_dvtime()` / `plot_gof()` captions with `cent = "none"` and an

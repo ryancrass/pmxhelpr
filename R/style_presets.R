@@ -199,12 +199,14 @@ style_doseprop <- function(...) {
 
 #' VPC plot style (`plot_vpc_cont` / `plot_vpc_cens`)
 #'
-#' Default [ggstylekit::style_spec()] for the VPC family. Line/point roles
+#' Default [ggstylekit::style_spec()] for the VPC family. Every VPC layer is
+#' tagged with its role, so `style_plot()` styles the line and point roles
 #' (`obs_point`, `obs_median_line`, `obs_pi_line`, `sim_pi_line`,
-#' `sim_median_line`, `loq_line`) are styled by `style_plot()`. The three ribbon
-#' roles (`sim_pi_ci`, `sim_pi_area`, `sim_median_ci`) are `geom_ribbon` layers
-#' whose `fill`/`alpha` the VPC builder sets inline, read from these maps via
-#' `series_aes()` (inline aesthetics take precedence over the `area_*` fields).
+#' `sim_median_line`) and the ribbon roles (`sim_pi_ci`, `sim_pi_area`,
+#' `sim_median_ci`, filled from `fill`/`alphas`) from these maps, and
+#' [restyle_plot()] / [reveal()] can change them afterwards. The `loq_line`
+#' role styles the LLOQ reference line. On a censored VPC the observed points
+#' take the `obs_median_line` colour, so they match the observed line.
 #'
 #' Stratification facets are built by the VPC plotting functions from
 #' `strat_var` (not by `style_plot()`), but the `facet_scales`, `facet_nrow`,

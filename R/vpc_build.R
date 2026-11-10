@@ -129,6 +129,7 @@ plot_build_vpc <- function(stats,
 
   shown    <- merge_element(shown, plot_vpc_shown())
   vpcstyle <- resolve_style(style, style_vpc)
+  if (type == "cens") vpcstyle <- vpc_cens_style(vpcstyle)
 
   plot <- switch(type,
     cont = plot_build_vpc_cont(stats, min_bin_count, shown, vpcstyle,
@@ -148,31 +149,40 @@ plot_build_vpc <- function(stats,
                           scales = vpcstyle$facet_scales %||% "fixed")
   }
 
+  ## Default axis labels follow the dvtime/gof convention (standardized names);
+  ## a user's `+ labs()` or the style's xlabel/ylabel still wins.
+  y_label <- if (type == "cens") {
+    "Proportion BLQ"
+  } else if (isTRUE(pcvpc)) {
+    "Prediction-corrected DV"
+  } else {
+    "DV"
+  }
+  plot <- plot + ggplot2::labs(x = "TIME", y = y_label)
+
   if (isTRUE(show_rep)) {
     plot <- plot +
       ggplot2::labs(caption = paste0(
         "Replicates = ", stats$config$n_replicates))
   }
 
-  ## Finalize with the house theme (white VPC panel) via style_plot(); it
-  ## applies the theme without overriding the layers' inline aesthetics.
+  ## Finalize via style_plot(): it fills each tagged role layer's aesthetics
+  ## from the style and applies the house theme (white VPC panel).
   as_pmx_vpc_plot(ggstylekit::style_plot(plot, vpcstyle))
 }
 
 
 ## Internal: build the continuous (concentration quantile) VPC plot.
-## Returns a ggplot with quantile layers, LOQ reference line, and obs
-## scatter applied; facets, caption, panel theme, and class are added by
+## Walks the role table (vpc_roles.R) in drawing order: each shown role adds
+## its tagged statistic layers, then the LOQ reference line and the obs
+## scatter at their table positions. Aesthetics come from the style via
+## style_plot(); facets, labels, caption, panel theme, and class are added by
 ## the dispatcher.
 ##
 ## @noRd
 plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
                                 pcvpc, loq, loq_inherited,
                                 strat_var_str) {
-
-  ## Per-role aesthetics read inline from the style (VPC geoms are not
-  ## series_layer-tagged; style_plot() applies only the house theme).
-  el <- function(role) series_aes(vpcstyle, role)
 
   ## min_bin_count predicate for cont: only quantifiable obs count
   ## (BLQ-encoded records excluded).
@@ -192,134 +202,40 @@ plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
 
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[.vpc_bin_col]]))
 
-  if (isTRUE(shown$sim_pi_area)) {
-    plot <- plot +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = .data[[col("sim_low_med")]],
-                     ymax = .data[[col("sim_hi_med")]]),
-        fill = el("sim_pi_area")$fill,
-        alpha = el("sim_pi_area")$alpha
-      )
-  }
-
-  if (isTRUE(shown$sim_pi_ci)) {
-    plot <- plot +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = .data[[col("sim_low_low")]],
-                     ymax = .data[[col("sim_low_hi")]]),
-        fill = el("sim_pi_ci")$fill,
-        alpha = el("sim_pi_ci")$alpha
-      ) +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = .data[[col("sim_hi_low")]],
-                     ymax = .data[[col("sim_hi_hi")]]),
-        fill = el("sim_pi_ci")$fill,
-        alpha = el("sim_pi_ci")$alpha
-      )
-  }
-
-  if (isTRUE(shown$sim_pi_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(y = .data[[col("sim_low_med")]]),
-        color = el("sim_pi_line")$colour,
-        linetype = el("sim_pi_line")$linetype,
-        linewidth = el("sim_pi_line")$linewidth
-      ) +
-      ggplot2::geom_line(
-        ggplot2::aes(y = .data[[col("sim_hi_med")]]),
-        color = el("sim_pi_line")$colour,
-        linetype = el("sim_pi_line")$linetype,
-        linewidth = el("sim_pi_line")$linewidth
-      )
-  }
-
-  if (isTRUE(shown$sim_median_ci)) {
-    plot <- plot +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = .data[[col("sim_med_low")]],
-                     ymax = .data[[col("sim_med_hi")]]),
-        fill = el("sim_median_ci")$fill,
-        alpha = el("sim_median_ci")$alpha
-      )
-  }
-
-  if (isTRUE(shown$sim_median_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(y = .data[[col("sim_med_med")]]),
-        color = el("sim_median_line")$colour,
-        linetype = el("sim_median_line")$linetype,
-        linewidth = el("sim_median_line")$linewidth
-      )
-  }
-
-  if (isTRUE(shown$obs_median_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_med")]]),
-        inherit.aes = FALSE,
-        color = el("obs_median_line")$colour,
-        linetype = el("obs_median_line")$linetype,
-        linewidth = el("obs_median_line")$linewidth
-      )
-  }
-
-  if (isTRUE(shown$obs_pi_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_low")]]),
-        inherit.aes = FALSE,
-        color = el("obs_pi_line")$colour,
-        linetype = el("obs_pi_line")$linetype,
-        linewidth = el("obs_pi_line")$linewidth
-      ) +
-      ggplot2::geom_line(
-        ggplot2::aes(x = .data[[.vpc_bin_col]], y = .data[[col("obs_hi")]]),
-        inherit.aes = FALSE,
-        color = el("obs_pi_line")$colour,
-        linetype = el("obs_pi_line")$linetype,
-        linewidth = el("obs_pi_line")$linewidth
-      )
-  }
-
-  ## LOQ ref line: LOQ is meaningless on the pc scale (loq forced NULL
-  ## above when pcvpc).
-  ## One line per panel at the highest LLOQ: per facet when the LLOQ is
-  ## inherited per row and the plot is stratified, otherwise one global line.
-  if (!is.null(loq) && isTRUE(shown$loq_line)) {
-    lines <- if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(stats$obs)) {
-      loq_lines(data = stats$obs, by = strat_var_str)
+  for (role in names(.vpc_roles)) {
+    if (!isTRUE(shown[[role]])) next
+    if (role == "loq_line") {
+      ## One line per panel at the highest LLOQ: per facet when the LLOQ is
+      ## inherited per row and the plot is stratified, otherwise one global
+      ## line.
+      if (is.null(loq)) next
+      lines <- if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(obs)) {
+        loq_lines(data = obs, by = strat_var_str)
+      } else {
+        loq_lines(loq)
+      }
+      plot <- plot + loq_line_layer(lines, vpcstyle)
+    } else if (role == "obs_point") {
+      if (nrow(obs) == 0) next
+      plot <- plot + ggstylekit::series_layer(
+        ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = .data$TIME),
+                            data = obs, inherit.aes = FALSE),
+        "obs_point")
     } else {
-      loq_lines(loq)
+      plot <- plot + vpc_role_layers(role, "cont", col)
     }
-    plot <- plot + loq_line_layer(lines, vpcstyle)
   }
-
-  ## Obs scatter.
-  if (isTRUE(shown$obs_point) && nrow(obs) > 0) {
-    op <- el("obs_point")
-    plot <- plot +
-      ggplot2::geom_point(ggplot2::aes(y = .data[[obs_y_col]], x = .data$TIME),
-                          data = obs, inherit.aes = FALSE,
-                          shape = op$shape,
-                          alpha = op$alpha,
-                          size = op$size,
-                          color = op$colour)
-  }
-
   plot
 }
 
 
-## Internal: build the censored (BLQ-proportion) VPC plot. Returns a
-## ggplot with cens layers and coord_cartesian applied; facets, caption,
-## panel theme, and class are added by the dispatcher.
+## Internal: build the censored (BLQ-proportion) VPC plot. Walks the roles
+## with a `cens` column set (sim_median_ci, sim_median_line, obs_median_line)
+## plus the per-bin obs points, and applies coord_cartesian; facets, labels,
+## caption, panel theme, and class are added by the dispatcher.
 ##
 ## @noRd
 plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle) {
-
-  el <- function(role) series_aes(vpcstyle, role)
 
   ## min_bin_count predicate for cens: applied to total obs. BLQ-heavy bins
   ## are the most informative on a cens VPC and are retained.
@@ -327,58 +243,33 @@ plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle) {
 
   plot <- ggplot2::ggplot(vpcstats, ggplot2::aes(x = .data[[.vpc_bin_col]]))
 
-  ## Cens layers map to a subset of the shown/theme keys used by cont:
-  ##   sim_median_ci    -> ribbon of (sim_prop_blq_low, sim_prop_blq_hi)
-  ##   sim_median_line  -> line at sim_prop_blq_med
-  ##   obs_median_line  -> line at obs_prop_blq
-  ##   obs_point        -> per-bin points at obs_prop_blq (from stats, not obs)
-  if (isTRUE(shown$sim_median_ci)) {
-    plot <- plot +
-      ggplot2::geom_ribbon(
-        ggplot2::aes(ymin = .data[["sim_prop_blq_low"]],
-                     ymax = .data[["sim_prop_blq_hi"]]),
-        fill = el("sim_median_ci")$fill,
-        alpha = el("sim_median_ci")$alpha
-      )
-  }
-
-  if (isTRUE(shown$sim_median_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(y = .data[["sim_prop_blq_med"]]),
-        color = el("sim_median_line")$colour,
-        linetype = el("sim_median_line")$linetype,
-        linewidth = el("sim_median_line")$linewidth
-      )
-  }
-
-  if (isTRUE(shown$obs_median_line)) {
-    plot <- plot +
-      ggplot2::geom_line(
-        ggplot2::aes(y = .data[["obs_prop_blq"]]),
-        color = el("obs_median_line")$colour,
-        linetype = el("obs_median_line")$linetype,
-        linewidth = el("obs_median_line")$linewidth
-      )
-  }
-
-  if (isTRUE(shown$obs_point)) {
-    ## Cens obs points represent the same per-bin statistic as the obs
-    ## line, so inherit the line color (obs_median_line) for color
-    ## coherence. The obs_point style key still controls shape/alpha/size.
-    op <- el("obs_point")
-    plot <- plot +
-      ggplot2::geom_point(
-        ggplot2::aes(y = .data[["obs_prop_blq"]]),
-        shape = op$shape,
-        alpha = op$alpha,
-        size  = op$size,
-        color = el("obs_median_line")$colour
-      )
+  for (role in names(.vpc_roles)) {
+    if (!isTRUE(shown[[role]])) next
+    if (role == "obs_point") {
+      ## Per-bin points at obs_prop_blq (from stats, not obs); their colour
+      ## follows the obs line (see vpc_cens_style()).
+      plot <- plot + ggstylekit::series_layer(
+        ggplot2::geom_point(ggplot2::aes(y = .data[["obs_prop_blq"]])), "obs_point")
+    } else if (!is.null(.vpc_roles[[role]]$cens)) {
+      plot <- plot + vpc_role_layers(role, "cens")
+    }
   }
 
   ## Cens proportions are bounded [0, 1]. Use coord_cartesian (not
   ## scale_y_continuous limits) so boundary values aren't dropped; users
   ## can still override by adding their own coord_*() / scale_y_*() layer.
   plot + ggplot2::coord_cartesian(ylim = c(0, 1))
+}
+
+
+## Internal: the style for a censored VPC. Its obs points show the same
+## per-bin statistic as the obs line, so they take the line's colour (the
+## obs_point entry still controls shape/alpha/size).
+##
+## @noRd
+vpc_cens_style <- function(style) {
+  colors <- style$colors
+  if (!is.character(colors) || !"obs_median_line" %in% names(colors)) return(style)
+  colors[["obs_point"]] <- colors[["obs_median_line"]]
+  ggstylekit::set_style(style, colors = colors)
 }

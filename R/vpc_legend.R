@@ -74,34 +74,14 @@ plot_vpc_legend <- function(ci = 0.90,
     loq <- lloq
   }
 
-  ## Legend aesthetics from the style. Reshape the style's per-series maps into
-  ## a per-role list (with American-spelled `color`) so the proxy-geom /
-  ## manual-scale construction below reads `plist$<role>$<field>` directly.
+  ## Legend aesthetics come from the style, per role; a cens VPC colours its
+  ## obs points like the obs line, and its "Obs" key follows.
   vpcstyle <- resolve_style(style, style_vpc)
-  .roles <- c("obs_point", "obs_median_line", "obs_pi_line", "sim_pi_line",
-              "sim_median_line", "loq_line", "sim_median_ci", "sim_pi_ci",
-              "sim_pi_area")
-  plist <- lapply(.roles, function(r) {
-    a <- series_aes(vpcstyle, r)
-    list(color = a$colour, fill = a$fill, alpha = a$alpha, shape = a$shape,
-         size = a$size, linetype = a$linetype, linewidth = a$linewidth)
-  })
-  names(plist) <- .roles
+  if (type == "cens") vpcstyle <- vpc_cens_style(vpcstyle)
 
   #shown elements for legend based on settings in plot_vpc_cont
   nlist <- merge_element(shown, plot_vpc_shown())
   if (!isTRUE(nlist$loq_line)) loq <- NULL
-
-  ## Cens invariant: no prediction intervals on a cens VPC, so the four
-  ## *_pi_* keys are forced off regardless of the user's `shown`. This
-  ## lets the 8 downstream pi-key sites read `nlist$xxx` directly without
-  ## also re-checking `type`.
-  if (type == "cens") {
-    nlist$obs_pi_line <- FALSE
-    nlist$sim_pi_line <- FALSE
-    nlist$sim_pi_ci   <- FALSE
-    nlist$sim_pi_area <- FALSE
-  }
 
   if (!is.null(loq)) check_numeric_strict(loq, "loq")
   check_boolean(show_loq_value, "show_loq_value")
@@ -112,83 +92,58 @@ plot_vpc_legend <- function(ci = 0.90,
                y = rep(NA_real_, length(lloq_lab)),
                lloq_lab = factor(lloq_lab, levels = lloq_lab))
   } else NULL
-  obs <- "Obs"
-  sim_cilab <- paste0("Sim ", ci * 100, "% CI")
-  if (type == "cens") {
-    obs_cent       <- "Obs Prop BLQ"
-    sim_cent       <- "Sim Prop BLQ"
-    sim_cilab_cent <- paste0(sim_cilab, " Prop BLQ")
-    obs_pilab      <- NULL
-    sim_pilab      <- NULL
-    sim_cilab_pi   <- NULL
-  } else {
-    obs_cent       <- "Obs Med"
-    sim_cent       <- "Sim Med"
-    sim_cilab_cent <- paste0(sim_cilab, " Med")
-    obs_pilab      <- paste0("Obs ", pi[1]*100,"th", " and ", pi[2]*100, "th")
-    sim_pilab      <- paste0("Sim ", pi[1]*100,"th - ", pi[2]*100, "th")
-    sim_cilab_pi   <- paste0(sim_cilab, " ", pi[1]*100,"th", " and ", pi[2]*100, "th")
-  }
 
+  ## Keys come from the role table (vpc_roles.R). A role draws a key when it is
+  ## shown and has a label for `type` (a cens VPC has no prediction-interval
+  ## roles); the LLOQ draws when a `loq` is given.
+  labels <- lapply(stats::setNames(nm = names(.vpc_roles)), vpc_role_label,
+                   ci = ci, pi = pi, type = type, loq_lab = lloq_lab)
+  drawn <- vapply(names(.vpc_roles), function(r) {
+    if (r == "loq_line") !is.null(loq) else isTRUE(nlist[[r]]) && !is.null(labels[[r]])
+  }, logical(1))
+
+  ## Proxy geoms on an empty frame: each draws only its legend key.
   df <- data.frame(x=NA_real_, y=NA_real_)
   plot_blank <- ggplot2::ggplot(data = df, ggplot2::aes(.data$x, .data$y))
+  key_layer <- function(role) {
+    a <- series_aes(vpcstyle, role)
+    lab <- labels[[role]]
+    switch(.vpc_roles[[role]]$legend,
+      shape = ggplot2::geom_point(ggplot2::aes(shape = !!lab),
+                                  color = a$colour, size = a$size, na.rm = TRUE),
+      linetype = if (role == "loq_line") {
+        ggplot2::geom_line(data = df_lloq, ggplot2::aes(linetype = .data$lloq_lab),
+                           color = a$colour, linewidth = a$linewidth, na.rm = TRUE)
+      } else {
+        ggplot2::geom_line(ggplot2::aes(linetype = !!lab),
+                           color = a$colour, linewidth = a$linewidth, na.rm = TRUE)
+      },
+      fill = ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y,
+                                             xmax = .data$x, ymax = .data$y,
+                                             fill = !!lab),
+                                alpha = a$alpha, na.rm = TRUE)
+    )
+  }
 
-  ## Named-vector construction for the manual scales: pairs each legend label
-  ## (the data value mapped in the geom aes()) with its aesthetic value. Names
-  ## must be set with stats::setNames() because most labels are held in
-  ## variables (e.g. `obs_pilab`), not literal tokens. Passing named values to
-  ## scale_*_manual() avoids the positional coupling between `breaks` and
-  ## `values` that the previous assign()-based construction relied on.
-  shape_vals <- if (isTRUE(nlist$obs_point)) {
-    c("Obs" = plist$obs_point$shape)
-  } else NULL
+  ## Manual-scale values keyed by label, in key order, for one legend scale.
+  key_values <- function(scale, field) {
+    vals <- NULL
+    for (r in .vpc_legend_key_order) {
+      if (!drawn[[r]] || .vpc_roles[[r]]$legend != scale) next
+      vals <- c(vals, stats::setNames(series_aes(vpcstyle, r)[[field]], labels[[r]]))
+    }
+    vals
+  }
+  shape_vals    <- key_values("shape", "shape")
+  linetype_vals <- key_values("linetype", "linetype")
+  fill_vals     <- key_values("fill", "fill")
 
-  linetype_vals <- c(
-    if (isTRUE(nlist$obs_median_line))  stats::setNames(plist$obs_median_line$linetype, obs_cent),
-    if (isTRUE(nlist$obs_pi_line))      stats::setNames(plist$obs_pi_line$linetype,     obs_pilab),
-    if (isTRUE(nlist$sim_median_line))  stats::setNames(plist$sim_median_line$linetype, sim_cent),
-    if (isTRUE(nlist$sim_pi_line))      stats::setNames(plist$sim_pi_line$linetype,     sim_pilab),
-    if (!is.null(loq))                  stats::setNames(rep(plist$loq_line$linetype, length(lloq_lab)), lloq_lab)
-  )
-
-  fill_vals <- c(
-    if (isTRUE(nlist$sim_median_ci))    stats::setNames(plist$sim_median_ci$fill, sim_cilab_cent),
-    if (isTRUE(nlist$sim_pi_ci))        stats::setNames(plist$sim_pi_ci$fill,     sim_cilab_pi),
-    if (isTRUE(nlist$sim_pi_area))      stats::setNames(plist$sim_pi_area$fill,   sim_pilab)
-  )
-
+  layer_roles <- .vpc_legend_layer_order[drawn[.vpc_legend_layer_order]]
   plot <- plot_blank +
-    {if(nlist$obs_point == TRUE) ggplot2::geom_point(ggplot2::aes(shape = obs),
-                                                  color = plist$obs_point$color,
-                                                  size = plist$obs_point$size, na.rm= TRUE)} +
-    {if(!is.null(loq)) ggplot2::geom_line(data = df_lloq,
-                                           ggplot2::aes(linetype = lloq_lab),
-                                           color = plist$loq_line$color,
-                                           linewidth = plist$loq_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
-                                                     color = plist$obs_median_line$color,
-                                                     linewidth = plist$obs_median_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$obs_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_pilab),
-                                                 color = plist$obs_pi_line$color,
-                                                 linewidth = plist$obs_pi_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$sim_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_cent),
-                                                     color = plist$sim_median_line$color,
-                                                     linewidth = plist$sim_median_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$sim_pi_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = sim_pilab),
-                                             color = plist$sim_pi_line$color,
-                                             linewidth = plist$sim_pi_line$linewidth, na.rm= TRUE)} +
-    {if(nlist$sim_median_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
-                                                                     fill = sim_cilab_cent),
-                                                        alpha = plist$sim_median_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_ci == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
-                                                             fill = sim_cilab_pi),
-                                                alpha = plist$sim_pi_ci$alpha, na.rm= TRUE)}+
-    {if(nlist$sim_pi_area == TRUE) ggplot2::geom_rect(ggplot2::aes(xmin = .data$x, ymin = .data$y, xmax = .data$x, ymax = .data$y,
-                                                                  fill = sim_pilab),
-                                                     alpha = plist$sim_pi_area$alpha, na.rm= TRUE)}+
-    {if (isTRUE(nlist$obs_point)) ggplot2::scale_shape_manual(name = "Points",
-                                                              breaks = names(shape_vals),
-                                                              values = shape_vals)} +
+    lapply(layer_roles, key_layer) +
+    {if (drawn[["obs_point"]]) ggplot2::scale_shape_manual(name = "Points",
+                                                           breaks = names(shape_vals),
+                                                           values = shape_vals)} +
     ggplot2::scale_linetype_manual(name = "Lines",
                                    breaks = names(linetype_vals),
                                    values = linetype_vals) +

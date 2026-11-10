@@ -270,7 +270,7 @@ is_doseprop_stats <- function(x, strict = FALSE) {
 #' @method print doseprop_stats
 
 print.doseprop_stats <- function(x, ...) {
-  doseprop_stats_header(x)
+  cat_summary_header(doseprop_stats_header(x))
   cat("\n  stats body:\n")
   print(x$stats, ...)
   cat("\n  Use `x$obs` for the observation overlay.\n")
@@ -279,37 +279,51 @@ print.doseprop_stats <- function(x, ...) {
 
 
 doseprop_stats_header <- function(x) {
-  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "dose_var",
-                        "ci", "method"))
+  pmx_summary_header(x, c("metric_name_var", "metric_value_var", "dose_var",
+                          "ci", "method"))
 }
 
 
 #' Summary method for `doseprop_stats`
 #'
 #' @description
-#' Compact summary of a [df_doseprop()] result: the same header and
-#' configuration values shown by [print.doseprop_stats()], but the body is
-#' condensed to one line per metric using the `PowerCI` and `Interpretation`
-#' columns. Suitable for vignette output and test snapshots.
+#' Compact summary of a [df_doseprop()] result. Printing it shows the same
+#' header and configuration values as [print.doseprop_stats()], but the body
+#' is condensed to one line per metric using the `PowerCI` and
+#' `Interpretation` columns. Suitable for vignette output and test snapshots.
 #'
 #' @param object A `doseprop_stats` object.
+#' @param x A `summary.doseprop_stats` object.
 #' @param ... Currently unused.
 #'
-#' @return `invisible(object)`.
+#' @return A `summary.doseprop_stats` object (also `summary.pmx_stats`): a
+#'    list with `header` (the class tag, `dim` of `stats`, `obs_rows`, and the
+#'    `config` values `metric_name_var`, `metric_value_var`, `dose_var`, `ci`,
+#'    `method`) and `metrics`, a data.frame with one row per metric and
+#'    columns `metric`, `Power`, `LCL`, `UCL`, `PowerCI`, `Interpretation`.
 #' @export
 #' @method summary doseprop_stats
 
 summary.doseprop_stats <- function(object, ...) {
-  metric_name_var_str <- object$config$metric_name_var
-  doseprop_stats_header(object)
+  s <- object$stats
+  metrics <- data.frame(metric = s[[object$config$metric_name_var]],
+                        s[c("Power", "LCL", "UCL", "PowerCI", "Interpretation")])
+  rownames(metrics) <- NULL
+  structure(
+    list(header = doseprop_stats_header(object), metrics = metrics),
+    class = c("summary.doseprop_stats", "summary.pmx_stats")
+  )
+}
+
+
+#' @rdname summary.doseprop_stats
+#' @export
+print.summary.doseprop_stats <- function(x, ...) {
+  cat_summary_header(x$header)
   cat("\n  per-metric:\n")
-  for (i in seq_len(nrow(object$stats))) {
-    cat(sprintf("    %s: %s -- %s\n",
-                object$stats[[metric_name_var_str]][i],
-                object$stats$PowerCI[i],
-                object$stats$Interpretation[i]))
-  }
-  invisible(object)
+  m <- x$metrics
+  cat(sprintf("    %s: %s -- %s\n", m$metric, m$PowerCI, m$Interpretation), sep = "")
+  invisible(x)
 }
 
 

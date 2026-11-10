@@ -513,7 +513,7 @@ is_forest_stats <- function(x, strict = FALSE) {
 #' @method print forest_stats
 
 print.forest_stats <- function(x, n_head = 3, ...) {
-  forest_stats_header(x)
+  cat_summary_header(forest_stats_header(x))
   if (n_head > 0 && nrow(x$stats) > 0) {
     cat(sprintf("\n  head(stats, %d):\n", n_head))
     print(utils::head(x$stats, n_head), ...)
@@ -524,53 +524,83 @@ print.forest_stats <- function(x, n_head = 3, ...) {
 
 
 forest_stats_header <- function(x) {
-  pmx_stats_header(x, c("metric_name_var", "metric_value_var", "cov_name_var",
-                        "cov_level_var", "ci", "sigdigits", "cov_name_ref",
-                        "cov_level_ref"))
+  pmx_summary_header(x, c("metric_name_var", "metric_value_var", "cov_name_var",
+                          "cov_level_var", "ci", "sigdigits", "cov_name_ref",
+                          "cov_level_ref"))
 }
 
 
 #' Summary method for `forest_stats`
 #'
 #' @description
-#' Compact summary of a [df_forest()] result: the same header shown by
-#' [print.forest_stats()], then one line per metric with its draw count `n`
-#' and each covariate's levels in plot order. A covariate whose level repeats
-#' its name (the reference panel) shows the name alone; reference copies
-#' drawn in a covariate panel are marked `*`.
+#' Compact summary of a [df_forest()] result. Printing it shows the same
+#' header as [print.forest_stats()], then one line per metric with its draw
+#' count `n` and each covariate's levels in plot order. A covariate whose
+#' level repeats its name (the reference panel) shows the name alone;
+#' reference copies drawn in a covariate panel are marked `*`.
 #'
 #' @param object A `forest_stats` object.
+#' @param x A `summary.forest_stats` object.
 #' @param ... Currently unused.
 #'
-#' @return `invisible(object)`.
+#' @return A `summary.forest_stats` object (also `summary.pmx_stats`): a list
+#'    with `header` (the class tag, `dim` of `stats`, `obs_rows`, and the
+#'    `config` values shown by [print.forest_stats()]), `metrics` (a
+#'    data.frame with one row per metric and columns `metric`, `n_min` and
+#'    `n_max` (the range of `n`, `NA` when `stats` has no `n` column), and
+#'    `panels`, the covariate panels and levels in plot order as printed), and
+#'    `has_distributed` (whether any reference copy sits in a covariate
+#'    panel).
 #' @export
 #' @method summary forest_stats
 
 summary.forest_stats <- function(object, ...) {
-  forest_stats_header(object)
   s <- object$stats
   metric <- as.character(s[[object$config$metric_name_var]])
   cov_name <- as.character(s[[object$config$cov_name_var]])
   cov_level <- as.character(s[[object$config$cov_level_var]])
   level_label <- ifelse(s$layout == "distributed", paste0(cov_level, "*"), cov_level)
-  metric_line <- function(m) {
+  panels <- function(m) {
     in_m <- metric == m
     covs <- unique(cov_name[in_m])
-    panels <- vapply(covs, function(cn) {
+    lines <- vapply(covs, function(cn) {
       k <- in_m & cov_name == cn
       if (all(cov_level[k] == cn)) return(cn)
       paste0(cn, ": ", paste(level_label[k], collapse = ", "))
     }, character(1))
-    n_tag <- if (is.null(s$n)) "" else {
-      n_rng <- unique(range(s$n[in_m]))
-      paste0("  n = ", paste(n_rng, collapse = "-"))
-    }
-    sprintf("    [%s]%s  %s\n", m, n_tag, paste(panels, collapse = " | "))
+    paste(lines, collapse = " | ")
   }
+  n_range <- function(m) {
+    if (is.null(s$n)) return(c(NA_integer_, NA_integer_))
+    as.integer(range(s$n[metric == m]))
+  }
+  metrics_u <- unique(metric)
+  n_rng <- vapply(metrics_u, n_range, integer(2))
+  structure(
+    list(
+      header = forest_stats_header(object),
+      metrics = data.frame(metric = metrics_u, n_min = n_rng[1, ], n_max = n_rng[2, ],
+                           panels = vapply(metrics_u, panels, character(1)),
+                           row.names = NULL),
+      has_distributed = any(s$layout == "distributed")
+    ),
+    class = c("summary.forest_stats", "summary.pmx_stats")
+  )
+}
+
+
+#' @rdname summary.forest_stats
+#' @export
+print.summary.forest_stats <- function(x, ...) {
+  cat_summary_header(x$header)
+  m <- x$metrics
+  n_tag <- ifelse(is.na(m$n_min), "",
+                  ifelse(m$n_min == m$n_max, paste0("  n = ", m$n_min),
+                         paste0("  n = ", m$n_min, "-", m$n_max)))
   cat("\n  per metric:\n")
-  cat(vapply(unique(metric), metric_line, character(1)), sep = "")
-  if (any(s$layout == "distributed")) {
+  cat(sprintf("    [%s]%s  %s\n", m$metric, n_tag, m$panels), sep = "")
+  if (isTRUE(x$has_distributed)) {
     cat("  * reference copy in a covariate panel (ref_layout = \"distributed\")\n")
   }
-  invisible(object)
+  invisible(x)
 }

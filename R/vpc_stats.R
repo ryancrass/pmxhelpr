@@ -182,35 +182,8 @@ is_vpc_stats <- function(x, strict = FALSE) {
 #' @method print vpc_stats
 
 print.vpc_stats <- function(x, n_head = 3, ...) {
-  pmx_stats_header(x, c("n_replicates", "ci", "pi", "mode", "loq", "strat_var"))
-
-  bin_present  <- .vpc_bin_col %in% colnames(x$stats)
-  strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))
-  identifiers <- c(if (bin_present) .vpc_bin_col, strat_in_stats)
-  blq_present <- intersect(.vpc_blq_cols, colnames(x$stats))
-  std_obs <- intersect(.vpc_obs_quantile_cols, colnames(x$stats))
-  std_sim <- intersect(.vpc_sim_quantile_cols, colnames(x$stats))
-  pc_obs  <- intersect(paste0("pc_", .vpc_obs_quantile_cols), colnames(x$stats))
-  pc_sim  <- intersect(paste0("pc_", .vpc_sim_quantile_cols), colnames(x$stats))
-  meta_present <- intersect(.vpc_meta_cols, colnames(x$stats))
-
-  fmt_group <- function(label, cols) {
-    if (length(cols) == 0) return(invisible())
-    cat(sprintf("    %-13s: %s\n", label, paste(cols, collapse = ", ")))
-  }
-
-  cat("  column groups (stats):\n")
-  fmt_group("identifiers",  identifiers)
-  fmt_group("counts",       intersect(.vpc_count_cols, colnames(x$stats)))
-  if (length(blq_present) > 0) {
-    cat(sprintf("    %-13s: %s  [std-only]\n", "sim BLQ",
-                paste(blq_present, collapse = ", ")))
-  }
-  fmt_group("std observed", std_obs)
-  fmt_group("std simulated", std_sim)
-  fmt_group("pc observed",  pc_obs)
-  fmt_group("pc simulated", pc_sim)
-  fmt_group("metadata",     meta_present)
+  cat_summary_header(pmx_summary_header(x, .vpc_summary_keys))
+  cat_vpc_column_groups(vpc_column_groups(x))
 
   if (n_head > 0 && nrow(x$stats) > 0) {
     cat(sprintf("\n  head(stats, %d):\n", n_head))
@@ -222,21 +195,78 @@ print.vpc_stats <- function(x, n_head = 3, ...) {
 }
 
 
+.vpc_summary_keys <- c("n_replicates", "ci", "pi", "mode", "loq", "strat_var")
+
+
+## Columns of `x$stats` in each print group, in print order; absent groups
+## are character(0).
+vpc_column_groups <- function(x) {
+  cols <- colnames(x$stats)
+  list(
+    identifiers   = c(intersect(.vpc_bin_col, cols), intersect(x$config$strat_var, cols)),
+    counts        = intersect(.vpc_count_cols, cols),
+    sim_blq       = intersect(.vpc_blq_cols, cols),
+    std_observed  = intersect(.vpc_obs_quantile_cols, cols),
+    std_simulated = intersect(.vpc_sim_quantile_cols, cols),
+    pc_observed   = intersect(paste0("pc_", .vpc_obs_quantile_cols), cols),
+    pc_simulated  = intersect(paste0("pc_", .vpc_sim_quantile_cols), cols),
+    metadata      = intersect(.vpc_meta_cols, cols)
+  )
+}
+
+cat_vpc_column_groups <- function(groups) {
+  labels <- c(identifiers = "identifiers", counts = "counts", sim_blq = "sim BLQ",
+              std_observed = "std observed", std_simulated = "std simulated",
+              pc_observed = "pc observed", pc_simulated = "pc simulated",
+              metadata = "metadata")
+  cat("  column groups (stats):\n")
+  for (g in names(labels)) {
+    cols <- groups[[g]]
+    if (length(cols) == 0) next
+    cat(sprintf("    %-13s: %s%s\n", labels[[g]], paste(cols, collapse = ", "),
+                if (g == "sim_blq") "  [std-only]" else ""))
+  }
+}
+
+
 #' Summary method for `vpc_stats`
 #'
 #' @description
-#' Same content as [print.vpc_stats()] but without the head preview. Suitable
-#' for vignette output and test snapshots.
+#' Summarises a [df_vpcstats()] result: the run configuration and the column
+#' groups present in `stats`. Printing it shows the same content as
+#' [print.vpc_stats()] without the head preview, which suits vignette output
+#' and test snapshots.
 #'
 #' @param object A `vpc_stats` object.
+#' @param x A `summary.vpc_stats` object.
 #' @param ... Currently unused.
 #'
-#' @return `invisible(object)`.
+#' @return A `summary.vpc_stats` object (also `summary.pmx_stats`): a list
+#'    with `header` (the class tag, `dim` of `stats`, `obs_rows`, and the
+#'    `config` values `n_replicates`, `ci`, `pi`, `mode`, `loq`, `strat_var`)
+#'    and `column_groups` (a named list of the `stats` columns in each group:
+#'    `identifiers`, `counts`, `sim_blq`, `std_observed`, `std_simulated`,
+#'    `pc_observed`, `pc_simulated`, `metadata`; empty groups are
+#'    `character(0)`).
 #' @export
 #' @method summary vpc_stats
 
 summary.vpc_stats <- function(object, ...) {
-  print.vpc_stats(object, n_head = 0)
+  structure(
+    list(header = pmx_summary_header(object, .vpc_summary_keys),
+         column_groups = vpc_column_groups(object)),
+    class = c("summary.vpc_stats", "summary.pmx_stats")
+  )
+}
+
+
+#' @rdname summary.vpc_stats
+#' @export
+print.summary.vpc_stats <- function(x, ...) {
+  cat_summary_header(x$header)
+  cat_vpc_column_groups(x$column_groups)
+  cat("\n  Use `x$stats` and `x$obs` for the underlying data.frames.\n")
+  invisible(x)
 }
 
 

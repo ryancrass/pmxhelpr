@@ -183,31 +183,42 @@ check_pmx_stats <- function(x, subclass = NULL, source = NULL,
 }
 
 
-#' Internal helper: print the header shared by the `pmx_stats` subclasses
+#' Internal helpers: the header shared by the `pmx_stats` subclasses
 #'
-#' Prints the class tag, the `stats` dimensions, the `obs` row count (when
-#' `obs` is a data.frame), and the `config` values named in `config_keys` as
-#' one `key = value` line. `NULL` values print as `NULL`, named or multi-value
-#' vectors as an R `c()` call, and scalars as is.
+#' `pmx_summary_header()` collects the class tag, the `stats` dimensions, the
+#' `obs` row count (`NULL` when `obs` is not a data.frame), and the `config`
+#' values named in `config_keys` (`NULL` values kept). `cat_summary_header()`
+#' prints them: the config values as one `key = value` line, with `NULL`
+#' printed as `NULL`, named or multi-value vectors as an R `c()` call, and
+#' scalars as is.
 #'
 #' @param x A `pmx_stats` subclass object.
-#' @param config_keys Names of the `x$config` entries to show, in order.
+#' @param config_keys Names of the `x$config` entries to keep, in order.
+#' @param h A header list from `pmx_summary_header()`.
 #'
-#' @return `invisible(x)`.
 #' @keywords internal
 #' @noRd
-pmx_stats_header <- function(x, config_keys) {
+pmx_summary_header <- function(x, config_keys) {
+  list(
+    class = class(x)[1],
+    dim = dim(x$stats),
+    obs_rows = if (is.data.frame(x$obs)) nrow(x$obs),
+    config = stats::setNames(lapply(config_keys, function(k) x$config[[k]]), config_keys)
+  )
+}
+
+cat_summary_header <- function(h) {
   fmt_value <- function(v) {
     if (is.null(v)) return("NULL")
     if (!is.null(names(v)) || length(v) > 1) return(paste(deparse(v), collapse = ""))
     format(v)
   }
-  cat(sprintf("<%s>\n", class(x)[1]))
-  cat(sprintf("  stats: %d rows x %d columns\n", nrow(x$stats), ncol(x$stats)))
-  if (is.data.frame(x$obs)) cat(sprintf("  obs:   %d rows\n", nrow(x$obs)))
-  vals <- vapply(config_keys, function(k) fmt_value(x$config[[k]]), character(1))
-  cat(sprintf("  config: %s\n", paste(config_keys, "=", vals, collapse = ", ")))
-  invisible(x)
+  cat(sprintf("<%s>\n", h$class))
+  cat(sprintf("  stats: %d rows x %d columns\n", h$dim[1], h$dim[2]))
+  if (!is.null(h$obs_rows)) cat(sprintf("  obs:   %d rows\n", h$obs_rows))
+  vals <- vapply(h$config, fmt_value, character(1))
+  cat(sprintf("  config: %s\n", paste(names(h$config), "=", vals, collapse = ", ")))
+  invisible(h)
 }
 
 
@@ -216,8 +227,9 @@ pmx_stats_header <- function(x, config_keys) {
 #'
 #' @description
 #' Generic fallback print for `pmx_stats` containers. Subclasses
-#' (`vpc_stats`, `doseprop_stats`) provide their own richer print methods;
-#' this one is reached only by direct construction of the base class.
+#' (`vpc_stats`, `doseprop_stats`, `forest_stats`) provide their own richer
+#' print methods; this one is reached only for other subclasses built with
+#' [pmx_stats()].
 #'
 #' @param x A `pmx_stats` object.
 #' @param ... Currently unused.
@@ -227,14 +239,7 @@ pmx_stats_header <- function(x, config_keys) {
 #' @method print pmx_stats
 
 print.pmx_stats <- function(x, ...) {
-  cat(sprintf("<pmx_stats: %s>\n", paste(class(x), collapse = ", ")))
-  cat(sprintf("  stats: %d rows x %d columns\n",
-              nrow(x$stats), ncol(x$stats)))
-  cat(sprintf("  obs:   %d rows\n",
-              if (is.data.frame(x$obs)) nrow(x$obs) else 0L))
-  if (length(x$config) > 0) {
-    cat(sprintf("  config: %s\n", paste(names(x$config), collapse = ", ")))
-  }
+  print(summary.pmx_stats(x))
   invisible(x)
 }
 
@@ -243,18 +248,40 @@ print.pmx_stats <- function(x, ...) {
 #' Summary method for `pmx_stats`
 #'
 #' @description
-#' Generic fallback summary for `pmx_stats` containers; delegates to
-#' [print.pmx_stats()]. Subclasses provide their own summary methods.
+#' Generic fallback summary for `pmx_stats` containers, reached only for
+#' subclasses without a method of their own. It prints the same text as
+#' [print.pmx_stats()].
 #'
 #' @param object A `pmx_stats` object.
+#' @param x A `summary.pmx_stats` object.
 #' @param ... Currently unused.
 #'
-#' @return `invisible(object)`.
+#' @return A `summary.pmx_stats` object: a list with `header` (the class tag,
+#'    `dim` of `stats`, `obs_rows`, and the full `config`) and `classes` (the
+#'    container's class vector).
 #' @export
 #' @method summary pmx_stats
 
 summary.pmx_stats <- function(object, ...) {
-  print.pmx_stats(object, ...)
+  structure(
+    list(header = pmx_summary_header(object, names(object$config)),
+         classes = class(object)),
+    class = "summary.pmx_stats"
+  )
+}
+
+
+#' @rdname summary.pmx_stats
+#' @export
+print.summary.pmx_stats <- function(x, ...) {
+  h <- x$header
+  cat(sprintf("<pmx_stats: %s>\n", paste(x$classes, collapse = ", ")))
+  cat(sprintf("  stats: %d rows x %d columns\n", h$dim[1], h$dim[2]))
+  cat(sprintf("  obs:   %d rows\n", if (is.null(h$obs_rows)) 0L else h$obs_rows))
+  if (length(h$config) > 0) {
+    cat(sprintf("  config: %s\n", paste(names(h$config), collapse = ", ")))
+  }
+  invisible(x)
 }
 
 

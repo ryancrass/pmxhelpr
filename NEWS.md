@@ -15,6 +15,11 @@
 
 ## Minor improvements
 
+* `summary()` on a `vpc_stats`, `doseprop_stats`, or `forest_stats`
+  container now returns a `summary.*` object holding the values it prints
+  (e.g. `summary(dp)$metrics$Power`, `summary(vs)$column_groups`) instead of
+  the container itself. The printed output is unchanged.
+
 * VPC plots label their axes `TIME` and `DV` (`Prediction-corrected DV`,
   `Proportion BLQ`) by default instead of internal column names. The
   censored-VPC legend's `Obs` key now matches the plot's point colour.

@@ -16,6 +16,7 @@
 }
 \description{
 Generic fallback print for \code{pmx_stats} containers. Subclasses
-(\code{vpc_stats}, \code{doseprop_stats}) provide their own richer print methods;
-this one is reached only by direct construction of the base class.
+(\code{vpc_stats}, \code{doseprop_stats}, \code{forest_stats}) provide their own richer
+print methods; this one is reached only for other subclasses built with
+\code{\link[=pmx_stats]{pmx_stats()}}.
 }

@@ -92,13 +92,11 @@ adds_facet <- function(e2) {
 
 ## Internal: the shared warning for faceting a VPC after its statistics exist.
 warn_vpc_facet <- function() {
-  rlang::warn(
-    c(
-      "Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.",
-      "i" = "Summary statistics are pre-computed before plotting.",
-      "i" = "Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly."
-    )
-  )
+  pmx_warn(c(
+    "Adding {.code facet_*()} to a VPC plot produces incorrect VPC statistics.",
+    "i" = "Summary statistics are pre-computed before plotting.",
+    "i" = "Pass {.arg strat_var} to {.fn plot_vpc_cont}, {.fn plot_vpc_cens}, or {.fn df_vpcstats} to stratify both statistics and panels correctly."
+  ), "vpc_facet")
 }
 
 ## Internal: (re)attach the `pmx_vpc_plot` class once, at the front.

@@ -13,7 +13,8 @@ df_vpcpreprocess(
   obs_dv_var_str,
   strat_var_str = NULL,
   irep_name_str = "SIM",
-  loq = NULL
+  loq = NULL,
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ df_vpcpreprocess(
 \item{loq}{Numeric scalar, or \code{NULL}. When \code{NULL} and column \code{LLOQ} is
 present in \code{data}, per-row \code{LLOQ} values are used as the censoring
 threshold. A scalar \code{loq} broadcasts to a constant threshold across rows.}
+
+\item{call}{The call reported in errors.}
 }
 \value{
 A preprocessed data.frame with standardized columns and (when a LOQ

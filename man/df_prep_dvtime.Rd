@@ -18,7 +18,8 @@ df_prep_dvtime(
   loq_method = 0,
   dosenorm = FALSE,
   ref = NULL,
-  blq_mode = c("obs", "all")
+  blq_mode = c("obs", "all"),
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ df_prep_dvtime(
 receive BLQ imputation: \code{"obs"} imputes the renamed \code{DV} only; \code{"all"}
 additionally imputes any \code{PRED} / \code{IPRED} columns that were renamed via
 \code{pred_var_str} / \code{ipred_var_str}. Has no effect when \code{loq_method = 0}.}
+
+\item{call}{The call reported in errors.}
 }
 \value{
 A named list with elements \code{data} (processed data.frame) and \code{lloq}

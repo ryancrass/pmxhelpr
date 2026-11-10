@@ -124,7 +124,7 @@ plot_vpc_cont <- function(data,
   ## accepted on both paths.
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
-      call           = match.call(),
+      mc             = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
                          "style", "pcvpc"),
       fn_name        = "plot_vpc_cont",

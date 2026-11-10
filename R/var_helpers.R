@@ -11,13 +11,16 @@
 
 var_dosenorm <- function(dv_var,
                          dose_var) {
-  if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
-  if (!is.numeric(dose_var)) rlang::abort("`dose_var` must be numeric")
-  if (length(dv_var) != length(dose_var)) rlang::abort("`dv_var` and `dose_var` must have the same length")
+  if (!is.numeric(dv_var)) pmx_abort("{.arg dv_var} must be {.cls numeric}.", "bad_arg")
+  if (!is.numeric(dose_var)) pmx_abort("{.arg dose_var} must be {.cls numeric}.", "bad_arg")
+  if (length(dv_var) != length(dose_var)) {
+    pmx_abort("{.arg dv_var} and {.arg dose_var} must have the same length.", "bad_arg")
+  }
   zero_doses <- !is.na(dose_var) & dose_var == 0
   if (any(zero_doses)) {
-    rlang::warn(paste0("`dose_var` contains ", sum(zero_doses),
-                       " zero value(s); returning NA for those positions"))
+    n_zero <- sum(zero_doses)
+    pmx_warn("{.arg dose_var} contains {n_zero} zero value{?s}; returning NA for {?that position/those positions}.",
+             "data")
     dose_var[zero_doses] <- NA_real_
   }
   dv_var / dose_var
@@ -53,11 +56,13 @@ var_dosenorm <- function(dv_var,
 var_predcorr <- function(dv_var,
                          pred_var,
                          lower_bound = 0) {
-  if (!is.numeric(dv_var)) rlang::abort("`dv_var` must be numeric")
-  if (!is.numeric(pred_var)) rlang::abort("`pred_var` must be numeric")
-  if (length(dv_var) != length(pred_var)) rlang::abort("`dv_var` and `pred_var` must have the same length")
+  if (!is.numeric(dv_var)) pmx_abort("{.arg dv_var} must be {.cls numeric}.", "bad_arg")
+  if (!is.numeric(pred_var)) pmx_abort("{.arg pred_var} must be {.cls numeric}.", "bad_arg")
+  if (length(dv_var) != length(pred_var)) {
+    pmx_abort("{.arg dv_var} and {.arg pred_var} must have the same length.", "bad_arg")
+  }
   if (all(is.na(pred_var))) {
-    rlang::warn("`pred_var` is all NA; returning NA for prediction-corrected values")
+    pmx_warn("{.arg pred_var} is all NA; returning NA for prediction-corrected values.", "data")
     return(rep(NA_real_, length(dv_var)))
   }
   predbin <- stats::median(pred_var, na.rm = TRUE)
@@ -90,7 +95,9 @@ var_predcorr <- function(dv_var,
 var_addn <- function(grp_var,
                      id_var,
                      sep = NULL) {
-  if (length(grp_var) != length(id_var)) rlang::abort("`grp_var` and `id_var` must have the same length")
+  if (length(grp_var) != length(id_var)) {
+    pmx_abort("{.arg grp_var} and {.arg id_var} must have the same length.", "bad_arg")
+  }
   counts <- tapply(id_var, grp_var, dplyr::n_distinct)
   n <- unname(counts[as.character(grp_var)])
   parts <- if (is.null(sep)) paste(grp_var) else paste(grp_var, sep)
@@ -116,6 +123,7 @@ var_addn <- function(grp_var,
 #'    limit of quantification, or `NULL` (no `< loq` trigger).
 #' @param mdv Integer/logical vector of length `length(x)` flagging missing-DV
 #'    rows (NONMEM convention `MDV == 1`), or `NULL` (no MDV trigger).
+#' @param call The call reported in errors.
 #'
 #' @return Numeric vector the same length as `x`, with BLQ positions set to `-Inf`.
 #' @keywords internal
@@ -123,16 +131,17 @@ var_addn <- function(grp_var,
 #' pmxhelpr:::var_loqcens(c(1, 2, 5, NA, 10), loq = 3, mdv = c(0, 0, 0, 0, 1))
 #' pmxhelpr:::var_loqcens(c(1, 2, 5), loq = NULL, mdv = c(0, 1, 0))
 
-var_loqcens <- function(x, loq = NULL, mdv = NULL) {
-  if (!is.numeric(x)) rlang::abort("`x` must be numeric")
+var_loqcens <- function(x, loq = NULL, mdv = NULL, call = rlang::caller_env()) {
+  if (!is.numeric(x)) pmx_abort("{.arg x} must be {.cls numeric}.", "bad_arg", call = call)
   if (!is.null(loq)) {
-    if (!is.numeric(loq)) rlang::abort("`loq` must be numeric")
+    if (!is.numeric(loq)) pmx_abort("{.arg loq} must be {.cls numeric}.", "bad_arg", call = call)
     if (length(loq) != 1L && length(loq) != length(x)) {
-      rlang::abort("`loq` must be length 1 or the same length as `x`")
+      pmx_abort("{.arg loq} must be length 1 or the same length as {.arg x}.", "bad_arg",
+                call = call)
     }
   }
   if (!is.null(mdv) && length(mdv) != length(x)) {
-    rlang::abort("`mdv` must be the same length as `x`")
+    pmx_abort("{.arg mdv} must be the same length as {.arg x}.", "bad_arg", call = call)
   }
   blq <- is.na(x)
   if (!is.null(loq)) blq <- blq | (x < loq)
@@ -157,7 +166,7 @@ var_loqcens <- function(x, loq = NULL, mdv = NULL) {
 #' pmxhelpr:::var_infna(c(1, -Inf, 3, NA))
 
 var_infna <- function(x) {
-  if (!is.numeric(x)) rlang::abort("`x` must be numeric")
+  if (!is.numeric(x)) pmx_abort("{.arg x} must be {.cls numeric}.", "bad_arg")
   x[is.infinite(x) & x < 0] <- NA_real_
   x
 }

@@ -116,7 +116,7 @@ plot_vpc_cens <- function(data,
   ## here because the pipeline doesn't re-run.
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
-      call           = match.call(),
+      mc             = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
       fn_name        = "plot_vpc_cens",
       stats_fn       = "df_vpcstats"

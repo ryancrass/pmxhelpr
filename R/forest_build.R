@@ -11,10 +11,12 @@
 #'    resolves to `"distributed"` when the rows of `metric` (all rows if
 #'    `metric` is `NULL`) include distributed rows, otherwise `"consolidated"`.
 #' @param metric Optional metric value to restrict the rows to.
+#' @param call The call reported in errors.
 #'
 #' @return A data.frame of rows in top-to-bottom draw order.
 #' @keywords internal
-forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
+forest_rows <- function(stats, ref_layout = NULL, metric = NULL,
+                        call = rlang::caller_env()) {
   rows <- stats$stats
   if (!is.null(metric)) {
     rows <- rows[as.character(rows[[stats$config$metric_name_var]]) == metric, , drop = FALSE]
@@ -26,11 +28,11 @@ forest_rows <- function(stats, ref_layout = NULL, metric = NULL) {
     ref_layout <- if (has_distributed) "distributed" else "consolidated"
   }
   if (ref_layout == "distributed" && !has_distributed) {
-    rlang::abort(message = paste0(
-      "`ref_layout = \"distributed\"` needs per-covariate reference rows",
-      if (!is.null(metric)) paste0(" for metric `", metric, "`"),
-      "; pass `cov_level_ref` naming its covariates to `df_forest()`."
-    ))
+    for_metric <- if (!is.null(metric)) " for metric {.val {metric}}" else ""
+    pmx_abort(c(
+      paste0("{.code ref_layout = \"distributed\"} needs per-covariate reference rows", for_metric, "."),
+      "i" = "Pass {.arg cov_level_ref} naming its covariates to {.fn df_forest}."
+    ), "bad_stats", call = call)
   }
   rows <- rows[rows$layout %in% c("both", ref_layout), , drop = FALSE]
   rownames(rows) <- NULL
@@ -346,17 +348,17 @@ plot_build_forest <- function(
 
   if (isTRUE(show_rep)) {
     if (is.null(plot_data$n)) {
-      rlang::abort(message = "`show_rep = TRUE` needs an `n` column in `stats$stats`.")
+      pmx_abort("{.code show_rep = TRUE} needs an {.var n} column in {.code stats$stats}.",
+                "bad_stats")
     }
     n_rep <- range(plot_data$n)
     if (n_rep[1] != n_rep[2]) {
       short <- plot_data[plot_data$n < n_rep[2], , drop = FALSE]
       short <- unique(paste0(short[[cov_name_var_str]], " ", short[[cov_level_var_str]],
                              " (n = ", short$n, ")"))
-      rlang::warn(paste0(
-        "metric `", metric, "` rows have different replicate counts; fewer than ",
-        n_rep[2], " in: ", paste(short, collapse = "; ")
-      ))
+      n_max <- n_rep[2]
+      pmx_warn("Metric {.val {metric}} rows have different replicate counts; fewer than {n_max} in: {.val {short}}.",
+               "data")
     }
     base <- base + ggplot2::labs(caption = paste0(
       "Replicates = ", paste(unique(n_rep), collapse = "-")
@@ -379,36 +381,35 @@ plot_build_forest <- function(
 #' @param plot_data Rows drawn for `metric`, from `forest_rows()`.
 #' @param metric The plotted metric.
 #' @param sigdigits Label digits, for the multiple-reference error.
+#' @param call The call reported in errors.
 #' @return `list(ref, ref_band)`: the numeric reference (or `NULL`) and the
 #'    band on the data scale (or `NULL`).
 #' @noRd
 forest_resolve_ref <- function(ref, ref_band, ref_band_type, plot_data, metric,
-                               sigdigits) {
+                               sigdigits, call = rlang::caller_env()) {
   ## `ref = "reference"` resolves to the metric's reference-row estimate (1
   ## for a ratio, the reference exposure for a raw metric); the band is then
   ## placed around that value according to `ref_band_type`.
   if (identical(ref, "reference")) {
     ref <- unique(plot_data$est[plot_data$is_ref])
     if (length(ref) == 0L) {
-      rlang::warn(paste0(
-        "`ref = \"reference\"` but metric `", metric, "` has no reference row; ",
-        "no reference line is drawn. Pass a numeric `ref`, or set `cov_name_ref` in `df_forest()`."
-      ))
+      pmx_warn(c(
+        "{.code ref = \"reference\"} but metric {.val {metric}} has no reference row; no reference line is drawn.",
+        "i" = "Pass a numeric {.arg ref}, or set {.arg cov_name_ref} in {.fn df_forest}."
+      ), "ignored_arg")
       ref <- NULL
     } else if (length(ref) > 1L) {
-      rlang::abort(message = paste0(
-        "metric `", metric, "` has multiple distinct reference-row estimates (",
-        paste(fmt_sig(ref, sigdigits), collapse = ", "),
-        "); pass a numeric `ref`."
-      ))
+      ref_estimates <- fmt_sig(ref, sigdigits)
+      pmx_abort("Metric {.val {metric}} has multiple distinct reference-row estimates ({ref_estimates}); pass a numeric {.arg ref}.",
+                "bad_stats", call = call)
     }
   }
   if (!is.null(ref_band) && ref_band_type != "absolute") {
     if (is.null(ref)) {
-      rlang::abort(message = paste0(
-        "`ref_band_type = \"", ref_band_type, "\"` needs a reference value; ",
-        "`ref` resolved to NULL. Pass a numeric `ref`, or use `ref_band_type = \"absolute\"`."
-      ))
+      pmx_abort(c(
+        "{.code ref_band_type = \"{ref_band_type}\"} needs a reference value; {.arg ref} resolved to {.code NULL}.",
+        "i" = "Pass a numeric {.arg ref}, or use {.code ref_band_type = \"absolute\"}."
+      ), "bad_arg", call = call)
     }
     ref_band <- switch(
       ref_band_type,
@@ -442,11 +443,10 @@ forest_color_plan <- function(plotstyle, test_data, ref_data, cov_name_var_str) 
     pal <- plotstyle$colors(length(color_levels))
     if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(color_levels)), color_levels)
     if (!any(color_levels %in% names(pal))) {
-      rlang::warn(paste0(
-        "The `colors` palette function returned names matching no covariate (",
-        paste(color_levels, collapse = ", "), "); covariates are not colored. ",
-        "Return an unnamed vector, or name entries by covariate."
-      ))
+      pmx_warn(c(
+        "The {.arg colors} palette function returned names matching no covariate ({.val {color_levels}}); covariates are not colored.",
+        "i" = "Return an unnamed vector, or name entries by covariate."
+      ), "ignored_arg")
     }
     plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
   }

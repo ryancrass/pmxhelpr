@@ -62,33 +62,33 @@ test_that("df_mrgsim_replicate carries user-specified columns via carry_out and 
 test_that("Error if incorrect class for arugmument `data`", {
   expect_error(df_mrgsim_replicate(data="",
                                    model=model_mread_load("pkmodel"), replicates = 1,dv_var = "ODV"),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if incorrect class for arugmument `model`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model="model", replicates = 1, dv_var = "ODV"),
-               regexp = "argument `model` must be class `mrgmod`")
+               regexp = "`model` must be class <mrgmod>")
 })
 
 test_that("Error if incorrect class for arugmument `replicates`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = "a", dv_var = "ODV"),
-               regexp = "argument `replicates` must be coercible to class `integer`")
+               regexp = "`replicates` must be coercible to <integer>")
 })
 
 test_that("Error if time_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 1,
                                    dv_var = "ODV", time_var = "test"),
-               regexp = "argument `time_var` must be variable.*in `data`")
+               regexp = "`time_var` must name variable.*in `data`")
 })
 
 test_that("Error if ntime_var does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "ODV",
                                    ntime_var = "test"),
-               regexp = "argument `ntime_var` must be variable.*in `data`")
+               regexp = "`ntime_var` must name variable.*in `data`")
 })
 
 test_that("No error if time_var and ntime_var are specified as the same variable", {
@@ -100,7 +100,7 @@ test_that("No error if time_var and ntime_var are specified as the same variable
 test_that("Error if DV variable specified in dv_vars does not exist in `data`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2,dv_var = "DV"),
-               regexp = "argument `dv_var` must be variable.*in `data`")
+               regexp = "`dv_var` must name variable.*in `data`")
 })
 
 test_that("Same seed produces identical output", {
@@ -117,7 +117,7 @@ test_that("Error if incorrect class for arugmument `seed`", {
   expect_error(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 2, dv_var = "ODV",
                                    seed = "A"),
-               regexp = "argument `seed` must be coercible to class `integer`")
+               regexp = "`seed` must be coercible to <integer>")
 })
 
 ##Test NSE Bare Names
@@ -144,7 +144,7 @@ test_that("Error if the removed parallel argument is supplied", {
                                    model = model_mread_load("pkmodel"),
                                    replicates = 2, dv_var = "ODV",
                                    parallel = TRUE),
-               regexp = "argument `parallel` was removed in pmxhelpr 0.7.0")
+               regexp = "`parallel` was removed in pmxhelpr 0.7.0")
 })
 
 test_that("pred_var other than PRED aborts with a clear message", {
@@ -152,7 +152,7 @@ test_that("pred_var other than PRED aborts with a clear message", {
     df_mrgsim_replicate(dplyr::filter(data_sad, CMT %in% c(1, 2)),
                         model_mread_load("pkmodel"), replicates = 1,
                         dv_var = ODV, pred_var = "CP"),
-    regexp = "argument `pred_var` must be \"PRED\""
+    regexp = "`pred_var` must be \"PRED\""
   )
 })
 

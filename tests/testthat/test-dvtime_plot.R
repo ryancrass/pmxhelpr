@@ -255,7 +255,7 @@ test_that("plot_dvtime orders a numeric-labelled character col_var by value", {
 test_that("plot_dvtime aborts early on a non-style_spec `style`", {
   expect_error(plot_dvtime(dplyr::filter(data_sad, CMT != 3), dv_var = "ODV",
                            style = list(alphas = c(obs_point = 0))),
-               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
+               regexp = "`style` must be a `ggstylekit::style_spec\\(\\)` object")
 })
 
 ##Test errorbar_width (style field, data-defaulted when unset)
@@ -339,7 +339,7 @@ test_that("logical arguments must be TRUE or FALSE", {
     args <- list(data, dv_var = "ODV")
     args[[arg]] <- 1
     expect_error(do.call(plot_dvtime, args),
-                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+                 regexp = paste0("`", arg, "` must be `TRUE` or `FALSE`"))
   }
 })
 
@@ -365,7 +365,7 @@ test_that("plot_dvtime show_loq_value toggles the LLOQ legend value", {
   expect_equal(ggplot2::get_guide_data(p_off, "linetype")$.label, "LLOQ")
   expect_null(p_off$scales$get_scales("linetype")$name)
   expect_error(plot_dvtime(d, dv_var = "ODV", show_loq_value = "no"),
-               regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
+               regexp = "`show_loq_value` must be `TRUE` or `FALSE`")
 })
 
 #####central tendency values against direct computation#####

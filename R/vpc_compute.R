@@ -64,6 +64,7 @@
 #' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
 #'    present in `data`, per-row `LLOQ` values are used as the censoring
 #'    threshold. A scalar `loq` broadcasts to a constant threshold across rows.
+#' @param call The call reported in errors.
 #'
 #' @return A preprocessed data.frame with standardized columns and (when a LOQ
 #'    source exists) a row-aligned `LOQ` column. The unique non-NA LOQ values
@@ -74,22 +75,22 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                              pred_var_str,
                              sim_dv_var_str, obs_dv_var_str,
                              strat_var_str = NULL, irep_name_str = "SIM",
-                             loq = NULL) {
+                             loq = NULL, call = rlang::caller_env()) {
 
-  check_df(data, "data")
+  check_df(data, "data", call = call)
   check_varsindf(data,
                  c(time_var_str, ntime_var_str, pred_var_str,
                    sim_dv_var_str, obs_dv_var_str,
                    "MDV", "EVID", irep_name_str),
-                 "data", "vars")
-  if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var")
+                 "data", "vars", call = call)
+  if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var", call = call)
 
   if (!is.null(strat_var_str) && any(is.na(data[[strat_var_str]]))) {
-    rlang::warn(paste0("`strat_var` ('", strat_var_str,
-                       "') contains NA values; faceting will produce an `NA` facet"))
+    pmx_warn("{.arg strat_var} ({.var {strat_var_str}}) contains NA values; faceting will produce an {.val NA} facet.",
+             "data")
   }
 
-  if (!is.null(loq)) check_numeric_strict(loq, "loq")
+  if (!is.null(loq)) check_numeric_strict(loq, "loq", call = call)
   data <- resolve_loq(data, loq)
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
@@ -100,7 +101,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   check_single_cmt(data)
 
   loq_col <- if ("LOQ" %in% colnames(data)) data$LOQ else NULL
-  data$OBSDV <- var_loqcens(data$OBSDV, loq = loq_col, mdv = data$MDV)
+  data$OBSDV <- var_loqcens(data$OBSDV, loq = loq_col, mdv = data$MDV, call = call)
 
   attr(data, "loq") <- if ("LOQ" %in% colnames(data)) {
     sort(unique(data$LOQ[!is.na(data$LOQ)]))
@@ -235,6 +236,7 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
 #'    reads per-row thresholds from `data$LOQ`). The pc stats do *not* emit a
 #'    `pc_sim_prop_blq_*` set — LOQ has no meaning on the prediction-corrected
 #'    scale.
+#' @param call The call reported in errors.
 #'
 #' @return A list of two data.frames with class `c("vpc_stats", "list")`:
 #'    \describe{
@@ -258,7 +260,8 @@ df_vpccompute <- function(data,
                           irep_name = "SIM",
                           lower_bound = 0,
                           mode = c("auto", "rank", "drop"),
-                          loq = attr(data, "loq")) {
+                          loq = attr(data, "loq"),
+                          call = rlang::caller_env()) {
 
   ## Force the lazy default before any data mutation: dplyr's group_by /
   ## mutate strips attributes, so reading attr(data, "loq") later would
@@ -266,8 +269,8 @@ df_vpccompute <- function(data,
   force(loq)
 
   mode <- match.arg(mode)
-  check_quantile_pair(pi, "pi")
-  check_quantile_scalar(ci, "ci")
+  check_quantile_pair(pi, "pi", call = call)
+  check_quantile_scalar(ci, "ci", call = call)
   ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
 
   group_vars <- c(bin_var)

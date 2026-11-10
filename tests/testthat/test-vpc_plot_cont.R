@@ -30,7 +30,7 @@ test_that("Output plot does not contains a caption with number of replicates whe
 ##Test Argument Handling
 test_that("Error if incorrect class for argument `data`", {
   expect_error(plot_vpc_cont(data = "simdata"),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if time_var does not exist in `data`", {
@@ -38,7 +38,7 @@ test_that("Error if time_var does not exist in `data`", {
 
   expect_error(
     plot_vpc_cont(data = testsim, time_var = "ATFD"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
     )
 })
 
@@ -47,7 +47,7 @@ test_that("Error if ntime_var does not exist in `data`", {
 
   expect_error(
     plot_vpc_cont(data = testsim, ntime_var = "NTFD"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 
@@ -64,7 +64,7 @@ test_that("Error if pred_var does not exist in `data` (pred is required for pc s
 
   expect_error(
     plot_vpc_cont(data = testsim, pred_var = "CPRED"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 
@@ -73,7 +73,7 @@ test_that("Error if sim_dv_var does not exist in `data`", {
 
   expect_error(
     plot_vpc_cont(data = testsim, sim_dv_var = "DVSIM"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 
@@ -82,7 +82,7 @@ test_that("Error if obs_dv_var does not exist in `data`", {
 
   expect_error(
     plot_vpc_cont(data = testsim, obs_dv_var = "DV"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 
@@ -91,7 +91,7 @@ test_that("Error if argument for `loq` is not class numeric", {
 
   expect_error(
     plot_vpc_cont(data = testsim, loq = "1"),
-    regexp = "argument `loq` must be class `numeric`"
+    regexp = "`loq` must be <numeric>"
   )
 })
 
@@ -101,7 +101,7 @@ test_that("Error if variable specified by `strat_var` does not exist in `data`",
 
   expect_error(
     plot_vpc_cont(data = testsim, strat_var = "FOOD_f"),
-    regexp = "argument `strat_var` must be variable.*in `data`"
+    regexp = "`strat_var` must name variable.*in `data`"
   )
 })
 
@@ -110,7 +110,7 @@ test_that("Error if variable specified by `irep_name` does not exist in `data`",
 
   expect_error(
     plot_vpc_cont(data = testsim, irep_name = "IREP"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 
@@ -460,11 +460,11 @@ test_that("pmx_vpc_plot class is preserved after adding non-facet layers", {
 
 test_that("plot_vpc_cont() and plot_build_vpc() reject non-logical flags before computing", {
   expect_error(plot_vpc_cont(data_sad, pcvpc = NA),
-               "argument `pcvpc` must be `TRUE` or `FALSE`")
+               "`pcvpc` must be `TRUE` or `FALSE`")
   expect_error(plot_vpc_cont(data_sad, show_rep = "yes"),
-               "argument `show_rep` must be `TRUE` or `FALSE`")
+               "`show_rep` must be `TRUE` or `FALSE`")
   expect_error(plot_build_vpc(list(), show_rep = 1),
-               "argument `show_rep` must be `TRUE` or `FALSE`")
+               "`show_rep` must be `TRUE` or `FALSE`")
 })
 
 

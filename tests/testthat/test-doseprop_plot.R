@@ -15,19 +15,19 @@ test_that("Output is a `data.frame` object", {
 ##Test Argument Handling
 test_that("Error if argument `method` not one of normal or tdist", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), method = 1),
-               regexp = "argument `method` must be `normal` or `tdist`")
+               regexp = "`method` must be \"normal\" or \"tdist\"")
 })
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), ci = 1.1),
-               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be a single whole number >= 1")
+               regexp = "`sigdigits` must be a single whole number >= 1")
   expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = 0),
-               regexp = "argument `sigdigits` must be a single whole number >= 1")
+               regexp = "`sigdigits` must be a single whole number >= 1")
 })
 
 
@@ -147,42 +147,42 @@ test_that("Output plot dose nor include a confidence interval when argument `se`
 ##Test Argument Handling
 test_that("Error if incorrect class for argument `data`", {
   expect_error(plot_doseprop("data_sad_nca", metrics = c("aucinf.obs", "cmax")),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_name_var]]`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("auc")),
-               regexp = "argument `metrics` must be levels in variable `metric_name_var`")
+               regexp = "`metrics` must be levels of variable `metric_name_var`")
 })
 
 test_that("Error if variable specified in `metric_name_var` is not in `data`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "METRIC"),
-               regexp = "argument `metric_name_var` must be variable.*in `data`")
+               regexp = "`metric_name_var` must name variable.*in `data`")
 })
 
 test_that("Error if variable specified in `dose_var` is not in `data`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSEN"),
-               regexp = "argument `dose_var` must be variable.*in `data`")
+               regexp = "`dose_var` must name variable.*in `data`")
 })
 
 test_that("Error if variable specified in `metric_value_var` is not in `data`", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_value_var = "EXP"),
-               regexp = "argument `metric_value_var` must be variable.*in `data`")
+               regexp = "`metric_value_var` must name variable.*in `data`")
 })
 
 test_that("Error if argument `method` is not one of normal or tdist", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
-               regexp = "argument `method` must be `normal` or `tdist`")
+               regexp = "`method` must be \"normal\" or \"tdist\"")
 })
 
 test_that("Error if argument `ci` is not numeric between 0 and 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
-               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
   expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
-               regexp = "argument `sigdigits` must be a single whole number >= 1")
+               regexp = "`sigdigits` must be a single whole number >= 1")
 })
 
 ##Test NSE Bare Names
@@ -253,7 +253,7 @@ test_that("plot_build_doseprop accepts a doseprop_stats object and returns a ggp
 
 test_that("plot_build_doseprop rejects non-doseprop_stats input", {
   expect_error(plot_build_doseprop(data.frame(x = 1)),
-               regexp = "must be a `doseprop_stats` object")
+               regexp = "must be a <doseprop_stats> object")
 })
 
 test_that("validate_doseprop_stats: config-named columns must exist in obs (PR#19 review)", {
@@ -269,7 +269,7 @@ test_that("validate_doseprop_stats: config-named columns must exist in obs (PR#1
                                      broken$config$metric_name_var),
                            drop = FALSE]
   expect_error(plot_build_doseprop(broken),
-               regexp = "`config\\$metric_name_var` must be variable\\(s\\) in `obs`")
+               regexp = "`config\\$metric_name_var` must name variable in `stats\\$obs`")
 })
 
 test_that("plot_build_doseprop honors se = FALSE", {
@@ -447,15 +447,15 @@ test_that("plot_build_doseprop takes its facet layout from the style", {
 test_that("plot_doseprop() rejects a non-logical se", {
   stats <- df_doseprop(data_sad_nca, metrics = "aucinf.obs")
   expect_error(plot_doseprop(stats, se = "no"),
-               "argument `se` must be `TRUE` or `FALSE`")
+               "`se` must be `TRUE` or `FALSE`")
   expect_error(plot_build_doseprop(stats, se = NA),
-               "argument `se` must be `TRUE` or `FALSE`")
+               "`se` must be `TRUE` or `FALSE`")
 })
 
 
 test_that("df_doseprop() / plot_doseprop() require metrics on the raw path", {
-  expect_error(df_doseprop(data_sad_nca, metrics = NULL), "argument `metrics` is required")
-  expect_error(plot_doseprop(data_sad_nca), "argument `metrics` is required")
+  expect_error(df_doseprop(data_sad_nca, metrics = NULL), "`metrics` is required")
+  expect_error(plot_doseprop(data_sad_nca), "`metrics` is required")
 })
 
 test_that("method selects the normal or t critical value for the CI", {

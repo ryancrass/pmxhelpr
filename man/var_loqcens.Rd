@@ -4,7 +4,7 @@
 \alias{var_loqcens}
 \title{Internal Helper: Encode below-the-limit-of-quantification (BLQ) values as -Inf}
 \usage{
-var_loqcens(x, loq = NULL, mdv = NULL)
+var_loqcens(x, loq = NULL, mdv = NULL, call = rlang::caller_env())
 }
 \arguments{
 \item{x}{Numeric vector to encode.}
@@ -14,6 +14,8 @@ limit of quantification, or \code{NULL} (no \verb{< loq} trigger).}
 
 \item{mdv}{Integer/logical vector of length \code{length(x)} flagging missing-DV
 rows (NONMEM convention \code{MDV == 1}), or \code{NULL} (no MDV trigger).}
+
+\item{call}{The call reported in errors.}
 }
 \value{
 Numeric vector the same length as \code{x}, with BLQ positions set to \code{-Inf}.

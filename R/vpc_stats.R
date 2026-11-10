@@ -240,11 +240,13 @@ summary.vpc_stats <- function(object, ...) {
 #' clear message on failure; returns `x` invisibly on success.
 #'
 #' @param x Object to validate.
+#' @param arg,call The argument name and call reported in errors.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
 
-validate_vpc_stats <- function(x) {
+validate_vpc_stats <- function(x, arg = rlang::caller_arg(x),
+                               call = rlang::caller_env()) {
   ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
   ## Use the medians as the canonical column for each group so we don't
   ## depend on every CI bound being present.
@@ -256,7 +258,8 @@ validate_vpc_stats <- function(x) {
                    "pc_obs_low", "pc_obs_med", "pc_obs_hi",
                    "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med"),
     obs_cols = c("OBSDV", "PC_OBSDV", "TIME"),
-    config_keys = c("n_replicates", "loq", "strat_var")
+    config_keys = c("n_replicates", "loq", "strat_var"),
+    arg = arg, call = call
   )
 
   ## Cens invariant: if df_vpcstats() was called with a LOQ source, the
@@ -265,9 +268,8 @@ validate_vpc_stats <- function(x) {
   ## NULL, columns absent) are handled by the cens user-facing check in
   ## plot_build_vpc().
   if (!is.null(x$config$loq) && !"sim_prop_blq_med" %in% colnames(x$stats)) {
-    rlang::abort(
-      "`vpc_stats$config$loq` is set but `stats` is missing `sim_prop_blq_*` columns."
-    )
+    pmx_abort("{.code {arg}$config$loq} is set but {.code {arg}$stats} is missing {.code sim_prop_blq_*} columns.",
+              "bad_stats", call = call)
   }
 
   invisible(x)

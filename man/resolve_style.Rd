@@ -4,13 +4,15 @@
 \alias{resolve_style}
 \title{Internal helper: resolve and validate the \code{style} argument}
 \usage{
-resolve_style(style, default)
+resolve_style(style, default, call = rlang::caller_env())
 }
 \arguments{
 \item{style}{\code{NULL} or a \code{ggstylekit_style_spec} object.}
 
 \item{default}{A function returning the family preset (e.g. \link{style_dvtime}),
 called only when \code{style} is \code{NULL}.}
+
+\item{call}{The call reported in the error.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

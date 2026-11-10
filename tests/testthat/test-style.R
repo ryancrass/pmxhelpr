@@ -101,7 +101,7 @@ test_that("resolve_style passes a style_spec through unchanged", {
 
 test_that("resolve_style aborts on a non-style_spec `style`", {
   expect_error(pmxhelpr:::resolve_style(list(colors = "red"), style_dvtime),
-               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object.*got <list>")
+               regexp = "`style` must be a `ggstylekit::style_spec\\(\\)` object(.|\n)*Got <list>")
   expect_error(pmxhelpr:::resolve_style("blue", style_dvtime),
-               regexp = "got <character>")
+               regexp = "Got <character>")
 })

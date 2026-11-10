@@ -42,17 +42,17 @@ test_that("Output plot does not contain a caption when `show_caption = FALSE`", 
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
   expect_error(plot_gof(data = "data_sad_pkfit", dv_var = "ODV"),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if time_var does not exist in `data`", {
   expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", time_var = "ATFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("Error if ntime_var does not exist in `data`", {
   expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", ntime_var = "NTFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("No error if time_var and ntime_var specified as the same variable", {
@@ -62,7 +62,7 @@ test_that("No error if time_var and ntime_var specified as the same variable", {
 
 test_that("Error if `id_var` does not exist in `data`", {
   expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", id_var = "SUBJID"),
-               regexp = "argument `id_var` must be variable.*in `data`")
+               regexp = "`id_var` must name variable.*in `data`")
 })
 
 test_that("No error when `id_var` is NULL (default)", {
@@ -71,7 +71,7 @@ test_that("No error when `id_var` is NULL (default)", {
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {
   expect_error(plot_gof(data = data_sad_pkfit, dv_var = "ODV", dose_var = "DOSEN", dosenorm = TRUE),
-               regexp = "argument `dose_var` must be variable.*in `data`")
+               regexp = "`dose_var` must name variable.*in `data`")
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
@@ -80,7 +80,7 @@ test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FA
 
 test_that("Error if dv_var does not exist in `data`", {
   expect_error(plot_gof(data = data_sad_pkfit, dv_var = "NONEXIST"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 ##Test NSE Bare Names
@@ -294,11 +294,11 @@ test_that("plot_gof errorbar_width from the style reaches the errorbar layer", {
 
 test_that("plot_gof() rejects non-logical flags", {
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", log_y = NA),
-               "argument `log_y` must be `TRUE` or `FALSE`")
+               "`log_y` must be `TRUE` or `FALSE`")
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", dosenorm = "yes"),
-               "argument `dosenorm` must be `TRUE` or `FALSE`")
+               "`dosenorm` must be `TRUE` or `FALSE`")
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", show_caption = 1),
-               "argument `show_caption` must be `TRUE` or `FALSE`")
+               "`show_caption` must be `TRUE` or `FALSE`")
 })
 
 test_that("plot_gof show_loq_value toggles the LLOQ legend value", {
@@ -310,7 +310,7 @@ test_that("plot_gof show_loq_value toggles the LLOQ legend value", {
   expect_equal(ggplot2::get_guide_data(p_off, "linetype")$.label, "LLOQ")
   expect_null(p_off$scales$get_scales("linetype")$name)
   expect_error(plot_gof(data_sad_pkfit, dv_var = "ODV", show_loq_value = NA),
-               regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
+               regexp = "`show_loq_value` must be `TRUE` or `FALSE`")
 })
 
 test_that("plot_gof log_y falls back to the style's logy; a passed log_y wins", {

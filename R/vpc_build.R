@@ -104,14 +104,14 @@ plot_build_vpc <- function(stats,
 
   if (type == "cens") {
     if (is.null(stats$config$loq)) {
-      rlang::abort(
-        "`type = \"cens\"` requires a LOQ source; call `df_vpcstats()` with `loq = <numeric>` or include an `LLOQ` column in `data`."
-      )
+      pmx_abort(c(
+        "{.code type = \"cens\"} requires a LOQ source.",
+        "i" = "Call {.fn df_vpcstats} with {.code loq = <numeric>}, or include an {.var LLOQ} column in {.arg data}."
+      ), "bad_stats")
     }
     if (isTRUE(pcvpc)) {
-      rlang::abort(
-        "`pcvpc = TRUE` is not supported for `type = \"cens\"`; LOQ has no meaning on the prediction-corrected scale."
-      )
+      pmx_abort("{.code pcvpc = TRUE} is not supported for {.code type = \"cens\"}; LOQ has no meaning on the prediction-corrected scale.",
+                "bad_arg")
     }
   }
 

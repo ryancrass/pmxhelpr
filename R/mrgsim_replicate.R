@@ -73,14 +73,13 @@ df_mrgsim_replicate <- function(data,
   check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
   if (pred_var_str != "PRED") {
-    rlang::abort(paste0(
-      "argument `pred_var` must be \"PRED\": the population prediction is ",
-      "computed from `ipred_var` with random effects zeroed and is always ",
-      "returned as `PRED`."
-    ))
+    pmx_abort(c(
+      "{.arg pred_var} must be {.val PRED}.",
+      "i" = "The population prediction is computed from {.arg ipred_var} with random effects zeroed and is always returned as {.var PRED}."
+    ), "bad_arg")
   }
   check_integer(replicates, "replicates")
-  if(replicates < 1) {rlang::abort(message = "argument `replicates` must be >= 1")}
+  if(replicates < 1) {pmx_abort("{.arg replicates} must be >= 1.", "bad_arg")}
   check_varsindf(data, dv_var_str, "data", "dv_var")
   check_varsindf(data, time_var_str, "data", "time_var")
   check_varsindf(data, ntime_var_str, "data", "ntime_var")
@@ -101,10 +100,8 @@ df_mrgsim_replicate <- function(data,
   ## `parallel` was a formal argument until 0.7.0; without this check it would
   ## fall into `...` and mrgsim_df() would warn once per replicate.
   if ("parallel" %in% names(dots)) {
-    rlang::abort(message = paste0(
-      "argument `parallel` was removed in pmxhelpr 0.7.0; ",
-      "replicates always run sequentially."
-    ))
+    pmx_abort("{.arg parallel} was removed in pmxhelpr 0.7.0; replicates always run sequentially.",
+              "bad_arg")
   }
   dots$carry_out <- union(internal_carry, dots$carry_out %||% character(0))
 

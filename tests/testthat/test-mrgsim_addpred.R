@@ -23,17 +23,17 @@ test_that("output is returned if non-default option specified for argument `outp
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
   expect_error(df_mrgsim_addpred(data="",model=model_mread_load("pkmodel")),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if incorrect class for arugmument `model`", {
   expect_error(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model="pkmodel"),
-               regexp = "argument `model` must be class `mrgmod`")
+               regexp = "`model` must be class <mrgmod>")
 })
 
 test_that("Error if incorrect class for arugmument `output_var`", {
   expect_error(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"), output_var = "PRED"),
-  regexp = "argument `output_var` must be captured as output in `model`")
+  regexp = "`output_var` \\(\"PRED\"\\) must be captured as output in `model`")
 })
 
 ##Test NSE Bare Names

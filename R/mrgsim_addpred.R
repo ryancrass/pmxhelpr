@@ -34,7 +34,8 @@ df_mrgsim_addpred <- function(data,
   check_capture(model, output_var_str, "model", "output_var")
 
   if ("PRED" %in% colnames(data)) {
-    rlang::warn("`data` already contains a `PRED` column; it will be overwritten")
+    pmx_warn("{.arg data} already contains a {.var PRED} column; it will be overwritten.",
+             "overwrite")
   }
 
   ## `...` goes to mrgsim_df(); a user `carry_out` is merged with the output
@@ -48,11 +49,12 @@ df_mrgsim_addpred <- function(data,
   ))
   ## PRED is matched to `data` by row position.
   if (nrow(sim) != nrow(data)) {
-    rlang::abort(paste0(
-      "the simulation returned ", nrow(sim), " rows for ", nrow(data),
-      " rows of `data`; `df_mrgsim_addpred()` needs one output row per input ",
-      "row, so drop arguments in `...` that add or remove rows (e.g. `obsonly`)."
-    ))
+    n_sim <- nrow(sim)
+    n_data <- nrow(data)
+    pmx_abort(c(
+      "The simulation returned {n_sim} row{?s} for {n_data} row{?s} of {.arg data}.",
+      "i" = "{.fn df_mrgsim_addpred} needs one output row per input row; drop arguments in {.arg ...} that add or remove rows (e.g. {.arg obsonly})."
+    ), "bad_arg")
   }
   data$PRED <- sim[[output_var_str]]
   return(data)

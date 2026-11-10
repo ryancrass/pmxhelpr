@@ -4,13 +4,15 @@
 \alias{resolve_var}
 \title{Internal helper: Resolve function input conflicts to standard internal string constants}
 \usage{
-resolve_var(quo, nullable = FALSE)
+resolve_var(quo, nullable = FALSE, call = rlang::caller_env())
 }
 \arguments{
 \item{quo}{Function argument as a quosure (wrapped in rlang::ensym)}
 
 \item{nullable}{Logical argument specifying if the argument may be \code{NULL}.
 Default is \code{FALSE}.}
+
+\item{call}{The call reported in the error.}
 }
 \value{
 A resolved string constant variable

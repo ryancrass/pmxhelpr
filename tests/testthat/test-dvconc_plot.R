@@ -157,7 +157,7 @@ test_that("logical arguments must be TRUE or FALSE", {
     args <- list(data_sad, dv_var = "ODV", idv_var = "CONC")
     args[[arg]] <- NA
     expect_error(do.call(plot_dvconc, args),
-                 regexp = paste0("argument `", arg, "` must be `TRUE` or `FALSE`"))
+                 regexp = paste0("`", arg, "` must be `TRUE` or `FALSE`"))
   }
 })
 

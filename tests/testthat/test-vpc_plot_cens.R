@@ -44,21 +44,21 @@ test_that("plot_vpc_cens inherits loq from LLOQ column when not supplied", {
 ##Test Argument Handling
 test_that("Error if incorrect class for argument `data`", {
   expect_error(plot_vpc_cens(data = "simdata", loq = 1),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if time_var/ntime_var/pred_var/sim_dv_var/obs_dv_var missing in `data`", {
   testsim <- sim_pk()
   expect_error(plot_vpc_cens(data = testsim, loq = 1, time_var = "ATFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
   expect_error(plot_vpc_cens(data = testsim, loq = 1, ntime_var = "NTFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
   expect_error(plot_vpc_cens(data = testsim, loq = 1, pred_var = "CPRED"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
   expect_error(plot_vpc_cens(data = testsim, loq = 1, sim_dv_var = "DVSIM"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
   expect_error(plot_vpc_cens(data = testsim, loq = 1, obs_dv_var = "DVOBS"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 ##Test layer composition
@@ -281,7 +281,7 @@ test_that("plot_vpc_cens takes its stratification facet layout from the style", 
 
 test_that("plot_vpc_cens() rejects a non-logical show_rep before computing", {
   expect_error(plot_vpc_cens(data_sad, show_rep = 1),
-               "argument `show_rep` must be `TRUE` or `FALSE`")
+               "`show_rep` must be `TRUE` or `FALSE`")
 })
 
 

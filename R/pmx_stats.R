@@ -26,7 +26,7 @@ pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
     list(stats = stats, obs = obs, config = config),
     class = c(subclass, "pmx_stats")
   )
-  validate_pmx_stats(out)
+  validate_pmx_stats(out, arg = "stats")
   out
 }
 
@@ -77,6 +77,7 @@ is_pmx_stats <- function(x, strict = FALSE) {
 #' @param config_keys Keys `x$config` must contain.
 #' @param require_obs Logical; whether `x$obs` must be a data.frame rather
 #'    than `NULL`. Implied by a non-empty `obs_cols`.
+#' @param arg,call The argument name and call reported in errors.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
@@ -84,38 +85,41 @@ is_pmx_stats <- function(x, strict = FALSE) {
 validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
                                stats_cols = NULL, obs_cols = NULL,
                                config_keys = NULL,
-                               require_obs = length(obs_cols) > 0) {
+                               require_obs = length(obs_cols) > 0,
+                               arg = rlang::caller_arg(x),
+                               call = rlang::caller_env()) {
   if (!is.null(subclass) && !inherits(x, subclass)) {
-    rlang::abort(paste0("`x` must be a `", subclass, "` object (output of `",
-                        source, "()`)."))
+    pmx_abort("{.arg {arg}} must be a {.cls {subclass}} object (output of {.fn {source}}).",
+              "bad_stats", call = call)
   }
   if (!inherits(x, "pmx_stats")) {
-    rlang::abort("`x` must be a `pmx_stats` object.")
+    pmx_abort("{.arg {arg}} must be a {.cls pmx_stats} object.", "bad_stats", call = call)
   }
   required <- c("stats", "obs", "config")
   missing  <- setdiff(required, names(x))
   if (length(missing) > 0) {
-    rlang::abort(paste0("`pmx_stats` object is missing slots: ",
-                        paste(missing, collapse = ", ")))
+    pmx_abort("{.arg {arg}} is missing {cli::qty(missing)}slot{?s} {.var {missing}}.",
+              "bad_stats", call = call)
   }
   if (!is.data.frame(x$stats)) {
-    rlang::abort("`pmx_stats$stats` must be a `data.frame`.")
+    pmx_abort("{.code {arg}$stats} must be a {.cls data.frame}.", "bad_stats", call = call)
   }
   if (!is.null(x$obs) && !is.data.frame(x$obs)) {
-    rlang::abort("`pmx_stats$obs` must be a `data.frame` or `NULL`.")
+    pmx_abort("{.code {arg}$obs} must be a {.cls data.frame} or {.code NULL}.", "bad_stats",
+              call = call)
   }
   if (!is.list(x$config)) {
-    rlang::abort("`pmx_stats$config` must be a `list`.")
+    pmx_abort("{.code {arg}$config} must be a {.cls list}.", "bad_stats", call = call)
   }
-  name <- subclass %||% "pmx_stats"
   if (isTRUE(require_obs) && !is.data.frame(x$obs)) {
-    rlang::abort(paste0("`", name, "` object must contain `stats` and `obs` data.frames."))
+    pmx_abort("{.arg {arg}} must contain {.var stats} and {.var obs} data frames.",
+              "bad_stats", call = call)
   }
   missing_from <- function(have, need, what, noun) {
     miss <- setdiff(need, have)
     if (length(miss) > 0) {
-      rlang::abort(paste0("`", name, "$", what, "` is missing required ", noun,
-                          ": ", paste(miss, collapse = ", ")))
+      pmx_abort("{.code {arg}${what}} is missing required {noun}: {.var {miss}}.",
+                "bad_stats", call = call)
     }
   }
   missing_from(colnames(x$stats), stats_cols, "stats", "columns")

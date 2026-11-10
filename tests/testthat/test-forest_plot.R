@@ -142,25 +142,25 @@ test_that("labels share one decimal count per metric, set by `sigdigits` of its 
 
 test_that("Error if `data` is not a data.frame", {
   expect_error(df_forest("not a data.frame"),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error on malformed ci / sigdigits", {
   expect_error(df_forest(data_sad_pkforest, ci = 1.5),
-               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
   for (bad in list("abc", 0, -1, 2.5, c(2, 3), NA_real_)) {
     expect_error(df_forest(data_sad_pkforest, sigdigits = bad),
-                 regexp = "argument `sigdigits` must be a single whole number >= 1")
+                 regexp = "`sigdigits` must be a single whole number >= 1")
   }
 })
 
 test_that("Error if a named column is missing", {
   d <- data_sad_pkforest
   d$metric <- NULL
-  expect_error(df_forest(d), regexp = "not found: 'metric'")
+  expect_error(df_forest(d), regexp = "Not found: \"metric\"")
   d <- data_sad_pkforest
   d$value <- NULL
-  expect_error(df_forest(d), regexp = "not found: 'value'")
+  expect_error(df_forest(d), regexp = "Not found: \"value\"")
 })
 
 test_that("df_forest() rejects malformed cov_name_ref", {
@@ -236,7 +236,7 @@ test_that("Distributed reference rows inherit est/lo/hi and labels from the refe
 test_that("cov_level_ref names absent from data are ignored with a warning; unnamed covariates get no reference row", {
   expect_warning(
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOOD = "Fasted", SEX = "Male")),
-    "`cov_level_ref` names covariates not found in `cov_name`: SEX"
+    "`cov_level_ref` names a covariate not found in `cov_name`: \"SEX\""
   )
   s <- drawn(out)
   expect_true(any(s$is_ref & s$cov_name == "FOOD"))
@@ -247,7 +247,7 @@ test_that("cov_level_ref names absent from data are ignored with a warning; unna
 test_that("a misspelled cov_level_ref name warns instead of silently falling back to consolidated", {
   expect_warning(
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(FOD = "Fasted")),
-    "not found in `cov_name`: FOD"
+    "not found in `cov_name`: \"FOD\""
   )
   expect_false(any(out$stats$layout == "distributed"))
 })
@@ -306,7 +306,7 @@ test_that("Covariate rows keep the order the reference label set, in both layout
 test_that("ref_layout errors: distributed without distributed rows; bad values", {
   expect_error(plot_build_forest(df_forest(data_sad_pkforest), metric = "AUC",
                                  ref_layout = "distributed"),
-               "pass `cov_level_ref` naming its covariates to `df_forest\\(\\)`")
+               "Pass `cov_level_ref` naming its covariates to `df_forest\\(\\)`")
   stats <- df_forest(data_sad_pkforest, cov_level_ref = ref_map)
   stats$stats <- stats$stats[stats$stats$layout != "distributed", ]
   expect_error(plot_build_forest(stats, metric = "AUC", ref_layout = "distributed"),
@@ -338,7 +338,7 @@ test_that("The default ref_layout is resolved per metric", {
   expect_setequal(as.character(unique(p$data$cov_name)), c("Reference", "AGE"))
   expect_equal(as.character(unique(plot_build_forest(fs, metric = "A")$data$cov_name)), "WT")
   expect_error(plot_build_forest(fs, metric = "B", ref_layout = "distributed"),
-               "per-covariate reference rows for metric `B`")
+               "per-covariate reference rows for metric \"B\"")
 })
 
 test_that("ref_layout switches the drawn panels of one container", {
@@ -457,7 +457,7 @@ test_that("show_rep warns and shows the range when counts differ", {
   d <- data_sad_pkforest
   d$value[d$metric == "AUCRATIO" & d$cov_level == "90 kg"][1:20] <- NA
   expect_warning(p <- plot_build_forest(df_forest(d), "AUCRATIO", show_rep = TRUE),
-                 "fewer than 500 in: WTBL 90 kg \\(n = 480\\)")
+                 "fewer than 500 in: \"WTBL 90 kg \\(n = 480\\)\"")
   expect_equal(p$labels$caption, "Replicates = 480-500")
   stats <- df_forest(data_sad_pkforest)
   stats$stats$n <- NULL
@@ -473,7 +473,7 @@ test_that("validate_forest_stats passes a valid object invisibly", {
 
 test_that("validate_forest_stats errors on non-forest_stats input", {
   expect_error(pmxhelpr:::validate_forest_stats(list()),
-               regexp = "must be a `forest_stats` object")
+               regexp = "must be a <forest_stats> object")
 })
 
 test_that("validate_forest_stats errors when canonical columns or config keys are missing", {
@@ -485,7 +485,7 @@ test_that("validate_forest_stats errors when canonical columns or config keys ar
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns")
   out <- df_forest(data_sad_pkforest)
   out$stats$layout <- NULL
-  expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns: layout")
+  expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required columns: `layout`")
   out <- df_forest(data_sad_pkforest)
   out$config$ci <- NULL
   expect_error(pmxhelpr:::validate_forest_stats(out), regexp = "missing required keys")
@@ -498,15 +498,15 @@ test_that("validate_forest_stats checks column types and values of an edited con
     pmxhelpr:::validate_forest_stats(out)
   }
   expect_error(v(function(o) { o$stats$layout[1] <- "foo"; o }),
-               "`stats\\$stats\\$layout` must be .*found: foo")
+               "\\$stats\\$layout` must be .*found \"foo\"")
   expect_error(v(function(o) { o$stats$is_ref <- ifelse(o$stats$is_ref, "yes", "no"); o }),
-               "`stats\\$stats\\$is_ref` must be logical")
+               "\\$stats\\$is_ref` must be logical")
   expect_error(v(function(o) { o$stats$is_ref[1] <- NA; o }),
-               "`stats\\$stats\\$is_ref` must be logical")
+               "\\$stats\\$is_ref` must be logical")
   expect_error(v(function(o) { o$stats$lo <- as.character(o$stats$lo); o }),
-               "columns must be numeric: lo")
+               "column `lo` must be numeric")
   expect_error(v(function(o) { o$stats$ci_label <- factor(o$stats$ci_label); o }),
-               "columns must be character: ci_label")
+               "column `ci_label` must be character")
   expect_error(v(function(o) { o$config$ci <- 90; o }), "config\\$ci")
   expect_error(v(function(o) { o$config$sigdigits <- 0; o }), "config\\$sigdigits")
   # NA estimates (an all-NA group) are allowed
@@ -620,7 +620,7 @@ test_that("style_forest() theme uses the forest panel variant", {
 test_that("plot_build_forest() returns a ggplot; rejects non-forest_stats input and bad style", {
   stats <- df_forest(data_sad_pkforest)
   expect_s3_class(plot_build_forest(stats, metric = "AUCRATIO"), "ggplot")
-  expect_error(plot_build_forest(data_sad_pkforest), regexp = "must be a `forest_stats` object")
+  expect_error(plot_build_forest(data_sad_pkforest), regexp = "must be a <forest_stats> object")
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", style = list(point = 1)),
                regexp = "must be a `ggstylekit::style_spec\\(\\)` object")
 })
@@ -829,9 +829,9 @@ test_that("Error on malformed ref_band / ref", {
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(1.25, 0.8)),
                regexp = "must be ordered")
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref = "one"),
-               regexp = "argument `ref` must be a single numeric value")
+               regexp = "`ref` must be a single numeric value")
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref = c(1, 2)),
-               regexp = "argument `ref` must be a single numeric value")
+               regexp = "`ref` must be a single numeric value")
   expect_error(plot_build_forest(stats, metric = "AUCRATIO", ref_band = c(-0.2, 1.25)),
                regexp = "must be positive when `ref_band_type = \"multiplicative\"`")
 })
@@ -865,7 +865,7 @@ test_that("metric is the second argument of plot_build_forest(), as in plot_fore
 
 test_that("metric picks the single value automatically, filters, and validates", {
   stats <- df_forest(data_sad_pkforest)
-  expect_error(plot_build_forest(stats), regexp = "argument `metric` is required")
+  expect_error(plot_build_forest(stats), regexp = "`metric` is required")
   p <- plot_build_forest(df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO")))
   expect_true(all(p$data$metric == "AUCRATIO"))
   p <- plot_build_forest(stats, metric = "CMAXRATIO")
@@ -1061,10 +1061,10 @@ test_that("`cov_level_ref` distributes a renamed reference", {
 test_that("df_forest() aborts on NA metric or covariate names", {
   d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
   d$cov_name[1:5] <- NA
-  expect_error(df_forest(d), "columns `cov_name` of `data` must not contain `NA`")
+  expect_error(df_forest(d), "Column `cov_name` of `data` must not contain `NA`")
   d <- dplyr::filter(data_sad_pkforest, metric == "AUC")
   d$metric[1] <- NA
-  expect_error(df_forest(d), "columns `metric` of `data` must not contain `NA`")
+  expect_error(df_forest(d), "Column `metric` of `data` must not contain `NA`")
 })
 
 test_that("an all-NA group does not change the metric's decimal places", {
@@ -1090,7 +1090,7 @@ test_that("ref = \"reference\" aborts on distinct reference-row estimates", {
 test_that("cov_level_ref naming the reference row itself warns and is ignored", {
   expect_warning(
     out <- df_forest(data_sad_pkforest, cov_level_ref = c(Reference = "x", FOOD = "Fasted")),
-    "names the reference row itself \\(`Reference`\\)"
+    "names the reference row itself \\(\"Reference\"\\)"
   )
   expect_false("x" %in% out$stats$cov_level)
 })

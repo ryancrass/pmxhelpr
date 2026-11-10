@@ -68,9 +68,9 @@ plot_vpc_legend <- function(ci = 0.90,
   check_quantile_pair(pi, "pi")
   if (!is.null(lloq)) {
     if (!is.null(loq)) {
-      rlang::abort("pass `loq` only; `lloq` is its deprecated alias.")
+      pmx_abort("Pass {.arg loq} only; {.arg lloq} is its deprecated alias.", "bad_arg")
     }
-    rlang::warn("`lloq` is deprecated; use `loq`.")
+    pmx_warn("{.arg lloq} is deprecated; use {.arg loq}.", "deprecated")
     loq <- lloq
   }
 

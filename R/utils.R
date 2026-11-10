@@ -3,6 +3,7 @@
 #' @param quo Function argument as a quosure (wrapped in rlang::ensym)
 #' @param nullable Logical argument specifying if the argument may be `NULL`.
 #'    Default is `FALSE`.
+#' @param call The call reported in the error.
 #'
 #' @return A resolved string constant variable
 #' @keywords internal
@@ -12,7 +13,7 @@
 #' f("ODV")
 #' f(CONC)
 #'
-resolve_var <- function(quo, nullable = FALSE) {
+resolve_var <- function(quo, nullable = FALSE, call = rlang::caller_env()) {
   expr <- rlang::quo_get_expr(quo)
   if (is.character(expr)) return(expr)
   val <- tryCatch(
@@ -24,7 +25,7 @@ resolve_var <- function(quo, nullable = FALSE) {
     if (is.character(val$value)) return(val$value)
   }
   if (is.symbol(expr)) return(as.character(expr))
-  rlang::abort("Column specification must be a name or string")
+  pmx_abort("Column specification must be a name or string.", "bad_arg", call = call)
 }
 
 
@@ -91,7 +92,8 @@ merge_element <- function(user, default) {
   out <- default
   for (nm in names(user)) {
     if (!nm %in% names(default)) {
-      warning(paste0("`", nm, "` is not a valid field of ", class(default)[1]))
+      cls <- class(default)[1]
+      pmx_warn("{.val {nm}} is not a valid field of {.cls {cls}}.", "ignored_arg")
     } else {
       out[[nm]] <- user[[nm]]
     }

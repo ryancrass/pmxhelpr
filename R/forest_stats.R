@@ -159,16 +159,13 @@ df_forest <- function(
   ## missing name has nowhere to draw.
   has_na <- Filter(function(v) anyNA(data[[v]]), c(metric_name_var_str, cov_name_var_str))
   if (length(has_na) > 0) {
-    rlang::abort(message = paste0(
-      "columns `", paste(has_na, collapse = "`, `"), "` of `data` must not contain `NA`"
-    ))
+    pmx_abort("{cli::qty(has_na)}Column{?s} {.var {has_na}} of {.arg data} must not contain {.code NA}.",
+              "bad_data")
   }
 
   if (!is.null(cov_level_ref) && is.null(cov_name_ref)) {
-    rlang::abort(message = paste0(
-      "argument `cov_level_ref` requires a non-NULL `cov_name_ref` ",
-      "identifying the reference row to distribute."
-    ))
+    pmx_abort("{.arg cov_level_ref} requires a non-NULL {.arg cov_name_ref} identifying the reference row to distribute.",
+              "bad_arg")
   }
 
   grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str)
@@ -256,11 +253,12 @@ forest_aggregate <- function(data, grp_vars, value_var, ci) {
 #' @param cov_name_ref,cov_level_ref As in [df_forest()].
 #' @param cov_order Covariate display order.
 #' @param grp_vars Metric, covariate, and level column names.
+#' @param call The call reported in errors.
 #' @return `list(stats, cov_order)`: rows gain `is_ref` and `layout` (plus any
 #'    distributed copies), and the reference panel moves first in `cov_order`.
 #' @noRd
 forest_distribute_ref <- function(stats, cov_name_ref, cov_level_ref, cov_order,
-                                  grp_vars) {
+                                  grp_vars, call = rlang::caller_env()) {
   metric_name_var_str <- grp_vars[1]
   cov_name_var_str <- grp_vars[2]
   cov_level_var_str <- grp_vars[3]
@@ -277,25 +275,18 @@ forest_distribute_ref <- function(stats, cov_name_ref, cov_level_ref, cov_order,
     ref_covs <- intersect(cov_name_ref, stats[[cov_name_var_str]])
   }
   if (!is.null(cov_level_ref) && length(ref_covs) == 0L) {
-    rlang::abort(message = paste0(
-      "cannot distribute `", cov_name_ref, "` row: no rows with `",
-      cov_name_var_str, " == \"", cov_name_ref, "\"` were found in `data`."
-    ))
+    pmx_abort("Cannot distribute the {.val {cov_name_ref}} row: no rows with {.code {cov_name_var_str} == \"{cov_name_ref}\"} were found in {.arg data}.",
+              "bad_data", call = call)
   }
   unmatched <- setdiff(names(cov_level_ref), cov_order)
   if (length(unmatched) > 0) {
-    rlang::warn(paste0(
-      "`cov_level_ref` names covariates not found in `", cov_name_var_str,
-      "`: ", paste(unmatched, collapse = ", "),
-      ". No reference row is distributed for them."
-    ))
+    pmx_warn("{.arg cov_level_ref} names {cli::qty(unmatched)}{?a covariate/covariates} not found in {.var {cov_name_var_str}}: {.val {unmatched}}. No reference row is distributed for {?it/them}.",
+             "ignored_arg")
   }
   self_ref <- intersect(names(cov_level_ref), ref_covs)
   if (length(self_ref) > 0) {
-    rlang::warn(paste0(
-      "`cov_level_ref` names the reference row itself (`", self_ref,
-      "`); the entry is ignored."
-    ))
+    pmx_warn("{.arg cov_level_ref} names the reference row itself ({.val {self_ref}}); the entry is ignored.",
+             "ignored_arg")
   }
   stats$layout <- ifelse(stats$is_ref, "consolidated", "both")
   ref_rows <- stats[stats$is_ref, , drop = FALSE]
@@ -305,11 +296,11 @@ forest_distribute_ref <- function(stats, cov_name_ref, cov_level_ref, cov_order,
       stats[[cov_level_var_str]][stats[[cov_name_var_str]] == cn]
   }, targets)
   if (length(clash) > 0) {
-    rlang::warn(paste0(
-      "`cov_level_ref` labels match an existing level of the same covariate: ",
-      paste0(clash, " = \"", cov_level_ref[clash], "\"", collapse = ", "),
-      ". The distributed reference row and the test row share that label."
-    ))
+    clash_labels <- paste0(clash, " = \"", cov_level_ref[clash], "\"")
+    pmx_warn(c(
+      "{.arg cov_level_ref} labels match an existing level of the same covariate: {clash_labels}.",
+      "i" = "The distributed reference row and the test row share that label."
+    ), "ignored_arg")
   }
   copies <- lapply(targets, function(cn) {
     present <- stats[[metric_name_var_str]][stats[[cov_name_var_str]] == cn]
@@ -399,23 +390,28 @@ forest_format_labels <- function(stats, sigdigits, metric_var) {
 #' with a clear message on failure; returns `x` invisibly on success.
 #'
 #' @param x Object to validate.
+#' @param arg,call The argument name and call reported in errors.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
 
-validate_forest_stats <- function(x) {
+validate_forest_stats <- function(x, arg = rlang::caller_arg(x),
+                                  call = rlang::caller_env()) {
   validate_pmx_stats(
     x, "forest_stats", "df_forest",
     stats_cols = c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
                    "ci_label", "is_ref", "layout"),
     config_keys = c("metric_name_var", "cov_name_var", "cov_level_var",
-                    "ci", "sigdigits")
+                    "ci", "sigdigits"),
+    arg = arg, call = call
   )
+  stats_name <- paste0(arg, "$stats")
   check_varsindf(
     x$stats,
     c(x$config$metric_name_var, x$config$cov_name_var, x$config$cov_level_var),
-    "stats",
-    "config$metric_name_var/cov_name_var/cov_level_var"
+    stats_name,
+    "config$metric_name_var/cov_name_var/cov_level_var",
+    call = call
   )
   ## Column types and values the renderer relies on, since users may edit
   ## `stats$stats` directly. Estimates and labels may be NA (all-NA draws).
@@ -423,25 +419,23 @@ validate_forest_stats <- function(x) {
   bad_type <- function(cols, pred, what) {
     bad <- cols[!vapply(s[cols], pred, logical(1))]
     if (length(bad) > 0) {
-      rlang::abort(message = paste0(
-        "`stats$stats` columns must be ", what, ": ", paste(bad, collapse = ", ")
-      ))
+      pmx_abort("{.code {stats_name}} {cli::qty(bad)}column{?s} {.var {bad}} must be {what}.",
+                "bad_stats", call = call)
     }
   }
   bad_type(c("est", "lo", "hi"), is.numeric, "numeric")
   bad_type(c("est_label", "lo_label", "hi_label", "ci_label"), is.character, "character")
   if (!is.logical(s$is_ref) || anyNA(s$is_ref)) {
-    rlang::abort(message = "`stats$stats$is_ref` must be logical with no `NA`")
+    pmx_abort("{.code {stats_name}$is_ref} must be logical with no {.code NA}.", "bad_stats",
+              call = call)
   }
   bad_layout <- setdiff(unique(s$layout), c("both", "consolidated", "distributed"))
   if (length(bad_layout) > 0) {
-    rlang::abort(message = paste0(
-      "`stats$stats$layout` must be \"both\", \"consolidated\", or \"distributed\"; found: ",
-      paste(bad_layout, collapse = ", ")
-    ))
+    pmx_abort("{.code {stats_name}$layout} must be {.val both}, {.val consolidated}, or {.val distributed}; found {.val {bad_layout}}.",
+              "bad_stats", call = call)
   }
-  check_quantile_scalar(x$config$ci, "config$ci")
-  check_positive_integer(x$config$sigdigits, "config$sigdigits")
+  check_quantile_scalar(x$config$ci, paste0(arg, "$config$ci"), call = call)
+  check_positive_integer(x$config$sigdigits, paste0(arg, "$config$sigdigits"), call = call)
   invisible(x)
 }
 

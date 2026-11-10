@@ -13,7 +13,8 @@ df_vpccompute(
   irep_name = "SIM",
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
-  loq = attr(data, "loq")
+  loq = attr(data, "loq"),
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -45,6 +46,8 @@ non-NULL, the std stats include \code{sim_prop_blq_low/med/hi} (BLQ detection
 reads per-row thresholds from \code{data$LOQ}). The pc stats do \emph{not} emit a
 \verb{pc_sim_prop_blq_*} set — LOQ has no meaning on the prediction-corrected
 scale.}
+
+\item{call}{The call reported in errors.}
 }
 \value{
 A list of two data.frames with class \code{c("vpc_stats", "list")}:

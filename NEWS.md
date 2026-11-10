@@ -20,6 +20,14 @@
   did. Unstratified VPCs previously drew one line per value, and
   `plot_vpc_legend()` showed one key per value. The VPC legend's LLOQ key
   now uses the style's line width.
+* Errors, warnings, and messages use cli formatting and name the function
+  you called (e.g. ``Error in `plot_dvtime()` `` instead of an internal
+  helper). They carry classes for programmatic handling: a base class
+  (`pmxhelpr_error`, `pmxhelpr_warning`, `pmxhelpr_message`) plus a kind,
+  such as `pmxhelpr_error_bad_arg`, `pmxhelpr_error_missing_var`, or
+  `pmxhelpr_warning_ignored_arg`, so they can be caught with
+  `tryCatch(..., pmxhelpr_error_missing_var = function(e) ...)`. cli is a
+  new direct import; it was already required by ggplot2 and dplyr.
 
 # pmxhelpr 0.7.1
 

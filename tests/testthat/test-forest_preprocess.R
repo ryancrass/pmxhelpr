@@ -107,7 +107,7 @@ test_that("A scenario differing in two covariates aborts", {
   expect_error(
     df_forest_preprocess(bad, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals),
-    "differ in more than one"
+    "differs? in more than one"
   )
 })
 
@@ -115,7 +115,7 @@ test_that("A missing reference scenario aborts", {
   expect_error(
     df_forest_preprocess(sim_wide, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = c(FOOD = 0, WTBL = 60)),
-    "no reference scenario found"
+    "No reference scenario found"
   )
 })
 
@@ -165,12 +165,12 @@ test_that("A ratio name already in `data` aborts, whether a metric or a passthro
   expect_error(
     df_forest_preprocess(clash, metric_vars = c("AUC", "AUCRATIO"), cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals),
-    "would overwrite these columns of `data`: AUCRATIO"
+    "would overwrite this column of `data`: `AUCRATIO`"
   )
   expect_error(
     df_forest_preprocess(clash, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals),
-    "would overwrite these columns of `data`: AUCRATIO"
+    "would overwrite this column of `data`: `AUCRATIO`"
   )
   expect_no_error(
     df_forest_preprocess(clash, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
@@ -185,7 +185,7 @@ test_that("`NA` in the replicate column aborts when ratios are requested", {
     df_forest_preprocess(na_rep, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals, ...)
   }
-  expect_error(run(), "column `SIM` must not contain `NA`")
+  expect_error(run(), "Column `SIM` must not contain `NA`")
   expect_no_error(run(ratio = FALSE))
 })
 
@@ -221,7 +221,7 @@ test_that("Without `cov_labels` levels fall back to their character form", {
 test_that("An unmapped covariate value warns and falls back", {
   expect_warning(
     out <- pre(cov_labels = list(FOOD = c("0" = "Fasted"))),
-    "no entry for these covariate values"
+    "no entry for this covariate value"
   )
   expect_equal(unique(out$cov_level[out$cov_name == "FOOD"]), "1")
 })

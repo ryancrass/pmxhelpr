@@ -4,10 +4,16 @@
 \alias{validate_forest_stats}
 \title{Validate a \code{forest_stats} object}
 \usage{
-validate_forest_stats(x)
+validate_forest_stats(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{x}{Object to validate.}
+
+\item{arg, call}{The argument name and call reported in errors.}
 }
 \value{
 \code{invisible(x)} on success.

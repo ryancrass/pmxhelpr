@@ -95,9 +95,9 @@ test_that("validate_vpc_stats accepts a valid df_vpcstats() output", {
 test_that("validate_vpc_stats rejects a non-vpc_stats object", {
   expect_error(pmxhelpr:::validate_vpc_stats(list(stats = data.frame(),
                                                   obs   = data.frame())),
-               regexp = "must be a `vpc_stats` object")
+               regexp = "must be a <vpc_stats> object")
   expect_error(pmxhelpr:::validate_vpc_stats(NULL),
-               regexp = "must be a `vpc_stats` object")
+               regexp = "must be a <vpc_stats> object")
 })
 
 test_that("validate_vpc_stats rejects a vpc_stats list missing stats or obs", {
@@ -115,7 +115,7 @@ test_that("validate_vpc_stats rejects a vpc_stats list missing required stats co
   bad <- out
   bad$stats <- dplyr::select(bad$stats, -dplyr::any_of(c("pc_obs_med")))
   expect_error(pmxhelpr:::validate_vpc_stats(bad),
-               regexp = "missing required columns: pc_obs_med")
+               regexp = "missing required columns: `pc_obs_med`")
 })
 
 test_that("validate_vpc_stats rejects a vpc_stats list missing required obs columns", {
@@ -123,7 +123,7 @@ test_that("validate_vpc_stats rejects a vpc_stats list missing required obs colu
   bad <- out
   bad$obs <- dplyr::select(bad$obs, -dplyr::any_of("PC_OBSDV"))
   expect_error(pmxhelpr:::validate_vpc_stats(bad),
-               regexp = "missing required columns: PC_OBSDV")
+               regexp = "missing required columns: `PC_OBSDV`")
 })
 
 test_that("validate_vpc_stats rejects a vpc_stats container missing config keys", {
@@ -133,7 +133,7 @@ test_that("validate_vpc_stats rejects a vpc_stats container missing config keys"
   bad$config[["loq"]] <- NULL
   bad$config <- bad$config[setdiff(names(bad$config), "loq")]
   expect_error(pmxhelpr:::validate_vpc_stats(bad),
-               regexp = "missing required keys: loq")
+               regexp = "missing required keys: `loq`")
 })
 
 test_that("validate_vpc_stats rejects a container with loq set but sim_prop_blq_* missing", {

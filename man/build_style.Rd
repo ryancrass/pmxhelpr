@@ -4,12 +4,14 @@
 \alias{build_style}
 \title{Internal helper: build a style_spec from preset defaults plus user overrides}
 \usage{
-build_style(defaults, overrides = list())
+build_style(defaults, overrides = list(), call = rlang::caller_env())
 }
 \arguments{
 \item{defaults}{Named list of default \code{style_spec} arguments.}
 
 \item{overrides}{Named list of user overrides (typically \code{list(...)}).}
+
+\item{call}{The call reported in the error.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

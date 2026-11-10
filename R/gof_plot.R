@@ -125,7 +125,8 @@ plot_gof <- function(data,
   shown_names <- names(shown)[unlist(shown)]
   active <- toupper(shown_names)
   if (length(active) == 0L) {
-    rlang::warn("`shown` has no active elements; the resulting GOF plot will have no overlay layers")
+    pmx_warn("{.arg shown} has no active elements; the GOF plot will have no overlay layers.",
+             "ignored_arg")
   }
 
   #Manual overlay color scale, ordered and restricted to active layers.

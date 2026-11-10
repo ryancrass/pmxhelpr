@@ -141,10 +141,8 @@ df_doseprop <- function(data,
   check_varsindf(data, metric_value_var_str, "data", "metric_value_var")
   check_varsindf(data, dose_var_str, "data", "dose_var")
   if (!is.character(metrics) || length(metrics) == 0L) {
-    rlang::abort(message = paste0(
-      "argument `metrics` is required: a character vector of values in `",
-      metric_name_var_str, "` to analyze"
-    ))
+    pmx_abort("{.arg metrics} is required: a character vector of values in {.var {metric_name_var_str}} to analyze.",
+              "bad_arg")
   }
   check_levelsinvar(data, metric_name_var_str, metrics, "metric_name_var", "metrics")
   check_loglog_args(method, ci, sigdigits)
@@ -155,11 +153,12 @@ df_doseprop <- function(data,
     response   = paste0("log(", metric_value_var_str, ")")
   )
 
+  call <- rlang::current_env()
   tab_list <- lapply(metrics, function(m) {
     dat_m <- dplyr::filter(obs_filtered, .data[[metric_name_var_str]] == m)
     if (nrow(dat_m) < 2) {
-      rlang::abort(paste0("metric `", m,
-                          "` has fewer than 2 rows; cannot fit log-log regression"))
+      pmx_abort("Metric {.val {m}} has fewer than 2 rows; cannot fit log-log regression.",
+                "bad_data", call = call)
     }
     fit <- stats::lm(form, dat_m)
     tab <- df_loglog(fit, method, ci, sigdigits)
@@ -193,20 +192,24 @@ df_doseprop <- function(data,
 #' with a clear message on failure; returns `x` invisibly on success.
 #'
 #' @param x Object to validate.
+#' @param arg,call The argument name and call reported in errors.
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
 
-validate_doseprop_stats <- function(x) {
+validate_doseprop_stats <- function(x, arg = rlang::caller_arg(x),
+                                    call = rlang::caller_env()) {
   validate_pmx_stats(
     x, "doseprop_stats", "df_doseprop",
     stats_cols = c("Intercept", "Power", "LCL", "UCL", "PowerCI"),
     config_keys = c("metric_name_var", "metric_value_var", "dose_var", "ci"),
-    require_obs = TRUE
+    require_obs = TRUE,
+    arg = arg, call = call
   )
-  check_varsindf(x$obs, x$config$metric_name_var,  "obs", "config$metric_name_var")
-  check_varsindf(x$obs, x$config$metric_value_var, "obs", "config$metric_value_var")
-  check_varsindf(x$obs, x$config$dose_var,         "obs", "config$dose_var")
+  obs_name <- paste0(arg, "$obs")
+  check_varsindf(x$obs, x$config$metric_name_var,  obs_name, "config$metric_name_var", call = call)
+  check_varsindf(x$obs, x$config$metric_value_var, obs_name, "config$metric_value_var", call = call)
+  check_varsindf(x$obs, x$config$dose_var,         obs_name, "config$dose_var", call = call)
   invisible(x)
 }
 
@@ -302,10 +305,10 @@ summary.doseprop_stats <- function(object, ...) {
 }
 
 
-check_loglog_args <- function(method, ci, sigdigits) {
+check_loglog_args <- function(method, ci, sigdigits, call = rlang::caller_env()) {
   if (!method %in% c("normal", "tdist")) {
-    rlang::abort(message = "argument `method` must be `normal` or `tdist`")
+    pmx_abort("{.arg method} must be {.val normal} or {.val tdist}.", "bad_arg", call = call)
   }
-  check_quantile_scalar(ci, "ci")
-  check_positive_integer(sigdigits, "sigdigits")
+  check_quantile_scalar(ci, "ci", call = call)
+  check_positive_integer(sigdigits, "sigdigits", call = call)
 }

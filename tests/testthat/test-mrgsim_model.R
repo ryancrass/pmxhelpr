@@ -20,7 +20,7 @@ test_that("Second call returns model object (cache behavior)", {
 ##Test Argument Handling
 test_that("Error if incorrect model does not exist in library", {
   expect_error(model_mread_load("test"),
-               regexp = "`test` does not exist in the pmxhelpr model library")
+               regexp = "Model \"test\" does not exist in the pmxhelpr model library")
 })
 
 test_that("Error if model name with special characters does not exist", {

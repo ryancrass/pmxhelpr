@@ -76,7 +76,7 @@ plot_forest <- function(
 ) {
   if (inherits(data, "forest_stats")) {
     check_pipeline_args_dropped(
-      call = match.call(),
+      mc   = match.call(),
       plot_only_args = c(
         "data", "style", "ref", "ref_band", "ref_band_type", "ref_layout",
         "show_rep", "metric"

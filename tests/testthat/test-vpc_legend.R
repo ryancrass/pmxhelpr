@@ -66,9 +66,9 @@ test_that("plot_vpc_legend with loq adds layers vs the no-loq default", {
 
 test_that("plot_vpc_legend rejects non-numeric loq", {
   expect_error(plot_vpc_legend(loq = "0.1"),
-               regexp = "argument `loq` must be class `numeric`")
+               regexp = "`loq` must be <numeric>")
   expect_error(plot_vpc_legend(loq = c(0.1, NA)),
-               regexp = "argument `loq` must be class `numeric`")
+               regexp = "`loq` must be <numeric>")
 })
 
 test_that("plot_vpc_legend obs_point = FALSE removes the obs point geom", {
@@ -189,7 +189,7 @@ test_that("show_loq_value = FALSE collapses LLOQ entries to a single 'LLOQ' labe
   expect_false(any(grepl("LLOQ = ", lt)))
   expect_false(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(show_loq_value = FALSE)))))
   expect_error(plot_vpc_legend(loq = 1, show_loq_value = NA),
-               regexp = "argument `show_loq_value` must be `TRUE` or `FALSE`")
+               regexp = "`show_loq_value` must be `TRUE` or `FALSE`")
 })
 
 test_that("type = 'cens' suppresses pi-related geom layers regardless of shown", {
@@ -208,7 +208,7 @@ test_that("type = 'cens' suppresses pi-related geom layers regardless of shown",
 ##Test style validation
 test_that("plot_vpc_legend aborts early on a non-style_spec `style`", {
   expect_error(plot_vpc_legend(style = list(colors = c(obs_point = "red"))),
-               regexp = "argument `style` must be a `ggstylekit::style_spec\\(\\)` object")
+               regexp = "`style` must be a `ggstylekit::style_spec\\(\\)` object")
 })
 
 ##Test legend-title fields follow the style
@@ -236,13 +236,13 @@ test_that("legend_style_theme is empty when the style sets neither field", {
 test_that("lloq is a deprecated alias of loq", {
   expect_warning(p_old <- plot_vpc_legend(lloq = c(0.1, 1)), "`lloq` is deprecated")
   expect_equal(linetype_breaks(p_old), linetype_breaks(plot_vpc_legend(loq = c(0.1, 1))))
-  expect_error(plot_vpc_legend(loq = 1, lloq = 1), "pass `loq` only")
+  expect_error(plot_vpc_legend(loq = 1, lloq = 1), "Pass `loq` only")
 })
 
 test_that("plot_vpc_legend validates ci and pi", {
-  expect_error(plot_vpc_legend(ci = 90), "argument `ci` must be a single numeric value in \\(0, 1\\)")
-  expect_error(plot_vpc_legend(pi = c(0.95, 0.05)), "argument `pi` must be ordered")
-  expect_error(plot_vpc_legend(pi = c(5, 95)), "argument `pi` values must be in \\[0, 1\\]")
+  expect_error(plot_vpc_legend(ci = 90), "`ci` must be a single numeric value in \\(0, 1\\)")
+  expect_error(plot_vpc_legend(pi = c(0.95, 0.05)), "`pi` must be ordered")
+  expect_error(plot_vpc_legend(pi = c(5, 95)), "`pi` values must be in \\[0, 1\\]")
 })
 
 test_that("shown$loq_line = FALSE drops the LLOQ legend entry", {

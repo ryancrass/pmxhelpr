@@ -157,19 +157,16 @@ df_forest_preprocess <- function(
   data <- as.data.frame(data)
   not_numeric <- metric_vars[!vapply(data[metric_vars], is.numeric, logical(1))]
   if (length(not_numeric) > 0) {
-    rlang::abort(message = paste0(
-      "argument `metric_vars` must name numeric columns in `data`; these are not: ",
-      paste(not_numeric, collapse = ", ")
-    ))
+    pmx_abort("{.arg metric_vars} must name numeric columns in {.arg data}; {cli::qty(not_numeric)}{?this is/these are} not: {.var {not_numeric}}.",
+              "bad_arg")
   }
   if (isTRUE(ratio)) {
     ratio_clash <- intersect(paste0(metric_vars, ratio_suffix), names(data))
     if (length(ratio_clash) > 0) {
-      rlang::abort(message = paste0(
-        "`ratio = TRUE` would overwrite these columns of `data`: ",
-        paste(ratio_clash, collapse = ", "),
-        ". Rename or drop them, set a different `ratio_suffix`, or set `ratio = FALSE`."
-      ))
+      pmx_abort(c(
+        "{.code ratio = TRUE} would overwrite {cli::qty(ratio_clash)}{?this column/these columns} of {.arg data}: {.var {ratio_clash}}.",
+        "i" = "Rename or drop {cli::qty(ratio_clash)}{?it/them}, set a different {.arg ratio_suffix}, or set {.code ratio = FALSE}."
+      ), "bad_arg")
     }
   }
 
@@ -181,10 +178,8 @@ df_forest_preprocess <- function(
   names(cov_chr) <- cov_vars
   has_na <- cov_vars[vapply(cov_chr, function(x) any(is.na(x)), logical(1))]
   if (length(has_na) > 0) {
-    rlang::abort(message = paste0(
-      "covariate columns must not contain `NA`; these do: ",
-      paste(has_na, collapse = ", ")
-    ))
+    pmx_abort("Covariate columns must not contain {.code NA}; {cli::qty(has_na)}{?this one does/these do}: {.var {has_na}}.",
+              "bad_data")
   }
   ref_chr <- vapply(cov_vars, function(cn) value_chr(cov_val_ref[[cn]]), character(1), USE.NAMES = FALSE)
 
@@ -202,20 +197,21 @@ df_forest_preprocess <- function(
     c(lapply(cov_vars, function(cn) paste0(cn, " = ", cov_chr[[cn]])), list(sep = ", "))
   )
   if (!any(is_ref)) {
-    rlang::abort(message = paste0(
-      "no reference scenario found: no rows in `data` match `cov_val_ref` (",
-      paste0(cov_vars, " = ", ref_chr, collapse = ", "), "). ",
-      "Scenarios present: ", paste(unique(scenario_label)[seq_len(min(10L, length(unique(scenario_label))))], collapse = "; ")
-    ))
+    ref_label <- paste0(cov_vars, " = ", ref_chr, collapse = ", ")
+    scenarios <- unique(scenario_label)
+    pmx_abort(c(
+      "No reference scenario found: no rows in {.arg data} match {.arg cov_val_ref} ({ref_label}).",
+      "i" = "Scenarios present: {.val {scenarios}}."
+    ), "bad_data")
   }
   multi <- n_diff >= 2L
   if (any(multi)) {
-    rlang::abort(message = paste0(
-      "every non-reference scenario must differ from the reference in exactly one covariate; ",
-      "these differ in more than one: ",
-      paste(unique(scenario_label[multi])[seq_len(min(10L, length(unique(scenario_label[multi]))))], collapse = "; "),
-      ". `df_forest_preprocess()` does not support factorial scenario designs."
-    ))
+    multi_scenarios <- unique(scenario_label[multi])
+    pmx_abort(c(
+      "Every non-reference scenario must differ from the reference in exactly one covariate.",
+      "x" = "{cli::qty(multi_scenarios)}{?This scenario differs/These scenarios differ} in more than one: {.val {multi_scenarios}}.",
+      "i" = "{.fn df_forest_preprocess} does not support factorial scenario designs."
+    ), "bad_data")
   }
 
   ## Which covariate each non-reference scenario varies, and its raw value.
@@ -258,11 +254,9 @@ df_forest_preprocess <- function(
   names(cov_level_ref) <- varied_covs
 
   if (length(unlabeled) > 0) {
-    rlang::warn(paste0(
-      "`cov_labels` has no entry for these covariate values: ",
-      paste(unique(unlabeled), collapse = "; "),
-      ". They are labeled by their character value."
-    ))
+    unlabeled <- unique(unlabeled)
+    pmx_warn("{.arg cov_labels} has no entry for {cli::qty(unlabeled)}{?this covariate value/these covariate values}: {.val {unlabeled}}. {cli::qty(unlabeled)}{?It is/They are} labeled by {?its/their} character value.",
+             "ignored_arg")
   }
 
   ## ---- Within-replicate test/reference ratios -----------------------------
@@ -271,20 +265,17 @@ df_forest_preprocess <- function(
   if (isTRUE(ratio)) {
     rep_key <- as.character(data[[irep_name_str]])
     if (any(is.na(rep_key))) {
-      rlang::abort(message = paste0(
-        "column `", irep_name_str, "` must not contain `NA`."
-      ))
+      pmx_abort("Column {.var {irep_name_str}} must not contain {.code NA}.", "bad_data")
     }
     reps <- unique(rep_key)
     n_ref_per <- tabulate(match(rep_key[is_ref], reps), nbins = length(reps))
     bad_rep <- n_ref_per != 1L
     if (any(bad_rep)) {
-      rlang::abort(message = paste0(
-        "each replicate must contain exactly one reference-scenario row; ",
-        "these values of `", irep_name_str, "` do not: ",
-        paste(reps[bad_rep][seq_len(min(10L, sum(bad_rep)))], collapse = ", "),
-        " (found ", paste(n_ref_per[bad_rep][seq_len(min(10L, sum(bad_rep)))], collapse = ", "), ")."
-      ))
+      bad_reps <- paste0(reps[bad_rep], " (", n_ref_per[bad_rep], " found)")
+      pmx_abort(c(
+        "Each replicate must contain exactly one reference-scenario row.",
+        "x" = "{cli::qty(bad_reps)}{?This value/These values} of {.var {irep_name_str}} {?does/do} not: {.val {bad_reps}}."
+      ), "bad_data")
     }
     ref_idx <- which(is_ref)
     denom_idx <- ref_idx[match(rep_key, rep_key[ref_idx])]
@@ -302,11 +293,10 @@ df_forest_preprocess <- function(
   passthrough <- setdiff(names(data), c(metric_vars, out_vars))
   clobbered <- intersect(names(data), out_vars)
   if (length(clobbered) > 0) {
-    rlang::warn(paste0(
-      "these columns of `data` are replaced by output columns of the same name: ",
-      paste(clobbered, collapse = ", "),
-      ". Rename them in `data`, or choose different output column names."
-    ))
+    pmx_warn(c(
+      "{cli::qty(clobbered)}{?This column/These columns} of {.arg data} {?is/are} replaced by output columns of the same name: {.var {clobbered}}.",
+      "i" = "Rename {cli::qty(clobbered)}{?it/them} in {.arg data}, or choose different output column names."
+    ), "overwrite")
   }
 
   cov_name_col <- ifelse(is_ref, cov_name_ref, which_cov)

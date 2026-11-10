@@ -73,6 +73,7 @@ df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
 #'    receive BLQ imputation: `"obs"` imputes the renamed `DV` only; `"all"`
 #'    additionally imputes any `PRED` / `IPRED` columns that were renamed via
 #'    `pred_var_str` / `ipred_var_str`. Has no effect when `loq_method = 0`.
+#' @param call The call reported in errors.
 #'
 #' @return A named list with elements `data` (processed data.frame) and `lloq`
 #'    (the LLOQ line value: the highest LLOQ in the data, or `NA`).
@@ -95,23 +96,24 @@ df_prep_dvtime <- function(data,
                            loq_method = 0,
                            dosenorm = FALSE,
                            ref = NULL,
-                           blq_mode = c("obs", "all")) {
+                           blq_mode = c("obs", "all"),
+                           call = rlang::caller_env()) {
 
   blq_mode <- match.arg(blq_mode)
 
-  check_df(data, "data")
-  check_varsindf(data, time_var_str, "data", "time_var")
-  check_varsindf(data, ntime_var_str, "data", "ntime_var")
-  check_varsindf(data, dv_var_str, "data", "dv_var")
-  if (!is.null(pred_var_str)) check_varsindf(data, pred_var_str, "data", "pred_var")
-  if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var")
-  check_varsindf(data, "MDV", "data", "MDV")
-  check_varsindf(data, "EVID", "data", "EVID")
-  if (!is.null(col_var_str)) check_varsindf(data, col_var_str, "data", "col_var")
-  if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var")
-  if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var")
-  loq_method <- check_loq_method(loq, loq_method, data)
-  if (!is.null(ref)) check_numeric_strict(ref, "ref")
+  check_df(data, "data", call = call)
+  check_varsindf(data, time_var_str, "data", "time_var", call = call)
+  check_varsindf(data, ntime_var_str, "data", "ntime_var", call = call)
+  check_varsindf(data, dv_var_str, "data", "dv_var", call = call)
+  if (!is.null(pred_var_str)) check_varsindf(data, pred_var_str, "data", "pred_var", call = call)
+  if (!is.null(ipred_var_str)) check_varsindf(data, ipred_var_str, "data", "ipred_var", call = call)
+  check_varsindf(data, "MDV", "data", "MDV", call = call)
+  check_varsindf(data, "EVID", "data", "EVID", call = call)
+  if (!is.null(col_var_str)) check_varsindf(data, col_var_str, "data", "col_var", call = call)
+  if (!is.null(id_var_str)) check_varsindf(data, id_var_str, "data", "id_var", call = call)
+  if (isTRUE(dosenorm)) check_varsindf(data, dose_var_str, "data", "dose_var", call = call)
+  loq_method <- check_loq_method(loq, loq_method, data, call = call)
+  if (!is.null(ref)) check_numeric_strict(ref, "ref", call = call)
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   rename_vec <- c(DV = dv_var_str)
@@ -150,31 +152,33 @@ df_prep_dvtime <- function(data,
 }
 
 
-check_loq_method <- function(loq, loq_method, data) {
+check_loq_method <- function(loq, loq_method, data, call = rlang::caller_env()) {
   aliases <- c(none = 0, postdose = 1, all = 2)
   if (is.character(loq_method) && loq_method %in% names(aliases)) {
     loq_method <- aliases[[loq_method]]
   }
   if(is.null(loq_method) || !loq_method %in% c(0, 1, 2)) {
-    rlang::abort(message = 'argument `loq_method` must be 0, 1, 2, "none", "postdose", or "all"')
+    pmx_abort('{.arg loq_method} must be 0, 1, 2, {.val none}, {.val postdose}, or {.val all}.',
+              "bad_arg", call = call)
   }
 
   if(loq_method != 0) {
+    loq_msg <- "{.arg loq} must be numeric, or {.arg data} must contain {.var LLOQ}, when {.arg loq_method} is 1 or 2."
     if(is.null(loq)) {
       if(!"LLOQ" %in% colnames(data)) {
-        rlang::abort(message = "argument `loq` must be numeric or variable `LLOQ` must be present in `data` when `loq_method` is 1 or 2")
+        pmx_abort(loq_msg, "bad_arg", call = call)
       }
     } else {
       num <- suppressWarnings(as.numeric(loq))
       if(is.na(num) || !is.numeric(num)) {
-        rlang::abort(message = "argument `loq` must be numeric or variable `LLOQ` must be present in `data` when `loq_method` is 1 or 2")
+        pmx_abort(loq_msg, "bad_arg", call = call)
       }
     }
   } else if (!is.null(loq)) {
-    rlang::inform(paste0(
-      "`loq` has no effect with `loq_method = 0`; set `loq_method` to 1 or 2 ",
-      "to impute BLQ values and draw the LLOQ line."
-    ))
+    pmx_inform(c(
+      "{.arg loq} has no effect with {.code loq_method = 0}.",
+      "i" = "Set {.arg loq_method} to 1 or 2 to impute BLQ values and draw the LLOQ line."
+    ), "ignored_arg")
   }
   loq_method
 }
@@ -199,9 +203,10 @@ check_loq_method <- function(loq, loq_method, data) {
 #' @noRd
 prep_dvtime_plot <- function(data, var_strs, dose_var_given, dosenorm, loq,
                              loq_method, ref, blq_mode = "obs", style,
-                             style_default, log_y, cent) {
+                             style_default, log_y, cent,
+                             call = rlang::caller_env()) {
   if (dose_var_given && !isTRUE(dosenorm)) {
-    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
+    pmx_warn("{.arg dose_var} is ignored when {.code dosenorm = FALSE}.", "ignored_arg")
   }
   dose_var_str <- if (isTRUE(dosenorm)) var_strs$dose
 
@@ -216,15 +221,16 @@ prep_dvtime_plot <- function(data, var_strs, dose_var_given, dosenorm, loq,
     id_var_str = var_strs$id,
     dosenorm = dosenorm,
     ref = ref,
-    blq_mode = blq_mode
+    blq_mode = blq_mode,
+    call = call
   )
 
   # Resolve style: preset default, with log_y (falling back to the style's
   # logy) driving the y axis and caption, and the error bar cap width defaulted
   # from the data when the style leaves it unset.
-  plotstyle <- resolve_style(style, style_default)
+  plotstyle <- resolve_style(style, style_default, call = call)
   log_y <- log_y %||% isTRUE(plotstyle$logy)
-  check_boolean(log_y, "log_y")
+  check_boolean(log_y, "log_y", call = call)
   plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
   plotstyle <- style_errorbar_width(plotstyle, prep$data)
 

@@ -60,7 +60,7 @@ plot_doseprop <- function(data,
 
   if (inherits(data, "doseprop_stats")) {
     check_pipeline_args_dropped(
-      call           = match.call(),
+      mc             = match.call(),
       plot_only_args = c("data", "style", "se"),
       fn_name        = "plot_doseprop",
       stats_fn       = "df_doseprop"

@@ -63,7 +63,10 @@ plot_dvconc <- function(data,
   check_boolean(show_caption, "show_caption")
 
   if (!is.null(col_var_str) && !isTRUE(col_trend)) {
-    warning("`col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.", call. = FALSE)
+    pmx_warn(c(
+      "{.arg col_var} colors observations but trend lines are not stratified.",
+      "i" = "Set {.code col_trend = TRUE} to stratify trend lines by color."
+    ), "ignored_arg")
   }
 
   #Checks

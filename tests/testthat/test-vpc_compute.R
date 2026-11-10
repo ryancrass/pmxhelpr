@@ -306,7 +306,7 @@ test_that("simulated quantile medians are ordered sim_low_med <= sim_med_med <= 
 test_that("df_vpcpreprocess validates column existence", {
   expect_error(
     run_vpcstats(testsim_raw, time_var_str = "NONEXIST"),
-    regexp = "must be variable.*in `data`"
+    regexp = "must name variable.*in `data`"
   )
 })
 

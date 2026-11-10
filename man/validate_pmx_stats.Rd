@@ -11,7 +11,9 @@ validate_pmx_stats(
   stats_cols = NULL,
   obs_cols = NULL,
   config_keys = NULL,
-  require_obs = length(obs_cols) > 0
+  require_obs = length(obs_cols) > 0,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
 )
 }
 \arguments{
@@ -31,6 +33,8 @@ class error (e.g. \code{"df_forest"}).}
 
 \item{require_obs}{Logical; whether \code{x$obs} must be a data.frame rather
 than \code{NULL}. Implied by a non-empty \code{obs_cols}.}
+
+\item{arg, call}{The argument name and call reported in errors.}
 }
 \value{
 \code{invisible(x)} on success.

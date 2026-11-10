@@ -4,7 +4,12 @@
 \alias{forest_rows}
 \title{Internal helper: the rows a forest plot draws, in draw order}
 \usage{
-forest_rows(stats, ref_layout = NULL, metric = NULL)
+forest_rows(
+  stats,
+  ref_layout = NULL,
+  metric = NULL,
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{stats}{A \code{forest_stats} object.}
@@ -14,6 +19,8 @@ resolves to \code{"distributed"} when the rows of \code{metric} (all rows if
 \code{metric} is \code{NULL}) include distributed rows, otherwise \code{"consolidated"}.}
 
 \item{metric}{Optional metric value to restrict the rows to.}
+
+\item{call}{The call reported in errors.}
 }
 \value{
 A data.frame of rows in top-to-bottom draw order.

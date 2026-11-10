@@ -13,7 +13,8 @@ resolve_loq <- function(data, loq) {
     data$LOQ <- loq
   } else if ("LLOQ" %in% colnames(data)) {
     data$LOQ <- data$LLOQ
-    message("Inheriting per-row `loq` from `LLOQ` column in `data`.")
+    pmx_inform("Inheriting per-row {.arg loq} from {.var LLOQ} column in {.arg data}.",
+               "loq_inherit")
   }
   data
 }

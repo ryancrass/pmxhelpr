@@ -137,18 +137,18 @@ caption_dvconc <- function(ref, loess, linear, se_loess, se_linear,
                            show_obs = TRUE){
 
   obs_lab <- if (isTRUE(show_obs)) "Points are observations" else ""
-  ref_lab <- if (!is.null(ref)) paste0("\n Reference line at y = ", ref) else ""
+  ref_lab <- if (!is.null(ref)) paste0("Reference line at y = ", ref) else ""
 
   fit_labels <- list(
     "FALSE.FALSE.FALSE.FALSE" = "",
-    "TRUE.FALSE.FALSE.FALSE"  = "\n LOESS fit overlaid",
-    "TRUE.FALSE.TRUE.FALSE"   = "\n LOESS fit overlaid with 95% CI",
-    "FALSE.TRUE.FALSE.FALSE"  = "\n Linear fit overlaid",
-    "FALSE.TRUE.FALSE.TRUE"   = "\n Linear fit overlaid with 95% CIs",
-    "TRUE.TRUE.FALSE.FALSE"   = "\n LOESS and linear fits overlaid",
-    "TRUE.TRUE.TRUE.TRUE"     = "\n LOESS and linear fits overlaid with 95% CIs",
-    "TRUE.TRUE.TRUE.FALSE"    = "\n LOESS fit with 95% CI and linear fit overlaid",
-    "TRUE.TRUE.FALSE.TRUE"    = "\n LOESS fit and linear fit with 95% CI overlaid"
+    "TRUE.FALSE.FALSE.FALSE"  = "LOESS fit overlaid",
+    "TRUE.FALSE.TRUE.FALSE"   = "LOESS fit overlaid with 95% CI",
+    "FALSE.TRUE.FALSE.FALSE"  = "Linear fit overlaid",
+    "FALSE.TRUE.FALSE.TRUE"   = "Linear fit overlaid with 95% CIs",
+    "TRUE.TRUE.FALSE.FALSE"   = "LOESS and linear fits overlaid",
+    "TRUE.TRUE.TRUE.TRUE"     = "LOESS and linear fits overlaid with 95% CIs",
+    "TRUE.TRUE.TRUE.FALSE"    = "LOESS fit with 95% CI and linear fit overlaid",
+    "TRUE.TRUE.FALSE.TRUE"    = "LOESS fit and linear fit with 95% CI overlaid"
   )
 
   ## A fit's SE flag only counts when that fit is drawn, so every flag
@@ -157,7 +157,7 @@ caption_dvconc <- function(ref, loess, linear, se_loess, se_linear,
                sep = ".")
   fit_lab <- fit_labels[[key]]
 
-  trimws(paste(obs_lab, ref_lab, fit_lab), which = "left")
+  join_caption(c(obs_lab, ref_lab, fit_lab))
 }
 
 

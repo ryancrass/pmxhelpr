@@ -157,7 +157,7 @@ test_that("An SE flag for an undrawn fit does not drop the fit description", {
   }
   expect_identical(
     caption_dvconc(ref = NULL, loess = FALSE, linear = TRUE, se_loess = TRUE, se_linear = TRUE),
-    "Points are observations  \n Linear fit overlaid with 95% CIs"
+    "Points are observations\nLinear fit overlaid with 95% CIs"
   )
 })
 

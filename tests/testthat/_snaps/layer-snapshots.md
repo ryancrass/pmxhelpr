@@ -88,8 +88,8 @@
       facet: FacetNull panels=1
       label x: IDV
       label y: DV
-      label caption: Points are observations  
-       LOESS fit with 95% CI and linear fit overlaid
+      label caption: Points are observations
+      LOESS fit with 95% CI and linear fit overlaid
 
 # plot_gof: DV/IPRED/PRED overlays, median + IQR, LLOQ method 1
 

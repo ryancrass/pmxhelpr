@@ -109,35 +109,17 @@ plot_dvtime <- function(data,
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
   col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
 
-  if (!missing(dose_var) && !isTRUE(dosenorm)) {
-    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
-  }
-  if (!isTRUE(dosenorm)) dose_var_str <- NULL
-
-  prep <- df_prep_dvtime(
-    data, time_var_str, ntime_var_str,
-    dv_var_str = dv_var_str,
-    loq = loq, loq_method = loq_method,
-    dose_var_str = dose_var_str,
-    col_var_str = col_var_str,
-    id_var_str = id_var_str,
-    dosenorm = dosenorm,
-    ref = ref
+  prep <- prep_dvtime_plot(
+    data,
+    var_strs = list(time = time_var_str, ntime = ntime_var_str, dv = dv_var_str,
+                    dose = dose_var_str, id = id_var_str, col = col_var_str),
+    dose_var_given = !missing(dose_var), dosenorm = dosenorm,
+    loq = loq, loq_method = loq_method, ref = ref,
+    style = style, style_default = style_dvtime, log_y = log_y, cent = cent
   )
   data <- prep$data
-  lloq <- prep$lloq
-  loq_method <- prep$loq_method
-
-  # Resolve style: preset default, with log_y (falling back to the style's
-  # logy) driving the y axis and caption, and the error bar cap width defaulted
-  # from the data when the style leaves it unset.
-  plotstyle <- resolve_style(style, style_dvtime)
-  log_y <- log_y %||% isTRUE(plotstyle$logy)
-  check_boolean(log_y, "log_y")
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
-  plotstyle <- style_errorbar_width(plotstyle, data)
-
-  caption <- caption_dvtime(cent, log_y)
+  plotstyle <- prep$style
+  caption <- prep$caption
 
 ###Plot
 
@@ -153,7 +135,7 @@ plot_dvtime <- function(data,
   #Reference Lines
   plot <- add_ref_layer_style(plot, ref)
 
-  blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
+  blq <- add_loq_layer_style(plot, caption, prep$loq_method, loq = prep$lloq, dosenorm,
                              plotstyle, show_legend = TRUE,
                              show_value = show_loq_value)
   plot <- blq$plot
@@ -166,7 +148,7 @@ plot_dvtime <- function(data,
   plot <- add_cent_layers_style(plot, cent, "DV")
 
   #Caption
-  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
 
   ggstylekit::style_plot(plot, plotstyle)
 }

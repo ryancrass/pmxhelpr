@@ -183,3 +183,56 @@ check_loq_method <- function(loq, loq_method, data) {
   }
   loq_method
 }
+
+
+#' Internal: shared setup for `plot_dvtime()` and `plot_gof()`
+#'
+#' Warns when `dose_var` is given without `dosenorm`, prepares the data with
+#' [df_prep_dvtime()], resolves the style (family preset default, `log_y`
+#' falling back to the style's `logy`, error bar cap width defaulted from the
+#' data), and builds the central tendency caption line.
+#'
+#' @param data Input data.
+#' @param var_strs Named list of resolved column names: `time`, `ntime`, `dv`,
+#'    `dose`, and optionally `pred`, `ipred`, `id`, `col`.
+#' @param dose_var_given Logical; whether the caller passed `dose_var`.
+#' @param dosenorm,loq,loq_method,ref,cent,log_y,style As in the caller.
+#' @param blq_mode As in [plot_gof()]; `"obs"` for [plot_dvtime()].
+#' @param style_default The family preset function, e.g. [style_dvtime()].
+#' @return `list(data, lloq, loq_method, style, log_y, caption)`; `caption` is
+#'    a character vector of lines.
+#' @noRd
+prep_dvtime_plot <- function(data, var_strs, dose_var_given, dosenorm, loq,
+                             loq_method, ref, blq_mode = "obs", style,
+                             style_default, log_y, cent) {
+  if (dose_var_given && !isTRUE(dosenorm)) {
+    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
+  }
+  dose_var_str <- if (isTRUE(dosenorm)) var_strs$dose
+
+  prep <- df_prep_dvtime(
+    data, var_strs$time, var_strs$ntime,
+    dv_var_str = var_strs$dv,
+    pred_var_str = var_strs$pred,
+    ipred_var_str = var_strs$ipred,
+    loq = loq, loq_method = loq_method,
+    dose_var_str = dose_var_str,
+    col_var_str = var_strs$col,
+    id_var_str = var_strs$id,
+    dosenorm = dosenorm,
+    ref = ref,
+    blq_mode = blq_mode
+  )
+
+  # Resolve style: preset default, with log_y (falling back to the style's
+  # logy) driving the y axis and caption, and the error bar cap width defaulted
+  # from the data when the style leaves it unset.
+  plotstyle <- resolve_style(style, style_default)
+  log_y <- log_y %||% isTRUE(plotstyle$logy)
+  check_boolean(log_y, "log_y")
+  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
+  plotstyle <- style_errorbar_width(plotstyle, prep$data)
+
+  list(data = prep$data, lloq = prep$lloq, loq_method = prep$loq_method,
+       style = plotstyle, log_y = log_y, caption = caption_dvtime(cent, log_y))
+}

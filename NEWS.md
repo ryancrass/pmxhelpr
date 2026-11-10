@@ -1,3 +1,11 @@
+# pmxhelpr (development version)
+
+## Minor improvements
+
+* `plot_dvconc()` captions no longer contain stray spaces after line breaks,
+  and `plot_dvtime()` / `plot_gof()` captions with `cent = "none"` and an
+  LLOQ method no longer start with a blank line.
+
 # pmxhelpr 0.7.1
 
 ## Breaking changes

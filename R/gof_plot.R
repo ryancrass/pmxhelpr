@@ -104,39 +104,21 @@ plot_gof <- function(data,
   id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
   dose_var_str  <- resolve_var(rlang::enquo(dose_var))
 
-  if (!missing(dose_var) && !isTRUE(dosenorm)) {
-    warning("`dose_var` is ignored when `dosenorm = FALSE`", call. = FALSE)
-  }
-  if (!isTRUE(dosenorm)) dose_var_str <- NULL
-
-  prep <- df_prep_dvtime(
-    data, time_var_str, ntime_var_str,
-    dv_var_str = dv_var_str,
-    pred_var_str = pred_var_str,
-    ipred_var_str = ipred_var_str,
-    loq = loq, loq_method = loq_method,
-    dose_var_str = dose_var_str,
-    id_var_str = id_var_str,
-    dosenorm = dosenorm,
-    ref = ref,
-    blq_mode = blq_mode
+  #`style$colors` is the single source of color truth: the manual
+  #scale_color_manual() below supplies only the legend name/breaks/order (with
+  #placeholder values), and style_plot() injects style$colors into it.
+  prep <- prep_dvtime_plot(
+    data,
+    var_strs = list(time = time_var_str, ntime = ntime_var_str, dv = dv_var_str,
+                    pred = pred_var_str, ipred = ipred_var_str,
+                    dose = dose_var_str, id = id_var_str),
+    dose_var_given = !missing(dose_var), dosenorm = dosenorm,
+    loq = loq, loq_method = loq_method, ref = ref, blq_mode = blq_mode,
+    style = style, style_default = style_gof, log_y = log_y, cent = cent
   )
   data <- prep$data
-  lloq <- prep$lloq
-  loq_method <- prep$loq_method
-
-  #Resolve style. `style$colors` is the single source of color truth: the
-  #manual scale_color_manual() below supplies only the legend name/breaks/order
-  #(with placeholder values), and style_plot() injects style$colors into it.
-  plotstyle <- resolve_style(style, style_gof)
-
-  #log_y falls back to the style's logy and drives the y axis and caption.
-  log_y <- log_y %||% isTRUE(plotstyle$logy)
-  check_boolean(log_y, "log_y")
-  caption <- caption_dvtime(cent, log_y)
-
-  #Error bar cap width: defaulted from the data when the style leaves it unset.
-  plotstyle <- style_errorbar_width(plotstyle, data)
+  plotstyle <- prep$style
+  caption <- prep$caption
 
   #Determine which variables to show
   shown <- merge_element(shown, plot_gof_shown())
@@ -159,7 +141,7 @@ plot_gof <- function(data,
   #Reference Lines
   plot <- add_ref_layer_style(plot, ref)
 
-  blq <- add_loq_layer_style(plot, caption, loq_method, loq = lloq, dosenorm,
+  blq <- add_loq_layer_style(plot, caption, prep$loq_method, loq = prep$lloq, dosenorm,
                              plotstyle, show_legend = TRUE,
                              show_value = show_loq_value)
   plot <- blq$plot
@@ -167,18 +149,18 @@ plot_gof <- function(data,
 
   #Show Observed Data Points / Connect within Group
   if ("OBS" %in% active) {
-    plot <- add_obs_layers_gof_style(plot, id_var_str, color_aes = "OBS")
+    plot <- add_obs_layers_style(plot, id_var_str, color_aes = "OBS")
   }
 
   #Plot Central Tendency (points, lines, error bars)
   if ("DV" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "DV", color_aes = "DV")
+    plot <- add_cent_layers_style(plot, cent, "DV", color_aes = "DV")
   }
   if ("IPRED" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "IPRED", color_aes = "IPRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_style(plot, cent, "IPRED", color_aes = "IPRED", show_errorbars = FALSE)
   }
   if ("PRED" %in% active) {
-    plot <- add_cent_layers_gof_style(plot, cent, "PRED", color_aes = "PRED", show_errorbars = FALSE)
+    plot <- add_cent_layers_style(plot, cent, "PRED", color_aes = "PRED", show_errorbars = FALSE)
   }
 
   #Define Manual Legend. Values are placeholders keyed by `ord`; style_plot()
@@ -189,9 +171,9 @@ plot_gof <- function(data,
       values = stats::setNames(rep(NA_character_, length(ord)), ord))
 
   #Caption
-  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = caption)
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
 
-  #Finalize: house theme, log axis; colors come from plotstyle via style_plot().
-  plotstyle <- ggstylekit::set_style(plotstyle, logy = log_y)
+  #Finalize: house theme and log axis (logy set in prep_dvtime_plot()); colors
+  #come from plotstyle via style_plot().
   ggstylekit::style_plot(plot, plotstyle)
 }

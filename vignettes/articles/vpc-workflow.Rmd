@@ -366,7 +366,7 @@ The container returned by `df_vpcstats()` is class-tagged `c("vpc_stats", "pmx_s
 print(vpcstats_ntime_dose_food)
 ```
 
-`summary()` returns the same content as `print()` but suppresses the head preview, which is convenient for snapshotting the run configuration without the row content.
+`summary()` returns a summary object that prints the same content as `print()` without the head preview, which is convenient for snapshotting the run configuration without the row content.
 
 ```{r vpc-stats-summary}
 summary(vpcstats_ntime_dose_food)

@@ -537,7 +537,7 @@ test_that("is_forest_stats returns TRUE for a `forest_stats` and FALSE otherwise
 test_that("print and summary produce the forest_stats header", {
   out <- df_forest(data_sad_pkforest)
   expect_output(print(out), "<forest_stats>")
-  expect_output(summary(out), "<forest_stats>")
+  expect_output(print(summary(out)), "<forest_stats>")
   summ <- capture.output(summary(out))
   expect_true(any(grepl("per metric", summ)))
   # one line per metric, not per row

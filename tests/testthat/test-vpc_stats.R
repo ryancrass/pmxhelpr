@@ -89,6 +89,72 @@ test_that("pmx_stats() and is_pmx_stats(strict = TRUE) apply the subclass contra
   expect_false(is_pmx_stats(fs, strict = TRUE))
 })
 
+#####summary objects####
+
+test_that("summary() returns a summary object per container class", {
+  vs <- df_vpcstats(testsim)
+  ds <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  fs <- df_forest(data_sad_pkforest)
+  for (x in list(vs, ds, fs)) {
+    s <- summary(x)
+    expect_s3_class(s, c(paste0("summary.", class(x)[1]), "summary.pmx_stats"), exact = TRUE)
+    expect_equal(s$header$class, class(x)[1])
+    expect_equal(s$header$dim, dim(x$stats))
+    expect_invisible(print(s))
+  }
+})
+
+test_that("summary.vpc_stats holds the header config and column groups", {
+  s <- summary(df_vpcstats(testsim, pi = c(0.1, 0.9)))
+  expect_named(s$header$config, c("n_replicates", "ci", "pi", "mode", "loq", "strat_var"))
+  expect_null(s$header$config$strat_var)
+  expect_true("strat_var" %in% names(s$header$config))
+  expect_equal(s$header$config$pi, c(0.1, 0.9))
+  expect_equal(s$header$obs_rows, nrow(df_vpcstats(testsim)$obs))
+  expect_equal(s$column_groups$counts, pmxhelpr:::.vpc_count_cols)
+  expect_true("pc_obs_med" %in% s$column_groups$pc_observed)
+  expect_identical(s$column_groups$sim_blq, character(0))
+  s_loq <- summary(df_vpcstats(testsim, strat_var = "FOOD", loq = 1))
+  expect_true("FOOD" %in% s_loq$column_groups$identifiers)
+  expect_true("sim_prop_blq_med" %in% s_loq$column_groups$sim_blq)
+})
+
+test_that("summary.doseprop_stats holds one row per metric", {
+  ds <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  m <- summary(ds)$metrics
+  expect_named(m, c("metric", "Power", "LCL", "UCL", "PowerCI", "Interpretation"))
+  expect_equal(m$metric, c("aucinf.obs", "cmax"))
+  expect_equal(m$Power, ds$stats$Power)
+  expect_equal(summary(ds)$header$obs_rows, nrow(ds$obs))
+})
+
+test_that("summary.forest_stats holds the metric table and reference layout", {
+  fs <- df_forest(dplyr::filter(data_sad_pkforest, metric == "AUCRATIO"),
+                  cov_level_ref = c(FOOD = "Fasted", WTBL = "70 kg"))
+  s <- summary(fs)
+  expect_equal(s$metrics$metric, "AUCRATIO")
+  expect_equal(c(s$metrics$n_min, s$metrics$n_max), range(fs$stats$n))
+  expect_equal(s$metrics$panels,
+               "Reference | FOOD: Fasted*, Fed | WTBL: 50 kg, 60 kg, 70 kg*, 80 kg, 90 kg")
+  expect_true(s$has_distributed)
+  expect_false(summary(df_forest(data_sad_pkforest, cov_name_ref = NULL))$has_distributed)
+  ## an n range prints as min-max; no n column prints no count
+  fs$stats$n[2] <- 10L
+  expect_output(print(summary(fs)), "\\[AUCRATIO\\]  n = 10-500  Reference")
+  fs$stats$n <- NULL
+  expect_true(is.na(summary(fs)$metrics$n_min))
+  expect_output(print(summary(fs)), "\\[AUCRATIO\\]  Reference")
+})
+
+test_that("summary.pmx_stats is the fallback for other subclasses", {
+  other <- pmx_stats(data.frame(a = 1:2), config = list(k = 1), subclass = "other_stats")
+  s <- summary(other)
+  expect_s3_class(s, "summary.pmx_stats", exact = TRUE)
+  expect_equal(s$classes, c("other_stats", "pmx_stats"))
+  expect_equal(capture.output(print(s)), capture.output(print(other)))
+  expect_output(print(s), "config: k")
+})
+
 test_that("print.vpc_stats emits the headline summary and column groups", {
   out <- df_vpcstats(testsim, strat_var = "FOOD", loq = 1)
   txt <- paste(capture.output(print(out)), collapse = "\n")

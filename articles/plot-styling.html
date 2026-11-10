@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,6 @@ approach to styling plots.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ryancrass/pmxhelpr" class="external-link">pmxhelpr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span>, warn.conflicts <span class="op">=</span>  <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/Hmisc/" class="external-link">Hmisc</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="data-and-model-objects">Data and Model Objects<a class="anchor" aria-label="anchor" href="#data-and-model-objects"></a>
@@ -347,12 +346,12 @@ draw</em>, not just how to draw it. Where the two overlap, the builder
 argument wins (the one exception, the caption, follows the list):</p>
 <ul>
 <li>
-<strong><code>log_y</code></strong>: <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>,
-<code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> set the style
-<code>logy</code> from the plotting function <code>log_y</code>
-argument. This is because <code>log_y</code> argument in the plotting
-function also controls the central tendency summary measure (e.g.,
-arithmetic versus geometric mean).</li>
+<strong><code>log_y</code></strong>: in <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>,
+<code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, and <code><a href="../reference/plot_gof.html">plot_gof()</a></code>,
+<code>log_y</code> defaults to the style’s <code>logy</code>. A
+<code>log_y</code> passed to the plotting function overrides the style,
+because it also chooses the central tendency summary measure and caption
+(e.g., arithmetic versus geometric mean).</li>
 <li>
 <strong><code><a href="../reference/plot_doseprop.html">plot_doseprop()</a></code> axes and facets</strong>: this
 plotting family applies its own log-log <code>scale_*_log10()</code> and

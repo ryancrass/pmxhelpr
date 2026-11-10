@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1003,9 +1003,9 @@ layer is added.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">DoseFood</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="va">vpc_scales_labs</span></span>
 <span><span class="co">#&gt; Inheriting per-row `loq` from `LLOQ` column in `data`.</span></span>
-<span><span class="co">#&gt; Warning: Adding `facet_*()` to a `plot_vpc_cont()` plot produces incorrect VPC statistics.</span></span>
+<span><span class="co">#&gt; Warning: Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Summary statistics are pre-computed before plotting.</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Pass `strat_var` to `plot_vpc_cont()` to stratify both statistics and panels correctly.</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly.</span></span>
 <span><span class="co">#&gt; Warning in scale_y_log10(guide = "axis_logticks"): <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
@@ -1356,8 +1356,9 @@ arms in early phase trials.</p>
 the same engine that <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> uses internally and
 accepts the same plot-only arguments (<code>min_bin_count</code>,
 <code>show_rep</code>, <code>shown</code>, <code>style</code>,
-<code>pcvpc</code>). <code>strat_var</code> and <code>loq</code> inherit
-from the container’s <code>$config</code> slot when not passed
+<code>pcvpc</code>). Stratification comes from the container’s
+<code>$config</code> slot (stratify in <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>);
+<code>loq</code> inherits from <code>$config</code> unless passed
 explicitly.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_build_vpc.html">plot_build_vpc</a></span><span class="op">(</span><span class="va">out</span>, pcvpc <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> <span class="va">vpc_scales_labs</span></span></code></pre></div>

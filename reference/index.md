@@ -175,8 +175,8 @@ Convenience wrappers around `mrgsolve` model loading and simulation.
 ## S3 Class System
 
 Predicates, constructors, operators, and methods for the shared
-`pmx_stats` base class and its `vpc_stats` and `doseprop_stats`
-siblings, plus the `pmx_vpc_plot` ggplot subclass.
+`pmx_stats` base class and its `vpc_stats`, `doseprop_stats`, and
+`forest_stats` subclasses, plus the `pmx_vpc_plot` ggplot subclass.
 
 - [`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md)
   :
@@ -209,6 +209,8 @@ siblings, plus the `pmx_vpc_plot` ggplot subclass.
   Test whether an object is a `forest_stats` container
 
 - [`` `+`( ``*`<pmx_vpc_plot>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_vpc_plot.md)
+  [`restyle_plot(`*`<pmx_vpc_plot>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_vpc_plot.md)
+  [`reveal(`*`<pmx_vpc_plot>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/plus-.pmx_vpc_plot.md)
   :
 
   Add a layer to a `pmx_vpc_plot` with a facet warning
@@ -260,7 +262,7 @@ siblings, plus the `pmx_vpc_plot` ggplot subclass.
 
 ## Datasets
 
-Internal example datasets used in vignettes and worked examples.
+Example datasets used in vignettes and worked examples.
 
 - [`data_sad`](https://ryancrass.github.io/pmxhelpr/reference/data_sad.md)
   : Example NONMEM Analysis-Ready Dataset for PK/PD Modeling of a Single

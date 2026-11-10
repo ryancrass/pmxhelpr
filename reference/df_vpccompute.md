@@ -16,7 +16,7 @@ df_vpccompute(
   data,
   pi = c(0.05, 0.95),
   ci = 0.9,
-  bin_var = BIN_MID_VAR,
+  bin_var = .vpc_bin_col,
   strat_var = NULL,
   irep_name = "SIM",
   lower_bound = 0,

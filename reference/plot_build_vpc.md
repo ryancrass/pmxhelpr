@@ -20,26 +20,29 @@ manually-constructed or cached `vpc_stats` object — for example,
 plotting a precomputed result from disk or a custom pipeline that
 produces compatible columns.
 
+Stratification and binning are read from the container: facets come from
+`stats$config$strat_var` and the x-axis from the `BIN_MID` column. To
+stratify, pass `strat_var` to
+[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md).
+
 ## Usage
 
 ``` r
 plot_build_vpc(
-  compute_out,
+  stats,
   type = c("cont", "cens"),
   min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
   pcvpc = FALSE,
-  loq = NULL,
-  strat_var = NULL,
-  bin_var = BIN_MID_VAR
+  loq = NULL
 )
 ```
 
 ## Arguments
 
-- compute_out:
+- stats:
 
   A `vpc_stats` object (typically the output of
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)).
@@ -56,7 +59,7 @@ plot_build_vpc(
   concentration VPC (quantile ribbons and obs scatter). `"cens"` plots
   the BLQ-proportion VPC (proportion CI ribbon plus observed per-bin
   proportion line/points); requires `sim_prop_blq_*` columns in
-  `compute_out$stats` (i.e.,
+  `stats$stats` (i.e.,
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   was called with a LOQ source). `type = "cens"` is incompatible with
   `pcvpc = TRUE`.
@@ -111,35 +114,23 @@ plot_build_vpc(
 - loq:
 
   Numeric scalar or vector of LOQ values for the reference line, or
-  `NULL` to suppress. When omitted (inherited from
-  `compute_out$config$loq`) and `strat_var` is set and `compute_out$obs`
-  carries a row-aligned `LOQ` column, ref lines are drawn per facet —
-  each facet shows only the LLOQ values applicable to its strat-level
-  rows. When `loq` is supplied explicitly, the value always wins and one
-  global reference line is drawn per unique value of `loq` (the
-  per-facet column-based dispatch is reserved for the inherited case).
-  In the no-stratification or no-`obs$LOQ` cases, a global reference
-  line is drawn per unique value of `loq` regardless of inheritance. The
-  legend entry for LLOQ is *not* attached here — pass the same value to
+  `NULL` to suppress. When omitted (inherited from `stats$config$loq`),
+  the container is stratified (`stats$config$strat_var`), and
+  `stats$obs` carries a row-aligned `LOQ` column, ref lines are drawn
+  per facet — each facet shows only the LLOQ values applicable to its
+  strat-level rows. When `loq` is supplied explicitly, the value always
+  wins and one global reference line is drawn per unique value of `loq`
+  (the per-facet column-based dispatch is reserved for the inherited
+  case). In the no-stratification or no-`obs$LOQ` cases, a global
+  reference line is drawn per unique value of `loq` regardless of
+  inheritance. The legend entry for LLOQ is *not* attached here — pass
+  the same value to
   [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-  when composing the legend panel. `compute_out$config$loq` is already a
+  when composing the legend panel. `stats$config$loq` is already a
   vector of unique non-NA LOQ values when
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   populated the container. Forced to `NULL` when `pcvpc = TRUE` (LOQ has
   no meaning on the prediction-corrected scale).
-
-- strat_var:
-
-  Stratification variable. Accepts bare names or strings. Default is
-  `NULL`. When `NULL`, the value is read from
-  `compute_out$config$strat_var` so output of
-  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
-  is handled automatically. Facet layout is taken from the `style`:
-  `facet_scales`, `facet_nrow`, and `facet_ncol`.
-
-- bin_var:
-
-  String. Binning variable name. Default is `"BIN_MID"`.
 
 ## Value
 

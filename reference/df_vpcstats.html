@@ -25,7 +25,7 @@ time via plot_vpc_cont(pcvpc = TRUE/FALSE)."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,7 +167,8 @@ Default is <code>c(0.05, 0.95)</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with two data.frames (class <code>c("vpc_stats", "list")</code>):</p><dl><dt><code>stats</code></dt>
+    <p>A <code>vpc_stats</code> container (subclass of <code>pmx_stats</code>) with three
+slots:</p><dl><dt><code>stats</code></dt>
 <dd><p>Wide summary statistics. Standard-VPC columns are
 unprefixed (<code>obs_low/med/hi</code>, <code>sim_low_low/med/hi</code>, etc.);
 prediction-corrected counterparts carry a <code>pc_</code> prefix
@@ -177,8 +178,7 @@ single (not duplicated). <code>sim_prop_blq_*</code> is std-only — LOQ has
 no meaning on the prediction-corrected scale. <code>-Inf</code> quantile
 values from rank-mode fully-censored bins are masked to <code>NA</code>.
 <code>pc_sim_*</code> quantiles are <code>NA</code> in bins with no quantifiable
-observations (<code>obs_n == obs_n_blq</code>).
-Carries attributes <code>n_replicates</code>, <code>loq</code>, and <code>strat_var</code>.</p></dd>
+observations (<code>obs_n == obs_n_blq</code>).</p></dd>
 
 <dt><code>obs</code></dt>
 <dd><p>First-replicate observation rows with <code>MDV == 0</code>, used as
@@ -186,8 +186,14 @@ the scatter overlay in <code><a href="plot_vpc_cont.html">plot_vpc_cont()</a></c
 std-scale value; <code>PC_OBSDV</code> carries the prediction-corrected
 counterpart.</p></dd>
 
+<dt><code>config</code></dt>
+<dd><p>Named list with <code>n_replicates</code>, <code>loq</code> (unique non-NA
+LOQ values, or <code>NULL</code>), and <code>strat_var</code>.</p></dd>
 
-</dl></div>
+
+</dl><p>Pass directly to <code><a href="plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="plot_vpc_cens.html">plot_vpc_cens()</a></code>, or
+<code><a href="plot_build_vpc.html">plot_build_vpc()</a></code> to replot without recomputing.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other vpc:

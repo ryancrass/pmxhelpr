@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,22 @@
       <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.1" id="pmxhelpr-071">pmxhelpr 0.7.1<a class="anchor" aria-label="anchor" href="#pmxhelpr-071"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-7-1">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-7-1"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_build_vpc.html">plot_build_vpc()</a></code> reads stratification and binning only from the container: facets come from <code>stats$config$strat_var</code>, set by <code>df_vpcstats(strat_var = )</code>. Its <code>strat_var</code> and <code>bin_var</code> arguments are removed. The first argument is renamed <code>compute_out</code> → <code>stats</code> to match <code><a href="../reference/plot_build_doseprop.html">plot_build_doseprop()</a></code> and <code><a href="../reference/plot_build_forest.html">plot_build_forest()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-7-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-7-1"></a></h3>
+<ul><li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> with <code>cent = "mean_sdl"</code> drop Hmisc dependency. The error bars previously failed without Hmisc. Hmisc dropped from Suggests.</li>
+<li>
+<code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, <code><a href="../reference/plot_gof.html">plot_gof()</a></code>, and <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code> honor a style’s <code>logy</code> field. <code>log_y</code> now defaults to <code>NULL</code> (use the style); a <code>log_y</code> passed to the function still overrides the style. Previously the style’s <code>logy</code> was ignored.</li>
+<li>The VPC facet warning now also fires for <code>reveal(as = "facet")</code>, <code>restyle_plot(facet = )</code>, and facets added inside a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>. <code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> / <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> keep a VPC plot’s <code>pmx_vpc_plot</code> class, so later <code>+ facet_*()</code> calls are still caught. Previously these paths drew pooled statistics in every panel without a warning.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.0" id="pmxhelpr-070">pmxhelpr 0.7.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-070"></a></h2>
 <p>This release fixes bugs in previously released functions. <code><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code> returned a stochastic <code>PRED</code> whenever extra arguments were passed through <code>...</code>, which also affected prediction-corrected VPCs built on it. <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> imputed every BLQ row at the first row’s <code>LLOQ</code> when <code>loq = NULL</code> and <code>LLOQ</code> varied. Dose-proportionality <code>tdist</code> intervals and the bundled <code>pkmodel</code> are also corrected. See Bug fixes below.</p>
@@ -205,7 +221,7 @@
 <li>
 <code>plot_vpclegend()</code> is renamed to <code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code>.</li>
 <li>
-<code>breaks_time()</code> is now an internal helper (<code><a href="../reference/var_timebreaks.html">var_timebreaks()</a></code>).</li>
+<code>breaks_time()</code> is now an internal helper (<code>var_timebreaks()</code>).</li>
 </ul></div>
 <div class="section level4">
 <h4 id="removed-and-renamed-arguments-0-5-0">Removed and renamed arguments<a class="anchor" aria-label="anchor" href="#removed-and-renamed-arguments-0-5-0"></a></h4>

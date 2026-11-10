@@ -108,7 +108,7 @@ df_vpcstats(
 
 ## Value
 
-A list with two data.frames (class `c("vpc_stats", "list")`):
+A `vpc_stats` container (subclass of `pmx_stats`) with three slots:
 
 - `stats`:
 
@@ -120,8 +120,7 @@ A list with two data.frames (class `c("vpc_stats", "list")`):
   std-only — LOQ has no meaning on the prediction-corrected scale.
   `-Inf` quantile values from rank-mode fully-censored bins are masked
   to `NA`. `pc_sim_*` quantiles are `NA` in bins with no quantifiable
-  observations (`obs_n == obs_n_blq`). Carries attributes
-  `n_replicates`, `loq`, and `strat_var`.
+  observations (`obs_n == obs_n_blq`).
 
 - `obs`:
 
@@ -130,6 +129,18 @@ A list with two data.frames (class `c("vpc_stats", "list")`):
   [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md).
   `OBSDV` carries the std-scale value; `PC_OBSDV` carries the
   prediction-corrected counterpart.
+
+- `config`:
+
+  Named list with `n_replicates`, `loq` (unique non-NA LOQ values, or
+  `NULL`), and `strat_var`.
+
+Pass directly to
+[`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+[`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+or
+[`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
+to replot without recomputing.
 
 ## See also
 

@@ -27,7 +27,7 @@ plot_gof(
   cent = c("mean", "mean_sdl", "mean_sdl_upper", "median", "median_iqr", "none"),
   dosenorm = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL
 )
@@ -133,8 +133,10 @@ plot_gof(
 
 - log_y:
 
-  Logical indicator for log10 transformation of the y-axis. Also
-  controls whether the caption reports arithmetic or geometric mean when
+  Logical indicator for log10 transformation of the y-axis, or `NULL`
+  (default) to use the style's `logy` field (`FALSE` when unset). A
+  value passed here overrides the style's `logy`. Also controls whether
+  the caption reports arithmetic or geometric mean when
   `show_caption = TRUE`.
 
 - show_caption:

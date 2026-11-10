@@ -177,8 +177,9 @@ Other vpc:
 model <- model_mread_load(model = "pkmodel")
 #> Loading model from cache.
 data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+# 20 replicates keeps the example fast; use >= 100 for a real VPC
 simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
-                              replicates = 100, dv_var = ODV,
+                              replicates = 20, dv_var = ODV,
                               carry_out = c("LLOQ", "WTBL", "FOOD"),
                               recover = c("USUBJID", "PART"),
                               irep_name = SIM)

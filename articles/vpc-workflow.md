@@ -991,9 +991,9 @@ plot_vpc_cont(
   facet_wrap(~DoseFood) +
   vpc_scales_labs
 #> Inheriting per-row `loq` from `LLOQ` column in `data`.
-#> Warning: Adding `facet_*()` to a `plot_vpc_cont()` plot produces incorrect VPC statistics.
+#> Warning: Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.
 #> ℹ Summary statistics are pre-computed before plotting.
-#> ℹ Pass `strat_var` to `plot_vpc_cont()` to stratify both statistics and panels correctly.
+#> ℹ Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly.
 #> Warning in scale_y_log10(guide = "axis_logticks"): log-10 transformation introduced infinite values.
 #> log-10 transformation introduced infinite values.
 #> log-10 transformation introduced infinite values.
@@ -1428,9 +1428,10 @@ For downstream code or custom workflows that produce a
 is exported as the public renderer. It is the same engine that
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
 uses internally and accepts the same plot-only arguments
-(`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). `strat_var`
-and `loq` inherit from the container’s `$config` slot when not passed
-explicitly.
+(`min_bin_count`, `show_rep`, `shown`, `style`, `pcvpc`). Stratification
+comes from the container’s `$config` slot (stratify in
+[`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md));
+`loq` inherits from `$config` unless passed explicitly.
 
 ``` r
 

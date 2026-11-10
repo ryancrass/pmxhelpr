@@ -1,5 +1,41 @@
 # Changelog
 
+## pmxhelpr 0.7.1
+
+### Breaking changes
+
+- [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md)
+  reads stratification and binning only from the container: facets come
+  from `stats$config$strat_var`, set by `df_vpcstats(strat_var = )`. Its
+  `strat_var` and `bin_var` arguments are removed. The first argument is
+  renamed `compute_out` → `stats` to match
+  [`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md)
+  and
+  [`plot_build_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.md).
+
+### Bug fixes
+
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  with `cent = "mean_sdl"` drop Hmisc dependency. The error bars
+  previously failed without Hmisc. Hmisc dropped from Suggests.
+- [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
+  and
+  [`plot_dvconc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvconc.md)
+  honor a style’s `logy` field. `log_y` now defaults to `NULL` (use the
+  style); a `log_y` passed to the function still overrides the style.
+  Previously the style’s `logy` was ignored.
+- The VPC facet warning now also fires for `reveal(as = "facet")`,
+  `restyle_plot(facet = )`, and facets added inside a
+  [`list()`](https://rdrr.io/r/base/list.html).
+  [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
+  / [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) keep a
+  VPC plot’s `pmx_vpc_plot` class, so later `+ facet_*()` calls are
+  still caught. Previously these paths drew pooled statistics in every
+  panel without a warning.
+
 ## pmxhelpr 0.7.0
 
 This release fixes bugs in previously released functions.
@@ -379,8 +415,7 @@ proportion of data BLQ over time.
   (arguments revised — see “Removed and renamed arguments”).
 - `plot_vpclegend()` is renamed to
   [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md).
-- `breaks_time()` is now an internal helper
-  ([`var_timebreaks()`](https://ryancrass.github.io/pmxhelpr/reference/var_timebreaks.md)).
+- `breaks_time()` is now an internal helper (`var_timebreaks()`).
 
 #### Removed and renamed arguments
 

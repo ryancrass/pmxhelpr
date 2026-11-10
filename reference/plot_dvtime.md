@@ -20,7 +20,7 @@ plot_dvtime(
   show_obs = TRUE,
   dosenorm = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL
 )
@@ -134,8 +134,10 @@ plot_dvtime(
 
 - log_y:
 
-  Logical indicator for log10 transformation of the y-axis. Also
-  controls whether the caption reports arithmetic or geometric mean when
+  Logical indicator for log10 transformation of the y-axis, or `NULL`
+  (default) to use the style's `logy` field (`FALSE` when unset). A
+  value passed here overrides the style's `logy`. Also controls whether
+  the caption reports arithmetic or geometric mean when
   `show_caption = TRUE`.
 
 - show_caption:

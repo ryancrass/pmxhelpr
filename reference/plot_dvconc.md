@@ -23,7 +23,7 @@ plot_dvconc(
   se_loess = FALSE,
   se_linear = FALSE,
   ref = NULL,
-  log_y = FALSE,
+  log_y = NULL,
   show_caption = TRUE,
   style = NULL,
   ...
@@ -92,7 +92,9 @@ plot_dvconc(
 
 - log_y:
 
-  Logical indicator for log10 transformation of the y-axis.
+  Logical indicator for log10 transformation of the y-axis, or `NULL`
+  (default) to use the style's `logy` field (`FALSE` when unset). A
+  value passed here overrides the style's `logy`.
 
 - show_caption:
 

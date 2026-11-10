@@ -11,7 +11,10 @@ Most users will reach this function indirectly via plot_vpc_cont() or
 plot_vpc_cens(). Call plot_build_vpc() directly when working from a
 manually-constructed or cached vpc_stats object — for example, plotting
 a precomputed result from disk or a custom pipeline that produces
-compatible columns."><meta property="og:description" content="Constructs a ggplot2 VPC plot from a df_vpcstats() result (or any object
+compatible columns.
+Stratification and binning are read from the container: facets come from
+stats$config$strat_var and the x-axis from the BIN_MID column. To
+stratify, pass strat_var to df_vpcstats()."><meta property="og:description" content="Constructs a ggplot2 VPC plot from a df_vpcstats() result (or any object
 satisfying the vpc_stats contract). Applies the min_bin_count filter,
 draws the simulated and observed quantile layers, overlays the observation
 scatter, draws the LOQ reference line, applies stratification facets, and
@@ -23,7 +26,10 @@ Most users will reach this function indirectly via plot_vpc_cont() or
 plot_vpc_cens(). Call plot_build_vpc() directly when working from a
 manually-constructed or cached vpc_stats object — for example, plotting
 a precomputed result from disk or a custom pipeline that produces
-compatible columns."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+compatible columns.
+Stratification and binning are read from the container: facets come from
+stats$config$strat_var and the x-axis from the BIN_MID column. To
+stratify, pass strat_var to df_vpcstats()."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -31,7 +37,7 @@ compatible columns."><meta property="og:image" content="https://ryancrass.github
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,21 +86,22 @@ column set within the continuous type.</p>
 manually-constructed or cached <code>vpc_stats</code> object — for example, plotting
 a precomputed result from disk or a custom pipeline that produces
 compatible columns.</p>
+<p>Stratification and binning are read from the container: facets come from
+<code>stats$config$strat_var</code> and the x-axis from the <code>BIN_MID</code> column. To
+stratify, pass <code>strat_var</code> to <code><a href="df_vpcstats.html">df_vpcstats()</a></code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_build_vpc</span><span class="op">(</span></span>
-<span>  <span class="va">compute_out</span>,</span>
+<span>  <span class="va">stats</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cont"</span>, <span class="st">"cens"</span><span class="op">)</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bin_var <span class="op">=</span> <span class="va">BIN_MID_VAR</span></span>
+<span>  loq <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,7 +109,7 @@ compatible columns.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-compute-out">compute_out<a class="anchor" aria-label="anchor" href="#arg-compute-out"></a></dt>
+<dl><dt id="arg-stats">stats<a class="anchor" aria-label="anchor" href="#arg-stats"></a></dt>
 <dd><p>A <code>vpc_stats</code> object (typically the output of
 <code><a href="df_vpcstats.html">df_vpcstats()</a></code>). Must contain <code>stats</code> and <code>obs</code> data.frames with the
 columns documented in <code><a href="df_vpcstats.html">df_vpcstats()</a></code>. Validated by
@@ -114,7 +121,7 @@ columns documented in <code><a href="df_vpcstats.html">df_vpcstats()</a></code>.
 continuous concentration VPC (quantile ribbons and obs scatter).
 <code>"cens"</code> plots the BLQ-proportion VPC (proportion CI ribbon plus
 observed per-bin proportion line/points); requires <code>sim_prop_blq_*</code>
-columns in <code>compute_out$stats</code> (i.e., <code><a href="df_vpcstats.html">df_vpcstats()</a></code> was called with
+columns in <code>stats$stats</code> (i.e., <code><a href="df_vpcstats.html">df_vpcstats()</a></code> was called with
 a LOQ source). <code>type = "cens"</code> is incompatible with <code>pcvpc = TRUE</code>.</p></dd>
 
 
@@ -163,7 +170,8 @@ when <code>type = "cont"</code>.</p></dd>
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric scalar or vector of LOQ values for the reference line,
 or <code>NULL</code> to suppress. When omitted (inherited from
-<code>compute_out$config$loq</code>) and <code>strat_var</code> is set and <code>compute_out$obs</code>
+<code>stats$config$loq</code>), the container is stratified
+(<code>stats$config$strat_var</code>), and <code>stats$obs</code>
 carries a row-aligned <code>LOQ</code> column, ref lines are drawn per facet —
 each facet shows only the LLOQ values applicable to its strat-level
 rows. When <code>loq</code> is supplied explicitly, the value always wins and
@@ -173,22 +181,10 @@ In the no-stratification or no-<code>obs$LOQ</code> cases, a global reference
 line is drawn per unique value of <code>loq</code> regardless of inheritance.
 The legend entry for LLOQ is <em>not</em> attached here — pass the same
 value to <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> when composing the legend panel.
-<code>compute_out$config$loq</code> is already a vector of unique non-NA LOQ
+<code>stats$config$loq</code> is already a vector of unique non-NA LOQ
 values when <code><a href="df_vpcstats.html">df_vpcstats()</a></code> populated the container. Forced to <code>NULL</code>
 when <code>pcvpc = TRUE</code> (LOQ has no meaning on the prediction-corrected
 scale).</p></dd>
-
-
-<dt id="arg-strat-var">strat_var<a class="anchor" aria-label="anchor" href="#arg-strat-var"></a></dt>
-<dd><p>Stratification variable. Accepts bare names or strings.
-Default is <code>NULL</code>. When <code>NULL</code>, the value is read from
-<code>compute_out$config$strat_var</code> so output of <code><a href="df_vpcstats.html">df_vpcstats()</a></code> is
-handled automatically. Facet layout is taken from the <code>style</code>:
-<code>facet_scales</code>, <code>facet_nrow</code>, and <code>facet_ncol</code>.</p></dd>
-
-
-<dt id="arg-bin-var">bin_var<a class="anchor" aria-label="anchor" href="#arg-bin-var"></a></dt>
-<dd><p>String. Binning variable name. Default is <code>"BIN_MID"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

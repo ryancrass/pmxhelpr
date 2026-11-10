@@ -11,7 +11,7 @@ CMT or EVID == 0) before calling — see the example below."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ rows internally. Pre-filter the input to observation rows (typically by
 <span>  se_loess <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  se_linear <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  log_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  log_y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_caption <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -129,7 +129,9 @@ change-from-baseline data.</p></dd>
 
 
 <dt id="arg-log-y">log_y<a class="anchor" aria-label="anchor" href="#arg-log-y"></a></dt>
-<dd><p>Logical indicator for log10 transformation of the y-axis.</p></dd>
+<dd><p>Logical indicator for log10 transformation of the y-axis, or
+<code>NULL</code> (default) to use the style's <code>logy</code> field (<code>FALSE</code> when unset). A
+value passed here overrides the style's <code>logy</code>.</p></dd>
 
 
 <dt id="arg-show-caption">show_caption<a class="anchor" aria-label="anchor" href="#arg-show-caption"></a></dt>

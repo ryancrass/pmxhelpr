@@ -33,6 +33,62 @@ test_that("is_pmx_stats() detects the shared base class", {
   expect_false(is_pmx_stats(NULL))
 })
 
+#####validate_pmx_stats generic####
+
+test_that("validate_pmx_stats() returns each real container invisibly", {
+  containers <- list(df_vpcstats(testsim),
+                     df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax")),
+                     df_forest(data_sad_pkforest))
+  for (x in containers) {
+    expect_invisible(validate_pmx_stats(x))
+    expect_identical(validate_pmx_stats(x), x)
+  }
+})
+
+test_that("validate_pmx_stats() applies each subclass contract", {
+  vs <- df_vpcstats(testsim)
+  vs$stats$obs_med <- NULL
+  expect_error(validate_pmx_stats(vs), "`vs\\$stats` is missing required columns: `obs_med`",
+               class = "pmxhelpr_error_bad_stats")
+  fs <- df_forest(data_sad_pkforest)
+  fs$stats$est <- as.character(fs$stats$est)
+  expect_error(validate_pmx_stats(fs), "`fs\\$stats` column `est` must be numeric",
+               class = "pmxhelpr_error_bad_stats")
+  ds <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  ds$config$dose_var <- "NOPE"
+  expect_error(validate_pmx_stats(ds), "`ds\\$obs`", class = "pmxhelpr_error_missing_var")
+})
+
+test_that("validate_pmx_stats() default method checks the shared shape", {
+  expect_error(validate_pmx_stats(list()), "must be a <pmx_stats> object",
+               class = "pmxhelpr_error_bad_stats")
+  expect_error(validate_pmx_stats(mtcars), "`mtcars` must be a <pmx_stats> object",
+               class = "pmxhelpr_error_bad_stats")
+  other <- pmx_stats(data.frame(a = 1), subclass = "other_stats")
+  expect_identical(validate_pmx_stats(other), other)
+  other$config <- "x"
+  expect_error(validate_pmx_stats(other), "`other\\$config` must be a <list>",
+               class = "pmxhelpr_error_bad_stats")
+})
+
+test_that("validate_pmx_stats() errors name the caller", {
+  fs <- df_forest(data_sad_pkforest)
+  fs$stats$est <- as.character(fs$stats$est)
+  f <- function(s) validate_pmx_stats(s)
+  cnd <- rlang::catch_cnd(f(fs), classes = "error")
+  expect_equal(as.character(cnd$call[[1]]), "f")
+})
+
+test_that("pmx_stats() and is_pmx_stats(strict = TRUE) apply the subclass contract", {
+  expect_error(pmx_stats(data.frame(a = 1), subclass = "forest_stats"),
+               "missing required columns", class = "pmxhelpr_error_bad_stats")
+  fs <- df_forest(data_sad_pkforest)
+  expect_true(is_pmx_stats(fs, strict = TRUE))
+  fs$stats$est <- as.character(fs$stats$est)   # shared slots still valid
+  expect_true(is_pmx_stats(fs))
+  expect_false(is_pmx_stats(fs, strict = TRUE))
+})
+
 test_that("print.vpc_stats emits the headline summary and column groups", {
   out <- df_vpcstats(testsim, strat_var = "FOOD", loq = 1)
   txt <- paste(capture.output(print(out)), collapse = "\n")

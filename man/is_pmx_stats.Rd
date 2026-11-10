@@ -10,8 +10,9 @@ is_pmx_stats(x, strict = FALSE)
 \item{x}{Object to test.}
 
 \item{strict}{Logical. When \code{TRUE}, additionally runs
-\code{\link[=validate_pmx_stats]{validate_pmx_stats()}} and returns \code{FALSE} on validation failure.
-Default \code{FALSE} (class-tag check only, cheap).}
+\code{\link[=validate_pmx_stats]{validate_pmx_stats()}}, which applies the subclass contract, and
+returns \code{FALSE} on validation failure. Default \code{FALSE} (class-tag check
+only, cheap).}
 }
 \value{
 Logical scalar.
@@ -25,6 +26,7 @@ need to discriminate between pipelines.
 }
 \seealso{
 Other pmx stats class:
-\code{\link[=pmx_stats]{pmx_stats()}}
+\code{\link[=pmx_stats]{pmx_stats()}},
+\code{\link[=validate_pmx_stats.doseprop_stats]{validate_pmx_stats.doseprop_stats()}}
 }
 \concept{pmx stats class}

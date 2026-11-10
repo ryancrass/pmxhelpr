@@ -6,8 +6,9 @@
 #' three slots — `stats` (the per-row summary frame), `obs` (the observation
 #' overlay used by plot builders, may be `NULL`), and `config` (named list of
 #' run configuration consumed by the plot builders). The class vector is
-#' `c(<subclass>, "pmx_stats")`. The structural shape is enforced by
-#' [validate_pmx_stats()] at construction time.
+#' `c(<subclass>, "pmx_stats")`. The container is checked with
+#' [validate_pmx_stats()] at construction time, including the subclass
+#' contract for `vpc_stats`, `doseprop_stats` and `forest_stats`.
 #'
 #' @param stats A `data.frame` of per-row summary statistics.
 #' @param obs A `data.frame` of observation rows for the scatter overlay, or
@@ -43,8 +44,9 @@ pmx_stats <- function(stats, obs = NULL, config = list(), subclass) {
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs
-#'    [validate_pmx_stats()] and returns `FALSE` on validation failure.
-#'    Default `FALSE` (class-tag check only, cheap).
+#'    [validate_pmx_stats()], which applies the subclass contract, and
+#'    returns `FALSE` on validation failure. Default `FALSE` (class-tag check
+#'    only, cheap).
 #'
 #' @family pmx stats class
 #' @return Logical scalar.
@@ -61,11 +63,62 @@ is_pmx_stats <- function(x, strict = FALSE) {
 #' Validate a `pmx_stats` container
 #'
 #' @description
-#' Internal helper. Asserts that `x` carries the `pmx_stats` class and exposes
-#' the `stats` / `obs` / `config` slots in the expected shape. Subclass
-#' validators pass their contract (class, required columns, required config
-#' keys) through the optional arguments, so every container reports missing
-#' pieces with the same messages, and then apply any checks of their own.
+#' Checks that `x` is a well-formed `pmx_stats` container and returns it
+#' invisibly, or aborts with an error of class `pmxhelpr_error_bad_stats`
+#' naming what is wrong. Use it after editing a container (e.g. `x$stats`) or
+#' building one by hand with [pmx_stats()]; [is_pmx_stats()] with
+#' `strict = TRUE` runs the same checks but returns `TRUE`/`FALSE`.
+#'
+#' The generic dispatches on the container class:
+#' * `vpc_stats`: the bin, count and quantile columns of `stats`; the
+#'   `OBSDV`/`PC_OBSDV`/`TIME` columns of `obs`; the `n_replicates`, `ci`,
+#'   `pi`, `loq` and `strat_var` config keys; and the `sim_prop_blq_*`
+#'   columns when `config$loq` is set.
+#' * `doseprop_stats`: the power-model columns of `stats`, an `obs` frame
+#'   holding the `config` metric and dose columns, and the `metric_name_var`,
+#'   `metric_value_var`, `dose_var` and `ci` config keys.
+#' * `forest_stats`: the estimate, label, `is_ref` and `layout` columns of
+#'   `stats` with their types and values, the `config` grouping columns, and
+#'   valid `config$ci` and `config$sigdigits`.
+#' * Any other object: `x` must carry the `pmx_stats` class and have a
+#'   `stats` data.frame, an `obs` data.frame or `NULL`, and a `config` list.
+#'   Packages defining their own `pmx_stats` subclass can add a method.
+#'
+#' @param x Object to validate.
+#' @param ... Passed to methods; unused by the methods in pmxhelpr.
+#' @param arg,call The argument name and call reported in errors.
+#'
+#' @family pmx stats class
+#' @return `invisible(x)` on success.
+#' @export
+#'
+#' @examples
+#' fs <- df_forest(data_sad_pkforest)
+#' validate_pmx_stats(fs)
+#' fs$stats$est <- as.character(fs$stats$est)
+#' try(validate_pmx_stats(fs))
+
+validate_pmx_stats <- function(x, ..., arg = rlang::caller_arg(x),
+                               call = rlang::caller_env()) {
+  UseMethod("validate_pmx_stats")
+}
+
+
+#' @rdname validate_pmx_stats
+#' @export
+validate_pmx_stats.default <- function(x, ..., arg = rlang::caller_arg(x),
+                                       call = rlang::caller_env()) {
+  check_pmx_stats(x, arg = arg, call = call)
+}
+
+
+#' Internal helper: check the shared `pmx_stats` shape
+#'
+#' Asserts that `x` carries the `pmx_stats` class and exposes the `stats` /
+#' `obs` / `config` slots in the expected shape. Subclass validators pass their
+#' contract (class, required columns, required config keys) through the
+#' optional arguments, so every container reports missing pieces with the same
+#' messages, and then apply any checks of their own.
 #'
 #' @param x Object to validate.
 #' @param subclass Optional subclass name `x` must carry (e.g.
@@ -81,13 +134,14 @@ is_pmx_stats <- function(x, strict = FALSE) {
 #'
 #' @return `invisible(x)` on success.
 #' @keywords internal
+#' @noRd
 
-validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
-                               stats_cols = NULL, obs_cols = NULL,
-                               config_keys = NULL,
-                               require_obs = length(obs_cols) > 0,
-                               arg = rlang::caller_arg(x),
-                               call = rlang::caller_env()) {
+check_pmx_stats <- function(x, subclass = NULL, source = NULL,
+                            stats_cols = NULL, obs_cols = NULL,
+                            config_keys = NULL,
+                            require_obs = length(obs_cols) > 0,
+                            arg = rlang::caller_arg(x),
+                            call = rlang::caller_env()) {
   if (!is.null(subclass) && !inherits(x, subclass)) {
     pmx_abort("{.arg {arg}} must be a {.cls {subclass}} object (output of {.fn {source}}).",
               "bad_stats", call = call)

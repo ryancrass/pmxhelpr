@@ -199,7 +199,7 @@ df_doseprop <- function(data,
 
 validate_doseprop_stats <- function(x, arg = rlang::caller_arg(x),
                                     call = rlang::caller_env()) {
-  validate_pmx_stats(
+  check_pmx_stats(
     x, "doseprop_stats", "df_doseprop",
     stats_cols = c("Intercept", "Power", "LCL", "UCL", "PowerCI"),
     config_keys = c("metric_name_var", "metric_value_var", "dose_var", "ci"),
@@ -214,6 +214,14 @@ validate_doseprop_stats <- function(x, arg = rlang::caller_arg(x),
 }
 
 
+#' @rdname validate_pmx_stats
+#' @export
+validate_pmx_stats.doseprop_stats <- function(x, ..., arg = rlang::caller_arg(x),
+                                              call = rlang::caller_env()) {
+  validate_doseprop_stats(x, arg = arg, call = call)
+}
+
+
 #' Test whether an object is a `doseprop_stats` container
 #'
 #' @description
@@ -224,7 +232,7 @@ validate_doseprop_stats <- function(x, arg = rlang::caller_arg(x),
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs
-#'    `validate_doseprop_stats()` and returns `FALSE` on validation failure.
+#'    [validate_pmx_stats()] and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
 #' @family dose proportionality

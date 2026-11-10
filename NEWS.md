@@ -5,6 +5,13 @@
 * VPC plots can be restyled after the fact: `restyle_plot()` and `reveal()`
   now reach VPC layers, which are tagged by role like every other plot
   family.
+* `validate_pmx_stats()` is exported: it checks a `pmx_stats` container
+  (e.g. one edited or built by hand) and reports what is wrong, dispatching
+  on the class so `vpc_stats`, `doseprop_stats`, and `forest_stats` are
+  checked against their full contract. `pmx_stats()` and
+  `is_pmx_stats(strict = TRUE)` now apply that contract too, rather than
+  only the shared slot checks; packages defining their own `pmx_stats`
+  subclass can add a method.
 
 ## Minor improvements
 

@@ -10,7 +10,7 @@ is_vpc_stats(x, strict = FALSE)
 \item{x}{Object to test.}
 
 \item{strict}{Logical. When \code{TRUE}, additionally runs
-\code{validate_vpc_stats()} and returns \code{FALSE} on validation failure.
+\code{\link[=validate_pmx_stats]{validate_pmx_stats()}} and returns \code{FALSE} on validation failure.
 Default \code{FALSE} (class-tag check only, cheap).}
 }
 \value{

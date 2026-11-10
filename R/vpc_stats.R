@@ -142,7 +142,7 @@ df_vpcstats <- function(data,
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs
-#'    `validate_vpc_stats()` and returns `FALSE` on validation failure.
+#'    [validate_pmx_stats()] and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
 #' @family vpc
@@ -259,7 +259,7 @@ validate_vpc_stats <- function(x, arg = rlang::caller_arg(x),
   ## Stats: identifiers, counts, full quantile sets (std + pc), metadata.
   ## Use the medians as the canonical column for each group so we don't
   ## depend on every CI bound being present.
-  validate_pmx_stats(
+  check_pmx_stats(
     x, "vpc_stats", "df_vpcstats",
     stats_cols = c(.vpc_bin_col, .vpc_count_cols,
                    "obs_low", "obs_med", "obs_hi",
@@ -282,4 +282,12 @@ validate_vpc_stats <- function(x, arg = rlang::caller_arg(x),
   }
 
   invisible(x)
+}
+
+
+#' @rdname validate_pmx_stats
+#' @export
+validate_pmx_stats.vpc_stats <- function(x, ..., arg = rlang::caller_arg(x),
+                                         call = rlang::caller_env()) {
+  validate_vpc_stats(x, arg = arg, call = call)
 }

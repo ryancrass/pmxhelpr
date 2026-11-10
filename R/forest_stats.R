@@ -397,7 +397,7 @@ forest_format_labels <- function(stats, sigdigits, metric_var) {
 
 validate_forest_stats <- function(x, arg = rlang::caller_arg(x),
                                   call = rlang::caller_env()) {
-  validate_pmx_stats(
+  check_pmx_stats(
     x, "forest_stats", "df_forest",
     stats_cols = c("est", "lo", "hi", "est_label", "lo_label", "hi_label",
                    "ci_label", "is_ref", "layout"),
@@ -440,6 +440,14 @@ validate_forest_stats <- function(x, arg = rlang::caller_arg(x),
 }
 
 
+#' @rdname validate_pmx_stats
+#' @export
+validate_pmx_stats.forest_stats <- function(x, ..., arg = rlang::caller_arg(x),
+                                            call = rlang::caller_env()) {
+  validate_forest_stats(x, arg = arg, call = call)
+}
+
+
 #' Test whether an object is a `forest_stats` container
 #'
 #' @description
@@ -450,7 +458,7 @@ validate_forest_stats <- function(x, arg = rlang::caller_arg(x),
 #'
 #' @param x Object to test.
 #' @param strict Logical. When `TRUE`, additionally runs
-#'    `validate_forest_stats()` and returns `FALSE` on validation failure.
+#'    [validate_pmx_stats()] and returns `FALSE` on validation failure.
 #'    Default `FALSE` (class-tag check only, cheap).
 #'
 #' @family forest plot

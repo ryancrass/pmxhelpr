@@ -171,31 +171,99 @@ df_forest <- function(
     ))
   }
 
-  ## Display order is read from the input before `summarise()` sorts the groups.
-  metric_order <- level_order(data[[metric_name_var_str]])
-  cov_order <- level_order(data[[cov_name_var_str]])
-  cov_name_chr <- as.character(data[[cov_name_var_str]])
-  level_from_factor <- is.factor(data[[cov_level_var_str]])
+  grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str)
+  display <- forest_input_order(data, metric_name_var_str, cov_name_var_str,
+                                cov_level_var_str)
+  stats <- forest_aggregate(data, grp_vars, metric_value_var_str, ci)
+  ref <- forest_distribute_ref(stats, cov_name_ref, cov_level_ref,
+                               display$cov_order, grp_vars)
+  display$cov_order <- ref$cov_order
+  stats <- forest_sort_rows(ref$stats, display, grp_vars)
+  stats <- forest_format_labels(stats, sigdigits, metric_name_var_str)
+  stats <- stats[, c(grp_vars, "est", "lo", "hi", "n", "est_label", "lo_label",
+                     "hi_label", "ci_label", "is_ref", "layout")]
+
+  pmx_stats(
+    stats = stats,
+    obs = NULL,
+    config = list(
+      metric_name_var = metric_name_var_str,
+      metric_value_var = metric_value_var_str,
+      cov_name_var = cov_name_var_str,
+      cov_level_var = cov_level_var_str,
+      ci = ci,
+      sigdigits = sigdigits,
+      cov_name_ref = cov_name_ref,
+      cov_level_ref = cov_level_ref
+    ),
+    subclass = "forest_stats"
+  )
+}
+
+
+#' Internal: display order read from the raw `df_forest()` input
+#'
+#' Read before `summarise()` sorts the groups.
+#'
+#' @param data Raw replicate draws.
+#' @param metric_var,cov_var,level_var Column names.
+#' @return `list(metric_order, cov_order, level_from_factor, level_given)`;
+#'    `level_given` holds each covariate's labels in input order.
+#' @noRd
+forest_input_order <- function(data, metric_var, cov_var, level_var) {
+  cov_order <- level_order(data[[cov_var]])
+  cov_name_chr <- as.character(data[[cov_var]])
+  level_from_factor <- is.factor(data[[level_var]])
   ## Full factor levels (not just those present) so a distributed reference
   ## label the factor declares still places by its level.
   level_given <- lapply(stats::setNames(nm = cov_order), function(cn) {
-    x <- data[[cov_level_var_str]][cov_name_chr == cn]
+    x <- data[[level_var]][cov_name_chr == cn]
     if (level_from_factor) levels(x) else unique(as.character(x))
   })
+  list(metric_order = level_order(data[[metric_var]]), cov_order = cov_order,
+       level_from_factor = level_from_factor, level_given = level_given)
+}
 
+
+#' Internal: median and `ci` percentile interval per metric/covariate/level
+#'
+#' @param data Raw replicate draws.
+#' @param grp_vars Metric, covariate, and level column names.
+#' @param value_var Column of draws.
+#' @param ci Central interval width.
+#' @return A data.frame with character `grp_vars` and `est`, `lo`, `hi`, `n`.
+#' @noRd
+forest_aggregate <- function(data, grp_vars, value_var, ci) {
   probs <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
-  grp_vars <- c(metric_name_var_str, cov_name_var_str, cov_level_var_str)
   stats <- data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grp_vars))) |>
     dplyr::summarise(
-      est = stats::median(.data[[metric_value_var_str]], na.rm = TRUE),
-      lo = unname(stats::quantile(.data[[metric_value_var_str]], probs[1], na.rm = TRUE)),
-      hi = unname(stats::quantile(.data[[metric_value_var_str]], probs[2], na.rm = TRUE)),
-      n = sum(!is.na(.data[[metric_value_var_str]])),
+      est = stats::median(.data[[value_var]], na.rm = TRUE),
+      lo = unname(stats::quantile(.data[[value_var]], probs[1], na.rm = TRUE)),
+      hi = unname(stats::quantile(.data[[value_var]], probs[2], na.rm = TRUE)),
+      n = sum(!is.na(.data[[value_var]])),
       .groups = "drop"
     ) |>
     as.data.frame()
   for (v in grp_vars) stats[[v]] <- as.character(stats[[v]])
+  stats
+}
+
+
+#' Internal: flag reference rows and distribute copies into covariate panels
+#'
+#' @param stats Aggregated rows from `forest_aggregate()`.
+#' @param cov_name_ref,cov_level_ref As in [df_forest()].
+#' @param cov_order Covariate display order.
+#' @param grp_vars Metric, covariate, and level column names.
+#' @return `list(stats, cov_order)`: rows gain `is_ref` and `layout` (plus any
+#'    distributed copies), and the reference panel moves first in `cov_order`.
+#' @noRd
+forest_distribute_ref <- function(stats, cov_name_ref, cov_level_ref, cov_order,
+                                  grp_vars) {
+  metric_name_var_str <- grp_vars[1]
+  cov_name_var_str <- grp_vars[2]
+  cov_level_var_str <- grp_vars[3]
 
   ## Reference rows match `cov_name_ref` and form the reference panel, drawn
   ## only in the consolidated layout. With `cov_level_ref`, a
@@ -253,6 +321,22 @@ df_forest <- function(
   })
   stats <- do.call(rbind, c(list(stats), copies))
   cov_order <- c(intersect(ref_covs, cov_order), setdiff(cov_order, ref_covs))
+  list(stats = stats, cov_order = cov_order)
+}
+
+
+#' Internal: sort `df_forest()` rows into display order
+#'
+#' @param stats Rows from `forest_distribute_ref()`.
+#' @param display Display order from `forest_input_order()`, with the
+#'    reference-first `cov_order`.
+#' @param grp_vars Metric, covariate, and level column names.
+#' @return `stats`, reordered top to bottom with row names reset.
+#' @noRd
+forest_sort_rows <- function(stats, display, grp_vars) {
+  metric_name_var_str <- grp_vars[1]
+  cov_name_var_str <- grp_vars[2]
+  cov_level_var_str <- grp_vars[3]
 
   ## Sort into display order (top to bottom): metric, covariate, then the
   ## per-panel label order from `order_col_factor()`. Factor levels win when
@@ -263,11 +347,11 @@ df_forest <- function(
   ## labels are ordered with the covariate's own labels, so both layouts
   ## share one test-row order.
   level_rank <- integer(nrow(stats))
-  for (cn in cov_order) {
+  for (cn in display$cov_order) {
     in_panel <- stats[[cov_name_var_str]] == cn
     labels <- stats[[cov_level_var_str]][in_panel]
-    given <- level_given[[cn]]
-    panel <- if (level_from_factor && all(labels %in% given)) {
+    given <- display$level_given[[cn]]
+    panel <- if (display$level_from_factor && all(labels %in% given)) {
       factor(labels, levels = given)
     } else {
       c(labels[stats$is_ref[in_panel]], given[given %in% labels])
@@ -275,14 +359,25 @@ df_forest <- function(
     level_rank[in_panel] <- match(labels, levels(order_col_factor(panel)))
   }
   stats <- stats[order(
-    match(stats[[metric_name_var_str]], metric_order),
-    match(stats[[cov_name_var_str]], cov_order),
+    match(stats[[metric_name_var_str]], display$metric_order),
+    match(stats[[cov_name_var_str]], display$cov_order),
     level_rank
   ), , drop = FALSE]
   rownames(stats) <- NULL
+  stats
+}
 
+
+#' Internal: formatted estimate and interval labels for `df_forest()` rows
+#'
+#' @param stats Sorted rows with `est`, `lo`, `hi`.
+#' @param sigdigits As in [df_forest()].
+#' @param metric_var Metric column name.
+#' @return `stats` with `est_label`, `lo_label`, `hi_label`, and `ci_label`.
+#' @noRd
+forest_format_labels <- function(stats, sigdigits, metric_var) {
   ## One decimal count per metric, set by `sigdigits` of its median estimate.
-  anchor <- stats::ave(abs(stats$est), stats[[metric_name_var_str]],
+  anchor <- stats::ave(abs(stats$est), stats[[metric_var]],
                        FUN = function(x) stats::median(x, na.rm = TRUE))
   stats$est_label <- fmt_sig(stats$est, sigdigits, anchor = anchor)
   stats$lo_label <- fmt_sig(stats$lo, sigdigits, anchor = anchor)
@@ -291,24 +386,7 @@ df_forest <- function(
     stats$est_label, " (", stats$lo_label, ", ", stats$hi_label, ")"
   )
   stats$ci_label[is.na(stats$est)] <- NA_character_
-  stats <- stats[, c(grp_vars, "est", "lo", "hi", "n", "est_label", "lo_label",
-                     "hi_label", "ci_label", "is_ref", "layout")]
-
-  pmx_stats(
-    stats = stats,
-    obs = NULL,
-    config = list(
-      metric_name_var = metric_name_var_str,
-      metric_value_var = metric_value_var_str,
-      cov_name_var = cov_name_var_str,
-      cov_level_var = cov_level_var_str,
-      ci = ci,
-      sigdigits = sigdigits,
-      cov_name_ref = cov_name_ref,
-      cov_level_ref = cov_level_ref
-    ),
-    subclass = "forest_stats"
-  )
+  stats
 }
 
 

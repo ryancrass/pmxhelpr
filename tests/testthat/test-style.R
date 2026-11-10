@@ -80,13 +80,6 @@ test_that("pmx_house_theme(white_panel = TRUE) sets a white panel background", {
   expect_s3_class(th$panel.background, "element_rect")
 })
 
-##merge_element still merges the shown visibility lists
-test_that("merge_element merges a partial shown list over defaults", {
-  out <- pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
-  expect_false(out$obs)
-  expect_true(out$dv)
-})
-
 ##resolve_style: default on NULL, pass-through on a spec, abort otherwise
 test_that("resolve_style returns the preset default when style is NULL", {
   s <- pmxhelpr:::resolve_style(NULL, style_dvtime)

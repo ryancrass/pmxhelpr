@@ -130,7 +130,7 @@ plot_build_vpc <- function(stats,
   loq_inherited <- missing(loq)
   if (loq_inherited) loq <- stats$config$loq
 
-  shown    <- merge_element(shown, plot_vpc_shown())
+  shown    <- resolve_shown(shown, plot_vpc_shown())
   vpcstyle <- resolve_style(style, style_vpc)
   if (type == "cens") vpcstyle <- vpc_cens_style(vpcstyle)
 

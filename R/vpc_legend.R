@@ -99,7 +99,7 @@ plot_vpc_legend <- function(ci = 0.90,
   if (type == "cens") vpcstyle <- vpc_cens_style(vpcstyle)
 
   #shown elements for legend based on settings in plot_vpc_cont
-  nlist <- merge_element(shown, plot_vpc_shown())
+  nlist <- resolve_shown(shown, plot_vpc_shown())
   if (!isTRUE(nlist$loq_line)) loq <- NULL
 
   if (!is.null(loq)) check_numeric_strict(loq, "loq")

@@ -121,7 +121,7 @@ plot_gof <- function(data,
   caption <- prep$caption
 
   #Determine which variables to show
-  shown <- merge_element(shown, plot_gof_shown())
+  shown <- resolve_shown(shown, plot_gof_shown())
   shown_names <- names(shown)[unlist(shown)]
   active <- toupper(shown_names)
   if (length(active) == 0L) {

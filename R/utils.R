@@ -72,32 +72,3 @@ df_prep_timevars <- function(data, time_var_str, ntime_var_str) {
 compact <- function(x) x[!vapply(x, is.null, logical(1))]
 
 
-#' Internal helper: Merge user overrides into a complete default named list
-#'
-#' Iterates over names in the user-supplied list and overwrites matching entries
-#' in the default. Warns on unrecognized names. Used to merge the layer
-#' visibility lists from [plot_gof_shown()] / [plot_vpc_shown()] over their
-#' defaults.
-#'
-#' @param user User-supplied list with partial overrides, or `NULL`.
-#' @param default Complete default list.
-#'
-#' @return A merged list with the same class as `default`
-#' @keywords internal
-#' @examples
-#' pmxhelpr:::merge_element(list(obs = FALSE), plot_gof_shown())
-#'
-merge_element <- function(user, default) {
-  if (is.null(user)) return(default)
-  out <- default
-  for (nm in names(user)) {
-    if (!nm %in% names(default)) {
-      cls <- class(default)[1]
-      pmx_warn("{.val {nm}} is not a valid field of {.cls {cls}}.", "ignored_arg")
-    } else {
-      out[[nm]] <- user[[nm]]
-    }
-  }
-  class(out) <- class(default)
-  out
-}

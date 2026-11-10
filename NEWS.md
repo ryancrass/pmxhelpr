@@ -20,6 +20,13 @@
 
 ## Minor improvements
 
+* `plot_vpc_shown()` and `plot_gof_shown()` return `vpc_shown` / `gof_shown`
+  objects (still named lists) with a print method. A `shown` value that is
+  not `TRUE` or `FALSE`, or the other family's object (e.g.
+  `plot_gof_shown()` passed to a VPC), now errors; such values were
+  previously treated as `FALSE` or garbled. Unknown `shown` keys still warn,
+  now once per call and listing the valid keys.
+
 * `summary()` on a `vpc_stats`, `doseprop_stats`, or `forest_stats`
   container now returns a `summary.*` object holding the values it prints
   (e.g. `summary(dp)$metrics$Power`, `summary(vs)$column_groups`) instead of

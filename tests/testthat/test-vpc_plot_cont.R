@@ -430,6 +430,27 @@ test_that("plot_build_vpc() returns a pmx_vpc_plot object", {
   expect_s3_class(plot_build_vpc(out), "pmx_vpc_plot")
 })
 
+test_that("Combining a pmx_vpc_plot with other plots gives a plain patchwork", {
+  ## Adding two ggplots needs patchwork's namespace loaded (its ggplot_add method).
+  skip_if_not_installed("patchwork")
+  loadNamespace("patchwork")
+  p <- plot_vpc_cont(data = sim_pk(5, carry_out = "FOOD"))
+  g <- plot_gof(data_sad_pkfit, dv_var = ODV)
+  for (fig in list(p + g, p | g, combine_styled_plots(p, g))) {
+    expect_s3_class(fig, "patchwork")
+    expect_false(is_pmx_vpc_plot(fig))
+  }
+  expect_no_warning(p + g + ggplot2::facet_wrap(~FOOD),
+                    class = "pmxhelpr_warning_vpc_facet")
+  ## patchwork treats a figure as its last panel: ending on a VPC keeps the
+  ## class, and a facet added to the figure facets that VPC panel.
+  fig <- g + p
+  expect_s3_class(fig, "patchwork")
+  expect_true(is_pmx_vpc_plot(fig))
+  expect_warning(fig + ggplot2::facet_wrap(~FOOD), class = "pmxhelpr_warning_vpc_facet")
+  expect_true(is_pmx_vpc_plot(p + ggplot2::theme_bw()))
+})
+
 test_that("Adding facet_wrap() to a pmx_vpc_plot warns about incorrect statistics", {
   sim <- sim_pk(5)
   p <- plot_vpc_cont(data = sim)

@@ -20,6 +20,12 @@
 
 ## Minor improvements
 
+* Combining a VPC with other plots (`p + p2`, `p | p2`,
+  `combine_styled_plots()`) no longer labels the combined patchwork as a
+  `pmx_vpc_plot`, so faceting the figure no longer warns about VPC
+  statistics. A `+` chain that ends on a VPC (`p2 + p`) still carries the
+  class, because patchwork treats the figure as that last panel.
+
 * `plot_vpc_shown()` and `plot_gof_shown()` return `vpc_shown` / `gof_shown`
   objects (still named lists) with a print method. A `shown` value that is
   not `TRUE` or `FALSE`, or the other family's object (e.g.

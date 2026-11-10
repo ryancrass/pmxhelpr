@@ -39,5 +39,9 @@ Facets inside a \code{list()} are caught the same way. \code{\link[=restyle_plot
 \code{restyle_plot(facet = )} warn like \verb{+ facet_*()}.
 
 The \code{pmx_vpc_plot} class is preserved on the result so that subsequent \code{+}
-calls are also intercepted.
+calls are also intercepted. Combining plots (patchwork \code{+}, \code{|}, \code{/}, or
+\code{\link[=combine_styled_plots]{combine_styled_plots()}}) returns a patchwork that is not a
+\code{pmx_vpc_plot}, except a \code{+} chain ending on a VPC (\code{p2 + p}): patchwork
+treats that figure as its last panel, so it keeps the class and a facet
+added to it warns.
 }

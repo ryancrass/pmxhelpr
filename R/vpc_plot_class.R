@@ -41,7 +41,11 @@ is_pmx_vpc_plot <- function(x) {
 #' `restyle_plot(facet = )` warn like `+ facet_*()`.
 #'
 #' The `pmx_vpc_plot` class is preserved on the result so that subsequent `+`
-#' calls are also intercepted.
+#' calls are also intercepted. Combining plots (patchwork `+`, `|`, `/`, or
+#' [combine_styled_plots()]) returns a patchwork that is not a
+#' `pmx_vpc_plot`, except a `+` chain ending on a VPC (`p2 + p`): patchwork
+#' treats that figure as its last panel, so it keeps the class and a facet
+#' added to it warns.
 #'
 #' @param e1 A `pmx_vpc_plot` object.
 #' @param e2 A ggplot2 layer, scale, theme, facet, or other addable object.
@@ -99,8 +103,11 @@ warn_vpc_facet <- function() {
   ), "vpc_facet")
 }
 
-## Internal: (re)attach the `pmx_vpc_plot` class once, at the front.
+## Internal: (re)attach the `pmx_vpc_plot` class once, at the front. A
+## patchwork is left as is: patchwork treats it as its last panel, which
+## carries its own class (VPC or not).
 as_pmx_vpc_plot <- function(p) {
+  if (inherits(p, "patchwork")) return(p)
   class(p) <- c("pmx_vpc_plot", setdiff(class(p), "pmx_vpc_plot"))
   p
 }

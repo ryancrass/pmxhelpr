@@ -250,3 +250,33 @@ test_that("shown$loq_line = FALSE drops the LLOQ legend entry", {
   expect_false(any(grepl("LLOQ", linetype_breaks(hidden))))
   expect_true(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(loq = 1)))))
 })
+
+#####stats = (container defaults)####
+
+test_that("plot_vpc_legend(stats =) takes ci, pi, and loq from the container", {
+  out <- df_vpcstats(sim_pk(5), loq = 1, pi = c(0.1, 0.9), ci = 0.8)
+  from_stats <- plot_vpc_legend(stats = out)
+  by_hand <- plot_vpc_legend(ci = 0.8, pi = c(0.1, 0.9), loq = 1)
+  expect_equal(linetype_breaks(from_stats), linetype_breaks(by_hand))
+  expect_equal(fill_breaks(from_stats), fill_breaks(by_hand))
+  expect_equal(capture.output(layer_summary(from_stats)),
+               capture.output(layer_summary(by_hand)))
+  expect_true("LLOQ = 1" %in% linetype_breaks(from_stats))
+  expect_true(any(grepl("80% CI", fill_breaks(from_stats))))
+})
+
+test_that("explicit ci, pi, and loq override the container", {
+  out <- df_vpcstats(sim_pk(5), loq = 1, pi = c(0.1, 0.9), ci = 0.8)
+  expect_equal(fill_breaks(plot_vpc_legend(stats = out, ci = 0.95, pi = c(0.05, 0.95))),
+               fill_breaks(plot_vpc_legend(ci = 0.95, pi = c(0.05, 0.95))))
+  expect_false(any(grepl("LLOQ", linetype_breaks(plot_vpc_legend(stats = out, loq = NULL)))))
+  expect_true("LLOQ = 2" %in% linetype_breaks(plot_vpc_legend(stats = out, loq = 2)))
+})
+
+test_that("plot_vpc_legend(stats =) rejects a non-container", {
+  expect_error(plot_vpc_legend(stats = data.frame(x = 1)),
+               "`stats` must be a <vpc_stats> object",
+               class = "pmxhelpr_error_bad_stats")
+  cnd <- rlang::catch_cnd(plot_vpc_legend(stats = list()), classes = "error")
+  expect_equal(as.character(cnd$call[[1]]), "plot_vpc_legend")
+})

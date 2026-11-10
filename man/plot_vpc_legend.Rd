@@ -13,7 +13,8 @@ plot_vpc_legend(
   style = NULL,
   type = c("cont", "cens"),
   ...,
-  lloq = NULL
+  lloq = NULL,
+  stats = NULL
 )
 }
 \arguments{
@@ -33,10 +34,9 @@ linetype and linewidth. Pass \code{stats$config$loq} from
 a \code{\link[=df_vpcstats]{df_vpcstats()}} result to mirror the reference lines drawn by
 \code{\link[=plot_build_vpc]{plot_build_vpc()}}.}
 
-\item{show_loq_value}{Logical. If \code{TRUE} (default), each unique \code{loq} value
-gets its own legend entry labeled \code{"LLOQ = <value>"}. If \code{FALSE}, a
-single entry labeled \code{"LLOQ"} is drawn regardless of how many values
-\code{loq} holds. Ignored when \code{loq} is \code{NULL}.}
+\item{show_loq_value}{Logical. If \code{TRUE} (default), the LLOQ entry is
+labeled \code{"LLOQ = <value>"} with the highest \code{loq} value; if \code{FALSE}, it
+is labeled \code{"LLOQ"}. Ignored when \code{loq} is \code{NULL}.}
 
 \item{style}{A \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} controlling legend aesthetics.
 Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running \code{style_vpc()}
@@ -59,6 +59,13 @@ VPCs have no prediction interval).}
 style so they override it.}
 
 \item{lloq}{Deprecated alias of \code{loq}; warns. Do not pass both.}
+
+\item{stats}{A \code{\link[=df_vpcstats]{df_vpcstats()}} result, or \code{NULL} (default). When given,
+\code{ci}, \code{pi}, and \code{loq} default to \code{stats$config$ci}, \code{stats$config$pi},
+and \code{stats$config$loq}, so the legend matches a plot built from the
+same container; any of them passed explicitly overrides the container
+(\code{loq = NULL} omits the LLOQ entry). \code{type}, \code{shown}, and \code{style} are
+not stored in the container; pass the ones used for the plot.}
 }
 \value{
 a ggplot2 object
@@ -79,6 +86,12 @@ ci = 0.95,
 plot_vpc_legend(type = "cens", loq = 1)
 ## LLOQ entry without its value
 plot_vpc_legend(loq = c(0.5, 1), show_loq_value = FALSE)
+## ci, pi, and loq from a df_vpcstats() result
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                             model = model_mread_load(model = "pkmodel"),
+                             replicates = 10, dv_var = ODV)
+out <- df_vpcstats(simout, loq = 1, pi = c(0.1, 0.9))
+plot_vpc_legend(stats = out)
 }
 \seealso{
 Other vpc:

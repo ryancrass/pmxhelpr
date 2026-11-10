@@ -133,8 +133,8 @@ validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
 #'
 #' Prints the class tag, the `stats` dimensions, the `obs` row count (when
 #' `obs` is a data.frame), and the `config` values named in `config_keys` as
-#' one `key = value` line. `NULL` values print as `NULL`, named vectors as an
-#' R `c()` call, and other vectors comma-separated.
+#' one `key = value` line. `NULL` values print as `NULL`, named or multi-value
+#' vectors as an R `c()` call, and scalars as is.
 #'
 #' @param x A `pmx_stats` subclass object.
 #' @param config_keys Names of the `x$config` entries to show, in order.
@@ -145,8 +145,8 @@ validate_pmx_stats <- function(x, subclass = NULL, source = NULL,
 pmx_stats_header <- function(x, config_keys) {
   fmt_value <- function(v) {
     if (is.null(v)) return("NULL")
-    if (!is.null(names(v))) return(paste(deparse(v), collapse = ""))
-    paste(format(v), collapse = ", ")
+    if (!is.null(names(v)) || length(v) > 1) return(paste(deparse(v), collapse = ""))
+    format(v)
   }
   cat(sprintf("<%s>\n", class(x)[1]))
   cat(sprintf("  stats: %d rows x %d columns\n", nrow(x$stats), ncol(x$stats)))

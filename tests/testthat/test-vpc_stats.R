@@ -47,6 +47,33 @@ test_that("print.vpc_stats emits the headline summary and column groups", {
   expect_match(txt, "Use `x\\$stats` and `x\\$obs`")
 })
 
+test_that("df_vpcstats records the run configuration in config", {
+  sim <- dplyr::rename(testsim, TAD = TIME, REP = SIM)
+  out <- df_vpcstats(sim, time_var = TAD, irep_name = "REP", pi = c(0.1, 0.9),
+                     ci = 0.8, mode = "drop")
+  expect_equal(out$config$ci, 0.8)
+  expect_equal(out$config$pi, c(0.1, 0.9))
+  expect_equal(out$config$mode, "drop")
+  expect_equal(out$config[c("time_var", "ntime_var", "pred_var", "sim_dv_var",
+                            "obs_dv_var", "irep_name")],
+               list(time_var = "TAD", ntime_var = "NTIME", pred_var = "PRED",
+                    sim_dv_var = "SIMDV", obs_dv_var = "OBSDV", irep_name = "REP"))
+  expect_equal(df_vpcstats(testsim)$config$mode, "auto")
+})
+
+test_that("validate_vpc_stats requires ci and pi in config", {
+  out <- df_vpcstats(testsim)
+  out$config$ci <- NULL
+  expect_error(pmxhelpr:::validate_vpc_stats(out), "missing required keys: `ci`",
+               class = "pmxhelpr_error_bad_stats")
+  expect_error(plot_build_vpc(out), class = "pmxhelpr_error_bad_stats")
+})
+
+test_that("print.vpc_stats shows ci, pi, and mode in the config line", {
+  out <- df_vpcstats(testsim, pi = c(0.1, 0.9))
+  expect_output(print(out, n_head = 0), "ci = 0.9, pi = c\\(0.1, 0.9\\), mode = auto")
+})
+
 test_that("print.vpc_stats(n_head = 0) suppresses the head preview", {
   out <- df_vpcstats(testsim)
   txt <- paste(capture.output(print(out, n_head = 0)), collapse = "\n")

@@ -72,7 +72,9 @@ dispatch is reserved for the inherited case). In the no-stratification
 or no-\code{obs$LOQ} cases, one global line is drawn at the highest \code{loq}
 regardless of inheritance.
 The legend entry for LLOQ is \emph{not} attached here — pass the same
-value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} when composing the legend panel.
+value to \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} when composing the legend panel, or pass
+the container as \code{plot_vpc_legend(stats = )}, which reads
+\code{stats$config$loq}.
 \code{stats$config$loq} is already a vector of unique non-NA LOQ
 values when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the container. Forced to \code{NULL}
 when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected

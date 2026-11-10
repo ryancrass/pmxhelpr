@@ -28,6 +28,16 @@
   `pmxhelpr_warning_ignored_arg`, so they can be caught with
   `tryCatch(..., pmxhelpr_error_missing_var = function(e) ...)`. cli is a
   new direct import; it was already required by ggplot2 and dplyr.
+* `df_vpcstats()` records the full run configuration in `config`: `ci`, `pi`,
+  `mode`, and the source column names (`time_var`, `ntime_var`, `pred_var`,
+  `sim_dv_var`, `obs_dv_var`, `irep_name`) alongside `n_replicates`, `loq`,
+  and `strat_var`. `print()` and `summary()` show `ci`, `pi`, and `mode`.
+  Containers saved by earlier versions lack `ci` and `pi` and must be
+  recomputed with `df_vpcstats()`.
+* `plot_vpc_legend()` gains a `stats` argument: pass a `df_vpcstats()` result
+  and `ci`, `pi`, and `loq` default to its `config`, so the legend matches
+  a plot built from the same container. Arguments passed explicitly still
+  win.
 
 # pmxhelpr 0.7.1
 

@@ -6,7 +6,7 @@
       <vpc_stats>
         stats: 38 rows x 35 columns
         obs:   506 rows
-        config: n_replicates = 5, loq = 1, strat_var = FOOD
+        config: n_replicates = 5, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = FOOD
         column groups (stats):
           identifiers  : BIN_MID, FOOD
           counts       : obs_n, obs_n_blq, obs_prop_blq

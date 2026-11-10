@@ -62,8 +62,13 @@
 #'        the scatter overlay in [plot_vpc_cont()]. `OBSDV` carries the
 #'        std-scale value; `PC_OBSDV` carries the prediction-corrected
 #'        counterpart.}
-#'      \item{`config`}{Named list with `n_replicates`, `loq` (unique non-NA
-#'        LOQ values, or `NULL`), and `strat_var`.}
+#'      \item{`config`}{Named list of the run configuration: `n_replicates`,
+#'        `ci`, `pi`, `mode` (as passed, before the per-flavor `"auto"`
+#'        resolution), `loq` (unique non-NA LOQ values, or `NULL`),
+#'        `strat_var`, and the source column names `irep_name`, `time_var`,
+#'        `ntime_var`, `pred_var`, `sim_dv_var`, and `obs_dv_var`.
+#'        [plot_vpc_legend()] reads `ci`, `pi`, and `loq` from it via its
+#'        `stats` argument.}
 #'    }
 #'    Pass directly to [plot_vpc_cont()], [plot_vpc_cens()], or
 #'    [plot_build_vpc()] to replot without recomputing.
@@ -112,7 +117,7 @@ df_vpcstats <- function(data,
     loq = loq
   )
 
-  df_vpccompute(
+  out <- df_vpccompute(
     pre,
     pi = pi, ci = ci,
     bin_var = .vpc_bin_col,
@@ -121,6 +126,10 @@ df_vpcstats <- function(data,
     lower_bound = lower_bound,
     mode = mode
   )
+  ## Source column names, for provenance; the stats use standardized names.
+  out$config[c("time_var", "ntime_var", "pred_var", "sim_dv_var", "obs_dv_var")] <-
+    list(time_var_str, ntime_var_str, pred_var_str, sim_dv_var_str, obs_dv_var_str)
+  out
 }
 
 
@@ -160,7 +169,7 @@ is_vpc_stats <- function(x, strict = FALSE) {
 #'
 #' @description
 #' Focused summary of a [df_vpcstats()] result: object dimensions, run-config
-#' values (`n_replicates`, `loq`, `strat_var`), the column groups present
+#' values (`n_replicates`, `ci`, `pi`, `mode`, `loq`, `strat_var`), the column groups present
 #' in `stats`, and a short head preview. Inspect the underlying data.frames
 #' directly via `x$stats` and `x$obs`; inspect run config via `x$config`.
 #'
@@ -173,7 +182,7 @@ is_vpc_stats <- function(x, strict = FALSE) {
 #' @method print vpc_stats
 
 print.vpc_stats <- function(x, n_head = 3, ...) {
-  pmx_stats_header(x, c("n_replicates", "loq", "strat_var"))
+  pmx_stats_header(x, c("n_replicates", "ci", "pi", "mode", "loq", "strat_var"))
 
   bin_present  <- .vpc_bin_col %in% colnames(x$stats)
   strat_in_stats <- intersect(x$config$strat_var, colnames(x$stats))
@@ -258,7 +267,7 @@ validate_vpc_stats <- function(x, arg = rlang::caller_arg(x),
                    "pc_obs_low", "pc_obs_med", "pc_obs_hi",
                    "pc_sim_low_med", "pc_sim_med_med", "pc_sim_hi_med"),
     obs_cols = c("OBSDV", "PC_OBSDV", "TIME"),
-    config_keys = c("n_replicates", "loq", "strat_var"),
+    config_keys = c("n_replicates", "ci", "pi", "loq", "strat_var"),
     arg = arg, call = call
   )
 

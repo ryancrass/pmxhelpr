@@ -69,7 +69,9 @@
 #'    or no-`obs$LOQ` cases, one global line is drawn at the highest `loq`
 #'    regardless of inheritance.
 #'    The legend entry for LLOQ is *not* attached here — pass the same
-#'    value to [plot_vpc_legend()] when composing the legend panel.
+#'    value to [plot_vpc_legend()] when composing the legend panel, or pass
+#'    the container as `plot_vpc_legend(stats = )`, which reads
+#'    `stats$config$loq`.
 #'    `stats$config$loq` is already a vector of unique non-NA LOQ
 #'    values when [df_vpcstats()] populated the container. Forced to `NULL`
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected

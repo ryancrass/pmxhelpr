@@ -11,10 +11,9 @@
 #'    linetype and linewidth. Pass `stats$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
-#' @param show_loq_value Logical. If `TRUE` (default), each unique `loq` value
-#'    gets its own legend entry labeled `"LLOQ = <value>"`. If `FALSE`, a
-#'    single entry labeled `"LLOQ"` is drawn regardless of how many values
-#'    `loq` holds. Ignored when `loq` is `NULL`.
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ entry is
+#'    labeled `"LLOQ = <value>"` with the highest `loq` value; if `FALSE`, it
+#'    is labeled `"LLOQ"`. Ignored when `loq` is `NULL`.
 #' @param style A [ggstylekit::style_spec()] controlling legend aesthetics.
 #'    Defaults to [style_vpc()]; view the defaults by running `style_vpc()`
 #'    with no arguments. Should match the `style` passed to [plot_vpc_cont()].
@@ -33,6 +32,12 @@
 #' @param ... Other arguments passed to [ggplot2::theme()], applied after the
 #'    style so they override it.
 #' @param lloq Deprecated alias of `loq`; warns. Do not pass both.
+#' @param stats A [df_vpcstats()] result, or `NULL` (default). When given,
+#'    `ci`, `pi`, and `loq` default to `stats$config$ci`, `stats$config$pi`,
+#'    and `stats$config$loq`, so the legend matches a plot built from the
+#'    same container; any of them passed explicitly overrides the container
+#'    (`loq = NULL` omits the LLOQ entry). `type`, `shown`, and `style` are
+#'    not stored in the container; pass the ones used for the plot.
 #'
 #' @inheritParams plot_vpc_cont
 #' @family vpc
@@ -52,6 +57,12 @@
 #'plot_vpc_legend(type = "cens", loq = 1)
 #'## LLOQ entry without its value
 #'plot_vpc_legend(loq = c(0.5, 1), show_loq_value = FALSE)
+#'## ci, pi, and loq from a df_vpcstats() result
+#'simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                              model = model_mread_load(model = "pkmodel"),
+#'                              replicates = 10, dv_var = ODV)
+#'out <- df_vpcstats(simout, loq = 1, pi = c(0.1, 0.9))
+#'plot_vpc_legend(stats = out)
 
 plot_vpc_legend <- function(ci = 0.90,
                         pi = c(0.05, 0.95),
@@ -61,9 +72,17 @@ plot_vpc_legend <- function(ci = 0.90,
                         style = NULL,
                         type = c("cont", "cens"),
                         ...,
-                        lloq = NULL){
+                        lloq = NULL,
+                        stats = NULL){
 
   type <- match.arg(type)
+  ## Container defaults; explicit arguments win (`loq = NULL` included).
+  if (!is.null(stats)) {
+    validate_vpc_stats(stats)
+    if (missing(ci)) ci <- stats$config$ci
+    if (missing(pi)) pi <- stats$config$pi
+    if (missing(loq) && is.null(lloq)) loq <- stats$config$loq
+  }
   check_quantile_scalar(ci, "ci")
   check_quantile_pair(pi, "pi")
   if (!is.null(lloq)) {

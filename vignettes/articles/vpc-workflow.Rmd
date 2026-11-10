@@ -539,29 +539,29 @@ out_multi <- df_vpcstats(sim100_multi_loq, strat_var = PART)
 out_multi$config$loq
 ```
 
-`plot_vpc_cont()` consumes the precomputed stats and draws one dashed reference line per unique LLOQ value.
+`plot_vpc_cont()` consumes the precomputed stats and draws one dashed LLOQ reference line per panel.
 
 ```{r plot-vpc-multi-loq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_multi <- plot_vpc_cont(out_multi) + vpc_scales_labs
 vpc_multi
 ```
 
-Each facet renders only the LLOQ(s) applicable to that strat-level: Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The ref-line set is recomputed at plot time from the row-aligned `obs$LOQ` column grouped by `strat_var`, so the visualization stays in sync with whatever per-row inheritance produced. The legend (built from `out_multi$config$loq`) still summarizes the analysis-wide set of LLOQs, since the legend is a figure-level annotation rather than a facet-level one.
+Each facet renders the LLOQ applicable to that strat-level: Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The line is recomputed at plot time from the row-aligned `obs$LOQ` column grouped by `strat_var` (at the highest LLOQ in the panel), so the visualization stays in sync with whatever per-row inheritance produced.
 
-`plot_vpc_legend()` accepts the same vector and registers one entry per unique LLOQ value.
+`plot_vpc_legend()` takes the container through its `stats` argument and reads `ci`, `pi`, and `loq` from `out_multi$config`. The legend is a figure-level annotation, so its single LLOQ entry is labeled with the highest LLOQ in the analysis.
 
 ```{r vpc-multi-loq-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_multi_legend <- plot_vpc_legend(loq = out_multi$config$loq)
+vpc_multi_legend <- plot_vpc_legend(stats = out_multi)
 vpc_multi_legend
 ```
 
-Composing the plot and legend with `patchwork` yields a single figure where both LLOQ thresholds are simultaneously labeled.
+Composing the plot and legend with `patchwork` yields a single figure.
 
 ```{r plot-vpc-multi-loq-w-legend, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_multi + vpc_multi_legend + plot_layout(heights = c(2.5, 1))
 ```
 
-Passing `out_multi$config$loq` directly to `plot_vpc_legend()` keeps the legend in sync with whatever LLOQs `df_vpcstats()` discovered, with no need to hardcode the value set at the call site.
+Passing the container to `plot_vpc_legend(stats = )` keeps the legend in sync with the `ci`, `pi`, and LLOQs `df_vpcstats()` used, with no need to repeat them at the call site. Any of the three passed explicitly overrides the container.
 
 ## Reusing precomputed stats
 

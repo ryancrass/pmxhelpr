@@ -82,8 +82,13 @@ observations (\code{obs_n == obs_n_blq}).}
 the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSDV} carries the
 std-scale value; \code{PC_OBSDV} carries the prediction-corrected
 counterpart.}
-\item{\code{config}}{Named list with \code{n_replicates}, \code{loq} (unique non-NA
-LOQ values, or \code{NULL}), and \code{strat_var}.}
+\item{\code{config}}{Named list of the run configuration: \code{n_replicates},
+\code{ci}, \code{pi}, \code{mode} (as passed, before the per-flavor \code{"auto"}
+resolution), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
+\code{strat_var}, and the source column names \code{irep_name}, \code{time_var},
+\code{ntime_var}, \code{pred_var}, \code{sim_dv_var}, and \code{obs_dv_var}.
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}} reads \code{ci}, \code{pi}, and \code{loq} from it via its
+\code{stats} argument.}
 }
 Pass directly to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}, \code{\link[=plot_vpc_cens]{plot_vpc_cens()}}, or
 \code{\link[=plot_build_vpc]{plot_build_vpc()}} to replot without recomputing.

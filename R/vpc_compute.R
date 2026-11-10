@@ -359,8 +359,12 @@ df_vpccompute <- function(data,
     obs    = obs,
     config = list(
       n_replicates = max(data[[irep_name]], na.rm = TRUE),
+      ci           = ci,
+      pi           = pi,
+      mode         = mode,
       loq          = loq,
-      strat_var    = strat_var
+      strat_var    = strat_var,
+      irep_name    = irep_name
     ),
     subclass = "vpc_stats"
   )

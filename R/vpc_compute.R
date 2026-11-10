@@ -90,12 +90,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   }
 
   if (!is.null(loq)) check_numeric_strict(loq, "loq")
-  if (!is.null(loq)) {
-    data$LOQ <- loq
-  } else if ("LLOQ" %in% colnames(data)) {
-    data$LOQ <- data$LLOQ
-    message("Inheriting per-row `loq` from `LLOQ` column in `data`.")
-  }
+  data <- resolve_loq(data, loq)
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,

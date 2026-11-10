@@ -5,6 +5,11 @@
 * `plot_dvconc()` captions no longer contain stray spaces after line breaks,
   and `plot_dvtime()` / `plot_gof()` captions with `cent = "none"` and an
   LLOQ method no longer start with a blank line.
+* With several LLOQ values, every plot family now draws one LLOQ line per
+  panel at the highest value, as `plot_dvtime()` and `plot_gof()` already
+  did. Unstratified VPCs previously drew one line per value, and
+  `plot_vpc_legend()` showed one key per value. The VPC legend's LLOQ key
+  now uses the style's line width.
 
 # pmxhelpr 0.7.1
 

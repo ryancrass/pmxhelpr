@@ -27,8 +27,9 @@ Ignored when \code{type = "cens"} (cens VPCs do not have prediction intervals).}
 Defaults can be viewed by running \code{plot_vpc_shown()} with no arguments.}
 
 \item{loq}{Numeric scalar or vector of LLOQ values to label in the legend,
-or \code{NULL} to omit. Each unique value becomes one legend entry rendered
-with the style's \code{loq_line} linetype. Pass \code{stats$config$loq} from
+or \code{NULL} to omit. One legend entry is drawn at the highest value,
+matching the single LLOQ line per panel, with the style's \code{loq_line}
+linetype and linewidth. Pass \code{stats$config$loq} from
 a \code{\link[=df_vpcstats]{df_vpcstats()}} result to mirror the reference lines drawn by
 \code{\link[=plot_build_vpc]{plot_build_vpc()}}.}
 

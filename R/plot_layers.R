@@ -134,25 +134,19 @@ add_loq_layer_style <- function(plot, caption, loq_method, loq, dosenorm, style,
   }
 
   if (!isTRUE(dosenorm) && !is.na(loq)) {
-    el <- series_aes(style, "loq_line")
+    lines <- loq_lines(loq)
     if (isTRUE(show_legend)) {
       loq_lab <- if (show_value) paste0(loq) else "LLOQ"
       loq_title <- if (show_value) "LLOQ" else NULL
-      hargs <- compact(list(
-        mapping = ggplot2::aes(yintercept = loq, linetype = loq_lab),
-        linewidth = el$linewidth, alpha = el$alpha, color = el$colour))
       plot <- plot +
-        do.call(ggplot2::geom_hline, hargs) +
+        loq_line_layer(lines, style, legend_label = loq_lab) +
         ggplot2::scale_linetype_manual(
           name = loq_title,
-          values = stats::setNames(el$linetype, loq_lab)) +
+          values = stats::setNames(series_aes(style, "loq_line")$linetype, loq_lab)) +
         ggplot2::guides(color = ggplot2::guide_legend(order = 1),
                         linetype = ggplot2::guide_legend(order = 2))
     } else {
-      hargs <- compact(list(
-        yintercept = loq, linewidth = el$linewidth,
-        linetype = el$linetype, alpha = el$alpha, color = el$colour))
-      plot <- plot + do.call(ggplot2::geom_hline, hargs)
+      plot <- plot + loq_line_layer(lines, style)
     }
   }
 

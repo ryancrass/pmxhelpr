@@ -3,7 +3,7 @@
     Code
       layer_summary(p)
     Output
-      layer 1: GeomHline / StatIdentity  rows=684
+      layer 1: GeomHline / StatIdentity  rows=1
         colour=black alpha=1 linetype=dashed linewidth=0.5
         yintercept: [0, 0] mean=0
       layer 2: GeomPoint / StatIdentity  rows=684
@@ -96,7 +96,7 @@
     Code
       layer_summary(p)
     Output
-      layer 1: GeomHline / StatIdentity  rows=684
+      layer 1: GeomHline / StatIdentity  rows=1
         colour=black alpha=1 linetype=dashed linewidth=0.5
         yintercept: [1, 1] mean=1
       layer 2: GeomPoint / StatIdentity  rows=684

@@ -58,16 +58,16 @@
 #'    LOQ reference line. Default is `FALSE` (standard VPC). Only meaningful
 #'    when `type = "cont"`.
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
-#'    or `NULL` to suppress. When omitted (inherited from
-#'    `stats$config$loq`), the container is stratified
-#'    (`stats$config$strat_var`), and `stats$obs`
-#'    carries a row-aligned `LOQ` column, ref lines are drawn per facet —
-#'    each facet shows only the LLOQ values applicable to its strat-level
-#'    rows. When `loq` is supplied explicitly, the value always wins and
-#'    one global reference line is drawn per unique value of `loq` (the
-#'    per-facet column-based dispatch is reserved for the inherited case).
-#'    In the no-stratification or no-`obs$LOQ` cases, a global reference
-#'    line is drawn per unique value of `loq` regardless of inheritance.
+#'    or `NULL` to suppress. One line is drawn per panel, at the highest LLOQ
+#'    when there are several (the most censoring). When omitted (inherited
+#'    from `stats$config$loq`), the container is stratified
+#'    (`stats$config$strat_var`), and `stats$obs` carries a row-aligned `LOQ`
+#'    column, each facet draws the highest LLOQ of its own strat-level rows.
+#'    When `loq` is supplied explicitly, the value always wins and one global
+#'    reference line is drawn at `max(loq)` (the per-facet column-based
+#'    dispatch is reserved for the inherited case). In the no-stratification
+#'    or no-`obs$LOQ` cases, one global line is drawn at the highest `loq`
+#'    regardless of inheritance.
 #'    The legend entry for LLOQ is *not* attached here — pass the same
 #'    value to [plot_vpc_legend()] when composing the legend panel.
 #'    `stats$config$loq` is already a vector of unique non-NA LOQ
@@ -285,31 +285,15 @@ plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
 
   ## LOQ ref line: LOQ is meaningless on the pc scale (loq forced NULL
   ## above when pcvpc).
+  ## One line per panel at the highest LLOQ: per facet when the LLOQ is
+  ## inherited per row and the plot is stratified, otherwise one global line.
   if (!is.null(loq) && isTRUE(shown$loq_line)) {
-    if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(stats$obs)) {
-      loq_facet_df <- unique(
-        stats$obs[!is.na(stats$obs$LOQ),
-                        c(strat_var_str, "LOQ"),
-                        drop = FALSE]
-      )
-      plot <- plot +
-        ggplot2::geom_hline(
-          data = loq_facet_df,
-          mapping = ggplot2::aes(yintercept = .data[["LOQ"]]),
-          color = el("loq_line")$colour,
-          linetype = el("loq_line")$linetype,
-          linewidth = el("loq_line")$linewidth,
-          inherit.aes = FALSE
-        )
+    lines <- if (loq_inherited && !is.null(strat_var_str) && "LOQ" %in% colnames(stats$obs)) {
+      loq_lines(data = stats$obs, by = strat_var_str)
     } else {
-      plot <- plot +
-        ggplot2::geom_hline(
-          yintercept = loq,
-          color = el("loq_line")$colour,
-          linetype = el("loq_line")$linetype,
-          linewidth = el("loq_line")$linewidth
-        )
+      loq_lines(loq)
     }
+    plot <- plot + loq_line_layer(lines, vpcstyle)
   }
 
   ## Obs scatter.

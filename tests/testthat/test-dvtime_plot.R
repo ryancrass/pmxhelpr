@@ -111,7 +111,7 @@ test_that("plot_dvtime draws one LLOQ line at the highest per-row LLOQ", {
   p <- suppressMessages(plot_dvtime(d, dv_var = ODV, loq_method = 2, log_y = TRUE))
   is_h <- vapply(p$layers, function(L) inherits(L$geom, "GeomHline"), logical(1))
   expect_equal(sum(is_h), 1L)
-  expect_equal(unique(ggplot2::layer_data(p, which(is_h))$yintercept), log10(5))
+  expect_equal(ggplot2::layer_data(p, which(is_h))$yintercept, log10(5))
   blq <- p$data[p$data$MDV == 1 & p$data$TIME > 0, ]
   expect_equal(unique(blq$DV[blq$LLOQ == 5]), 2.5)
   expect_equal(unique(blq$DV[blq$LLOQ == 1]), 0.5)

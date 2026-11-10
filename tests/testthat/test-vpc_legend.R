@@ -163,11 +163,22 @@ test_that("type = 'cens' still respects shown toggles for central-tendency layer
   expect_true("Obs Prop BLQ" %in% lt)
 })
 
-test_that("loq labeling still works under type = 'cens'", {
+test_that("loq labeling shows one key at the highest LLOQ, also under type = 'cens'", {
   p <- plot_vpc_legend(type = "cens", loq = c(1, 2))
   lt <- linetype_breaks(p)
-  expect_true("LLOQ = 1" %in% lt)
   expect_true("LLOQ = 2" %in% lt)
+  expect_false("LLOQ = 1" %in% lt)
+})
+
+test_that("the legend LLOQ key uses the style's loq_line linewidth", {
+  p <- plot_vpc_legend(loq = 1)
+  loq_layer <- which(vapply(p$layers, function(L) {
+    m <- L$mapping$linetype
+    !is.null(m) && identical(rlang::as_label(m), "lloq_lab")
+  }, logical(1)))
+  expect_length(loq_layer, 1)
+  expect_equal(unique(ggplot2::layer_data(p, loq_layer)$linewidth),
+               unname(style_vpc()$linewidths[["loq_line"]]))
 })
 
 test_that("show_loq_value = FALSE collapses LLOQ entries to a single 'LLOQ' label", {

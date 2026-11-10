@@ -6,8 +6,9 @@
 #' @param pi prediction intervals plotted. Should match argument passed to [plot_vpc_cont()]. Default is c(0.05, 0.95).
 #'    Ignored when `type = "cens"` (cens VPCs do not have prediction intervals).
 #' @param loq Numeric scalar or vector of LLOQ values to label in the legend,
-#'    or `NULL` to omit. Each unique value becomes one legend entry rendered
-#'    with the style's `loq_line` linetype. Pass `stats$config$loq` from
+#'    or `NULL` to omit. One legend entry is drawn at the highest value,
+#'    matching the single LLOQ line per panel, with the style's `loq_line`
+#'    linetype and linewidth. Pass `stats$config$loq` from
 #'    a [df_vpcstats()] result to mirror the reference lines drawn by
 #'    [plot_build_vpc()].
 #' @param show_loq_value Logical. If `TRUE` (default), each unique `loq` value
@@ -104,7 +105,8 @@ plot_vpc_legend <- function(ci = 0.90,
 
   if (!is.null(loq)) check_numeric_strict(loq, "loq")
   check_boolean(show_loq_value, "show_loq_value")
-  lloq_lab <- if (show_loq_value) paste0("LLOQ = ", loq) else "LLOQ"
+  ## One key at the highest LLOQ, matching the single line drawn per panel.
+  lloq_lab <- if (show_loq_value && !is.null(loq)) paste0("LLOQ = ", max(loq)) else "LLOQ"
   df_lloq <- if (!is.null(loq)) {
     data.frame(x = rep(NA_real_, length(lloq_lab)),
                y = rep(NA_real_, length(lloq_lab)),
@@ -162,7 +164,7 @@ plot_vpc_legend <- function(ci = 0.90,
     {if(!is.null(loq)) ggplot2::geom_line(data = df_lloq,
                                            ggplot2::aes(linetype = lloq_lab),
                                            color = plist$loq_line$color,
-                                           linewidth = 1, na.rm= TRUE)} +
+                                           linewidth = plist$loq_line$linewidth, na.rm= TRUE)} +
     {if(nlist$obs_median_line == TRUE) ggplot2::geom_line(ggplot2::aes(linetype = obs_cent),
                                                      color = plist$obs_median_line$color,
                                                      linewidth = plist$obs_median_line$linewidth, na.rm= TRUE)} +

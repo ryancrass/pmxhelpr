@@ -61,7 +61,8 @@ not censored.
 + pcVPC (\code{pcvpc = TRUE}): observed and simulated BLQ values are set to
 missing before prediction correction, so both are censored alike.
 
-The LLOQ line (\code{loq_line} role) is drawn at each unique LLOQ on standard
+The LLOQ line (\code{loq_line} role) is drawn once per panel, at that panel's
+highest LLOQ when there are several, on standard
 VPCs only, since the LLOQ has no meaning on the prediction-corrected
 scale; hide it with \code{shown = plot_vpc_shown(loq_line = FALSE)}. The
 observed points show \code{MDV == 0} rows only.}

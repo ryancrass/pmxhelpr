@@ -15,12 +15,7 @@
 df_prep_blq <- function(data, loq, loq_method, pred_vars = NULL) {
   if(!loq_method %in% c(1, 2)) return(data)
 
-  if (is.null(loq) && "LLOQ" %in% colnames(data)) {
-    message("Inheriting per-row `loq` from `LLOQ` column in `data`.")
-  }
-
-  data <- data |>
-    dplyr::mutate(LOQ = if (is.null(loq)) .data$LLOQ else loq)
+  data <- resolve_loq(data, loq)
 
   if(loq_method == 1) {
     data <- data |>

@@ -364,12 +364,25 @@ test_that("plot_build_vpc draws per-facet LLOQ ref lines when stratified", {
   expect_length(hline_layer, 1)
   hline_data <- hline_layer[[1]]$data
 
-  # Layer data carries both strat_var and LOQ columns (per-facet path)
-  expect_true("LOQ" %in% colnames(hline_data))
+  # Per-facet path: one row per stratum at that stratum's highest LLOQ
   expect_true("PART" %in% colnames(hline_data))
-  # One row per (strat_level, LOQ) pair: Part 1-SAD/1 and Part 2-FE/2
-  expect_setequal(hline_data$LOQ, c(1, 2))
   expect_equal(nrow(hline_data), 2)
+  expect_equal(hline_data$yintercept[hline_data$PART == "Part 1-SAD"], 1)
+  expect_equal(hline_data$yintercept[hline_data$PART == "Part 2-FE"], 2)
+})
+
+test_that("plot_vpc_cont draws one LLOQ line at the highest LLOQ", {
+  testsim <- sim_pk(carry_out = c("LLOQ"), recover = c("PART"))
+  testsim$LLOQ[testsim$PART == "Part 2-FE"] <- 2
+  p <- suppressMessages(plot_vpc_cont(testsim))
+  hline <- Filter(function(L) inherits(L$geom, "GeomHline"), p$layers)[[1]]
+  expect_equal(hline$data$yintercept, 2)
+
+  ## Within a stratum, the stratum's highest LLOQ
+  out <- suppressMessages(df_vpcstats(testsim, strat_var = PART))
+  out$obs$LOQ[out$obs$PART == "Part 1-SAD"][1] <- 3
+  hline <- Filter(function(L) inherits(L$geom, "GeomHline"), plot_build_vpc(out)$layers)[[1]]
+  expect_equal(hline$data$yintercept[hline$data$PART == "Part 1-SAD"], 3)
 })
 
 test_that("plot_build_vpc: explicit loq overrides per-facet column dispatch (PR#19 review)", {

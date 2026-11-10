@@ -2,49 +2,37 @@
 
 ## New features
 
-* VPC plots can be restyled after the fact: `restyle_plot()` and `reveal()`
-  now reach VPC layers, which are tagged by role like every other plot
-  family.
+* VPC plots can be restyled after the fact: `reveal()`now reaches VPC layers, 
+  which are tagged by role like every other plot family.
 * `validate_pmx_stats()` is exported: it checks a `pmx_stats` container
-  (e.g. one edited or built by hand) and reports what is wrong, dispatching
-  on the class so `vpc_stats`, `doseprop_stats`, and `forest_stats` are
-  checked against their full contract. `pmx_stats()` and
-  `is_pmx_stats(strict = TRUE)` now apply that contract too, rather than
-  only the shared slot checks; packages defining their own `pmx_stats`
-  subclass can add a method.
-* `autoplot()` draws a `vpc_stats`, `doseprop_stats`, or `forest_stats`
-  container with its builder (`plot_build_vpc()`, `plot_build_doseprop()`,
-  `plot_build_forest()`), passing other arguments through, e.g.
-  `autoplot(stats, type = "cens")`. `autoplot()` is re-exported from
-  ggplot2.
+  and reports what is wrong, dispatching on the class so `vpc_stats`, 
+  `doseprop_stats`, and `forest_stats` are checked against their full contract. 
+  `pmx_stats()` and `is_pmx_stats(strict = TRUE)` now apply that contract too, 
+  rather than only the shared slot checks. 
+* `autoplot()` is re-exported from ggplot2. It draws a `vpc_stats`, 
+  `doseprop_stats`, or `forest_stats` container with its builder. Pass other 
+  arguments through, e.g. `autoplot(stats, type = "cens")`. 
 
 ## Minor improvements
 
-* Combining a VPC with other plots (`p + p2`, `p | p2`,
+* Combining a VPC (`p`) with other plots (`p2`) (e.g., `p + p2`, `p | p2`,
   `combine_styled_plots()`) no longer labels the combined patchwork as a
   `pmx_vpc_plot`, so faceting the figure no longer warns about VPC
   statistics. A `+` chain that ends on a VPC (`p2 + p`) still carries the
   class, because patchwork treats the figure as that last panel.
-
 * `plot_vpc_shown()` and `plot_gof_shown()` return `vpc_shown` / `gof_shown`
   objects (still named lists) with a print method. A `shown` value that is
   not `TRUE` or `FALSE`, or the other family's object (e.g.
   `plot_gof_shown()` passed to a VPC), now errors; such values were
   previously treated as `FALSE` or garbled. Unknown `shown` keys still warn,
   now once per call and listing the valid keys.
-
 * `summary()` on a `vpc_stats`, `doseprop_stats`, or `forest_stats`
   container now returns a `summary.*` object holding the values it prints
   (e.g. `summary(dp)$metrics$Power`, `summary(vs)$column_groups`) instead of
   the container itself. The printed output is unchanged.
-
 * VPC plots label their axes `TIME` and `DV` (`Prediction-corrected DV`,
   `Proportion BLQ`) by default instead of internal column names. The
-  censored-VPC legend's `Obs` key now matches the plot's point colour.
-
-* `plot_dvconc()` captions no longer contain stray spaces after line breaks,
-  and `plot_dvtime()` / `plot_gof()` captions with `cent = "none"` and an
-  LLOQ method no longer start with a blank line.
+  censored-VPC legend's `Obs` key now matches the plot's point color.
 * With several LLOQ values, every plot family now draws one LLOQ line per
   panel at the highest value, as `plot_dvtime()` and `plot_gof()` already
   did. Unstratified VPCs previously drew one line per value, and

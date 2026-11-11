@@ -14,8 +14,8 @@ test_that("output data.frame contains variable PRED", {
                "PRED")
 })
 
-test_that("output is returned if non-default option specified for argument `output_var`", {
-  expect_s3_class(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"), output_var = "Y"),
+test_that("output is returned if non-default option specified for argument `ipred_output`", {
+  expect_s3_class(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"), ipred_output = "Y"),
                   "data.frame")
 })
 
@@ -31,16 +31,16 @@ test_that("Error if incorrect class for arugmument `model`", {
                regexp = "`model` must be class <mrgmod>")
 })
 
-test_that("Error if incorrect class for arugmument `output_var`", {
-  expect_error(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"), output_var = "PRED"),
-  regexp = "`output_var` \\(\"PRED\"\\) must be captured as output in `model`")
+test_that("Error if incorrect class for arugmument `ipred_output`", {
+  expect_error(df_mrgsim_addpred(data=dplyr::filter(data_sad, CMT != 3),model=model_mread_load("pkmodel"), ipred_output = "PRED"),
+  regexp = "`ipred_output` \\(\"PRED\"\\) must be captured as output in `model`")
 })
 
 ##Test NSE Bare Names
 test_that("df_mrgsim_addpred accepts bare names and matches string output", {
   model <- model_mread_load(model = "pkmodel")
-  d1 <- df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model, output_var = IPRED)
-  d2 <- df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model, output_var = "IPRED")
+  d1 <- df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model, ipred_output = IPRED)
+  d2 <- df_mrgsim_addpred(dplyr::filter(data_sad, CMT != 3), model, ipred_output = "IPRED")
   expect_identical(d1, d2)
 })
 
@@ -77,7 +77,7 @@ test_that("arguments in `...` reach mrgsim_df() and leave PRED deterministic", {
   expect_equal(base$PRED, ref$IPRED)
 })
 
-test_that("a `carry_out` in `...` is merged with `output_var`", {
+test_that("a `carry_out` in `...` is merged with `ipred_output`", {
   model <- model_mread_load(model = "pkmodel")
   data <- dplyr::filter(data_sad, CMT != 3)
   expect_equal(df_mrgsim_addpred(data, model, carry_out = "DOSE")$PRED,

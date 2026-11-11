@@ -6,12 +6,16 @@
 #'
 #' @param data Input dataset.
 #' @param model `mrgsolve` model object.
-#' @param output_var Name of output from `model` to be captured as `PRED`
-#'    after removing random effects with [mrgsolve::zero_re()]. Accepts bare names or strings. Default is `IPRED`.
+#' @param ipred_output Name of the individual prediction output captured by
+#'    `model`. It is simulated with random effects zeroed
+#'    ([mrgsolve::zero_re()]) and returned as `PRED`. Accepts bare names or
+#'    strings. Default is `IPRED`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()]. A
-#'    `carry_out` is merged with `output_var`. Arguments that change the
+#'    `carry_out` is merged with `ipred_output`. Arguments that change the
 #'    number of output rows (e.g. `obsonly`) are an error, since `PRED` is
 #'    matched to `data` by row.
+#'
+#' @param output_var `r lifecycle::badge("deprecated")` Use `ipred_output`.
 #'
 #' @family mrgsolve wrappers
 #' @return A data.frame with the same number of rows as `data` and on additional
@@ -24,14 +28,20 @@
 #'
 df_mrgsim_addpred <- function(data,
                        model,
-                       output_var = "IPRED",
-                       ...){
+                       ipred_output = "IPRED",
+                       ...,
+                       output_var){
 
-  output_var_str <- resolve_var(rlang::enquo(output_var))
+  ipred_output_q <- rlang::enquo(ipred_output)
+  if (use_deprecated_arg(!missing(output_var), !missing(ipred_output), "df_mrgsim_addpred",
+                         "output_var", "ipred_output")) {
+    ipred_output_q <- rlang::enquo(output_var)
+  }
+  ipred_output_str <- resolve_var(ipred_output_q)
 
   check_df(data, "data")
   check_mrgmod(model, "model")
-  check_capture(model, output_var_str, "model", "output_var")
+  check_capture(model, ipred_output_str, "model", "ipred_output")
 
   if ("PRED" %in% colnames(data)) {
     pmx_warn("{.arg data} already contains a {.var PRED} column; it will be overwritten.",
@@ -41,7 +51,7 @@ df_mrgsim_addpred <- function(data,
   ## `...` goes to mrgsim_df(); a user `carry_out` is merged with the output
   ## captured as PRED rather than clashing with it.
   dots <- list(...)
-  carry_out <- unique(c(output_var_str, dots$carry_out))
+  carry_out <- unique(c(ipred_output_str, dots$carry_out))
   dots$carry_out <- NULL
   sim <- do.call(mrgsolve::mrgsim_df, c(
     list(x = mrgsolve::zero_re(model), data = data, carry_out = carry_out),
@@ -56,6 +66,6 @@ df_mrgsim_addpred <- function(data,
       "i" = "{.fn df_mrgsim_addpred} needs one output row per input row; drop arguments in {.arg ...} that add or remove rows (e.g. {.arg obsonly})."
     ), "bad_arg")
   }
-  data$PRED <- sim[[output_var_str]]
+  data$PRED <- sim[[ipred_output_str]]
   return(data)
 }

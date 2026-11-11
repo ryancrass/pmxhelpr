@@ -12,17 +12,21 @@
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable.
 #'    Accepts bare names or strings. Default is `NTIME`.
-#' @param pred_var Must be `"PRED"` (the default). The population prediction
-#'    is computed by [df_mrgsim_addpred()] from `ipred_var` with random
-#'    effects zeroed, and is always returned as `PRED`.
-#' @param ipred_var Name of the individual prediction output captured by
-#'    `model` (a model output, not a column of `data`). Returned as `IPRED`.
-#'    Accepts bare names or strings. Default is `IPRED`.
-#' @param sim_dv_var Name of the simulated DV output captured by `model` (a
+#' @param ipred_output Name of the individual prediction output captured by
+#'    `model` (a model output, not a column of `data`). Returned as `IPRED`,
+#'    and, simulated with random effects zeroed ([mrgsolve::zero_re()]), as
+#'    the population prediction `PRED`. Accepts bare names or strings.
+#'    Default is `IPRED`.
+#' @param dv_output Name of the simulated DV output captured by `model` (a
 #'    model output, not a column of `data`). Returned as `SIMDV`.
 #'    Accepts bare names or strings. Default is `DV`.
 #' @param rep_var Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
+#' @param ipred_var `r lifecycle::badge("deprecated")` Use `ipred_output`.
+#' @param sim_dv_var `r lifecycle::badge("deprecated")` Use `dv_output`.
+#' @param pred_var `r lifecycle::badge("deprecated")` Has no effect: `PRED`
+#'    is always the `ipred_output` model output simulated with random effects
+#'    zeroed.
 #' @param seed Random seed. Default is `123456789`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
 #'   `carry_out` and `recover` to control which input columns are propagated to
@@ -54,20 +58,37 @@ df_mrgsim_replicate <- function(data,
                     dv_var = "DV",
                     time_var = "TIME",
                     ntime_var = "NTIME",
-                    pred_var = "PRED",
-                    ipred_var = "IPRED",
-                    sim_dv_var = "DV",
+                    ipred_output = "IPRED",
+                    dv_output = "DV",
                     rep_var = "SIM",
                     seed = 123456789,
                     ...,
-                    irep_name) {
+                    irep_name,
+                    pred_var,
+                    ipred_var,
+                    sim_dv_var) {
 
   dv_var_str     <- resolve_var(rlang::enquo(dv_var))
   time_var_str   <- resolve_var(rlang::enquo(time_var))
   ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
-  pred_var_str   <- resolve_var(rlang::enquo(pred_var))
-  ipred_var_str  <- resolve_var(rlang::enquo(ipred_var))
-  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
+  ipred_output_q <- rlang::enquo(ipred_output)
+  if (use_deprecated_arg(!missing(ipred_var), !missing(ipred_output), "df_mrgsim_replicate",
+                         "ipred_var", "ipred_output")) {
+    ipred_output_q <- rlang::enquo(ipred_var)
+  }
+  ipred_output_str <- resolve_var(ipred_output_q)
+  dv_output_q <- rlang::enquo(dv_output)
+  if (use_deprecated_arg(!missing(sim_dv_var), !missing(dv_output), "df_mrgsim_replicate",
+                         "sim_dv_var", "dv_output")) {
+    dv_output_q <- rlang::enquo(sim_dv_var)
+  }
+  dv_output_str <- resolve_var(dv_output_q)
+  if (!missing(pred_var)) {
+    lifecycle::deprecate_warn(
+      "0.8.0", "df_mrgsim_replicate(pred_var)",
+      details = "`PRED` is always the `ipred_output` model output simulated with random effects zeroed."
+    )
+  }
   rep_var_q <- rlang::enquo(rep_var)
   if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "df_mrgsim_replicate",
                          "irep_name", "rep_var")) {
@@ -78,13 +99,7 @@ df_mrgsim_replicate <- function(data,
   #Checks
   check_df(data, "data")
   check_mrgmod(model, "model")
-  check_mrgmod_outputvars(model, sim_dv_var_str, ipred_var_str)
-  if (pred_var_str != "PRED") {
-    pmx_abort(c(
-      "{.arg pred_var} must be {.val PRED}.",
-      "i" = "The population prediction is computed from {.arg ipred_var} with random effects zeroed and is always returned as {.var PRED}."
-    ), "bad_arg")
-  }
+  check_mrgmod_outputvars(model, dv_output_str, ipred_output_str)
   check_integer(replicates, "replicates")
   if(replicates < 1) {pmx_abort("{.arg replicates} must be >= 1.", "bad_arg")}
   check_varsindf(data, dv_var_str, "data", "dv_var")
@@ -98,11 +113,11 @@ df_mrgsim_replicate <- function(data,
   #Handle Time Variables
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
 
-  data <- df_mrgsim_addpred(data, model, output_var = ipred_var_str)
+  data <- df_mrgsim_addpred(data, model, ipred_output = ipred_output_str)
 
   #Always-carried set required by the downstream dplyr::select(); union with
   #user-supplied carry_out so the function's output structure is preserved.
-  internal_carry <- c("EVID", "MDV", "CMT", "TIME", "NTIME", "OBSDV", pred_var_str)
+  internal_carry <- c("EVID", "MDV", "CMT", "TIME", "NTIME", "OBSDV", "PRED")
   dots <- rlang::list2(...)
   ## `parallel` was a formal argument until 0.7.0; without this check it would
   ## fall into `...` and mrgsim_df() would warn once per replicate.
@@ -129,9 +144,8 @@ df_mrgsim_replicate <- function(data,
   )
 
   simout <- simout |>
-    dplyr::rename(dplyr::any_of(c(PRED  = pred_var_str,
-                                  IPRED = ipred_var_str,
-                                  SIMDV = sim_dv_var_str))) |>
+    dplyr::rename(dplyr::any_of(c(IPRED = ipred_output_str,
+                                  SIMDV = dv_output_str))) |>
     dplyr::select("ID", "TIME", "NTIME",
                   "PRED", "IPRED", "SIMDV", "OBSDV",
                   dplyr::everything())

@@ -13,11 +13,11 @@ check_mrgmod <- function(mod, name, call = rlang::caller_env()){
 }
 
 
-check_mrgmod_outputvars <- function(mod, sim_dv_var_str, ipred_var_str,
+check_mrgmod_outputvars <- function(mod, dv_output_str, ipred_output_str,
                                     call = rlang::caller_env()){
   mod_output_vars <- mrgsolve::outvars(mod)$capture
-  if(!(sim_dv_var_str %in% mod_output_vars) & !(ipred_var_str %in% mod_output_vars)){
-    pmx_abort("{.arg model} must capture the output variables named by {.arg sim_dv_var} or {.arg ipred_var}.",
+  if(!(dv_output_str %in% mod_output_vars) & !(ipred_output_str %in% mod_output_vars)){
+    pmx_abort("{.arg model} must capture the output variables named by {.arg dv_output} or {.arg ipred_output}.",
               "model", call = call)
   }
 }

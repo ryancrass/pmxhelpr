@@ -4,20 +4,24 @@
 \alias{df_mrgsim_addpred}
 \title{Add population predictions (\code{PRED}) to a data.frame}
 \usage{
-df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
+df_mrgsim_addpred(data, model, ipred_output = "IPRED", ..., output_var)
 }
 \arguments{
 \item{data}{Input dataset.}
 
 \item{model}{\code{mrgsolve} model object.}
 
-\item{output_var}{Name of output from \code{model} to be captured as \code{PRED}
-after removing random effects with \code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}. Accepts bare names or strings. Default is \code{IPRED}.}
+\item{ipred_output}{Name of the individual prediction output captured by
+\code{model}. It is simulated with random effects zeroed
+(\code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}) and returned as \code{PRED}. Accepts bare names or
+strings. Default is \code{IPRED}.}
 
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}. A
-\code{carry_out} is merged with \code{output_var}. Arguments that change the
+\code{carry_out} is merged with \code{ipred_output}. Arguments that change the
 number of output rows (e.g. \code{obsonly}) are an error, since \code{PRED} is
 matched to \code{data} by row.}
+
+\item{output_var}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ipred_output}.}
 }
 \value{
 A data.frame with the same number of rows as \code{data} and on additional

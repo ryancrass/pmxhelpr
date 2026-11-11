@@ -22,10 +22,10 @@ test_that("output data.frame contains replicates x nrow(dplyr::filter(data, EVID
                nrow(dplyr::filter(data_sad, EVID ==0 & CMT != 3))*10)
 })
 
-test_that("output data.frame contains variable SIMDV if non-default sim_dv_var specified", {
+test_that("output data.frame contains variable SIMDV if non-default dv_output specified", {
   expect_named(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 10,
-                                   dv_var = "ODV", sim_dv_var = "Y") |> dplyr::select(SIMDV),
+                                   dv_var = "ODV", dv_output = "Y") |> dplyr::select(SIMDV),
                "SIMDV")
 })
 
@@ -147,13 +147,33 @@ test_that("Error if the removed parallel argument is supplied", {
                regexp = "`parallel` was removed in pmxhelpr 0.7.0")
 })
 
-test_that("pred_var other than PRED aborts with a clear message", {
-  expect_error(
-    df_mrgsim_replicate(dplyr::filter(data_sad, CMT %in% c(1, 2)),
-                        model_mread_load("pkmodel"), replicates = 1,
-                        dv_var = ODV, pred_var = "CP"),
-    regexp = "`pred_var` must be \"PRED\""
-  )
+test_that("model-output arguments keep their deprecated names through 0.8.x", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2), ID %in% unique(ID)[1:3])
+  mod <- model_mread_load("pkmodel")
+  rep <- function(...) df_mrgsim_replicate(d, mod, replicates = 2, dv_var = ODV, ...)
+  ## pred_var has no replacement and its value is ignored
+  lifecycle::expect_deprecated(old <- rep(pred_var = "CP"), "pred_var")
+  expect_identical(old, rep())
+  lifecycle::expect_deprecated(old <- rep(sim_dv_var = "Y"), "dv_output")
+  expect_identical(old, rep(dv_output = "Y"))
+  lifecycle::expect_deprecated(old <- rep(sim_dv_var = Y))
+  expect_identical(old, rep(dv_output = "Y"))
+  lifecycle::expect_deprecated(old <- rep(ipred_var = "IPRED"), "ipred_output")
+  expect_identical(old, rep())
+  expect_error(rep(dv_output = "Y", sim_dv_var = "Y"), "Pass `dv_output` only",
+               class = "pmxhelpr_error_bad_arg")
+  lifecycle::expect_deprecated(old <- df_mrgsim_addpred(d, mod, output_var = "Y"), "ipred_output")
+  expect_identical(old, df_mrgsim_addpred(d, mod, ipred_output = "Y"))
+  expect_error(df_mrgsim_addpred(d, mod, ipred_output = "Y", output_var = "Y"),
+               "Pass `ipred_output` only", class = "pmxhelpr_error_bad_arg")
+})
+
+test_that("the model-output check names the *_output arguments", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  expect_error(df_mrgsim_replicate(d, model_mread_load("pkmodel"), replicates = 1, dv_var = ODV,
+                                   dv_output = "NOPE", ipred_output = "NOPE2"),
+               "`dv_output` or `ipred_output`", class = "pmxhelpr_error_model")
 })
 
 test_that("`seed` controls the simulation and replicates are independent draws", {

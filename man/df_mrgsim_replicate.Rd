@@ -11,13 +11,15 @@ df_mrgsim_replicate(
   dv_var = "DV",
   time_var = "TIME",
   ntime_var = "NTIME",
-  pred_var = "PRED",
-  ipred_var = "IPRED",
-  sim_dv_var = "DV",
+  ipred_output = "IPRED",
+  dv_output = "DV",
   rep_var = "SIM",
   seed = 123456789,
   ...,
-  irep_name
+  irep_name,
+  pred_var,
+  ipred_var,
+  sim_dv_var
 )
 }
 \arguments{
@@ -36,15 +38,13 @@ Accepts bare names or strings. Default is \code{TIME}.}
 \item{ntime_var}{Column containing the nominal time variable.
 Accepts bare names or strings. Default is \code{NTIME}.}
 
-\item{pred_var}{Must be \code{"PRED"} (the default). The population prediction
-is computed by \code{\link[=df_mrgsim_addpred]{df_mrgsim_addpred()}} from \code{ipred_var} with random
-effects zeroed, and is always returned as \code{PRED}.}
+\item{ipred_output}{Name of the individual prediction output captured by
+\code{model} (a model output, not a column of \code{data}). Returned as \code{IPRED},
+and, simulated with random effects zeroed (\code{\link[mrgsolve:zero_re]{mrgsolve::zero_re()}}), as
+the population prediction \code{PRED}. Accepts bare names or strings.
+Default is \code{IPRED}.}
 
-\item{ipred_var}{Name of the individual prediction output captured by
-\code{model} (a model output, not a column of \code{data}). Returned as \code{IPRED}.
-Accepts bare names or strings. Default is \code{IPRED}.}
-
-\item{sim_dv_var}{Name of the simulated DV output captured by \code{model} (a
+\item{dv_output}{Name of the simulated DV output captured by \code{model} (a
 model output, not a column of \code{data}). Returned as \code{SIMDV}.
 Accepts bare names or strings. Default is \code{DV}.}
 
@@ -59,6 +59,14 @@ the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{T
 user passes to \code{carry_out}.}
 
 \item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
+
+\item{pred_var}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect: \code{PRED}
+is always the \code{ipred_output} model output simulated with random effects
+zeroed.}
+
+\item{ipred_var}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{ipred_output}.}
+
+\item{sim_dv_var}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{dv_output}.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}})

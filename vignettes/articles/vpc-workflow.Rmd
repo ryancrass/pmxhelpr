@@ -109,10 +109,10 @@ mrgsolve::see(model)
 
 We can use this PK model to add population predictions (`"PRED"`) to our dataset with the function `df_mrgsim_addpred()`, which wraps `mrgsolve::mrgsim_df()` with `mrgsolve::zero_re()` to return an input dataset with population predictions appended. This function is called automatically within `df_mrgsim_replicate()` in the VPC Workflow; therefore, it does not need to be separately called for the VPC purpose.
 
-This function takes `data.frame` and  `mrgmod` objects as input and an optional argument to specify the model variable to capture as `"PRED"` with random effects zeroed. The default is `"IPRED"`.
+This function takes `data.frame` and  `mrgmod` objects as input and an optional argument, `ipred_output`, naming the model's individual prediction output; it is simulated with random effects zeroed and captured as `"PRED"`. The default is `"IPRED"`.
 
 ```{r df-mrgsim-addpred}
-data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, output_var = "IPRED")
+data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, ipred_output = "IPRED")
 
 colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk)]
 ```
@@ -147,9 +147,8 @@ The are optional arguments specifying key dataset variables to be input into the
   - `dv_var` = DV, dependent variable
   - `time_var` = TIME, actual time variable
   - `ntime_var` = NTIME, nominal time variable
-  - `pred_var` = PRED, population prediction variable (fixed effects only)
-  - `ipred_var` = IPRED, individual prediction variable (fixed + level 1 random effects)
-  - `sim_dv_var` = DV, dependent variable captured in the simulated output (fixed + level 1 and 2 random effects)
+  - `ipred_output` = IPRED, individual prediction output of the model (fixed + level 1 random effects); simulated with random effects zeroed, it also gives the population prediction `PRED` (fixed effects only)
+  - `dv_output` = DV, dependent variable output of the model (fixed + level 1 and 2 random effects)
   
 These arguments use non-standard evaluation and can be passed as a bare column name or as a string.
 
@@ -174,14 +173,14 @@ The simulation has appended some key variables with standardized names that will
   - `SIMDV` (simulated dependent variable)
   - `OBSDV` (observed dependent variable).
   
-These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change argument form `sim_dv_var`, as the variables are renamed to VPC workflow standards on output
+These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change the `dv_output` argument, as the variables are renamed to VPC workflow standards on output
 
 ```{r df_mrgsim_replicate-y}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     sim_dv_var = Y,
+                     dv_output = Y,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 

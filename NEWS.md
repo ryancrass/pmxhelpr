@@ -68,6 +68,13 @@
   `df_forest_preprocess()`, matching the other `*_var` column arguments.
   `irep_name` still works with a deprecation warning and will be removed in
   0.9.0.
+* Model-output arguments are named `*_output`: `df_mrgsim_replicate()`'s
+  `ipred_var` and `sim_dv_var` become `ipred_output` and `dv_output`, and
+  `df_mrgsim_addpred()`'s `output_var` becomes `ipred_output`.
+  `df_mrgsim_replicate(pred_var)` is deprecated with no replacement: `PRED`
+  is always the `ipred_output` output simulated with random effects zeroed.
+  The old names warn and will be removed in 0.9.0. Arguments after
+  `ntime_var` in `df_mrgsim_replicate()` moved, so pass them by name.
 
 # pmxhelpr 0.7.1
 

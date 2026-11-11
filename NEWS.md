@@ -1,4 +1,4 @@
-# pmxhelpr (development version)
+# pmxhelpr 0.8.0
 
 ## New features
 

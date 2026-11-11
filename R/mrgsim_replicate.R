@@ -21,7 +21,8 @@
 #' @param sim_dv_var Name of the simulated DV output captured by `model` (a
 #'    model output, not a column of `data`). Returned as `SIMDV`.
 #'    Accepts bare names or strings. Default is `DV`.
-#' @param irep_name Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
+#' @param rep_var Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
+#' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @param seed Random seed. Default is `123456789`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
 #'   `carry_out` and `recover` to control which input columns are propagated to
@@ -45,7 +46,7 @@
 #' dv_var = ODV,
 #' carry_out = c("LLOQ", "WTBL", "FOOD"),
 #' recover = c("USUBJID", "PART"),
-#' irep_name = SIM)
+#' rep_var = SIM)
 
 df_mrgsim_replicate <- function(data,
                     model,
@@ -56,9 +57,10 @@ df_mrgsim_replicate <- function(data,
                     pred_var = "PRED",
                     ipred_var = "IPRED",
                     sim_dv_var = "DV",
-                    irep_name = "SIM",
+                    rep_var = "SIM",
                     seed = 123456789,
-                    ...) {
+                    ...,
+                    irep_name) {
 
   dv_var_str     <- resolve_var(rlang::enquo(dv_var))
   time_var_str   <- resolve_var(rlang::enquo(time_var))
@@ -66,7 +68,12 @@ df_mrgsim_replicate <- function(data,
   pred_var_str   <- resolve_var(rlang::enquo(pred_var))
   ipred_var_str  <- resolve_var(rlang::enquo(ipred_var))
   sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
-  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
+  rep_var_q <- rlang::enquo(rep_var)
+  if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "df_mrgsim_replicate",
+                         "irep_name", "rep_var")) {
+    rep_var_q <- rlang::enquo(irep_name)
+  }
+  rep_var_str    <- resolve_var(rep_var_q)
 
   #Checks
   check_df(data, "data")
@@ -109,7 +116,7 @@ df_mrgsim_replicate <- function(data,
   rep_fn <- function(rep, data, model) {
     out <- do.call(mrgsolve::mrgsim_df,
                    c(list(x = model, data = data), dots))
-    out[[irep_name_str]] <- rep
+    out[[rep_var_str]] <- rep
     out
   }
 

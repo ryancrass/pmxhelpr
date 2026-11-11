@@ -15,7 +15,7 @@
 #'
 #' @param data Raw simulation output. Must contain `EVID`, `MDV`, `PRED`, and
 #'    columns named by `time_var`, `ntime_var`, `sim_dv_var`, `obs_dv_var`,
-#'    and `irep_name`.
+#'    and `rep_var`.
 #' @param time_var Column containing the actual time variable in `data`.
 #'    Accepts bare names or strings. Default is `TIME`.
 #' @param ntime_var Column containing the nominal time variable in `data`.
@@ -27,8 +27,9 @@
 #'    Accepts bare names or strings. Default is `SIMDV`.
 #' @param obs_dv_var Column containing observed DV in `data`.
 #'    Accepts bare names or strings. Default is `OBSDV`.
-#' @param irep_name Replicate identifier column. Accepts bare names or strings.
+#' @param rep_var Replicate identifier column. Accepts bare names or strings.
 #'    Default is `SIM`.
+#' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @param strat_var Stratification variable. Accepts bare names or strings.
 #'    Default is `NULL`. Only a single stratifying variable is supported.
 #' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
@@ -65,7 +66,7 @@
 #'      \item{`config`}{Named list of the run configuration: `n_replicates`,
 #'        `ci`, `pi`, `mode` (as passed, before the per-flavor `"auto"`
 #'        resolution), `loq` (unique non-NA LOQ values, or `NULL`),
-#'        `strat_var`, and the source column names `irep_name`, `time_var`,
+#'        `strat_var`, and the source column names `rep_var`, `time_var`,
 #'        `ntime_var`, `pred_var`, `sim_dv_var`, and `obs_dv_var`.
 #'        [plot_vpc_legend()] reads `ci`, `pi`, and `loq` from it via its
 #'        `stats` argument.}
@@ -91,11 +92,12 @@ df_vpcstats <- function(data,
                         obs_dv_var = "OBSDV",
                         strat_var = NULL,
                         loq = NULL,
-                        irep_name = "SIM",
+                        rep_var = "SIM",
                         lower_bound = 0,
                         mode = c("auto", "rank", "drop"),
                         pi = c(0.05, 0.95),
-                        ci = 0.90) {
+                        ci = 0.90,
+                        irep_name) {
 
   time_var_str   <- resolve_var(rlang::enquo(time_var))
   ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
@@ -103,7 +105,12 @@ df_vpcstats <- function(data,
   sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
   obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var))
   strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
+  rep_var_q <- rlang::enquo(rep_var)
+  if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "df_vpcstats",
+                         "irep_name", "rep_var")) {
+    rep_var_q <- rlang::enquo(irep_name)
+  }
+  rep_var_str    <- resolve_var(rep_var_q)
 
   pre <- df_vpcpreprocess(
     data,
@@ -113,7 +120,7 @@ df_vpcstats <- function(data,
     sim_dv_var_str = sim_dv_var_str,
     obs_dv_var_str = obs_dv_var_str,
     strat_var_str  = strat_var_str,
-    irep_name_str  = irep_name_str,
+    rep_var_str    = rep_var_str,
     loq = loq
   )
 
@@ -122,7 +129,7 @@ df_vpcstats <- function(data,
     pi = pi, ci = ci,
     bin_var = .vpc_bin_col,
     strat_var = strat_var_str,
-    irep_name = irep_name_str,
+    rep_var = rep_var_str,
     lower_bound = lower_bound,
     mode = mode
   )

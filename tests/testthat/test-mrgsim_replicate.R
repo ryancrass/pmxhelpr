@@ -36,10 +36,10 @@ test_that("output data.frame contains expected output variables PRED, IPRED, SIM
   expect_true(all(c("PRED", "IPRED", "SIMDV", "OBSDV") %in% colnames(out)))
 })
 
-test_that("output data.frame contains variable requested with argument `irep_name`", {
+test_that("output data.frame contains variable requested with argument `rep_var`", {
   expect_named(df_mrgsim_replicate(data=dplyr::filter(data_sad, CMT != 3),
                                    model=model_mread_load("pkmodel"), replicates = 10,
-                                   dv_var = "ODV", irep_name = "IREP") |> dplyr::select(IREP),
+                                   dv_var = "ODV", rep_var = "IREP") |> dplyr::select(IREP),
                "IREP")
 })
 
@@ -124,7 +124,7 @@ test_that("Error if incorrect class for arugmument `seed`", {
 test_that("df_mrgsim_replicate accepts bare names", {
   model <- model_mread_load(model = "pkmodel")
   s1 <- df_mrgsim_replicate(dplyr::filter(data_sad, CMT != 3), model, replicates = 2,
-                              dv_var = ODV, irep_name = SIM)
+                              dv_var = ODV, rep_var = SIM)
   expect_true(nrow(s1) > 0)
   expect_true("SIM" %in% colnames(s1))
 })

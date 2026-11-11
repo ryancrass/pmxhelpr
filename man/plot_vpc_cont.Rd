@@ -14,7 +14,7 @@ plot_vpc_cont(
   strat_var = NULL,
   pcvpc = FALSE,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   min_bin_count = 0,
   show_rep = TRUE,
   lower_bound = 0,
@@ -22,7 +22,8 @@ plot_vpc_cont(
   shown = NULL,
   style = NULL,
   pi = c(0.05, 0.95),
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 }
 \arguments{
@@ -67,7 +68,7 @@ VPCs only, since the LLOQ has no meaning on the prediction-corrected
 scale; hide it with \code{shown = plot_vpc_shown(loq_line = FALSE)}. The
 observed points show \code{MDV == 0} rows only.}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
+\item{rep_var}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations
 (\code{obs_n - obs_n_blq} in the summary statistics frame) per exact bin
@@ -101,6 +102,8 @@ Pass the same style to
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for simulation interval (e.g., \code{0.90} for 90\% CI). Default is \code{0.90}.}
+
+\item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
 \value{
 A \code{pmx_vpc_plot} object (a \code{ggplot2} subclass). To access the
@@ -122,7 +125,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 20
 dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover  = c("USUBJID", "PART"),
-irep_name = SIM)
+rep_var = SIM)
 
 vpc_plot <- plot_vpc_cont(
 data = simout,

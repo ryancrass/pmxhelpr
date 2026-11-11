@@ -60,7 +60,7 @@
 #' @param sim_dv_var_str String name of the simulated DV column in `data`.
 #' @param obs_dv_var_str String name of the observed DV column in `data`.
 #' @param strat_var_str String or `NULL`. Stratification variable name.
-#' @param irep_name_str String. Replicate identifier column name. Default is `"SIM"`.
+#' @param rep_var_str String. Replicate identifier column name. Default is `"SIM"`.
 #' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
 #'    present in `data`, per-row `LLOQ` values are used as the censoring
 #'    threshold. A scalar `loq` broadcasts to a constant threshold across rows.
@@ -74,14 +74,14 @@
 df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                              pred_var_str,
                              sim_dv_var_str, obs_dv_var_str,
-                             strat_var_str = NULL, irep_name_str = "SIM",
+                             strat_var_str = NULL, rep_var_str = "SIM",
                              loq = NULL, call = rlang::caller_env()) {
 
   check_df(data, "data", call = call)
   check_varsindf(data,
                  c(time_var_str, ntime_var_str, pred_var_str,
                    sim_dv_var_str, obs_dv_var_str,
-                   "MDV", "EVID", irep_name_str),
+                   "MDV", "EVID", rep_var_str),
                  "data", "vars", call = call)
   if (!is.null(strat_var_str)) check_varsindf(data, strat_var_str, "data", "strat_var", call = call)
 
@@ -124,7 +124,7 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 #'    `OBSDV` and `SIMDV` are expected to already be prediction-corrected.
 #' @param group_vars Character vector of grouping columns (`bin_var` and
 #'    optional `strat_var`).
-#' @param irep_name String. Replicate identifier column name.
+#' @param rep_var String. Replicate identifier column name.
 #' @param pi Numeric vector of length 2 specifying prediction interval
 #'    quantiles.
 #' @param ci_bounds Numeric vector of length 2 specifying CI bounds derived
@@ -145,10 +145,10 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 #'    [`var_infna()`].
 #' @keywords internal
 
-compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
+compute_vpcstat <- function(data, group_vars, rep_var, pi, ci_bounds,
                                has_loq, pcvpc) {
   stage1 <- data |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, irep_name)))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, rep_var)))) |>
     dplyr::summarise(
       obs_n     = dplyr::n(),
       obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
@@ -188,7 +188,7 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
   }
 
   obs_quant <- data |>
-    dplyr::filter(.data[[irep_name]] == 1) |>
+    dplyr::filter(.data[[rep_var]] == 1) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
     dplyr::summarise(
       obs_prop_blq = sum(!is.finite(.data[["OBSDV"]])) / dplyr::n(),
@@ -223,7 +223,7 @@ compute_vpcstat <- function(data, group_vars, irep_name, pi, ci_bounds,
 #'    (e.g. `0.90` for a 90% CI). Default is `0.90`.
 #' @param bin_var String. Binning variable name. Default is `"BIN_MID"`.
 #' @param strat_var String or `NULL`. Stratification variable name. Default is `NULL`.
-#' @param irep_name String. Replicate identifier column name. Default is `"SIM"`.
+#' @param rep_var String. Replicate identifier column name. Default is `"SIM"`.
 #' @param lower_bound Numeric. Forwarded to [`var_predcorr()`] in the pc
 #'    flavor.
 #' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. Controls how
@@ -257,7 +257,7 @@ df_vpccompute <- function(data,
                           ci = 0.90,
                           bin_var = .vpc_bin_col,
                           strat_var = NULL,
-                          irep_name = "SIM",
+                          rep_var = "SIM",
                           lower_bound = 0,
                           mode = c("auto", "rank", "drop"),
                           loq = attr(data, "loq"),
@@ -282,7 +282,7 @@ df_vpccompute <- function(data,
   if (std_mode == "drop") {
     data_std$OBSDV <- var_infna(data_std$OBSDV)
   }
-  stats_std <- compute_vpcstat(data_std, group_vars, irep_name,
+  stats_std <- compute_vpcstat(data_std, group_vars, rep_var,
                                   pi, ci_bounds,
                                   has_loq = !is.null(loq), pcvpc = FALSE)
 
@@ -310,7 +310,7 @@ df_vpccompute <- function(data,
     dplyr::ungroup()
   ## Pass has_loq = FALSE for pc so compute_vpcstat doesn't emit
   ## sim_prop_blq_* (LOQ has no meaning on the pc scale).
-  stats_pc_full <- compute_vpcstat(data_pc, group_vars, irep_name,
+  stats_pc_full <- compute_vpcstat(data_pc, group_vars, rep_var,
                                       pi, ci_bounds,
                                       has_loq = FALSE, pcvpc = TRUE)
 
@@ -352,19 +352,19 @@ df_vpccompute <- function(data,
   data_full <- data_std
   data_full[["PC_OBSDV"]] <- data_pc$OBSDV
   obs <- data_full |>
-    dplyr::filter(.data[[irep_name]] == 1 & .data$MDV == 0)
+    dplyr::filter(.data[[rep_var]] == 1 & .data$MDV == 0)
 
   pmx_stats(
     stats  = stats,
     obs    = obs,
     config = list(
-      n_replicates = max(data[[irep_name]], na.rm = TRUE),
+      n_replicates = max(data[[rep_var]], na.rm = TRUE),
       ci           = ci,
       pi           = pi,
       mode         = mode,
       loq          = loq,
       strat_var    = strat_var,
-      irep_name    = irep_name
+      rep_var      = rep_var
     ),
     subclass = "vpc_stats"
   )

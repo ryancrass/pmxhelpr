@@ -190,7 +190,7 @@ glimpse(simout)
 
 ## Changing the Replicate Counter
 
-The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times. The variable name output for the count of replicates can be specified using the `irep_name` argument.
+The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times. The variable name output for the count of replicates can be specified using the `rep_var` argument.
 
 This argument uses non-standard evaluation and can be supplied as a bare name or string
 
@@ -199,7 +199,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     irep_name = IREP,
+                     rep_var = IREP,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 

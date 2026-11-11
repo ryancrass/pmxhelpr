@@ -19,12 +19,12 @@ run_vpcstats <- function(sim, strat_var_str = NULL,
     time_var_str = time_var_str, ntime_var_str = ntime_var_str,
     pred_var_str = pred_var_str,
     sim_dv_var_str = sim_dv_var_str, obs_dv_var_str = obs_dv_var_str,
-    strat_var_str = strat_var_str, irep_name_str = "SIM",
+    strat_var_str = strat_var_str, rep_var_str = "SIM",
     loq = loq
   )
   pmxhelpr:::df_vpccompute(
     pre, pi = pi, ci = ci, bin_var = "BIN_MID",
-    strat_var = strat_var_str, irep_name = "SIM",
+    strat_var = strat_var_str, rep_var = "SIM",
     lower_bound = lower_bound, mode = mode
   )
 }
@@ -353,18 +353,18 @@ testsim_pre <- pmxhelpr:::df_vpcpreprocess(
   time_var_str = "TIME", ntime_var_str = "NTIME",
   pred_var_str = "PRED",
   sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV",
-  strat_var_str = NULL, irep_name_str = "SIM",
+  strat_var_str = NULL, rep_var_str = "SIM",
   loq = 1
 )
 .cof_args <- list(group_vars = "BIN_MID",
-                  irep_name = "SIM",
+                  rep_var = "SIM",
                   pi = c(0.05, 0.95),
                   ci_bounds = c(0.05, 0.95))
 
 test_that("compute_vpcstat: returns a data.frame with the expected column groups", {
   out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = TRUE, pcvpc = FALSE)
@@ -382,7 +382,7 @@ test_that("compute_vpcstat: returns a data.frame with the expected column groups
 test_that("compute_vpcstat: has_loq = FALSE omits the sim_prop_blq_* columns", {
   out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = FALSE, pcvpc = FALSE)
@@ -397,13 +397,13 @@ test_that("compute_vpcstat: pcvpc flag drives the sim_prop_blq detection branch"
   ## branch counts BLQ via the < loq test and the pc branch counts zero.
   std <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = TRUE, pcvpc = FALSE)
   pc  <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = TRUE, pcvpc = TRUE)
@@ -433,7 +433,7 @@ test_that("compute_vpcstat: NA-LOQ rows with finite SIMDV count as non-BLQ in de
   )
   out <- pmxhelpr:::compute_vpcstat(pre,
                                        group_vars = "BIN_MID",
-                                       irep_name = "SIM",
+                                       rep_var = "SIM",
                                        pi = c(0.05, 0.95),
                                        ci_bounds = c(0.05, 0.95),
                                        has_loq = TRUE, pcvpc = FALSE)
@@ -451,12 +451,12 @@ test_that("compute_vpcstat: var_infna is applied — no -Inf in quantile cols", 
     time_var_str = "TIME", ntime_var_str = "NTIME",
     pred_var_str = "PRED",
     sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV",
-    strat_var_str = NULL, irep_name_str = "SIM",
+    strat_var_str = NULL, rep_var_str = "SIM",
     loq = 1e6
   )
   out <- pmxhelpr:::compute_vpcstat(pre_all_blq,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = TRUE, pcvpc = FALSE)
@@ -471,7 +471,7 @@ test_that("compute_vpcstat: var_infna is applied — no -Inf in quantile cols", 
 test_that("compute_vpcstat: obs_n equals records-per-bin (single replicate)", {
   out <- pmxhelpr:::compute_vpcstat(testsim_pre,
                                        group_vars = .cof_args$group_vars,
-                                       irep_name = .cof_args$irep_name,
+                                       rep_var = .cof_args$rep_var,
                                        pi = .cof_args$pi,
                                        ci_bounds = .cof_args$ci_bounds,
                                        has_loq = FALSE, pcvpc = FALSE)

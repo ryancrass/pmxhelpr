@@ -13,12 +13,13 @@ plot_vpc_cens(
   obs_dv_var = "OBSDV",
   strat_var = NULL,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 }
 \arguments{
@@ -56,7 +57,7 @@ a cens VPC needs. When \code{NULL} and column \code{LLOQ} is present in \code{da
 per-row \code{LLOQ} values are used as the censoring threshold; a scalar
 \code{loq} broadcasts to a constant threshold across rows.}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names
+\item{rep_var}{Name of replicate variable in \code{data}. Accepts bare names
 or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of observations per exact bin
@@ -90,6 +91,8 @@ proportion across replicates (e.g., \code{0.90} for 90\% CI). Default is
 when \code{data} is a precomputed \code{vpc_stats} container raises an error.
 The container's stored \code{ci} (set when \code{df_vpcstats()} was called) is
 the source of truth on that path.}
+
+\item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
 \value{
 A \code{pmx_vpc_plot} object (a \code{ggplot2} subclass). To access the
@@ -119,7 +122,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
                               replicates = 20, dv_var = ODV,
                               carry_out = c("LLOQ", "WTBL", "FOOD"),
                               recover = c("USUBJID", "PART"),
-                              irep_name = SIM)
+                              rep_var = SIM)
 
 cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 }

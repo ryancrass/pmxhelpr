@@ -45,9 +45,10 @@
 #'    every `cov_vars` column (e.g. `c(FOOD = 0, WTBL = 70)`). Not to be
 #'    confused with `cov_level_ref` in [df_forest()], which holds display
 #'    labels rather than source values.
-#' @param irep_name Column in `data` identifying the replicate.
+#' @param rep_var Column in `data` identifying the replicate.
 #'    Accepts bare names or strings. Default is `SIM`. Required only when
 #'    `ratio = TRUE`, which forms ratios within a replicate.
+#' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @param ratio Logical. When `TRUE` (default), append a test/reference
 #'    ratio metric for every entry of `metric_vars`. When `FALSE`, emit the
 #'    absolute metrics only.
@@ -125,7 +126,7 @@ df_forest_preprocess <- function(
   metric_vars,
   cov_vars,
   cov_val_ref,
-  irep_name = "SIM",
+  rep_var = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
   cov_labels = NULL,
@@ -133,9 +134,15 @@ df_forest_preprocess <- function(
   metric_name_var = "metric",
   metric_value_var = "value",
   cov_name_var = "cov_name",
-  cov_level_var = "cov_level"
+  cov_level_var = "cov_level",
+  irep_name
 ) {
-  irep_name_str <- resolve_var(rlang::enquo(irep_name))
+  rep_var_q <- rlang::enquo(rep_var)
+  if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "df_forest_preprocess",
+                         "irep_name", "rep_var")) {
+    rep_var_q <- rlang::enquo(irep_name)
+  }
+  rep_var_str <- resolve_var(rep_var_q)
   metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
   metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
   cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
@@ -151,7 +158,7 @@ df_forest_preprocess <- function(
   check_string(cov_name_ref, "cov_name_ref")
   check_varsindf(data, c(metric_vars, cov_vars), "data", "metric_vars/cov_vars")
   if (isTRUE(ratio)) {
-    check_varsindf(data, irep_name_str, "data", "irep_name")
+    check_varsindf(data, rep_var_str, "data", "rep_var")
   }
 
   data <- as.data.frame(data)
@@ -263,9 +270,9 @@ df_forest_preprocess <- function(
   wide <- data
   ratio_vars <- character(0)
   if (isTRUE(ratio)) {
-    rep_key <- as.character(data[[irep_name_str]])
+    rep_key <- as.character(data[[rep_var_str]])
     if (any(is.na(rep_key))) {
-      pmx_abort("Column {.var {irep_name_str}} must not contain {.code NA}.", "bad_data")
+      pmx_abort("Column {.var {rep_var_str}} must not contain {.code NA}.", "bad_data")
     }
     reps <- unique(rep_key)
     n_ref_per <- tabulate(match(rep_key[is_ref], reps), nbins = length(reps))
@@ -274,7 +281,7 @@ df_forest_preprocess <- function(
       bad_reps <- paste0(reps[bad_rep], " (", n_ref_per[bad_rep], " found)")
       pmx_abort(c(
         "Each replicate must contain exactly one reference-scenario row.",
-        "x" = "{cli::qty(bad_reps)}{?This value/These values} of {.var {irep_name_str}} {?does/do} not: {.val {bad_reps}}."
+        "x" = "{cli::qty(bad_reps)}{?This value/These values} of {.var {rep_var_str}} {?does/do} not: {.val {bad_reps}}."
       ), "bad_data")
     }
     ref_idx <- which(is_ref)

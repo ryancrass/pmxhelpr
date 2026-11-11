@@ -12,7 +12,7 @@ df_vpcpreprocess(
   sim_dv_var_str,
   obs_dv_var_str,
   strat_var_str = NULL,
-  irep_name_str = "SIM",
+  rep_var_str = "SIM",
   loq = NULL,
   call = rlang::caller_env()
 )
@@ -32,7 +32,7 @@ df_vpcpreprocess(
 
 \item{strat_var_str}{String or \code{NULL}. Stratification variable name.}
 
-\item{irep_name_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
+\item{rep_var_str}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
 \item{loq}{Numeric scalar, or \code{NULL}. When \code{NULL} and column \code{LLOQ} is
 present in \code{data}, per-row \code{LLOQ} values are used as the censoring

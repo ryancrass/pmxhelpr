@@ -171,15 +171,15 @@ test_that("print.vpc_stats emits the headline summary and column groups", {
 
 test_that("df_vpcstats records the run configuration in config", {
   sim <- dplyr::rename(testsim, TAD = TIME, REP = SIM)
-  out <- df_vpcstats(sim, time_var = TAD, irep_name = "REP", pi = c(0.1, 0.9),
+  out <- df_vpcstats(sim, time_var = TAD, rep_var = "REP", pi = c(0.1, 0.9),
                      ci = 0.8, mode = "drop")
   expect_equal(out$config$ci, 0.8)
   expect_equal(out$config$pi, c(0.1, 0.9))
   expect_equal(out$config$mode, "drop")
   expect_equal(out$config[c("time_var", "ntime_var", "pred_var", "sim_dv_var",
-                            "obs_dv_var", "irep_name")],
+                            "obs_dv_var", "rep_var")],
                list(time_var = "TAD", ntime_var = "NTIME", pred_var = "PRED",
-                    sim_dv_var = "SIMDV", obs_dv_var = "OBSDV", irep_name = "REP"))
+                    sim_dv_var = "SIMDV", obs_dv_var = "OBSDV", rep_var = "REP"))
   expect_equal(df_vpcstats(testsim)$config$mode, "auto")
 })
 
@@ -393,4 +393,48 @@ test_that("reveal() keeps the class, warns once for as = 'facet', and maps the c
   expect_no_warning(p_col <- reveal(p, FOOD, as = "colors"))
   expect_true(is_pmx_vpc_plot(p_col))
   expect_no_warning(reveal(p, "FOOD", as = "colors"))
+})
+
+##### irep_name -> rep_var (deprecated in 0.8.0) #####
+
+test_that("irep_name is a deprecated alias of rep_var in the VPC functions", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  simR <- dplyr::rename(sim_pk(5), REP = SIM)
+  lifecycle::expect_deprecated(old <- df_vpcstats(simR, irep_name = "REP"), "rep_var")
+  expect_identical(old, df_vpcstats(simR, rep_var = "REP"))
+  lifecycle::expect_deprecated(old_bare <- df_vpcstats(simR, irep_name = REP))
+  expect_identical(old_bare, old)
+  expect_identical(old$config$rep_var, "REP")
+  for (f in list(plot_vpc_cont, plot_vpc_cens)) {
+    w <- testthat::capture_warnings(p_old <- f(simR, irep_name = "REP", loq = 1))
+    expect_length(w, 1)                      # the wrapper warns once, not twice
+    expect_equal(capture.output(layer_summary(p_old)),
+                 capture.output(layer_summary(f(simR, rep_var = "REP", loq = 1))))
+  }
+  expect_match(conditionMessage(rlang::catch_cnd(plot_vpc_cont(simR, irep_name = "REP"),
+                                                 classes = "warning")),
+               "`plot_vpc_cont()`", fixed = TRUE)
+  expect_error(df_vpcstats(simR, rep_var = "REP", irep_name = "REP"),
+               "Pass `rep_var` only", class = "pmxhelpr_error_bad_arg")
+})
+
+test_that("irep_name is a deprecated alias of rep_var in df_mrgsim_replicate", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2), ID %in% unique(ID)[1:3])
+  mod <- model_mread_load(model = "pkmodel")
+  lifecycle::expect_deprecated(
+    old <- df_mrgsim_replicate(d, mod, 2, dv_var = "ODV", irep_name = "IREP"))
+  expect_identical(old, df_mrgsim_replicate(d, mod, 2, dv_var = "ODV", rep_var = "IREP"))
+  expect_true("IREP" %in% names(old))
+})
+
+test_that("irep_name is a deprecated alias of rep_var in df_forest_preprocess", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  wide <- data.frame(SCN = rep(1:4, 2), REP = rep(1:2, each = 4),
+                     FOOD = rep(c(0, 1, 0, 0), 2), WTBL = rep(c(70, 70, 50, 90), 2),
+                     AUC = c(100, 200, 125, 80, 110, 253, 132, 88))
+  pre <- function(...) df_forest_preprocess(wide, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
+                                            cov_val_ref = c(FOOD = 0, WTBL = 70), ...)
+  lifecycle::expect_deprecated(old <- pre(irep_name = REP))
+  expect_identical(old, pre(rep_var = "REP"))
 })

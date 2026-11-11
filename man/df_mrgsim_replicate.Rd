@@ -14,9 +14,10 @@ df_mrgsim_replicate(
   pred_var = "PRED",
   ipred_var = "IPRED",
   sim_dv_var = "DV",
-  irep_name = "SIM",
+  rep_var = "SIM",
   seed = 123456789,
-  ...
+  ...,
+  irep_name
 )
 }
 \arguments{
@@ -47,7 +48,7 @@ Accepts bare names or strings. Default is \code{IPRED}.}
 model output, not a column of \code{data}). Returned as \code{SIMDV}.
 Accepts bare names or strings. Default is \code{DV}.}
 
-\item{irep_name}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
+\item{rep_var}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
@@ -56,6 +57,8 @@ Accepts bare names or strings. Default is \code{DV}.}
 the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
 \code{OBSDV}, and the population prediction column) is added to whatever the
 user passes to \code{carry_out}.}
+
+\item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}})
@@ -74,7 +77,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 20
 dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover = c("USUBJID", "PART"),
-irep_name = SIM)
+rep_var = SIM)
 }
 \seealso{
 Other mrgsolve wrappers:

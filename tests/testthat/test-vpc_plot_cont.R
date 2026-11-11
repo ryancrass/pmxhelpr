@@ -105,21 +105,21 @@ test_that("Error if variable specified by `strat_var` does not exist in `data`",
   )
 })
 
-test_that("Error if variable specified by `irep_name` does not exist in `data`", {
+test_that("Error if variable specified by `rep_var` does not exist in `data`", {
   testsim <- sim_pk()
 
   expect_error(
-    plot_vpc_cont(data = testsim, irep_name = "IREP"),
+    plot_vpc_cont(data = testsim, rep_var = "IREP"),
     regexp = "must name variable.*in `data`"
   )
 })
 
 ##Test NSE Bare Names
-test_that("plot_vpc_cont accepts bare irep_name and matches string output", {
+test_that("plot_vpc_cont accepts bare rep_var and matches string output", {
   testsim <- sim_pk()
 
-  v1 <- df_vpcstats(testsim, irep_name = SIM)
-  v2 <- df_vpcstats(testsim, irep_name = "SIM")
+  v1 <- df_vpcstats(testsim, rep_var = SIM)
+  v2 <- df_vpcstats(testsim, rep_var = "SIM")
   expect_identical(v1, v2)
 })
 

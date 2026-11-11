@@ -13,17 +13,18 @@ df_vpcstats(
   obs_dv_var = "OBSDV",
   strat_var = NULL,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   pi = c(0.05, 0.95),
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 }
 \arguments{
 \item{data}{Raw simulation output. Must contain \code{EVID}, \code{MDV}, \code{PRED}, and
 columns named by \code{time_var}, \code{ntime_var}, \code{sim_dv_var}, \code{obs_dv_var},
-and \code{irep_name}.}
+and \code{rep_var}.}
 
 \item{time_var}{Column containing the actual time variable in \code{data}.
 Accepts bare names or strings. Default is \code{TIME}.}
@@ -49,7 +50,7 @@ present in \code{data}, per-row \code{LLOQ} values are used as the censoring
 threshold; the unique non-NA values are exposed via \code{config$loq} for
 plotting. A scalar \code{loq} broadcasts to a constant threshold across rows.}
 
-\item{irep_name}{Replicate identifier column. Accepts bare names or strings.
+\item{rep_var}{Replicate identifier column. Accepts bare names or strings.
 Default is \code{SIM}.}
 
 \item{lower_bound}{Lower bound for prediction correction formula.}
@@ -63,6 +64,8 @@ Default is \code{c(0.05, 0.95)}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the simulation interval
 (e.g., \code{0.90} for a 90\% CI). Default is \code{0.90}.}
+
+\item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
 \value{
 A \code{vpc_stats} container (subclass of \code{pmx_stats}) with three
@@ -85,7 +88,7 @@ counterpart.}
 \item{\code{config}}{Named list of the run configuration: \code{n_replicates},
 \code{ci}, \code{pi}, \code{mode} (as passed, before the per-flavor \code{"auto"}
 resolution), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
-\code{strat_var}, and the source column names \code{irep_name}, \code{time_var},
+\code{strat_var}, and the source column names \code{rep_var}, \code{time_var},
 \code{ntime_var}, \code{pred_var}, \code{sim_dv_var}, and \code{obs_dv_var}.
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} reads \code{ci}, \code{pi}, and \code{loq} from it via its
 \code{stats} argument.}

@@ -189,7 +189,7 @@ test_that("`NA` in the replicate column aborts when ratios are requested", {
   expect_no_error(run(ratio = FALSE))
 })
 
-test_that("`irep_name` is only required when ratios are requested", {
+test_that("`rep_var` is only required when ratios are requested", {
   no_sim <- sim_wide[sim_wide$SIM == 1, setdiff(names(sim_wide), "SIM")]
   expect_s3_class(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
@@ -199,7 +199,7 @@ test_that("`irep_name` is only required when ratios are requested", {
   expect_error(
     df_forest_preprocess(no_sim, metric_vars = "AUC", cov_vars = c("FOOD", "WTBL"),
                          cov_val_ref = ref_vals),
-    "irep_name"
+    "rep_var"
   )
 })
 
@@ -261,8 +261,8 @@ test_that("A covariate that never varies is left out of the attribute", {
 #####df_forest_preprocess -- argument validation#####
 
 test_that("Column-name arguments accept bare names or strings", {
-  expect_equal(pre(cov_labels = labs, irep_name = SIM),
-               pre(cov_labels = labs, irep_name = "SIM"))
+  expect_equal(pre(cov_labels = labs, rep_var = SIM),
+               pre(cov_labels = labs, rep_var = "SIM"))
 })
 
 test_that("Output column names are configurable", {

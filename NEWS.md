@@ -52,7 +52,7 @@
   new direct import; it was already required by ggplot2 and dplyr.
 * `df_vpcstats()` records the full run configuration in `config`: `ci`, `pi`,
   `mode`, and the source column names (`time_var`, `ntime_var`, `pred_var`,
-  `sim_dv_var`, `obs_dv_var`, `irep_name`) alongside `n_replicates`, `loq`,
+  `sim_dv_var`, `obs_dv_var`, `rep_var`) alongside `n_replicates`, `loq`,
   and `strat_var`. `print()` and `summary()` show `ci`, `pi`, and `mode`.
   Containers saved by earlier versions lack `ci` and `pi` and must be
   recomputed with `df_vpcstats()`.
@@ -60,6 +60,14 @@
   and `ci`, `pi`, and `loq` default to its `config`, so the legend matches
   a plot built from the same container. Arguments passed explicitly still
   win.
+
+## Deprecated
+
+* `irep_name` is renamed `rep_var` in `df_mrgsim_replicate()`,
+  `df_vpcstats()`, `plot_vpc_cont()`, `plot_vpc_cens()`, and
+  `df_forest_preprocess()`, matching the other `*_var` column arguments.
+  `irep_name` still works with a deprecation warning and will be removed in
+  0.9.0.
 
 # pmxhelpr 0.7.1
 

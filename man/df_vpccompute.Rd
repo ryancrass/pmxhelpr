@@ -10,7 +10,7 @@ df_vpccompute(
   ci = 0.9,
   bin_var = .vpc_bin_col,
   strat_var = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   loq = attr(data, "loq"),
@@ -30,7 +30,7 @@ Default is \code{c(0.05, 0.95)}.}
 
 \item{strat_var}{String or \code{NULL}. Stratification variable name. Default is \code{NULL}.}
 
-\item{irep_name}{String. Replicate identifier column name. Default is \code{"SIM"}.}
+\item{rep_var}{String. Replicate identifier column name. Default is \code{"SIM"}.}
 
 \item{lower_bound}{Numeric. Forwarded to \code{\link[=var_predcorr]{var_predcorr()}} in the pc
 flavor.}

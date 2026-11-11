@@ -70,9 +70,10 @@
 #'    Accepts bare names or strings. Default is `SIMDV`.
 #' @param obs_dv_var Column containing observed DV in `data`.
 #'    Accepts bare names or strings. Default is `OBSDV`.
-#' @param irep_name Name of replicate variable in `data`. Accepts bare names
+#' @param rep_var Name of replicate variable in `data`. Accepts bare names
 #'    or strings. Default is `SIM`.
 #'
+#' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @family vpc
 #' @return A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the
 #'    underlying VPC summary statistics directly, use [df_vpcstats()] and
@@ -88,7 +89,7 @@
 #'                               replicates = 20, dv_var = ODV,
 #'                               carry_out = c("LLOQ", "WTBL", "FOOD"),
 #'                               recover = c("USUBJID", "PART"),
-#'                               irep_name = SIM)
+#'                               rep_var = SIM)
 #'
 #' cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 
@@ -100,12 +101,13 @@ plot_vpc_cens <- function(data,
                           obs_dv_var = "OBSDV",
                           strat_var = NULL,
                           loq = NULL,
-                          irep_name = "SIM",
+                          rep_var = "SIM",
                           min_bin_count = 0,
                           show_rep = TRUE,
                           shown = NULL,
                           style = NULL,
-                          ci = 0.90) {
+                          ci = 0.90,
+                          irep_name) {
 
   check_boolean(show_rep, "show_rep")
 
@@ -137,7 +139,12 @@ plot_vpc_cens <- function(data,
   sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
   obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var))
   strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
-  irep_name_str  <- resolve_var(rlang::enquo(irep_name))
+  rep_var_q <- rlang::enquo(rep_var)
+  if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "plot_vpc_cens",
+                         "irep_name", "rep_var")) {
+    rep_var_q <- rlang::enquo(irep_name)
+  }
+  rep_var_str    <- resolve_var(rep_var_q)
 
   out <- df_vpcstats(
     data       = data,
@@ -147,7 +154,7 @@ plot_vpc_cens <- function(data,
     sim_dv_var = sim_dv_var_str,
     obs_dv_var = obs_dv_var_str,
     strat_var  = strat_var_str,
-    irep_name  = irep_name_str,
+    rep_var    = rep_var_str,
     loq        = loq,
     ci         = ci
   )

@@ -20,6 +20,7 @@ Imports:
     ggplot2 (>= 3.5.0),
     ggstylekit (>= 0.4.1),
     grDevices,
+    lifecycle (>= 1.0.0),
     mrgsolve,
     rlang,
     stats,

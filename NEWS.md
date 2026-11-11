@@ -38,6 +38,10 @@
   did. Unstratified VPCs previously drew one line per value, and
   `plot_vpc_legend()` showed one key per value. The VPC legend's LLOQ key
   now uses the style's line width.
+* Deprecated arguments warn through lifecycle, naming the version and the
+  replacement, once every 8 hours per session (`options(lifecycle_verbosity =
+  "error")` turns them into errors). lifecycle is a new direct import; it was
+  already required by ggplot2 and dplyr.
 * Errors, warnings, and messages use cli formatting and name the function
   you called (e.g. ``Error in `plot_dvtime()` `` instead of an internal
   helper). They carry classes for programmatic handling: a base class

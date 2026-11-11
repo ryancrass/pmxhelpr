@@ -62,7 +62,8 @@ test_that("each warning and message kind is raised by a representative call", {
                  class = "pmxhelpr_warning_ignored_arg")
   expect_warning(df_mrgsim_addpred(dplyr::mutate(d1, PRED = 1), model_mread_load("pkmodel")),
                  class = "pmxhelpr_warning_overwrite")
-  expect_warning(plot_vpc_legend(lloq = 1), class = "pmxhelpr_warning_deprecated")
+  withr::local_options(lifecycle_verbosity = "warning")
+  expect_warning(plot_vpc_legend(lloq = 1), class = "lifecycle_warning_deprecated")
   expect_warning(plot_vpc_cont(sim_pk()) + ggplot2::facet_wrap(~FOOD),
                  class = "pmxhelpr_warning_vpc_facet")
   expect_message(df_vpcstats(sim_pk(carry_out = "LLOQ")),
@@ -102,4 +103,45 @@ test_that("error messages name the exported function and the user's argument", {
     df_forest(dplyr::rename(data_sad_pkforest, m = metric))
     df_mrgsim_replicate(d1, model = list(), replicates = 2)
   })
+})
+
+
+#####deprecated arguments####
+
+f_dep <- function(new = 1, old) {
+  if (pmxhelpr:::use_deprecated_arg(!missing(old), !missing(new), "f_dep", "old", "new")) {
+    new <- old
+  }
+  new
+}
+
+test_that("use_deprecated_arg warns through lifecycle and uses the old value", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  expect_warning(out <- f_dep(old = 5), class = "lifecycle_warning_deprecated")
+  expect_equal(out, 5)
+  msg <- conditionMessage(rlang::catch_cnd(f_dep(old = 5), classes = "warning"))
+  expect_match(msg, "The `old` argument of `f_dep()`", fixed = TRUE)
+  expect_match(msg, "0.8.0", fixed = TRUE)
+  expect_match(msg, "`new`", fixed = TRUE)
+  expect_no_warning(expect_equal(f_dep(new = 2), 2))
+  expect_no_warning(expect_equal(f_dep(), 1))
+})
+
+test_that("use_deprecated_arg aborts when both names are given", {
+  expect_error(f_dep(new = 2, old = 5), "Pass `new` only; `old` is its deprecated name",
+               class = "pmxhelpr_error_bad_arg")
+  expect_equal(cnd_fn(f_dep(new = 2, old = 5)), "f_dep")
+})
+
+test_that("use_deprecated_arg leaves a bare-column argument unevaluated", {
+  withr::local_options(lifecycle_verbosity = "warning")
+  g <- function(data, new = "A", old) {
+    q <- rlang::enquo(new)
+    if (pmxhelpr:::use_deprecated_arg(!missing(old), !missing(new), "g", "old", "new")) {
+      q <- rlang::enquo(old)
+    }
+    rlang::as_name(q)
+  }
+  expect_warning(out <- g(old = NOT_AN_OBJECT), class = "lifecycle_warning_deprecated")
+  expect_equal(out, "NOT_AN_OBJECT")
 })

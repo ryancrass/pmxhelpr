@@ -234,9 +234,15 @@ test_that("legend_style_theme is empty when the style sets neither field", {
 })
 
 test_that("lloq is a deprecated alias of loq", {
-  expect_warning(p_old <- plot_vpc_legend(lloq = c(0.1, 1)), "`lloq` is deprecated")
+  withr::local_options(lifecycle_verbosity = "warning")
+  lifecycle::expect_deprecated(p_old <- plot_vpc_legend(lloq = c(0.1, 1)), "lloq")
   expect_equal(linetype_breaks(p_old), linetype_breaks(plot_vpc_legend(loq = c(0.1, 1))))
-  expect_error(plot_vpc_legend(loq = 1, lloq = 1), "Pass `loq` only")
+  expect_error(plot_vpc_legend(loq = 1, lloq = 1), "Pass `loq` only",
+               class = "pmxhelpr_error_bad_arg")
+  ## a container's loq no longer collides with an explicit lloq
+  out <- df_vpcstats(sim_pk(), loq = 1)
+  lifecycle::expect_deprecated(p_stats <- plot_vpc_legend(stats = out, lloq = 2))
+  expect_true(any(grepl("LLOQ = 2", linetype_breaks(p_stats))))
 })
 
 test_that("plot_vpc_legend validates ci and pi", {

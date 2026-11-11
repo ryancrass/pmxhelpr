@@ -58,7 +58,7 @@ VPCs have no prediction interval).}
 \item{...}{Other arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}, applied after the
 style so they override it.}
 
-\item{lloq}{Deprecated alias of \code{loq}; warns. Do not pass both.}
+\item{lloq}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{loq}. Do not pass both.}
 
 \item{stats}{A \code{\link[=df_vpcstats]{df_vpcstats()}} result, or \code{NULL} (default). When given,
 \code{ci}, \code{pi}, and \code{loq} default to \code{stats$config$ci}, \code{stats$config$pi},

@@ -19,8 +19,9 @@
 #'
 #' Warning kinds: `data` (suspicious data contents), `ignored_arg` (an
 #' argument has no or partial effect), `overwrite` (existing columns are
-#' replaced), `deprecated`, `vpc_facet`. Message kinds: `loq_inherit`,
-#' `ignored_arg`.
+#' replaced), `vpc_facet`. Message kinds: `loq_inherit`, `ignored_arg`.
+#' Deprecated arguments are signalled by lifecycle instead (class
+#' `lifecycle_warning_deprecated`); see `use_deprecated_arg()`.
 #'
 #' The message is a cli format string, interpolated in the frame that raised
 #' the condition (`.envir`). Never `paste0()` user values into it; interpolate
@@ -59,4 +60,26 @@ pmx_inform <- function(message, kind, ..., .envir = parent.frame()) {
   cli::cli_inform(message, ...,
                   class = c(paste0("pmxhelpr_message_", kind), "pmxhelpr_message"),
                   .envir = .envir)
+}
+
+
+## TRUE when the caller should use the deprecated `old` argument: warns via
+## lifecycle (once per 8 hours by default), and aborts if both names were
+## given. The caller tests whether each was supplied, so a bare-column (NSE)
+## argument is never evaluated here:
+##   if (use_deprecated_arg(!missing(irep_name), !missing(rep_var),
+##                          "df_vpcstats", "irep_name", "rep_var")) {
+##     rep_var_q <- rlang::enquo(irep_name)
+##   }
+use_deprecated_arg <- function(old_given, new_given, fn, old, new, when = "0.8.0",
+                               call = rlang::caller_env(),
+                               user_env = rlang::caller_env(2)) {
+  if (!old_given) return(FALSE)
+  if (new_given) {
+    pmx_abort("Pass {.arg {new}} only; {.arg {old}} is its deprecated name.",
+              "bad_arg", call = call)
+  }
+  lifecycle::deprecate_warn(when, sprintf("%s(%s)", fn, old), sprintf("%s(%s)", fn, new),
+                            env = call, user_env = user_env)
+  TRUE
 }

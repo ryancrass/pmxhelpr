@@ -31,7 +31,7 @@
 #'    VPCs have no prediction interval).
 #' @param ... Other arguments passed to [ggplot2::theme()], applied after the
 #'    style so they override it.
-#' @param lloq Deprecated alias of `loq`; warns. Do not pass both.
+#' @param lloq `r lifecycle::badge("deprecated")` Use `loq`. Do not pass both.
 #' @param stats A [df_vpcstats()] result, or `NULL` (default). When given,
 #'    `ci`, `pi`, and `loq` default to `stats$config$ci`, `stats$config$pi`,
 #'    and `stats$config$loq`, so the legend matches a plot built from the
@@ -76,6 +76,10 @@ plot_vpc_legend <- function(ci = 0.90,
                         stats = NULL){
 
   type <- match.arg(type)
+  if (use_deprecated_arg(!is.null(lloq), !missing(loq), "plot_vpc_legend", "lloq", "loq",
+                         when = "0.7.0")) {
+    loq <- lloq
+  }
   ## Container defaults; explicit arguments win (`loq = NULL` included).
   if (!is.null(stats)) {
     validate_vpc_stats(stats)
@@ -85,13 +89,6 @@ plot_vpc_legend <- function(ci = 0.90,
   }
   check_quantile_scalar(ci, "ci")
   check_quantile_pair(pi, "pi")
-  if (!is.null(lloq)) {
-    if (!is.null(loq)) {
-      pmx_abort("Pass {.arg loq} only; {.arg lloq} is its deprecated alias.", "bad_arg")
-    }
-    pmx_warn("{.arg lloq} is deprecated; use {.arg loq}.", "deprecated")
-    loq <- lloq
-  }
 
   ## Legend aesthetics come from the style, per role; a cens VPC colours its
   ## obs points like the obs line, and its "Obs" key follows.

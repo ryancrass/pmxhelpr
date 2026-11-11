@@ -86,10 +86,11 @@ plot_forest <- function(
     )
     stats <- data
   } else {
-    metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
-    metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
-    cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
-    cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
+    data_cols <- names(data)
+    metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var), cols = data_cols)
+    metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var), cols = data_cols)
+    cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var), cols = data_cols)
+    cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var), cols = data_cols)
     stats <- df_forest(
       data,
       metric_name_var = metric_name_var_str,

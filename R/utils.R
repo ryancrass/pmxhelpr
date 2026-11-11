@@ -1,8 +1,16 @@
 #' Internal helper: Resolve function input conflicts to standard internal string constants
 #'
+#' Resolves a column argument to a string, in this order: a string literal is
+#' used as is; a bare name found in `cols` is that column; otherwise the
+#' expression is evaluated and a string result is used (so a variable holding
+#' a column name works); failing that, a bare name is used as the column name.
+#'
 #' @param quo Function argument as a quosure (wrapped in rlang::ensym)
 #' @param nullable Logical argument specifying if the argument may be `NULL`.
 #'    Default is `FALSE`.
+#' @param cols Names the argument is looked up in (e.g. `names(data)`, or a
+#'    model's outputs), so a bare name matching one of them is never replaced
+#'    by a same-named variable. `NULL` (default) skips that check.
 #' @param call The call reported in the error.
 #'
 #' @return A resolved string constant variable
@@ -13,9 +21,10 @@
 #' f("ODV")
 #' f(CONC)
 #'
-resolve_var <- function(quo, nullable = FALSE, call = rlang::caller_env()) {
+resolve_var <- function(quo, nullable = FALSE, cols = NULL, call = rlang::caller_env()) {
   expr <- rlang::quo_get_expr(quo)
   if (is.character(expr)) return(expr)
+  if (is.symbol(expr) && as.character(expr) %in% cols) return(as.character(expr))
   val <- tryCatch(
     list(value = rlang::eval_tidy(quo), ok = TRUE),
     error = function(e) list(value = NULL, ok = FALSE)

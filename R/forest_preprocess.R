@@ -142,11 +142,12 @@ df_forest_preprocess <- function(
                          "irep_name", "rep_var")) {
     rep_var_q <- rlang::enquo(irep_name)
   }
-  rep_var_str <- resolve_var(rep_var_q)
-  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
-  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var))
-  cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var))
-  cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var))
+  data_cols <- names(data)
+  rep_var_str <- resolve_var(rep_var_q, cols = data_cols)
+  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var), cols = data_cols)
+  metric_value_var_str <- resolve_var(rlang::enquo(metric_value_var), cols = data_cols)
+  cov_name_var_str <- resolve_var(rlang::enquo(cov_name_var), cols = data_cols)
+  cov_level_var_str <- resolve_var(rlang::enquo(cov_level_var), cols = data_cols)
 
   check_df(data, "data")
   check_character_vars(metric_vars, "metric_vars")

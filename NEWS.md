@@ -38,6 +38,12 @@
   did. Unstratified VPCs previously drew one line per value, and
   `plot_vpc_legend()` showed one key per value. The VPC legend's LLOQ key
   now uses the style's line width.
+* A bare column name always refers to that column when `data` has it.
+  Previously a variable of the same name holding a string took precedence,
+  so `FOOD <- "WTBL"; plot_vpc_cont(sim, strat_var = FOOD)` stratified by
+  `WTBL`. The same holds for model outputs in `df_mrgsim_replicate()` and
+  `df_mrgsim_addpred()`. A column name held in a variable still works when
+  the variable's name is not a column, or with `!!`.
 * Deprecated arguments warn through lifecycle, naming the version and the
   replacement, once every 8 hours per session (`options(lifecycle_verbosity =
   "error")` turns them into errors). lifecycle is a new direct import; it was

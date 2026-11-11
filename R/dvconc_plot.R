@@ -50,9 +50,10 @@ plot_dvconc <- function(data,
                         style = NULL,
                         ...){
 
-  dv_var_str  <- resolve_var(rlang::enquo(dv_var))
-  idv_var_str <- resolve_var(rlang::enquo(idv_var))
-  col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE)
+  data_cols <- names(data)
+  dv_var_str  <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
+  idv_var_str <- resolve_var(rlang::enquo(idv_var), cols = data_cols)
+  col_var_str <- resolve_var(rlang::enquo(col_var), nullable = TRUE, cols = data_cols)
 
   check_boolean(col_trend, "col_trend")
   check_boolean(show_obs, "show_obs")

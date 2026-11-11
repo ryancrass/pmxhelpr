@@ -132,9 +132,10 @@ df_doseprop <- function(data,
                         ci = 0.9,
                         sigdigits = 3) {
 
-  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var))
-  metric_value_var_str    <- resolve_var(rlang::enquo(metric_value_var))
-  dose_var_str   <- resolve_var(rlang::enquo(dose_var))
+  data_cols <- names(data)
+  metric_name_var_str <- resolve_var(rlang::enquo(metric_name_var), cols = data_cols)
+  metric_value_var_str    <- resolve_var(rlang::enquo(metric_value_var), cols = data_cols)
+  dose_var_str   <- resolve_var(rlang::enquo(dose_var), cols = data_cols)
 
   check_df(data, "data")
   check_varsindf(data, metric_name_var_str, "data", "metric_name_var")

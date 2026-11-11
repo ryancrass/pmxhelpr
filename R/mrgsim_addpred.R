@@ -32,15 +32,16 @@ df_mrgsim_addpred <- function(data,
                        ...,
                        output_var){
 
+  check_mrgmod(model, "model")
+  model_outputs <- mrgsolve::outvars(model)$capture
   ipred_output_q <- rlang::enquo(ipred_output)
   if (use_deprecated_arg(!missing(output_var), !missing(ipred_output), "df_mrgsim_addpred",
                          "output_var", "ipred_output")) {
     ipred_output_q <- rlang::enquo(output_var)
   }
-  ipred_output_str <- resolve_var(ipred_output_q)
+  ipred_output_str <- resolve_var(ipred_output_q, cols = model_outputs)
 
   check_df(data, "data")
-  check_mrgmod(model, "model")
   check_capture(model, ipred_output_str, "model", "ipred_output")
 
   if ("PRED" %in% colnames(data)) {

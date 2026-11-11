@@ -121,6 +121,49 @@ test_that("resolve_var resolves variable containing string", {
   expect_equal(pmxhelpr:::resolve_var(rlang::quo(val)), "DOSE")
 })
 
+test_that("resolve_var: a bare name found in cols is that column, not a same-named variable", {
+  FOOD <- "WTBL"
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(FOOD), cols = c("FOOD", "WTBL")), "FOOD")
+  ## not a column: the variable's value is used (indirection still works)
+  v <- "ODV"
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(v), cols = c("ODV", "FOOD")), "ODV")
+  ## not a column and unbound: the name itself
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(NOT_BOUND_ANYWHERE), cols = "FOOD"),
+               "NOT_BOUND_ANYWHERE")
+  ## strings and !! never reach the column check
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo("WTBL"), cols = "FOOD"), "WTBL")
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(!!FOOD), cols = c("FOOD", "WTBL")), "WTBL")
+  val <- NULL
+  expect_null(pmxhelpr:::resolve_var(rlang::quo(val), nullable = TRUE, cols = "FOOD"))
+})
+
+test_that("exported functions read a bare column name before a same-named variable", {
+  sim <- sim_pk(5, carry_out = c("FOOD", "WTBL"))
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  FOOD <- "WTBL"
+  expect_equal(df_vpcstats(sim, strat_var = FOOD)$config$strat_var, "FOOD")
+  ODV <- "DV"                      # there is no DV column in data_sad
+  p <- plot_dvtime(d, dv_var = ODV, col_var = FOOD)
+  expect_equal(rlang::as_label(p$mapping$colour), "FOOD")
+  cov_name <- "metric"
+  expect_equal(df_forest(data_sad_pkforest, cov_name_var = cov_name)$config$cov_name_var,
+               "cov_name")
+  ## a variable that is not a column still passes its value
+  v <- "ODV"
+  expect_equal(capture.output(layer_summary(plot_dvtime(d, dv_var = v))),
+               capture.output(layer_summary(plot_dvtime(d, dv_var = "ODV"))))
+})
+
+test_that("model-output arguments read a bare output name before a same-named variable", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2), ID %in% unique(ID)[1:3])
+  mod <- model_mread_load("pkmodel")
+  DV <- "NOPE"
+  IPRED <- "NOPE"
+  expect_identical(df_mrgsim_replicate(d, mod, 1, dv_var = ODV, dv_output = DV, ipred_output = IPRED),
+                   df_mrgsim_replicate(d, mod, 1, dv_var = ODV))
+  expect_identical(df_mrgsim_addpred(d, mod, ipred_output = IPRED), df_mrgsim_addpred(d, mod))
+})
+
 #####df_prep_dvtime####
 
 test_that("df_prep_dvtime renames DV and returns list with data and lloq", {

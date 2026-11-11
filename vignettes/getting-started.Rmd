@@ -30,6 +30,9 @@ The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original DV).
 Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight the 
 non-standard evaluation (NSE) of dataset column name variables which may be 
 specified as strings or bare names to override defaults in `pmxhelpr` functions. 
+A bare name that matches a column of the data always means that column. To 
+pass a column name held in a variable, use a variable whose name is not a 
+column (`v <- "ODV"; dv_var = v`) or inject it with `!!` (`dv_var = !!v`). 
 
 ```{r setup, echo=TRUE, warning=FALSE, message=FALSE}
 options(scipen = 999, rmarkdown.html_vignette.check_title = FALSE)

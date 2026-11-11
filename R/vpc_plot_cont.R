@@ -142,18 +142,19 @@ plot_vpc_cont <- function(data,
     ))
   }
 
-  time_var_str   <- resolve_var(rlang::enquo(time_var))
-  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
-  pred_var_str   <- resolve_var(rlang::enquo(pred_var))
-  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var))
-  obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var))
-  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE)
+  data_cols <- names(data)
+  time_var_str   <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
+  pred_var_str   <- resolve_var(rlang::enquo(pred_var), cols = data_cols)
+  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var), cols = data_cols)
+  obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var), cols = data_cols)
+  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE, cols = data_cols)
   rep_var_q <- rlang::enquo(rep_var)
   if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "plot_vpc_cont",
                          "irep_name", "rep_var")) {
     rep_var_q <- rlang::enquo(irep_name)
   }
-  rep_var_str    <- resolve_var(rep_var_q)
+  rep_var_str    <- resolve_var(rep_var_q, cols = data_cols)
 
   out <- df_vpcstats(
     data = data,

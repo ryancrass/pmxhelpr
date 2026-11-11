@@ -96,13 +96,14 @@ plot_gof <- function(data,
   check_boolean(dosenorm, "dosenorm")
   check_boolean(show_caption, "show_caption")
 
-  dv_var_str    <- resolve_var(rlang::enquo(dv_var))
-  pred_var_str  <- resolve_var(rlang::enquo(pred_var))
-  ipred_var_str <- resolve_var(rlang::enquo(ipred_var))
-  time_var_str  <- resolve_var(rlang::enquo(time_var))
-  ntime_var_str <- resolve_var(rlang::enquo(ntime_var))
-  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE)
-  dose_var_str  <- resolve_var(rlang::enquo(dose_var))
+  data_cols <- names(data)
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
+  pred_var_str  <- resolve_var(rlang::enquo(pred_var), cols = data_cols)
+  ipred_var_str <- resolve_var(rlang::enquo(ipred_var), cols = data_cols)
+  time_var_str  <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
+  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE, cols = data_cols)
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var), cols = data_cols)
 
   #`style$colors` is the single source of color truth: the manual
   #scale_color_manual() below supplies only the legend name/breaks/order (with

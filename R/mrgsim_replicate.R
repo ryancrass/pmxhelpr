@@ -68,21 +68,26 @@ df_mrgsim_replicate <- function(data,
                     ipred_var,
                     sim_dv_var) {
 
-  dv_var_str     <- resolve_var(rlang::enquo(dv_var))
-  time_var_str   <- resolve_var(rlang::enquo(time_var))
-  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var))
+  ## Bare names are looked up in data columns and in the model's outputs
+  ## first, so the model must be checked before its outputs are read.
+  check_mrgmod(model, "model")
+  data_cols <- names(data)
+  model_outputs <- mrgsolve::outvars(model)$capture
+  dv_var_str     <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
+  time_var_str   <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
   ipred_output_q <- rlang::enquo(ipred_output)
   if (use_deprecated_arg(!missing(ipred_var), !missing(ipred_output), "df_mrgsim_replicate",
                          "ipred_var", "ipred_output")) {
     ipred_output_q <- rlang::enquo(ipred_var)
   }
-  ipred_output_str <- resolve_var(ipred_output_q)
+  ipred_output_str <- resolve_var(ipred_output_q, cols = model_outputs)
   dv_output_q <- rlang::enquo(dv_output)
   if (use_deprecated_arg(!missing(sim_dv_var), !missing(dv_output), "df_mrgsim_replicate",
                          "sim_dv_var", "dv_output")) {
     dv_output_q <- rlang::enquo(sim_dv_var)
   }
-  dv_output_str <- resolve_var(dv_output_q)
+  dv_output_str <- resolve_var(dv_output_q, cols = model_outputs)
   if (!missing(pred_var)) {
     lifecycle::deprecate_warn(
       "0.8.0", "df_mrgsim_replicate(pred_var)",
@@ -98,7 +103,6 @@ df_mrgsim_replicate <- function(data,
 
   #Checks
   check_df(data, "data")
-  check_mrgmod(model, "model")
   check_mrgmod_outputvars(model, dv_output_str, ipred_output_str)
   check_integer(replicates, "replicates")
   if(replicates < 1) {pmx_abort("{.arg replicates} must be >= 1.", "bad_arg")}

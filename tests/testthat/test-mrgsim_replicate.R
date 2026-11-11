@@ -188,3 +188,29 @@ test_that("`seed` controls the simulation and replicates are independent draws",
   expect_false(identical(a$SIMDV[a$SIM == 1], a$SIMDV[a$SIM == 2]))
   expect_equal(a$PRED[a$SIM == 1], a$PRED[a$SIM == 2])
 })
+
+#####output names already taken####
+
+test_that("output columns are built even when their names are already taken", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2), ID %in% unique(ID)[1:3])
+  mod <- model_mread_load("pkmodel")
+  rep <- function(data = d, ...) df_mrgsim_replicate(data, mod, replicates = 1, dv_var = ODV, ...)
+  ## the model also outputs IPRED: it is replaced, without a warning, by the chosen output
+  expect_no_warning(y <- rep(ipred_output = "Y"))
+  expect_false("Y" %in% names(y))
+  expect_equal(sum(names(y) == "IPRED"), 1)
+  expect_identical(y$IPRED, rep(dv_output = "Y")$SIMDV)    # pkmodel's Y, by another route
+  ## one output for both IPRED and SIMDV
+  expect_no_warning(i <- rep(dv_output = "IPRED"))
+  expect_identical(i$SIMDV, i$IPRED)
+  ## data columns named OBSDV or SIMDV are replaced with a warning
+  d_obs <- dplyr::mutate(d, OBSDV = -1)
+  expect_warning(o <- rep(d_obs), "`OBSDV` column; it is replaced by the `dv_var` column `ODV`",
+                 class = "pmxhelpr_warning_overwrite")
+  expect_identical(o$OBSDV, rep()$OBSDV)
+  expect_false("ODV" %in% names(o))
+  d_sim <- dplyr::mutate(d, SIMDV = -1)
+  expect_warning(s <- rep(d_sim, recover = "SIMDV"), class = "pmxhelpr_warning_overwrite")
+  expect_identical(s$SIMDV, rep()$SIMDV)
+  expect_no_warning(rep())
+})

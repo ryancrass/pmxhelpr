@@ -71,7 +71,8 @@ zeroed.}
 \value{
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}})
 and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus any input
-columns listed in \code{carry_out} / \code{recover}.
+columns listed in \code{carry_out} / \code{recover}. Existing columns with these
+names are replaced (with a warning for data columns).
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}

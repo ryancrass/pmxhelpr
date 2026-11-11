@@ -37,7 +37,8 @@
 #' @family mrgsolve wrappers
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
 #'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus any input
-#'    columns listed in `carry_out` / `recover`.
+#'    columns listed in `carry_out` / `recover`. Existing columns with these
+#'    names are replaced (with a warning for data columns).
 #'
 #' @importFrom rlang := %||% .data
 #' @export df_mrgsim_replicate
@@ -112,7 +113,8 @@ df_mrgsim_replicate <- function(data,
   check_integer(seed, "seed")
 
   ##Handle DV Variable
-  data <- dplyr::rename(data, dplyr::any_of(c(OBSDV = dv_var_str)))
+  data <- set_output_col(data, "OBSDV", dv_var_str, "`dv_var` column", character(0))
+  if (dv_var_str != "OBSDV") data[[dv_var_str]] <- NULL
 
   #Handle Time Variables
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
@@ -147,12 +149,32 @@ df_mrgsim_replicate <- function(data,
       dplyr::bind_rows()
   )
 
+  simout <- set_output_col(simout, "IPRED", ipred_output_str, "`ipred_output` output",
+                           model_outputs)
+  simout <- set_output_col(simout, "SIMDV", dv_output_str, "`dv_output` output",
+                           model_outputs)
+  sources <- setdiff(c(ipred_output_str, dv_output_str), c("PRED", "IPRED", "SIMDV", "OBSDV"))
+  simout <- simout[setdiff(names(simout), sources)]
   simout <- simout |>
-    dplyr::rename(dplyr::any_of(c(IPRED = ipred_output_str,
-                                  SIMDV = dv_output_str))) |>
     dplyr::select("ID", "TIME", "NTIME",
                   "PRED", "IPRED", "SIMDV", "OBSDV",
                   dplyr::everything())
 
   return(simout)
+}
+
+
+## Set the fixed output column `target` from column `source`. A different
+## column already named `target` is replaced; that warns unless it is a model
+## output (the caller chose another source), mirroring df_mrgsim_addpred()'s
+## PRED warning.
+set_output_col <- function(df, target, source, what, model_outputs,
+                           call = rlang::caller_env()) {
+  if (identical(target, source)) return(df)
+  if (target %in% names(df) && !target %in% model_outputs) {
+    pmx_warn("{.arg data} already contains a {.var {target}} column; it is replaced by the {what} {.var {source}}.",
+             "overwrite", call = call)
+  }
+  df[[target]] <- df[[source]]
+  df
 }

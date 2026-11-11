@@ -67,6 +67,13 @@
   a plot built from the same container. Arguments passed explicitly still
   win.
 
+## Bug fixes
+
+* `df_mrgsim_replicate()` no longer fails when an output name is already
+  taken: a non-default `ipred_output` when the model also outputs `IPRED`,
+  `dv_output = "IPRED"`, or data carrying `OBSDV` or `SIMDV` columns. Data
+  columns with those names are replaced with a warning.
+
 ## Deprecated
 
 * `irep_name` is renamed `rep_var` in `df_mrgsim_replicate()`,

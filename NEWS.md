@@ -2,7 +2,7 @@
 
 ## New features
 
-* VPC plots can be restyled after the fact: `reveal()`now reaches VPC layers, 
+* VPC plots can be restyled after the fact: `reveal()` now reaches VPC layers, 
   which are tagged by role like every other plot family.
 * `validate_pmx_stats()` is exported: it checks a `pmx_stats` container
   and reports what is wrong, dispatching on the class so `vpc_stats`, 
@@ -22,10 +22,8 @@
   class, because patchwork treats the figure as that last panel.
 * `plot_vpc_shown()` and `plot_gof_shown()` return `vpc_shown` / `gof_shown`
   objects (still named lists) with a print method. A `shown` value that is
-  not `TRUE` or `FALSE`, or the other family's object (e.g.
-  `plot_gof_shown()` passed to a VPC), now errors; such values were
-  previously treated as `FALSE` or garbled. Unknown `shown` keys still warn,
-  now once per call and listing the valid keys.
+  not `TRUE` or `FALSE`, or is the wrong plot family object (e.g.
+  `plot_gof_shown()` passed to a VPC), now errors. 
 * `summary()` on a `vpc_stats`, `doseprop_stats`, or `forest_stats`
   container now returns a `summary.*` object holding the values it prints
   (e.g. `summary(dp)$metrics$Power`, `summary(vs)$column_groups`) instead of
@@ -70,7 +68,7 @@
 ## Bug fixes
 
 * `df_mrgsim_replicate()` no longer fails when an output name is already
-  taken: a non-default `ipred_output` when the model also outputs `IPRED`,
+  a taken. A non-default `ipred_output` when the model also outputs `IPRED`,
   `dv_output = "IPRED"`, or data carrying `OBSDV` or `SIMDV` columns. Data
   columns with those names are replaced with a warning.
 
@@ -79,8 +77,7 @@
 * `irep_name` is renamed `rep_var` in `df_mrgsim_replicate()`,
   `df_vpcstats()`, `plot_vpc_cont()`, `plot_vpc_cens()`, and
   `df_forest_preprocess()`, matching the other `*_var` column arguments.
-  `irep_name` still works with a deprecation warning and will be removed in
-  0.9.0.
+  `irep_name` still works with a deprecation warning.
 * Model-output arguments are named `*_output`: `df_mrgsim_replicate()`'s
   `ipred_var` and `sim_dv_var` become `ipred_output` and `dv_output`, and
   `df_mrgsim_addpred()`'s `output_var` becomes `ipred_output`.

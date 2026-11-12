@@ -297,3 +297,21 @@ test_that("cens VPC points and the cens legend Obs key take the obs line colour"
   r <- restyle_plot(p, colors = c(obs_point = "purple"))
   expect_equal(unique(ggplot2::layer_data(r, which(geoms == "GeomPoint"))$colour), "purple")
 })
+
+test_that("restyling the cens obs line recolours the cens points with it", {
+  p <- suppressMessages(plot_vpc_cens(sim_pk(carry_out = "LLOQ")))
+  geoms <- vapply(p$layers, function(L) class(L$geom)[1], "")
+  pt_col <- function(x) unique(ggplot2::layer_data(x, which(geoms == "GeomPoint"))$colour)
+  r <- restyle_plot(p, colors = c(obs_median_line = "purple"))
+  expect_equal(pt_col(r), "purple")
+  expect_true(is_pmx_vpc_plot(r))
+  ## An obs_point colour in the same call still wins
+  r2 <- restyle_plot(p, colors = c(obs_median_line = "purple", obs_point = "orange"))
+  expect_equal(pt_col(r2), "orange")
+  ## The continuous VPC keeps its own obs_point colour
+  pc <- suppressMessages(plot_vpc_cont(sim_pk(carry_out = "LLOQ")))
+  pc_geoms <- vapply(pc$layers, function(L) class(L$geom)[1], "")
+  rc <- restyle_plot(pc, colors = c(obs_median_line = "purple"))
+  expect_equal(unique(ggplot2::layer_data(rc, which(pc_geoms == "GeomPoint"))$colour),
+               style_vpc()$colors[["obs_point"]])
+})

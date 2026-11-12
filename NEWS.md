@@ -1,3 +1,12 @@
+# pmxhelpr (development version)
+
+## Minor improvements
+
+* `restyle_plot()` on a censored VPC now recolours the observed points along
+  with the observed line (`colors = c(obs_median_line = )`), matching how
+  `plot_vpc_cens()` draws them. Setting `obs_point` in the same call still
+  gives the points their own colour.
+
 # pmxhelpr 0.8.0
 
 ## New features

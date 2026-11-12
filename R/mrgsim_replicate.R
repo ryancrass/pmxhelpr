@@ -143,6 +143,11 @@ df_mrgsim_replicate <- function(data,
 
   reps <- seq_len(replicates)
 
+  ## Validate the input data once rather than in every replicate's mrgsim
+  ## call. `recover` needs the raw data frame (its output differs on a
+  ## validated data set), so that case keeps per-replicate validation.
+  if (is.null(dots$recover)) data <- mrgsolve::valid_data_set(data, model)
+
   withr::with_seed(
     seed = seed,
     simout <- lapply(reps, rep_fn, data = data, model = model) |>

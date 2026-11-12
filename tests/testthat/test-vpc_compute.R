@@ -497,3 +497,95 @@ test_that("df_vpcstats warns when simout contains multiple CMT values after EVID
   expect_warning(df_vpcstats(testsim_multi),
                  regexp = "Multiple unique values of `CMT`")
 })
+
+
+#####grouped_quantile / compute_vpcstat#####
+
+test_that("grouped_quantile() matches stats::quantile() per group exactly", {
+  set.seed(1)
+  x <- c(rnorm(40), -Inf, -Inf, 3, NA, NA,   # mixed, with -Inf and NA
+         NA, NA,                             # all-NA group
+         7,                                  # single value
+         2, 5,                               # two values
+         -Inf, -Inf, -Inf,                   # all -Inf
+         1, 1, 1, 2, 2)                      # ties
+  gid <- c(rep(1L, 45), rep(2L, 2), 3L, rep(4L, 2), rep(6L, 3), rep(7L, 5))
+  n_groups <- 8L                             # groups 5 and 8 are empty
+  for (probs in list(c(0.05, 0.5, 0.95), c(0, 1), c(0.1, 0.9))) {
+    got <- grouped_quantile(x, gid, n_groups, probs)
+    ref <- t(vapply(seq_len(n_groups), function(g) {
+      v <- x[gid == g]
+      if (all(is.na(v))) return(rep(NA_real_, length(probs)))
+      stats::quantile(v, probs, na.rm = TRUE, names = FALSE)
+    }, numeric(length(probs))))
+    expect_identical(got, ref)
+  }
+  ## Shuffled input order gives the same result
+  o <- sample(length(x))
+  expect_identical(grouped_quantile(x[o], gid[o], n_groups, c(0.05, 0.5, 0.95)),
+                   grouped_quantile(x, gid, n_groups, c(0.05, 0.5, 0.95)))
+  expect_identical(dim(grouped_quantile(numeric(0), integer(0), 0L, c(0.5, 0.9))),
+                   c(0L, 2L))
+})
+
+## Reference: compute_vpcstat() as a per-group dplyr::summarise() (the
+## implementation before the vectorised rewrite), quantile names dropped.
+compute_vpcstat_reference <- function(data, group_vars, rep_var, pi, ci_bounds,
+                                      has_loq, pcvpc) {
+  q <- function(x, p) stats::quantile(x, probs = p, na.rm = TRUE, names = FALSE)
+  stage1 <- data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, rep_var)))) |>
+    dplyr::summarise(
+      obs_n = dplyr::n(), obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
+      sim_prop_blq = if (!isTRUE(has_loq)) NA_real_
+        else if (isTRUE(pcvpc)) mean(is.na(.data[["SIMDV"]]))
+        else mean(dplyr::coalesce((.data[["SIMDV"]] < .data[["LOQ"]]) |
+                                    is.na(.data[["SIMDV"]]), FALSE)),
+      sim_low = q(.data[["SIMDV"]], pi[1]), sim_med = q(.data[["SIMDV"]], 0.5),
+      sim_hi = q(.data[["SIMDV"]], pi[2]), .groups = "drop")
+  sim_quant <- stage1 |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
+    dplyr::summarise(
+      obs_n = dplyr::first(.data$obs_n), obs_n_blq = dplyr::first(.data$obs_n_blq),
+      sim_low_low = q(.data$sim_low, ci_bounds[1]), sim_low_med = q(.data$sim_low, 0.5),
+      sim_low_hi = q(.data$sim_low, ci_bounds[2]),
+      sim_med_low = q(.data$sim_med, ci_bounds[1]), sim_med_med = q(.data$sim_med, 0.5),
+      sim_med_hi = q(.data$sim_med, ci_bounds[2]),
+      sim_hi_low = q(.data$sim_hi, ci_bounds[1]), sim_hi_med = q(.data$sim_hi, 0.5),
+      sim_hi_hi = q(.data$sim_hi, ci_bounds[2]),
+      sim_prop_blq_low = q(.data$sim_prop_blq, ci_bounds[1]),
+      sim_prop_blq_med = q(.data$sim_prop_blq, 0.5),
+      sim_prop_blq_hi = q(.data$sim_prop_blq, ci_bounds[2]), .groups = "drop")
+  if (!isTRUE(has_loq)) {
+    sim_quant <- dplyr::select(sim_quant, -dplyr::starts_with("sim_prop_blq"))
+  }
+  obs_quant <- data |>
+    dplyr::filter(.data[[rep_var]] == 1) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
+    dplyr::summarise(
+      obs_prop_blq = sum(!is.finite(.data[["OBSDV"]])) / dplyr::n(),
+      obs_low = q(.data[["OBSDV"]], pi[1]), obs_med = q(.data[["OBSDV"]], 0.5),
+      obs_hi = q(.data[["OBSDV"]], pi[2]), .groups = "drop")
+  dplyr::left_join(sim_quant, obs_quant, by = group_vars) |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(.vpc_quantile_cols), var_infna))
+}
+
+test_that("compute_vpcstat() matches the per-group summarise() reference", {
+  sim <- sim_pk(carry_out = c("FOOD", "LLOQ"))
+  pre <- suppressMessages(df_vpcpreprocess(
+    sim, time_var_str = "TIME", ntime_var_str = "NTIME", pred_var_str = "PRED",
+    sim_dv_var_str = "SIMDV", obs_dv_var_str = "OBSDV", strat_var_str = "FOOD",
+    rep_var_str = "SIM"))
+  pre_pc <- pre
+  pre_pc$SIMDV <- var_infna(var_loqcens(pre_pc$SIMDV, loq = pre_pc$LOQ))
+  for (groups in list("BIN_MID", c("BIN_MID", "FOOD"))) {
+    for (case in list(list(d = pre, has_loq = TRUE, pcvpc = FALSE),
+                      list(d = pre, has_loq = FALSE, pcvpc = FALSE),
+                      list(d = pre_pc, has_loq = FALSE, pcvpc = TRUE))) {
+      args <- list(case$d, groups, "SIM", c(0.05, 0.95), c(0.05, 0.95),
+                   case$has_loq, case$pcvpc)
+      expect_identical(do.call(compute_vpcstat, args),
+                       do.call(compute_vpcstat_reference, args))
+    }
+  }
+})

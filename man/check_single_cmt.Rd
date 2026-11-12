@@ -18,7 +18,7 @@ warning text. Defaults to \code{"data"}.}
 \description{
 Defensive check intended to be called immediately after an internal
 \code{dplyr::filter(data, EVID == 0)} step. If the filtered data carries more
-than one unique value of \code{CMT}, the function emits a \code{rlang::warn()}
+than one unique value of \code{CMT}, the function emits a warning
 recommending the caller pre-filter to a single observation compartment.
 No-op when the \code{CMT} column is absent or the data is empty.
 }

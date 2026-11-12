@@ -4,19 +4,28 @@
 \alias{resolve_var}
 \title{Internal helper: Resolve function input conflicts to standard internal string constants}
 \usage{
-resolve_var(quo, nullable = FALSE)
+resolve_var(quo, nullable = FALSE, cols = NULL, call = rlang::caller_env())
 }
 \arguments{
 \item{quo}{Function argument as a quosure (wrapped in rlang::ensym)}
 
 \item{nullable}{Logical argument specifying if the argument may be \code{NULL}.
 Default is \code{FALSE}.}
+
+\item{cols}{Names the argument is looked up in (e.g. \code{names(data)}, or a
+model's outputs), so a bare name matching one of them is never replaced
+by a same-named variable. \code{NULL} (default) skips that check.}
+
+\item{call}{The call reported in the error.}
 }
 \value{
 A resolved string constant variable
 }
 \description{
-Internal helper: Resolve function input conflicts to standard internal string constants
+Resolves a column argument to a string, in this order: a string literal is
+used as is; a bare name found in \code{cols} is that column; otherwise the
+expression is evaluated and a string result is used (so a variable holding
+a column name works); failing that, a bare name is used as the column name.
 }
 \examples{
 f <- function(x = DV) pmxhelpr:::resolve_var(rlang::enquo(x))

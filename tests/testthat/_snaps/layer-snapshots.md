@@ -3,7 +3,7 @@
     Code
       layer_summary(p)
     Output
-      layer 1: GeomHline / StatIdentity  rows=684
+      layer 1: GeomHline / StatIdentity  rows=1
         colour=black alpha=1 linetype=dashed linewidth=0.5
         yintercept: [0, 0] mean=0
       layer 2: GeomPoint / StatIdentity  rows=684
@@ -88,15 +88,15 @@
       facet: FacetNull panels=1
       label x: IDV
       label y: DV
-      label caption: Points are observations  
-       LOESS fit with 95% CI and linear fit overlaid
+      label caption: Points are observations
+      LOESS fit with 95% CI and linear fit overlaid
 
 # plot_gof: DV/IPRED/PRED overlays, median + IQR, LLOQ method 1
 
     Code
       layer_summary(p)
     Output
-      layer 1: GeomHline / StatIdentity  rows=684
+      layer 1: GeomHline / StatIdentity  rows=1
         colour=black alpha=1 linetype=dashed linewidth=0.5
         yintercept: [1, 1] mean=1
       layer 2: GeomPoint / StatIdentity  rows=684
@@ -271,8 +271,8 @@
         y: [1, 2150] mean=223.3
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
-      label x: BIN_MID
-      label y: obs_med
+      label x: TIME
+      label y: DV
       label caption: Replicates = 10
 
 # plot_vpc_cont: prediction-corrected VPC stratified by FOOD
@@ -316,8 +316,8 @@
         y: [0.179, 1185] mean=185.4
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
-      label x: BIN_MID
-      label y: pc_obs_med
+      label x: TIME
+      label y: Prediction-corrected DV
       label caption: Replicates = 10
 
 # plot_vpc_cens: BLQ-proportion VPC
@@ -341,8 +341,8 @@
         y: [0, 1] mean=0.2602
       scales: x=identity y=identity
       facet: FacetNull panels=1
-      label x: BIN_MID
-      label y: obs_prop_blq
+      label x: TIME
+      label y: Proportion BLQ
       label caption: Replicates = 10
 
 # plot_vpc_legend: default legend panel

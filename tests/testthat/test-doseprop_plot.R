@@ -1,0 +1,488 @@
+#####df_loglog (internal)#####
+
+auc_fit <- function() {
+  stats::lm(log(PPORRES) ~ log(DOSE),
+            data = dplyr::filter(data_sad_nca, PPTESTCD == "aucinf.obs"))
+}
+
+##Test Output
+test_that("Output is a `data.frame` object", {
+  expect_s3_class(pmxhelpr:::df_loglog(auc_fit()),
+                  "data.frame")
+})
+
+
+##Test Argument Handling
+test_that("Error if argument `method` not one of normal or tdist", {
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), method = 1),
+               regexp = "`method` must be \"normal\" or \"tdist\"")
+})
+
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), ci = 1.1),
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
+})
+
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = "$"),
+               regexp = "`sigdigits` must be a single whole number >= 1")
+  expect_error(pmxhelpr:::df_loglog(auc_fit(), sigdigits = 0),
+               regexp = "`sigdigits` must be a single whole number >= 1")
+})
+
+
+##Test `sigdigits` is display-only: it must not steer the verdict
+supra_fit <- function() {
+  d <- data.frame(DOSE = c(5, 10, 20, 50, 100, 200))
+  d$VAL <- d$DOSE^1.3 * c(1.01, 0.99, 1.02, 0.98, 1.01, 0.995)
+  stats::lm(log(VAL) ~ log(DOSE), data = d)
+}
+
+test_that("Proportional/Interpretation come from the unrounded bounds", {
+  # Power ~ 1.30, CI ~ [1.29, 1.31]: clearly supra-proportional, but both
+  # bounds round to 1 at `sigdigits = 1`. Judging the verdict on the rounded
+  # columns would report "Dose-proportional".
+  coarse <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 1)
+  fine   <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = 6)
+
+  expect_equal(coarse$LCL, 1)                   # rounded column still rounds
+  expect_equal(coarse$UCL, 1)
+  expect_equal(coarse$Interpretation, "Greater than dose-proportional")
+  expect_false(coarse$Proportional)
+  expect_equal(coarse$Interpretation, fine$Interpretation)
+  expect_equal(coarse$Proportional, fine$Proportional)
+})
+
+
+##Test `PowerCI` pads to a fixed significant-digit count
+test_that("PowerCI carries `sigdigits` significant digits for every value", {
+  nsig <- function(x) {
+    x <- sub("^-", "", x)
+    x <- sub("^0\\.0*", "", sub("[.]", "", x))
+    nchar(x)
+  }
+  for (sd in c(2, 3, 4)) {
+    lbl <- pmxhelpr:::df_loglog(supra_fit(), sigdigits = sd)$PowerCI
+    vals <- regmatches(lbl, gregexpr("[0-9]*[.][0-9]+", lbl))[[1]]
+    expect_length(vals, 3)                       # Power, LCL, UCL
+    expect_equal(vapply(vals, nsig, integer(1), USE.NAMES = FALSE),
+                 rep(sd, 3))
+    expect_false(grepl("e[-+]", lbl))            # never scientific notation
+  }
+})
+
+test_that("PowerCI pads a trailing zero the old signif()+paste0() dropped", {
+  # Power is 1.2977: signif(, 3) is 1.30, which paste0() renders as "1.3".
+  expect_equal(pmxhelpr:::df_loglog(supra_fit(), sigdigits = 3)$PowerCI,
+               "Power: 1.30 (90% CI 1.29-1.31)")
+})
+
+
+test_that("PowerCI pads trailing zeros rather than dropping them", {
+  # signif() + paste0() renders 1.2 as "1.2"; fmt_sig() renders "1.200".
+  expect_equal(pmxhelpr:::fmt_sig(c(1, 0.9, 1.2), 4),
+               c("1.000", "0.9000", "1.200"))
+})
+
+
+#####df_doseprop#####
+##Test Output
+test_that("Output is a `doseprop_stats` / `pmx_stats` container", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(out, "doseprop_stats")
+  expect_s3_class(out, "pmx_stats")
+})
+
+test_that("Output stats slot contains variable specified in `metric_name_var`", {
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "PPTESTCD")$stats |>
+                 dplyr::select(PPTESTCD),
+                  "PPTESTCD")
+})
+
+test_that("Output stats slot contains anticipated variables", {
+  expect_named(df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "PPTESTCD")$stats,
+               c("Intercept", "StandardError", "CI", "Power", "LCL", "UCL",
+                 "Proportional","PowerCI", "Interpretation", "PPTESTCD"))
+})
+
+test_that("Output rounds values as specified in the `sigdigits` argument", {
+
+  signdig <- function(x){length(gregexpr("[[:digit:]]", as.character(x))[[1]])}
+  test <- df_doseprop(data_sad_nca, metrics = c("cmax"), metric_name_var = "PPTESTCD",
+                      sigdigits = 4)$stats$Intercept
+  result <- signdig(test)
+  expect_equal(result,4)
+})
+
+
+
+#####plot_doseprop#####
+
+##Test Output
+test_that("Output is a `ggplot` plot object", {
+  expect_s3_class(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax")),
+               class = "ggplot")
+})
+
+test_that("Output plot maps variable specified in `dose_var` to the x aesthetic", {
+  expect_equal(
+    rlang::quo_name(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSE")$mapping$x),
+    "DOSE"
+  )
+})
+
+test_that("Output plot maps variable specified in `metric_value_var` to the x aesthetic", {
+  expect_equal(
+    rlang::quo_name(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_value_var = "PPORRES")$mapping$y),
+    "PPORRES"
+  )
+})
+
+test_that("Output plot dose nor include a confidence interval when argument `se` = FALSE", {
+  expect_false(
+    plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), se = FALSE)$layers[[2]]$stat_params$se)
+})
+
+
+##Test Argument Handling
+test_that("Error if incorrect class for argument `data`", {
+  expect_error(plot_doseprop("data_sad_nca", metrics = c("aucinf.obs", "cmax")),
+               regexp = "`data` must be a <data.frame>")
+})
+
+test_that("Error if variables specified in argument `metrics` are not levels in `data[[metric_name_var]]`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("auc")),
+               regexp = "`metrics` must be levels of variable `metric_name_var`")
+})
+
+test_that("Error if variable specified in `metric_name_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_name_var = "METRIC"),
+               regexp = "`metric_name_var` must name variable.*in `data`")
+})
+
+test_that("Error if variable specified in `dose_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), dose_var = "DOSEN"),
+               regexp = "`dose_var` must name variable.*in `data`")
+})
+
+test_that("Error if variable specified in `metric_value_var` is not in `data`", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), metric_value_var = "EXP"),
+               regexp = "`metric_value_var` must name variable.*in `data`")
+})
+
+test_that("Error if argument `method` is not one of normal or tdist", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), method = 1),
+               regexp = "`method` must be \"normal\" or \"tdist\"")
+})
+
+test_that("Error if argument `ci` is not numeric between 0 and 1", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), ci = 1.1),
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
+})
+
+test_that("Error if argument `sigdigits` is not a single whole number >= 1", {
+  expect_error(plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"), sigdigits = "$"),
+               regexp = "`sigdigits` must be a single whole number >= 1")
+})
+
+##Test NSE Bare Names
+test_that("df_doseprop accepts bare names and matches string output", {
+  t1 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE)
+  t2 <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"),
+                     metric_name_var = "PPTESTCD", metric_value_var = "PPORRES", dose_var = "DOSE")
+  expect_identical(t1, t2)
+})
+
+test_that("plot_doseprop accepts bare names", {
+  expect_s3_class(
+    plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                  metrics = c("aucinf.obs", "cmax"),
+                  metric_name_var = PPTESTCD, metric_value_var = PPORRES, dose_var = DOSE),
+    "ggplot")
+})
+
+test_that("plot_doseprop accepts style argument and applies overrides", {
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
+  p <- plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                     metrics = c("aucinf.obs", "cmax"),
+                     style = custom_style)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_doseprop default theme produces a valid plot", {
+  expect_no_error(
+    plot_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                  metrics = c("aucinf.obs", "cmax")))
+})
+
+
+##### df_doseprop() class tag and slots #####
+
+test_that("df_doseprop returns a doseprop_stats / pmx_stats container", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(out, "doseprop_stats")
+  expect_s3_class(out, "pmx_stats")
+})
+
+test_that("df_doseprop populates obs slot and config keys", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_s3_class(out$obs, "data.frame")
+  expect_equal(out$config$metric_name_var, "PPTESTCD")
+  expect_equal(out$config$metric_value_var,    "PPORRES")
+  expect_equal(out$config$dose_var,   "DOSE")
+  expect_equal(out$config$ci,         0.90)
+  expect_equal(out$config$method,     "normal")
+})
+
+test_that("df_doseprop obs slot contains only the requested metrics", {
+  out <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_setequal(unique(out$obs$PPTESTCD), c("aucinf.obs", "cmax"))
+})
+
+
+##### plot_build_doseprop() #####
+
+test_that("plot_build_doseprop accepts a doseprop_stats object and returns a ggplot", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_build_doseprop(stats)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_build_doseprop rejects non-doseprop_stats input", {
+  expect_error(plot_build_doseprop(data.frame(x = 1)),
+               regexp = "must be a <doseprop_stats> object")
+})
+
+test_that("validate_doseprop_stats: config-named columns must exist in obs (PR#19 review)", {
+  ## Regression for PR#19 review (jacobdum): the validator's contract should
+  ## include that the column names recorded in $config actually exist in $obs.
+  ## Otherwise plot_build_doseprop() fails deep inside aes() with a confusing
+  ## error. Build a valid container, then drop the metric_name_var column
+  ## from $obs and confirm the validator aborts with a clear message.
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  broken <- stats
+  broken$obs <- broken$obs[, setdiff(colnames(broken$obs),
+                                     broken$config$metric_name_var),
+                           drop = FALSE]
+  expect_error(plot_build_doseprop(broken),
+               regexp = "`config\\$metric_name_var` must name variable in `stats\\$obs`")
+})
+
+test_that("plot_build_doseprop honors se = FALSE", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_build_doseprop(stats, se = FALSE)
+  expect_false(p$layers[[2]]$stat_params$se)
+})
+
+test_that("plot_build_doseprop honors style overrides", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  custom_style <- style_doseprop(
+    colors = c(obs_point = "red", linear = "navy"))
+  p <- plot_build_doseprop(stats, style = custom_style)
+  expect_s3_class(p, "ggplot")
+})
+
+
+##### plot_doseprop() dual-mode dispatch #####
+
+test_that("plot_doseprop accepts a precomputed doseprop_stats object", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_doseprop(stats)
+  expect_s3_class(p, "ggplot")
+})
+
+test_that("plot_doseprop honors se on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  p <- plot_doseprop(stats, se = FALSE)
+  expect_false(p$layers[[2]]$stat_params$se)
+})
+
+test_that("plot_doseprop raw and precomputed paths produce structurally equivalent plot data", {
+  d <- dplyr::filter(data_sad_nca, PART == "Part 1-SAD")
+  stats <- df_doseprop(d, metrics = c("aucinf.obs", "cmax"))
+  p_pre <- plot_doseprop(stats)
+  p_raw <- plot_doseprop(d, metrics = c("aucinf.obs", "cmax"))
+  built_pre <- ggplot2::ggplot_build(p_pre)
+  built_raw <- ggplot2::ggplot_build(p_raw)
+  expect_equal(length(built_pre$data), length(built_raw$data))
+  expect_equal(vapply(built_pre$data, nrow, integer(1)),
+               vapply(built_raw$data, nrow, integer(1)))
+})
+
+test_that("plot_doseprop aborts when pipeline args are passed on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  expect_error(
+    plot_doseprop(stats, metrics = c("aucinf.obs"), method = "tdist", ci = 0.95),
+    regexp = "cannot accept pipeline arguments"
+  )
+})
+
+test_that("plot_doseprop accepts plot-only args on the precomputed path", {
+  stats <- df_doseprop(dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+                       metrics = c("aucinf.obs", "cmax"))
+  custom_style <- style_doseprop(colors = c(obs_point = "red"))
+  expect_s3_class(plot_doseprop(stats, style = custom_style), "ggplot")
+  expect_s3_class(plot_doseprop(stats, se = FALSE), "ggplot")
+})
+
+
+##### S3 methods on doseprop_stats #####
+
+test_that("is_doseprop_stats() correctly detects the class", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_true(is_doseprop_stats(stats))
+  expect_false(is_doseprop_stats(mtcars))
+  expect_false(is_doseprop_stats(as.data.frame(stats)))
+})
+
+test_that("is_doseprop_stats(strict = TRUE) catches structurally invalid objects", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_true(is_doseprop_stats(stats, strict = TRUE))
+  bad <- structure(list(stats = data.frame(), obs = data.frame(),
+                        config = list()),
+                   class = c("doseprop_stats", "pmx_stats"))
+  expect_true(is_doseprop_stats(bad))               # cheap check still passes
+  expect_false(is_doseprop_stats(bad, strict = TRUE))
+})
+
+test_that("print.doseprop_stats() runs and writes the doseprop_stats banner", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  out <- capture.output(print(stats))
+  expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
+  expect_true(any(grepl("metric_name_var = PPTESTCD", out, fixed = TRUE)))
+  expect_true(any(grepl("aucinf.obs", out, fixed = TRUE)))
+})
+
+test_that("summary.doseprop_stats() runs and writes a per-metric line", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  out <- capture.output(summary(stats))
+  expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
+  expect_true(any(grepl("per-metric:", out, fixed = TRUE)))
+  expect_true(any(grepl("Dose-proportional", out, fixed = TRUE)))
+})
+
+test_that("doseprop_stats print/summary output is stable (snapshot)", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  expect_snapshot(print(stats))
+  expect_snapshot(summary(stats))
+})
+
+test_that("as.data.frame() returns the stats slot as a plain data.frame", {
+  stats <- df_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+  d <- as.data.frame(stats)
+  expect_s3_class(d, "data.frame")
+  expect_false(inherits(d, "doseprop_stats"))
+  expect_false(inherits(d, "pmx_stats"))
+  expect_equal(nrow(d), nrow(stats$stats))
+  expect_equal(colnames(d), colnames(stats$stats))
+})
+
+test_that("plot_build_doseprop facet limits are full log10 decades with 2% padding", {
+  stats <- df_doseprop(
+    dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+    metrics = c("aucinf.obs", "cmax")
+  )
+  dose_min <- min(stats$obs[[stats$config$dose_var]])
+  dose_max <- max(stats$obs[[stats$config$dose_var]])
+  p  <- plot_build_doseprop(stats)
+  pp <- ggplot2::ggplot_build(p)$layout$panel_params
+  for (panel in pp) {
+    # rounding to nearest integer recovers the underlying log10 decade limits
+    expect_equal(panel$x.range, round(panel$x.range), tolerance = 0.1)
+    expect_equal(panel$y.range, round(panel$y.range), tolerance = 0.1)
+    # rounded decade bounds bracket data extents (non-strict; padding handles flush case)
+    expect_lte(round(panel$x.range)[1], log10(dose_min))
+    expect_gte(round(panel$x.range)[2], log10(dose_max))
+  }
+})
+
+
+##Test ggstylekit fixed-aesthetic styling contract
+# style_plot() must fill the per-series fixed aesthetics on series_layer-tagged,
+# non-data-mapped role layers from the style_doseprop() preset maps. A ggstylekit
+# regression (fixed in 0.2.x) silently reverted these to ggplot2 geom defaults;
+# for the linear trend line that meant the line colour flipped to ggplot2's
+# geom_smooth default (#3366FF). Expected values mirror R/style_presets.R.
+test_that("plot_doseprop fills role-keyed fixed aesthetics from style_doseprop()", {
+  sd <- style_doseprop()
+  p  <- plot_doseprop(data_sad_nca, metrics = c("aucinf.obs", "cmax"))
+
+  obs <- styled_layer(p, "GeomPoint", "StatIdentity")
+  expect_equal(unique(obs$shape), unname(sd$shapes["obs_point"]))
+  expect_equal(unique(obs$size),  unname(sd$sizes["obs_point"]))
+  expect_equal(unique(obs$alpha), unname(sd$alphas["obs_point"]))
+
+  trend <- styled_layer(p, "GeomSmooth")            # linear (lm)
+  expect_equal(unique(trend$colour),    unname(sd$colors["linear"]))
+  expect_equal(unique(trend$linewidth), unname(sd$linewidths["linear"]))
+})
+
+test_that("plot_build_doseprop takes its facet layout from the style", {
+  stats <- df_doseprop(
+    dplyr::filter(data_sad_nca, PART == "Part 1-SAD"),
+    metrics = c("aucinf.obs", "cmax")
+  )
+  ## Default: free scales, layout left to facet_wrap()
+  p_default <- plot_build_doseprop(stats)
+  expect_true(p_default$facet$params$free$x)
+  expect_true(p_default$facet$params$free$y)
+  expect_null(p_default$facet$params$ncol)
+
+  p_style <- plot_build_doseprop(
+    stats, style = style_doseprop(facet_ncol = 1, facet_scales = "fixed"))
+  expect_false(p_style$facet$params$free$x)
+  expect_false(p_style$facet$params$free$y)
+  expect_equal(p_style$facet$params$ncol, 1)
+})
+
+test_that("plot_doseprop() rejects a non-logical se", {
+  stats <- df_doseprop(data_sad_nca, metrics = "aucinf.obs")
+  expect_error(plot_doseprop(stats, se = "no"),
+               "`se` must be `TRUE` or `FALSE`")
+  expect_error(plot_build_doseprop(stats, se = NA),
+               "`se` must be `TRUE` or `FALSE`")
+})
+
+
+test_that("df_doseprop() / plot_doseprop() require metrics on the raw path", {
+  expect_error(df_doseprop(data_sad_nca, metrics = NULL), "`metrics` is required")
+  expect_error(plot_doseprop(data_sad_nca), "`metrics` is required")
+})
+
+test_that("method selects the normal or t critical value for the CI", {
+  ci_halfwidth <- function(method) {
+    s <- df_doseprop(data_sad_nca, metrics = "cmax", method = method, sigdigits = 12)$stats
+    (s$UCL - s$LCL) / (2 * s$StandardError)
+  }
+  n <- sum(data_sad_nca$PPTESTCD == "cmax" & !is.na(data_sad_nca$PPORRES))
+  expect_equal(ci_halfwidth("normal"), stats::qnorm(0.95), tolerance = 1e-8)
+  expect_equal(ci_halfwidth("tdist"), stats::qt(0.95, n - 2), tolerance = 1e-8)
+})
+
+test_that("the tdist CI matches confint() of the log-log fit at small n", {
+  d <- data.frame(PPTESTCD = "cmax", DOSE = c(1, 3, 10, 30),
+                  PPORRES = c(1, 2.6, 7.1, 16))
+  s <- df_doseprop(d, metrics = "cmax", method = "tdist", sigdigits = 12)$stats
+  fit <- stats::lm(log(PPORRES) ~ log(DOSE), data = d)
+  expect_equal(c(s$LCL, s$UCL), unname(stats::confint(fit, level = 0.9)[2, ]),
+               tolerance = 1e-8)
+})
+
+test_that("a sub-proportional power is labeled less than dose-proportional", {
+  set.seed(7)
+  d <- data.frame(PPTESTCD = "cmax", DOSE = rep(c(10, 30, 100, 300), each = 6))
+  d$PPORRES <- d$DOSE^0.7 * exp(stats::rnorm(nrow(d), 0, 0.05))
+  s <- df_doseprop(d, metrics = "cmax")$stats
+  expect_lt(s$UCL, 1)
+  expect_false(s$Proportional)
+  expect_equal(s$Interpretation, "Less than dose-proportional")
+})

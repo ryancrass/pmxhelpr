@@ -109,10 +109,10 @@ mrgsolve::see(model)
 
 We can use this PK model to add population predictions (`"PRED"`) to our dataset with the function `df_mrgsim_addpred()`, which wraps `mrgsolve::mrgsim_df()` with `mrgsolve::zero_re()` to return an input dataset with population predictions appended. This function is called automatically within `df_mrgsim_replicate()` in the VPC Workflow; therefore, it does not need to be separately called for the VPC purpose.
 
-This function takes `data.frame` and  `mrgmod` objects as input and an optional argument to specify the model variable to capture as `"PRED"` with random effects zeroed. The default is `"IPRED"`.
+This function takes `data.frame` and  `mrgmod` objects as input and an optional argument, `ipred_output`, naming the model's individual prediction output; it is simulated with random effects zeroed and captured as `"PRED"`. The default is `"IPRED"`.
 
 ```{r df-mrgsim-addpred}
-data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, output_var = "IPRED")
+data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, ipred_output = "IPRED")
 
 colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk)]
 ```
@@ -147,9 +147,8 @@ The are optional arguments specifying key dataset variables to be input into the
   - `dv_var` = DV, dependent variable
   - `time_var` = TIME, actual time variable
   - `ntime_var` = NTIME, nominal time variable
-  - `pred_var` = PRED, population prediction variable (fixed effects only)
-  - `ipred_var` = IPRED, individual prediction variable (fixed + level 1 random effects)
-  - `sim_dv_var` = DV, dependent variable captured in the simulated output (fixed + level 1 and 2 random effects)
+  - `ipred_output` = IPRED, individual prediction output of the model (fixed + level 1 random effects); simulated with random effects zeroed, it also gives the population prediction `PRED` (fixed effects only)
+  - `dv_output` = DV, dependent variable output of the model (fixed + level 1 and 2 random effects)
   
 These arguments use non-standard evaluation and can be passed as a bare column name or as a string.
 
@@ -174,14 +173,14 @@ The simulation has appended some key variables with standardized names that will
   - `SIMDV` (simulated dependent variable)
   - `OBSDV` (observed dependent variable).
   
-These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change argument form `sim_dv_var`, as the variables are renamed to VPC workflow standards on output
+These variable standard names are output regardless of the input name. For example, we can see from the `glimpse()` output that the simulation also outputs `"Y"`, which represents a simulated version of DV. We will still receive the same standardized output variable names if we change the `dv_output` argument, as the variables are renamed to VPC workflow standards on output
 
 ```{r df_mrgsim_replicate-y}
 simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     sim_dv_var = Y,
+                     dv_output = Y,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 
@@ -190,7 +189,7 @@ glimpse(simout)
 
 ## Changing the Replicate Counter
 
-The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times. The variable name output for the count of replicates can be specified using the `irep_name` argument.
+The maximum value of our replicate count variable (default = `"SIM"`) indicates that the dataset has been replicated 100 times. The variable name output for the count of replicates can be specified using the `rep_var` argument.
 
 This argument uses non-standard evaluation and can be supplied as a bare name or string
 
@@ -199,7 +198,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     irep_name = IREP,
+                     rep_var = IREP,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 
@@ -366,7 +365,7 @@ The container returned by `df_vpcstats()` is class-tagged `c("vpc_stats", "pmx_s
 print(vpcstats_ntime_dose_food)
 ```
 
-`summary()` returns the same content as `print()` but suppresses the head preview, which is convenient for snapshotting the run configuration without the row content.
+`summary()` returns a summary object that prints the same content as `print()` without the head preview, which is convenient for snapshotting the run configuration without the row content.
 
 ```{r vpc-stats-summary}
 summary(vpcstats_ntime_dose_food)
@@ -539,29 +538,29 @@ out_multi <- df_vpcstats(sim100_multi_loq, strat_var = PART)
 out_multi$config$loq
 ```
 
-`plot_vpc_cont()` consumes the precomputed stats and draws one dashed reference line per unique LLOQ value.
+`plot_vpc_cont()` consumes the precomputed stats and draws one dashed LLOQ reference line per panel.
 
 ```{r plot-vpc-multi-loq, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_multi <- plot_vpc_cont(out_multi) + vpc_scales_labs
 vpc_multi
 ```
 
-Each facet renders only the LLOQ(s) applicable to that strat-level: Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The ref-line set is recomputed at plot time from the row-aligned `obs$LOQ` column grouped by `strat_var`, so the visualization stays in sync with whatever per-row inheritance produced. The legend (built from `out_multi$config$loq`) still summarizes the analysis-wide set of LLOQs, since the legend is a figure-level annotation rather than a facet-level one.
+Each facet renders the LLOQ applicable to that strat-level: Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The line is recomputed at plot time from the row-aligned `obs$LOQ` column grouped by `strat_var` (at the highest LLOQ in the panel), so the visualization stays in sync with whatever per-row inheritance produced.
 
-`plot_vpc_legend()` accepts the same vector and registers one entry per unique LLOQ value.
+`plot_vpc_legend()` takes the container through its `stats` argument and reads `ci`, `pi`, and `loq` from `out_multi$config`. The legend is a figure-level annotation, so its single LLOQ entry is labeled with the highest LLOQ in the analysis.
 
 ```{r vpc-multi-loq-legend, fig.height=4, fig.width=8, message=TRUE, warning=FALSE}
-vpc_multi_legend <- plot_vpc_legend(loq = out_multi$config$loq)
+vpc_multi_legend <- plot_vpc_legend(stats = out_multi)
 vpc_multi_legend
 ```
 
-Composing the plot and legend with `patchwork` yields a single figure where both LLOQ thresholds are simultaneously labeled.
+Composing the plot and legend with `patchwork` yields a single figure.
 
 ```{r plot-vpc-multi-loq-w-legend, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
 vpc_multi + vpc_multi_legend + plot_layout(heights = c(2.5, 1))
 ```
 
-Passing `out_multi$config$loq` directly to `plot_vpc_legend()` keeps the legend in sync with whatever LLOQs `df_vpcstats()` discovered, with no need to hardcode the value set at the call site.
+Passing the container to `plot_vpc_legend(stats = )` keeps the legend in sync with the `ci`, `pi`, and LLOQs `df_vpcstats()` used, with no need to repeat them at the call site. Any of the three passed explicitly overrides the container.
 
 ## Reusing precomputed stats
 
@@ -654,6 +653,8 @@ For downstream code or custom workflows that produce a `vpc_stats`-shaped object
 ```{r plot-build-vpc-direct, fig.height=4, fig.width=6, warning=FALSE}
 plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 ```
+
+`autoplot(out, pcvpc = FALSE)` is equivalent: `autoplot()` draws any `vpc_stats`, `doseprop_stats`, or `forest_stats` container with its builder.
 
 
 # Adjusting Plot Style with `style_vpc()`

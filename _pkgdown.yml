@@ -43,6 +43,7 @@ reference:
       - plot_build_vpc
       - plot_build_doseprop
       - plot_build_forest
+      - autoplot.pmx_stats
 
   - title: Styling
     desc: >
@@ -69,6 +70,7 @@ reference:
     contents:
       - plot_vpc_shown
       - plot_gof_shown
+      - print.pmx_shown
 
   - title: VPC Statistics
     desc: Compute observed and simulated quantile summaries for VPC plotting.
@@ -105,6 +107,7 @@ reference:
     contents:
       - pmx_stats
       - is_pmx_stats
+      - validate_pmx_stats
       - is_pmx_vpc_plot
       - is_vpc_stats
       - is_doseprop_stats

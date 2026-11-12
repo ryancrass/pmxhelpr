@@ -7,6 +7,7 @@
 \alias{reveal}
 \alias{combine_styled_plots}
 \alias{legend_spec}
+\alias{autoplot}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -14,6 +15,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
+  \item{ggplot2}{\code{\link[ggplot2:autoplot]{autoplot()}}}
+
   \item{ggstylekit}{\code{\link[ggstylekit:combine_styled_plots]{combine_styled_plots()}}, \code{\link[ggstylekit:legend_spec]{legend_spec()}}, \code{\link[ggstylekit:restyle_plot]{restyle_plot()}}, \code{\link[ggstylekit:reveal]{reveal()}}}
 }}
 

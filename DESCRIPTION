@@ -1,6 +1,6 @@
 Package: pmxhelpr
 Title: Helper Functions for Pharmacometrics
-Version: 0.7.1
+Version: 0.8.0
 Authors@R: 
     person(given="Ryan", family="Crass",
     email = "ryancrass@gmail.com", 
@@ -15,10 +15,12 @@ BugReports: https://github.com/ryancrass/pmxhelpr/issues
 Depends: 
     R (>= 4.1)
 Imports:
+    cli (>= 3.6.0),
     dplyr (>= 1.1.0),
     ggplot2 (>= 3.5.0),
     ggstylekit (>= 0.4.1),
     grDevices,
+    lifecycle (>= 1.0.0),
     mrgsolve,
     rlang,
     stats,

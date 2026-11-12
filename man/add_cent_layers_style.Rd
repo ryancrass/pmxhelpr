@@ -4,7 +4,13 @@
 \alias{add_cent_layers_style}
 \title{Internal helper: add central tendency layers (style pattern)}
 \usage{
-add_cent_layers_style(plot, cent, y_var)
+add_cent_layers_style(
+  plot,
+  cent,
+  y_var,
+  color_aes = NULL,
+  show_errorbars = TRUE
+)
 }
 \arguments{
 \item{plot}{ggplot object.}
@@ -12,6 +18,10 @@ add_cent_layers_style(plot, cent, y_var)
 \item{cent}{Central tendency measure (see \code{\link[=plot_dvtime]{plot_dvtime()}}).}
 
 \item{y_var}{Y variable name (e.g. \code{"DV"}).}
+
+\item{color_aes}{Literal color label, or \code{NULL} to inherit color.}
+
+\item{show_errorbars}{Logical; add the error bar layers for \code{cent}.}
 }
 \value{
 Modified ggplot object.
@@ -23,6 +33,7 @@ tagged as the \code{"cent_point"}/\code{"cent_line"}/\code{"cent_errorbar"} seri
 Error bars are ggstylekit's errorbar entity (\code{GeomErrorbar}/\code{GeomLinerange}),
 so the cap width comes from the style's \code{errorbar_width} field (see
 \code{\link[=style_errorbar_width]{style_errorbar_width()}}). Color is inherited from the plot's global \code{aes()}
-when mapped.
+when mapped, or mapped to a literal label via \code{color_aes} (as \code{\link[=plot_gof]{plot_gof()}}
+does for \code{"DV"}/\code{"IPRED"}/\code{"PRED"}, keying its manual overlay legend).
 }
 \keyword{internal}

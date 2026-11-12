@@ -19,12 +19,14 @@ replaces the default map.}
 A \code{ggstylekit_style_spec} object.
 }
 \description{
-Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for the VPC family. Line/point roles
+Default \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}} for the VPC family. Every VPC layer is
+tagged with its role, so \code{style_plot()} styles the line and point roles
 (\code{obs_point}, \code{obs_median_line}, \code{obs_pi_line}, \code{sim_pi_line},
-\code{sim_median_line}, \code{loq_line}) are styled by \code{style_plot()}. The three ribbon
-roles (\code{sim_pi_ci}, \code{sim_pi_area}, \code{sim_median_ci}) are \code{geom_ribbon} layers
-whose \code{fill}/\code{alpha} the VPC builder sets inline, read from these maps via
-\code{series_aes()} (inline aesthetics take precedence over the \verb{area_*} fields).
+\code{sim_median_line}) and the ribbon roles (\code{sim_pi_ci}, \code{sim_pi_area},
+\code{sim_median_ci}, filled from \code{fill}/\code{alphas}) from these maps, and
+\code{\link[=restyle_plot]{restyle_plot()}} / \code{\link[=reveal]{reveal()}} can change them afterwards. The \code{loq_line}
+role styles the LLOQ reference line. On a censored VPC the observed points
+take the \code{obs_median_line} colour, so they match the observed line.
 }
 \details{
 Stratification facets are built by the VPC plotting functions from

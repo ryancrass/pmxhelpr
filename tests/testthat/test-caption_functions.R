@@ -29,17 +29,17 @@ test_that("caption_dvtime describes central tendency only", {
 ##Test Argument Handling
 test_that("Error if incorrect class for arugmument `data`", {
   expect_error(plot_dvtime(data = "data_sad", dv_var = "ODV"),
-               regexp = "argument `data` must be a `data.frame`")
+               regexp = "`data` must be a <data.frame>")
 })
 
 test_that("Error if time_var does not exist in `data`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", time_var = "ATFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("Error if ntime_var does not exist in `data`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", ntime_var = "NTFD"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("No Error if time_var and ntime_var are specified as the same variable", {
@@ -48,12 +48,12 @@ test_that("No Error if time_var and ntime_var are specified as the same variable
 
 test_that("Error if `col_var` does not exist in `data`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", col_var = "FOOD_f"),
-               regexp = "argument `col_var` must be variable.*in `data`")
+               regexp = "`col_var` must name variable.*in `data`")
 })
 
 test_that("Error if `id_var` does not exist in `data`", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", id_var = "SUBJID"),
-               regexp = "argument `id_var` must be variable.*in `data`")
+               regexp = "`id_var` must name variable.*in `data`")
 })
 
 test_that("No error when `id_var` is NULL (default)", {
@@ -62,7 +62,7 @@ test_that("No error when `id_var` is NULL (default)", {
 
 test_that("Error if `dose_var` does not exist in `data` and `dosenorm'` == TRUE", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", dose_var = "DOSEN", dosenorm = TRUE),
-               regexp = "argument `dose_var` must be variable.*in `data`")
+               regexp = "`dose_var` must name variable.*in `data`")
 })
 
 test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FALSE", {
@@ -71,7 +71,7 @@ test_that("No error if `dose_var` does not exist in `data` and `dosenorm'` == FA
 
 test_that("Error if argument `loq_method` is not one of 0, 1, 2", {
   expect_error(plot_dvtime(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", loq_method = 3),
-               regexp = "argument `loq_method` must be")
+               regexp = "`loq_method` must be")
 })
 
 test_that("Error if argument `loq` is not coercible to numeric (loq_method 1 and 2)", {
@@ -79,7 +79,7 @@ test_that("Error if argument `loq` is not coercible to numeric (loq_method 1 and
   for (m in c(1, 2)) {
     expect_error(
       plot_dvtime(data = d, dv_var = "ODV", loq_method = m, loq = "$"),
-      regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`"
+      regexp = "`loq` must be numeric, or `data` must contain `LLOQ`"
     )
   }
 })
@@ -93,7 +93,7 @@ test_that("Error if `LLOQ` is missing and `loq` = NULL (loq_method 1 and 2)", {
   for (m in c(1, 2)) {
     expect_error(
       plot_dvtime(data = d, dv_var = "ODV", loq_method = m),
-      regexp = "argument `loq` must be numeric or variable `LLOQ` must be present in `data`"
+      regexp = "`loq` must be numeric, or `data` must contain `LLOQ`"
     )
   }
 })
@@ -157,7 +157,7 @@ test_that("An SE flag for an undrawn fit does not drop the fit description", {
   }
   expect_identical(
     caption_dvconc(ref = NULL, loess = FALSE, linear = TRUE, se_loess = TRUE, se_linear = TRUE),
-    "Points are observations  \n Linear fit overlaid with 95% CIs"
+    "Points are observations\nLinear fit overlaid with 95% CIs"
   )
 })
 
@@ -189,22 +189,22 @@ test_that("col_var = NULL works without error and has no color aesthetic", {
 ##Test Argument Handling
 test_that("Error if incorrect class for argument `data`", {
   expect_error(plot_dvconc(data = "data_sad", dv_var = "ODV", idv_var = "CONC"),
-               regexp = "must be a `data.frame`")
+               regexp = "must be a <data.frame>")
 })
 
 test_that("Error if dv_var does not exist in data", {
   expect_error(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "NONEXIST", idv_var = "CONC"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("Error if idv_var does not exist in data", {
   expect_error(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", idv_var = "NONEXIST"),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 
 test_that("Error if col_var does not exist in data", {
   expect_error(suppressWarnings(plot_dvconc(data = dplyr::filter(data_sad, CMT != 3), dv_var = "ODV", idv_var = "CONC",
                            col_var = "NONEXIST")),
-               regexp = "must be variable.*in `data`")
+               regexp = "must name variable.*in `data`")
 })
 

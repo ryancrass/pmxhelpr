@@ -144,13 +144,15 @@ series_aes <- function(spec, series) {
 #'
 #' @param defaults Named list of default `style_spec` arguments.
 #' @param overrides Named list of user overrides (typically `list(...)`).
+#' @param call The call reported in the error.
 #'
 #' @return A `ggstylekit_style_spec` object.
 #' @keywords internal
-build_style <- function(defaults, overrides = list()) {
+build_style <- function(defaults, overrides = list(), call = rlang::caller_env()) {
   if (length(overrides) &&
       (is.null(names(overrides)) || any(!nzchar(names(overrides))))) {
-    rlang::abort("style overrides must be named `style_spec()` fields.")
+    pmx_abort("Style overrides must be named {.fn ggstylekit::style_spec} fields.",
+              "bad_style", call = call)
   }
   map_fields <- c("colors", "fill", "linetypes", "alphas", "shapes",
                   "sizes", "linewidths")
@@ -168,4 +170,32 @@ build_style <- function(defaults, overrides = list()) {
     }
   }
   do.call(ggstylekit::style_spec, merged)
+}
+
+
+#' Internal helper: resolve and validate the `style` argument
+#'
+#' Every plot builder accepts `style = NULL` (use the family preset) or a
+#' [ggstylekit::style_spec()] object. This helper applies the default and
+#' aborts early, with a pmxhelpr-branded message, when `style` is anything
+#' else; without it, a bad `style` fails deep inside `ggstylekit` or, for
+#' [plot_vpc_legend()], with an uninformative R error.
+#'
+#' @param style `NULL` or a `ggstylekit_style_spec` object.
+#' @param default A function returning the family preset (e.g. [style_dvtime]),
+#'    called only when `style` is `NULL`.
+#' @param call The call reported in the error.
+#'
+#' @return A `ggstylekit_style_spec` object.
+#' @keywords internal
+resolve_style <- function(style, default, call = rlang::caller_env()) {
+  if (is.null(style)) return(default())
+  if (!inherits(style, "ggstylekit_style_spec")) {
+    cls <- paste(class(style), collapse = "/")
+    pmx_abort(c(
+      "{.arg style} must be a {.fn ggstylekit::style_spec} object, typically from a {.code style_*()} preset.",
+      "x" = "Got {.cls {cls}}."
+    ), "bad_style", call = call)
+  }
+  style
 }

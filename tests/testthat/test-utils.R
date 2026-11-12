@@ -8,7 +8,7 @@ test_that("check_df does not error on valid data.frame", {
 
 test_that("check_df errors on non-data.frame", {
   expect_error(pmxhelpr:::check_df("not_a_df", "data"),
-               regexp = "must be a `data.frame`")
+               regexp = "must be a <data.frame>")
 })
 
 #####check_numeric_strict####
@@ -19,7 +19,7 @@ test_that("check_numeric_strict does not error on numeric input", {
 
 test_that("check_numeric_strict errors on character input", {
   expect_error(pmxhelpr:::check_numeric_strict("1", "x"),
-               regexp = "must be class `numeric`")
+               regexp = "must be <numeric>")
 })
 
 #####check_integer####
@@ -30,7 +30,7 @@ test_that("check_integer does not error on integer-coercible input", {
 
 test_that("check_integer errors on non-integer string", {
   expect_error(pmxhelpr:::check_integer("$", "n"),
-               regexp = "must be coercible to class `integer`")
+               regexp = "must be coercible to <integer>")
 })
 
 #####check_varsindf####
@@ -41,18 +41,18 @@ test_that("check_varsindf does not error when variable exists in data", {
 
 test_that("check_varsindf errors when variable does not exist", {
   expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "y", "data", "var"),
-               regexp = "must be variable")
+               regexp = "must name variable")
 })
 
 test_that("check_varsindf names the missing column(s) in the error", {
   expect_error(pmxhelpr:::check_varsindf(data.frame(x = 1), "TFD", "data", "time_var"),
-               regexp = "not found: 'TFD'")
+               regexp = "Not found: \"TFD\"")
 })
 
 test_that("check_varsindf lists all missing columns when multiple are absent", {
   expect_error(
     pmxhelpr:::check_varsindf(data.frame(x = 1), c("WT", "AGE", "SEX"), "data", "num_vars"),
-    regexp = "'WT'.*'AGE'.*'SEX'"
+    regexp = "\"WT\".*\"AGE\".*\"SEX\""
   )
 })
 
@@ -64,12 +64,12 @@ test_that("check_loq_method does not error when loq_method = 0", {
 
 test_that("check_loq_method errors when loq_method = NULL", {
   expect_error(pmxhelpr:::check_loq_method(NULL, NULL, data.frame()),
-               regexp = "argument `loq_method` must be")
+               regexp = "`loq_method` must be")
 })
 
 test_that("check_loq_method errors when loq_method = 1, loq = NULL, and no LLOQ column", {
   expect_error(pmxhelpr:::check_loq_method(NULL, 1, data.frame(x = 1)),
-               regexp = "argument `loq` must be numeric or variable `LLOQ` must be present")
+               regexp = "`loq` must be numeric, or `data` must contain `LLOQ`")
 })
 
 test_that("check_loq_method resolves string aliases to numeric", {
@@ -80,7 +80,7 @@ test_that("check_loq_method resolves string aliases to numeric", {
 
 test_that("check_loq_method errors on invalid string", {
   expect_error(pmxhelpr:::check_loq_method(NULL, "invalid", data.frame()),
-               regexp = "argument `loq_method` must be")
+               regexp = "`loq_method` must be")
 })
 
 #####check_levelsinvar####
@@ -93,7 +93,7 @@ test_that("check_levelsinvar does not error when levels exist", {
 test_that("check_levelsinvar errors when levels don't exist", {
   df <- data.frame(x = c("a", "b", "c"))
   expect_error(pmxhelpr:::check_levelsinvar(df, "x", c("z"), "x", "levels"),
-               regexp = "must be levels in variable")
+               regexp = "must be levels of variable")
 })
 
 #####resolve_var####
@@ -119,6 +119,49 @@ test_that("resolve_var with nullable returns NULL when value is NULL", {
 test_that("resolve_var resolves variable containing string", {
   val <- "DOSE"
   expect_equal(pmxhelpr:::resolve_var(rlang::quo(val)), "DOSE")
+})
+
+test_that("resolve_var: a bare name found in cols is that column, not a same-named variable", {
+  FOOD <- "WTBL"
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(FOOD), cols = c("FOOD", "WTBL")), "FOOD")
+  ## not a column: the variable's value is used (indirection still works)
+  v <- "ODV"
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(v), cols = c("ODV", "FOOD")), "ODV")
+  ## not a column and unbound: the name itself
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(NOT_BOUND_ANYWHERE), cols = "FOOD"),
+               "NOT_BOUND_ANYWHERE")
+  ## strings and !! never reach the column check
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo("WTBL"), cols = "FOOD"), "WTBL")
+  expect_equal(pmxhelpr:::resolve_var(rlang::quo(!!FOOD), cols = c("FOOD", "WTBL")), "WTBL")
+  val <- NULL
+  expect_null(pmxhelpr:::resolve_var(rlang::quo(val), nullable = TRUE, cols = "FOOD"))
+})
+
+test_that("exported functions read a bare column name before a same-named variable", {
+  sim <- sim_pk(5, carry_out = c("FOOD", "WTBL"))
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  FOOD <- "WTBL"
+  expect_equal(df_vpcstats(sim, strat_var = FOOD)$config$strat_var, "FOOD")
+  ODV <- "DV"                      # there is no DV column in data_sad
+  p <- plot_dvtime(d, dv_var = ODV, col_var = FOOD)
+  expect_equal(rlang::as_label(p$mapping$colour), "FOOD")
+  cov_name <- "metric"
+  expect_equal(df_forest(data_sad_pkforest, cov_name_var = cov_name)$config$cov_name_var,
+               "cov_name")
+  ## a variable that is not a column still passes its value
+  v <- "ODV"
+  expect_equal(capture.output(layer_summary(plot_dvtime(d, dv_var = v))),
+               capture.output(layer_summary(plot_dvtime(d, dv_var = "ODV"))))
+})
+
+test_that("model-output arguments read a bare output name before a same-named variable", {
+  d <- dplyr::filter(data_sad, CMT %in% c(1, 2), ID %in% unique(ID)[1:3])
+  mod <- model_mread_load("pkmodel")
+  DV <- "NOPE"
+  IPRED <- "NOPE"
+  expect_identical(df_mrgsim_replicate(d, mod, 1, dv_var = ODV, dv_output = DV, ipred_output = IPRED),
+                   df_mrgsim_replicate(d, mod, 1, dv_var = ODV))
+  expect_identical(df_mrgsim_addpred(d, mod, ipred_output = IPRED), df_mrgsim_addpred(d, mod))
 })
 
 #####df_prep_dvtime####
@@ -179,7 +222,7 @@ test_that("df_prep_dvtime errors on missing dv_var", {
   df <- data.frame(TIME = 1, NTIME = 1, MDV = 0)
   expect_error(
     pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME"),
-    regexp = "must be variable"
+    regexp = "must name variable"
   )
 })
 
@@ -187,7 +230,7 @@ test_that("df_prep_dvtime errors on missing dose_var when dosenorm = TRUE", {
   df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0, EVID = 0)
   expect_error(
     pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME", dosenorm = TRUE, dose_var_str = "DOSE"),
-    regexp = "argument `dose_var` must be variable"
+    regexp = "`dose_var` must name variable"
   )
 })
 
@@ -204,7 +247,7 @@ test_that("df_prep_dvtime errors on missing EVID column", {
   df <- data.frame(TIME = 1, NTIME = 1, DV = 1, MDV = 0)
   expect_error(
     pmxhelpr:::df_prep_dvtime(df, "TIME", "NTIME"),
-    regexp = "argument `EVID` must be variable"
+    regexp = "`EVID` must name variable"
   )
 })
 
@@ -241,7 +284,7 @@ test_that("check_quantile_pair errors on reversed pair", {
 
 test_that("check_quantile_pair errors on NA", {
   expect_error(pmxhelpr:::check_quantile_pair(c(0.05, NA), "pi"),
-               regexp = "no NAs")
+               regexp = "no missing values")
 })
 
 #####check_quantile_scalar####
@@ -308,7 +351,7 @@ test_that("df_prep_blq messages when inheriting loq from LLOQ column", {
 
 test_that("check_modlib errors with the model name when the path is missing", {
   expect_error(pmxhelpr:::check_modlib("nope", tempfile()),
-               regexp = "`nope`.*does not exist")
+               regexp = "\"nope\".*does not exist")
 })
 
 test_that("check_mrgmod accepts an mrgmod object", {
@@ -318,14 +361,14 @@ test_that("check_mrgmod accepts an mrgmod object", {
 
 test_that("check_mrgmod errors on non-mrgmod input", {
   expect_error(pmxhelpr:::check_mrgmod(list(), "model"),
-               regexp = "must be class `mrgmod`")
+               regexp = "must be class <mrgmod>")
 })
 
 test_that("check_mrgmod_outputvars errors when neither sim_dv_var nor ipred_var is captured", {
   m <- model_mread_load("pkmodel")
   expect_error(
     pmxhelpr:::check_mrgmod_outputvars(m, "DOES_NOT_EXIST", "ALSO_NOT"),
-    regexp = "must contain output variables"
+    regexp = "must capture the output variables"
   )
 })
 
@@ -339,12 +382,12 @@ test_that("check_capture errors with the variable name when missing from capture
 
 test_that("check_loglog_args errors on bad method", {
   expect_error(pmxhelpr:::check_loglog_args("other", 0.95, 3),
-               regexp = "must be `normal` or `tdist`")
+               regexp = "must be \"normal\" or \"tdist\"")
 })
 
 test_that("check_loglog_args errors on ci outside (0,1)", {
   expect_error(pmxhelpr:::check_loglog_args("normal", 1.5, 3),
-               regexp = "argument `ci` must be a single numeric value in \\(0, 1\\)")
+               regexp = "`ci` must be a single numeric value in \\(0, 1\\)")
 })
 
 test_that("check_loglog_args accepts valid arguments silently", {
@@ -369,7 +412,7 @@ test_that("check_pipeline_args_dropped aborts with the disallowed arg names", {
   )
   expect_error(
     plot_forest(df_forest(data_sad_pkforest), metric = "AUCRATIO", ci = 0.95),
-    regexp = "call `df_forest\\(\\)` with these arguments"
+    regexp = "call `df_forest\\(\\)` with this argument"
   )
 })
 

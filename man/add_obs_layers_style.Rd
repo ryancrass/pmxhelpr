@@ -4,27 +4,37 @@
 \alias{add_obs_layers_style}
 \title{Internal helper: add observed points and spaghetti lines (style pattern)}
 \usage{
-add_obs_layers_style(plot, id_var_str, col_var_str = NULL, show_point = TRUE)
+add_obs_layers_style(
+  plot,
+  id_var_str,
+  col_var_str = NULL,
+  show_point = TRUE,
+  color_aes = NULL
+)
 }
 \arguments{
 \item{plot}{ggplot object.}
 
 \item{id_var_str}{Column name for spaghetti grouping, or \code{NULL} for no lines.}
 
-\item{col_var_str}{Column name to map to color at the layer level, or \code{NULL}
-to inherit color from the plot's global mapping.}
+\item{col_var_str}{Column name to map to color at the layer level, or \code{NULL}.}
 
 \item{show_point}{Logical; whether to add the observed point layer. When
 \code{FALSE} the layer is omitted entirely, so it does not train the axes.}
+
+\item{color_aes}{Literal color label, or \code{NULL}. Use instead of
+\code{col_var_str}, not with it.}
 }
 \value{
 Modified ggplot object.
 }
 \description{
-Color may be inherited from the plot's global \code{aes()} (as \code{\link[=plot_dvtime]{plot_dvtime()}}
-does, leaving \code{col_var_str = NULL}) or mapped at the layer level via
-\code{col_var_str} (as \code{\link[=plot_dvconc]{plot_dvconc()}} does, so only the points are colored while
-trend lines stay unstratified). The \code{obs_point}/\code{obs_line} series aesthetics
-are filled by \code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}.
+Color is inherited from the plot's global \code{aes()} (as \code{\link[=plot_dvtime]{plot_dvtime()}} does),
+mapped at the layer level to a column via \code{col_var_str} (as \code{\link[=plot_dvconc]{plot_dvconc()}}
+does, so only the points are colored while trend lines stay unstratified),
+or mapped to a literal label via \code{color_aes} (as \code{\link[=plot_gof]{plot_gof()}} does, keying
+its manual overlay legend, e.g. \code{"OBS"}). The \code{obs_point}/\code{obs_line} series
+aesthetics are filled by \code{\link[ggstylekit:style_plot]{ggstylekit::style_plot()}}, which leaves a mapped
+color channel to the plot's scale.
 }
 \keyword{internal}

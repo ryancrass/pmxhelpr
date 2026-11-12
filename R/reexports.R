@@ -5,7 +5,9 @@
 # presets accepts nothing else -- it has no pmxhelpr substitute. Helpers that do
 # have one (`style_spec()`, `set_style()`, `series_layer()`, ...) are
 # intentionally not re-exported: the `style_*()` presets are the intended entry
-# point for building styles.
+# point for building styles. ggplot2's `autoplot()` is re-exported too, so the
+# `autoplot()` methods for the stats containers work under `library(pmxhelpr)`
+# alone.
 
 #' @importFrom ggstylekit restyle_plot
 #' @export
@@ -22,3 +24,7 @@ ggstylekit::combine_styled_plots
 #' @importFrom ggstylekit legend_spec
 #' @export
 ggstylekit::legend_spec
+
+#' @importFrom ggplot2 autoplot
+#' @export
+ggplot2::autoplot

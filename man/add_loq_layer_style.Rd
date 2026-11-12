@@ -18,7 +18,7 @@ add_loq_layer_style(
 \arguments{
 \item{plot}{ggplot object.}
 
-\item{caption}{Current caption string.}
+\item{caption}{Current caption lines (character vector).}
 
 \item{loq_method}{Numeric BLQ method (0/1/2).}
 
@@ -33,8 +33,8 @@ add_loq_layer_style(
 \item{show_value}{Logical; whether the legend key shows the LLOQ value.}
 }
 \value{
-A named list with \code{plot} (modified ggplot) and \code{caption} (modified
-string).
+A named list with \code{plot} (modified ggplot) and \code{caption} (the
+caption lines with the BLQ line appended).
 }
 \description{
 Draws the LLOQ line (suppressed under \code{dosenorm}) and appends the BLQ

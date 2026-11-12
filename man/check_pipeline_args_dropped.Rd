@@ -5,10 +5,16 @@
 \title{Internal helper: abort if pipeline arguments are passed on the
 precomputed-stats path.}
 \usage{
-check_pipeline_args_dropped(call, plot_only_args, fn_name, stats_fn)
+check_pipeline_args_dropped(
+  mc,
+  plot_only_args,
+  fn_name,
+  stats_fn,
+  call = rlang::caller_env()
+)
 }
 \arguments{
-\item{call}{A \code{call} object, typically \code{match.call()} evaluated in the
+\item{mc}{A \code{call} object, typically \code{match.call()} evaluated in the
 wrapper's frame.}
 
 \item{plot_only_args}{Character vector of argument names that ARE honored
@@ -20,6 +26,8 @@ message.}
 
 \item{stats_fn}{Character scalar, the stats function the caller should
 run instead (e.g. \code{"df_forest"}), used in the error message.}
+
+\item{call}{The call reported in the error.}
 }
 \value{
 \code{invisible(NULL)} on success.

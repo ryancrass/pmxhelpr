@@ -37,11 +37,12 @@ plot_vpc_shown(
 entry in \code{\link[=plot_vpc_legend]{plot_vpc_legend()}}. Default is \code{TRUE}.}
 }
 \value{
-A named list of logicals
+A \code{vpc_shown} object: a named list of \code{TRUE}/\code{FALSE}.
 }
 \description{
-Constructor and factory for controlling which VPC layers are displayed.
-Call with no arguments to view defaults. Pass overrides to customize.
+Constructor for the \code{shown} argument of the VPC plot functions and
+\code{\link[=plot_vpc_legend]{plot_vpc_legend()}}, controlling which VPC layers are built. Call with no
+arguments to view the defaults; pass \code{TRUE}/\code{FALSE} overrides to customize.
 Each element maps 1:1 with a \code{\link[=style_vpc]{style_vpc()}} role/series key.
 }
 \examples{

@@ -1,0 +1,188 @@
+#' Plot a dependent variable versus time
+#'
+#' @param data Input dataset.
+#' @param dv_var Column containing the dependent variable. Accepts bare names or strings. Default is `DV`.
+#' @param col_var Column to map to the color aesthetic. Accepts bare names or strings. Default is `NULL`.
+#' @param id_var Column to group observations for spaghetti lines.
+#'    Accepts bare names or strings. Default is `NULL` (no spaghetti lines).
+#'    Specifying a column (e.g., `id_var = ID`) enables spaghetti lines connecting
+#'    observations within each level of the variable.
+#' @param dose_var Column to use in dosenormalization when `dosenorm` = TRUE.
+#'   Accepts bare names or strings. Default is `DOSE`.
+#' @param loq Numeric value of the lower limit of quantification (LLOQ) for the assay.
+#'  Must be coercible to a numeric if specified. Can be `NULL` if variable `LLOQ` is present in `data`,
+#'  in which case each row is imputed at its own `LLOQ` and the LLOQ line is drawn at the highest value.
+#'  Specifying this argument implies that `DV` is missing in `data` where < LLOQ.
+#'  Has no effect with `loq_method = 0` (the default), which emits a message.
+#' @param loq_method Method for handling data below the lower limit of quantification (BLQ) in the plot.
+#'
+#'  Options are:
+#'
+#'     + No handling: `0` or `"none"`, Plot input dataset `DV` vs `TIME` as is. (default)
+#'     + Impute Post-dose: `1` or `"postdose"`, Impute all BLQ data at `TIME` <= 0 to 0 and all BLQ data at `TIME` > 0 to 1/2 x `loq`.
+#'        Useful for plotting concentration-time data with some data BLQ on the linear scale
+#'     + Impute All: `2` or `"all"`,Impute all BLQ data to 1/2 x `loq`.
+#'        Useful for plotting concentration-time data with some data BLQ on the log scale where 0 cannot be displayed
+#'
+#' @param cent Character string specifying the central tendency measure to plot.
+#'
+#'  Options are:
+#'
+#'    + Mean only: `"mean"` (default)
+#'    + Mean +/- Standard Deviation (upper and lower error bar): `"mean_sdl"`
+#'    + Mean + Standard Deviation (upper error bar only): `"mean_sdl_upper"`
+#'    + Median only: `"median"`
+#'    + Median +/- Interquartile Range: `median_iqr`
+#'    + None: `"none"`
+#'
+#' @param show_obs Logical indicating if observed data points should be shown.
+#'    Default is `TRUE`. `FALSE` omits the point layer entirely, so hidden
+#'    points do not affect axis limits (unlike setting
+#'    `alphas = c(obs_point = 0)` in the style). Spaghetti lines are controlled
+#'    separately by `id_var`.
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ line's legend
+#'    entry is titled `"LLOQ"` and keyed by its value. If `FALSE`, the title is
+#'    dropped and the entry is labeled `"LLOQ"` without the value. Applies only
+#'    when the LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
+#' @param dosenorm logical indicating if observed data points should be dose normalized. Default is `FALSE`,
+#'    Requires variable specified in `dose_var` to be present in `data`
+#' @param ref Numeric y-intercept for a horizontal reference line, or `NULL` for
+#'    no reference line. For example, `ref = 0` draws a baseline reference for
+#'    change-from-baseline data.
+#' @param log_y Logical indicator for log10 transformation of the y-axis, or
+#'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
+#'    value passed here overrides the style's `logy`. Also controls whether
+#'    the caption reports arithmetic or geometric mean when `show_caption = TRUE`.
+#' @param show_caption Logical indicating if a caption should be shown describing the data plotted.
+#'    A `caption` set in the style is drawn instead, whatever this value.
+#' @param time_var Column containing the actual time variable.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable.
+#'    Accepts bare names or strings. Default is `NTIME`.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_dvtime()]; view the defaults by running `style_dvtime()`
+#'    with no arguments. Customize by passing `style = style_dvtime(...)`.
+#'    The error bar cap width
+#'    is the style's `errorbar_width` field; when unset it defaults to 2.5% of
+#'    the maximum nominal time (`ntime_var`).
+#'
+#' @family exploratory analysis
+#' @return A `ggplot2` plot object
+#'
+#' @export plot_dvtime
+#'
+#' @examples
+#'data_sad_pk <- dplyr::filter(data_sad, CMT %in% c(1,2))
+#'data <- dplyr::mutate(data_sad_pk, Dose = var_addn(DOSE, ID, sep = "mg"))
+#'plot_dvtime(data, dv_var = ODV, cent = "median", col_var = Dose)
+#'
+
+plot_dvtime <- function(data,
+                        dv_var = "DV",
+                        time_var = "TIME",
+                        ntime_var = "NTIME",
+                        col_var = NULL,
+                        id_var = NULL,
+                        dose_var = "DOSE",
+                        loq = NULL,
+                        loq_method = 0,
+                        show_loq_value = TRUE,
+                        cent = c("mean", "mean_sdl", "mean_sdl_upper",
+                                 "median", "median_iqr", "none"),
+                        show_obs = TRUE,
+                        dosenorm = FALSE,
+                        ref = NULL,
+                        log_y = NULL,
+                        show_caption = TRUE,
+                        style = NULL){
+
+  cent <- match.arg(cent)
+  check_boolean(show_obs, "show_obs")
+  check_boolean(show_loq_value, "show_loq_value")
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(show_caption, "show_caption")
+
+  data_cols <- names(data)
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
+  time_var_str  <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
+  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE, cols = data_cols)
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var), cols = data_cols)
+  col_var_str   <- resolve_var(rlang::enquo(col_var), nullable = TRUE, cols = data_cols)
+
+  prep <- prep_dvtime_plot(
+    data,
+    var_strs = list(time = time_var_str, ntime = ntime_var_str, dv = dv_var_str,
+                    dose = dose_var_str, id = id_var_str, col = col_var_str),
+    dose_var_given = !missing(dose_var), dosenorm = dosenorm,
+    loq = loq, loq_method = loq_method, ref = ref,
+    style = style, style_default = style_dvtime, log_y = log_y, cent = cent
+  )
+  data <- prep$data
+  plotstyle <- prep$style
+  caption <- prep$caption
+
+###Plot
+
+  # Initialize plot; color is mapped globally when `col_var` is supplied so
+  # observed and central-tendency layers inherit it.
+  base_aes <- if (is.null(col_var_str)) {
+    ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]])
+  } else {
+    ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]], color = .data[[col_var_str]])
+  }
+  plot <- ggplot2::ggplot(data, base_aes)
+
+  #Reference Lines
+  plot <- add_ref_layer_style(plot, ref)
+
+  blq <- add_loq_layer_style(plot, caption, prep$loq_method, loq = prep$lloq, dosenorm,
+                             plotstyle, show_legend = TRUE,
+                             show_value = show_loq_value)
+  plot <- blq$plot
+  caption <- blq$caption
+
+  #Show Observed Data Points / Connect within Group
+  plot <- add_obs_layers_style(plot, id_var_str, show_point = show_obs)
+
+  #Plot Central Tendency (points, lines, error bars)
+  plot <- add_cent_layers_style(plot, cent, "DV")
+
+  #Caption
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
+
+  ggstylekit::style_plot(plot, plotstyle)
+}
+
+
+
+
+
+#' Define a caption for `plot_dvtime`
+#'
+#' @inheritParams plot_dvtime
+#'
+#' @return a `character` string containing the plot caption
+#' @keywords internal
+#' @noRd
+
+caption_dvtime <- function(cent, log_y = FALSE){
+
+  cent_labels <- list(
+    mean           = c(linear = "mean",                    log = "geometric mean"),
+    mean_sdl       = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    mean_sdl_upper = c(linear = "mean + SD error bars",    log = "geo. mean + geo. SD error bars"),
+    median         = c(linear = "median",                  log = "median"),
+    median_iqr     = c(linear = "median + IQR error bars", log = "median + IQR error bars"),
+    none           = c(linear = "",                        log = "")
+  )
+
+  scale <- if(log_y) "log" else "linear"
+  cap <- cent_labels[[cent]][[scale]]
+
+  if(cent == "none") ""
+  else paste0("Thick lines are the ", cap)
+}
+
+
+

@@ -7,20 +7,26 @@
 plot_gof_shown(obs = NULL, dv = NULL, pred = NULL, ipred = NULL)
 }
 \arguments{
-\item{obs}{Show observed data points/lines. Default is \code{TRUE}.}
+\item{obs}{Show observed data points and lines (the \code{OBS} series). Default
+is \code{TRUE}.}
 
-\item{dv}{Show DV central tendency. Default is \code{TRUE}.}
+\item{dv}{Show DV central tendency (the \code{DV} series). Default is \code{TRUE}.}
 
-\item{pred}{Show PRED central tendency. Default is \code{TRUE}.}
+\item{pred}{Show PRED central tendency (the \code{PRED} series). Default is
+\code{TRUE}.}
 
-\item{ipred}{Show IPRED central tendency. Default is \code{TRUE}.}
+\item{ipred}{Show IPRED central tendency (the \code{IPRED} series). Default is
+\code{TRUE}.}
 }
 \value{
-A named list of logicals
+A \code{gof_shown} object: a named list of \code{TRUE}/\code{FALSE}.
 }
 \description{
-Constructor and factory for controlling which GOF overlay layers are displayed.
-Call with no arguments to view defaults. Pass overrides to customize.
+Constructor for the \code{shown} argument of \code{\link[=plot_gof]{plot_gof()}}, controlling which GOF
+overlay layers are built. Call with no arguments to view the defaults; pass
+\code{TRUE}/\code{FALSE} overrides to customize. Each key names a series of the plot:
+its color is the \code{style_gof(colors = )} entry of the same name in upper
+case, which is also its legend label.
 }
 \examples{
 plot_gof_shown()

@@ -1,161 +1,89 @@
-check_modlib <- function(mod, mod_path){
-  if(!file.exists(mod_path)){
-    rlang::abort(message = paste0("argument `", mod, "` does not exist in the pmxhelpr model library"))
-  }
-}
-
-check_df <- function(df, name){
+check_df <- function(df, name, call = rlang::caller_env()){
   if(!is.data.frame(df)){
-    rlang::abort(message = paste0("argument `", name, "` must be a `data.frame`"))
+    pmx_abort("{.arg {name}} must be a {.cls data.frame}.", "bad_arg", call = call)
   }
   if(nrow(df) == 0L){
-    rlang::abort(message = paste0("argument `", name, "` must have at least one row"))
+    pmx_abort("{.arg {name}} must have at least one row.", "bad_arg", call = call)
   }
 }
 
-check_mrgmod <- function(mod, name){
-  if(!mrgsolve::is.mrgmod(mod)){
-    rlang::abort(message = paste0("argument `", name, "` must be class `mrgmod`"))
-  }
-}
 
-check_mrgmod_outputvars <- function(mod, sim_dv_var_str, ipred_var_str){
-  mod_output_vars <- mrgsolve::outvars(mod)$capture
-  if(!(sim_dv_var_str %in% mod_output_vars) & !(ipred_var_str %in% mod_output_vars)){
-    rlang::abort(message = "argument `model` must contain output variables specified in `sim_dv_var` or `ipred_var`")
-  }
-}
-
-check_capture <- function(mod, var, mod_name, name){
-  if(!var %in% mod$capture){
-    rlang::abort(message = paste0("argument `", name, "` must be captured as output in `", mod_name, "`"))
-  }
-}
-
-check_numeric_strict <- function(var, name){
+check_numeric_strict <- function(var, name, call = rlang::caller_env()){
   if(any(is.na(var)) || !is.numeric(var)){
-    rlang::abort(message = paste0("argument `", name, "` must be class `numeric`"))
+    pmx_abort("{.arg {name}} must be {.cls numeric} with no missing values.", "bad_arg",
+              call = call)
   }
 }
 
-check_integer <- function(var, name){
+
+check_integer <- function(var, name, call = rlang::caller_env()){
   num <- suppressWarnings(as.integer(var))
   if(any(is.na(num)) || !is.numeric(num)){
-    rlang::abort(message = paste0("argument `", name, "` must be coercible to class `integer`"))
+    pmx_abort("{.arg {name}} must be coercible to {.cls integer}.", "bad_arg", call = call)
   }
 }
 
-check_positive_integer <- function(var, name){
+
+check_positive_integer <- function(var, name, call = rlang::caller_env()){
   if(!is.numeric(var) || length(var) != 1L || is.na(var) || var < 1 || var != round(var)){
-    rlang::abort(message = paste0("argument `", name, "` must be a single whole number >= 1"))
+    pmx_abort("{.arg {name}} must be a single whole number >= 1.", "bad_arg", call = call)
   }
 }
 
-check_boolean <- function(var, name){
+
+check_boolean <- function(var, name, call = rlang::caller_env()){
   if(!isTRUE(var) && !isFALSE(var)){
-    rlang::abort(message = paste0("argument `", name, "` must be `TRUE` or `FALSE`"))
+    pmx_abort("{.arg {name}} must be {.code TRUE} or {.code FALSE}.", "bad_arg", call = call)
   }
 }
 
-check_varsindf <- function(data, vars, data_name, name){
+
+check_varsindf <- function(data, vars, data_name, name, call = rlang::caller_env()){
   missing <- setdiff(vars, colnames(data))
   if(length(missing) >= 1){
-    rlang::abort(message = paste0("argument `", name, "` must be variable(s) in `", data_name,
-                                  "` (not found: ",
-                                  paste0("'", missing, "'", collapse = ", "), ").",
-                                  "\nAvailable columns: ", paste(colnames(data), collapse = ", ")))
+    pmx_abort(c(
+      "{.arg {name}} must name {cli::qty(missing)}variable{?s} in {.arg {data_name}}.",
+      "x" = "Not found: {.val {missing}}.",
+      "i" = "Available columns: {.field {colnames(data)}}."
+    ), "missing_var", call = call)
   }
 }
 
-check_levelsinvar <- function(data, var, levels, name, levels_name){
+
+check_levelsinvar <- function(data, var, levels, name, levels_name,
+                              call = rlang::caller_env()){
   missing <- setdiff(levels, data[[var]])
   if(length(missing) >= 1){
     available <- unique(data[[var]])
-    rlang::abort(message = paste0("argument `", levels_name, "` must be levels in variable `", name,
-                                  "` (not found: ",
-                                  paste0("'", missing, "'", collapse = ", "), ").",
-                                  "\nAvailable levels: ", paste(available, collapse = ", ")))
+    pmx_abort(c(
+      "{.arg {levels_name}} must be levels of variable {.var {name}}.",
+      "x" = "Not found: {.val {missing}}.",
+      "i" = "Available levels: {.val {available}}."
+    ), "missing_var", call = call)
   }
 }
 
-check_loq_method <- function(loq, loq_method, data) {
-  aliases <- c(none = 0, postdose = 1, all = 2)
-  if (is.character(loq_method) && loq_method %in% names(aliases)) {
-    loq_method <- aliases[[loq_method]]
-  }
-  if(is.null(loq_method) || !loq_method %in% c(0, 1, 2)) {
-    rlang::abort(message = 'argument `loq_method` must be 0, 1, 2, "none", "postdose", or "all"')
-  }
 
-  if(loq_method != 0) {
-    if(is.null(loq)) {
-      if(!"LLOQ" %in% colnames(data)) {
-        rlang::abort(message = "argument `loq` must be numeric or variable `LLOQ` must be present in `data` when `loq_method` is 1 or 2")
-      }
-    } else {
-      num <- suppressWarnings(as.numeric(loq))
-      if(is.na(num) || !is.numeric(num)) {
-        rlang::abort(message = "argument `loq` must be numeric or variable `LLOQ` must be present in `data` when `loq_method` is 1 or 2")
-      }
-    }
-  } else if (!is.null(loq)) {
-    rlang::inform(paste0(
-      "`loq` has no effect with `loq_method = 0`; set `loq_method` to 1 or 2 ",
-      "to impute BLQ values and draw the LLOQ line."
-    ))
-  }
-  loq_method
-}
-
-check_quantile_pair <- function(x, name) {
+check_quantile_pair <- function(x, name, call = rlang::caller_env()) {
   if (!is.numeric(x) || length(x) != 2L || any(is.na(x))) {
-    rlang::abort(paste0("argument `", name, "` must be a length-2 numeric vector with no NAs"))
+    pmx_abort("{.arg {name}} must be a length-2 numeric vector with no missing values.",
+              "bad_arg", call = call)
   }
   if (any(x < 0) || any(x > 1)) {
-    rlang::abort(paste0("argument `", name, "` values must be in [0, 1]"))
+    pmx_abort("{.arg {name}} values must be in [0, 1].", "bad_arg", call = call)
   }
   if (x[1] >= x[2]) {
-    rlang::abort(paste0("argument `", name, "` must be ordered: ", name, "[1] < ", name, "[2]"))
+    pmx_abort("{.arg {name}} must be ordered: {name}[1] < {name}[2].", "bad_arg",
+              call = call)
   }
 }
 
-check_quantile_scalar <- function(x, name) {
+
+check_quantile_scalar <- function(x, name, call = rlang::caller_env()) {
   if (!is.numeric(x) || length(x) != 1L || is.na(x) || x <= 0 || x >= 1) {
-    rlang::abort(paste0("argument `", name, "` must be a single numeric value in (0, 1)"))
+    pmx_abort("{.arg {name}} must be a single numeric value in (0, 1).", "bad_arg",
+              call = call)
   }
-}
-
-#' Internal helper: resolve and validate the `style` argument
-#'
-#' Every plot builder accepts `style = NULL` (use the family preset) or a
-#' [ggstylekit::style_spec()] object. This helper applies the default and
-#' aborts early, with a pmxhelpr-branded message, when `style` is anything
-#' else; without it, a bad `style` fails deep inside `ggstylekit` or, for
-#' [plot_vpc_legend()], with an uninformative R error.
-#'
-#' @param style `NULL` or a `ggstylekit_style_spec` object.
-#' @param default A function returning the family preset (e.g. [style_dvtime]),
-#'    called only when `style` is `NULL`.
-#'
-#' @return A `ggstylekit_style_spec` object.
-#' @keywords internal
-resolve_style <- function(style, default) {
-  if (is.null(style)) return(default())
-  if (!inherits(style, "ggstylekit_style_spec")) {
-    rlang::abort(paste0(
-      "argument `style` must be a `ggstylekit::style_spec()` object, ",
-      "typically from a `style_*()` preset (got <",
-      paste(class(style), collapse = "/"), ">)"))
-  }
-  style
-}
-
-check_loglog_args <- function(method, ci, sigdigits) {
-  if (!method %in% c("normal", "tdist")) {
-    rlang::abort(message = "argument `method` must be `normal` or `tdist`")
-  }
-  check_quantile_scalar(ci, "ci")
-  check_positive_integer(sigdigits, "sigdigits")
 }
 
 
@@ -169,7 +97,7 @@ check_loglog_args <- function(method, ci, sigdigits) {
 #' subtracts the explicitly-allowed plot-only arguments, and aborts when the
 #' remainder is non-empty — making the silent-shadow case audible.
 #'
-#' @param call A `call` object, typically `match.call()` evaluated in the
+#' @param mc A `call` object, typically `match.call()` evaluated in the
 #'    wrapper's frame.
 #' @param plot_only_args Character vector of argument names that ARE honored
 #'    on the precomputed-stats path (e.g. `"style"`, `"shown"`, `"pcvpc"`).
@@ -178,32 +106,32 @@ check_loglog_args <- function(method, ci, sigdigits) {
 #'    message.
 #' @param stats_fn Character scalar, the stats function the caller should
 #'    run instead (e.g. `"df_forest"`), used in the error message.
+#' @param call The call reported in the error.
 #'
 #' @return `invisible(NULL)` on success.
 #' @keywords internal
-check_pipeline_args_dropped <- function(call, plot_only_args, fn_name, stats_fn) {
-  passed <- names(call)
+check_pipeline_args_dropped <- function(mc, plot_only_args, fn_name, stats_fn,
+                                        call = rlang::caller_env()) {
+  passed <- names(mc)
   passed <- passed[nzchar(passed)]                 # drop "" (function name, positional)
   passed <- setdiff(passed, plot_only_args)
   if (length(passed) > 0) {
-    rlang::abort(paste0(
-      "`", fn_name, "()` cannot accept pipeline arguments when `data` is a ",
-      "precomputed `pmx_stats` object: ",
-      paste(passed, collapse = ", "),
-      ". Either: (a) call `", stats_fn, "()` with these ",
-      "arguments and pass its result to `", fn_name, "()`; or (b) pass raw ",
-      "data and let `", fn_name, "()` build the stats."
-    ))
+    pmx_abort(c(
+      "{.fn {fn_name}} cannot accept pipeline arguments when {.arg data} is a precomputed {.cls pmx_stats} object.",
+      "x" = "Pipeline argument{?s} passed: {.arg {passed}}.",
+      "i" = "Either call {.fn {stats_fn}} with {cli::qty(passed)}{?this argument/these arguments} and pass its result to {.fn {fn_name}}, or pass raw data and let {.fn {fn_name}} build the stats."
+    ), "pipeline_args", call = call)
   }
   invisible(NULL)
 }
+
 
 #' Warn when a post-`EVID == 0` filter still contains multiple unique CMT values
 #'
 #' @description
 #' Defensive check intended to be called immediately after an internal
 #' `dplyr::filter(data, EVID == 0)` step. If the filtered data carries more
-#' than one unique value of `CMT`, the function emits a `rlang::warn()`
+#' than one unique value of `CMT`, the function emits a warning
 #' recommending the caller pre-filter to a single observation compartment.
 #' No-op when the `CMT` column is absent or the data is empty.
 #'
@@ -215,168 +143,56 @@ check_pipeline_args_dropped <- function(call, plot_only_args, fn_name, stats_fn)
 check_single_cmt <- function(data, name = "data") {
   if (!"CMT" %in% colnames(data)) return(invisible(NULL))
   if (nrow(data) == 0L)            return(invisible(NULL))
-  cmts <- unique(data[["CMT"]])
+  cmts <- sort(unique(data[["CMT"]]))
   if (length(cmts) <= 1L)          return(invisible(NULL))
-  rlang::warn(c(
-    paste0("Multiple unique values of `CMT` detected in `", name,
-           "` after filtering to `EVID == 0`: ",
-           paste(sort(cmts), collapse = ", "), "."),
+  pmx_warn(c(
+    "Multiple unique values of {.var CMT} detected in {.arg {name}} after filtering to {.code EVID == 0}: {.val {cmts}}.",
     "i" = "Functions assume a single observation type per call.",
-    "i" = "Pre-filter to a single observation compartment (e.g., `dplyr::filter(data, CMT == <n>)`) before passing to this function."
-  ))
+    "i" = "Pre-filter to a single observation compartment (e.g., {.code dplyr::filter(data, CMT == <n>)}) before passing to this function."
+  ), "data")
   invisible(NULL)
 }
 
-check_string <- function(x, name, null_ok = FALSE) {
+
+check_string <- function(x, name, null_ok = FALSE, call = rlang::caller_env()) {
   if (null_ok && is.null(x)) return(invisible(NULL))
   if (!is.character(x) || length(x) != 1L || is.na(x) || !nzchar(x)) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` must be a single non-empty character string",
-      if (null_ok) ", or `NULL`"
-    ))
+    or_null <- if (null_ok) ", or {.code NULL}" else ""
+    pmx_abort(paste0("{.arg {name}} must be a single non-empty character string", or_null, "."),
+              "bad_arg", call = call)
   }
   invisible(NULL)
 }
+
 
 ## Names of a vector or list: present, non-empty, unique, and (when
 ## `allowed` is given) drawn from `allowed`, the value of argument
 ## `allowed_name`.
 check_names <- function(x, name, what = "named vector",
-                        allowed = NULL, allowed_name = NULL) {
+                        allowed = NULL, allowed_name = NULL,
+                        call = rlang::caller_env()) {
   nms <- names(x)
   if (length(x) == 0L || is.null(nms) || anyNA(nms) || !all(nzchar(nms))) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` must be a non-empty ", what, " with non-empty names"
-    ))
+    pmx_abort("{.arg {name}} must be a non-empty {what} with non-empty names.", "bad_arg",
+              call = call)
   }
   if (anyDuplicated(nms)) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` has duplicate names: ",
-      paste(unique(nms[duplicated(nms)]), collapse = ", ")
-    ))
+    dups <- unique(nms[duplicated(nms)])
+    pmx_abort("{.arg {name}} has duplicate names: {.val {dups}}.", "bad_arg", call = call)
   }
   extra <- setdiff(nms, allowed %||% nms)
   if (length(extra) > 0) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` names columns that are not in `", allowed_name, "`: ",
-      paste(extra, collapse = ", ")
-    ))
+    pmx_abort("{.arg {name}} names columns that are not in {.arg {allowed_name}}: {.val {extra}}.",
+              "bad_arg", call = call)
   }
   invisible(NULL)
 }
 
-check_named_vector <- function(x, name, allowed = NULL, allowed_name = NULL) {
+
+check_named_vector <- function(x, name, allowed = NULL, allowed_name = NULL,
+                               call = rlang::caller_env()) {
   if (!is.vector(x) || is.list(x)) {
-    rlang::abort(message = paste0("argument `", name, "` must be a named atomic vector"))
+    pmx_abort("{.arg {name}} must be a named atomic vector.", "bad_arg", call = call)
   }
-  check_names(x, name, allowed = allowed, allowed_name = allowed_name)
-}
-
-check_ref <- function(ref) {
-  if (is.null(ref) || identical(ref, "reference")) return(invisible(NULL))
-  if (!is.numeric(ref) || length(ref) != 1L || is.na(ref)) {
-    rlang::abort(message = "argument `ref` must be a single numeric value, `\"reference\"`, or `NULL`")
-  }
-  invisible(NULL)
-}
-
-check_ref_layout <- function(ref_layout) {
-  if (is.null(ref_layout)) return(invisible(NULL))
-  if (!is.character(ref_layout) || length(ref_layout) != 1L ||
-      !ref_layout %in% c("distributed", "consolidated")) {
-    rlang::abort(message = "argument `ref_layout` must be `\"distributed\"`, `\"consolidated\"`, or `NULL`")
-  }
-  invisible(NULL)
-}
-
-check_ref_band <- function(ref_band, ref_band_type = "absolute") {
-  if (is.null(ref_band)) return(invisible(NULL))
-  if (!is.numeric(ref_band) || length(ref_band) != 2L || any(is.na(ref_band))) {
-    rlang::abort(message = "argument `ref_band` must be a length-2 numeric vector with no NAs")
-  }
-  if (ref_band[1] >= ref_band[2]) {
-    rlang::abort(message = "argument `ref_band` must be ordered: ref_band[1] < ref_band[2]")
-  }
-  if (ref_band_type == "multiplicative" && any(ref_band <= 0)) {
-    rlang::abort(message = "argument `ref_band` must be positive when `ref_band_type = \"multiplicative\"`")
-  }
-  invisible(NULL)
-}
-
-check_forest_metric <- function(metric, metric_values, metric_name_var_str) {
-  if (is.null(metric)) {
-    if (length(metric_values) != 1L) {
-      rlang::abort(message = paste0(
-        "argument `metric` is required when `stats$stats` contains multiple values of `",
-        metric_name_var_str, "` (", paste(metric_values, collapse = ", "), "). ",
-        "Pass `metric = <one of the listed values>` to pick which to render."
-      ))
-    }
-    return(metric_values)
-  }
-  check_string(metric, "metric")
-  if (!metric %in% metric_values) {
-    rlang::abort(message = paste0(
-      "argument `metric` (", metric, ") not found in `", metric_name_var_str,
-      "`. Available: ", paste(metric_values, collapse = ", ")
-    ))
-  }
-  metric
-}
-
-
-check_character_vars <- function(x, name) {
-  if (!is.character(x) || length(x) == 0L) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` must be a non-empty character vector of column names"
-    ))
-  }
-  if (any(is.na(x)) || any(!nzchar(x))) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` must not contain `NA` or empty strings"
-    ))
-  }
-  if (anyDuplicated(x)) {
-    rlang::abort(message = paste0(
-      "argument `", name, "` has duplicate entries: ",
-      paste(unique(x[duplicated(x)]), collapse = ", ")
-    ))
-  }
-  invisible(NULL)
-}
-
-check_cov_val_ref <- function(cov_val_ref, cov_vars) {
-  check_named_vector(cov_val_ref, "cov_val_ref",
-                     allowed = cov_vars, allowed_name = "cov_vars")
-  missing_cov <- setdiff(cov_vars, names(cov_val_ref))
-  if (length(missing_cov) > 0) {
-    rlang::abort(message = paste0(
-      "argument `cov_val_ref` is missing a reference value for: ",
-      paste(missing_cov, collapse = ", "),
-      ". One entry is required per `cov_vars` column."
-    ))
-  }
-  invisible(NULL)
-}
-
-check_cov_labels <- function(cov_labels, cov_vars) {
-  if (is.null(cov_labels)) return(invisible(NULL))
-  if (!is.list(cov_labels)) {
-    rlang::abort(message = "argument `cov_labels` must be a named list (or `NULL`)")
-  }
-  check_names(cov_labels, "cov_labels", what = "named list",
-              allowed = cov_vars, allowed_name = "cov_vars")
-  for (cn in names(cov_labels)) {
-    lab <- cov_labels[[cn]]
-    if (is.function(lab)) next
-    if (is.character(lab) && !is.null(names(lab)) &&
-        !any(is.na(names(lab))) && all(nzchar(names(lab)))) {
-      next
-    }
-    rlang::abort(message = paste0(
-      "element `", cn, "` of argument `cov_labels` must be a function or a ",
-      "named character vector keyed on the covariate values"
-    ))
-  }
-  invisible(NULL)
+  check_names(x, name, allowed = allowed, allowed_name = allowed_name, call = call)
 }

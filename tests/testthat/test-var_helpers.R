@@ -74,7 +74,7 @@ test_that("NA in dv propagates to output", {
 
 test_that("var_dosenorm errors on non-numeric dv_var", {
   expect_error(var_dosenorm(c("a", "b"), c(1, 2)),
-               regexp = "`dv_var` must be numeric")
+               regexp = "`dv_var` must be <numeric>")
 })
 
 test_that("var_dosenorm errors on mismatched lengths", {
@@ -147,7 +147,7 @@ test_that("pred equal to lower_bound returns NA instead of Inf", {
 
 test_that("var_predcorr errors on non-numeric dv_var", {
   expect_error(var_predcorr(c("a", "b"), c(1, 2)),
-               regexp = "`dv_var` must be numeric")
+               regexp = "`dv_var` must be <numeric>")
 })
 
 test_that("var_predcorr errors on mismatched lengths", {
@@ -192,12 +192,12 @@ test_that("var_loqcens combines loq, mdv, and is.na triggers", {
 
 test_that("var_loqcens errors on non-numeric x", {
   expect_error(pmxhelpr:::var_loqcens(c("a", "b"), loq = 1),
-               regexp = "`x` must be numeric")
+               regexp = "`x` must be <numeric>")
 })
 
 test_that("var_loqcens errors on non-numeric loq", {
   expect_error(pmxhelpr:::var_loqcens(c(1, 2), loq = "a"),
-               regexp = "`loq` must be numeric")
+               regexp = "`loq` must be <numeric>")
 })
 
 test_that("var_loqcens errors on loq with bad length", {
@@ -229,5 +229,5 @@ test_that("var_infna replaces -Inf with NA_real_ and leaves +Inf alone", {
 
 test_that("var_infna errors on non-numeric x", {
   expect_error(pmxhelpr:::var_infna(c("a", "b")),
-               regexp = "`x` must be numeric")
+               regexp = "`x` must be <numeric>")
 })

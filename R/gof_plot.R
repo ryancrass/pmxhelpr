@@ -1,0 +1,181 @@
+#' Plot population overlay goodness-of-fit (GOF) plots
+#'
+#' Creates a population overlay plot showing central tendency lines for
+#' observed (DV), population predicted (PRED), and individual predicted (IPRED)
+#' values. Colors and aesthetics for each variable are controlled through the
+#' `style` argument via [style_gof()]. Use the `shown` argument to
+#' selectively hide variables.
+#'
+#' @param data Input dataset.
+#' @param dv_var Column containing the dependent variable (DV).
+#'    Accepts bare names or strings. Default is `DV`.
+#' @param pred_var Column containing population predictions (PRED).
+#'    Accepts bare names or strings. Default is `PRED`.
+#' @param ipred_var Column containing individual predictions (IPRED).
+#'    Accepts bare names or strings. Default is `IPRED`.
+#' @param shown Layer visibility settings created by [plot_gof_shown()].
+#'    Defaults can be viewed by running `plot_gof_shown()` with no arguments.
+#' @param loq Numeric value of the lower limit of quantification (LLOQ), or
+#'    `NULL` to impute each row at its own `LLOQ` column value (the LLOQ line
+#'    is drawn at the highest). Has no effect with `loq_method = 0` (the
+#'    default), which emits a message. BLQ imputation behavior on the DV / prediction layers is controlled by
+#'    `blq_mode` and `loq_method`. Default is `NULL`.
+#' @param loq_method Method for handling BLQ data. See [plot_dvtime()] for
+#'    option details. Default is `0` (no imputation).
+#' @param blq_mode One of `"obs"` (default) or `"all"`. Controls which layers
+#'    receive BLQ imputation: `"obs"` imputes the observed `DV` layer only,
+#'    leaving `PRED` / `IPRED` untouched (mirrors [plot_dvtime()]); `"all"`
+#'    applies the same 1/2 LLOQ imputation to `PRED` / `IPRED`, so observed and
+#'    predicted lines are summarized on the same imputed basis. Has no effect
+#'    when `loq_method = 0`.
+#' @param time_var Column containing the actual time variable.
+#'    Accepts bare names or strings. Default is `TIME`.
+#' @param ntime_var Column containing the nominal time variable.
+#'    Accepts bare names or strings. Default is `NTIME`.
+#' @param id_var Column to group observations for spaghetti lines.
+#'    Accepts bare names or strings. Default is `NULL` (no spaghetti lines).
+#' @param dose_var Column to use in dose-normalization when `dosenorm = TRUE`.
+#'    Accepts bare names or strings. Default is `DOSE`.
+#' @param cent Character string specifying the central tendency measure. See
+#'    [plot_dvtime()] for option details. Default is `"mean"`.
+#' @param show_loq_value Logical. If `TRUE` (default), the LLOQ line's legend
+#'    entry is titled `"LLOQ"` and keyed by its value. If `FALSE`, the title is
+#'    dropped and the entry is labeled `"LLOQ"` without the value. Applies only
+#'    when the LLOQ line is drawn (`loq_method` of `1` or `2`, `dosenorm = FALSE`).
+#' @param dosenorm Logical indicating if observed data points should be dose
+#'    normalized. Default is `FALSE`. Requires variable specified in
+#'    `dose_var` to be present in `data`.
+#' @param ref Numeric y-intercept for a horizontal reference line, or `NULL`
+#'    for no reference line.
+#' @param log_y Logical indicator for log10 transformation of the y-axis, or
+#'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
+#'    value passed here overrides the style's `logy`. Also controls whether the caption reports arithmetic or geometric mean
+#'    when `show_caption = TRUE`.
+#' @param show_caption Logical indicating if a caption should be shown
+#'    describing the data plotted. A `caption` set in the style is drawn instead, whatever this value.
+#' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
+#'    Defaults to [style_gof()]; view the defaults by running `style_gof()`
+#'    with no arguments. Customize by passing `style = style_gof(...)`.
+#'    The DV/PRED/IPRED (and
+#'    OBS) overlays are colored by the `colors` map keyed by those labels. The
+#'    error bar cap width is the style's `errorbar_width` field; when unset it
+#'    defaults to 2.5% of the maximum nominal time (`ntime_var`).
+#'
+#' @family goodness-of-fit
+#' @return A `ggplot2` plot object
+#'
+#' @export plot_gof
+#'
+#' @examples
+#'plot_gof(data_sad_pkfit, dv_var = ODV, dosenorm = TRUE)
+#'
+plot_gof <- function(data,
+                        dv_var = "DV",
+                        pred_var = "PRED",
+                        ipred_var = "IPRED",
+                        time_var = "TIME",
+                        ntime_var = "NTIME",
+                        shown = NULL,
+                        id_var = NULL,
+                        dose_var = "DOSE",
+                        loq = NULL,
+                        loq_method = 0,
+                        show_loq_value = TRUE,
+                        blq_mode = c("obs", "all"),
+                        cent = c("mean", "mean_sdl", "mean_sdl_upper",
+                                 "median", "median_iqr", "none"),
+                        dosenorm = FALSE,
+                        ref = NULL,
+                        log_y = NULL,
+                        show_caption = TRUE,
+                        style = NULL){
+
+  cent <- match.arg(cent)
+  blq_mode <- match.arg(blq_mode)
+  check_boolean(show_loq_value, "show_loq_value")
+  check_boolean(dosenorm, "dosenorm")
+  check_boolean(show_caption, "show_caption")
+
+  data_cols <- names(data)
+  dv_var_str    <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
+  pred_var_str  <- resolve_var(rlang::enquo(pred_var), cols = data_cols)
+  ipred_var_str <- resolve_var(rlang::enquo(ipred_var), cols = data_cols)
+  time_var_str  <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+  ntime_var_str <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
+  id_var_str    <- resolve_var(rlang::enquo(id_var), nullable = TRUE, cols = data_cols)
+  dose_var_str  <- resolve_var(rlang::enquo(dose_var), cols = data_cols)
+
+  #`style$colors` is the single source of color truth: the manual
+  #scale_color_manual() below supplies only the legend name/breaks/order (with
+  #placeholder values), and style_plot() injects style$colors into it.
+  prep <- prep_dvtime_plot(
+    data,
+    var_strs = list(time = time_var_str, ntime = ntime_var_str, dv = dv_var_str,
+                    pred = pred_var_str, ipred = ipred_var_str,
+                    dose = dose_var_str, id = id_var_str),
+    dose_var_given = !missing(dose_var), dosenorm = dosenorm,
+    loq = loq, loq_method = loq_method, ref = ref, blq_mode = blq_mode,
+    style = style, style_default = style_gof, log_y = log_y, cent = cent
+  )
+  data <- prep$data
+  plotstyle <- prep$style
+  caption <- prep$caption
+
+  #Determine which variables to show
+  shown <- resolve_shown(shown, plot_gof_shown())
+  shown_names <- names(shown)[unlist(shown)]
+  active <- toupper(shown_names)
+  if (length(active) == 0L) {
+    pmx_warn("{.arg shown} has no active elements; the GOF plot will have no overlay layers.",
+             "ignored_arg")
+  }
+
+  #Manual overlay color scale, ordered and restricted to active layers.
+  legend_order <- c("OBS", "DV", "IPRED", "PRED")
+  ord <- legend_order[legend_order %in% active]
+
+
+###Plot
+
+  #Initialize Plot
+  plot <- ggplot2::ggplot(data, ggplot2::aes(x = .data[["TIME"]], y = .data[["DV"]]))
+
+  #Reference Lines
+  plot <- add_ref_layer_style(plot, ref)
+
+  blq <- add_loq_layer_style(plot, caption, prep$loq_method, loq = prep$lloq, dosenorm,
+                             plotstyle, show_legend = TRUE,
+                             show_value = show_loq_value)
+  plot <- blq$plot
+  caption <- blq$caption
+
+  #Show Observed Data Points / Connect within Group
+  if ("OBS" %in% active) {
+    plot <- add_obs_layers_style(plot, id_var_str, color_aes = "OBS")
+  }
+
+  #Plot Central Tendency (points, lines, error bars)
+  if ("DV" %in% active) {
+    plot <- add_cent_layers_style(plot, cent, "DV", color_aes = "DV")
+  }
+  if ("IPRED" %in% active) {
+    plot <- add_cent_layers_style(plot, cent, "IPRED", color_aes = "IPRED", show_errorbars = FALSE)
+  }
+  if ("PRED" %in% active) {
+    plot <- add_cent_layers_style(plot, cent, "PRED", color_aes = "PRED", show_errorbars = FALSE)
+  }
+
+  #Define Manual Legend. Values are placeholders keyed by `ord`; style_plot()
+  #injects plotstyle$colors into this scale (breaks/order/name are preserved).
+  plot <- plot +
+    ggplot2::scale_color_manual(
+      name = "Legend", breaks = ord,
+      values = stats::setNames(rep(NA_character_, length(ord)), ord))
+
+  #Caption
+  if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
+
+  #Finalize: house theme and log axis (logy set in prep_dvtime_plot()); colors
+  #come from plotstyle via style_plot().
+  ggstylekit::style_plot(plot, plotstyle)
+}

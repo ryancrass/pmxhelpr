@@ -200,9 +200,11 @@ Let’s try passing in our PK dataset with no other arguments.
 ``` r
 
 plot_dvtime(plot_data_pk)
-#> Error in `check_varsindf()`:
-#> ! argument `dv_var` must be variable(s) in `data` (not found: 'DV').
-#> Available columns: ID, TIME, NTIME, NDAY, DOSE, AMT, EVID, ODV, LDV, CFB, CONC, LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL, USUBJID, PART, Food Status, Dose and Food, Dose
+#> Error in `plot_dvtime()`:
+#> ! `dv_var` must name variable in `data`.
+#> ✖ Not found: "DV".
+#> ℹ Available columns: ID, TIME, NTIME, NDAY, DOSE, AMT, EVID, ODV, LDV, CFB,
+#>   CONC, LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, …, Dose and Food, and Dose.
 ```
 
 The function with no arguments other than the input dataset returns an
@@ -522,9 +524,11 @@ plot_dvtime(select(plot_data_pk, -DOSE),
             cent = "mean", log_y = TRUE,dosenorm = TRUE) +
   labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
   facet_wrap(~PART)
-#> Error in `check_varsindf()`:
-#> ! argument `dose_var` must be variable(s) in `data` (not found: 'DOSE').
-#> Available columns: ID, TIME, NTIME, NDAY, AMT, EVID, ODV, LDV, CFB, CONC, LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL, USUBJID, PART, Food Status, Dose and Food, Dose
+#> Error in `plot_dvtime()`:
+#> ! `dose_var` must name variable in `data`.
+#> ✖ Not found: "DOSE".
+#> ℹ Available columns: ID, TIME, NTIME, NDAY, AMT, EVID, ODV, LDV, CFB, CONC,
+#>   LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, RACE, …, Dose and Food, and Dose.
 ```
 
 Dose-normalization is performed *AFTER* BLQ imputation in the case in

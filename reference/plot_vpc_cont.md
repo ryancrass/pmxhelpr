@@ -18,7 +18,7 @@ plot_vpc_cont(
   strat_var = NULL,
   pcvpc = FALSE,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   min_bin_count = 0,
   show_rep = TRUE,
   lower_bound = 0,
@@ -26,7 +26,8 @@ plot_vpc_cont(
   shown = NULL,
   style = NULL,
   pi = c(0.05, 0.95),
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 ```
 
@@ -85,13 +86,13 @@ plot_vpc_cont(
   values are set to missing before prediction correction, so both are
   censored alike.
 
-  The LLOQ line (`loq_line` role) is drawn at each unique LLOQ on
-  standard VPCs only, since the LLOQ has no meaning on the
-  prediction-corrected scale; hide it with
-  `shown = plot_vpc_shown(loq_line = FALSE)`. The observed points show
-  `MDV == 0` rows only.
+  The LLOQ line (`loq_line` role) is drawn once per panel, at that
+  panel's highest LLOQ when there are several, on standard VPCs only,
+  since the LLOQ has no meaning on the prediction-corrected scale; hide
+  it with `shown = plot_vpc_shown(loq_line = FALSE)`. The observed
+  points show `MDV == 0` rows only.
 
-- irep_name:
+- rep_var:
 
   Name of replicate variable in `data`. Accepts bare names or strings.
   Default is `SIM`.
@@ -156,6 +157,10 @@ plot_vpc_cont(
   Numeric scalar in `(0, 1)` for simulation interval (e.g., `0.90` for
   90% CI). Default is `0.90`.
 
+- irep_name:
+
+  **\[deprecated\]** Use `rep_var`.
+
 ## Value
 
 A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the underlying
@@ -191,7 +196,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model, replicates = 20
 dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover  = c("USUBJID", "PART"),
-irep_name = SIM)
+rep_var = SIM)
 
 vpc_plot <- plot_vpc_cont(
 data = simout,

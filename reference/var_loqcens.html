@@ -13,7 +13,7 @@ Returns the modified vector — quantile computation is performed downstream."><
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ Returns the modified vector — quantile computation is performed downstream."><
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Internal Helper: Encode below-the-limit-of-quantification (BLQ) values as -Inf</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/var_helpers.R" class="external-link"><code>R/var_helpers.R</code></a></small>
       <div class="d-none name"><code>var_loqcens.Rd</code></div>
     </div>
 
@@ -57,7 +57,7 @@ Returns the modified vector — quantile computation is performed downstream.</p
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">var_loqcens</span><span class="op">(</span><span class="va">x</span>, loq <span class="op">=</span> <span class="cn">NULL</span>, mdv <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">var_loqcens</span><span class="op">(</span><span class="va">x</span>, loq <span class="op">=</span> <span class="cn">NULL</span>, mdv <span class="op">=</span> <span class="cn">NULL</span>, call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -76,6 +76,10 @@ limit of quantification, or <code>NULL</code> (no <code>&lt; loq</code> trigger)
 <dt id="arg-mdv">mdv<a class="anchor" aria-label="anchor" href="#arg-mdv"></a></dt>
 <dd><p>Integer/logical vector of length <code>length(x)</code> flagging missing-DV
 rows (NONMEM convention <code>MDV == 1</code>), or <code>NULL</code> (no MDV trigger).</p></dd>
+
+
+<dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dd><p>The call reported in errors.</p></dd>
 
 </dl></div>
     <div class="section level2">

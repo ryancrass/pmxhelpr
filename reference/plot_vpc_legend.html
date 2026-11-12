@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot a legend for a visual predictive check (VPC)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_vpc_legend.R" class="external-link"><code>R/plot_vpc_legend.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_legend.R" class="external-link"><code>R/vpc_legend.R</code></a></small>
       <div class="d-none name"><code>plot_vpc_legend.Rd</code></div>
     </div>
 
@@ -57,7 +57,8 @@
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cont"</span>, <span class="st">"cens"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  lloq <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  lloq <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stats <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,17 +83,17 @@ Defaults can be viewed by running <code><a href="plot_vpc_shown.html">plot_vpc_s
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric scalar or vector of LLOQ values to label in the legend,
-or <code>NULL</code> to omit. Each unique value becomes one legend entry rendered
-with the style's <code>loq_line</code> linetype. Pass <code>stats$config$loq</code> from
+or <code>NULL</code> to omit. One legend entry is drawn at the highest value,
+matching the single LLOQ line per panel, with the style's <code>loq_line</code>
+linetype and linewidth. Pass <code>stats$config$loq</code> from
 a <code><a href="df_vpcstats.html">df_vpcstats()</a></code> result to mirror the reference lines drawn by
 <code><a href="plot_build_vpc.html">plot_build_vpc()</a></code>.</p></dd>
 
 
 <dt id="arg-show-loq-value">show_loq_value<a class="anchor" aria-label="anchor" href="#arg-show-loq-value"></a></dt>
-<dd><p>Logical. If <code>TRUE</code> (default), each unique <code>loq</code> value
-gets its own legend entry labeled <code>"LLOQ = &lt;value&gt;"</code>. If <code>FALSE</code>, a
-single entry labeled <code>"LLOQ"</code> is drawn regardless of how many values
-<code>loq</code> holds. Ignored when <code>loq</code> is <code>NULL</code>.</p></dd>
+<dd><p>Logical. If <code>TRUE</code> (default), the LLOQ entry is
+labeled <code>"LLOQ = &lt;value&gt;"</code> with the highest <code>loq</code> value; if <code>FALSE</code>, it
+is labeled <code>"LLOQ"</code>. Ignored when <code>loq</code> is <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-style">style<a class="anchor" aria-label="anchor" href="#arg-style"></a></dt>
@@ -122,7 +123,16 @@ style so they override it.</p></dd>
 
 
 <dt id="arg-lloq">lloq<a class="anchor" aria-label="anchor" href="#arg-lloq"></a></dt>
-<dd><p>Deprecated alias of <code>loq</code>; warns. Do not pass both.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>loq</code>. Do not pass both.</p></dd>
+
+
+<dt id="arg-stats">stats<a class="anchor" aria-label="anchor" href="#arg-stats"></a></dt>
+<dd><p>A <code><a href="df_vpcstats.html">df_vpcstats()</a></code> result, or <code>NULL</code> (default). When given,
+<code>ci</code>, <code>pi</code>, and <code>loq</code> default to <code>stats$config$ci</code>, <code>stats$config$pi</code>,
+and <code>stats$config$loq</code>, so the legend matches a plot built from the
+same container; any of them passed explicitly overrides the container
+(<code>loq = NULL</code> omits the LLOQ entry). <code>type</code>, <code>shown</code>, and <code>style</code> are
+not stored in the container; pass the ones used for the plot.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -160,6 +170,14 @@ style so they override it.</p></dd>
 <span class="r-in"><span><span class="co">## LLOQ entry without its value</span></span></span>
 <span class="r-in"><span><span class="fu">plot_vpc_legend</span><span class="op">(</span>loq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>, show_loq_value <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_vpc_legend-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="co">## ci, pi, and loq from a df_vpcstats() result</span></span></span>
+<span class="r-in"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">data_sad</span>, <span class="va">CMT</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                             model <span class="op">=</span> <span class="fu"><a href="model_mread_load.html">model_mread_load</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"pkmodel"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                             replicates <span class="op">=</span> <span class="fl">10</span>, dv_var <span class="op">=</span> <span class="va">ODV</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading model from cache.</span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="df_vpcstats.html">df_vpcstats</a></span><span class="op">(</span><span class="va">simout</span>, loq <span class="op">=</span> <span class="fl">1</span>, pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_vpc_legend</span><span class="op">(</span>stats <span class="op">=</span> <span class="va">out</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_vpc_legend-5.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

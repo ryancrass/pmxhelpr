@@ -30,12 +30,13 @@ plot_vpc_cens(
   obs_dv_var = "OBSDV",
   strat_var = NULL,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   min_bin_count = 0,
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 ```
 
@@ -95,7 +96,7 @@ plot_vpc_cens(
   are used as the censoring threshold; a scalar `loq` broadcasts to a
   constant threshold across rows.
 
-- irep_name:
+- rep_var:
 
   Name of replicate variable in `data`. Accepts bare names or strings.
   Default is `SIM`.
@@ -151,6 +152,10 @@ plot_vpc_cens(
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   was called) is the source of truth on that path.
 
+- irep_name:
+
+  **\[deprecated\]** Use `rep_var`.
+
 ## Value
 
 A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the underlying
@@ -182,7 +187,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk, model = model,
                               replicates = 20, dv_var = ODV,
                               carry_out = c("LLOQ", "WTBL", "FOOD"),
                               recover = c("USUBJID", "PART"),
-                              irep_name = SIM)
+                              rep_var = SIM)
 
 cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 ```

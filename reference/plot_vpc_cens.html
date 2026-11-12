@@ -27,7 +27,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@ source is available are the sole source of plot data.'><meta property="og:image"
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot a censoring (BLQ-proportion) VPC with exact time bins</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_vpc_cens.R" class="external-link"><code>R/plot_vpc_cens.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_plot_cens.R" class="external-link"><code>R/vpc_plot_cens.R</code></a></small>
       <div class="d-none name"><code>plot_vpc_cens.Rd</code></div>
     </div>
 
@@ -87,12 +87,13 @@ source is available are the sole source of plot data.</p>
 <span>  obs_dv_var <span class="op">=</span> <span class="st">"OBSDV"</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
+<span>  rep_var <span class="op">=</span> <span class="st">"SIM"</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ci <span class="op">=</span> <span class="fl">0.9</span></span>
+<span>  ci <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>  <span class="va">irep_name</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -150,7 +151,7 @@ per-row <code>LLOQ</code> values are used as the censoring threshold; a scalar
 <code>loq</code> broadcasts to a constant threshold across rows.</p></dd>
 
 
-<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dt id="arg-rep-var">rep_var<a class="anchor" aria-label="anchor" href="#arg-rep-var"></a></dt>
 <dd><p>Name of replicate variable in <code>data</code>. Accepts bare names
 or strings. Default is <code>SIM</code>.</p></dd>
 
@@ -196,6 +197,10 @@ when <code>data</code> is a precomputed <code>vpc_stats</code> container raises 
 The container's stored <code>ci</code> (set when <code><a href="df_vpcstats.html">df_vpcstats()</a></code> was called) is
 the source of truth on that path.</p></dd>
 
+
+<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>rep_var</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -227,7 +232,7 @@ inspect the <code>obs_prop_blq</code> and <code>sim_prop_blq_*</code> columns of
 <span class="r-in"><span>                              replicates <span class="op">=</span> <span class="fl">20</span>, dv_var <span class="op">=</span> <span class="va">ODV</span>,</span></span>
 <span class="r-in"><span>                              carry_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LLOQ"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                              recover <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                              irep_name <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                              rep_var <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cens_plot</span> <span class="op">&lt;-</span> <span class="fu">plot_vpc_cens</span><span class="op">(</span>data <span class="op">=</span> <span class="va">simout</span>, loq <span class="op">=</span> <span class="fl">1</span>, ci <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span></span>
 </code></pre></div>

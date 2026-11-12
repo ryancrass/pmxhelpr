@@ -21,7 +21,8 @@ df_prep_dvtime(
   loq_method = 0,
   dosenorm = FALSE,
   ref = NULL,
-  blq_mode = c("obs", "all")
+  blq_mode = c("obs", "all"),
+  call = rlang::caller_env()
 )
 ```
 
@@ -88,6 +89,10 @@ df_prep_dvtime(
   additionally imputes any `PRED` / `IPRED` columns that were renamed
   via `pred_var_str` / `ipred_var_str`. Has no effect when
   `loq_method = 0`.
+
+- call:
+
+  The call reported in errors.
 
 ## Value
 

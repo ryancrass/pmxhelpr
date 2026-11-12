@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -298,7 +298,10 @@ to, so it aborts. Factorial designs are out of scope.</p>
 <span>  cov_val_ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>FOOD <span class="op">=</span> <span class="fl">0</span>, WTBL <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `df_forest_preprocess()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> every non-reference scenario must differ from the reference in exactly one covariate; these differ in more than one: FOOD = 1, WTBL = 90. `df_forest_preprocess()` does not support factorial scenario designs.</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Every non-reference scenario must differ from the reference in exactly</span></span>
+<span><span class="co">#&gt;   one covariate.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> This scenario differs in more than one: <span style="color: #0000BB;">"FOOD = 1, WTBL = 90"</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> `df_forest_preprocess()` does not support factorial scenario designs.</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="ratios">Ratios<a class="anchor" aria-label="anchor" href="#ratios"></a>
@@ -341,8 +344,8 @@ level.</p>
 <span>  cov_labels    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>FOOD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span> <span class="op">=</span> <span class="st">"Fasted"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">cov_name</span>, <span class="va">cov_level</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `cov_labels` has no entry for these covariate values: FOOD = 1. They</span></span>
-<span><span class="co">#&gt; are labeled by their character value.</span></span>
+<span><span class="co">#&gt; Warning: `cov_labels` has no entry for this covariate value: <span style="color: #0000BB;">"FOOD = 1"</span>. It is labeled</span></span>
+<span><span class="co">#&gt; by its character value.</span></span>
 <span><span class="co">#&gt;    cov_name cov_level</span></span>
 <span><span class="co">#&gt; 1 Reference Reference</span></span>
 <span><span class="co">#&gt; 2      FOOD         1</span></span>
@@ -779,6 +782,8 @@ data.</p>
 <span><span class="fu"><a href="../reference/plot_forest.html">plot_forest</a></span><span class="op">(</span><span class="va">forest_obj</span>, metric <span class="op">=</span> <span class="st">"CMAX"</span>, ref_band <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1.25</span><span class="op">)</span>,</span>
 <span>            style <span class="op">=</span> <span class="fu"><a href="../reference/style_forest.html">style_forest</a></span><span class="op">(</span>logx <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="forest-workflow_files/figure-html/plot-precomputed-2.png" class="r-plt" alt="" width="100%"></p>
+<p><code>autoplot(forest_obj, metric = "CMAX")</code> does the same with
+<code><a href="../reference/plot_build_forest.html">plot_build_forest()</a></code>.</p>
 <p><code>forest_obj</code> was computed with <code>cov_level_ref</code>,
 so <code>ref_layout</code> can switch it to the reference panel:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">

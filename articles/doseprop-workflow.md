@@ -255,6 +255,9 @@ plot_doseprop(dose_prop_obj, se = FALSE)
 
 ![](doseprop-workflow_files/figure-html/plot-precomputed-2.png)
 
+`autoplot(dose_prop_obj)` draws the same plot from the container with
+[`plot_build_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.md).
+
 When `data` is a precomputed `doseprop_stats` result, the pipeline
 arguments (`metrics`, `metric_name_var`, `metric_value_var`, `dose_var`,
 `method`, `ci`, `sigdigits`) **cannot** be honored — those decisions

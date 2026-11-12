@@ -218,12 +218,13 @@ in the VPC Workflow; therefore, it does not need to be separately called
 for the VPC purpose.
 
 This function takes `data.frame` and `mrgmod` objects as input and an
-optional argument to specify the model variable to capture as `"PRED"`
-with random effects zeroed. The default is `"IPRED"`.
+optional argument, `ipred_output`, naming the model’s individual
+prediction output; it is simulated with random effects zeroed and
+captured as `"PRED"`. The default is `"IPRED"`.
 
 ``` r
 
-data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, output_var = "IPRED")
+data_sad_pk_pred <- df_mrgsim_addpred(data_sad_pk, model, ipred_output = "IPRED")
 
 colnames(data_sad_pk_pred)[!colnames(data_sad_pk_pred) %in% colnames(data_sad_pk)]
 #> [1] "PRED"
@@ -293,11 +294,12 @@ into the simulation or captured in output. These include:
 - `dv_var` = DV, dependent variable
 - `time_var` = TIME, actual time variable
 - `ntime_var` = NTIME, nominal time variable
-- `pred_var` = PRED, population prediction variable (fixed effects only)
-- `ipred_var` = IPRED, individual prediction variable (fixed + level 1
-  random effects)
-- `sim_dv_var` = DV, dependent variable captured in the simulated output
-  (fixed + level 1 and 2 random effects)
+- `ipred_output` = IPRED, individual prediction output of the model
+  (fixed + level 1 random effects); simulated with random effects
+  zeroed, it also gives the population prediction `PRED` (fixed effects
+  only)
+- `dv_output` = DV, dependent variable output of the model (fixed +
+  level 1 and 2 random effects)
 
 These arguments use non-standard evaluation and can be passed as a bare
 column name or as a string.
@@ -359,7 +361,7 @@ For example, we can see from the
 [`glimpse()`](https://pillar.r-lib.org/reference/glimpse.html) output
 that the simulation also outputs `"Y"`, which represents a simulated
 version of DV. We will still receive the same standardized output
-variable names if we change argument form `sim_dv_var`, as the variables
+variable names if we change the `dv_output` argument, as the variables
 are renamed to VPC workflow standards on output
 
 ``` r
@@ -368,7 +370,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     sim_dv_var = Y,
+                     dv_output = Y,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 
@@ -405,7 +407,7 @@ glimpse(simout)
 The maximum value of our replicate count variable (default = `"SIM"`)
 indicates that the dataset has been replicated 100 times. The variable
 name output for the count of replicates can be specified using the
-`irep_name` argument.
+`rep_var` argument.
 
 This argument uses non-standard evaluation and can be supplied as a bare
 name or string
@@ -416,7 +418,7 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
                      model = model,
                      replicates = 100,
                      dv_var = ODV,
-                     irep_name = IREP,
+                     rep_var = IREP,
                      carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
                      recover  = c("PART", "DoseFood"))
 
@@ -768,7 +770,7 @@ print(vpcstats_ntime_dose_food)
 #> <vpc_stats>
 #>   stats: 114 rows x 35 columns
 #>   obs:   506 rows
-#>   config: n_replicates = 100, loq = 1, strat_var = DoseFood
+#>   config: n_replicates = 100, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = DoseFood
 #>   column groups (stats):
 #>     identifiers  : BIN_MID, DoseFood
 #>     counts       : obs_n, obs_n_blq, obs_prop_blq
@@ -797,10 +799,11 @@ print(vpcstats_ntime_dose_food)
 #>   Use `x$stats` and `x$obs` for the underlying data.frames.
 ```
 
-[`summary()`](https://rdrr.io/r/base/summary.html) returns the same
-content as [`print()`](https://rdrr.io/r/base/print.html) but suppresses
-the head preview, which is convenient for snapshotting the run
-configuration without the row content.
+[`summary()`](https://rdrr.io/r/base/summary.html) returns a summary
+object that prints the same content as
+[`print()`](https://rdrr.io/r/base/print.html) without the head preview,
+which is convenient for snapshotting the run configuration without the
+row content.
 
 ``` r
 
@@ -808,7 +811,7 @@ summary(vpcstats_ntime_dose_food)
 #> <vpc_stats>
 #>   stats: 114 rows x 35 columns
 #>   obs:   506 rows
-#>   config: n_replicates = 100, loq = 1, strat_var = DoseFood
+#>   config: n_replicates = 100, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = DoseFood
 #>   column groups (stats):
 #>     identifiers  : BIN_MID, DoseFood
 #>     counts       : obs_n, obs_n_blq, obs_prop_blq
@@ -993,7 +996,8 @@ plot_vpc_cont(
 #> Inheriting per-row `loq` from `LLOQ` column in `data`.
 #> Warning: Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.
 #> ℹ Summary statistics are pre-computed before plotting.
-#> ℹ Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly.
+#> ℹ Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()`
+#>   to stratify both statistics and panels correctly.
 #> Warning in scale_y_log10(guide = "axis_logticks"): log-10 transformation introduced infinite values.
 #> log-10 transformation introduced infinite values.
 #> log-10 transformation introduced infinite values.
@@ -1189,8 +1193,8 @@ out_multi$config$loq
 ```
 
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md)
-consumes the precomputed stats and draws one dashed reference line per
-unique LLOQ value.
+consumes the precomputed stats and draws one dashed LLOQ reference line
+per panel.
 
 ``` r
 
@@ -1200,28 +1204,27 @@ vpc_multi
 
 ![](vpc-workflow_files/figure-html/plot-vpc-multi-loq-1.png)
 
-Each facet renders only the LLOQ(s) applicable to that strat-level: Part
-1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The ref-line
-set is recomputed at plot time from the row-aligned `obs$LOQ` column
-grouped by `strat_var`, so the visualization stays in sync with whatever
-per-row inheritance produced. The legend (built from
-`out_multi$config$loq`) still summarizes the analysis-wide set of LLOQs,
-since the legend is a figure-level annotation rather than a facet-level
-one.
+Each facet renders the LLOQ applicable to that strat-level: Part 1-SAD
+shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The line is
+recomputed at plot time from the row-aligned `obs$LOQ` column grouped by
+`strat_var` (at the highest LLOQ in the panel), so the visualization
+stays in sync with whatever per-row inheritance produced.
 
 [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-accepts the same vector and registers one entry per unique LLOQ value.
+takes the container through its `stats` argument and reads `ci`, `pi`,
+and `loq` from `out_multi$config`. The legend is a figure-level
+annotation, so its single LLOQ entry is labeled with the highest LLOQ in
+the analysis.
 
 ``` r
 
-vpc_multi_legend <- plot_vpc_legend(loq = out_multi$config$loq)
+vpc_multi_legend <- plot_vpc_legend(stats = out_multi)
 vpc_multi_legend
 ```
 
 ![](vpc-workflow_files/figure-html/vpc-multi-loq-legend-1.png)
 
-Composing the plot and legend with `patchwork` yields a single figure
-where both LLOQ thresholds are simultaneously labeled.
+Composing the plot and legend with `patchwork` yields a single figure.
 
 ``` r
 
@@ -1230,11 +1233,11 @@ vpc_multi + vpc_multi_legend + plot_layout(heights = c(2.5, 1))
 
 ![](vpc-workflow_files/figure-html/plot-vpc-multi-loq-w-legend-1.png)
 
-Passing `out_multi$config$loq` directly to
-[`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-keeps the legend in sync with whatever LLOQs
+Passing the container to `plot_vpc_legend(stats = )` keeps the legend in
+sync with the `ci`, `pi`, and LLOQs
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
-discovered, with no need to hardcode the value set at the call site.
+used, with no need to repeat them at the call site. Any of the three
+passed explicitly overrides the container.
 
 ### Reusing precomputed stats
 
@@ -1312,32 +1315,16 @@ The default is as follows:
 ``` r
 
 plot_vpc_shown()
-#> $obs_point
-#> [1] TRUE
-#> 
-#> $obs_pi_line
-#> [1] TRUE
-#> 
-#> $obs_median_line
-#> [1] TRUE
-#> 
-#> $sim_pi_line
-#> [1] FALSE
-#> 
-#> $sim_pi_ci
-#> [1] TRUE
-#> 
-#> $sim_pi_area
-#> [1] FALSE
-#> 
-#> $sim_median_line
-#> [1] FALSE
-#> 
-#> $sim_median_ci
-#> [1] TRUE
-#> 
-#> $loq_line
-#> [1] TRUE
+#> <vpc_shown>
+#>   obs_point        TRUE
+#>   obs_pi_line      TRUE
+#>   obs_median_line  TRUE
+#>   sim_pi_line      FALSE
+#>   sim_pi_ci        TRUE
+#>   sim_pi_area      FALSE
+#>   sim_median_line  FALSE
+#>   sim_median_ci    TRUE
+#>   loq_line         TRUE
 ```
 
 The components of the list correspond to the following vpc plot
@@ -1439,6 +1426,11 @@ plot_build_vpc(out, pcvpc = FALSE) + vpc_scales_labs
 ```
 
 ![](vpc-workflow_files/figure-html/plot-build-vpc-direct-1.png)
+
+`autoplot(out, pcvpc = FALSE)` is equivalent:
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+draws any `vpc_stats`, `doseprop_stats`, or `forest_stats` container
+with its builder.
 
 ## Adjusting Plot Style with `style_vpc()`
 

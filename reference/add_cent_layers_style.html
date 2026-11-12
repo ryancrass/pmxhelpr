@@ -5,13 +5,15 @@ ggstylekit::style_plot(), which fills their role-keyed fixed aesthetics.
 Error bars are ggstylekit's errorbar entity (GeomErrorbar/GeomLinerange),
 so the cap width comes from the style's errorbar_width field (see
 style_errorbar_width()). Color is inherited from the plot's global aes()
-when mapped."><meta property="og:description" content="Central-tendency points, lines, and error bars are stat_summary layers
+when mapped, or mapped to a literal label via color_aes (as plot_gof()
+does for &quot;DV&quot;/&quot;IPRED&quot;/&quot;PRED&quot;, keying its manual overlay legend)."><meta property="og:description" content="Central-tendency points, lines, and error bars are stat_summary layers
 tagged as the &quot;cent_point&quot;/&quot;cent_line&quot;/&quot;cent_errorbar&quot; series for
 ggstylekit::style_plot(), which fills their role-keyed fixed aesthetics.
 Error bars are ggstylekit's errorbar entity (GeomErrorbar/GeomLinerange),
 so the cap width comes from the style's errorbar_width field (see
 style_errorbar_width()). Color is inherited from the plot's global aes()
-when mapped."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+when mapped, or mapped to a literal label via color_aes (as plot_gof()
+does for &quot;DV&quot;/&quot;IPRED&quot;/&quot;PRED&quot;, keying its manual overlay legend)."><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +21,7 @@ when mapped."><meta property="og:image" content="https://ryancrass.github.io/pmx
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,12 +63,19 @@ tagged as the <code>"cent_point"</code>/<code>"cent_line"</code>/<code>"cent_err
 Error bars are ggstylekit's errorbar entity (<code>GeomErrorbar</code>/<code>GeomLinerange</code>),
 so the cap width comes from the style's <code>errorbar_width</code> field (see
 <code><a href="style_errorbar_width.html">style_errorbar_width()</a></code>). Color is inherited from the plot's global <code><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes()</a></code>
-when mapped.</p>
+when mapped, or mapped to a literal label via <code>color_aes</code> (as <code><a href="plot_gof.html">plot_gof()</a></code>
+does for <code>"DV"</code>/<code>"IPRED"</code>/<code>"PRED"</code>, keying its manual overlay legend).</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_cent_layers_style</span><span class="op">(</span><span class="va">plot</span>, <span class="va">cent</span>, <span class="va">y_var</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_cent_layers_style</span><span class="op">(</span></span>
+<span>  <span class="va">plot</span>,</span>
+<span>  <span class="va">cent</span>,</span>
+<span>  <span class="va">y_var</span>,</span>
+<span>  color_aes <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_errorbars <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,6 +92,14 @@ when mapped.</p>
 
 <dt id="arg-y-var">y_var<a class="anchor" aria-label="anchor" href="#arg-y-var"></a></dt>
 <dd><p>Y variable name (e.g. <code>"DV"</code>).</p></dd>
+
+
+<dt id="arg-color-aes">color_aes<a class="anchor" aria-label="anchor" href="#arg-color-aes"></a></dt>
+<dd><p>Literal color label, or <code>NULL</code> to inherit color.</p></dd>
+
+
+<dt id="arg-show-errorbars">show_errorbars<a class="anchor" aria-label="anchor" href="#arg-show-errorbars"></a></dt>
+<dd><p>Logical; add the error bar layers for <code>cent</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

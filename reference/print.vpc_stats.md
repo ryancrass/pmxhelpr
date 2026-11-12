@@ -2,10 +2,10 @@
 
 Focused summary of a
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
-result: object dimensions, run-config values (`n_replicates`, `loq`,
-`strat_var`), the column groups present in `stats`, and a short head
-preview. Inspect the underlying data.frames directly via `x$stats` and
-`x$obs`; inspect run config via `x$config`.
+result: object dimensions, run-config values (`n_replicates`, `ci`,
+`pi`, `mode`, `loq`, `strat_var`), the column groups present in `stats`,
+and a short head preview. Inspect the underlying data.frames directly
+via `x$stats` and `x$obs`; inspect run config via `x$config`.
 
 ## Usage
 

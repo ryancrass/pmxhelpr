@@ -17,7 +17,7 @@ remainder is non-empty — making the silent-shadow case audible."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,14 +63,20 @@ remainder is non-empty — making the silent-shadow case audible.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_pipeline_args_dropped</span><span class="op">(</span><span class="va">call</span>, <span class="va">plot_only_args</span>, <span class="va">fn_name</span>, <span class="va">stats_fn</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_pipeline_args_dropped</span><span class="op">(</span></span>
+<span>  <span class="va">mc</span>,</span>
+<span>  <span class="va">plot_only_args</span>,</span>
+<span>  <span class="va">fn_name</span>,</span>
+<span>  <span class="va">stats_fn</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dl><dt id="arg-mc">mc<a class="anchor" aria-label="anchor" href="#arg-mc"></a></dt>
 <dd><p>A <code>call</code> object, typically <code><a href="https://rdrr.io/r/base/match.call.html" class="external-link">match.call()</a></code> evaluated in the
 wrapper's frame.</p></dd>
 
@@ -89,6 +95,10 @@ message.</p></dd>
 <dt id="arg-stats-fn">stats_fn<a class="anchor" aria-label="anchor" href="#arg-stats-fn"></a></dt>
 <dd><p>Character scalar, the stats function the caller should
 run instead (e.g. <code>"df_forest"</code>), used in the error message.</p></dd>
+
+
+<dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dd><p>The call reported in the error.</p></dd>
 
 </dl></div>
     <div class="section level2">

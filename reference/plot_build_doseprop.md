@@ -58,6 +58,9 @@ a `ggplot` plot object
 
 ## See also
 
+[autoplot()](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md),
+which draws a container with its builder.
+
 Other dose proportionality:
 [`df_doseprop()`](https://ryancrass.github.io/pmxhelpr/reference/df_doseprop.md),
 [`is_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_doseprop_stats.md),

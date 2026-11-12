@@ -1,8 +1,11 @@
 # GOF layer visibility settings
 
-Constructor and factory for controlling which GOF overlay layers are
-displayed. Call with no arguments to view defaults. Pass overrides to
-customize.
+Constructor for the `shown` argument of
+[`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md),
+controlling which GOF overlay layers are built. Call with no arguments
+to view the defaults; pass `TRUE`/`FALSE` overrides to customize. Each
+key names a series of the plot: its color is the `style_gof(colors = )`
+entry of the same name in upper case, which is also its legend label.
 
 ## Usage
 
@@ -14,23 +17,24 @@ plot_gof_shown(obs = NULL, dv = NULL, pred = NULL, ipred = NULL)
 
 - obs:
 
-  Show observed data points/lines. Default is `TRUE`.
+  Show observed data points and lines (the `OBS` series). Default is
+  `TRUE`.
 
 - dv:
 
-  Show DV central tendency. Default is `TRUE`.
+  Show DV central tendency (the `DV` series). Default is `TRUE`.
 
 - pred:
 
-  Show PRED central tendency. Default is `TRUE`.
+  Show PRED central tendency (the `PRED` series). Default is `TRUE`.
 
 - ipred:
 
-  Show IPRED central tendency. Default is `TRUE`.
+  Show IPRED central tendency (the `IPRED` series). Default is `TRUE`.
 
 ## Value
 
-A named list of logicals
+A `gof_shown` object: a named list of `TRUE`/`FALSE`.
 
 ## See also
 
@@ -42,29 +46,15 @@ Other goodness-of-fit:
 
 ``` r
 plot_gof_shown()
-#> $obs
-#> [1] TRUE
-#> 
-#> $dv
-#> [1] TRUE
-#> 
-#> $pred
-#> [1] TRUE
-#> 
-#> $ipred
-#> [1] TRUE
-#> 
+#> <gof_shown>
+#>   obs    TRUE
+#>   dv     TRUE
+#>   pred   TRUE
+#>   ipred  TRUE
 plot_gof_shown(pred = FALSE)
-#> $obs
-#> [1] TRUE
-#> 
-#> $dv
-#> [1] TRUE
-#> 
-#> $pred
-#> [1] FALSE
-#> 
-#> $ipred
-#> [1] TRUE
-#> 
+#> <gof_shown>
+#>   obs    TRUE
+#>   dv     TRUE
+#>   pred   FALSE
+#>   ipred  TRUE
 ```

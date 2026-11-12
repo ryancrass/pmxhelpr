@@ -14,7 +14,8 @@ plot_vpc_legend(
   style = NULL,
   type = c("cont", "cens"),
   ...,
-  lloq = NULL
+  lloq = NULL,
+  stats = NULL
 )
 ```
 
@@ -45,18 +46,18 @@ plot_vpc_legend(
 - loq:
 
   Numeric scalar or vector of LLOQ values to label in the legend, or
-  `NULL` to omit. Each unique value becomes one legend entry rendered
-  with the style's `loq_line` linetype. Pass `stats$config$loq` from a
+  `NULL` to omit. One legend entry is drawn at the highest value,
+  matching the single LLOQ line per panel, with the style's `loq_line`
+  linetype and linewidth. Pass `stats$config$loq` from a
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   result to mirror the reference lines drawn by
   [`plot_build_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_vpc.md).
 
 - show_loq_value:
 
-  Logical. If `TRUE` (default), each unique `loq` value gets its own
-  legend entry labeled `"LLOQ = <value>"`. If `FALSE`, a single entry
-  labeled `"LLOQ"` is drawn regardless of how many values `loq` holds.
-  Ignored when `loq` is `NULL`.
+  Logical. If `TRUE` (default), the LLOQ entry is labeled
+  `"LLOQ = <value>"` with the highest `loq` value; if `FALSE`, it is
+  labeled `"LLOQ"`. Ignored when `loq` is `NULL`.
 
 - style:
 
@@ -93,7 +94,18 @@ plot_vpc_legend(
 
 - lloq:
 
-  Deprecated alias of `loq`; warns. Do not pass both.
+  **\[deprecated\]** Use `loq`. Do not pass both.
+
+- stats:
+
+  A
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+  result, or `NULL` (default). When given, `ci`, `pi`, and `loq` default
+  to `stats$config$ci`, `stats$config$pi`, and `stats$config$loq`, so
+  the legend matches a plot built from the same container; any of them
+  passed explicitly overrides the container (`loq = NULL` omits the LLOQ
+  entry). `type`, `shown`, and `style` are not stored in the container;
+  pass the ones used for the plot.
 
 ## Value
 
@@ -129,4 +141,12 @@ plot_vpc_legend(type = "cens", loq = 1)
 
 ## LLOQ entry without its value
 plot_vpc_legend(loq = c(0.5, 1), show_loq_value = FALSE)
+
+## ci, pi, and loq from a df_vpcstats() result
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+                             model = model_mread_load(model = "pkmodel"),
+                             replicates = 10, dv_var = ODV)
+#> Loading model from cache.
+out <- df_vpcstats(simout, loq = 1, pi = c(0.1, 0.9))
+plot_vpc_legend(stats = out)
 ```

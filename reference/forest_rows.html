@@ -15,7 +15,7 @@ panel) only in that one.'><meta property="og:image" content="https://ryancrass.g
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ panel) only in that one.'><meta property="og:image" content="https://ryancrass.g
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Internal helper: the rows a forest plot draws, in draw order</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_forest.R" class="external-link"><code>R/plot_forest.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/forest_build.R" class="external-link"><code>R/forest_build.R</code></a></small>
       <div class="d-none name"><code>forest_rows.Rd</code></div>
     </div>
 
@@ -60,7 +60,12 @@ panel) only in that one.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">forest_rows</span><span class="op">(</span><span class="va">stats</span>, ref_layout <span class="op">=</span> <span class="cn">NULL</span>, metric <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">forest_rows</span><span class="op">(</span></span>
+<span>  <span class="va">stats</span>,</span>
+<span>  ref_layout <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  metric <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -79,6 +84,10 @@ resolves to <code>"distributed"</code> when the rows of <code>metric</code> (all
 
 <dt id="arg-metric">metric<a class="anchor" aria-label="anchor" href="#arg-metric"></a></dt>
 <dd><p>Optional metric value to restrict the rows to.</p></dd>
+
+
+<dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dd><p>The call reported in errors.</p></dd>
 
 </dl></div>
     <div class="section level2">

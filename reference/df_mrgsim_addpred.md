@@ -9,7 +9,7 @@ that returns a data.frame with the addition of a new variable (`PRED`).
 ## Usage
 
 ``` r
-df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
+df_mrgsim_addpred(data, model, ipred_output = "IPRED", ..., output_var)
 ```
 
 ## Arguments
@@ -22,20 +22,25 @@ df_mrgsim_addpred(data, model, output_var = "IPRED", ...)
 
   `mrgsolve` model object.
 
-- output_var:
+- ipred_output:
 
-  Name of output from `model` to be captured as `PRED` after removing
-  random effects with
-  [`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html).
-  Accepts bare names or strings. Default is `IPRED`.
+  Name of the individual prediction output captured by `model`. It is
+  simulated with random effects zeroed
+  ([`mrgsolve::zero_re()`](https://mrgsolve.org/docs/reference/zero_re.html))
+  and returned as `PRED`. Accepts bare names or strings. Default is
+  `IPRED`.
 
 - ...:
 
   Additional arguments passed to
   [`mrgsolve::mrgsim_df()`](https://mrgsolve.org/docs/reference/mrgsim.html).
-  A `carry_out` is merged with `output_var`. Arguments that change the
+  A `carry_out` is merged with `ipred_output`. Arguments that change the
   number of output rows (e.g. `obsonly`) are an error, since `PRED` is
   matched to `data` by row.
+
+- output_var:
+
+  **\[deprecated\]** Use `ipred_output`.
 
 ## Value
 
@@ -52,7 +57,6 @@ Other mrgsolve wrappers:
 
 ``` r
 pkmodel <- model_mread_load(model = "pkmodel")
-#> Building pkmodel_cpp ... 
-#> done.
+#> Loading model from cache.
 data <- df_mrgsim_addpred(data = dplyr::filter(data_sad, CMT != 3), model = pkmodel)
 ```

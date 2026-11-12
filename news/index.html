@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,45 @@
       <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="pmxhelpr-080">pmxhelpr 0.8.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-080"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-8-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-8-0"></a></h3>
+<ul><li>VPC plots can be restyled after the fact: <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> now reaches VPC layers, which are tagged by role like every other plot family.</li>
+<li>
+<code><a href="../reference/validate_pmx_stats.html">validate_pmx_stats()</a></code> is exported: it checks a <code>pmx_stats</code> container and reports what is wrong, dispatching on the class so <code>vpc_stats</code>, <code>doseprop_stats</code>, and <code>forest_stats</code> are checked against their full contract. <code><a href="../reference/pmx_stats.html">pmx_stats()</a></code> and <code>is_pmx_stats(strict = TRUE)</code> now apply that contract too, rather than only the shared slot checks.</li>
+<li>
+<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> is re-exported from ggplot2. It draws a <code>vpc_stats</code>, <code>doseprop_stats</code>, or <code>forest_stats</code> container with its builder. Pass other arguments through, e.g. <code>autoplot(stats, type = "cens")</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-0-8-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-8-0"></a></h3>
+<ul><li>Combining a VPC (<code>p</code>) with other plots (<code>p2</code>) (e.g., <code>p + p2</code>, <code>p | p2</code>, <code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>) no longer labels the combined patchwork as a <code>pmx_vpc_plot</code>, so faceting the figure no longer warns about VPC statistics. A <code>+</code> chain that ends on a VPC (<code>p2 + p</code>) still carries the class, because patchwork treats the figure as that last panel.</li>
+<li>
+<code><a href="../reference/plot_vpc_shown.html">plot_vpc_shown()</a></code> and <code><a href="../reference/plot_gof_shown.html">plot_gof_shown()</a></code> return <code>vpc_shown</code> / <code>gof_shown</code> objects (still named lists) with a print method. A <code>shown</code> value that is not <code>TRUE</code> or <code>FALSE</code>, or is the wrong plot family object (e.g. <code><a href="../reference/plot_gof_shown.html">plot_gof_shown()</a></code> passed to a VPC), now errors.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on a <code>vpc_stats</code>, <code>doseprop_stats</code>, or <code>forest_stats</code> container now returns a <code>summary.*</code> object holding the values it prints (e.g. <code>summary(dp)$metrics$Power</code>, <code>summary(vs)$column_groups</code>) instead of the container itself. The printed output is unchanged.</li>
+<li>VPC plots label their axes <code>TIME</code> and <code>DV</code> (<code>Prediction-corrected DV</code>, <code>Proportion BLQ</code>) by default instead of internal column names. The censored-VPC legend’s <code>Obs</code> key now matches the plot’s point color.</li>
+<li>With several LLOQ values, every plot family now draws one LLOQ line per panel at the highest value, as <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code> and <code><a href="../reference/plot_gof.html">plot_gof()</a></code> already did. Unstratified VPCs previously drew one line per value, and <code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> showed one key per value. The VPC legend’s LLOQ key now uses the style’s line width.</li>
+<li>A bare column name always refers to that column when <code>data</code> has it. Previously a variable of the same name holding a string took precedence, so <code>FOOD &lt;- "WTBL"; plot_vpc_cont(sim, strat_var = FOOD)</code> stratified by <code>WTBL</code>. The same holds for model outputs in <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> and <code><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code>. A column name held in a variable still works when the variable’s name is not a column, or with <code>!!</code>.</li>
+<li>Deprecated arguments warn through lifecycle, naming the version and the replacement, once every 8 hours per session (<code>options(lifecycle_verbosity = "error")</code> turns them into errors). lifecycle is a new direct import; it was already required by ggplot2 and dplyr.</li>
+<li>Errors, warnings, and messages use cli formatting and name the function you called (e.g. <code>Error in `plot_dvtime()`</code> instead of an internal helper). They carry classes for programmatic handling: a base class (<code>pmxhelpr_error</code>, <code>pmxhelpr_warning</code>, <code>pmxhelpr_message</code>) plus a kind, such as <code>pmxhelpr_error_bad_arg</code>, <code>pmxhelpr_error_missing_var</code>, or <code>pmxhelpr_warning_ignored_arg</code>, so they can be caught with <code>tryCatch(..., pmxhelpr_error_missing_var = function(e) ...)</code>. cli is a new direct import; it was already required by ggplot2 and dplyr.</li>
+<li>
+<code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> records the full run configuration in <code>config</code>: <code>ci</code>, <code>pi</code>, <code>mode</code>, and the source column names (<code>time_var</code>, <code>ntime_var</code>, <code>pred_var</code>, <code>sim_dv_var</code>, <code>obs_dv_var</code>, <code>rep_var</code>) alongside <code>n_replicates</code>, <code>loq</code>, and <code>strat_var</code>. <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> show <code>ci</code>, <code>pi</code>, and <code>mode</code>. Containers saved by earlier versions lack <code>ci</code> and <code>pi</code> and must be recomputed with <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>.</li>
+<li>
+<code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> gains a <code>stats</code> argument: pass a <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> result and <code>ci</code>, <code>pi</code>, and <code>loq</code> default to its <code>config</code>, so the legend matches a plot built from the same container. Arguments passed explicitly still win.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-8-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-8-0"></a></h3>
+<ul><li>
+<code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> no longer fails when an output name is already a taken. A non-default <code>ipred_output</code> when the model also outputs <code>IPRED</code>, <code>dv_output = "IPRED"</code>, or data carrying <code>OBSDV</code> or <code>SIMDV</code> columns. Data columns with those names are replaced with a warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="deprecated-0-8-0">Deprecated<a class="anchor" aria-label="anchor" href="#deprecated-0-8-0"></a></h3>
+<ul><li>
+<code>irep_name</code> is renamed <code>rep_var</code> in <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code>, <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>, <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code>, and <code><a href="../reference/df_forest_preprocess.html">df_forest_preprocess()</a></code>, matching the other <code>*_var</code> column arguments. <code>irep_name</code> still works with a deprecation warning.</li>
+<li>Model-output arguments are named <code>*_output</code>: <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code>’s <code>ipred_var</code> and <code>sim_dv_var</code> become <code>ipred_output</code> and <code>dv_output</code>, and <code><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred()</a></code>’s <code>output_var</code> becomes <code>ipred_output</code>. <code>df_mrgsim_replicate(pred_var)</code> is deprecated with no replacement: <code>PRED</code> is always the <code>ipred_output</code> output simulated with random effects zeroed. The old names still work with a deprecation warning. Arguments after <code>ntime_var</code> in <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> moved, so pass them by name.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="pmxhelpr-071">pmxhelpr 0.7.1<a class="anchor" aria-label="anchor" href="#pmxhelpr-071"></a></h2>
 <div class="section level3">

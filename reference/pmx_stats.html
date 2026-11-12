@@ -4,14 +4,16 @@ df_vpcstats(), df_doseprop(), and df_forest(). Each container is a named list wi
 three slots — stats (the per-row summary frame), obs (the observation
 overlay used by plot builders, may be NULL), and config (named list of
 run configuration consumed by the plot builders). The class vector is
-c(&amp;lt;subclass&amp;gt;, "pmx_stats"). The structural shape is enforced by
-validate_pmx_stats() at construction time.'><meta property="og:description" content='Constructor for the cacheable stats containers returned by
+c(&amp;lt;subclass&amp;gt;, "pmx_stats"). The container is checked with
+validate_pmx_stats() at construction time, including the subclass
+contract for vpc_stats, doseprop_stats and forest_stats.'><meta property="og:description" content='Constructor for the cacheable stats containers returned by
 df_vpcstats(), df_doseprop(), and df_forest(). Each container is a named list with
 three slots — stats (the per-row summary frame), obs (the observation
 overlay used by plot builders, may be NULL), and config (named list of
 run configuration consumed by the plot builders). The class vector is
-c(&amp;lt;subclass&amp;gt;, "pmx_stats"). The structural shape is enforced by
-validate_pmx_stats() at construction time.'><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+c(&amp;lt;subclass&amp;gt;, "pmx_stats"). The container is checked with
+validate_pmx_stats() at construction time, including the subclass
+contract for vpc_stats, doseprop_stats and forest_stats.'><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +21,7 @@ validate_pmx_stats() at construction time.'><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +52,7 @@ validate_pmx_stats() at construction time.'><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Construct a <code>pmx_stats</code> container</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/pmx_stats_class.R" class="external-link"><code>R/pmx_stats_class.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/pmx_stats.R" class="external-link"><code>R/pmx_stats.R</code></a></small>
       <div class="d-none name"><code>pmx_stats.Rd</code></div>
     </div>
 
@@ -60,8 +62,9 @@ validate_pmx_stats() at construction time.'><meta property="og:image" content="h
 three slots — <code>stats</code> (the per-row summary frame), <code>obs</code> (the observation
 overlay used by plot builders, may be <code>NULL</code>), and <code>config</code> (named list of
 run configuration consumed by the plot builders). The class vector is
-<code>c(&lt;subclass&gt;, "pmx_stats")</code>. The structural shape is enforced by
-<code><a href="validate_pmx_stats.html">validate_pmx_stats()</a></code> at construction time.</p>
+<code>c(&lt;subclass&gt;, "pmx_stats")</code>. The container is checked with
+<code><a href="validate_pmx_stats.html">validate_pmx_stats()</a></code> at construction time, including the subclass
+contract for <code>vpc_stats</code>, <code>doseprop_stats</code> and <code>forest_stats</code>.</p>
     </div>
 
     <div class="section level2">
@@ -99,7 +102,8 @@ width, replicate count).</p></dd>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other pmx stats class:
-<code><a href="is_pmx_stats.html">is_pmx_stats()</a></code></p></div>
+<code><a href="is_pmx_stats.html">is_pmx_stats()</a></code>,
+<code><a href="validate_pmx_stats.html">validate_pmx_stats.doseprop_stats()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

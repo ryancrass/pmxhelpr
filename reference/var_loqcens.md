@@ -9,7 +9,7 @@ computation is performed downstream.
 ## Usage
 
 ``` r
-var_loqcens(x, loq = NULL, mdv = NULL)
+var_loqcens(x, loq = NULL, mdv = NULL, call = rlang::caller_env())
 ```
 
 ## Arguments
@@ -27,6 +27,10 @@ var_loqcens(x, loq = NULL, mdv = NULL)
 
   Integer/logical vector of length `length(x)` flagging missing-DV rows
   (NONMEM convention `MDV == 1`), or `NULL` (no MDV trigger).
+
+- call:
+
+  The call reported in errors.
 
 ## Value
 

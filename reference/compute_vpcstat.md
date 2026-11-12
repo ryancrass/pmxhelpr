@@ -9,7 +9,7 @@ Called twice by
 ## Usage
 
 ``` r
-compute_vpcstat(data, group_vars, irep_name, pi, ci_bounds, has_loq, pcvpc)
+compute_vpcstat(data, group_vars, rep_var, pi, ci_bounds, has_loq, pcvpc)
 ```
 
 ## Arguments
@@ -24,7 +24,7 @@ compute_vpcstat(data, group_vars, irep_name, pi, ci_bounds, has_loq, pcvpc)
   Character vector of grouping columns (`bin_var` and optional
   `strat_var`).
 
-- irep_name:
+- rep_var:
 
   String. Replicate identifier column name.
 

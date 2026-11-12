@@ -27,7 +27,12 @@ the `pmx_vpc_plot` class, and `reveal(as = "facet")` and
 `restyle_plot(facet = )` warn like `+ facet_*()`.
 
 The `pmx_vpc_plot` class is preserved on the result so that subsequent
-`+` calls are also intercepted.
+`+` calls are also intercepted. Combining plots (patchwork `+`, `|`,
+`/`, or
+[`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html))
+returns a patchwork that is not a `pmx_vpc_plot`, except a `+` chain
+ending on a VPC (`p2 + p`): patchwork treats that figure as its last
+panel, so it keeps the class and a facet added to it warns.
 
 ## Usage
 

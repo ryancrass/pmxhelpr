@@ -31,7 +31,7 @@ add_loq_layer_style(
 
 - caption:
 
-  Current caption string.
+  Current caption lines (character vector).
 
 - loq_method:
 
@@ -59,5 +59,5 @@ add_loq_layer_style(
 
 ## Value
 
-A named list with `plot` (modified ggplot) and `caption` (modified
-string).
+A named list with `plot` (modified ggplot) and `caption` (the caption
+lines with the BLQ line appended).

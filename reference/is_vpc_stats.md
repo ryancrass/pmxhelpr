@@ -22,7 +22,7 @@ is_vpc_stats(x, strict = FALSE)
 - strict:
 
   Logical. When `TRUE`, additionally runs
-  [`validate_vpc_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_vpc_stats.md)
+  [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
   and returns `FALSE` on validation failure. Default `FALSE` (class-tag
   check only, cheap).
 

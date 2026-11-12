@@ -13,7 +13,7 @@ with a clear message on failure; returns x invisibly on success."><meta property
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ with a clear message on failure; returns x invisibly on success."><meta property
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Validate a <code>forest_stats</code> object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_forest.R" class="external-link"><code>R/plot_forest.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/forest_stats.R" class="external-link"><code>R/forest_stats.R</code></a></small>
       <div class="d-none name"><code>validate_forest_stats.Rd</code></div>
     </div>
 
@@ -57,7 +57,11 @@ with a clear message on failure; returns <code>x</code> invisibly on success.</p
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_forest_stats</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validate_forest_stats</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  arg <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/caller_arg.html" class="external-link">caller_arg</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -66,6 +70,10 @@ with a clear message on failure; returns <code>x</code> invisibly on success.</p
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Object to validate.</p></dd>
+
+
+<dt id="arg-arg-call">arg, call<a class="anchor" aria-label="anchor" href="#arg-arg-call"></a></dt>
+<dd><p>The argument name and call reported in errors.</p></dd>
 
 </dl></div>
     <div class="section level2">

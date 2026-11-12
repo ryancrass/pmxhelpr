@@ -243,7 +243,10 @@ df_forest_preprocess(
   cov_val_ref = c(FOOD = 0, WTBL = 70)
 )
 #> Error in `df_forest_preprocess()`:
-#> ! every non-reference scenario must differ from the reference in exactly one covariate; these differ in more than one: FOOD = 1, WTBL = 90. `df_forest_preprocess()` does not support factorial scenario designs.
+#> ! Every non-reference scenario must differ from the reference in exactly
+#>   one covariate.
+#> ✖ This scenario differs in more than one: "FOOD = 1, WTBL = 90".
+#> ℹ `df_forest_preprocess()` does not support factorial scenario designs.
 ```
 
 ### Ratios
@@ -290,8 +293,8 @@ df_forest_preprocess(
   cov_labels    = list(FOOD = c("0" = "Fasted"))
 ) %>%
   distinct(cov_name, cov_level)
-#> Warning: `cov_labels` has no entry for these covariate values: FOOD = 1. They
-#> are labeled by their character value.
+#> Warning: `cov_labels` has no entry for this covariate value: "FOOD = 1". It is labeled
+#> by its character value.
 #>    cov_name cov_level
 #> 1 Reference Reference
 #> 2      FOOD         1
@@ -751,6 +754,9 @@ plot_forest(forest_obj, metric = "CMAX", ref_band = c(0.8, 1.25),
 ```
 
 ![](forest-workflow_files/figure-html/plot-precomputed-2.png)
+
+`autoplot(forest_obj, metric = "CMAX")` does the same with
+[`plot_build_forest()`](https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.md).
 
 `forest_obj` was computed with `cov_level_ref`, so `ref_layout` can
 switch it to the reference panel:

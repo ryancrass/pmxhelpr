@@ -15,7 +15,7 @@ plot_vpc_legend(), with an uninformative R error."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ plot_vpc_legend(), with an uninformative R error."><meta property="og:image" con
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Internal helper: resolve and validate the <code>style</code> argument</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/utils_check.R" class="external-link"><code>R/utils_check.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/style_internals.R" class="external-link"><code>R/style_internals.R</code></a></small>
       <div class="d-none name"><code>resolve_style.Rd</code></div>
     </div>
 
@@ -60,7 +60,7 @@ else; without it, a bad <code>style</code> fails deep inside <code>ggstylekit</c
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">resolve_style</span><span class="op">(</span><span class="va">style</span>, <span class="va">default</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">resolve_style</span><span class="op">(</span><span class="va">style</span>, <span class="va">default</span>, call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -74,6 +74,10 @@ else; without it, a bad <code>style</code> fails deep inside <code>ggstylekit</c
 <dt id="arg-default">default<a class="anchor" aria-label="anchor" href="#arg-default"></a></dt>
 <dd><p>A function returning the family preset (e.g. <a href="style_dvtime.html">style_dvtime</a>),
 called only when <code>style</code> is <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dd><p>The call reported in the error.</p></dd>
 
 </dl></div>
     <div class="section level2">

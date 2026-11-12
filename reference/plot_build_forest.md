@@ -161,6 +161,9 @@ one row per plotted point, in display order, with:
 
 ## See also
 
+[autoplot()](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md),
+which draws a container with its builder.
+
 Other forest plot:
 [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md),
 [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md),

@@ -3,6 +3,10 @@
 These objects are imported from other packages. Follow the links below
 to see their documentation.
 
+- ggplot2:
+
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+
 - ggstylekit:
 
   [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html),

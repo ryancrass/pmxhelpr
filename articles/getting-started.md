@@ -20,7 +20,10 @@ The bundled datasets `data_sad` and `data_sad_pkfit` use `ODV` (original
 DV). Examples below pass `dv_var = "ODV"` or `dv_var = ODV` to highlight
 the non-standard evaluation (NSE) of dataset column name variables which
 may be specified as strings or bare names to override defaults in
-`pmxhelpr` functions.
+`pmxhelpr` functions. A bare name that matches a column of the data
+always means that column. To pass a column name held in a variable, use
+a variable whose name is not a column (`v <- "ODV"; dv_var = v`) or
+inject it with `!!` (`dv_var = !!v`).
 
 ``` r
 
@@ -459,9 +462,10 @@ into the simulation or captured in output. These include:
 - `dv_var` = DV, dependent variable
 - `time_var` = TIME, actual time variable
 - `ntime_var` = NTIME, nominal time variable
-- `pred_var` = PRED, population prediction variable
-- `ipred_var` = IPRED, individual prediction variable
-- `sim_dv_var` = DV, dependent variable captured in the simulated output
+- `ipred_output` = IPRED, individual prediction output of the model
+  (also simulated with random effects zeroed to give the population
+  prediction, `PRED`)
+- `dv_output` = DV, dependent variable output of the model
 
 ``` r
 
@@ -470,7 +474,7 @@ simout <- df_mrgsim_replicate(
   model = pkmodel,
   replicates = 100,
   dv_var = "ODV",
-  sim_dv_var = DV,
+  dv_output = DV,
   carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"),
   recover  = c("PART", "Regimen")
 ) 
@@ -534,7 +538,7 @@ vpcstats_obj_part
 #> <vpc_stats>
 #>   stats: 38 rows x 35 columns
 #>   obs:   506 rows
-#>   config: n_replicates = 100, loq = 1, strat_var = PART
+#>   config: n_replicates = 100, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = PART
 #>   column groups (stats):
 #>     identifiers  : BIN_MID, PART
 #>     counts       : obs_n, obs_n_blq, obs_prop_blq

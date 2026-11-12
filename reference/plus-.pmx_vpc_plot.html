@@ -10,7 +10,11 @@ Facets inside a list() are caught the same way. restyle_plot() and
 reveal() keep the pmx_vpc_plot class, and reveal(as = "facet") and
 restyle_plot(facet = ) warn like + facet_*().
 The pmx_vpc_plot class is preserved on the result so that subsequent +
-calls are also intercepted.'><meta property="og:description" content='S3 method for + applied to objects returned by plot_vpc_cont(),
+calls are also intercepted. Combining plots (patchwork +, |, /, or
+combine_styled_plots()) returns a patchwork that is not a
+pmx_vpc_plot, except a + chain ending on a VPC (p2 + p): patchwork
+treats that figure as its last panel, so it keeps the class and a facet
+added to it warns.'><meta property="og:description" content='S3 method for + applied to objects returned by plot_vpc_cont(),
 plot_vpc_cens(), and plot_build_vpc(). Delegates to the standard ggplot2 + operation for all
 layer types. When e2 is a ggplot2::facet_wrap() or ggplot2::facet_grid()
 specification, a warning is issued because the VPC summary statistics are
@@ -21,7 +25,11 @@ Facets inside a list() are caught the same way. restyle_plot() and
 reveal() keep the pmx_vpc_plot class, and reveal(as = "facet") and
 restyle_plot(facet = ) warn like + facet_*().
 The pmx_vpc_plot class is preserved on the result so that subsequent +
-calls are also intercepted.'><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
+calls are also intercepted. Combining plots (patchwork +, |, /, or
+combine_styled_plots()) returns a patchwork that is not a
+pmx_vpc_plot, except a + chain ending on a VPC (p2 + p): patchwork
+treats that figure as its last panel, so it keeps the class and a facet
+added to it warns.'><meta property="og:image" content="https://ryancrass.github.io/pmxhelpr/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -29,7 +37,7 @@ calls are also intercepted.'><meta property="og:image" content="https://ryancras
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +68,7 @@ calls are also intercepted.'><meta property="og:image" content="https://ryancras
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Add a layer to a <code>pmx_vpc_plot</code> with a facet warning</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/pmx_vpc_plot_class.R" class="external-link"><code>R/pmx_vpc_plot_class.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_plot_class.R" class="external-link"><code>R/vpc_plot_class.R</code></a></small>
       <div class="d-none name"><code>plus-.pmx_vpc_plot.Rd</code></div>
     </div>
 
@@ -76,7 +84,11 @@ to stratify both statistics and panels.</p>
 <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> keep the <code>pmx_vpc_plot</code> class, and <code>reveal(as = "facet")</code> and
 <code>restyle_plot(facet = )</code> warn like <code>+ facet_*()</code>.</p>
 <p>The <code>pmx_vpc_plot</code> class is preserved on the result so that subsequent <code>+</code>
-calls are also intercepted.</p>
+calls are also intercepted. Combining plots (patchwork <code>+</code>, <code>|</code>, <code>/</code>, or
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html" class="external-link">combine_styled_plots()</a></code>) returns a patchwork that is not a
+<code>pmx_vpc_plot</code>, except a <code>+</code> chain ending on a VPC (<code>p2 + p</code>): patchwork
+treats that figure as its last panel, so it keeps the class and a facet
+added to it warns.</p>
     </div>
 
     <div class="section level2">

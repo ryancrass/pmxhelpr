@@ -11,7 +11,7 @@ with an uninformative R error.
 ## Usage
 
 ``` r
-resolve_style(style, default)
+resolve_style(style, default, call = rlang::caller_env())
 ```
 
 ## Arguments
@@ -25,6 +25,10 @@ resolve_style(style, default)
   A function returning the family preset (e.g.
   [style_dvtime](https://ryancrass.github.io/pmxhelpr/reference/style_dvtime.md)),
   called only when `style` is `NULL`.
+
+- call:
+
+  The call reported in the error.
 
 ## Value
 

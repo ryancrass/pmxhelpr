@@ -24,8 +24,9 @@ df_vpcpreprocess(
   sim_dv_var_str,
   obs_dv_var_str,
   strat_var_str = NULL,
-  irep_name_str = "SIM",
-  loq = NULL
+  rep_var_str = "SIM",
+  loq = NULL,
+  call = rlang::caller_env()
 )
 ```
 
@@ -61,7 +62,7 @@ df_vpcpreprocess(
 
   String or `NULL`. Stratification variable name.
 
-- irep_name_str:
+- rep_var_str:
 
   String. Replicate identifier column name. Default is `"SIM"`.
 
@@ -70,6 +71,10 @@ df_vpcpreprocess(
   Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is present in
   `data`, per-row `LLOQ` values are used as the censoring threshold. A
   scalar `loq` broadcasts to a constant threshold across rows.
+
+- call:
+
+  The call reported in errors.
 
 ## Value
 

@@ -13,7 +13,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ construction."><meta property="og:image" content="https://ryancrass.github.io/pm
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot a visual predictive check (VPC) for continuous data with exact time bins</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_vpc_cont.R" class="external-link"><code>R/plot_vpc_cont.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_plot_cont.R" class="external-link"><code>R/vpc_plot_cont.R</code></a></small>
       <div class="d-none name"><code>plot_vpc_cont.Rd</code></div>
     </div>
 
@@ -67,7 +67,7 @@ construction.</p>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pcvpc <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  loq <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
+<span>  rep_var <span class="op">=</span> <span class="st">"SIM"</span>,</span>
 <span>  min_bin_count <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  show_rep <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -75,7 +75,8 @@ construction.</p>
 <span>  shown <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  style <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
-<span>  ci <span class="op">=</span> <span class="fl">0.9</span></span>
+<span>  ci <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>  <span class="va">irep_name</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -134,13 +135,14 @@ quantifiable values in the observed quantiles; simulated values are
 not censored.
 + pcVPC (<code>pcvpc = TRUE</code>): observed and simulated BLQ values are set to
 missing before prediction correction, so both are censored alike.</p>
-<p>The LLOQ line (<code>loq_line</code> role) is drawn at each unique LLOQ on standard
+<p>The LLOQ line (<code>loq_line</code> role) is drawn once per panel, at that panel's
+highest LLOQ when there are several, on standard
 VPCs only, since the LLOQ has no meaning on the prediction-corrected
 scale; hide it with <code>shown = plot_vpc_shown(loq_line = FALSE)</code>. The
 observed points show <code>MDV == 0</code> rows only.</p></dd>
 
 
-<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dt id="arg-rep-var">rep_var<a class="anchor" aria-label="anchor" href="#arg-rep-var"></a></dt>
 <dd><p>Name of replicate variable in <code>data</code>. Accepts bare names or strings. Default is <code>SIM</code>.</p></dd>
 
 
@@ -192,6 +194,10 @@ Pass the same style to
 <dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>
 <dd><p>Numeric scalar in <code>(0, 1)</code> for simulation interval (e.g., <code>0.90</code> for 90% CI). Default is <code>0.90</code>.</p></dd>
 
+
+<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>rep_var</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -223,7 +229,7 @@ as stratification must be specified via <code>strat_var</code> at call time.</p>
 <span class="r-in"><span>dv_var <span class="op">=</span> <span class="va">ODV</span>,</span></span>
 <span class="r-in"><span>carry_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LLOQ"</span>, <span class="st">"WTBL"</span>, <span class="st">"FOOD"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>recover  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USUBJID"</span>, <span class="st">"PART"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>irep_name <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
+<span class="r-in"><span>rep_var <span class="op">=</span> <span class="va">SIM</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">vpc_plot</span> <span class="op">&lt;-</span> <span class="fu">plot_vpc_cont</span><span class="op">(</span></span></span>
 <span class="r-in"><span>data <span class="op">=</span> <span class="va">simout</span>,</span></span>

@@ -1,8 +1,10 @@
 # VPC layer visibility settings
 
-Constructor and factory for controlling which VPC layers are displayed.
-Call with no arguments to view defaults. Pass overrides to customize.
-Each element maps 1:1 with a
+Constructor for the `shown` argument of the VPC plot functions and
+[`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md),
+controlling which VPC layers are built. Call with no arguments to view
+the defaults; pass `TRUE`/`FALSE` overrides to customize. Each element
+maps 1:1 with a
 [`style_vpc()`](https://ryancrass.github.io/pmxhelpr/reference/style_vpc.md)
 role/series key.
 
@@ -64,7 +66,7 @@ plot_vpc_shown(
 
 ## Value
 
-A named list of logicals
+A `vpc_shown` object: a named list of `TRUE`/`FALSE`.
 
 ## See also
 
@@ -82,59 +84,25 @@ Other vpc:
 
 ``` r
 plot_vpc_shown()
-#> $obs_point
-#> [1] TRUE
-#> 
-#> $obs_pi_line
-#> [1] TRUE
-#> 
-#> $obs_median_line
-#> [1] TRUE
-#> 
-#> $sim_pi_line
-#> [1] FALSE
-#> 
-#> $sim_pi_ci
-#> [1] TRUE
-#> 
-#> $sim_pi_area
-#> [1] FALSE
-#> 
-#> $sim_median_line
-#> [1] FALSE
-#> 
-#> $sim_median_ci
-#> [1] TRUE
-#> 
-#> $loq_line
-#> [1] TRUE
-#> 
+#> <vpc_shown>
+#>   obs_point        TRUE
+#>   obs_pi_line      TRUE
+#>   obs_median_line  TRUE
+#>   sim_pi_line      FALSE
+#>   sim_pi_ci        TRUE
+#>   sim_pi_area      FALSE
+#>   sim_median_line  FALSE
+#>   sim_median_ci    TRUE
+#>   loq_line         TRUE
 plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
-#> $obs_point
-#> [1] FALSE
-#> 
-#> $obs_pi_line
-#> [1] TRUE
-#> 
-#> $obs_median_line
-#> [1] TRUE
-#> 
-#> $sim_pi_line
-#> [1] TRUE
-#> 
-#> $sim_pi_ci
-#> [1] TRUE
-#> 
-#> $sim_pi_area
-#> [1] FALSE
-#> 
-#> $sim_median_line
-#> [1] FALSE
-#> 
-#> $sim_median_ci
-#> [1] TRUE
-#> 
-#> $loq_line
-#> [1] TRUE
-#> 
+#> <vpc_shown>
+#>   obs_point        FALSE
+#>   obs_pi_line      TRUE
+#>   obs_median_line  TRUE
+#>   sim_pi_line      TRUE
+#>   sim_pi_ci        TRUE
+#>   sim_pi_area      FALSE
+#>   sim_median_line  FALSE
+#>   sim_median_ci    TRUE
+#>   loq_line         TRUE
 ```

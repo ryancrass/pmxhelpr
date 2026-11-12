@@ -1,23 +1,74 @@
 # Validate a `pmx_stats` container
 
-Internal helper. Asserts that `x` carries the `pmx_stats` class and
-exposes the `stats` / `obs` / `config` slots in the expected shape.
-Subclass validators pass their contract (class, required columns,
-required config keys) through the optional arguments, so every container
-reports missing pieces with the same messages, and then apply any checks
-of their own.
+Checks that `x` is a well-formed `pmx_stats` container and returns it
+invisibly, or aborts with an error of class `pmxhelpr_error_bad_stats`
+naming what is wrong. Use it after editing a container (e.g. `x$stats`)
+or building one by hand with
+[`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md);
+[`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md)
+with `strict = TRUE` runs the same checks but returns `TRUE`/`FALSE`.
+
+The generic dispatches on the container class:
+
+- `vpc_stats`: the bin, count and quantile columns of `stats`; the
+  `OBSDV`/`PC_OBSDV`/`TIME` columns of `obs`; the `n_replicates`, `ci`,
+  `pi`, `loq` and `strat_var` config keys; and the `sim_prop_blq_*`
+  columns when `config$loq` is set.
+
+- `doseprop_stats`: the power-model columns of `stats`, an `obs` frame
+  holding the `config` metric and dose columns, and the
+  `metric_name_var`, `metric_value_var`, `dose_var` and `ci` config
+  keys.
+
+- `forest_stats`: the estimate, label, `is_ref` and `layout` columns of
+  `stats` with their types and values, the `config` grouping columns,
+  and valid `config$ci` and `config$sigdigits`.
+
+- Any other object: `x` must carry the `pmx_stats` class and have a
+  `stats` data.frame, an `obs` data.frame or `NULL`, and a `config`
+  list. Packages defining their own `pmx_stats` subclass can add a
+  method.
 
 ## Usage
 
 ``` r
+# S3 method for class 'doseprop_stats'
 validate_pmx_stats(
   x,
-  subclass = NULL,
-  source = NULL,
-  stats_cols = NULL,
-  obs_cols = NULL,
-  config_keys = NULL,
-  require_obs = length(obs_cols) > 0
+  ...,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
+
+# S3 method for class 'forest_stats'
+validate_pmx_stats(
+  x,
+  ...,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
+
+validate_pmx_stats(
+  x,
+  ...,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
+
+# Default S3 method
+validate_pmx_stats(
+  x,
+  ...,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
+
+# S3 method for class 'vpc_stats'
+validate_pmx_stats(
+  x,
+  ...,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
 )
 ```
 
@@ -27,32 +78,31 @@ validate_pmx_stats(
 
   Object to validate.
 
-- subclass:
+- ...:
 
-  Optional subclass name `x` must carry (e.g. `"forest_stats"`).
+  Passed to methods; unused by the methods in pmxhelpr.
 
-- source:
+- arg, call:
 
-  Name of the function that builds `subclass`, quoted in the class error
-  (e.g. `"df_forest"`).
-
-- stats_cols:
-
-  Columns `x$stats` must contain.
-
-- obs_cols:
-
-  Columns `x$obs` must contain.
-
-- config_keys:
-
-  Keys `x$config` must contain.
-
-- require_obs:
-
-  Logical; whether `x$obs` must be a data.frame rather than `NULL`.
-  Implied by a non-empty `obs_cols`.
+  The argument name and call reported in errors.
 
 ## Value
 
 `invisible(x)` on success.
+
+## See also
+
+Other pmx stats class:
+[`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md),
+[`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md)
+
+## Examples
+
+``` r
+fs <- df_forest(data_sad_pkforest)
+validate_pmx_stats(fs)
+fs$stats$est <- as.character(fs$stats$est)
+try(validate_pmx_stats(fs))
+#> Error in eval(expr, envir) : 
+#>   `fs$stats` column `est` must be numeric.
+```

@@ -9,9 +9,10 @@ Each container is a named list with three slots — `stats` (the per-row
 summary frame), `obs` (the observation overlay used by plot builders,
 may be `NULL`), and `config` (named list of run configuration consumed
 by the plot builders). The class vector is `c(<subclass>, "pmx_stats")`.
-The structural shape is enforced by
+The container is checked with
 [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
-at construction time.
+at construction time, including the subclass contract for `vpc_stats`,
+`doseprop_stats` and `forest_stats`.
 
 ## Usage
 
@@ -47,4 +48,5 @@ An object of class `c(subclass, "pmx_stats")`.
 ## See also
 
 Other pmx stats class:
-[`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md)
+[`is_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_stats.md),
+[`validate_pmx_stats.doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)

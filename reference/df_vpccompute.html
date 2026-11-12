@@ -19,7 +19,7 @@ observations (obs_n == obs_n_blq)."><meta property="og:image" content="https://r
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ observations (obs_n == obs_n_blq)."><meta property="og:image" content="https://r
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compute VPC quantile statistics from preprocessed data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_preprocess_df.R" class="external-link"><code>R/vpc_preprocess_df.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_compute.R" class="external-link"><code>R/vpc_compute.R</code></a></small>
       <div class="d-none name"><code>df_vpccompute.Rd</code></div>
     </div>
 
@@ -72,10 +72,11 @@ observations (<code>obs_n == obs_n_blq</code>).</p>
 <span>  ci <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  bin_var <span class="op">=</span> <span class="va">.vpc_bin_col</span>,</span>
 <span>  strat_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  irep_name <span class="op">=</span> <span class="st">"SIM"</span>,</span>
+<span>  rep_var <span class="op">=</span> <span class="st">"SIM"</span>,</span>
 <span>  lower_bound <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"rank"</span>, <span class="st">"drop"</span><span class="op">)</span>,</span>
-<span>  loq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data</span>, <span class="st">"loq"</span><span class="op">)</span></span>
+<span>  loq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data</span>, <span class="st">"loq"</span><span class="op">)</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -105,7 +106,7 @@ Default is <code>c(0.05, 0.95)</code>.</p></dd>
 <dd><p>String or <code>NULL</code>. Stratification variable name. Default is <code>NULL</code>.</p></dd>
 
 
-<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dt id="arg-rep-var">rep_var<a class="anchor" aria-label="anchor" href="#arg-rep-var"></a></dt>
 <dd><p>String. Replicate identifier column name. Default is <code>"SIM"</code>.</p></dd>
 
 
@@ -128,6 +129,10 @@ non-NULL, the std stats include <code>sim_prop_blq_low/med/hi</code> (BLQ detect
 reads per-row thresholds from <code>data$LOQ</code>). The pc stats do <em>not</em> emit a
 <code>pc_sim_prop_blq_*</code> set — LOQ has no meaning on the prediction-corrected
 scale.</p></dd>
+
+
+<dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
+<dd><p>The call reported in errors.</p></dd>
 
 </dl></div>
     <div class="section level2">

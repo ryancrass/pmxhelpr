@@ -10,7 +10,11 @@ on success.
 ## Usage
 
 ``` r
-validate_forest_stats(x)
+validate_forest_stats(
+  x,
+  arg = rlang::caller_arg(x),
+  call = rlang::caller_env()
+)
 ```
 
 ## Arguments
@@ -18,6 +22,10 @@ validate_forest_stats(x)
 - x:
 
   Object to validate.
+
+- arg, call:
+
+  The argument name and call reported in errors.
 
 ## Value
 

@@ -37,7 +37,7 @@ stratify, pass strat_var to df_vpcstats()."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@ stratify, pass strat_var to df_vpcstats()."><meta property="og:image" content="h
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Build a VPC ggplot from a <code>vpc_stats</code> object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/plot_build_vpc.R" class="external-link"><code>R/plot_build_vpc.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_build.R" class="external-link"><code>R/vpc_build.R</code></a></small>
       <div class="d-none name"><code>plot_build_vpc.Rd</code></div>
     </div>
 
@@ -169,18 +169,20 @@ when <code>type = "cont"</code>.</p></dd>
 
 <dt id="arg-loq">loq<a class="anchor" aria-label="anchor" href="#arg-loq"></a></dt>
 <dd><p>Numeric scalar or vector of LOQ values for the reference line,
-or <code>NULL</code> to suppress. When omitted (inherited from
-<code>stats$config$loq</code>), the container is stratified
-(<code>stats$config$strat_var</code>), and <code>stats$obs</code>
-carries a row-aligned <code>LOQ</code> column, ref lines are drawn per facet —
-each facet shows only the LLOQ values applicable to its strat-level
-rows. When <code>loq</code> is supplied explicitly, the value always wins and
-one global reference line is drawn per unique value of <code>loq</code> (the
-per-facet column-based dispatch is reserved for the inherited case).
-In the no-stratification or no-<code>obs$LOQ</code> cases, a global reference
-line is drawn per unique value of <code>loq</code> regardless of inheritance.
+or <code>NULL</code> to suppress. One line is drawn per panel, at the highest LLOQ
+when there are several (the most censoring). When omitted (inherited
+from <code>stats$config$loq</code>), the container is stratified
+(<code>stats$config$strat_var</code>), and <code>stats$obs</code> carries a row-aligned <code>LOQ</code>
+column, each facet draws the highest LLOQ of its own strat-level rows.
+When <code>loq</code> is supplied explicitly, the value always wins and one global
+reference line is drawn at <code>max(loq)</code> (the per-facet column-based
+dispatch is reserved for the inherited case). In the no-stratification
+or no-<code>obs$LOQ</code> cases, one global line is drawn at the highest <code>loq</code>
+regardless of inheritance.
 The legend entry for LLOQ is <em>not</em> attached here — pass the same
-value to <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> when composing the legend panel.
+value to <code><a href="plot_vpc_legend.html">plot_vpc_legend()</a></code> when composing the legend panel, or pass
+the container as <code>plot_vpc_legend(stats = )</code>, which reads
+<code>stats$config$loq</code>.
 <code>stats$config$loq</code> is already a vector of unique non-NA LOQ
 values when <code><a href="df_vpcstats.html">df_vpcstats()</a></code> populated the container. Forced to <code>NULL</code>
 when <code>pcvpc = TRUE</code> (LOQ has no meaning on the prediction-corrected
@@ -193,7 +195,8 @@ scale).</p></dd>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other vpc:
+    <div class="dont-index"><p><a href="autoplot.pmx_stats.html">autoplot()</a>, which draws a container with its builder.</p>
+<p>Other vpc:
 <code><a href="df_vpcstats.html">df_vpcstats()</a></code>,
 <code><a href="is_pmx_vpc_plot.html">is_pmx_vpc_plot()</a></code>,
 <code><a href="is_vpc_stats.html">is_vpc_stats()</a></code>,

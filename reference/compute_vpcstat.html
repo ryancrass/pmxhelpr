@@ -13,7 +13,7 @@ a prediction-corrected copy."><meta property="og:image" content="https://ryancra
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@ a prediction-corrected copy."><meta property="og:image" content="https://ryancra
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Internal helper: per-flavor VPC quantile aggregation</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_preprocess_df.R" class="external-link"><code>R/vpc_preprocess_df.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/vpc_compute.R" class="external-link"><code>R/vpc_compute.R</code></a></small>
       <div class="d-none name"><code>compute_vpcstat.Rd</code></div>
     </div>
 
@@ -57,7 +57,7 @@ a prediction-corrected copy.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compute_vpcstat</span><span class="op">(</span><span class="va">data</span>, <span class="va">group_vars</span>, <span class="va">irep_name</span>, <span class="va">pi</span>, <span class="va">ci_bounds</span>, <span class="va">has_loq</span>, <span class="va">pcvpc</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compute_vpcstat</span><span class="op">(</span><span class="va">data</span>, <span class="va">group_vars</span>, <span class="va">rep_var</span>, <span class="va">pi</span>, <span class="va">ci_bounds</span>, <span class="va">has_loq</span>, <span class="va">pcvpc</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -74,7 +74,7 @@ a prediction-corrected copy.</p>
 optional <code>strat_var</code>).</p></dd>
 
 
-<dt id="arg-irep-name">irep_name<a class="anchor" aria-label="anchor" href="#arg-irep-name"></a></dt>
+<dt id="arg-rep-var">rep_var<a class="anchor" aria-label="anchor" href="#arg-rep-var"></a></dt>
 <dd><p>String. Replicate identifier column name.</p></dd>
 
 

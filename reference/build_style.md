@@ -17,7 +17,7 @@ The merged fields are passed to
 ## Usage
 
 ``` r
-build_style(defaults, overrides = list())
+build_style(defaults, overrides = list(), call = rlang::caller_env())
 ```
 
 ## Arguments
@@ -29,6 +29,10 @@ build_style(defaults, overrides = list())
 - overrides:
 
   Named list of user overrides (typically `list(...)`).
+
+- call:
+
+  The call reported in the error.
 
 ## Value
 

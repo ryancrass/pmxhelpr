@@ -9,7 +9,12 @@ covariate panel) only in that one.
 ## Usage
 
 ``` r
-forest_rows(stats, ref_layout = NULL, metric = NULL)
+forest_rows(
+  stats,
+  ref_layout = NULL,
+  metric = NULL,
+  call = rlang::caller_env()
+)
 ```
 
 ## Arguments
@@ -27,6 +32,10 @@ forest_rows(stats, ref_layout = NULL, metric = NULL)
 - metric:
 
   Optional metric value to restrict the rows to.
+
+- call:
+
+  The call reported in errors.
 
 ## Value
 

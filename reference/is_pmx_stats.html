@@ -15,7 +15,7 @@ need to discriminate between pipelines.'><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ need to discriminate between pipelines.'><meta property="og:image" content="http
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Test whether an object is a <code>pmx_stats</code> container</h1>
-      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/pmx_stats_class.R" class="external-link"><code>R/pmx_stats_class.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/R/pmx_stats.R" class="external-link"><code>R/pmx_stats.R</code></a></small>
       <div class="d-none name"><code>is_pmx_stats.Rd</code></div>
     </div>
 
@@ -73,8 +73,9 @@ need to discriminate between pipelines.</p>
 
 <dt id="arg-strict">strict<a class="anchor" aria-label="anchor" href="#arg-strict"></a></dt>
 <dd><p>Logical. When <code>TRUE</code>, additionally runs
-<code><a href="validate_pmx_stats.html">validate_pmx_stats()</a></code> and returns <code>FALSE</code> on validation failure.
-Default <code>FALSE</code> (class-tag check only, cheap).</p></dd>
+<code><a href="validate_pmx_stats.html">validate_pmx_stats()</a></code>, which applies the subclass contract, and
+returns <code>FALSE</code> on validation failure. Default <code>FALSE</code> (class-tag check
+only, cheap).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -84,7 +85,8 @@ Default <code>FALSE</code> (class-tag check only, cheap).</p></dd>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other pmx stats class:
-<code><a href="pmx_stats.html">pmx_stats()</a></code></p></div>
+<code><a href="pmx_stats.html">pmx_stats()</a></code>,
+<code><a href="validate_pmx_stats.html">validate_pmx_stats.doseprop_stats()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

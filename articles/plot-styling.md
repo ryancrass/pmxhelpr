@@ -295,6 +295,10 @@ one exception, the caption, follows the list):
   `plot_vpc_shown(obs_point = FALSE)` (a single flag, since the observed
   points are their only optional layer); an invisible layer still sets
   the axis limits.
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) is the
+  third tool: it maps an extra data variable onto layers that were
+  built, so it can recolor or facet them after the fact but cannot bring
+  back a layer that `shown` left out.
 
 The **caption** is the exception: the style wins.
 [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md),

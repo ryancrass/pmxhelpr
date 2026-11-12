@@ -2,8 +2,7 @@
 
 Defensive check intended to be called immediately after an internal
 `dplyr::filter(data, EVID == 0)` step. If the filtered data carries more
-than one unique value of `CMT`, the function emits a
-[`rlang::warn()`](https://rlang.r-lib.org/reference/abort.html)
+than one unique value of `CMT`, the function emits a warning
 recommending the caller pre-filter to a single observation compartment.
 No-op when the `CMT` column is absent or the data is empty.
 

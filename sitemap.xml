@@ -13,15 +13,14 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/authors.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/index.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/news/index.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_cent_layers_gof_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_cent_layers_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_errorbar_layers_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_loq_layer_style.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_obs_layers_gof_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_obs_layers_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_ref_layer_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/add_trend_layers_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/as.data.frame.pmx_stats.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/build_style.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/check_pipeline_args_dropped.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/check_single_cmt.html</loc></url>
@@ -53,7 +52,6 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/is_vpc_stats.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/legend_style_theme.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/level_order.html</loc></url>
-<url><loc>https://ryancrass.github.io/pmxhelpr/reference/merge_element.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/model_mread_load.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_build_doseprop.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/plot_build_forest.html</loc></url>
@@ -74,6 +72,7 @@
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/pmxhelpr-package.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/print.doseprop_stats.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/print.forest_stats.html</loc></url>
+<url><loc>https://ryancrass.github.io/pmxhelpr/reference/print.pmx_shown.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/print.pmx_stats.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/print.vpc_stats.html</loc></url>
 <url><loc>https://ryancrass.github.io/pmxhelpr/reference/reexports.html</loc></url>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -256,9 +256,11 @@ of observed concentration-time data in exploratory data analysis:
 <p>Let’s try passing in our PK dataset with no other arguments.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_dvtime.html">plot_dvtime</a></span><span class="op">(</span><span class="va">plot_data_pk</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_varsindf()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> argument `dv_var` must be variable(s) in `data` (not found: 'DV').</span></span>
-<span><span class="co">#&gt; Available columns: ID, TIME, NTIME, NDAY, DOSE, AMT, EVID, ODV, LDV, CFB, CONC, LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL, USUBJID, PART, Food Status, Dose and Food, Dose</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `plot_dvtime()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `dv_var` must name variable in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Not found: <span style="color: #0000BB;">"DV"</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Available columns: <span style="color: #00BB00;">ID</span>, <span style="color: #00BB00;">TIME</span>, <span style="color: #00BB00;">NTIME</span>, <span style="color: #00BB00;">NDAY</span>, <span style="color: #00BB00;">DOSE</span>, <span style="color: #00BB00;">AMT</span>, <span style="color: #00BB00;">EVID</span>, <span style="color: #00BB00;">ODV</span>, <span style="color: #00BB00;">LDV</span>, <span style="color: #00BB00;">CFB</span>,</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">CONC</span>, <span style="color: #00BB00;">LINE</span>, <span style="color: #00BB00;">CMT</span>, <span style="color: #00BB00;">MDV</span>, <span style="color: #00BB00;">BLQ</span>, <span style="color: #00BB00;">LLOQ</span>, <span style="color: #00BB00;">FOOD</span>, <span style="color: #00BB00;">SEXF</span>, …, <span style="color: #00BB00;">Dose and Food</span>, and <span style="color: #00BB00;">Dose</span>.</span></span></code></pre></div>
 <p>The function with no arguments other than the input dataset returns
 an error with a helpful error message letting us know the additional
 argument required to be specified.</p>
@@ -519,9 +521,11 @@ and can be passed as a bare column name or as a string.</p>
 <span>            cent <span class="op">=</span> <span class="st">"mean"</span>, log_y <span class="op">=</span> <span class="cn">TRUE</span>,dosenorm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"Dose-normalized Conc. (ng/mL/mg)"</span>, x <span class="op">=</span> <span class="st">"Time Since First Dose (hours)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">PART</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `check_varsindf()`:</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> argument `dose_var` must be variable(s) in `data` (not found: 'DOSE').</span></span>
-<span><span class="co">#&gt; Available columns: ID, TIME, NTIME, NDAY, AMT, EVID, ODV, LDV, CFB, CONC, LINE, CMT, MDV, BLQ, LLOQ, FOOD, SEXF, RACE, AGEBL, WTBL, SCRBL, CRCLBL, USUBJID, PART, Food Status, Dose and Food, Dose</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `plot_dvtime()`:</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> `dose_var` must name variable in `data`.</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Not found: <span style="color: #0000BB;">"DOSE"</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Available columns: <span style="color: #00BB00;">ID</span>, <span style="color: #00BB00;">TIME</span>, <span style="color: #00BB00;">NTIME</span>, <span style="color: #00BB00;">NDAY</span>, <span style="color: #00BB00;">AMT</span>, <span style="color: #00BB00;">EVID</span>, <span style="color: #00BB00;">ODV</span>, <span style="color: #00BB00;">LDV</span>, <span style="color: #00BB00;">CFB</span>, <span style="color: #00BB00;">CONC</span>,</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">LINE</span>, <span style="color: #00BB00;">CMT</span>, <span style="color: #00BB00;">MDV</span>, <span style="color: #00BB00;">BLQ</span>, <span style="color: #00BB00;">LLOQ</span>, <span style="color: #00BB00;">FOOD</span>, <span style="color: #00BB00;">SEXF</span>, <span style="color: #00BB00;">RACE</span>, …, <span style="color: #00BB00;">Dose and Food</span>, and <span style="color: #00BB00;">Dose</span>.</span></span></code></pre></div>
 <p>Dose-normalization is performed <em>AFTER</em> BLQ imputation in the
 case in which both options are requested. The reference line for the
 LLOQ will not be plotted when dose-normalized concentration is the

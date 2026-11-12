@@ -26,11 +26,12 @@ df_vpcstats(
   obs_dv_var = "OBSDV",
   strat_var = NULL,
   loq = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
   pi = c(0.05, 0.95),
-  ci = 0.9
+  ci = 0.9,
+  irep_name
 )
 ```
 
@@ -40,7 +41,7 @@ df_vpcstats(
 
   Raw simulation output. Must contain `EVID`, `MDV`, `PRED`, and columns
   named by `time_var`, `ntime_var`, `sim_dv_var`, `obs_dv_var`, and
-  `irep_name`.
+  `rep_var`.
 
 - time_var:
 
@@ -80,7 +81,7 @@ df_vpcstats(
   unique non-NA values are exposed via `config$loq` for plotting. A
   scalar `loq` broadcasts to a constant threshold across rows.
 
-- irep_name:
+- rep_var:
 
   Replicate identifier column. Accepts bare names or strings. Default is
   `SIM`.
@@ -105,6 +106,10 @@ df_vpcstats(
 
   Numeric scalar in `(0, 1)` specifying the simulation interval (e.g.,
   `0.90` for a 90% CI). Default is `0.90`.
+
+- irep_name:
+
+  **\[deprecated\]** Use `rep_var`.
 
 ## Value
 
@@ -132,8 +137,13 @@ A `vpc_stats` container (subclass of `pmx_stats`) with three slots:
 
 - `config`:
 
-  Named list with `n_replicates`, `loq` (unique non-NA LOQ values, or
-  `NULL`), and `strat_var`.
+  Named list of the run configuration: `n_replicates`, `ci`, `pi`,
+  `mode` (as passed, before the per-flavor `"auto"` resolution), `loq`
+  (unique non-NA LOQ values, or `NULL`), `strat_var`, and the source
+  column names `rep_var`, `time_var`, `ntime_var`, `pred_var`,
+  `sim_dv_var`, and `obs_dv_var`.
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  reads `ci`, `pi`, and `loq` from it via its `stats` argument.
 
 Pass directly to
 [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),

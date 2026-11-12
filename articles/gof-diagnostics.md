@@ -246,17 +246,11 @@ with no arguments:
 ``` r
 
 plot_gof_shown()
-#> $obs
-#> [1] TRUE
-#> 
-#> $dv
-#> [1] TRUE
-#> 
-#> $pred
-#> [1] TRUE
-#> 
-#> $ipred
-#> [1] TRUE
+#> <gof_shown>
+#>   obs    TRUE
+#>   dv     TRUE
+#>   pred   TRUE
+#>   ipred  TRUE
 ```
 
 The components of the list correspond to the following plot elements:

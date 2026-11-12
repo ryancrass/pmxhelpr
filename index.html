@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
 <p>The recommended way to install pmxhelpr is with <a href="https://github.com/A2-ai/rv" class="external-link">rv</a>. Add the two PRISM repositories and pmxhelpr to your project’s <code>rproject.toml</code>, then run <code>rv sync</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="dt">repositories</span> <span class="op">=</span> <span class="op">[</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">alias</span><span class="op"> =</span> <span class="st">"CRAN"</span><span class="op">, </span><span class="dt">url</span><span class="op"> =</span> <span class="st">"https://packagemanager.posit.co/cran/latest"</span><span class="op"> },</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">alias</span><span class="op"> =</span> <span class="st">"pmxhelpr"</span><span class="op">, </span><span class="dt">url</span><span class="op"> =</span> <span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0/"</span><span class="op"> },</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">alias</span><span class="op"> =</span> <span class="st">"pmxhelpr"</span><span class="op">, </span><span class="dt">url</span><span class="op"> =</span> <span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.8.0/"</span><span class="op"> },</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">alias</span><span class="op"> =</span> <span class="st">"ggstylekit"</span><span class="op">, </span><span class="dt">url</span><span class="op"> =</span> <span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1/"</span><span class="op"> }</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="op">]</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
@@ -100,7 +100,7 @@
 <p>Alternatively, install from the same repositories with <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pmxhelpr"</span>,</span>
-<span>                 repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.7.0"</span>,</span>
+<span>                 repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/pmxhelpr/0.8.0"</span>,</span>
 <span>                           <span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1"</span>,</span>
 <span>                           <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>To install a development version or another <a href="https://github.com/ryancrass/pmxhelpr/releases" class="external-link">tagged release</a> from GitHub, install <code>ggstylekit</code> from PRISM first, then use <code>devtools</code>:</p>
@@ -109,7 +109,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggstylekit"</span>,</span>
 <span>                 repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://prism.dev.a2-ai.cloud/rpkgs/ggstylekit/0.4.1"</span>,</span>
 <span>                           <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ryancrass/pmxhelpr@v0.7.0"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ryancrass/pmxhelpr@v0.8.0"</span><span class="op">)</span></span></code></pre></div>
 <p>The README examples use a package from <code>Suggests</code> that isn’t installed automatically:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"patchwork"</span><span class="op">)</span></span></code></pre></div>

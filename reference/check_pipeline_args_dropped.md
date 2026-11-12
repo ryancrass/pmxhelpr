@@ -14,12 +14,18 @@ the remainder is non-empty — making the silent-shadow case audible.
 ## Usage
 
 ``` r
-check_pipeline_args_dropped(call, plot_only_args, fn_name, stats_fn)
+check_pipeline_args_dropped(
+  mc,
+  plot_only_args,
+  fn_name,
+  stats_fn,
+  call = rlang::caller_env()
+)
 ```
 
 ## Arguments
 
-- call:
+- mc:
 
   A `call` object, typically
   [`match.call()`](https://rdrr.io/r/base/match.call.html) evaluated in
@@ -39,6 +45,10 @@ check_pipeline_args_dropped(call, plot_only_args, fn_name, stats_fn)
 
   Character scalar, the stats function the caller should run instead
   (e.g. `"df_forest"`), used in the error message.
+
+- call:
+
+  The call reported in the error.
 
 ## Value
 

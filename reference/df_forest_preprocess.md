@@ -23,7 +23,7 @@ df_forest_preprocess(
   metric_vars,
   cov_vars,
   cov_val_ref,
-  irep_name = "SIM",
+  rep_var = "SIM",
   ratio = TRUE,
   ratio_suffix = "RATIO",
   cov_labels = NULL,
@@ -31,7 +31,8 @@ df_forest_preprocess(
   metric_name_var = "metric",
   metric_value_var = "value",
   cov_name_var = "cov_name",
-  cov_level_var = "cov_level"
+  cov_level_var = "cov_level",
+  irep_name
 )
 ```
 
@@ -60,7 +61,7 @@ df_forest_preprocess(
   [`df_forest()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest.md),
   which holds display labels rather than source values.
 
-- irep_name:
+- rep_var:
 
   Column in `data` identifying the replicate. Accepts bare names or
   strings. Default is `SIM`. Required only when `ratio = TRUE`, which
@@ -113,6 +114,10 @@ df_forest_preprocess(
 
   Name of the output column of covariate level labels. Accepts bare
   names or strings. Default `cov_level`.
+
+- irep_name:
+
+  **\[deprecated\]** Use `rep_var`.
 
 ## Value
 

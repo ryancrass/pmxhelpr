@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -255,11 +255,12 @@ function is called automatically within
 <code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> in the VPC Workflow; therefore, it
 does not need to be separately called for the VPC purpose.</p>
 <p>This function takes <code>data.frame</code> and <code>mrgmod</code>
-objects as input and an optional argument to specify the model variable
-to capture as <code>"PRED"</code> with random effects zeroed. The
-default is <code>"IPRED"</code>.</p>
+objects as input and an optional argument, <code>ipred_output</code>,
+naming the model’s individual prediction output; it is simulated with
+random effects zeroed and captured as <code>"PRED"</code>. The default
+is <code>"IPRED"</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data_sad_pk_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred</a></span><span class="op">(</span><span class="va">data_sad_pk</span>, <span class="va">model</span>, output_var <span class="op">=</span> <span class="st">"IPRED"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">data_sad_pk_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_addpred.html">df_mrgsim_addpred</a></span><span class="op">(</span><span class="va">data_sad_pk</span>, <span class="va">model</span>, ipred_output <span class="op">=</span> <span class="st">"IPRED"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data_sad_pk_pred</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data_sad_pk_pred</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data_sad_pk</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] "PRED"</span></span></code></pre></div>
@@ -332,14 +333,13 @@ input into the simulation or captured in output. These include:</p>
 <li>
 <code>ntime_var</code> = NTIME, nominal time variable</li>
 <li>
-<code>pred_var</code> = PRED, population prediction variable (fixed
-effects only)</li>
+<code>ipred_output</code> = IPRED, individual prediction output of
+the model (fixed + level 1 random effects); simulated with random
+effects zeroed, it also gives the population prediction
+<code>PRED</code> (fixed effects only)</li>
 <li>
-<code>ipred_var</code> = IPRED, individual prediction variable
-(fixed + level 1 random effects)</li>
-<li>
-<code>sim_dv_var</code> = DV, dependent variable captured in the
-simulated output (fixed + level 1 and 2 random effects)</li>
+<code>dv_output</code> = DV, dependent variable output of the model
+(fixed + level 1 and 2 random effects)</li>
 </ul>
 <p>These arguments use non-standard evaluation and can be passed as a
 bare column name or as a string.</p>
@@ -396,15 +396,14 @@ variable).</p>
 name. For example, we can see from the <code><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse()</a></code> output
 that the simulation also outputs <code>"Y"</code>, which represents a
 simulated version of DV. We will still receive the same standardized
-output variable names if we change argument form
-<code>sim_dv_var</code>, as the variables are renamed to VPC workflow
-standards on output</p>
+output variable names if we change the <code>dv_output</code> argument,
+as the variables are renamed to VPC workflow standards on output</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simout</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data_sad_pk</span>,</span>
 <span>                     model <span class="op">=</span> <span class="va">model</span>,</span>
 <span>                     replicates <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                     dv_var <span class="op">=</span> <span class="va">ODV</span>,</span>
-<span>                     sim_dv_var <span class="op">=</span> <span class="va">Y</span>,</span>
+<span>                     dv_output <span class="op">=</span> <span class="va">Y</span>,</span>
 <span>                     carry_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOSE"</span>, <span class="st">"FOOD"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span><span class="op">)</span>,</span>
 <span>                     recover  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span>, <span class="st">"DoseFood"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -441,7 +440,7 @@ standards on output</p>
 <p>The maximum value of our replicate count variable (default =
 <code>"SIM"</code>) indicates that the dataset has been replicated 100
 times. The variable name output for the count of replicates can be
-specified using the <code>irep_name</code> argument.</p>
+specified using the <code>rep_var</code> argument.</p>
 <p>This argument uses non-standard evaluation and can be supplied as a
 bare name or string</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -449,7 +448,7 @@ bare name or string</p>
 <span>                     model <span class="op">=</span> <span class="va">model</span>,</span>
 <span>                     replicates <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                     dv_var <span class="op">=</span> <span class="va">ODV</span>,</span>
-<span>                     irep_name <span class="op">=</span> <span class="va">IREP</span>,</span>
+<span>                     rep_var <span class="op">=</span> <span class="va">IREP</span>,</span>
 <span>                     carry_out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DOSE"</span>, <span class="st">"FOOD"</span>, <span class="st">"BLQ"</span>, <span class="st">"LLOQ"</span><span class="op">)</span>,</span>
 <span>                     recover  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PART"</span>, <span class="st">"DoseFood"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -811,7 +810,7 @@ preview.</p>
 <span><span class="co">#&gt; &lt;vpc_stats&gt;</span></span>
 <span><span class="co">#&gt;   stats: 114 rows x 35 columns</span></span>
 <span><span class="co">#&gt;   obs:   506 rows</span></span>
-<span><span class="co">#&gt;   config: n_replicates = 100, loq = 1, strat_var = DoseFood</span></span>
+<span><span class="co">#&gt;   config: n_replicates = 100, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = DoseFood</span></span>
 <span><span class="co">#&gt;   column groups (stats):</span></span>
 <span><span class="co">#&gt;     identifiers  : BIN_MID, DoseFood</span></span>
 <span><span class="co">#&gt;     counts       : obs_n, obs_n_blq, obs_prop_blq</span></span>
@@ -838,8 +837,8 @@ preview.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   pc_sim_med_med &lt;dbl&gt;, pc_sim_med_hi &lt;dbl&gt;, pc_sim_hi_low &lt;dbl&gt;, …</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Use `x$stats` and `x$obs` for the underlying data.frames.</span></span></code></pre></div>
-<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns the same content as
-<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> but suppresses the head preview, which is
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns a summary object that prints the same
+content as <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> without the head preview, which is
 convenient for snapshotting the run configuration without the row
 content.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -847,7 +846,7 @@ content.</p>
 <span><span class="co">#&gt; &lt;vpc_stats&gt;</span></span>
 <span><span class="co">#&gt;   stats: 114 rows x 35 columns</span></span>
 <span><span class="co">#&gt;   obs:   506 rows</span></span>
-<span><span class="co">#&gt;   config: n_replicates = 100, loq = 1, strat_var = DoseFood</span></span>
+<span><span class="co">#&gt;   config: n_replicates = 100, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = DoseFood</span></span>
 <span><span class="co">#&gt;   column groups (stats):</span></span>
 <span><span class="co">#&gt;     identifiers  : BIN_MID, DoseFood</span></span>
 <span><span class="co">#&gt;     counts       : obs_n, obs_n_blq, obs_prop_blq</span></span>
@@ -1004,8 +1003,9 @@ layer is added.</p>
 <span>  <span class="va">vpc_scales_labs</span></span>
 <span><span class="co">#&gt; Inheriting per-row `loq` from `LLOQ` column in `data`.</span></span>
 <span><span class="co">#&gt; Warning: Adding `facet_*()` to a VPC plot produces incorrect VPC statistics.</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Summary statistics are pre-computed before plotting.</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()` to stratify both statistics and panels correctly.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Summary statistics are pre-computed before plotting.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Pass `strat_var` to `plot_vpc_cont()`, `plot_vpc_cens()`, or `df_vpcstats()`</span></span>
+<span><span class="co">#&gt;   to stratify both statistics and panels correctly.</span></span>
 <span><span class="co">#&gt; Warning in scale_y_log10(guide = "axis_logticks"): <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">log-10</span> transformation introduced infinite values.</span></span>
@@ -1163,34 +1163,35 @@ per-observation value.</p>
 <span><span class="va">out_multi</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">loq</span></span>
 <span><span class="co">#&gt; [1] 1 2</span></span></code></pre></div>
 <p><code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code> consumes the precomputed stats and draws
-one dashed reference line per unique LLOQ value.</p>
+one dashed LLOQ reference line per panel.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_multi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_cont.html">plot_vpc_cont</a></span><span class="op">(</span><span class="va">out_multi</span><span class="op">)</span> <span class="op">+</span> <span class="va">vpc_scales_labs</span></span>
 <span><span class="va">vpc_multi</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/plot-vpc-multi-loq-1.png" class="r-plt" alt="" width="100%"></p>
-<p>Each facet renders only the LLOQ(s) applicable to that strat-level:
-Part 1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The
-ref-line set is recomputed at plot time from the row-aligned
-<code>obs$LOQ</code> column grouped by <code>strat_var</code>, so the
-visualization stays in sync with whatever per-row inheritance produced.
-The legend (built from <code>out_multi$config$loq</code>) still
-summarizes the analysis-wide set of LLOQs, since the legend is a
-figure-level annotation rather than a facet-level one.</p>
-<p><code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> accepts the same vector and registers
-one entry per unique LLOQ value.</p>
+<p>Each facet renders the LLOQ applicable to that strat-level: Part
+1-SAD shows the LLOQ = 1 line and Part 2-FE shows LLOQ = 2. The line is
+recomputed at plot time from the row-aligned <code>obs$LOQ</code> column
+grouped by <code>strat_var</code> (at the highest LLOQ in the panel), so
+the visualization stays in sync with whatever per-row inheritance
+produced.</p>
+<p><code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> takes the container through its
+<code>stats</code> argument and reads <code>ci</code>, <code>pi</code>,
+and <code>loq</code> from <code>out_multi$config</code>. The legend is a
+figure-level annotation, so its single LLOQ entry is labeled with the
+highest LLOQ in the analysis.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">vpc_multi_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>loq <span class="op">=</span> <span class="va">out_multi</span><span class="op">$</span><span class="va">config</span><span class="op">$</span><span class="va">loq</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">vpc_multi_legend</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_vpc_legend.html">plot_vpc_legend</a></span><span class="op">(</span>stats <span class="op">=</span> <span class="va">out_multi</span><span class="op">)</span></span>
 <span><span class="va">vpc_multi_legend</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/vpc-multi-loq-legend-1.png" class="r-plt" alt="" width="100%"></p>
 <p>Composing the plot and legend with <code>patchwork</code> yields a
-single figure where both LLOQ thresholds are simultaneously labeled.</p>
+single figure.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vpc_multi</span> <span class="op">+</span> <span class="va">vpc_multi_legend</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/plot-vpc-multi-loq-w-legend-1.png" class="r-plt" alt="" width="100%"></p>
-<p>Passing <code>out_multi$config$loq</code> directly to
-<code><a href="../reference/plot_vpc_legend.html">plot_vpc_legend()</a></code> keeps the legend in sync with whatever
-LLOQs <code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> discovered, with no need to hardcode
-the value set at the call site.</p>
+<p>Passing the container to <code>plot_vpc_legend(stats = )</code> keeps
+the legend in sync with the <code>ci</code>, <code>pi</code>, and LLOQs
+<code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code> used, with no need to repeat them at the call
+site. Any of the three passed explicitly overrides the container.</p>
 </div>
 <div class="section level3">
 <h3 id="reusing-precomputed-stats">Reusing precomputed stats<a class="anchor" aria-label="anchor" href="#reusing-precomputed-stats"></a>
@@ -1248,32 +1249,16 @@ present in the input simulated dataset.</p>
 <p>The default is as follows:</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_vpc_shown.html">plot_vpc_shown</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $obs_point</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $obs_pi_line</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $obs_median_line</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_pi_line</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_pi_ci</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_pi_area</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_median_line</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sim_median_ci</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $loq_line</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;vpc_shown&gt;</span></span>
+<span><span class="co">#&gt;   obs_point        TRUE</span></span>
+<span><span class="co">#&gt;   obs_pi_line      TRUE</span></span>
+<span><span class="co">#&gt;   obs_median_line  TRUE</span></span>
+<span><span class="co">#&gt;   sim_pi_line      FALSE</span></span>
+<span><span class="co">#&gt;   sim_pi_ci        TRUE</span></span>
+<span><span class="co">#&gt;   sim_pi_area      FALSE</span></span>
+<span><span class="co">#&gt;   sim_median_line  FALSE</span></span>
+<span><span class="co">#&gt;   sim_median_ci    TRUE</span></span>
+<span><span class="co">#&gt;   loq_line         TRUE</span></span></code></pre></div>
 <p>The components of the list correspond to the following vpc plot
 elements:</p>
 <ul>
@@ -1363,6 +1348,10 @@ explicitly.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_build_vpc.html">plot_build_vpc</a></span><span class="op">(</span><span class="va">out</span>, pcvpc <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> <span class="va">vpc_scales_labs</span></span></code></pre></div>
 <p><img src="vpc-workflow_files/figure-html/plot-build-vpc-direct-1.png" class="r-plt" alt="" width="100%"></p>
+<p><code>autoplot(out, pcvpc = FALSE)</code> is equivalent:
+<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> draws any <code>vpc_stats</code>,
+<code>doseprop_stats</code>, or <code>forest_stats</code> container with
+its builder.</p>
 </div>
 </div>
 <div class="section level2">

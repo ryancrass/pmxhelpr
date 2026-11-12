@@ -1,5 +1,129 @@
 # Changelog
 
+## pmxhelpr 0.8.0
+
+### New features
+
+- VPC plots can be restyled after the fact:
+  [`reveal()`](https://rdrr.io/pkg/ggstylekit/man/reveal.html) now
+  reaches VPC layers, which are tagged by role like every other plot
+  family.
+- [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
+  is exported: it checks a `pmx_stats` container and reports what is
+  wrong, dispatching on the class so `vpc_stats`, `doseprop_stats`, and
+  `forest_stats` are checked against their full contract.
+  [`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md)
+  and `is_pmx_stats(strict = TRUE)` now apply that contract too, rather
+  than only the shared slot checks.
+- [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  is re-exported from ggplot2. It draws a `vpc_stats`, `doseprop_stats`,
+  or `forest_stats` container with its builder. Pass other arguments
+  through, e.g. `autoplot(stats, type = "cens")`.
+
+### Minor improvements
+
+- Combining a VPC (`p`) with other plots (`p2`) (e.g., `p + p2`,
+  `p | p2`,
+  [`combine_styled_plots()`](https://rdrr.io/pkg/ggstylekit/man/combine_styled_plots.html))
+  no longer labels the combined patchwork as a `pmx_vpc_plot`, so
+  faceting the figure no longer warns about VPC statistics. A `+` chain
+  that ends on a VPC (`p2 + p`) still carries the class, because
+  patchwork treats the figure as that last panel.
+- [`plot_vpc_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_shown.md)
+  and
+  [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
+  return `vpc_shown` / `gof_shown` objects (still named lists) with a
+  print method. A `shown` value that is not `TRUE` or `FALSE`, or is the
+  wrong plot family object (e.g.
+  [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
+  passed to a VPC), now errors.
+- [`summary()`](https://rdrr.io/r/base/summary.html) on a `vpc_stats`,
+  `doseprop_stats`, or `forest_stats` container now returns a
+  `summary.*` object holding the values it prints
+  (e.g. `summary(dp)$metrics$Power`, `summary(vs)$column_groups`)
+  instead of the container itself. The printed output is unchanged.
+- VPC plots label their axes `TIME` and `DV` (`Prediction-corrected DV`,
+  `Proportion BLQ`) by default instead of internal column names. The
+  censored-VPC legend’s `Obs` key now matches the plot’s point color.
+- With several LLOQ values, every plot family now draws one LLOQ line
+  per panel at the highest value, as
+  [`plot_dvtime()`](https://ryancrass.github.io/pmxhelpr/reference/plot_dvtime.md)
+  and
+  [`plot_gof()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof.md)
+  already did. Unstratified VPCs previously drew one line per value, and
+  [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  showed one key per value. The VPC legend’s LLOQ key now uses the
+  style’s line width.
+- A bare column name always refers to that column when `data` has it.
+  Previously a variable of the same name holding a string took
+  precedence, so `FOOD <- "WTBL"; plot_vpc_cont(sim, strat_var = FOOD)`
+  stratified by `WTBL`. The same holds for model outputs in
+  [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  and
+  [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md).
+  A column name held in a variable still works when the variable’s name
+  is not a column, or with `!!`.
+- Deprecated arguments warn through lifecycle, naming the version and
+  the replacement, once every 8 hours per session
+  (`options(lifecycle_verbosity = "error")` turns them into errors).
+  lifecycle is a new direct import; it was already required by ggplot2
+  and dplyr.
+- Errors, warnings, and messages use cli formatting and name the
+  function you called (e.g. `` Error in `plot_dvtime()` `` instead of an
+  internal helper). They carry classes for programmatic handling: a base
+  class (`pmxhelpr_error`, `pmxhelpr_warning`, `pmxhelpr_message`) plus
+  a kind, such as `pmxhelpr_error_bad_arg`,
+  `pmxhelpr_error_missing_var`, or `pmxhelpr_warning_ignored_arg`, so
+  they can be caught with
+  `tryCatch(..., pmxhelpr_error_missing_var = function(e) ...)`. cli is
+  a new direct import; it was already required by ggplot2 and dplyr.
+- [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+  records the full run configuration in `config`: `ci`, `pi`, `mode`,
+  and the source column names (`time_var`, `ntime_var`, `pred_var`,
+  `sim_dv_var`, `obs_dv_var`, `rep_var`) alongside `n_replicates`,
+  `loq`, and `strat_var`. [`print()`](https://rdrr.io/r/base/print.html)
+  and [`summary()`](https://rdrr.io/r/base/summary.html) show `ci`,
+  `pi`, and `mode`. Containers saved by earlier versions lack `ci` and
+  `pi` and must be recomputed with
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md).
+- [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
+  gains a `stats` argument: pass a
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
+  result and `ci`, `pi`, and `loq` default to its `config`, so the
+  legend matches a plot built from the same container. Arguments passed
+  explicitly still win.
+
+### Bug fixes
+
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  no longer fails when an output name is already a taken. A non-default
+  `ipred_output` when the model also outputs `IPRED`,
+  `dv_output = "IPRED"`, or data carrying `OBSDV` or `SIMDV` columns.
+  Data columns with those names are replaced with a warning.
+
+### Deprecated
+
+- `irep_name` is renamed `rep_var` in
+  [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md),
+  [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md),
+  and
+  [`df_forest_preprocess()`](https://ryancrass.github.io/pmxhelpr/reference/df_forest_preprocess.md),
+  matching the other `*_var` column arguments. `irep_name` still works
+  with a deprecation warning.
+- Model-output arguments are named `*_output`:
+  [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)’s
+  `ipred_var` and `sim_dv_var` become `ipred_output` and `dv_output`,
+  and
+  [`df_mrgsim_addpred()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_addpred.md)’s
+  `output_var` becomes `ipred_output`. `df_mrgsim_replicate(pred_var)`
+  is deprecated with no replacement: `PRED` is always the `ipred_output`
+  output simulated with random effects zeroed. The old names still work
+  with a deprecation warning. Arguments after `ntime_var` in
+  [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  moved, so pass them by name.
+
 ## pmxhelpr 0.7.1
 
 ### Breaking changes

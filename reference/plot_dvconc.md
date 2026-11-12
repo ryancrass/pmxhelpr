@@ -134,7 +134,8 @@ Other exploratory analysis:
 data_sad_pd <- dplyr::filter(data_sad, CMT ==3)
 data <- dplyr::mutate(data_sad_pd, Dose = var_addn(DOSE, ID, sep = "mg"))
 plot_dvconc(data, dv_var = ODV, idv_var = CONC, col_var = Dose, col_trend = FALSE)
-#> Warning: `col_var` colors observations but trend lines are not stratified. Set `col_trend = TRUE` to stratify trend lines by color.
+#> Warning: `col_var` colors observations but trend lines are not stratified.
+#> ℹ Set `col_trend = TRUE` to stratify trend lines by color.
 #> `geom_smooth()` using formula = 'y ~ x'
 #> `geom_smooth()` using formula = 'y ~ x'
 

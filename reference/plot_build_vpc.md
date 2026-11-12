@@ -114,20 +114,22 @@ plot_build_vpc(
 - loq:
 
   Numeric scalar or vector of LOQ values for the reference line, or
-  `NULL` to suppress. When omitted (inherited from `stats$config$loq`),
-  the container is stratified (`stats$config$strat_var`), and
-  `stats$obs` carries a row-aligned `LOQ` column, ref lines are drawn
-  per facet — each facet shows only the LLOQ values applicable to its
-  strat-level rows. When `loq` is supplied explicitly, the value always
-  wins and one global reference line is drawn per unique value of `loq`
-  (the per-facet column-based dispatch is reserved for the inherited
-  case). In the no-stratification or no-`obs$LOQ` cases, a global
-  reference line is drawn per unique value of `loq` regardless of
-  inheritance. The legend entry for LLOQ is *not* attached here — pass
-  the same value to
+  `NULL` to suppress. One line is drawn per panel, at the highest LLOQ
+  when there are several (the most censoring). When omitted (inherited
+  from `stats$config$loq`), the container is stratified
+  (`stats$config$strat_var`), and `stats$obs` carries a row-aligned
+  `LOQ` column, each facet draws the highest LLOQ of its own strat-level
+  rows. When `loq` is supplied explicitly, the value always wins and one
+  global reference line is drawn at `max(loq)` (the per-facet
+  column-based dispatch is reserved for the inherited case). In the
+  no-stratification or no-`obs$LOQ` cases, one global line is drawn at
+  the highest `loq` regardless of inheritance. The legend entry for LLOQ
+  is *not* attached here — pass the same value to
   [`plot_vpc_legend()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_legend.md)
-  when composing the legend panel. `stats$config$loq` is already a
-  vector of unique non-NA LOQ values when
+  when composing the legend panel, or pass the container as
+  `plot_vpc_legend(stats = )`, which reads `stats$config$loq`.
+  `stats$config$loq` is already a vector of unique non-NA LOQ values
+  when
   [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md)
   populated the container. Forced to `NULL` when `pcvpc = TRUE` (LOQ has
   no meaning on the prediction-corrected scale).
@@ -137,6 +139,9 @@ plot_build_vpc(
 A `ggplot2` object.
 
 ## See also
+
+[autoplot()](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md),
+which draws a container with its builder.
 
 Other vpc:
 [`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),

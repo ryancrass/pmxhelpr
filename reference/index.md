@@ -42,6 +42,14 @@ Lower-level renderers that draw plots from precomputed stats objects.
 
   Build a forest plot ggplot from a `forest_stats` object
 
+- [`autoplot(`*`<vpc_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md)
+  [`autoplot(`*`<doseprop_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md)
+  [`autoplot(`*`<forest_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/autoplot.pmx_stats.md)
+  :
+
+  Draw a `pmx_stats` container with
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+
 ## Styling
 
 Per-plot-family presets returning a
@@ -109,6 +117,7 @@ and
   [`reveal`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
   [`combine_styled_plots`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
   [`legend_spec`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
+  [`autoplot`](https://ryancrass.github.io/pmxhelpr/reference/reexports.md)
   : Objects exported from other packages
 
 ## Layer Visibility
@@ -119,6 +128,8 @@ Constructors for the `shown` argument of plot functions.
   : VPC layer visibility settings
 - [`plot_gof_shown()`](https://ryancrass.github.io/pmxhelpr/reference/plot_gof_shown.md)
   : GOF layer visibility settings
+- [`print(`*`<pmx_shown>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/print.pmx_shown.md)
+  : Print a layer visibility object
 
 ## VPC Statistics
 
@@ -188,6 +199,11 @@ Predicates, constructors, operators, and methods for the shared
 
   Test whether an object is a `pmx_stats` container
 
+- [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
+  :
+
+  Validate a `pmx_stats` container
+
 - [`is_pmx_vpc_plot()`](https://ryancrass.github.io/pmxhelpr/reference/is_pmx_vpc_plot.md)
   :
 
@@ -221,6 +237,7 @@ Predicates, constructors, operators, and methods for the shared
   Print method for `pmx_stats`
 
 - [`summary(`*`<pmx_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.pmx_stats.md)
+  [`print(`*`<summary.pmx_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.pmx_stats.md)
   :
 
   Summary method for `pmx_stats`
@@ -236,6 +253,7 @@ Predicates, constructors, operators, and methods for the shared
   Print method for `vpc_stats`
 
 - [`summary(`*`<vpc_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.vpc_stats.md)
+  [`print(`*`<summary.vpc_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.vpc_stats.md)
   :
 
   Summary method for `vpc_stats`
@@ -246,6 +264,7 @@ Predicates, constructors, operators, and methods for the shared
   Print method for `doseprop_stats`
 
 - [`summary(`*`<doseprop_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.doseprop_stats.md)
+  [`print(`*`<summary.doseprop_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.doseprop_stats.md)
   :
 
   Summary method for `doseprop_stats`
@@ -256,6 +275,7 @@ Predicates, constructors, operators, and methods for the shared
   Print method for `forest_stats`
 
 - [`summary(`*`<forest_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.forest_stats.md)
+  [`print(`*`<summary.forest_stats>`*`)`](https://ryancrass.github.io/pmxhelpr/reference/summary.forest_stats.md)
   :
 
   Summary method for `forest_stats`

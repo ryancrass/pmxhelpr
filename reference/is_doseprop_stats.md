@@ -24,7 +24,7 @@ is_doseprop_stats(x, strict = FALSE)
 - strict:
 
   Logical. When `TRUE`, additionally runs
-  [`validate_doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_doseprop_stats.md)
+  [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
   and returns `FALSE` on validation failure. Default `FALSE` (class-tag
   check only, cheap).
 

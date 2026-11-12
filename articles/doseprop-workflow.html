@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -297,6 +297,8 @@ regression cost again.</p>
 <span><span class="co"># Without the SE ribbon</span></span>
 <span><span class="fu"><a href="../reference/plot_doseprop.html">plot_doseprop</a></span><span class="op">(</span><span class="va">dose_prop_obj</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="doseprop-workflow_files/figure-html/plot-precomputed-2.png" class="r-plt" alt="" width="100%"></p>
+<p><code>autoplot(dose_prop_obj)</code> draws the same plot from the
+container with <code><a href="../reference/plot_build_doseprop.html">plot_build_doseprop()</a></code>.</p>
 <p>When <code>data</code> is a precomputed <code>doseprop_stats</code>
 result, the pipeline arguments (<code>metrics</code>,
 <code>metric_name_var</code>, <code>metric_value_var</code>,

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -378,7 +378,10 @@ same choice for observed points through <code>show_obs = FALSE</code>,
 the counterpart of <code>plot_gof_shown(obs = FALSE)</code> and
 <code>plot_vpc_shown(obs_point = FALSE)</code> (a single flag, since the
 observed points are their only optional layer); an invisible layer still
-sets the axis limits.</li>
+sets the axis limits. <code><a href="https://rdrr.io/pkg/ggstylekit/man/reveal.html" class="external-link">reveal()</a></code> is the third tool: it maps
+an extra data variable onto layers that were built, so it can recolor or
+facet them after the fact but cannot bring back a layer that
+<code>shown</code> left out.</li>
 </ul>
 <p>The <strong>caption</strong> is the exception: the style wins.
 <code><a href="../reference/plot_dvtime.html">plot_dvtime()</a></code>, <code><a href="../reference/plot_dvconc.html">plot_dvconc()</a></code>, and

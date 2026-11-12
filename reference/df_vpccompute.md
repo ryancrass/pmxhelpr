@@ -18,10 +18,11 @@ df_vpccompute(
   ci = 0.9,
   bin_var = .vpc_bin_col,
   strat_var = NULL,
-  irep_name = "SIM",
+  rep_var = "SIM",
   lower_bound = 0,
   mode = c("auto", "rank", "drop"),
-  loq = attr(data, "loq")
+  loq = attr(data, "loq"),
+  call = rlang::caller_env()
 )
 ```
 
@@ -50,7 +51,7 @@ df_vpccompute(
 
   String or `NULL`. Stratification variable name. Default is `NULL`.
 
-- irep_name:
+- rep_var:
 
   String. Replicate identifier column name. Default is `"SIM"`.
 
@@ -75,6 +76,10 @@ df_vpccompute(
   detection reads per-row thresholds from `data$LOQ`). The pc stats do
   *not* emit a `pc_sim_prop_blq_*` set — LOQ has no meaning on the
   prediction-corrected scale.
+
+- call:
+
+  The call reported in errors.
 
 ## Value
 

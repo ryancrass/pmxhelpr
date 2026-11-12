@@ -28,9 +28,9 @@ is_pmx_stats(x, strict = FALSE)
 - strict:
 
   Logical. When `TRUE`, additionally runs
-  [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)
-  and returns `FALSE` on validation failure. Default `FALSE` (class-tag
-  check only, cheap).
+  [`validate_pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md),
+  which applies the subclass contract, and returns `FALSE` on validation
+  failure. Default `FALSE` (class-tag check only, cheap).
 
 ## Value
 
@@ -39,4 +39,5 @@ Logical scalar.
 ## See also
 
 Other pmx stats class:
-[`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md)
+[`pmx_stats()`](https://ryancrass.github.io/pmxhelpr/reference/pmx_stats.md),
+[`validate_pmx_stats.doseprop_stats()`](https://ryancrass.github.io/pmxhelpr/reference/validate_pmx_stats.md)

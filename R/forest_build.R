@@ -438,18 +438,24 @@ forest_color_plan <- function(plotstyle, test_data, ref_data, cov_name_var_str) 
   ## rows are colored, so the reference panel takes no palette slot
   ## and colors match across `ref_layout`. A palette is resolved to named
   ## covariate entries here so the fill map below can reuse them; a palette
-  ## returning fewer than n colors is recycled.
+  ## returning fewer than n colors is recycled. Entries pinned on the palette
+  ## (role colours, or covariates named over a preset palette; see
+  ## merge_palette_map()) keep their values, and the palette colours the
+  ## remaining covariates.
   color_levels <- unique(as.character(test_data[[cov_name_var_str]]))
   if (is.function(plotstyle$colors)) {
-    pal <- plotstyle$colors(length(color_levels))
-    if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(color_levels)), color_levels)
-    if (!any(color_levels %in% names(pal))) {
+    pins <- map_pins(plotstyle$colors)
+    free <- setdiff(color_levels, names(pins))
+    pal <- plotstyle$colors(length(free))
+    if (is.null(names(pal))) pal <- stats::setNames(rep_len(pal, length(free)), free)
+    if (length(free) > 0L && !any(free %in% names(pal))) {
       pmx_warn(c(
-        "The {.arg colors} palette function returned names matching no covariate ({.val {color_levels}}); covariates are not colored.",
+        "The {.arg colors} palette function returned names matching no covariate ({.val {free}}); covariates are not colored.",
         "i" = "Return an unnamed vector, or name entries by covariate."
       ), "ignored_arg")
     }
-    plotstyle <- ggstylekit::set_style(plotstyle, colors = pal)
+    pal <- pal[setdiff(names(pal), names(pins))]
+    plotstyle <- ggstylekit::set_style(plotstyle, colors = c(pins, pal))
   }
   has_panel_color <- any(color_levels %in% names(plotstyle$colors))
   ## The reference panel keeps the `ref_point`

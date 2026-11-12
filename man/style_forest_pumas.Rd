@@ -9,12 +9,11 @@ style_forest_pumas(...)
 \arguments{
 \item{...}{Fields passed to \code{\link[ggstylekit:style_spec]{ggstylekit::style_spec()}}, overriding the
 preset defaults; call the preset with no arguments to view them.
-Per-series maps merge entry-wise onto the defaults (e.g. \code{sizes = c(point = 3)}). The default \code{colors} is a palette \verb{function(n)}, so
-passing \code{colors} replaces it wholesale: a different palette function,
-or entries keyed by covariate name (covariates without an entry take the
-house palette). A \code{colors} naming only roles (e.g. \code{c(point = "red")})
-turns covariate coloring off, with a warning. \code{errorbar_width} sets the
-cap height in row heights.}
+Per-series maps merge entry-wise onto the defaults (e.g. \code{sizes = c(point = 3)}). The default \code{colors} is a palette \verb{function(n)}: a
+named \code{colors} pins its entries on that palette (e.g. \code{c(FOOD = "red")}
+colours one covariate, \code{c(point = "red")} one role) and the palette
+colours the other covariates; a palette function replaces it.
+\code{errorbar_width} sets the cap height in row heights.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

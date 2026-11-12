@@ -13,8 +13,8 @@ preset defaults; call the preset with no arguments to view them. Per-series maps
 setting one role leaves the others unchanged (e.g. \code{shapes = c(obs_point = 16)}); all other fields replace their default wholesale (e.g. \code{title = "..."}).
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
-with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map.}
+with the number of mapped groups; the preset's named entries (e.g. role
+colours) stay pinned and every other group draws from the palette.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

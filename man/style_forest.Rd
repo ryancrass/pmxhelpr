@@ -12,8 +12,7 @@ preset defaults; call the preset with no arguments to view them. Per-series maps
 \code{shapes = c(point = 18)} leaves the other roles unchanged; \code{colors = c(FOOD = "red")} adds a covariate color while keeping the role colors);
 all other fields replace their default wholesale. A palette
 \verb{function(n)} in \code{colors} colours every covariate (called with the
-number of covariates); it replaces the role entries, which then fall back
-to the ggplot2 defaults.}
+number of covariates); the role colors stay pinned.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

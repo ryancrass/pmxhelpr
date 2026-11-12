@@ -4,12 +4,20 @@
 \alias{build_style}
 \title{Internal helper: build a style_spec from preset defaults plus user overrides}
 \usage{
-build_style(defaults, overrides = list(), call = rlang::caller_env())
+build_style(
+  defaults,
+  overrides = list(),
+  level_maps = character(),
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{defaults}{Named list of default \code{style_spec} arguments.}
 
 \item{overrides}{Named list of user overrides (typically \code{list(...)}).}
+
+\item{level_maps}{Per-series map fields whose defaults are keyed by data
+levels; a palette override replaces them wholesale.}
 
 \item{call}{The call reported in the error.}
 }
@@ -24,9 +32,13 @@ partial override (e.g. \code{colors = c(obs_point = "red")}) keeps the other
 roles' default values; all other fields replace their default wholesale. A
 per-series map may also be given as a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
-with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map wholesale (and is likewise replaced wholesale when
-it is the default, e.g. \code{\link[=style_forest_pmforest]{style_forest_pmforest()}}). The merged fields are passed to
-\code{ggstylekit::style_spec()}.
+with the number of mapped groups. When either side of a map is a palette,
+the two merge through \code{ggstylekit::with_defaults()}: the named entries
+(the preset's role colours, or the user's pins over a palette default such
+as \code{\link[=style_forest_pmforest]{style_forest_pmforest()}}'s) are pinned on the palette, and every other
+group draws from it. A map named in \code{level_maps} is keyed by data levels
+rather than roles (e.g. \code{\link[=style_gof]{style_gof()}}'s \code{OBS}/\code{DV}/\code{PRED}/\code{IPRED} colours),
+so a palette override replaces it instead of being pinned over. The merged
+fields are passed to \code{ggstylekit::style_spec()}.
 }
 \keyword{internal}

@@ -113,6 +113,7 @@ series_aes <- function(spec, series) {
   # Per-series maps are atomic named vectors, where `[[` on a missing name
   # errors (unlike lists); guard the lookup so unset aesthetics return NULL.
   pick <- function(map) {
+    map <- map_pins(map)
     if (!is.null(map) && series %in% names(map)) unname(map[[series]]) else NULL
   }
   out <- list(
@@ -128,6 +129,15 @@ series_aes <- function(spec, series) {
 }
 
 
+## Internal: the named entries of a per-series map. A named vector is returned
+## as is; a palette function returns the entries `ggstylekit::with_defaults()`
+## pinned on it (NULL when none). ggstylekit keeps pins in an internal
+## `ggstylekit_pins` attribute and does not export a reader for them yet.
+map_pins <- function(map) {
+  if (is.function(map)) attr(map, "ggstylekit_pins", exact = TRUE) else map
+}
+
+
 #' Internal helper: build a style_spec from preset defaults plus user overrides
 #'
 #' Each `style_*()` preset supplies a named list of default `style_spec` fields.
@@ -137,18 +147,25 @@ series_aes <- function(spec, series) {
 #' roles' default values; all other fields replace their default wholesale. A
 #' per-series map may also be given as a palette `function(n)` (e.g.
 #' `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#' with the number of mapped groups; a palette has no entries to merge, so it
-#' replaces the default map wholesale (and is likewise replaced wholesale when
-#' it is the default, e.g. [style_forest_pmforest()]). The merged fields are passed to
-#' `ggstylekit::style_spec()`.
+#' with the number of mapped groups. When either side of a map is a palette,
+#' the two merge through `ggstylekit::with_defaults()`: the named entries
+#' (the preset's role colours, or the user's pins over a palette default such
+#' as [style_forest_pmforest()]'s) are pinned on the palette, and every other
+#' group draws from it. A map named in `level_maps` is keyed by data levels
+#' rather than roles (e.g. [style_gof()]'s `OBS`/`DV`/`PRED`/`IPRED` colours),
+#' so a palette override replaces it instead of being pinned over. The merged
+#' fields are passed to `ggstylekit::style_spec()`.
 #'
 #' @param defaults Named list of default `style_spec` arguments.
 #' @param overrides Named list of user overrides (typically `list(...)`).
+#' @param level_maps Per-series map fields whose defaults are keyed by data
+#'   levels; a palette override replaces them wholesale.
 #' @param call The call reported in the error.
 #'
 #' @return A `ggstylekit_style_spec` object.
 #' @keywords internal
-build_style <- function(defaults, overrides = list(), call = rlang::caller_env()) {
+build_style <- function(defaults, overrides = list(), level_maps = character(),
+                        call = rlang::caller_env()) {
   if (length(overrides) &&
       (is.null(names(overrides)) || any(!nzchar(names(overrides))))) {
     pmx_abort("Style overrides must be named {.fn ggstylekit::style_spec} fields.",
@@ -159,17 +176,30 @@ build_style <- function(defaults, overrides = list(), call = rlang::caller_env()
   merged <- defaults
   for (nm in names(overrides)) {
     ov <- overrides[[nm]]
-    if (nm %in% map_fields && !is.null(defaults[[nm]]) && !is.null(ov) &&
-        !is.function(ov) && !is.function(defaults[[nm]])) {
-      base <- defaults[[nm]]
+    base <- defaults[[nm]]
+    if (!(nm %in% map_fields) || is.null(base) || is.null(ov) ||
+        (nm %in% level_maps && is.function(ov))) {
+      merged[[nm]] <- ov               # non-map field or a palette over level
+                                       # keys: replace wholesale; NULL
+                                       # restores the style_spec default
+    } else if (is.function(ov) || is.function(base)) {
+      merged[[nm]] <- merge_palette_map(nm, ov, base)
+    } else {
       base[names(ov)] <- ov            # entry-wise merge; override wins per key
       merged[[nm]] <- base
-    } else {                           # palette function or non-map field:
-      merged[[nm]] <- ov               # replace wholesale; NULL restores the
-                                       # style_spec default
     }
   }
   do.call(ggstylekit::style_spec, merged)
+}
+
+
+## Internal: merge one per-series map field where the override or the default
+## is a palette function. `with_defaults()` pins the named side's entries on
+## the palette (the override wins by name), so a palette override keeps a
+## preset's role colours and a named override keeps a preset's palette.
+merge_palette_map <- function(field, override, default) {
+  spec <- function(map) do.call(ggstylekit::style_spec, stats::setNames(list(map), field))
+  ggstylekit::with_defaults(spec(override), spec(default))[[field]]
 }
 
 

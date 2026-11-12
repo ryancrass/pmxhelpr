@@ -30,13 +30,23 @@ test_that("errorbar_width is an unset-by-default wholesale field on the errorbar
   expect_equal(style_gof(errorbar_width = 10)$errorbar_width, 10)
 })
 
-test_that("a palette function replaces a preset's default per-series map", {
-  # Palettes carry no names, so they cannot merge entry-wise onto a set default
-  # (`style_gof()` ships a `colors` map); they replace it instead.
+test_that("a palette function keeps a preset's role entries pinned", {
+  # `style_vpc()` ships role-keyed `colors`; a palette override keeps them as
+  # pins (read back by series_aes()) and colours every other group.
   pal <- function(n) grDevices::hcl.colors(n, "Viridis")
-  s <- style_gof(colors = pal)
+  s <- style_vpc(colors = pal)
   expect_true(is.function(s$colors))
-  expect_null(names(s$colors))
+  expect_equal(s$colors(3), pal(3))
+  expect_equal(map_pins(s$colors), style_vpc()$colors)
+  expect_equal(series_aes(s, "obs_point")$colour, style_vpc()$colors[["obs_point"]])
+
+  # A named override still wins by name over a palette default.
+  s_pin <- style_forest_pumas(colors = c(point = "red"))
+  expect_equal(series_aes(s_pin, "point")$colour, "red")
+
+  # `style_gof()`'s colors are keyed by series level, so a palette replaces them.
+  g <- style_gof(colors = pal)
+  expect_null(map_pins(g$colors))
 
   # A preset whose default for that map is unset behaves the same way.
   expect_true(is.function(style_dvtime(colors = pal)$colors))
@@ -44,6 +54,7 @@ test_that("a palette function replaces a preset's default per-series map", {
   # Other maps still merge entry-wise alongside the palette.
   s2 <- style_vpc(fill = pal, alphas = c(obs_point = 0.2))
   expect_true(is.function(s2$fill))
+  expect_equal(map_pins(s2$fill), style_vpc()$fill)
   expect_equal(s2$alphas[["obs_point"]], 0.2)
   expect_equal(s2$alphas[["sim_pi_ci"]], 0.15)
 })

@@ -1131,9 +1131,10 @@ test_that("style_forest_pmforest() returns the pmforest look as a style_spec", {
   expect_equal(th$axis.text.y.right$size, 2.8 / 0.352777778)
 })
 
-test_that("style_forest_pmforest() overrides: named colors replace the palette; maps merge entry-wise", {
+test_that("style_forest_pmforest() overrides: named colors pin on the palette; maps merge entry-wise", {
   st <- style_forest_pmforest(colors = c(FOOD = "red"), sizes = c(point = 3))
-  expect_equal(st$colors, c(FOOD = "red"))
+  expect_true(is.function(st$colors))
+  expect_equal(map_pins(st$colors), c(FOOD = "red"))
   expect_equal(unname(st$sizes[c("point", "ref_point")]), c(3, 3.5))
 })
 
@@ -1236,14 +1237,27 @@ test_that("a palette function returning fewer than n colors is recycled", {
 })
 
 
-test_that("palette presets warn when role-only colors drop covariate coloring", {
-  for (preset in list(style_forest_pmforest, style_forest_pumas)) {
-    expect_warning(preset(colors = c(point = "red")), "covariates are no longer colored")
-    expect_no_warning(preset(colors = c(FOOD = "red")))
-    expect_no_warning(preset(colors = function(n) rep("red", n)))
-    expect_no_warning(preset(sizes = c(point = 3)))
+test_that("palette presets keep covariate coloring when colors pins roles or covariates", {
+  stats <- df_forest(data_sad_pkforest)
+  cov_cols <- function(style) {
+    p <- plot_build_forest(stats, metric = "AUCRATIO", style = style)
+    i <- which(vapply(p$layers, function(L) inherits(L$geom, "GeomPoint"), logical(1)))[1]
+    pts <- ggplot2::ggplot_build(p)$data[[i]]
+    c(tapply(pts$fill, as.character(p$layers[[i]]$data$cov_name), unique))
   }
-  expect_no_warning(style_forest_coveffectsplot(colors = c(point = "red")))
+  for (preset in list(style_forest_pmforest, style_forest_pumas)) {
+    expect_no_warning(st <- preset(colors = c(point = "red")))
+    expect_equal(series_aes(st, "point")$colour, "red")
+    expect_no_warning(preset(colors = function(n) rep("red", n)))
+  }
+  ## A role pin leaves the covariates on the preset palette
+  pal <- style_forest_pmforest()$colors
+  expect_equal(unname(cov_cols(style_forest_pmforest(colors = c(point = "red")))[c("FOOD", "WTBL")]),
+               pal(2))
+  ## A covariate pin takes its colour; the palette colours the rest
+  pinned <- cov_cols(style_forest_pmforest(colors = c(FOOD = "red")))
+  expect_equal(unname(pinned["FOOD"]), "red")
+  expect_equal(unname(pinned["WTBL"]), pal(1))
 })
 
 

@@ -12,8 +12,9 @@ preset defaults; call the preset with no arguments to view them. Per-series maps
 replace their default wholesale.
 A per-series map may instead be a palette \verb{function(n)} (e.g.
 \code{function(n) grDevices::hcl.colors(n, "Viridis")}), which \code{ggstylekit} calls
-with the number of mapped groups; a palette has no entries to merge, so it
-replaces the default map.}
+with the number of mapped groups. A palette in \code{colors} replaces the
+\code{OBS}/\code{DV}/\code{PRED}/\code{IPRED} colors; in the other maps the preset's named
+entries stay pinned and every other group draws from the palette.}
 }
 \value{
 A \code{ggstylekit_style_spec} object.

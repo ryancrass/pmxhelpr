@@ -34,8 +34,8 @@
 #'   16)`); all other fields replace their default wholesale (e.g. `title = "..."`).
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#'   with the number of mapped groups; a palette has no entries to merge, so it
-#'   replaces the default map.
+#'   with the number of mapped groups; the preset's named entries (e.g. role
+#'   colours) stay pinned and every other group draws from the palette.
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -82,8 +82,9 @@ style_dvtime <- function(...) {
 #'   replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#'   with the number of mapped groups; a palette has no entries to merge, so it
-#'   replaces the default map.
+#'   with the number of mapped groups. A palette in `colors` replaces the
+#'   `OBS`/`DV`/`PRED`/`IPRED` colors; in the other maps the preset's named
+#'   entries stay pinned and every other group draws from the palette.
 #'
 #' @family goodness-of-fit
 #' @return A `ggstylekit_style_spec` object.
@@ -106,7 +107,8 @@ style_gof <- function(...) {
     legend.title.position = "top",
     theme      = pmx_house_theme()
   )
-  build_style(defaults, list(...))
+  ## The colors defaults are series levels, not roles: a palette replaces them.
+  build_style(defaults, list(...), level_maps = "colors")
 }
 
 
@@ -126,8 +128,8 @@ style_gof <- function(...) {
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#'   with the number of mapped groups; a palette has no entries to merge, so it
-#'   replaces the default map.
+#'   with the number of mapped groups; the preset's named entries (e.g. role
+#'   colours) stay pinned and every other group draws from the palette.
 #'
 #' @family exploratory analysis
 #' @return A `ggstylekit_style_spec` object.
@@ -170,8 +172,8 @@ style_dvconc <- function(...) {
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#'   with the number of mapped groups; a palette has no entries to merge, so it
-#'   replaces the default map.
+#'   with the number of mapped groups; the preset's named entries (e.g. role
+#'   colours) stay pinned and every other group draws from the palette.
 #'
 #' @family dose proportionality
 #' @return A `ggstylekit_style_spec` object.
@@ -222,8 +224,8 @@ style_doseprop <- function(...) {
 #'   other fields replace their default wholesale.
 #'   A per-series map may instead be a palette `function(n)` (e.g.
 #'   `function(n) grDevices::hcl.colors(n, "Viridis")`), which `ggstylekit` calls
-#'   with the number of mapped groups; a palette has no entries to merge, so it
-#'   replaces the default map.
+#'   with the number of mapped groups; the preset's named entries (e.g. role
+#'   colours) stay pinned and every other group draws from the palette.
 #'
 #' @family vpc
 #' @return A `ggstylekit_style_spec` object.
@@ -300,8 +302,7 @@ style_vpc <- function(...) {
 #'   c(FOOD = "red")` adds a covariate color while keeping the role colors);
 #'   all other fields replace their default wholesale. A palette
 #'   `function(n)` in `colors` colours every covariate (called with the
-#'   number of covariates); it replaces the role entries, which then fall back
-#'   to the ggplot2 defaults.
+#'   number of covariates); the role colors stay pinned.
 #'
 #' @seealso [style_forest_pmforest()], [style_forest_coveffectsplot()], [style_forest_pmxforest()],
 #'   and [style_forest_pumas()] for the looks of the `pmforest`, `coveffectsplot`,
@@ -359,13 +360,12 @@ style_forest <- function(...) {
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them.
 #'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
-#'   c(point = 3)`). The default `colors` is a hue palette `function(n)`, so
-#'   passing `colors` replaces it wholesale: a different palette function, or
-#'   entries keyed by covariate name (covariates without an entry take the
-#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
-#'   turns covariate coloring off, with a warning. The point fill follows the
-#'   covariate colour while the
-#'   point shape is a fill shape (21-25); the `point` colour is the outline.
+#'   c(point = 3)`). The default `colors` is a hue palette `function(n)`: a
+#'   named `colors` pins its entries on that palette (e.g. `c(FOOD = "red")`
+#'   colours one covariate, `c(point = "red")` one role) and the palette
+#'   colours the other covariates; a palette function replaces it. The point
+#'   fill follows the covariate colour while the point shape is a fill shape
+#'   (21-25); the `point` colour is the outline.
 #'
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
@@ -400,9 +400,7 @@ style_forest_pmforest <- function(...) {
       )
     )
   )
-  overrides <- list(...)
-  warn_forest_palette_dropped(overrides$colors, "style_forest_pmforest")
-  build_style(defaults, overrides)
+  build_style(defaults, list(...))
 }
 
 
@@ -578,12 +576,11 @@ style_forest_pmxforest <- function(...) {
 #' @param ... Fields passed to [ggstylekit::style_spec()], overriding the
 #'   preset defaults; call the preset with no arguments to view them.
 #'   Per-series maps merge entry-wise onto the defaults (e.g. `sizes =
-#'   c(point = 3)`). The default `colors` is a palette `function(n)`, so
-#'   passing `colors` replaces it wholesale: a different palette function,
-#'   or entries keyed by covariate name (covariates without an entry take the
-#'   house palette). A `colors` naming only roles (e.g. `c(point = "red")`)
-#'   turns covariate coloring off, with a warning. `errorbar_width` sets the
-#'   cap height in row heights.
+#'   c(point = 3)`). The default `colors` is a palette `function(n)`: a
+#'   named `colors` pins its entries on that palette (e.g. `c(FOOD = "red")`
+#'   colours one covariate, `c(point = "red")` one role) and the palette
+#'   colours the other covariates; a palette function replaces it.
+#'   `errorbar_width` sets the cap height in row heights.
 #'
 #' @family forest plot
 #' @return A `ggstylekit_style_spec` object.
@@ -618,32 +615,5 @@ style_forest_pumas <- function(...) {
       axis.ticks.y.left  = ggplot2::element_blank()
     )
   )
-  overrides <- list(...)
-  warn_forest_palette_dropped(overrides$colors, "style_forest_pumas")
-  build_style(defaults, overrides)
-}
-
-
-#' Internal helper: warn when a palette preset loses its covariate coloring
-#'
-#' In [style_forest_pmforest()] and [style_forest_pumas()] the default
-#' `colors` is a palette function, which a named `colors` vector replaces
-#' wholesale. A vector naming only series roles therefore turns
-#' per-covariate coloring off; warn so that is not silent.
-#'
-#' @param colors The user's `colors` override, or `NULL`.
-#' @param preset Name of the calling preset, for the message.
-#' @return `NULL`, invisibly.
-#' @keywords internal
-#' @noRd
-warn_forest_palette_dropped <- function(colors, preset) {
-  roles <- c("point", "errorbar", "ref_point", "ref_line", "ref_band")
-  if (is.null(colors) || is.function(colors) || !all(names(colors) %in% roles)) {
-    return(invisible(NULL))
-  }
-  pmx_warn(c(
-    "{.arg colors} replaces the covariate palette of {.fn {preset}}, so covariates are no longer colored.",
-    "i" = "To keep per-covariate coloring, key {.arg colors} by covariate name or pass a palette {.code function(n)}."
-  ), "ignored_arg")
-  invisible(NULL)
+  build_style(defaults, list(...))
 }

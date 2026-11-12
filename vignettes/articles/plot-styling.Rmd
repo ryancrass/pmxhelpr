@@ -422,8 +422,9 @@ plot_dvtime(
   facet_wrap(~PART)
 ```
 
-Any `function(n)` returning `n` values works. A palette has no names to merge 
-entry-wise, so it replaces the preset default map rather than merging onto it. 
+Any `function(n)` returning `n` values works. The preset's named entries (its
+role colors, e.g. the reference line) stay pinned, and every other group draws
+from the palette.
 
 
 ## Trend line customization (`plot_dvconc()`)

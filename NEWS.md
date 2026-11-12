@@ -6,6 +6,17 @@
   with the observed line (`colors = c(obs_median_line = )`), matching how
   `plot_vpc_cens()` draws them. Setting `obs_point` in the same call still
   gives the points their own colour.
+* A palette `function(n)` passed to a `style_*()` preset no longer replaces
+  the preset's role colours: e.g. `style_vpc(fill = pal)` keeps the VPC
+  interval fills and `style_dvconc(colors = pal)` keeps the trend line colours,
+  while the palette colours every other group. `style_gof(colors = )` is
+  unchanged, since its colours are keyed by series (`OBS`, `DV`, `PRED`, 
+  `IPRED`), not roles.
+* In `style_forest_pmforest()` and `style_forest_pumas()`, a named `colors`
+  now sets those entries and keeps the covariate palette for the rest:
+  `colors = c(FOOD = "red")` colours one covariate, and `colors = c(point =
+  "red")` sets the role colour without switching covariate colouring off (it
+  previously did, with a warning).
 
 # pmxhelpr 0.8.0
 

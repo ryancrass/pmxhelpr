@@ -508,6 +508,18 @@ test_that("restyle_plot() reaches VPC layers by role", {
   expect_false("purple" %in% vpc_layer_values(p, "GeomLine", "colour"))
 })
 
+test_that("a palette in style_vpc() keeps the role colours pinned on the drawn layers", {
+  pal <- function(n) rep("orange", n)
+  p <- suppressMessages(plot_vpc_cont(sim_pk(carry_out = "LLOQ"),
+                                      style = style_vpc(fill = pal, colors = pal)))
+  expect_true(style_vpc()$fill[["sim_pi_ci"]] %in% vpc_layer_values(p, "GeomRibbon", "fill"))
+  expect_true(style_vpc()$colors[["obs_median_line"]] %in% vpc_layer_values(p, "GeomLine", "colour"))
+  expect_false("orange" %in% vpc_layer_values(p, "GeomRibbon", "fill"))
+  ## The LLOQ line is drawn inline from series_aes(), which reads the pins
+  leg <- plot_vpc_legend(style = style_vpc(colors = pal))
+  expect_s3_class(leg, "ggplot")
+})
+
 test_that("reveal() maps a variable onto the VPC observation points", {
   p <- suppressMessages(plot_vpc_cont(sim_pk(carry_out = "FOOD")))
   r <- reveal(p, FOOD, on = "point", as = "colors")

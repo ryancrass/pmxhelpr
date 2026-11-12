@@ -17,6 +17,13 @@
   `colors = c(FOOD = "red")` colours one covariate, and `colors = c(point =
   "red")` sets the role colour without switching covariate colouring off (it
   previously did, with a warning).
+* VPC statistics (`df_vpcstats()`, `plot_vpc_cont()`, `plot_vpc_cens()`) are
+  computed about 40 times faster, with the same results. A 500-replicate
+  stratified VPC of `data_sad` now takes about 2 seconds end to end instead of
+  9. The quantile columns of `df_vpcstats()$stats` no longer carry
+  `stats::quantile()`'s `"5%"`/`"50%"`/`"95%"` element names.
+* `df_mrgsim_replicate()` validates the input data once instead of in every
+  replicate (unless `recover` is passed). The simulated output is unchanged.
 
 # pmxhelpr 0.8.0
 

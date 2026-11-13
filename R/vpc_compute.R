@@ -393,7 +393,9 @@ pred_varies_by_rep <- function(data, rep_var) {
 #' `pc_sim_*` quantiles are masked to `NA` in bins with no quantifiable
 #' observations (`obs_n == obs_n_blq`). When `PRED` differs by replicate
 #' (parameter uncertainty), all pc columns and `PC_OBSDV` are `NA` and
-#' `config$pred_corrected` is `FALSE`.
+#' `config$pred_corrected` is `FALSE`. Interval-bin edges (`BIN_LOW`,
+#' `BIN_HI`), when present in `data`, are kept in `stats` after the bin
+#' column.
 #'
 #' @param data Preprocessed simulation data, typically from [df_vpcpreprocess()].
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
@@ -452,8 +454,9 @@ df_vpccompute <- function(data,
   check_quantile_scalar(ci, "ci", call = call)
   ci_bounds <- c((1 - ci) / 2, 1 - (1 - ci) / 2)
 
-  group_vars <- c(bin_var)
-  if (!is.null(strat_var)) group_vars <- c(bin_var, strat_var)
+  ## Interval bins carry their edges as group keys, so the stats keep them
+  ## next to the bin column.
+  group_vars <- c(bin_var, intersect(.vpc_bin_bounds, names(data)), strat_var)
 
   ## ----- Standard -----
   std_mode <- if (mode == "auto") "rank" else mode

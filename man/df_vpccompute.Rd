@@ -72,6 +72,8 @@ applies \code{var_loqcens} to \code{SIMDV} (when \code{loq} is supplied) and
 \verb{pc_sim_*} quantiles are masked to \code{NA} in bins with no quantifiable
 observations (\code{obs_n == obs_n_blq}). When \code{PRED} differs by replicate
 (parameter uncertainty), all pc columns and \code{PC_OBSDV} are \code{NA} and
-\code{config$pred_corrected} is \code{FALSE}.
+\code{config$pred_corrected} is \code{FALSE}. Interval-bin edges (\code{BIN_LOW},
+\code{BIN_HI}), when present in \code{data}, are kept in \code{stats} after the bin
+column.
 }
 \keyword{internal}

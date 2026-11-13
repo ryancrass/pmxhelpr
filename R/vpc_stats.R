@@ -152,9 +152,6 @@ df_vpcstats <- function(data,
     bin_breaks = bin_breaks
   )
 
-  ## Read before df_vpccompute(): its dplyr steps drop the attribute.
-  resolved_breaks <- attr(pre, "bin_breaks")
-
   out <- df_vpccompute(
     pre,
     pi = pi, ci = ci,
@@ -165,18 +162,10 @@ df_vpcstats <- function(data,
     mode = mode
   )
 
-  ## Interval bins carry their edges into stats, next to BIN_MID.
-  if (all(.vpc_bin_bounds %in% names(pre))) {
-    keys <- c(.vpc_bin_col, strat_var_str)
-    bounds <- dplyr::distinct(pre[c(keys, .vpc_bin_bounds)])
-    out$stats <- dplyr::left_join(out$stats, bounds, by = keys) |>
-      dplyr::relocate(dplyr::all_of(.vpc_bin_bounds), .after = dplyr::all_of(.vpc_bin_col))
-  }
-
   ## Source column names, for provenance; the stats use standardized names.
   out$config[c("time_var", "ntime_var", "pred_var", "sim_dv_var", "obs_dv_var")] <-
     list(time_var_str, ntime_var_str, pred_var_str, sim_dv_var_str, obs_dv_var_str)
-  out$config["bin_breaks"] <- list(resolved_breaks)
+  out$config["bin_breaks"] <- list(attr(pre, "bin_breaks"))
   out
 }
 

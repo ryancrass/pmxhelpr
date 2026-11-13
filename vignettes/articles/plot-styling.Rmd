@@ -231,7 +231,6 @@ plot_dvtime(
   cent = "mean_sdl", log_y = TRUE, loq_method = 2, show_obs = FALSE,
   style = style_dvtime(linewidths = c(cent_line = 1.5))
 ) +
-  scale_x_continuous(breaks = seq(0, 168, 24))+
   labs(y = "Concentration (ng/mL)", x = "Time (hours)")
 ```
 

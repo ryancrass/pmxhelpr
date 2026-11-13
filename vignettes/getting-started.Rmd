@@ -337,7 +337,6 @@ vpc_regimen <- plot_vpc_cont(
   data = simout,
   strat_var = Regimen
 ) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   scale_y_log10(guide = "axis_logticks") +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)")
 vpc_regimen
@@ -351,7 +350,6 @@ pcvpc_part <- plot_vpc_cont(
   strat_var = PART,
   pcvpc = TRUE
 ) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   scale_y_log10(guide = "axis_logticks") +
   labs(x = "Time (hours)", y = "Pred-corrected Conc. (ng/mL)")
 pcvpc_part
@@ -374,7 +372,6 @@ cens_vpc_regimen <- plot_vpc_cens(
   strat_var = Regimen,
   loq = 1
 ) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(x = "Time (hours)", y = "Proportion BLQ")
 cens_vpc_regimen
 ```
@@ -390,12 +387,10 @@ highlighting the potential efficiencies of reusing a pre-computed object.
 
 ```{r plot-vpc-patchwork, fig.width=8, fig.height=7, warning=FALSE, message=FALSE}
 vpc_plot_cont <- plot_vpc_cont(vpcstats_obj_regimen) + 
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   scale_y_log10(guide = "axis_logticks") +
   labs(x = "Time (hours)", y = "Concentration (ng/mL)")
 
 vpc_plot_cens <- plot_vpc_cens(vpcstats_obj_regimen) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(x = "Time (hours)", y = "Proportion BLQ")
 
 cont_legend <- plot_vpc_legend()

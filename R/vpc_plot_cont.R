@@ -110,25 +110,27 @@ plot_vpc_cont <- function(data,
                           mode = c("auto", "rank", "drop"),
                           shown = NULL,
                           style = NULL,
+                          time_unit = "hours",
                           pi = c(0.05, 0.95),
                           ci = 0.90,
                           irep_name) {
 
   check_boolean(show_rep, "show_rep")
   check_boolean(pcvpc, "pcvpc")
+  time_unit <- normalize_time_unit(time_unit)
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute and recover plotting context
   ## from the container's $config slot. Pipeline args (strat_var, loq, mode,
   ## pi, ci, column-name args) cannot be honored on this path because the
   ## pipeline doesn't run again; the wrapper aborts if any are passed.
-  ## Plot-only args (min_bin_count, show_rep, shown, style, pcvpc) are
+  ## Plot-only args (min_bin_count, show_rep, shown, style, pcvpc, time_unit) are
   ## accepted on both paths.
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       mc             = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
-                         "style", "pcvpc"),
+                         "style", "pcvpc", "time_unit"),
       fn_name        = "plot_vpc_cont",
       stats_fn       = "df_vpcstats"
     )
@@ -138,7 +140,8 @@ plot_vpc_cont <- function(data,
       show_rep      = show_rep,
       shown         = shown,
       style         = style,
-      pcvpc         = pcvpc
+      pcvpc         = pcvpc,
+      time_unit     = time_unit
     ))
   }
 
@@ -175,6 +178,7 @@ plot_vpc_cont <- function(data,
     show_rep = show_rep,
     shown = shown,
     style = style,
-    pcvpc = pcvpc
+    pcvpc = pcvpc,
+    time_unit = time_unit
   )
 }

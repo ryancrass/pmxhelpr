@@ -74,6 +74,7 @@
 #'    or strings. Default is `SIM`.
 #'
 #' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
+#' @inheritParams plot_dvtime
 #' @family vpc
 #' @return A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the
 #'    underlying VPC summary statistics directly, use [df_vpcstats()] and
@@ -106,10 +107,12 @@ plot_vpc_cens <- function(data,
                           show_rep = TRUE,
                           shown = NULL,
                           style = NULL,
+                          time_unit = "hours",
                           ci = 0.90,
                           irep_name) {
 
   check_boolean(show_rep, "show_rep")
+  time_unit <- normalize_time_unit(time_unit)
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute, validate that the container
@@ -119,7 +122,8 @@ plot_vpc_cens <- function(data,
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       mc             = match.call(),
-      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style"),
+      plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style",
+                         "time_unit"),
       fn_name        = "plot_vpc_cens",
       stats_fn       = "df_vpcstats"
     )
@@ -129,7 +133,8 @@ plot_vpc_cens <- function(data,
       min_bin_count = min_bin_count,
       show_rep      = show_rep,
       shown         = shown,
-      style         = style
+      style         = style,
+      time_unit     = time_unit
     ))
   }
 
@@ -166,6 +171,7 @@ plot_vpc_cens <- function(data,
     min_bin_count = min_bin_count,
     show_rep      = show_rep,
     shown         = shown,
-    style         = style
+    style         = style,
+    time_unit     = time_unit
   )
 }

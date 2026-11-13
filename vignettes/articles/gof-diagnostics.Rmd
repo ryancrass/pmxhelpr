@@ -96,7 +96,6 @@ The example dataset `data_sad_pkfit` only differs from these defaults in the var
 
 ```{r plot-popgof, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV") + 
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(y = "Concentration (ng/mL)", x = "Time Since First Dose (hours)")
 ```
 
@@ -106,7 +105,6 @@ The pooled analysis population includes multiple dose levels in a single plot, w
 
 ```{r plot-popgof-dn, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(data = plot_data, dv_var = "ODV", dosenorm = TRUE, dose_var = DOSE) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) +
   labs(y = "Dose-normalized Conc. (ng/mL/mg)", x = "Time Since First Dose (hours)") +
   facet_wrap(~`Food Status`)
 ```
@@ -308,7 +306,6 @@ for(i in 1:n_ids){
                             shown = plot_gof_shown(pred = FALSE, dv = FALSE),
                             show_caption = FALSE) +
   facet_wrap(~DoseFood) +
-  scale_x_continuous(breaks = seq(0, 168, 24)) + 
   labs(title = paste0("ID = ", ids[i]), y = "Concentration (ng/mL)", x = "Time (hours)") +
   theme(legend.position="none")
 }

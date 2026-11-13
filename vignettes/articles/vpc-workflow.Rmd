@@ -27,18 +27,16 @@ library(withr, warn.conflicts =  FALSE)
 library(patchwork, warn.conflicts = FALSE)
 ```
 
-The continuous-range VPC plots in this vignette share a common axes / labels layer (time on x with breaks every 24 hours, concentration on a log10 y-axis). Defining a single list object lets each plot reuse it with `+ vpc_scales_labs`; pcVPC views override the y label with `+ labs(y = ...)` afterwards. The censored-range VPCs use a parallel `vpc_cens_scales_labs` for the BLQ-proportion plots.
+The continuous-range VPC plots in this vignette share a common axes / labels layer (concentration on a log10 y-axis; the time axis already breaks every 24 hours by default, through `time_unit = "hours"`). Defining a single list object lets each plot reuse it with `+ vpc_scales_labs`; pcVPC views override the y label with `+ labs(y = ...)` afterwards. The censored-range VPCs use a parallel `vpc_cens_scales_labs` for the BLQ-proportion plots.
 
 ```{r vpc-scales-labs}
 vpc_scales_labs <- list(
   labs(x = "Time (hours)", y = "Concentration (ng/mL)"),
-  scale_x_continuous(breaks = seq(0, 168, 24)),
   scale_y_log10(guide = "axis_logticks")
 )
 
 vpc_cens_scales_labs <- list(
-  labs(x = "Time (hours)", y = "Proportion BLQ"),
-  scale_x_continuous(breaks = seq(0, 168, 24))
+  labs(x = "Time (hours)", y = "Proportion BLQ")
 )
 ```
 
@@ -694,7 +692,7 @@ vpc2
 
 Because `plot_vpc_cont()` returns a `ggplot2` object, the y-axis can be transformed to log10 scale by adding `scale_y_log10()` as a layer. This approach avoids any data transformation prior to calculating summary statistics, ensuring all quantile calculations are performed on the original scale.
 
-Similarly, the axis labels can be controlled with `labs` and the x-axis breaks can be set to more reasonable values for time units using `scale_x_continuous()`.
+Similarly, the axis labels can be controlled with `labs`. The x-axis breaks fall on natural steps of the time unit (every 24 hours here); set `time_unit` (e.g. `time_unit = "days"`) when time is not in hours, or add `scale_x_continuous()` for other breaks.
 
 
 # VPC Plots with `plot_vpc_cens()`

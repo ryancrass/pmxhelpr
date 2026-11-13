@@ -11,6 +11,12 @@
   column groups;
   `summary(x)$coverage` holds the per-bin flags (`$bins`) and the shares
   (`$strata`, `$overall`). 
+* Time-axis plots (`plot_dvtime()`, `plot_gof()`, `plot_vpc_cont()`,
+  `plot_vpc_cens()`, `plot_build_vpc()`) place x-axis breaks on natural steps
+  of the time unit, set by the new `time_unit` argument (`"hours"`, the
+  default, `"days"`, `"weeks"`, or `"months"`).A style that sets `xbreaks` or 
+  `logx` still takes precedence. The new `breaks_time()` gives the same breaks 
+  for any continuous time axis.
 
 ## Minor improvements
 

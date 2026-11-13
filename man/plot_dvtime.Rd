@@ -20,6 +20,7 @@ plot_dvtime(
   dosenorm = FALSE,
   ref = NULL,
   log_y = NULL,
+  time_unit = "hours",
   show_caption = TRUE,
   style = NULL
 )
@@ -96,6 +97,11 @@ change-from-baseline data.}
 \code{NULL} (default) to use the style's \code{logy} field (\code{FALSE} when unset). A
 value passed here overrides the style's \code{logy}. Also controls whether
 the caption reports arithmetic or geometric mean when \code{show_caption = TRUE}.}
+
+\item{time_unit}{Time unit of the x-axis, which places the axis breaks on
+natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),
+\code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
+\code{logx} takes precedence.}
 
 \item{show_caption}{Logical indicating if a caption should be shown describing the data plotted.
 A \code{caption} set in the style is drawn instead, whatever this value.}

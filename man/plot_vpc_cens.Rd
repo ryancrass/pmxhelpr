@@ -18,6 +18,7 @@ plot_vpc_cens(
   show_rep = TRUE,
   shown = NULL,
   style = NULL,
+  time_unit = "hours",
   ci = 0.9,
   irep_name
 )
@@ -84,6 +85,11 @@ Pass the same style to
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches. The cens builder reads the same four keys
 listed above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
 \code{sim_median_ci}); other keys are ignored.}
+
+\item{time_unit}{Time unit of the x-axis, which places the axis breaks on
+natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),
+\code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
+\code{logx} takes precedence.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for the simulated CI bound on the BLQ
 proportion across replicates (e.g., \code{0.90} for 90\% CI). Default is

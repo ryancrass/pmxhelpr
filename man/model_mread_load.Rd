@@ -23,17 +23,16 @@ The library holds the models used to simulate the example datasets
 (\link{data_sad} and the datasets derived from it). Print one with
 \code{\link[mrgsolve:see]{mrgsolve::see()}} for the full code.
 \itemize{
-\item \code{"pkmodel"}: two-compartment PK with first-order absorption through a
-transit compartment. Dose in mg; \code{IPRED} and \code{DV} in ng/mL.
+\item \code{"pkmodel"}: two-compartment PK model with transit (n=1) absorption and
+dose-dependent bioavailability. Dose in mg; \code{IPRED} and \code{DV} in ng/mL.
 \itemize{
 \item Covariate effects, all read from same-named columns of the simulation
 input:
 \itemize{
 \item \code{WT} (kg) scales \code{CL} and \code{Q} with exponent 0.75, and \code{VC} and \code{VP}
-with exponent 1, around 70 kg.
-\item \code{FOOD = 1} halves \code{KA} and multiplies bioavailability by 2.33.
-\item \code{DOSE} (mg) scales bioavailability by \code{(DOSE / 100)^0.33}, so
-exposure rises more than proportionally with dose.
+with exponent 1 (allometric scaling). Centered on 70 kg.
+\item \code{FOOD = 1} reduces \code{KA} and increases bioavailability.
+\item \code{DOSE} (mg) scales bioavailability by \code{(DOSE / 100)^0.33}
 \item When a column is absent, its parameter keeps its default (\code{WT = 70},
 \code{FOOD = 0}, \code{DOSE = 100}). \code{data_sad} has \code{DOSE} and \code{FOOD}, but
 weight as \code{WTBL}, so its simulations use \code{WT = 70}.

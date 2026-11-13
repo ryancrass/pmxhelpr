@@ -12,7 +12,8 @@ plot_build_vpc(
   shown = NULL,
   style = NULL,
   pcvpc = FALSE,
-  loq = NULL
+  loq = NULL,
+  time_unit = "hours"
 )
 }
 \arguments{
@@ -79,6 +80,11 @@ the container as \code{plot_vpc_legend(stats = )}, which reads
 values when \code{\link[=df_vpcstats]{df_vpcstats()}} populated the container. Forced to \code{NULL}
 when \code{pcvpc = TRUE} (LOQ has no meaning on the prediction-corrected
 scale).}
+
+\item{time_unit}{Time unit of the x-axis, which places the axis breaks on
+natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),
+\code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
+\code{logx} takes precedence.}
 }
 \value{
 A \code{ggplot2} object.

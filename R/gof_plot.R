@@ -51,6 +51,10 @@
 #'    `NULL` (default) to use the style's `logy` field (`FALSE` when unset). A
 #'    value passed here overrides the style's `logy`. Also controls whether the caption reports arithmetic or geometric mean
 #'    when `show_caption = TRUE`.
+#' @param time_unit Time unit of the x-axis, which places the axis breaks on
+#'    natural steps of that unit (see [breaks_time()]): `"hours"` (default),
+#'    `"days"`, `"weeks"`, or `"months"`. A style that sets `xbreaks` or
+#'    `logx` takes precedence.
 #' @param show_caption Logical indicating if a caption should be shown
 #'    describing the data plotted. A `caption` set in the style is drawn instead, whatever this value.
 #' @param style A [ggstylekit::style_spec()] controlling plot aesthetics.
@@ -87,6 +91,7 @@ plot_gof <- function(data,
                         dosenorm = FALSE,
                         ref = NULL,
                         log_y = NULL,
+                        time_unit = "hours",
                         show_caption = TRUE,
                         style = NULL){
 
@@ -95,6 +100,7 @@ plot_gof <- function(data,
   check_boolean(show_loq_value, "show_loq_value")
   check_boolean(dosenorm, "dosenorm")
   check_boolean(show_caption, "show_caption")
+  time_unit <- normalize_time_unit(time_unit)
 
   data_cols <- names(data)
   dv_var_str    <- resolve_var(rlang::enquo(dv_var), cols = data_cols)
@@ -175,7 +181,8 @@ plot_gof <- function(data,
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
 
-  #Finalize: house theme and log axis (logy set in prep_dvtime_plot()); colors
-  #come from plotstyle via style_plot().
-  ggstylekit::style_plot(plot, plotstyle)
+  #Finalize: time-axis breaks, then house theme and log axis (logy set in
+  #prep_dvtime_plot()); colors come from plotstyle via style_plot().
+  axis <- style_time_axis(plot, plotstyle, time_unit)
+  ggstylekit::style_plot(axis$plot, axis$style)
 }

@@ -77,6 +77,7 @@
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
 #'    scale).
 #'
+#' @inheritParams plot_dvtime
 #' @family vpc
 #' @seealso [autoplot()][autoplot.pmx_stats], which draws a container with its builder.
 #' @return A `ggplot2` object.
@@ -97,11 +98,13 @@ plot_build_vpc <- function(stats,
                            shown = NULL,
                            style = NULL,
                            pcvpc = FALSE,
-                           loq = NULL) {
+                           loq = NULL,
+                           time_unit = "hours") {
 
   type <- match.arg(type)
   check_boolean(show_rep, "show_rep")
   check_boolean(pcvpc, "pcvpc")
+  time_unit <- normalize_time_unit(time_unit)
 
   validate_vpc_stats(stats)
 
@@ -171,7 +174,8 @@ plot_build_vpc <- function(stats,
 
   ## Finalize via style_plot(): it fills each tagged role layer's aesthetics
   ## from the style and applies the house theme (white VPC panel).
-  as_pmx_vpc_plot(ggstylekit::style_plot(plot, vpcstyle))
+  axis <- style_time_axis(plot, vpcstyle, time_unit)
+  as_pmx_vpc_plot(ggstylekit::style_plot(axis$plot, axis$style))
 }
 
 

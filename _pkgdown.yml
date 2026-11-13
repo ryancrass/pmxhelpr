@@ -65,6 +65,11 @@ reference:
       - style_vpc
       - reexports
 
+  - title: Axis Helpers
+    desc: Breaks for continuous time axes on natural steps of the time unit.
+    contents:
+      - breaks_time
+
   - title: Layer Visibility
     desc: Constructors for the `shown` argument of plot functions.
     contents:

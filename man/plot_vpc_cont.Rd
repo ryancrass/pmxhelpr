@@ -21,6 +21,7 @@ plot_vpc_cont(
   mode = c("auto", "rank", "drop"),
   shown = NULL,
   style = NULL,
+  time_unit = "hours",
   pi = c(0.05, 0.95),
   ci = 0.9,
   irep_name
@@ -98,6 +99,11 @@ Defaults to \code{\link[=style_vpc]{style_vpc()}}; view the defaults by running 
 with no arguments. Customize by passing \code{style = style_vpc(...)}.
 Pass the same style to
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches.}
+
+\item{time_unit}{Time unit of the x-axis, which places the axis breaks on
+natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),
+\code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
+\code{logx} takes precedence.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles. Default is \code{c(0.05, 0.95)}.}
 

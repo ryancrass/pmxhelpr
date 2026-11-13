@@ -5,11 +5,11 @@
 #'
 #' @details
 #' The library holds the models used to simulate the example datasets
-#' ([data_sad] and the datasets derived from it. Print one with
+#' ([data_sad] and the datasets derived from it). Print one with
 #' [mrgsolve::see()] for the full code.
 #'
 #' * `"pkmodel"`: two-compartment PK model with transit (n=1) absorption and
-#'    dose-dependent bioavailabilty. Dose in mg; `IPRED` and `DV` in ng/mL.
+#'    dose-dependent bioavailability. Dose in mg; `IPRED` and `DV` in ng/mL.
 #'   * Covariate effects, all read from same-named columns of the simulation
 #'     input:
 #'     * `WT` (kg) scales `CL` and `Q` with exponent 0.75, and `VC` and `VP`

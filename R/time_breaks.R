@@ -72,7 +72,8 @@ time_breaks <- function(limits, steps, n) {
   n_breaks <- function(step) floor(hi / step) - ceiling(lo / step) + 1
   if (n_breaks(steps[1]) < 3) {
     breaks <- pretty(c(lo, hi), n = min(n, 5))
-    return(breaks[breaks >= lo & breaks <= hi])
+    tol <- 1e-8 * (hi - lo)
+    return(breaks[breaks >= lo - tol & breaks <= hi + tol])
   }
   fits <- steps[n_breaks(steps) <= n]
   step <- if (length(fits) > 0) {

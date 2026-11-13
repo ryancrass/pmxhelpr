@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pmxhelpr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,19 @@
       <small>Source: <a href="https://github.com/ryancrass/pmxhelpr/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.1" id="pmxhelpr-081">pmxhelpr 0.8.1<a class="anchor" aria-label="anchor" href="#pmxhelpr-081"></a></h2>
+<div class="section level3">
+<h3 id="minor-improvements-0-8-1">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-8-1"></a></h3>
+<ul><li>
+<code><a href="https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html" class="external-link">restyle_plot()</a></code> on a censored VPC now recolours the observed points along with the observed line (<code>colors = c(obs_median_line = )</code>), matching how <code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code> draws them. Setting <code>obs_point</code> in the same call still gives the points their own colour.</li>
+<li>VPC statistics (<code><a href="../reference/df_vpcstats.html">df_vpcstats()</a></code>, <code><a href="../reference/plot_vpc_cont.html">plot_vpc_cont()</a></code>, <code><a href="../reference/plot_vpc_cens.html">plot_vpc_cens()</a></code>) are computed about 40 times faster, with the same results. A 500-replicate stratified VPC of <code>data_sad</code> now takes about 2 seconds end to end instead of
+<ol start="9" style="list-style-type: decimal"><li>The quantile columns of <code>df_vpcstats()$stats</code> no longer carry <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">stats::quantile()</a></code>’s <code>"5%"</code>/<code>"50%"</code>/<code>"95%"</code> element names.</li>
+</ol></li>
+<li>
+<code><a href="../reference/df_mrgsim_replicate.html">df_mrgsim_replicate()</a></code> validates the input data once instead of in every replicate (unless <code>recover</code> is passed). The simulated output is unchanged.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="pmxhelpr-080">pmxhelpr 0.8.0<a class="anchor" aria-label="anchor" href="#pmxhelpr-080"></a></h2>
 <div class="section level3">

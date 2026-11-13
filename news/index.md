@@ -1,5 +1,29 @@
 # Changelog
 
+## pmxhelpr 0.8.1
+
+### Minor improvements
+
+- [`restyle_plot()`](https://rdrr.io/pkg/ggstylekit/man/restyle_plot.html)
+  on a censored VPC now recolours the observed points along with the
+  observed line (`colors = c(obs_median_line = )`), matching how
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md)
+  draws them. Setting `obs_point` in the same call still gives the
+  points their own colour.
+- VPC statistics
+  ([`df_vpcstats()`](https://ryancrass.github.io/pmxhelpr/reference/df_vpcstats.md),
+  [`plot_vpc_cont()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cont.md),
+  [`plot_vpc_cens()`](https://ryancrass.github.io/pmxhelpr/reference/plot_vpc_cens.md))
+  are computed about 40 times faster, with the same results. A
+  500-replicate stratified VPC of `data_sad` now takes about 2 seconds
+  end to end instead of
+  9.  The quantile columns of `df_vpcstats()$stats` no longer carry
+      [`stats::quantile()`](https://rdrr.io/r/stats/quantile.html)’s
+      `"5%"`/`"50%"`/`"95%"` element names.
+- [`df_mrgsim_replicate()`](https://ryancrass.github.io/pmxhelpr/reference/df_mrgsim_replicate.md)
+  validates the input data once instead of in every replicate (unless
+  `recover` is passed). The simulated output is unchanged.
+
 ## pmxhelpr 0.8.0
 
 ### New features

@@ -13,11 +13,11 @@ License: GPL-3 + file LICENSE
 URL: https://github.com/ryancrass/pmxhelpr, https://ryancrass.github.io/pmxhelpr/
 BugReports: https://github.com/ryancrass/pmxhelpr/issues
 Depends: 
-    R (>= 4.1)
+    R (>= 4.3)
 Imports:
     cli (>= 3.6.0),
     dplyr (>= 1.1.0),
-    ggplot2 (>= 3.5.0),
+    ggplot2 (>= 4.0.0),
     ggstylekit (>= 0.4.1),
     grDevices,
     lifecycle (>= 1.0.0),

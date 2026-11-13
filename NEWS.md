@@ -63,6 +63,10 @@
   `colors = c(FOOD = "red")` colours one covariate, and `colors = c(point =
   "red")` sets the role colour without switching covariate colouring off (it
   previously did, with a warning).
+* pmxhelpr now requires R >= 4.3 and ggplot2 >= 4.0.0. With an older R or
+  ggplot2, adding a scale or layer to a VPC plot (e.g.
+  `plot_vpc_cont(...) + scale_y_log10()`) failed with "non-numeric argument
+  to binary operator".
 
 ## Bug fixes
 

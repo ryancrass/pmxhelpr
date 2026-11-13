@@ -79,11 +79,11 @@
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
 #'    scale).
 #' @param bin_style How the simulated intervals are drawn: `"line"`
-#'    (default) as shaded ribbons through the bin midpoints (`BIN_MID`);
+#'    (default) as shaded ribbons through the bin positions (`BIN_MID`);
 #'    `"rect"` as shaded rectangles spanning each bin (`BIN_LOW` to
 #'    `BIN_HI`). The observed and simulated lines are drawn through the bin
-#'    midpoints either way; with `"rect"`, each line also gets a point at
-#'    every bin midpoint, in the line's colour. `"rect"` needs interval bins:
+#'    positions either way; with `"rect"`, each line also gets a point at
+#'    every bin position, in the line's colour. `"rect"` needs interval bins:
 #'    compute the stats with `bin_breaks`.
 #'
 #' @inheritParams plot_dvtime
@@ -284,7 +284,7 @@ plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle,
       plot <- plot + ggstylekit::series_layer(
         ggplot2::geom_point(ggplot2::aes(y = .data[["obs_prop_blq"]])), "obs_point")
     } else if (!is.null(.vpc_roles[[role]]$cens)) {
-      ## In rect style, lines get bin-midpoint points; the obs line's are
+      ## In rect style, lines get bin-position points; the obs line's are
       ## already drawn by obs_point when it is shown.
       mid_points <- bin_style == "rect" &&
         !(role == "obs_median_line" && isTRUE(shown[["obs_point"]]))

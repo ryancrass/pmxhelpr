@@ -62,7 +62,8 @@ Prediction-correction and the
 Bins: without \code{bin_breaks}, each nominal time (\code{NTIME}) is a bin and
 \code{BIN_MID} is that time. With \code{bin_breaks}, actual time (\code{TIME}) is cut
 into intervals (\verb{[a, b)}, the last closed): \code{BIN_LOW} and \code{BIN_HI} are
-the interval edges and \code{BIN_MID} its midpoint (see \code{vpc_interval_bins()}).
+the interval edges and \code{BIN_MID} the median time of the bin's records
+(see \code{vpc_interval_bins()}).
 
 BLQ encoding (in this stage):
 \itemize{

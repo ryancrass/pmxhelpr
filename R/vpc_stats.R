@@ -47,7 +47,7 @@
 #'    function that returns breaks, or `NULL` (default) to bin by nominal time
 #'    (`ntime_var`). With interval bins, the actual time (`time_var`) is cut
 #'    into intervals `[a, b)` (the last one closed), and each bin is plotted
-#'    at its interval midpoint (`BIN_MID`).
+#'    at the median time of its records (`BIN_MID`), within each stratum.
 #'    * A numeric vector applies to every stratum. Records outside it are
 #'      dropped with a warning.
 #'    * A function, such as [bins_kmeans()], [bins_quantile()], or
@@ -65,7 +65,8 @@
 #'    \describe{
 #'      \item{`stats`}{Wide summary statistics, one row per bin (and
 #'        stratum). `BIN_MID` is the bin's x position: the nominal time, or
-#'        the interval midpoint with `bin_breaks`, in which case `BIN_LOW` and
+#'        the median time of the bin's records with `bin_breaks`, in which
+#'        case `BIN_LOW` and
 #'        `BIN_HI` follow it with the interval edges. Standard-VPC columns are
 #'        unprefixed (`obs_low/med/hi`, `sim_low_low/med/hi`, etc.);
 #'        prediction-corrected counterparts carry a `pc_` prefix

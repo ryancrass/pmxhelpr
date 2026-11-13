@@ -54,7 +54,8 @@
 #' Bins: without `bin_breaks`, each nominal time (`NTIME`) is a bin and
 #' `BIN_MID` is that time. With `bin_breaks`, actual time (`TIME`) is cut
 #' into intervals (`[a, b)`, the last closed): `BIN_LOW` and `BIN_HI` are
-#' the interval edges and `BIN_MID` its midpoint (see `vpc_interval_bins()`).
+#' the interval edges and `BIN_MID` the median time of the bin's records
+#' (see `vpc_interval_bins()`).
 #'
 #' BLQ encoding (in this stage):
 #' \itemize{
@@ -136,7 +137,8 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 
 ## Interval bins on actual time. Each record gets the `[a, b)` interval of
 ## its TIME (the last closed): BIN_LOW / BIN_HI are the edges and BIN_MID the
-## midpoint.
+## median TIME of the bin's records in the first replicate, within each
+## stratum, so the bin is drawn where its data are.
 ## * Numeric `bin_breaks` apply to every stratum. Records outside them, or
 ##   with no TIME, are dropped with a warning that counts them per replicate.
 ## * A function is called on the first replicate's finite times, once per
@@ -193,8 +195,11 @@ vpc_interval_bins <- function(data, bin_breaks, rep_var_str, strat_var_str = NUL
   }
   data[[.vpc_bin_bounds[1]]] <- low
   data[[.vpc_bin_bounds[2]]] <- hi
-  data[[.vpc_bin_col]] <- (low + hi) / 2
   data <- data[!outside, , drop = FALSE]
+  first_rep <- first_rep[!outside]
+  bin <- paste(data[[.vpc_bin_bounds[1]]], if (!is.null(strat_var_str)) data[[strat_var_str]])
+  median_time <- tapply(data$TIME[first_rep], bin[first_rep], stats::median)
+  data[[.vpc_bin_col]] <- as.numeric(median_time[bin])
 
   attr(data, "bin_breaks") <- if (per_stratum) breaks else breaks[[1]]
   data

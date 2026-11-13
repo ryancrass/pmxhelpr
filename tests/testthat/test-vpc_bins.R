@@ -47,7 +47,10 @@ test_that("function bin_breaks run per stratum; numeric breaks are shared", {
   }
   shared <- df_vpcstats(sim, loq = 1, strat_var = FOOD, bin_breaks = c(0, 24, 200))
   expect_equal(shared$config$bin_breaks, c(0, 24, 200))
-  expect_setequal(unique(shared$stats$BIN_MID), c(12, 112))
+  expect_setequal(unique(shared$stats$BIN_LOW), c(0, 24))
+  ## Shared edges, but each stratum's bins sit at its own median time.
+  first <- shared$stats[shared$stats$BIN_LOW == 0, ]
+  expect_false(first$BIN_MID[first$FOOD == 0] == first$BIN_MID[first$FOOD == 1])
 })
 
 test_that("interval-binned stats carry BIN_LOW and BIN_HI around BIN_MID", {
@@ -55,7 +58,9 @@ test_that("interval-binned stats carry BIN_LOW and BIN_HI around BIN_MID", {
   out <- df_vpcstats(sim, loq = 1, bin_breaks = bins_quantile(5))
   expect_equal(names(out$stats)[1:3], c("BIN_MID", "BIN_LOW", "BIN_HI"))
   expect_true(all(out$stats$BIN_LOW <= out$stats$BIN_MID & out$stats$BIN_MID <= out$stats$BIN_HI))
-  expect_equal(out$stats$BIN_MID, (out$stats$BIN_LOW + out$stats$BIN_HI) / 2)
+  obs1 <- sim[sim$SIM == 1 & sim$EVID == 0, ]
+  bin <- findInterval(obs1$TIME, out$config$bin_breaks, rightmost.closed = TRUE)
+  expect_equal(out$stats$BIN_MID, unname(c(tapply(obs1$TIME, bin, median))))
   expect_true(all(c("BIN_LOW", "BIN_HI") %in% summary(out)$column_groups$identifiers))
   nominal <- df_vpcstats(sim, loq = 1)
   expect_false(any(c("BIN_LOW", "BIN_HI") %in% names(nominal$stats)))
@@ -89,7 +94,7 @@ test_that("bin_style = 'rect' draws simulated intervals as rectangles and keeps 
     expect_equal(sum(rg == "GeomLine" & rr == role), sum(geoms_of(line) == "GeomLine" & roles_of(line) == role))
     expect_equal(sum(rg == "GeomPoint" & rr == role), sum(rg == "GeomLine" & rr == role))
   }
-  ## The points sit on the bin midpoints and take their line's colour.
+  ## The points sit on the bin positions and take their line's colour.
   built <- ggplot2::ggplot_build(rect)
   med_line <- which(rr == "obs_median_line" & rg == "GeomLine")
   med_point <- which(rr == "obs_median_line" & rg == "GeomPoint")
@@ -104,7 +109,7 @@ test_that("bin_style = 'rect' draws simulated intervals as rectangles and keeps 
   cr <- roles_of(cens)
   expect_equal(cg[cr == "sim_median_ci"], "GeomRect")
   expect_equal(cg[cr == "sim_median_line"], c("GeomLine", "GeomPoint"))
-  ## The obs BLQ line's midpoints are already marked by obs_point.
+  ## The obs BLQ line's bin positions are already marked by obs_point.
   expect_equal(cg[cr == "obs_median_line"], "GeomLine")
   expect_no_error(ggplot2::ggplot_build(cens))
   no_obs_pts <- plot_vpc_cens(vs, bin_style = "rect",

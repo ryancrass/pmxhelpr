@@ -70,7 +70,7 @@ Default is \code{c(0.05, 0.95)}.}
 function that returns breaks, or \code{NULL} (default) to bin by nominal time
 (\code{ntime_var}). With interval bins, the actual time (\code{time_var}) is cut
 into intervals \verb{[a, b)} (the last one closed), and each bin is plotted
-at its interval midpoint (\code{BIN_MID}).
+at the median time of its records (\code{BIN_MID}), within each stratum.
 \itemize{
 \item A numeric vector applies to every stratum. Records outside it are
 dropped with a warning.
@@ -91,7 +91,8 @@ slots:
 \describe{
 \item{\code{stats}}{Wide summary statistics, one row per bin (and
 stratum). \code{BIN_MID} is the bin's x position: the nominal time, or
-the interval midpoint with \code{bin_breaks}, in which case \code{BIN_LOW} and
+the median time of the bin's records with \code{bin_breaks}, in which
+case \code{BIN_LOW} and
 \code{BIN_HI} follow it with the interval edges. Standard-VPC columns are
 unprefixed (\code{obs_low/med/hi}, \code{sim_low_low/med/hi}, etc.);
 prediction-corrected counterparts carry a \code{pc_} prefix

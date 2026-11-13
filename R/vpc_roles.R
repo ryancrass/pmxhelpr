@@ -78,15 +78,15 @@ vpc_role_label <- function(role, ci, pi, type, loq_lab = NULL) {
 #' filled by [ggstylekit::style_plot()] from the role's style entries.
 #' With `bin_style = "rect"`, each ribbon (a simulated interval) becomes a
 #' `geom_rect()` spanning its bin (`BIN_LOW`-`BIN_HI`) under the same role;
-#' lines stay lines through the bin midpoints, each followed by a point at
-#' every bin midpoint (`mid_points`) tagged with the line's role, so it takes
+#' lines stay lines through the bin positions (`BIN_MID`), each followed by a
+#' point at every bin position (`mid_points`) tagged with the line's role, so it takes
 #' the line's colour.
 #'
 #' @param role A `.vpc_roles` name with `ribbon` or `line` geom.
 #' @param type `"cont"` or `"cens"`.
 #' @param col Column-name function (adds the `pc_` prefix when needed).
-#' @param bin_style `"line"` (ribbons through bin midpoints) or `"rect"`.
-#' @param mid_points Whether a line gets points at the bin midpoints; on by
+#' @param bin_style `"line"` (ribbons through bin positions) or `"rect"`.
+#' @param mid_points Whether a line gets points at the bin positions; on by
 #'    default with `bin_style = "rect"`.
 #' @return A list of layers (empty when the role is not drawn for `type`).
 #' @noRd

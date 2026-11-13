@@ -94,11 +94,11 @@ natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \cod
 \code{logx} takes precedence.}
 
 \item{bin_style}{How the simulated intervals are drawn: \code{"line"}
-(default) as shaded ribbons through the bin midpoints (\code{BIN_MID});
+(default) as shaded ribbons through the bin positions (\code{BIN_MID});
 \code{"rect"} as shaded rectangles spanning each bin (\code{BIN_LOW} to
 \code{BIN_HI}). The observed and simulated lines are drawn through the bin
-midpoints either way; with \code{"rect"}, each line also gets a point at
-every bin midpoint, in the line's colour. \code{"rect"} needs interval bins:
+positions either way; with \code{"rect"}, each line also gets a point at
+every bin position, in the line's colour. \code{"rect"} needs interval bins:
 compute the stats with \code{bin_breaks}.}
 
 \item{ci}{Numeric scalar in \verb{(0, 1)} for the simulated CI bound on the BLQ
@@ -112,7 +112,7 @@ the source of truth on that path.}
 function that returns breaks, or \code{NULL} (default) to bin by nominal time
 (\code{ntime_var}). With interval bins, the actual time (\code{time_var}) is cut
 into intervals \verb{[a, b)} (the last one closed), and each bin is plotted
-at its interval midpoint (\code{BIN_MID}).
+at the median time of its records (\code{BIN_MID}), within each stratum.
 \itemize{
 \item A numeric vector applies to every stratum. Records outside it are
 dropped with a warning.

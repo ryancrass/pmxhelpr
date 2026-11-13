@@ -593,7 +593,7 @@ test_that("compute_vpcstat() matches the per-group summarise() reference", {
 
 ##### Interval bins (bin_breaks) #####
 
-test_that("vpc_interval_bins() cuts actual time into [a, b) intervals at their midpoints", {
+test_that("vpc_interval_bins() cuts actual time into [a, b) intervals at their median times", {
   d <- data.frame(SIM = 1, TIME = c(0, 0.99, 1, 3.9, 4, 8, 9, NA))
   expect_warning(
     out <- pmxhelpr:::vpc_interval_bins(d, c(0, 1, 4, 8), "SIM"),
@@ -602,7 +602,8 @@ test_that("vpc_interval_bins() cuts actual time into [a, b) intervals at their m
   )
   expect_equal(out$TIME, c(0, 0.99, 1, 3.9, 4, 8))
   ## A record on a break joins the later bin; the last break is closed.
-  expect_equal(out$BIN_MID, c(0.5, 0.5, 2.5, 2.5, 6, 6))
+  expect_equal(out$BIN_LOW, c(0, 0, 1, 1, 4, 4))
+  expect_equal(out$BIN_MID, c(0.495, 0.495, 2.45, 2.45, 6, 6))
 })
 
 test_that("the out-of-range warning counts records per replicate", {
@@ -619,10 +620,8 @@ test_that("interval bins that isolate each nominal time reproduce nominal binnin
               ntimes[length(ntimes)] + 0.25)
   nominal <- df_vpcstats(sim, loq = 1)
   binned <- df_vpcstats(sim, loq = 1, bin_breaks = breaks)
-  midpoints <- (head(breaks, -1) + tail(breaks, -1)) / 2
-  expect_equal(binned$stats$BIN_MID, midpoints[match(nominal$stats$BIN_MID, ntimes)])
-  cols <- setdiff(names(nominal$stats), "BIN_MID")
-  expect_identical(binned$stats[cols], nominal$stats[cols])
+  ## Each bin holds one nominal time, so its median time is that time.
+  expect_identical(binned$stats[names(nominal$stats)], nominal$stats)
   expect_equal(binned$config$bin_breaks, breaks)
   expect_true("bin_breaks" %in% names(nominal$config))
   expect_null(nominal$config$bin_breaks)
@@ -632,7 +631,7 @@ test_that("df_vpcstats() bins by interval within each stratum", {
   sim <- sim_pk(5, carry_out = "FOOD")
   breaks <- c(0, 2, 8, 24, 72, 200)
   out <- df_vpcstats(sim, loq = 1, strat_var = FOOD, bin_breaks = breaks)
-  expect_setequal(unique(out$stats$BIN_MID), (head(breaks, -1) + tail(breaks, -1)) / 2)
+  expect_setequal(unique(out$stats$BIN_LOW), head(breaks, -1))
   obs1 <- sim[sim$SIM == 1 & sim$EVID == 0, ]
   expect_equal(sum(out$stats$obs_n), nrow(obs1))
   expect_equal(nrow(out$stats), length(unique(paste(

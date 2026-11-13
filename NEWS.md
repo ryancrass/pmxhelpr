@@ -19,7 +19,8 @@
   for any continuous time axis.
 * `df_vpcstats()`, `plot_vpc_cont()`, and `plot_vpc_cens()` can bin by time
   interval with the new `bin_breaks` argument: actual time is cut into
-  intervals `[a, b)` and each bin is plotted at its interval midpoint. The
+  intervals `[a, b)` and each bin is plotted at the median time of its
+  records. The
   default (`NULL`) keeps binning by nominal time.
   * `bin_breaks` takes a numeric vector of breaks, shared by all strata
     (records outside them are dropped with a warning), or a binning function
@@ -32,9 +33,9 @@
   as shaded rectangles spanning the interval, with the new
   `bin_style = "rect"` argument of `plot_vpc_cont()`, `plot_vpc_cens()`, and
   `plot_build_vpc()`. The observed and simulated lines stay lines through
-  the bin midpoints, with a point at each midpoint in the line's colour. The
+  the bin positions, with a point at each in the line's colour. The
   default (`"line"`) draws the intervals as ribbons through the bin
-  midpoints, as before.
+  positions, as before.
 * `df_mrgsim_replicate()` can run each replicate with a unique parameter set
   with the new `params` argument: a data.frame with one row of parameter
   values per replicate (e.g. bootstrap estimates), for a

@@ -90,11 +90,11 @@ natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \cod
 \code{logx} takes precedence.}
 
 \item{bin_style}{How the simulated intervals are drawn: \code{"line"}
-(default) as shaded ribbons through the bin midpoints (\code{BIN_MID});
+(default) as shaded ribbons through the bin positions (\code{BIN_MID});
 \code{"rect"} as shaded rectangles spanning each bin (\code{BIN_LOW} to
 \code{BIN_HI}). The observed and simulated lines are drawn through the bin
-midpoints either way; with \code{"rect"}, each line also gets a point at
-every bin midpoint, in the line's colour. \code{"rect"} needs interval bins:
+positions either way; with \code{"rect"}, each line also gets a point at
+every bin position, in the line's colour. \code{"rect"} needs interval bins:
 compute the stats with \code{bin_breaks}.}
 }
 \value{

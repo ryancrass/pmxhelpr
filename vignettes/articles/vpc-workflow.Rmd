@@ -472,7 +472,7 @@ plot_vpc_cont(
 ## Binning by time interval
 
 When nominal times are unavailable, or sampling times are too scattered for each nominal time to hold enough observations, bin by time interval instead with `bin_breaks`. Actual time is cut into intervals `[a, b)` 
-(the last one closed), and each bin's statistics are plotted at its interval midpoint. The observed 
+(the last one closed), and each bin's statistics are plotted at the median time of its records. The observed 
 points stay at their actual times. For data without a nominal time column, pass `ntime_var = TIME`.
 
 `bin_breaks` takes either a numeric vector of breaks or a binning function. A 
@@ -508,7 +508,7 @@ plot_vpc_cont(vpc_bins_food, pcvpc = TRUE) +
   labs(y = "Pred-corrected Conc. (ng/mL)")
 ```
 
-With interval bins, `bin_style = "rect"` draws each bin's simulated intervals as shaded rectangles spanning the interval, instead of ribbons joining the bin midpoints. The observed and simulated lines are still drawn through the bin midpoints, with a point at each midpoint to show where the line lands within its rectangle.
+With interval bins, `bin_style = "rect"` draws each bin's simulated intervals as shaded rectangles spanning the interval, instead of ribbons joining the bin positions. The observed and simulated lines are still drawn through the bin positions (the median time of each bin's records), with a point at each to show where the line lands within its rectangle.
 
 ```{r plot-vpc-bins-rect, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(vpc_bins_food, pcvpc = TRUE, bin_style = "rect") +
@@ -517,7 +517,7 @@ plot_vpc_cont(vpc_bins_food, pcvpc = TRUE, bin_style = "rect") +
 ```
 
 The breaks used are recorded in `config$bin_breaks`, and the `stats` carry each 
-bin's edges as `BIN_LOW` and `BIN_HI` alongside its midpoint `BIN_MID`.
+bin's edges as `BIN_LOW` and `BIN_HI` alongside its position `BIN_MID`.
 
 ## Dropping small sample bins
 

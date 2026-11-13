@@ -587,3 +587,15 @@ test_that("pc statistics are computed when PRED is the same in every replicate",
   expect_true(out$config$pred_corrected)
   expect_false(all(is.na(out$stats$pc_obs_med)))
 })
+
+
+test_that("replicate ids need not start at 1", {
+  sim <- sim_pk(3)
+  shifted <- sim
+  shifted$SIM <- shifted$SIM + 10L
+  base <- df_vpcstats(sim, loq = 1)
+  out <- df_vpcstats(shifted, loq = 1)
+  expect_identical(out$stats, base$stats)
+  expect_equal(nrow(out$obs), nrow(base$obs))
+  expect_equal(out$config$n_replicates, 3)
+})

@@ -156,7 +156,7 @@ vpc_interval_bins <- function(data, bin_breaks, rep_var_str, strat_var_str = NUL
     factor(rep("all", nrow(data)))
   }
   rows_by_group <- split(seq_len(nrow(data)), group)
-  first_rep <- data[[rep_var_str]] == data[[rep_var_str]][1]
+  first_rep <- is_first_rep(data, rep_var_str)
   timed <- is.finite(data$TIME)
 
   breaks <- lapply(names(rows_by_group), function(level) {
@@ -307,7 +307,7 @@ compute_vpcstat <- function(data, group_vars, rep_var, pi, ci_bounds,
   }
 
   ## Observed quantiles: the first replicate carries the observed data.
-  obs_data <- dplyr::filter(data, .data[[rep_var]] == 1)
+  obs_data <- data[is_first_rep(data, rep_var), , drop = FALSE]
   g3 <- dplyr::group_by(obs_data, dplyr::across(dplyr::all_of(group_vars)))
   gid3 <- dplyr::group_indices(g3)
   obs_quant <- dplyr::group_keys(g3)
@@ -363,14 +363,21 @@ grouped_mean <- function(x, gid, n_groups) {
 }
 
 
+## Rows of the first replicate: the replicate of the first row. Every
+## replicate carries the observed data, so this one supplies it.
+is_first_rep <- function(data, rep_var) {
+  rep_id <- data[[rep_var]]
+  !is.na(rep_id) & rep_id == rep_id[1]
+}
+
+
 ## Whether PRED differs between replicates for the same record, as in
 ## df_mrgsim_replicate(params = ) output. Records are matched by position
 ## within each replicate; replicates of unequal size are not compared.
 pred_varies_by_rep <- function(data, rep_var) {
-  rep_id <- data[[rep_var]]
-  n_rec <- sum(rep_id == rep_id[1])
+  n_rec <- sum(is_first_rep(data, rep_var))
   if (n_rec == 0 || nrow(data) %% n_rec != 0) return(FALSE)
-  pred <- matrix(data$PRED[order(rep_id)], nrow = n_rec)
+  pred <- matrix(data$PRED[order(data[[rep_var]])], nrow = n_rec)
   any(pred != pred[, 1], na.rm = TRUE)
 }
 
@@ -534,14 +541,13 @@ df_vpccompute <- function(data,
   data_pc$OBSDV  <- var_infna(data_pc$OBSDV)
   data_full <- data_std
   data_full[["PC_OBSDV"]] <- data_pc$OBSDV
-  obs <- data_full |>
-    dplyr::filter(.data[[rep_var]] == 1 & .data$MDV == 0)
+  obs <- data_full[is_first_rep(data_full, rep_var) & data_full$MDV == 0, , drop = FALSE]
 
   pmx_stats(
     stats  = stats,
     obs    = obs,
     config = list(
-      n_replicates = max(data[[rep_var]], na.rm = TRUE),
+      n_replicates = dplyr::n_distinct(data[[rep_var]], na.rm = TRUE),
       ci           = ci,
       pi           = pi,
       mode         = mode,

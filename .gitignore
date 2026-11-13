@@ -10,3 +10,5 @@ pkgdown
 Rplots.pdf
 .positai
 README.html
+tests/testthat/testthat-problems.rds
+tests/testthat/_problems/

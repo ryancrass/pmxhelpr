@@ -66,11 +66,11 @@ test_that("plot_dvtime() places x breaks on the time unit, unless the style sets
 test_that("a style log x-axis keeps its own breaks", {
   p <- suppressWarnings(plot_dvtime(dplyr::filter(data_sad, CMT == 2, TIME > 0),
                                     dv_var = ODV, style = style_dvtime(logx = TRUE)))
-  expect_false(isTRUE(all.equal(x_breaks(p), seq(0, 168, by = 24))))
+  expect_false(isTRUE(all.equal(suppressWarnings(x_breaks(p)), seq(0, 168, by = 24))))
 })
 
 test_that("plot_gof() and the VPC plots place x breaks on the time unit", {
-  expect_equal(x_breaks(suppressWarnings(plot_gof(data_sad_pkfit, dv_var = ODV))),
+  expect_equal(suppressWarnings(x_breaks(plot_gof(data_sad_pkfit, dv_var = ODV))),
                seq(0, 168, by = 24))
   testsim <- sim_pk(5)
   vs <- df_vpcstats(testsim, loq = 1)
@@ -79,4 +79,18 @@ test_that("plot_gof() and the VPC plots place x breaks on the time unit", {
   expect_equal(x_breaks(plot_vpc_cens(vs, time_unit = "days")), seq(0, 168, by = 28))
   expect_equal(x_breaks(plot_build_vpc(vs, time_unit = "d")), seq(0, 168, by = 28))
   expect_equal(x_breaks(ggplot2::autoplot(vs, time_unit = "days")), seq(0, 168, by = 28))
+})
+
+test_that("an x scale added by the user takes over without a replacement message", {
+  pk <- dplyr::filter(data_sad, CMT == 2)
+  user_scale <- ggplot2::scale_x_continuous(breaks = c(0, 100))
+  plots <- list(
+    plot_dvtime(pk, dv_var = ODV),
+    plot_gof(data_sad_pkfit, dv_var = ODV),
+    plot_vpc_cont(sim_pk(5))
+  )
+  for (p in plots) {
+    expect_no_message(p2 <- p + user_scale)
+    expect_equal(suppressWarnings(x_breaks(p2)), c(0, 100))
+  }
 })

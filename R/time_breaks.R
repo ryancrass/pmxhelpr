@@ -98,7 +98,11 @@ normalize_time_unit <- function(unit, arg = rlang::caller_arg(unit),
 
 ## Time-aware x breaks for a time-axis plot, unless the style sets `xbreaks`
 ## or `logx`. With no other x-scale fields in the style, the breaks function
-## goes on the plot's x scale, so it follows each panel's range and any zoom.
+## goes on the plot's default x scale, so it follows each panel's range and
+## any zoom. ggplot2 looks default scales up by name in the plot environment,
+## so the default is set there rather than added as a scale: an x scale the
+## user adds then takes over without a "Scale for x is already present"
+## message.
 ## A style that sets `xlims`, `xminor_breaks`, or `xtick_labels` makes
 ## style_plot() build the x scale itself, so the breaks are computed for
 ## `xlims` (or the plot's x range) and written to the style instead.
@@ -108,7 +112,9 @@ style_time_axis <- function(plot, style, time_unit) {
   }
   breaks <- breaks_time(time_unit)
   if (is.null(style$xlims) && is.null(style$xminor_breaks) && is.null(style$xtick_labels)) {
-    plot <- plot + ggplot2::scale_x_continuous(breaks = breaks)
+    env <- new.env(parent = plot$plot_env)
+    env$scale_x_continuous <- function(...) ggplot2::scale_x_continuous(..., breaks = breaks)
+    plot$plot_env <- env
   } else {
     style$xbreaks <- breaks(style$xlims %||% ggplot2::layer_scales(plot)$x$range$range)
   }

@@ -66,11 +66,20 @@ is_pmx_vpc_plot <- function(x) {
 #' @rdname plus-.pmx_vpc_plot
 #' @exportS3Method ggstylekit::restyle_plot
 restyle_plot.pmx_vpc_plot <- function(p, ...) {
-  if (!is.null(list(...)[["facet"]])) warn_vpc_facet()
+  dots <- list(...)
+  if (!is.null(dots[["facet"]])) warn_vpc_facet()
+  ## A cens VPC's obs points take the obs line's colour (vpc_cens_style()), so
+  ## a recoloured obs line carries its colour to the points unless the call
+  ## sets obs_point itself.
+  colors <- dots[["colors"]]
+  if (is.character(colors) && "obs_median_line" %in% names(colors) &&
+      !"obs_point" %in% names(colors) && is_vpc_cens_plot(p)) {
+    dots$colors[["obs_point"]] <- colors[["obs_median_line"]]
+  }
   ## Warned once above; drop the class so the ggplot method's own additions do
   ## not re-trigger `+.pmx_vpc_plot`.
   class(p) <- setdiff(class(p), "pmx_vpc_plot")
-  as_pmx_vpc_plot(ggstylekit::restyle_plot(p, ...))
+  as_pmx_vpc_plot(rlang::exec(ggstylekit::restyle_plot, p, !!!dots))
 }
 
 #' @rdname plus-.pmx_vpc_plot
@@ -92,6 +101,14 @@ adds_facet <- function(e2) {
     return(any(vapply(e2, adds_facet, logical(1))))
   }
   FALSE
+}
+
+## Internal: TRUE for a censored VPC, the only VPC whose layers draw the
+## observed BLQ proportion (the `cens` columns in vpc_roles.R).
+is_vpc_cens_plot <- function(p) {
+  any(vapply(p$layers, function(L) {
+    !is.null(L$mapping$y) && identical(rlang::as_label(L$mapping$y), "obs_prop_blq")
+  }, logical(1)))
 }
 
 ## Internal: the shared warning for faceting a VPC after its statistics exist.

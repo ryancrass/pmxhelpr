@@ -147,61 +147,104 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
 
 compute_vpcstat <- function(data, group_vars, rep_var, pi, ci_bounds,
                                has_loq, pcvpc) {
-  stage1 <- data |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_vars, rep_var)))) |>
-    dplyr::summarise(
-      obs_n     = dplyr::n(),
-      obs_n_blq = sum(!is.finite(.data[["OBSDV"]])),
-      sim_prop_blq = if (!isTRUE(has_loq)) NA_real_
-        else if (isTRUE(pcvpc)) mean(is.na(.data[["SIMDV"]]))
-        else mean(dplyr::coalesce(
-                    (.data[["SIMDV"]] < .data[["LOQ"]]) | is.na(.data[["SIMDV"]]),
-                    FALSE)),
-      sim_low      = stats::quantile(.data[["SIMDV"]], probs = pi[1], na.rm = TRUE),
-      sim_med      = stats::quantile(.data[["SIMDV"]], probs = 0.5,   na.rm = TRUE),
-      sim_hi       = stats::quantile(.data[["SIMDV"]], probs = pi[2], na.rm = TRUE),
-      .groups = "drop"
-    )
+  pi_probs <- c(pi[1], 0.5, pi[2])
 
-  sim_quant <- stage1 |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-    dplyr::summarise(
-      obs_n     = dplyr::first(.data$obs_n),
-      obs_n_blq = dplyr::first(.data$obs_n_blq),
-      sim_low_low  = stats::quantile(.data$sim_low, probs = ci_bounds[1], na.rm = TRUE),
-      sim_low_med  = stats::quantile(.data$sim_low, probs = 0.5,          na.rm = TRUE),
-      sim_low_hi   = stats::quantile(.data$sim_low, probs = ci_bounds[2], na.rm = TRUE),
-      sim_med_low  = stats::quantile(.data$sim_med, probs = ci_bounds[1], na.rm = TRUE),
-      sim_med_med  = stats::quantile(.data$sim_med, probs = 0.5,          na.rm = TRUE),
-      sim_med_hi   = stats::quantile(.data$sim_med, probs = ci_bounds[2], na.rm = TRUE),
-      sim_hi_low   = stats::quantile(.data$sim_hi,  probs = ci_bounds[1], na.rm = TRUE),
-      sim_hi_med   = stats::quantile(.data$sim_hi,  probs = 0.5,          na.rm = TRUE),
-      sim_hi_hi    = stats::quantile(.data$sim_hi,  probs = ci_bounds[2], na.rm = TRUE),
-      sim_prop_blq_low = stats::quantile(.data$sim_prop_blq, probs = ci_bounds[1], na.rm = TRUE),
-      sim_prop_blq_med = stats::quantile(.data$sim_prop_blq, probs = 0.5,          na.rm = TRUE),
-      sim_prop_blq_hi  = stats::quantile(.data$sim_prop_blq, probs = ci_bounds[2], na.rm = TRUE),
-      .groups = "drop"
-    )
-  if (!isTRUE(has_loq)) {
-    sim_quant <- dplyr::select(sim_quant, -dplyr::any_of(c(
-      "sim_prop_blq_low", "sim_prop_blq_med", "sim_prop_blq_hi")))
+  ## Stage 1: per (group_vars x replicate). Group keys and ids come from
+  ## group_by() so rows are in summarise() order; the statistics are computed
+  ## over all groups at once rather than per group.
+  g1 <- dplyr::group_by(data, dplyr::across(dplyr::all_of(c(group_vars, rep_var))))
+  gid1 <- dplyr::group_indices(g1)
+  stage1 <- dplyr::group_keys(g1)
+  n1 <- nrow(stage1)
+  stage1$obs_n     <- tabulate(gid1, n1)
+  stage1$obs_n_blq <- tabulate(gid1[!is.finite(data[["OBSDV"]])], n1)
+  stage1$sim_prop_blq <- if (!isTRUE(has_loq)) {
+    rep(NA_real_, n1)
+  } else {
+    blq <- if (isTRUE(pcvpc)) {
+      is.na(data[["SIMDV"]])
+    } else {
+      dplyr::coalesce((data[["SIMDV"]] < data[["LOQ"]]) | is.na(data[["SIMDV"]]), FALSE)
+    }
+    grouped_mean(blq, gid1, n1)
+  }
+  q1 <- grouped_quantile(data[["SIMDV"]], gid1, n1, pi_probs)
+  stage1$sim_low <- q1[, 1]
+  stage1$sim_med <- q1[, 2]
+  stage1$sim_hi  <- q1[, 3]
+
+  ## Stage 2: per group_vars, across replicates. Counts are per bin, so the
+  ## first replicate's row carries them.
+  g2 <- dplyr::group_by(stage1, dplyr::across(dplyr::all_of(group_vars)))
+  gid2 <- dplyr::group_indices(g2)
+  sim_quant <- dplyr::group_keys(g2)
+  n2 <- nrow(sim_quant)
+  first <- match(seq_len(n2), gid2)
+  sim_quant$obs_n     <- stage1$obs_n[first]
+  sim_quant$obs_n_blq <- stage1$obs_n_blq[first]
+  ci_probs <- c(ci_bounds[1], 0.5, ci_bounds[2])
+  stage1_cols <- c("sim_low", "sim_med", "sim_hi", if (isTRUE(has_loq)) "sim_prop_blq")
+  for (col in stage1_cols) {
+    q <- grouped_quantile(stage1[[col]], gid2, n2, ci_probs)
+    sim_quant[[paste0(col, "_low")]] <- q[, 1]
+    sim_quant[[paste0(col, "_med")]] <- q[, 2]
+    sim_quant[[paste0(col, "_hi")]]  <- q[, 3]
   }
 
-  obs_quant <- data |>
-    dplyr::filter(.data[[rep_var]] == 1) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_vars))) |>
-    dplyr::summarise(
-      obs_prop_blq = sum(!is.finite(.data[["OBSDV"]])) / dplyr::n(),
-      obs_low = stats::quantile(.data[["OBSDV"]], probs = pi[1], na.rm = TRUE),
-      obs_med = stats::quantile(.data[["OBSDV"]], probs = 0.5,   na.rm = TRUE),
-      obs_hi  = stats::quantile(.data[["OBSDV"]], probs = pi[2], na.rm = TRUE),
-      .groups = "drop"
-    )
+  ## Observed quantiles: the first replicate carries the observed data.
+  obs_data <- dplyr::filter(data, .data[[rep_var]] == 1)
+  g3 <- dplyr::group_by(obs_data, dplyr::across(dplyr::all_of(group_vars)))
+  gid3 <- dplyr::group_indices(g3)
+  obs_quant <- dplyr::group_keys(g3)
+  n3 <- nrow(obs_quant)
+  obs_quant$obs_prop_blq <- tabulate(gid3[!is.finite(obs_data[["OBSDV"]])], n3) /
+    tabulate(gid3, n3)
+  q3 <- grouped_quantile(obs_data[["OBSDV"]], gid3, n3, pi_probs)
+  obs_quant$obs_low <- q3[, 1]
+  obs_quant$obs_med <- q3[, 2]
+  obs_quant$obs_hi  <- q3[, 3]
 
   out <- dplyr::left_join(sim_quant, obs_quant, by = group_vars)
 
   out |>
     dplyr::mutate(dplyr::across(dplyr::all_of(.vpc_quantile_cols), var_infna))
+}
+
+
+## Internal: type-7 quantiles of `x` within each group, for all groups at once.
+## `gid` holds group ids in 1..n_groups; returns an n_groups x length(probs)
+## matrix, NA for groups with no non-NA values. Matches
+## stats::quantile(x, probs, na.rm = TRUE) per group bit for bit: the indexing
+## and interpolation follow quantile.default type 7 (interpolate only where
+## x[hi] differs from x[lo], so -Inf BLQ ranks stay -Inf).
+grouped_quantile <- function(x, gid, n_groups, probs) {
+  keep <- !is.na(x)
+  x <- x[keep]
+  gid <- gid[keep]
+  x <- x[order(gid, x)]
+  n <- tabulate(gid, n_groups)
+  start <- cumsum(n) - n
+  has <- n > 0L
+  out <- matrix(NA_real_, n_groups, length(probs))
+  for (j in seq_along(probs)) {
+    index <- 1 + (n[has] - 1) * probs[j]
+    lo <- floor(index)
+    hi <- ceiling(index)
+    qs <- x[start[has] + lo]
+    x_hi <- x[start[has] + hi]
+    i <- which(index > lo & x_hi != qs)
+    h <- (index - lo)[i]
+    qs[i] <- (1 - h) * qs[i] + h * x_hi[i]
+    out[has, j] <- qs
+  }
+  out
+}
+
+
+## Internal: mean() of `x` within each group (ids 1..n_groups). Uses mean()
+## itself so the result matches a per-group summarise() exactly.
+grouped_mean <- function(x, gid, n_groups) {
+  unname(vapply(split(x, factor(gid, levels = seq_len(n_groups))), mean, numeric(1)))
 }
 
 

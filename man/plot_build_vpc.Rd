@@ -60,7 +60,9 @@ inherited from \code{obs_median_line} (so points match the obs line); the
 \item{pcvpc}{Logical. When \code{TRUE}, plot the prediction-corrected columns
 (\verb{pc_*} for stats, \code{PC_OBSDV} for the obs scatter) and suppress the
 LOQ reference line. Default is \code{FALSE} (standard VPC). Only meaningful
-when \code{type = "cont"}.}
+when \code{type = "cont"}. Not available when \code{PRED} differs by replicate
+(simulations with parameter uncertainty, see the \code{params} argument of
+\code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}}).}
 
 \item{loq}{Numeric scalar or vector of LOQ values for the reference line,
 or \code{NULL} to suppress. One line is drawn per panel, at the highest LLOQ

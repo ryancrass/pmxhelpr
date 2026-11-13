@@ -61,7 +61,10 @@ run or posterior draw, for a VPC that includes parameter uncertainty),
 so \code{params} needs exactly \code{replicates} rows. Columns must be numeric,
 named for parameters of \code{model} (see \code{\link[mrgsolve:param]{mrgsolve::param()}}), and not also
 columns of \code{data}, which mrgsolve would use instead. Each replicate's
-\code{PRED} is simulated with that replicate's parameters.}
+\code{PRED} is simulated with that replicate's parameters, so the output
+supports the standard VPC only: prediction correction is not
+appropriate with parameter uncertainty, and \code{\link[=df_vpcstats]{df_vpcstats()}} returns the
+\verb{pc_*} statistics as \code{NA}.}
 
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}, including
 \code{carry_out} and \code{recover} to control which input columns are propagated to

@@ -23,7 +23,8 @@ with \code{header} (the class tag, \code{dim} of \code{stats}, \code{obs_rows}, 
 \code{column_groups} (a named list of the \code{stats} columns in each group:
 \code{identifiers}, \code{counts}, \code{sim_blq}, \code{std_observed}, \code{std_simulated},
 \code{pc_observed}, \code{pc_simulated}, \code{metadata}; empty groups are
-\code{character(0)}), and \code{coverage}, a list of three data.frames. Each
+\code{character(0)}), \code{pred_corrected} (the \code{config} value), and \code{coverage},
+a list of three data.frames. Each
 identifies the line by \code{quantile} (\code{"low"}, \code{"med"}, \code{"hi"}) and \code{prob}
 (its probability, from \code{pi}; \code{NA} for the censored VPC, whose median
 line is a proportion BLQ, not a quantile), and the VPC by \code{type}

@@ -11,7 +11,9 @@
 #'    Accepts bare names or strings. Currently, only a single stratifying variable is supported.
 #'    Facet layout is taken from the `style`: `facet_scales`, `facet_nrow`,
 #'    and `facet_ncol`.
-#' @param pcvpc logical for prediction correction. Default is `FALSE`.
+#' @param pcvpc logical for prediction correction. Default is `FALSE`. Not
+#'    available when `PRED` differs by replicate (simulations with parameter
+#'    uncertainty, see the `params` argument of [df_mrgsim_replicate()]).
 #' @param loq Numeric LLOQ, or `NULL` (default) to use a per-row `LLOQ`
 #'    column when `data` has one. Observations with `MDV == 1`, missing, or
 #'    below the LOQ are treated as BLQ; they are not dropped, even with no LOQ

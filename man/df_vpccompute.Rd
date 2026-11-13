@@ -70,6 +70,8 @@ applies \code{var_loqcens} to \code{SIMDV} (when \code{loq} is supplied) and
 \code{\link[=var_predcorr]{var_predcorr()}} per (\code{bin_var} × \code{strat_var} × \code{CMT}) to both
 \code{OBSDV} and \code{SIMDV}. The pc columns are returned with a \code{pc_} prefix.
 \verb{pc_sim_*} quantiles are masked to \code{NA} in bins with no quantifiable
-observations (\code{obs_n == obs_n_blq}).
+observations (\code{obs_n == obs_n_blq}). When \code{PRED} differs by replicate
+(parameter uncertainty), all pc columns and \code{PC_OBSDV} are \code{NA} and
+\code{config$pred_corrected} is \code{FALSE}.
 }
 \keyword{internal}

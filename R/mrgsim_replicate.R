@@ -36,7 +36,10 @@
 #'    so `params` needs exactly `replicates` rows. Columns must be numeric,
 #'    named for parameters of `model` (see [mrgsolve::param()]), and not also
 #'    columns of `data`, which mrgsolve would use instead. Each replicate's
-#'    `PRED` is simulated with that replicate's parameters.
+#'    `PRED` is simulated with that replicate's parameters, so the output
+#'    supports the standard VPC only: prediction correction is not
+#'    appropriate with parameter uncertainty, and [df_vpcstats()] returns the
+#'    `pc_*` statistics as `NA`.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
 #'   `carry_out` and `recover` to control which input columns are propagated to
 #'   the output. The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`,

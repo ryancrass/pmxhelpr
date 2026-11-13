@@ -358,6 +358,18 @@ grouped_mean <- function(x, gid, n_groups) {
 }
 
 
+## Whether PRED differs between replicates for the same record, as in
+## df_mrgsim_replicate(params = ) output. Records are matched by position
+## within each replicate; replicates of unequal size are not compared.
+pred_varies_by_rep <- function(data, rep_var) {
+  rep_id <- data[[rep_var]]
+  n_rec <- sum(rep_id == rep_id[1])
+  if (n_rec == 0 || nrow(data) %% n_rec != 0) return(FALSE)
+  pred <- matrix(data$PRED[order(rep_id)], nrow = n_rec)
+  any(pred != pred[, 1], na.rm = TRUE)
+}
+
+
 #' Compute VPC quantile statistics from preprocessed data
 #'
 #' @description
@@ -367,7 +379,9 @@ grouped_mean <- function(x, gid, n_groups) {
 #' [`var_predcorr()`] per (`bin_var` × `strat_var` × `CMT`) to both
 #' `OBSDV` and `SIMDV`. The pc columns are returned with a `pc_` prefix.
 #' `pc_sim_*` quantiles are masked to `NA` in bins with no quantifiable
-#' observations (`obs_n == obs_n_blq`).
+#' observations (`obs_n == obs_n_blq`). When `PRED` differs by replicate
+#' (parameter uncertainty), all pc columns and `PC_OBSDV` are `NA` and
+#' `config$pred_corrected` is `FALSE`.
 #'
 #' @param data Preprocessed simulation data, typically from [df_vpcpreprocess()].
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
@@ -483,6 +497,14 @@ df_vpccompute <- function(data,
   no_quant <- (stats$obs_n - stats$obs_n_blq) == 0
   stats[no_quant, pc_sim_cols] <- NA_real_
 
+  ## PRED that differs by replicate (parameter uncertainty) has no single
+  ## typical prediction to correct by, so the pc statistics are not reported.
+  pred_corrected <- !pred_varies_by_rep(data, rep_var)
+  if (!pred_corrected) {
+    stats[paste0("pc_", .vpc_quantile_cols)] <- NA_real_
+    data_pc$OBSDV <- NA_real_
+  }
+
   stats <- stats |>
     dplyr::relocate(
       dplyr::all_of(group_vars),
@@ -520,7 +542,8 @@ df_vpccompute <- function(data,
       mode         = mode,
       loq          = loq,
       strat_var    = strat_var,
-      rep_var      = rep_var
+      rep_var      = rep_var,
+      pred_corrected = pred_corrected
     ),
     subclass = "vpc_stats"
   )

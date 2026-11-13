@@ -101,7 +101,9 @@ single (not duplicated). \verb{sim_prop_blq_*} is std-only — LOQ has
 no meaning on the prediction-corrected scale. \code{-Inf} quantile
 values from rank-mode fully-censored bins are masked to \code{NA}.
 \verb{pc_sim_*} quantiles are \code{NA} in bins with no quantifiable
-observations (\code{obs_n == obs_n_blq}).}
+observations (\code{obs_n == obs_n_blq}). All \verb{pc_*} columns are \code{NA}
+when \code{PRED} differs by replicate (simulations with parameter
+uncertainty): prediction correction is not appropriate there.}
 \item{\code{obs}}{First-replicate observation rows with \code{MDV == 0}, used as
 the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSDV} carries the
 std-scale value; \code{PC_OBSDV} carries the prediction-corrected
@@ -112,6 +114,8 @@ for each VPC), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
 \code{strat_var}, \code{bin_breaks} (the breaks used: a numeric vector, a
 list of them named by stratum when a function binned each stratum,
 or \code{NULL} for nominal-time bins),
+\code{pred_corrected} (\code{FALSE} when \code{PRED} differs by replicate and
+the \verb{pc_*} columns are \code{NA}),
 and the source column names \code{rep_var}, \code{time_var},
 \code{ntime_var}, \code{pred_var}, \code{sim_dv_var}, and \code{obs_dv_var}.
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} reads \code{ci}, \code{pi}, and \code{loq} from it via its

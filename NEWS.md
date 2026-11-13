@@ -40,7 +40,10 @@
   values per replicate (e.g. bootstrap estimates), for a
   VPC that includes parameter uncertainty or forest plot application. 
   Each replicate's `PRED` is simulated with its own parameters, and `replicates`
-  defaults to `nrow(params)`. Columns must be parameters of the model and not 
+  defaults to `nrow(params)`. Prediction correction is not appropriate with
+  parameter uncertainty: `df_vpcstats()` returns the `pc_*` statistics as `NA`
+  for this output (`config$pred_corrected` is `FALSE`), and `pcvpc = TRUE` is
+  an error. Columns must be parameters of the model and not 
   also columns of `data`.
 
 ## Minor improvements

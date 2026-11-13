@@ -258,10 +258,11 @@ simout_ppc <- df_mrgsim_replicate(data = data_sad_pk,
                                   dv_var = ODV,
                                   carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"))
 
-plot_vpc_cont(simout_ppc, pcvpc = TRUE) +
-  vpc_scales_labs +
-  labs(y = "Pred-corrected Conc. (ng/mL)")
+plot_vpc_cont(simout_ppc) +
+  vpc_scales_labs
 ```
+
+Prediction correction is not appropriate with parameter uncertainty, since each replicate has its own population prediction. `df_vpcstats()` returns the `pc_*` statistics as `NA` for this output, and `pcvpc = TRUE` is an error: plot the standard VPC.
 
 `params` columns must be parameters of the model (`mrgsolve::param(model)`) and must not also be columns of `data`: `data_sad_pk` carries `DOSE` and `FOOD`, which mrgsolve would use instead of a `params` value, so passing them in `params` is an error.
 

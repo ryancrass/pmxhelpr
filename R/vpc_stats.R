@@ -75,7 +75,9 @@
 #'        no meaning on the prediction-corrected scale. `-Inf` quantile
 #'        values from rank-mode fully-censored bins are masked to `NA`.
 #'        `pc_sim_*` quantiles are `NA` in bins with no quantifiable
-#'        observations (`obs_n == obs_n_blq`).}
+#'        observations (`obs_n == obs_n_blq`). All `pc_*` columns are `NA`
+#'        when `PRED` differs by replicate (simulations with parameter
+#'        uncertainty): prediction correction is not appropriate there.}
 #'      \item{`obs`}{First-replicate observation rows with `MDV == 0`, used as
 #'        the scatter overlay in [plot_vpc_cont()]. `OBSDV` carries the
 #'        std-scale value; `PC_OBSDV` carries the prediction-corrected
@@ -86,6 +88,8 @@
 #'        `strat_var`, `bin_breaks` (the breaks used: a numeric vector, a
 #'        list of them named by stratum when a function binned each stratum,
 #'        or `NULL` for nominal-time bins),
+#'        `pred_corrected` (`FALSE` when `PRED` differs by replicate and
+#'        the `pc_*` columns are `NA`),
 #'        and the source column names `rep_var`, `time_var`,
 #'        `ntime_var`, `pred_var`, `sim_dv_var`, and `obs_dv_var`.
 #'        [plot_vpc_legend()] reads `ci`, `pi`, and `loq` from it via its
@@ -227,6 +231,7 @@ is_vpc_stats <- function(x, strict = FALSE) {
 print.vpc_stats <- function(x, n_head = 3, ...) {
   cat_summary_header(pmx_summary_header(x, .vpc_summary_keys))
   cat_vpc_column_groups(vpc_column_groups(x))
+  cat_vpc_pred_note(x$config$pred_corrected)
 
   if (n_head > 0 && nrow(x$stats) > 0) {
     cat(sprintf("\n  head(stats, %d):\n", n_head))
@@ -256,6 +261,13 @@ vpc_column_groups <- function(x) {
     pc_simulated  = intersect(paste0("pc_", .vpc_sim_quantile_cols), cols),
     metadata      = intersect(.vpc_meta_cols, cols)
   )
+}
+
+## Note printed when the pc columns were not computed.
+cat_vpc_pred_note <- function(pred_corrected) {
+  if (isFALSE(pred_corrected)) {
+    cat("  pc columns are NA: PRED differs by replicate (parameter uncertainty).\n")
+  }
 }
 
 cat_vpc_column_groups <- function(groups) {
@@ -308,7 +320,8 @@ cat_vpc_column_groups <- function(groups) {
 #'    `column_groups` (a named list of the `stats` columns in each group:
 #'    `identifiers`, `counts`, `sim_blq`, `std_observed`, `std_simulated`,
 #'    `pc_observed`, `pc_simulated`, `metadata`; empty groups are
-#'    `character(0)`), and `coverage`, a list of three data.frames. Each
+#'    `character(0)`), `pred_corrected` (the `config` value), and `coverage`,
+#'    a list of three data.frames. Each
 #'    identifies the line by `quantile` (`"low"`, `"med"`, `"hi"`) and `prob`
 #'    (its probability, from `pi`; `NA` for the censored VPC, whose median
 #'    line is a proportion BLQ, not a quantile), and the VPC by `type`
@@ -341,6 +354,7 @@ summary.vpc_stats <- function(object, ...) {
   structure(
     list(header = pmx_summary_header(object, .vpc_summary_keys),
          column_groups = vpc_column_groups(object),
+         pred_corrected = object$config$pred_corrected,
          coverage = vpc_coverage(object$stats, object$config$strat_var,
                                  object$config$pi)),
     class = c("summary.vpc_stats", "summary.pmx_stats")
@@ -353,6 +367,7 @@ summary.vpc_stats <- function(object, ...) {
 print.summary.vpc_stats <- function(x, ...) {
   cat_summary_header(x$header)
   cat_vpc_column_groups(x$column_groups)
+  cat_vpc_pred_note(x$pred_corrected)
   cat_vpc_coverage(x$coverage, x$header$config$ci, x$header$config$strat_var)
   cat("\n  Use `x$stats` and `x$obs` for the underlying data.frames.\n")
   invisible(x)

@@ -548,3 +548,42 @@ test_that("irep_name is a deprecated alias of rep_var in df_forest_preprocess", 
   lifecycle::expect_deprecated(old <- pre(irep_name = REP))
   expect_identical(old, pre(rep_var = "REP"))
 })
+
+
+##### Parameter uncertainty: PRED differs by replicate #####
+
+test_that("pc statistics are NA and pcvpc errors when PRED differs by replicate", {
+  data <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  model <- model_mread_load("pkmodel")
+  draws <- data.frame(TVCL = c(15, 20, 25), TVVC = c(30, 35.7, 40))
+  sim <- df_mrgsim_replicate(data, model, params = draws, dv_var = ODV)
+  out <- df_vpcstats(sim, loq = 1)
+
+  expect_false(out$config$pred_corrected)
+  expect_true(all(is.na(out$stats[grep("^pc_", names(out$stats))])))
+  expect_true(all(is.na(out$obs$PC_OBSDV)))
+  expect_output(print(out), "pc columns are NA")
+  expect_output(print(summary(out)), "pc columns are NA")
+
+  ## The standard statistics do not depend on PRED.
+  sim_base <- sim
+  sim_base$PRED <- rep(sim$PRED[sim$SIM == 1], 3)
+  base <- df_vpcstats(sim_base, loq = 1)
+  expect_true(base$config$pred_corrected)
+  std_cols <- grep("^pc_", names(out$stats), value = TRUE, invert = TRUE)
+  expect_identical(out$stats[std_cols], base$stats[std_cols])
+
+  expect_s3_class(plot_vpc_cont(out), "pmx_vpc_plot")
+  expect_error(plot_vpc_cont(out, pcvpc = TRUE), "differs by replicate",
+               class = "pmxhelpr_error_bad_stats")
+  expect_error(plot_vpc_cont(sim, pcvpc = TRUE), "differs by replicate",
+               class = "pmxhelpr_error_bad_stats")
+})
+
+test_that("pc statistics are computed when PRED is the same in every replicate", {
+  data <- dplyr::filter(data_sad, CMT %in% c(1, 2))
+  sim <- df_mrgsim_replicate(data, model_mread_load("pkmodel"), 3, dv_var = ODV)
+  out <- df_vpcstats(sim)
+  expect_true(out$config$pred_corrected)
+  expect_false(all(is.na(out$stats$pc_obs_med)))
+})

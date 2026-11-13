@@ -56,7 +56,9 @@
 #' @param pcvpc Logical. When `TRUE`, plot the prediction-corrected columns
 #'    (`pc_*` for stats, `PC_OBSDV` for the obs scatter) and suppress the
 #'    LOQ reference line. Default is `FALSE` (standard VPC). Only meaningful
-#'    when `type = "cont"`.
+#'    when `type = "cont"`. Not available when `PRED` differs by replicate
+#'    (simulations with parameter uncertainty, see the `params` argument of
+#'    [df_mrgsim_replicate()]).
 #' @param loq Numeric scalar or vector of LOQ values for the reference line,
 #'    or `NULL` to suppress. One line is drawn per panel, at the highest LLOQ
 #'    when there are several (the most censoring). When omitted (inherited
@@ -135,6 +137,13 @@ plot_build_vpc <- function(stats,
       pmx_abort("{.code pcvpc = TRUE} is not supported for {.code type = \"cens\"}; LOQ has no meaning on the prediction-corrected scale.",
                 "bad_arg")
     }
+  }
+
+  if (isTRUE(pcvpc) && isFALSE(stats$config$pred_corrected)) {
+    pmx_abort(c(
+      "{.code pcvpc = TRUE} is not available: {.var PRED} differs by replicate.",
+      "i" = "Prediction correction is not appropriate with parameter uncertainty ({.code df_mrgsim_replicate(params = )}); plot the standard VPC."
+    ), "bad_stats")
   }
 
   ## Stratification and binning are fixed by df_vpcstats(); facets and x

@@ -214,3 +214,62 @@ test_that("output columns are built even when their names are already taken", {
   expect_identical(s$SIMDV, rep()$SIMDV)
   expect_no_warning(rep())
 })
+
+
+##### params: one parameter set per replicate #####
+
+params_data <- dplyr::filter(data_sad, CMT != 3)
+params_model <- model_mread_load("pkmodel")
+
+test_that("params = NULL leaves the simulation unchanged", {
+  expect_identical(
+    df_mrgsim_replicate(params_data, params_model, 3, dv_var = ODV, params = NULL),
+    df_mrgsim_replicate(params_data, params_model, 3, dv_var = ODV)
+  )
+})
+
+test_that("each replicate runs its params row, with its own PRED", {
+  draws <- data.frame(TVCL = c(10, 20, 40), TVVC = c(30, 35.7, 40))
+  sim <- df_mrgsim_replicate(params_data, params_model, params = draws, dv_var = ODV)
+  expect_equal(sort(unique(sim$SIM)), 1:3)
+  base <- dplyr::rename(params_data, OBSDV = ODV)
+  for (i in 1:3) {
+    ref <- df_mrgsim_addpred(base, mrgsolve::param(params_model, as.list(draws[i, ])))
+    expect_equal(sim$PRED[sim$SIM == i], ref$PRED)
+  }
+  expect_false(isTRUE(all.equal(sim$PRED[sim$SIM == 1], sim$PRED[sim$SIM == 3])))
+  expect_false(isTRUE(all.equal(sim$IPRED[sim$SIM == 1], sim$IPRED[sim$SIM == 3])))
+})
+
+test_that("params rows at the model's values reproduce the base PRED", {
+  draws <- data.frame(TVCL = rep(mrgsolve::param(params_model)$TVCL, 2))
+  sim <- df_mrgsim_replicate(params_data, params_model, params = draws, dv_var = ODV)
+  base <- df_mrgsim_replicate(params_data, params_model, 2, dv_var = ODV)
+  expect_equal(sim$PRED, base$PRED)
+})
+
+test_that("params works with recover and without a replicates count", {
+  draws <- data.frame(TVCL = c(15, 25))
+  sim <- df_mrgsim_replicate(params_data, params_model, params = draws, dv_var = ODV,
+                             recover = "USUBJID")
+  expect_equal(nrow(sim), 2 * nrow(params_data))
+  expect_true("USUBJID" %in% names(sim))
+})
+
+test_that("params is validated", {
+  sim <- function(...) df_mrgsim_replicate(params_data, params_model, dv_var = ODV, ...)
+  expect_error(sim(), "required unless", class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(params = list(TVCL = 1)), class = "pmxhelpr_error")
+  expect_error(sim(params = data.frame(NOPE = 1)), "not a parameter",
+               class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(params = data.frame(DOSE = 100)), "also a column of `data`",
+               class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(replicates = 3, params = data.frame(TVCL = c(10, 20))),
+               "needs one per replicate", class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(params = data.frame(TVCL = c(10, NA))), "no missing values",
+               class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(params = data.frame(TVCL = c("a", "b"))), "numeric",
+               class = "pmxhelpr_error_bad_arg")
+  expect_error(sim(params = data.frame(TVCL = 1)[, 0, drop = FALSE]), "at least one",
+               class = "pmxhelpr_error_bad_arg")
+})

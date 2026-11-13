@@ -15,6 +15,7 @@ df_mrgsim_replicate(
   dv_output = "DV",
   rep_var = "SIM",
   seed = 123456789,
+  params = NULL,
   ...,
   irep_name,
   pred_var,
@@ -28,7 +29,8 @@ other arguments.}
 
 \item{model}{\code{mrgsolve} model object.}
 
-\item{replicates}{Number of replicates. Either an integer, or something coercible to an integer.}
+\item{replicates}{Number of replicates. Either an integer, or something coercible to an integer.
+May be omitted when \code{params} is given; it is then \code{nrow(params)}.}
 
 \item{dv_var}{Column containing the DV variable in \code{data}. Accepts bare names or strings.}
 
@@ -52,6 +54,15 @@ Accepts bare names or strings. Default is \code{DV}.}
 
 \item{seed}{Random seed. Default is \code{123456789}.}
 
+\item{params}{A data.frame of parameter values, one row per replicate, or
+\code{NULL} (default) to run every replicate on \code{model}'s parameters. Row
+\code{i} sets the parameters of replicate \code{i} (e.g. one row per bootstrap
+run or posterior draw, for a VPC that includes parameter uncertainty),
+so \code{params} needs exactly \code{replicates} rows. Columns must be numeric,
+named for parameters of \code{model} (see \code{\link[mrgsolve:param]{mrgsolve::param()}}), and not also
+columns of \code{data}, which mrgsolve would use instead. Each replicate's
+\code{PRED} is simulated with that replicate's parameters.}
+
 \item{...}{Additional arguments passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}, including
 \code{carry_out} and \code{recover} to control which input columns are propagated to
 the output. The always-carried set (\code{EVID}, \code{MDV}, \code{CMT}, \code{TIME}, \code{NTIME},
@@ -72,7 +83,8 @@ zeroed.}
 A data.frame with \code{data} x \code{replicates} rows (unless \code{obsonly=TRUE} is passed to \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}})
 and the output variables \code{PRED}, \code{IPRED}, \code{SIMDV}, \code{OBSDV}, plus any input
 columns listed in \code{carry_out} / \code{recover}. Existing columns with these
-names are replaced (with a warning for data columns).
+names are replaced (with a warning for data columns). With \code{params},
+\code{PRED} differs by replicate.
 }
 \description{
 \code{df_mrgsim_replicate()} is a wrapper function for \code{\link[mrgsolve:mrgsim_df]{mrgsolve::mrgsim_df()}}
@@ -87,6 +99,16 @@ dv_var = ODV,
 carry_out = c("LLOQ", "WTBL", "FOOD"),
 recover = c("USUBJID", "PART"),
 rep_var = SIM)
+
+# Parameter uncertainty: one parameter set per replicate (here 20 draws
+# around the model's typical values; in practice, bootstrap or posterior
+# estimates)
+draws <- withr::with_seed(1, data.frame(
+  TVCL = rlnorm(20, log(20), 0.1),
+  TVVC = rlnorm(20, log(35.7), 0.1)
+))
+simout_unc <- df_mrgsim_replicate(data = data_sad_pk, model = model,
+                                  params = draws, dv_var = ODV)
 }
 \seealso{
 Other mrgsolve wrappers:

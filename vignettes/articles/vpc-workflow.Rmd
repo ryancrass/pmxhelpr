@@ -240,6 +240,31 @@ simout <- df_mrgsim_replicate(data = data_sad_pk,
 glimpse(simout)
 ```
 
+## Including parameter uncertainty
+
+By default every replicate runs the model's own parameter values, so only the random effects and residual error vary between replicates. To include parameter uncertainty, pass `params`: a data.frame with one row of parameter values per replicate, such as the bootstrapped parameter estimates. Row `i` sets the parameters of replicate `i`, so `replicates` can be omitted. Each replicate's `PRED` is simulated with its own parameters.
+
+The draws below are made up around the model's typical values to show the shape of `params`; in practice they come from the estimation.
+
+```{r df_mrgsim_replicate-params, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+params <- withr::with_seed(1, data.frame(
+  TVCL = rlnorm(100, log(20), 0.15),
+  TVVC = rlnorm(100, log(35.7), 0.15)
+))
+
+simout_ppc <- df_mrgsim_replicate(data = data_sad_pk,
+                                  model = model,
+                                  params = params,
+                                  dv_var = ODV,
+                                  carry_out = c("DOSE", "FOOD", "BLQ", "LLOQ"))
+
+plot_vpc_cont(simout_ppc, pcvpc = TRUE) +
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
+```
+
+`params` columns must be parameters of the model (`mrgsolve::param(model)`) and must not also be columns of `data`: `data_sad_pk` carries `DOSE` and `FOOD`, which mrgsolve would use instead of a `params` value, so passing them in `params` is an error.
+
 ## Additional arguments passed to `mrgsim_df()`
 
 Any other `mrgsim_df()` argument can be passed via `...`. One useful argument is `obsonly = TRUE`, which removes dose records from the simulation output to reduce file size.

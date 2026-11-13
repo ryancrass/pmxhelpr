@@ -7,6 +7,7 @@
 #'    other arguments.
 #' @param model `mrgsolve` model object.
 #' @param replicates Number of replicates. Either an integer, or something coercible to an integer.
+#'    May be omitted when `params` is given; it is then `nrow(params)`.
 #' @param dv_var Column containing the DV variable in `data`. Accepts bare names or strings.
 #' @param time_var Column containing the actual time variable.
 #'    Accepts bare names or strings. Default is `TIME`.
@@ -28,6 +29,14 @@
 #'    is always the `ipred_output` model output simulated with random effects
 #'    zeroed.
 #' @param seed Random seed. Default is `123456789`.
+#' @param params A data.frame of parameter values, one row per replicate, or
+#'    `NULL` (default) to run every replicate on `model`'s parameters. Row
+#'    `i` sets the parameters of replicate `i` (e.g. one row per bootstrap
+#'    run or posterior draw, for a VPC that includes parameter uncertainty),
+#'    so `params` needs exactly `replicates` rows. Columns must be numeric,
+#'    named for parameters of `model` (see [mrgsolve::param()]), and not also
+#'    columns of `data`, which mrgsolve would use instead. Each replicate's
+#'    `PRED` is simulated with that replicate's parameters.
 #' @param ... Additional arguments passed to [mrgsolve::mrgsim_df()], including
 #'   `carry_out` and `recover` to control which input columns are propagated to
 #'   the output. The always-carried set (`EVID`, `MDV`, `CMT`, `TIME`, `NTIME`,
@@ -38,7 +47,8 @@
 #' @return A data.frame with `data` x `replicates` rows (unless `obsonly=TRUE` is passed to [mrgsolve::mrgsim_df()])
 #'    and the output variables `PRED`, `IPRED`, `SIMDV`, `OBSDV`, plus any input
 #'    columns listed in `carry_out` / `recover`. Existing columns with these
-#'    names are replaced (with a warning for data columns).
+#'    names are replaced (with a warning for data columns). With `params`,
+#'    `PRED` differs by replicate.
 #'
 #' @importFrom rlang := %||% .data
 #' @export df_mrgsim_replicate
@@ -52,6 +62,16 @@
 #' carry_out = c("LLOQ", "WTBL", "FOOD"),
 #' recover = c("USUBJID", "PART"),
 #' rep_var = SIM)
+#'
+#' # Parameter uncertainty: one parameter set per replicate (here 20 draws
+#' # around the model's typical values; in practice, bootstrap or posterior
+#' # estimates)
+#' draws <- withr::with_seed(1, data.frame(
+#'   TVCL = rlnorm(20, log(20), 0.1),
+#'   TVVC = rlnorm(20, log(35.7), 0.1)
+#' ))
+#' simout_unc <- df_mrgsim_replicate(data = data_sad_pk, model = model,
+#'                                   params = draws, dv_var = ODV)
 
 df_mrgsim_replicate <- function(data,
                     model,
@@ -63,6 +83,7 @@ df_mrgsim_replicate <- function(data,
                     dv_output = "DV",
                     rep_var = "SIM",
                     seed = 123456789,
+                    params = NULL,
                     ...,
                     irep_name,
                     pred_var,
@@ -105,6 +126,13 @@ df_mrgsim_replicate <- function(data,
   #Checks
   check_df(data, "data")
   check_mrgmod_outputvars(model, dv_output_str, ipred_output_str)
+  if (!is.null(params)) check_df(params, "params")
+  if (missing(replicates)) {
+    if (is.null(params)) {
+      pmx_abort("{.arg replicates} is required unless {.arg params} is given.", "bad_arg")
+    }
+    replicates <- nrow(params)
+  }
   check_integer(replicates, "replicates")
   if(replicates < 1) {pmx_abort("{.arg replicates} must be >= 1.", "bad_arg")}
   check_varsindf(data, dv_var_str, "data", "dv_var")
@@ -119,6 +147,10 @@ df_mrgsim_replicate <- function(data,
   #Handle Time Variables
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
 
+  if (!is.null(params)) check_params(params, model, data, replicates)
+
+  ## PRED from model's parameters; with `params`, each replicate replaces it
+  ## with its own (see rep_fn).
   data <- df_mrgsim_addpred(data, model, ipred_output = ipred_output_str)
 
   #Always-carried set required by the downstream dplyr::select(); union with
@@ -135,6 +167,15 @@ df_mrgsim_replicate <- function(data,
 
   ##Run Simulation
   rep_fn <- function(rep, data, model) {
+    if (!is.null(params)) {
+      model <- mrgsolve::param(model, as.list(params[rep, , drop = FALSE]))
+      ## Replacing the base PRED is expected here, so its overwrite warning
+      ## is muffled.
+      data <- withCallingHandlers(
+        df_mrgsim_addpred(data, model, ipred_output = ipred_output_str),
+        pmxhelpr_warning_overwrite = function(w) invokeRestart("muffleWarning")
+      )
+    }
     out <- do.call(mrgsolve::mrgsim_df,
                    c(list(x = model, data = data), dots))
     out[[rep_var_str]] <- rep
@@ -145,8 +186,9 @@ df_mrgsim_replicate <- function(data,
 
   ## Validate the input data once rather than in every replicate's mrgsim
   ## call. `recover` needs the raw data frame (its output differs on a
-  ## validated data set), so that case keeps per-replicate validation.
-  if (is.null(dots$recover)) data <- mrgsolve::valid_data_set(data, model)
+  ## validated data set), and with `params` each replicate's data carries its
+  ## own PRED, so those cases keep per-replicate validation.
+  if (is.null(dots$recover) && is.null(params)) data <- mrgsolve::valid_data_set(data, model)
 
   withr::with_seed(
     seed = seed,
@@ -166,6 +208,39 @@ df_mrgsim_replicate <- function(data,
                   dplyr::everything())
 
   return(simout)
+}
+
+
+## `params` for df_mrgsim_replicate(): numeric, NA-free columns named for
+## model parameters, none of them also a column of `data` (mrgsolve would
+## use the data column and silently ignore the parameter), one row per
+## replicate.
+check_params <- function(params, model, data, replicates, call = rlang::caller_env()) {
+  if (ncol(params) == 0) {
+    pmx_abort("{.arg params} must have at least one parameter column.", "bad_arg", call = call)
+  }
+  bad_type <- names(params)[!vapply(params, function(x) is.numeric(x) && !anyNA(x), logical(1))]
+  if (length(bad_type) > 0) {
+    pmx_abort("{.arg params} column{?s} {.var {bad_type}} must be numeric with no missing values.",
+              "bad_arg", call = call)
+  }
+  unknown <- setdiff(names(params), names(mrgsolve::param(model)))
+  if (length(unknown) > 0) {
+    pmx_abort(c("{.arg params} column{?s} {.var {unknown}} {?is/are} not {?a parameter/parameters} of {.arg model}.",
+                "i" = "See {.code mrgsolve::param(model)} for its parameters."),
+              "bad_arg", call = call)
+  }
+  overlap <- intersect(names(params), names(data))
+  if (length(overlap) > 0) {
+    pmx_abort(c("{.arg params} column{?s} {.var {overlap}} {?is/are} also {?a column/columns} of {.arg data}, which mrgsolve uses instead.",
+                "i" = "Drop {cli::qty(overlap)}{?it/them} from {.arg params} or from {.arg data}."),
+              "bad_arg", call = call)
+  }
+  if (nrow(params) != replicates) {
+    n_params <- nrow(params)
+    pmx_abort("{.arg params} has {n_params} row{?s}; it needs one per replicate ({replicates}).",
+              "bad_arg", call = call)
+  }
 }
 
 

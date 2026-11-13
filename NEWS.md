@@ -35,6 +35,13 @@
   the bin midpoints, with a point at each midpoint in the line's colour. The
   default (`"line"`) draws the intervals as ribbons through the bin
   midpoints, as before.
+* `df_mrgsim_replicate()` can run each replicate with a unique parameter set
+  with the new `params` argument: a data.frame with one row of parameter
+  values per replicate (e.g. bootstrap estimates), for a
+  VPC that includes parameter uncertainty or forest plot application. 
+  Each replicate's `PRED` is simulated with its own parameters, and `replicates`
+  defaults to `nrow(params)`. Columns must be parameters of the model and not 
+  also columns of `data`.
 
 ## Minor improvements
 

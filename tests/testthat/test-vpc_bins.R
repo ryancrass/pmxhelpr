@@ -15,8 +15,16 @@ test_that("bins_kmeans() breaks between sorted cluster centres and is reproducib
   expect_equal(range(b), range(times))
   expect_false(is.unsorted(b, strictly = TRUE))
   expect_identical(bins_kmeans(3)(times), b)
-  ## More bins than distinct times are capped at the distinct times.
-  expect_length(bins_kmeans(10)(c(1, 1, 2, 2, 5)), 4)
+  ## More bins than distinct times: one bin per time, with a warning.
+  expect_warning(b_ties <- bins_kmeans(10)(c(1, 1, 2, 2, 5)),
+                 "nothing is clustered", class = "pmxhelpr_warning_ignored_arg")
+  expect_length(b_ties, 4)
+  expect_warning(b_all <- bins_kmeans(10)(c(1, 2, 5)), class = "pmxhelpr_warning_ignored_arg")
+  expect_equal(b_all, c(1, 1.5, 3.5, 5))
+  expect_warning(b_log <- bins_kmeans(10, log_time = TRUE)(c(1, 10, 100)),
+                 class = "pmxhelpr_warning_ignored_arg")
+  expect_equal(b_log, c(1, sqrt(10), sqrt(1000), 100))
+  expect_no_warning(bins_kmeans(2)(c(1, 2, 5)))
   expect_error(bins_kmeans(0), class = "pmxhelpr_error_bad_arg")
   expect_error(bins_quantile(2.5), class = "pmxhelpr_error_bad_arg")
   expect_error(bins_equal("a"), class = "pmxhelpr_error_bad_arg")
@@ -30,7 +38,7 @@ test_that("bins_kmeans(log_time = TRUE) clusters on log time", {
   expect_identical(bins_kmeans(4, log_time = TRUE)(times), b)
   expect_false(isTRUE(all.equal(b, bins_kmeans(4)(times))))
   ## Breaks sit halfway between cluster centres on the log scale.
-  expect_equal(bins_kmeans(2, log_time = TRUE)(c(1, 1, 100, 100)), c(1, 10, 100))
+  expect_equal(bins_kmeans(2, log_time = TRUE)(c(0.5, 2, 50, 200)), c(0.5, 10, 200))
   ## Times at or below zero form their own bin, counted in n.
   pre <- bins_kmeans(4, log_time = TRUE)(c(0, 0, times))
   expect_equal(pre[1:2], c(0, min(times)))

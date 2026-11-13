@@ -502,7 +502,7 @@ For PK sampling, which is dense early and sparse late, clustering on log time ke
 vpc_bins_food <- df_vpcstats(
   data = mutate(simout, FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
   strat_var = FoodStatus,
-  bin_breaks = bins_kmeans(8, log_time = TRUE)
+  bin_breaks = bins_kmeans(12, log_time = TRUE)
 )
 
 plot_vpc_cont(vpc_bins_food, pcvpc = TRUE) +

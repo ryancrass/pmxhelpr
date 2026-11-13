@@ -16,7 +16,9 @@
 #' the bins can differ by stratum. The outer breaks are widened to the
 #' data's time range, so no record is dropped.
 #'
-#' @param n Maximum number of bins. Tied times can give fewer.
+#' @param n Maximum number of bins. Tied times can give fewer. When `n` is
+#'    not below the number of distinct times, each time is its own bin, with a
+#'    warning.
 #' @param seed Random seed for the k-means starting centres, so the bins are
 #'    reproducible. Default is `123456789`.
 #' @param log_time Cluster on log time? Default is `FALSE`. Times at or below
@@ -58,11 +60,22 @@ bins_kmeans <- function(n, seed = 123456789, log_time = FALSE) {
       if (edges[1] <= 0) lead <- min(positive)
       x <- log(positive)
     }
-    k <- min(n - length(lead), length(unique(x)))
+    distinct <- sort(unique(x))
+    k <- min(n - length(lead), length(distinct))
     if (k < 1) return(edges)
     if (k < 2) return(c(edges[1], lead, edges[2]))
-    fit <- withr::with_seed(seed, stats::kmeans(x, centers = k, nstart = 25))
-    centers <- sort(unname(fit$centers[, 1]))
+    ## With as many clusters as distinct times there is nothing to cluster:
+    ## each time is its own bin (kmeans() also needs fewer centres than rows).
+    if (k == length(distinct)) {
+      pmx_warn(c(
+        "{.code n = {n}} is not below the number of distinct times, so nothing is clustered: each time is its own bin.",
+        "i" = "Use a smaller {.arg n} to group times into bins."
+      ), "ignored_arg")
+      centers <- distinct
+    } else {
+      fit <- withr::with_seed(seed, stats::kmeans(x, centers = k, nstart = 25))
+      centers <- sort(unname(fit$centers[, 1]))
+    }
     mids <- (centers[-k] + centers[-1]) / 2
     if (log_time) mids <- exp(mids)
     c(edges[1], lead, mids, edges[2])

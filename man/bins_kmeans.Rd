@@ -13,7 +13,9 @@ bins_quantile(n)
 bins_equal(n)
 }
 \arguments{
-\item{n}{Maximum number of bins. Tied times can give fewer.}
+\item{n}{Maximum number of bins. Tied times can give fewer. When \code{n} is
+not below the number of distinct times, each time is its own bin, with a
+warning.}
 
 \item{seed}{Random seed for the k-means starting centres, so the bins are
 reproducible. Default is \code{123456789}.}

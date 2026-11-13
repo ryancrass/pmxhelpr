@@ -199,8 +199,7 @@ plot_build_vpc <- function(stats,
 
   ## Finalize via style_plot(): it fills each tagged role layer's aesthetics
   ## from the style and applies the house theme (white VPC panel).
-  axis <- style_time_axis(plot, vpcstyle, time_unit)
-  as_pmx_vpc_plot(ggstylekit::style_plot(axis$plot, axis$style))
+  as_pmx_vpc_plot(style_plot_time(plot, vpcstyle, time_unit))
 }
 
 

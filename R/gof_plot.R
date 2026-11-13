@@ -183,6 +183,5 @@ plot_gof <- function(data,
 
   #Finalize: time-axis breaks, then house theme and log axis (logy set in
   #prep_dvtime_plot()); colors come from plotstyle via style_plot().
-  axis <- style_time_axis(plot, plotstyle, time_unit)
-  ggstylekit::style_plot(axis$plot, axis$style)
+  style_plot_time(plot, plotstyle, time_unit)
 }

@@ -157,8 +157,7 @@ plot_dvtime <- function(data,
   #Caption
   if(isTRUE(show_caption)) plot <- plot + ggplot2::labs(caption = join_caption(caption))
 
-  axis <- style_time_axis(plot, plotstyle, time_unit)
-  ggstylekit::style_plot(axis$plot, axis$style)
+  style_plot_time(plot, plotstyle, time_unit)
 }
 
 

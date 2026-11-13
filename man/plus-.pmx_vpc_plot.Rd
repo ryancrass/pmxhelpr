@@ -37,6 +37,7 @@ to stratify both statistics and panels.
 Facets inside a \code{list()} are caught the same way. \code{\link[=restyle_plot]{restyle_plot()}} and
 \code{\link[=reveal]{reveal()}} keep the \code{pmx_vpc_plot} class, and \code{reveal(as = "facet")} and
 \code{restyle_plot(facet = )} warn like \verb{+ facet_*()}.
+\code{restyle_plot(logy = TRUE)} on a censored VPC is ignored with a warning.
 
 The \code{pmx_vpc_plot} class is preserved on the result so that subsequent \code{+}
 calls are also intercepted. Combining plots (patchwork \code{+}, \code{|}, \code{/}, or

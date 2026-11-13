@@ -70,6 +70,9 @@
 
 ## Bug fixes
 
+* `plot_vpc_cens()` and `plot_build_vpc(type = "cens")` ignore the style's
+  `logy`, with a warning, instead of failing with "'from' must be a finite
+  number"; so does `restyle_plot(logy = TRUE)` on a censored VPC.
 * Consistency updates and drift tests for the internal package datasets 
  (`data_sad`, `data_sad_nca`, `data_sad_pkfit`) and model files (`pkmodel` and
  `pdmodel`). `?model_mread_load` now describes the bundled models.

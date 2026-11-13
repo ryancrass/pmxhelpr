@@ -86,7 +86,8 @@ with no arguments. Customize by passing \code{style = style_vpc(...)}.
 Pass the same style to
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} so the legend matches. The cens builder reads the same four keys
 listed above (\code{obs_point}, \code{obs_median_line}, \code{sim_median_line},
-\code{sim_median_ci}); other keys are ignored.}
+\code{sim_median_ci}); other keys are ignored. The style's \code{logy} is
+ignored, with a warning.}
 
 \item{time_unit}{Time unit of the x-axis, which places the axis breaks on
 natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),

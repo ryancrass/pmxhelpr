@@ -299,12 +299,17 @@ plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle,
 }
 
 
-## Internal: the style for a censored VPC. Its obs points show the same
-## per-bin statistic as the obs line, so they take the line's colour (the
-## obs_point entry still controls shape/alpha/size).
+## Internal: the style for a censored VPC. `logy` is ignored, with a warning:
+## the proportion BLQ is drawn on a fixed 0-1 axis. Its obs points show the
+## same per-bin statistic as the obs line, so they take the line's colour
+## (the obs_point entry still controls shape/alpha/size).
 ##
 ## @noRd
 vpc_cens_style <- function(style) {
+  if (isTRUE(style$logy)) {
+    warn_vpc_cens_logy()
+    style <- ggstylekit::set_style(style, logy = FALSE)
+  }
   colors <- style$colors
   if (!is.character(colors) || !"obs_median_line" %in% names(colors)) return(style)
   colors[["obs_point"]] <- colors[["obs_median_line"]]

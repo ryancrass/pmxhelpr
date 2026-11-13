@@ -39,6 +39,7 @@ is_pmx_vpc_plot <- function(x) {
 #' Facets inside a `list()` are caught the same way. [restyle_plot()] and
 #' [reveal()] keep the `pmx_vpc_plot` class, and `reveal(as = "facet")` and
 #' `restyle_plot(facet = )` warn like `+ facet_*()`.
+#' `restyle_plot(logy = TRUE)` on a censored VPC is ignored with a warning.
 #'
 #' The `pmx_vpc_plot` class is preserved on the result so that subsequent `+`
 #' calls are also intercepted. Combining plots (patchwork `+`, `|`, `/`, or
@@ -68,6 +69,10 @@ is_pmx_vpc_plot <- function(x) {
 restyle_plot.pmx_vpc_plot <- function(p, ...) {
   dots <- list(...)
   if (!is.null(dots[["facet"]])) warn_vpc_facet()
+  if (isTRUE(dots[["logy"]]) && is_vpc_cens_plot(p)) {
+    warn_vpc_cens_logy()
+    dots$logy <- NULL
+  }
   ## A cens VPC's obs points take the obs line's colour (vpc_cens_style()), so
   ## a recoloured obs line carries its colour to the points unless the call
   ## sets obs_point itself.
@@ -118,6 +123,14 @@ warn_vpc_facet <- function() {
     "i" = "Summary statistics are pre-computed before plotting.",
     "i" = "Pass {.arg strat_var} to {.fn plot_vpc_cont}, {.fn plot_vpc_cens}, or {.fn df_vpcstats} to stratify both statistics and panels correctly."
   ), "vpc_facet")
+}
+
+## Internal: the shared warning for a log y axis requested on a censored VPC.
+warn_vpc_cens_logy <- function() {
+  pmx_warn(c(
+    "{.code logy = TRUE} is ignored for a censored VPC.",
+    "i" = "The proportion BLQ is drawn on a fixed 0-1 axis; it is 0 in bins with no BLQ observations, which a log axis cannot show."
+  ), "ignored_arg")
 }
 
 ## Internal: (re)attach the `pmx_vpc_plot` class once, at the front. A

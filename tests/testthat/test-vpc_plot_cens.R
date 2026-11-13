@@ -315,3 +315,19 @@ test_that("restyling the cens obs line recolours the cens points with it", {
   expect_equal(unique(ggplot2::layer_data(rc, which(pc_geoms == "GeomPoint"))$colour),
                style_vpc()$colors[["obs_point"]])
 })
+
+test_that("logy is ignored with a warning on a cens VPC", {
+  stats <- df_vpcstats(sim_pk(), loq = 1)
+  w <- testthat::capture_warnings(p <- plot_vpc_cens(stats, style = style_vpc(logy = TRUE)))
+  expect_length(w, 1)
+  expect_warning(plot_vpc_cens(stats, style = style_vpc(logy = TRUE)),
+                 "is ignored for a censored VPC", class = "pmxhelpr_warning_ignored_arg")
+  expect_no_error(ggplot2::ggplot_build(p))
+  expect_warning(r <- restyle_plot(plot_vpc_cens(stats), logy = TRUE),
+                 class = "pmxhelpr_warning_ignored_arg")
+  expect_no_error(ggplot2::ggplot_build(r))
+  expect_no_warning(plot_vpc_cens(stats))
+  ## The continuous VPC keeps its log axis
+  expect_no_warning(plot_vpc_cont(stats, style = style_vpc(logy = TRUE)),
+                    class = "pmxhelpr_warning_ignored_arg")
+})

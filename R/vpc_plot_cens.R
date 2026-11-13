@@ -50,7 +50,8 @@
 #'    Pass the same style to
 #'    [plot_vpc_legend()] so the legend matches. The cens builder reads the same four keys
 #'    listed above (`obs_point`, `obs_median_line`, `sim_median_line`,
-#'    `sim_median_ci`); other keys are ignored.
+#'    `sim_median_ci`); other keys are ignored. The style's `logy` is
+#'    ignored, with a warning.
 #'
 #' @param ci Numeric scalar in `(0, 1)` for the simulated CI bound on the BLQ
 #'    proportion across replicates (e.g., `0.90` for 90% CI). Default is

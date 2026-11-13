@@ -5,6 +5,38 @@
 ## leaves them stale; the fix is to re-run that script, not to edit the test.
 regen_hint <- "regenerate the datasets with data-raw/data_sad_raw.R"
 
+test_that("data_sad PK observations are simulated from the bundled pkmodel", {
+  skip_on_cran()
+  ## Mirrors data-raw/data_sad_raw.R (PK simulation block): the dose records,
+  ## with DOSE feeding the model's dose-dependent bioavailability, simulated
+  ## on the nominal-time grid, rounded, and censored at the LLOQ.
+  doses <- dplyr::filter(data_sad, EVID == 1) |>
+    dplyr::transmute(ID, TIME = 0, AMT, EVID, CMT, FOOD, DOSE) |>
+    dplyr::arrange(ID)
+  sim <- withr::with_seed(123456789, mrgsolve::mrgsim_df(
+    model_mread_load("pkmodel"), data = doses,
+    tgrid = sort(unique(data_sad$NTIME)), obsonly = TRUE
+  ))
+  obs <- dplyr::filter(data_sad, CMT == 2, EVID == 0)
+  odv <- round(sim$DV[match(paste(obs$ID, obs$NTIME), paste(sim$ID, sim$TIME))], 2)
+  odv[odv < obs$LLOQ] <- NA_real_
+  expect_equal(odv, obs$ODV, label = paste("ODV simulated from pkmodel;", regen_hint))
+})
+
+test_that("data_sad PD observations are simulated from the bundled pdmodel", {
+  skip_on_cran()
+  ## Mirrors data-raw/data_sad_raw.R (PD simulation block): the PD rows copy
+  ## the PK rows' LINE and take the pdmodel IPRED as ODV.
+  pk <- dplyr::select(dplyr::filter(data_sad, CMT != 3), -CFB, -CONC)
+  sim <- suppressMessages(df_mrgsim_replicate(
+    pk, model_mread_load("pdmodel"), replicates = 1, dv_var = ODV,
+    carry_out = "LINE"
+  ))
+  pd <- dplyr::filter(data_sad, CMT == 3)
+  expect_equal(sim$IPRED[match(pd$LINE, sim$LINE)], pd$ODV,
+               label = paste("PD ODV simulated from pdmodel;", regen_hint))
+})
+
 test_that("data_sad_pkfit PRED matches the bundled pkmodel", {
   skip_on_cran()
   obs <- dplyr::select(data_sad_pkfit, -PRED, -IPRED)

@@ -1,5 +1,17 @@
 # pmxhelpr (development version)
 
+## New features
+
+* `summary()` on a `vpc_stats` container reports VPC coverage: whether
+  each observed quantile falls inside the simulated confidence interval of
+  that quantile in each bin, and the share of bins where it does, per stratum
+  and across strata. The standard and prediction-corrected VPC are reported
+  side by side, and with a LOQ so is the censored VPC (the observed
+  proportion BLQ against its simulated interval). The shares print after the
+  column groups;
+  `summary(x)$coverage` holds the per-bin flags (`$bins`) and the shares
+  (`$strata`, `$overall`). 
+
 ## Minor improvements
 
 * A palette `function(n)` passed to a `style_*()` preset no longer replaces
@@ -13,6 +25,12 @@
   `colors = c(FOOD = "red")` colours one covariate, and `colors = c(point =
   "red")` sets the role colour without switching covariate colouring off (it
   previously did, with a warning).
+
+## Bug fixes
+
+* Consistency updates and drift tests for the internal packagedatasets 
+ (`data_sad`, `data_sad_nca`, `data_sad_pkfit`) and model files (`pkmodel` and
+ `pdmodel`). `?model_mread_load` now describes the bundled models.
 
 # pmxhelpr 0.8.1
 

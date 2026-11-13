@@ -23,12 +23,12 @@ TVIC50 = 15
 TVGAM = 1.25
 TVKOUT = 0.1
 
-$CMT GUT CENT PERIPH TRANS1 TRANS2 PD
+$CMT GUT CENT PERIPH TRANS1 PD
 
 $MAIN
 double CL = TVCL*pow(WT/70,WT_CL)*exp(ETA_CL);
 double VC  = TVVC*pow(WT/70, WT_VC)*exp(ETA_VC);
-double Q = TVCL*pow(WT/70,WT_Q)*exp(ETA_Q);
+double Q = TVQ*pow(WT/70,WT_Q)*exp(ETA_Q);
 double VP  = TVVP*pow(WT/70, WT_VP)*exp(ETA_VP);
 double KA = TVKA*(1+FOOD_KA*FOOD)*exp(ETA_KA);
 double F1 = 1*(1+FOOD_F1*FOOD)*pow(DOSE/100,DOSE_F1);
@@ -51,7 +51,6 @@ dxdt_GUT = -KA*GUT;
 dxdt_CENT = KA*TRANS1 - (CL/VC)*CENT + (Q/VP)*PERIPH - (Q/VC)*CENT;
 dxdt_PERIPH = (Q/VC)*CENT - (Q/VP)*PERIPH;
 dxdt_TRANS1 = KA*GUT - KA*TRANS1;
-dxdt_TRANS2 = KA*TRANS1 - KA*TRANS2;
 dxdt_PD = KIN*(1+EDRUG) - PD*KOUT;
 
 $OMEGA @labels ETA_CL ETA_VC ETA_KA ETA_Q ETA_VP ETA_BASEPD ETA_IMAX ETA_IC50 ETA_KOUT
@@ -62,7 +61,7 @@ $SIGMA @labels PROP_PK PROP_PD
 
 $TABLE
 capture IPREDPK = CENT/(VC/1000);
-capture DVPK = IPRED*(1+PROP_PK);
+capture DVPK = IPREDPK*(1+PROP_PK);
 capture IPRED = PD;
 capture DV = PD*(1+PROP_PD);
 

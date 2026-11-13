@@ -300,16 +300,16 @@ glimpse(vpcstats_ntime_dose_food$stats)
 
 A helpful informational message prints to let us know that the `loq` argument was automatically inherited from our input dataset passed to `data` since it contained a variable named `LLOQ`.
 
-`df_vpcstats()` always emits **both** standard-VPC and prediction-corrected (pcVPC) summary statistics in a single call. The standard-flavor columns are unprefixed; the prediction-corrected counterparts carry a `pc_` prefix. Selecting which view to render is a plot-time decision via `plot_vpc_cont(out, pcvpc = TRUE/FALSE)`.
+`df_vpcstats()` always emits **both** standard-VPC and prediction-corrected (pcVPC) summary statistics in a single call. The standard-VPC columns are unprefixed; the prediction-corrected counterparts carry a `pc_` prefix. Selecting which view to render is a plot-time decision via `plot_vpc_cont(out, pcvpc = TRUE/FALSE)`.
 
 The `stats` element contains the following summary statistics:
 
   + `obs_n / obs_n_blq / obs_prop_blq`: count of observations (EVID = 0) in each bin, count of BLQ-encoded observations (MDV=1, OBSDV<loq, is.na(OBSDV)), and the BLQ proportion. Single (not duplicated under `pc_*`) — these are row counts, unaffected by prediction-correction.
-  + `sim_low_low / sim_low_med / sim_low_hi`: standard-flavor quantiles of the lower `pi` quantile (`pi_low`) across replicates. Suffix `_low/_med/_hi` refers to the lower/upper `ci` bound and the median.
-  + `sim_med_low / sim_med_med / sim_med_hi`: standard-flavor quantiles of the simulated median across replicates.
-  + `sim_hi_low / sim_hi_med / sim_hi_hi`: standard-flavor quantiles of the upper `pi` quantile (`pi_hi`) across replicates.
-  + `obs_low / obs_med / obs_hi`: standard-flavor observed quantiles in each bin.
-  + `sim_prop_blq_low / sim_prop_blq_med / sim_prop_blq_hi`: standard-flavor quantiles of the proportion of simulated data < `loq` across replicates. Std-only — LOQ has no meaning on the prediction-corrected scale, so the pc flavor does not emit a `pc_sim_prop_blq_*` set.
+  + `sim_low_low / sim_low_med / sim_low_hi`: standard-VPC quantiles of the lower `pi` quantile (`pi_low`) across replicates. Suffix `_low/_med/_hi` refers to the lower/upper `ci` bound and the median.
+  + `sim_med_low / sim_med_med / sim_med_hi`: standard-VPC quantiles of the simulated median across replicates.
+  + `sim_hi_low / sim_hi_med / sim_hi_hi`: standard-VPC quantiles of the upper `pi` quantile (`pi_hi`) across replicates.
+  + `obs_low / obs_med / obs_hi`: standard-VPC observed quantiles in each bin.
+  + `sim_prop_blq_low / sim_prop_blq_med / sim_prop_blq_hi`: standard-VPC quantiles of the proportion of simulated data < `loq` across replicates. Std-only — LOQ has no meaning on the prediction-corrected scale, so the pcVPC does not emit a `pc_sim_prop_blq_*` set.
   + `pc_obs_low/med/hi`, `pc_sim_low_low/med/hi`, `pc_sim_med_low/med/hi`, `pc_sim_hi_low/med/hi`: prediction-corrected counterparts of the standard observed and simulated quantile groups.
   + `ci`: confidence interval width (run config; constant within result).
   + `pi_low / pi_hi`: lower and upper prediction-interval probabilities (run config; constant within result).

@@ -9,20 +9,20 @@
       layer 2: GeomPoint / StatIdentity  rows=684
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 fill=NA alpha=0.5 shape=1 size=0.75
         x: [0, 168.2] mean=40.05
-        y: [-0.301, 3.332] mean=1.301
+        y: [-0.301, 3.531] mean=1.291
       layer 3: GeomPoint / StatSummary  rows=95
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 fill=NA alpha=0 shape=16 size=1.25
         x: [0, 168] mean=40.05
-        y: [-0.301, 3.068] mean=1.27
+        y: [-0.301, 3.266] mean=1.258
       layer 4: GeomLine / StatSummary  rows=95
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 alpha=1 linetype=solid linewidth=0.75
         x: [0, 168] mean=40.05
-        y: [-0.301, 3.068] mean=1.27
+        y: [-0.301, 3.266] mean=1.258
       layer 5: GeomErrorbar / StatSummary  rows=95
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 alpha=1 linetype=1 linewidth=0.75
         x: [0, 168] mean=40.05
-        ymin: [-0.4936, 2.924] mean=1.031
-        ymax: [-0.301, 3.239] mean=1.509
+        ymin: [-0.4936, 3.122] mean=1.024
+        ymax: [-0.301, 3.438] mean=1.493
         xmin: [-2.1, 165.9] mean=37.95
         xmax: [2.1, 170.1] mean=42.15
       scales: x=identity y=log-10
@@ -43,20 +43,20 @@
       layer 2: GeomPoint / StatIdentity  rows=684
         colour=black fill=NA alpha=0.5 shape=1 size=0.75
         x: [0, 168.2] mean=40.05
-        y: [0.00285, 9.581] mean=1.65
+        y: [0.003425, 8.493] mean=1.686
       layer 3: GeomPoint / StatSummary  rows=16
         colour=black fill=NA alpha=0 shape=16 size=1.25
         x: [0.5, 120] mean=28.06
-        y: [0.0152, 3.183] mean=1.205
+        y: [0.008162, 3.276] mean=1.255
       layer 4: GeomLine / StatSummary  rows=16
         colour=black alpha=1 linetype=solid linewidth=0.75
         x: [0.5, 120] mean=28.06
-        y: [0.0152, 3.183] mean=1.205
+        y: [0.008162, 3.276] mean=1.255
       layer 5: GeomErrorbar / StatSummary  rows=16
         colour=black alpha=1 linetype=1 linewidth=0.75
         x: [0.5, 120] mean=28.06
-        ymin: [0.00505, 2.198] mean=0.8464
-        ymax: [0.0329, 4.174] mean=1.793
+        ymin: [0.005131, 2.086] mean=0.7626
+        ymax: [0.02558, 4.513] mean=1.98
         xmin: [-1.6, 117.9] mean=25.96
         xmax: [2.6, 122.1] mean=30.16
       scales: x=identity y=identity
@@ -72,18 +72,18 @@
     Output
       layer 1: GeomSmooth / StatSmooth  rows=400
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 fill=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 alpha=0.4 linetype=solid linewidth=1
-        x: [0, 2150] mean=441.1
-        y: [41.5, 98.64] mean=72.81
-        ymin: [27.88, 96.12] mean=60.78
-        ymax: [55.11, 133.2] mean=84.84
+        x: [0, 3397] mean=578.1
+        y: [41.2, 98.06] mean=72.92
+        ymin: [27.61, 95.64] mean=60.88
+        ymax: [54.79, 133.7] mean=84.96
       layer 2: GeomSmooth / StatSmooth  rows=400
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 fill=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 alpha=0.4 linetype=dashed linewidth=1
-        x: [0, 2150] mean=441.1
-        y: [47.15, 94.51] mean=71.06
+        x: [0, 3397] mean=578.1
+        y: [46.86, 94.44] mean=71.15
       layer 3: GeomPoint / StatIdentity  rows=684
         colour=#F8766D,#A3A500,#00BF7D,#00B0F6,#E76BF3 fill=NA alpha=0.5 shape=1 size=1.25
-        x: [0, 2150] mean=165.2
-        y: [7.9, 100] mean=73.62
+        x: [0, 3397] mean=210.4
+        y: [7.839, 100] mean=73.88
       scales: x=identity y=identity
       facet: FacetNull panels=1
       label x: IDV
@@ -102,20 +102,20 @@
       layer 2: GeomPoint / StatIdentity  rows=684
         colour=darkgrey fill=NA alpha=0.5 shape=1 size=0.75
         x: [0, 168.2] mean=40.05
-        y: [0, 2150] mean=165.3
+        y: [0, 3397] mean=210.5
       layer 3: GeomPoint / StatSummary  rows=19
         colour=blue fill=NA alpha=0 shape=16 size=1.25
         x: [0, 168] mean=40.05
-        y: [0, 337] mean=120.4
+        y: [0, 387.9] mean=131
       layer 4: GeomLine / StatSummary  rows=19
         colour=blue alpha=1 linetype=solid linewidth=0.75
         x: [0, 168] mean=40.05
-        y: [0, 337] mean=120.4
+        y: [0, 387.9] mean=131
       layer 5: GeomErrorbar / StatSummary  rows=19
         colour=blue alpha=1 linetype=1 linewidth=0.75
         x: [0, 168] mean=40.05
-        ymin: [0, 145.2] mean=45.74
-        ymax: [0, 531.5] mean=211.7
+        ymin: [0, 141.8] mean=38.64
+        ymax: [0, 694.4] mean=249.5
         xmin: [-2.1, 165.9] mean=37.95
         xmax: [2.1, 170.1] mean=42.15
       layer 6: GeomPoint / StatSummary  rows=19
@@ -149,13 +149,13 @@
       layer 1: GeomPoint / StatIdentity  rows=60
         colour=black fill=NA alpha=0.7 shape=1 size=2
         x: [1, 2.602] mean=1.92
-        y: [1.117, 4.352] mean=3.038
+        y: [0.7868, 4.551] mean=3.012
       layer 2: GeomSmooth / StatSmooth  rows=160
         colour=black fill=lightgrey alpha=0.4 linetype=solid linewidth=1
         x: [1, 2.602] mean=1.801
-        y: [1.501, 4.27] mean=2.917
-        ymin: [1.392, 4.205] mean=2.854
-        ymax: [1.61, 4.335] mean=2.98
+        y: [1.171, 4.468] mean=2.851
+        ymin: [1.062, 4.403] mean=2.788
+        ymax: [1.28, 4.533] mean=2.915
       scales: x=log-10 y=log-10
       facet: FacetWrap(label) panels=2
       label x: Dose
@@ -253,22 +253,22 @@
       layer 4: GeomLine / StatIdentity  rows=38
         colour=#FF0000 alpha=NA linetype=solid linewidth=1
         x: [0, 168] mean=40.05
-        y: [1.97, 420.9] mean=181.4
+        y: [1.97, 420.9] mean=185.5
       layer 5: GeomLine / StatIdentity  rows=38
         colour=#0000FF alpha=NA linetype=dashed linewidth=0.5
         x: [0, 168] mean=40.05
-        y: [2.92, 329.8] mean=66.97
+        y: [1.601, 329.8] mean=64.65
       layer 6: GeomLine / StatIdentity  rows=38
         colour=#0000FF alpha=NA linetype=dashed linewidth=0.5
         x: [0, 168] mean=40.05
-        y: [3.79, 1448] mean=460.7
+        y: [1.28, 2288] mean=601.7
       layer 7: GeomHline / StatIdentity  rows=2
         colour=#990000 alpha=NA linetype=dashed linewidth=0.5
         yintercept: [1, 1] mean=1
-      layer 8: GeomPoint / StatIdentity  rows=506
+      layer 8: GeomPoint / StatIdentity  rows=501
         colour=#0000FF fill=NA alpha=0.7 shape=1 size=1
-        x: [0.31, 120.2] mean=18.37
-        y: [1, 2150] mean=223.3
+        x: [0.31, 120.2] mean=18.51
+        y: [1.02, 3397] mean=287.3
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
       label x: TIME
@@ -301,19 +301,19 @@
       layer 4: GeomLine / StatIdentity  rows=38
         colour=#FF0000 alpha=NA linetype=solid linewidth=1
         x: [0, 168] mean=40.05
-        y: [0.5767, 415.6] mean=154.4
+        y: [0.3722, 415.6] mean=152.5
       layer 5: GeomLine / StatIdentity  rows=38
         colour=#0000FF alpha=NA linetype=dashed linewidth=0.5
         x: [0, 168] mean=40.05
-        y: [0.1864, 329.7] mean=71.81
+        y: [0.2433, 329.7] mean=74.6
       layer 6: GeomLine / StatIdentity  rows=38
         colour=#0000FF alpha=NA linetype=dashed linewidth=0.5
         x: [0, 168] mean=40.05
-        y: [1.076, 958.6] mean=339.9
-      layer 7: GeomPoint / StatIdentity  rows=506
+        y: [1.015, 762.1] mean=292.5
+      layer 7: GeomPoint / StatIdentity  rows=501
         colour=#0000FF fill=NA alpha=0.7 shape=1 size=1
-        x: [0.31, 120.2] mean=18.37
-        y: [0.179, 1185] mean=185.4
+        x: [0.31, 120.2] mean=18.51
+        y: [0.2171, 942.6] mean=168.3
       scales: x=identity y=identity
       facet: FacetWrap(FOOD) panels=2
       label x: TIME
@@ -334,11 +334,11 @@
       layer 2: GeomLine / StatIdentity  rows=19
         colour=#FF0000 alpha=NA linetype=solid linewidth=1
         x: [0, 168] mean=40.05
-        y: [0, 1] mean=0.2602
+        y: [0, 1] mean=0.2675
       layer 3: GeomPoint / StatIdentity  rows=19
         colour=#FF0000 fill=NA alpha=0.7 shape=1 size=1
         x: [0, 168] mean=40.05
-        y: [0, 1] mean=0.2602
+        y: [0, 1] mean=0.2675
       scales: x=identity y=identity
       facet: FacetNull panels=1
       label x: TIME

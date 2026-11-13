@@ -19,15 +19,57 @@
 \value{
 A \code{summary.vpc_stats} object (also \code{summary.pmx_stats}): a list
 with \code{header} (the class tag, \code{dim} of \code{stats}, \code{obs_rows}, and the
-\code{config} values \code{n_replicates}, \code{ci}, \code{pi}, \code{mode}, \code{loq}, \code{strat_var})
-and \code{column_groups} (a named list of the \code{stats} columns in each group:
+\code{config} values \code{n_replicates}, \code{ci}, \code{pi}, \code{mode}, \code{loq}, \code{strat_var}),
+\code{column_groups} (a named list of the \code{stats} columns in each group:
 \code{identifiers}, \code{counts}, \code{sim_blq}, \code{std_observed}, \code{std_simulated},
 \code{pc_observed}, \code{pc_simulated}, \code{metadata}; empty groups are
-\code{character(0)}).
+\code{character(0)}), and \code{coverage}, a list of three data.frames. Each
+identifies the line by \code{quantile} (\code{"low"}, \code{"med"}, \code{"hi"}) and \code{prob}
+(its probability, from \code{pi}; \code{NA} for the censored VPC, whose median
+line is a proportion BLQ, not a quantile), and the VPC by \code{type}
+(\code{"cont"} or \code{"cens"}) and \code{pcvpc}, as in \code{\link[=plot_build_vpc]{plot_build_vpc()}}: standard
+(\code{"cont"}, \code{FALSE}), prediction-corrected (\code{"cont"}, \code{TRUE}), or
+censored (\code{"cens"}, \code{FALSE}; only when \code{stats} has a LOQ):
+\describe{
+\item{\code{bins}}{One row per bin, stratum, quantile, and VPC: \code{BIN_MID},
+the \code{strat_var} column, \code{quantile}, \code{prob}, \code{type}, \code{pcvpc}, and
+\code{inside} (\code{TRUE}, \code{FALSE}, or \code{NA} when the bin cannot be judged).}
+\item{\code{strata}}{Per stratum (\code{NULL} when the VPC is not stratified):
+the \code{strat_var} column, \code{quantile}, \code{prob}, \code{type}, \code{pcvpc},
+\code{n_bins} (bins with a non-\code{NA} flag), \code{n_inside}, and \code{coverage}
+(\code{n_inside / n_bins}, \code{NA} when \code{n_bins} is 0).}
+\item{\code{overall}}{The same shares pooled across all bins and strata.}
+}
 }
 \description{
-Summarises a \code{\link[=df_vpcstats]{df_vpcstats()}} result: the run configuration and the column
-groups present in \code{stats}. Printing it shows the same content as
-\code{\link[=print.vpc_stats]{print.vpc_stats()}} without the head preview, which suits vignette output
-and test snapshots.
+Summarises a \code{\link[=df_vpcstats]{df_vpcstats()}} result: the run configuration, the column
+groups present in \code{stats}, and the coverage of each observed quantile by
+its simulated confidence interval. Printing it shows the same content as
+\code{\link[=print.vpc_stats]{print.vpc_stats()}} without the head preview, followed by the coverage
+table, which suits vignette output and test snapshots.
+
+Coverage flags, in each bin and stratum, whether the observed quantile
+lies inside the simulated CI of the same quantile, e.g.
+\verb{sim_med_low <= obs_med <= sim_med_hi}, and the \code{pc_} columns likewise for
+the prediction-corrected VPC. The flag is \code{NA} where either side is \code{NA}
+(fully censored bins in \code{"rank"} mode, or prediction-corrected bins with no
+quantifiable observations), and those bins are not counted in the shares.
+When \code{stats} has a LOQ (the \verb{sim_prop_blq_*} columns), the censored VPC's
+median line is flagged the same way: the observed proportion BLQ against
+its simulated CI (\verb{sim_prop_blq_low <= obs_prop_blq <= sim_prop_blq_hi}).
+The censored VPC has no lower or upper line. The shares are the proportion of flagged bins inside the CI,
+per stratum and across all strata. When the model describes the data,
+each observed value falls inside its interval with probability of about
+\code{ci}.
+Neighbouring bins are correlated, so coverage is descriptive and is not a
+test.
+}
+\examples{
+model <- model_mread_load(model = "pkmodel")
+simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2)),
+                              model = model, replicates = 10,
+                              dv_var = ODV, carry_out = "FOOD")
+s <- summary(df_vpcstats(simout, strat_var = FOOD, loq = 1))
+s
+s$coverage$strata
 }

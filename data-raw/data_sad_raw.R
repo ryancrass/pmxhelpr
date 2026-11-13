@@ -42,9 +42,11 @@ times <- c(
 
 
 ##Create Dosing Data
+## `dose` feeds pkmodel's DOSE parameter (dose-dependent bioavailability), so
+## the observations carry the same dose effect as simulations from data_sad.
 dose_data <- data.frame(id = 1:n_subj_total, time = 0, amt = doses) |>
   dplyr::arrange(amt) |>
-  dplyr::mutate(id = 1, evid = 1, cmt = 1, id = cumsum(id)) |>
+  dplyr::mutate(id = 1, evid = 1, cmt = 1, id = cumsum(id), dose = amt) |>
   dplyr::group_by(amt) |>
   dplyr::mutate(
     tmp = 1,

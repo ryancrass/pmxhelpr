@@ -5,7 +5,7 @@
     Output
       <vpc_stats>
         stats: 38 rows x 35 columns
-        obs:   506 rows
+        obs:   501 rows
         config: n_replicates = 5, ci = 0.9, pi = c(0.05, 0.95), mode = auto, loq = 1, strat_var = FOOD
         column groups (stats):
           identifiers  : BIN_MID, FOOD
@@ -16,6 +16,17 @@
           pc observed  : pc_obs_low, pc_obs_med, pc_obs_hi
           pc simulated : pc_sim_low_low, pc_sim_low_med, pc_sim_low_hi, pc_sim_med_low, pc_sim_med_med, pc_sim_med_hi, pc_sim_hi_low, pc_sim_hi_med, pc_sim_hi_hi
           metadata     : ci, pi_low, pi_hi
+        coverage (observed value inside the 90% simulated CI):
+          FOOD     quantile  std        pc         cens
+          0        5%         6/11 55%   8/16 50%
+          0        50%        6/14 43%   8/16 50%  15/19 79%
+          0        95%       12/16 75%  12/16 75%
+          1        5%        11/14 79%  14/16 88%
+          1        50%       12/14 86%  15/16 94%  17/19 89%
+          1        95%        9/16 56%   9/16 56%
+          Overall  5%        17/25 68%  22/32 69%
+          Overall  50%       18/28 64%  23/32 72%  32/38 84%
+          Overall  95%       21/32 66%  21/32 66%
       
         Use `x$stats` and `x$obs` for the underlying data.frames.
 

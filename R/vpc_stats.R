@@ -38,7 +38,7 @@
 #'    plotting. A scalar `loq` broadcasts to a constant threshold across rows.
 #' @param mode One of `"auto"` (default), `"rank"`, or `"drop"`. See
 #'    [plot_vpc_cont()] for semantics. `"auto"` resolves to `"rank"` for the
-#'    standard flavor and `"drop"` for the prediction-corrected flavor.
+#'    standard VPC and `"drop"` for the prediction-corrected VPC.
 #' @param pi Numeric vector of length 2 specifying prediction interval quantiles.
 #'    Default is `c(0.05, 0.95)`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the simulation interval
@@ -64,8 +64,8 @@
 #'        std-scale value; `PC_OBSDV` carries the prediction-corrected
 #'        counterpart.}
 #'      \item{`config`}{Named list of the run configuration: `n_replicates`,
-#'        `ci`, `pi`, `mode` (as passed, before the per-flavor `"auto"`
-#'        resolution), `loq` (unique non-NA LOQ values, or `NULL`),
+#'        `ci`, `pi`, `mode` (as passed, before `"auto"` is resolved
+#'        for each VPC), `loq` (unique non-NA LOQ values, or `NULL`),
 #'        `strat_var`, and the source column names `rep_var`, `time_var`,
 #'        `ntime_var`, `pred_var`, `sim_dv_var`, and `obs_dv_var`.
 #'        [plot_vpc_legend()] reads `ci`, `pi`, and `loq` from it via its
@@ -240,10 +240,27 @@ cat_vpc_column_groups <- function(groups) {
 #' Summary method for `vpc_stats`
 #'
 #' @description
-#' Summarises a [df_vpcstats()] result: the run configuration and the column
-#' groups present in `stats`. Printing it shows the same content as
-#' [print.vpc_stats()] without the head preview, which suits vignette output
-#' and test snapshots.
+#' Summarises a [df_vpcstats()] result: the run configuration, the column
+#' groups present in `stats`, and the coverage of each observed quantile by
+#' its simulated confidence interval. Printing it shows the same content as
+#' [print.vpc_stats()] without the head preview, followed by the coverage
+#' table, which suits vignette output and test snapshots.
+#'
+#' Coverage flags, in each bin and stratum, whether the observed quantile
+#' lies inside the simulated CI of the same quantile, e.g.
+#' `sim_med_low <= obs_med <= sim_med_hi`, and the `pc_` columns likewise for
+#' the prediction-corrected VPC. The flag is `NA` where either side is `NA`
+#' (fully censored bins in `"rank"` mode, or prediction-corrected bins with no
+#' quantifiable observations), and those bins are not counted in the shares.
+#' When `stats` has a LOQ (the `sim_prop_blq_*` columns), the censored VPC's
+#' median line is flagged the same way: the observed proportion BLQ against
+#' its simulated CI (`sim_prop_blq_low <= obs_prop_blq <= sim_prop_blq_hi`).
+#' The censored VPC has no lower or upper line. The shares are the proportion of flagged bins inside the CI,
+#' per stratum and across all strata. When the model describes the data,
+#' each observed value falls inside its interval with probability of about
+#' `ci`.
+#' Neighbouring bins are correlated, so coverage is descriptive and is not a
+#' test.
 #'
 #' @param object A `vpc_stats` object.
 #' @param x A `summary.vpc_stats` object.
@@ -251,18 +268,45 @@ cat_vpc_column_groups <- function(groups) {
 #'
 #' @return A `summary.vpc_stats` object (also `summary.pmx_stats`): a list
 #'    with `header` (the class tag, `dim` of `stats`, `obs_rows`, and the
-#'    `config` values `n_replicates`, `ci`, `pi`, `mode`, `loq`, `strat_var`)
-#'    and `column_groups` (a named list of the `stats` columns in each group:
+#'    `config` values `n_replicates`, `ci`, `pi`, `mode`, `loq`, `strat_var`),
+#'    `column_groups` (a named list of the `stats` columns in each group:
 #'    `identifiers`, `counts`, `sim_blq`, `std_observed`, `std_simulated`,
 #'    `pc_observed`, `pc_simulated`, `metadata`; empty groups are
-#'    `character(0)`).
+#'    `character(0)`), and `coverage`, a list of three data.frames. Each
+#'    identifies the line by `quantile` (`"low"`, `"med"`, `"hi"`) and `prob`
+#'    (its probability, from `pi`; `NA` for the censored VPC, whose median
+#'    line is a proportion BLQ, not a quantile), and the VPC by `type`
+#'    (`"cont"` or `"cens"`) and `pcvpc`, as in [plot_build_vpc()]: standard
+#'    (`"cont"`, `FALSE`), prediction-corrected (`"cont"`, `TRUE`), or
+#'    censored (`"cens"`, `FALSE`; only when `stats` has a LOQ):
+#'    \describe{
+#'      \item{`bins`}{One row per bin, stratum, quantile, and VPC: `BIN_MID`,
+#'        the `strat_var` column, `quantile`, `prob`, `type`, `pcvpc`, and
+#'        `inside` (`TRUE`, `FALSE`, or `NA` when the bin cannot be judged).}
+#'      \item{`strata`}{Per stratum (`NULL` when the VPC is not stratified):
+#'        the `strat_var` column, `quantile`, `prob`, `type`, `pcvpc`,
+#'        `n_bins` (bins with a non-`NA` flag), `n_inside`, and `coverage`
+#'        (`n_inside / n_bins`, `NA` when `n_bins` is 0).}
+#'      \item{`overall`}{The same shares pooled across all bins and strata.}
+#'    }
 #' @export
 #' @method summary vpc_stats
+#'
+#' @examples
+#' model <- model_mread_load(model = "pkmodel")
+#' simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT %in% c(1, 2)),
+#'                               model = model, replicates = 10,
+#'                               dv_var = ODV, carry_out = "FOOD")
+#' s <- summary(df_vpcstats(simout, strat_var = FOOD, loq = 1))
+#' s
+#' s$coverage$strata
 
 summary.vpc_stats <- function(object, ...) {
   structure(
     list(header = pmx_summary_header(object, .vpc_summary_keys),
-         column_groups = vpc_column_groups(object)),
+         column_groups = vpc_column_groups(object),
+         coverage = vpc_coverage(object$stats, object$config$strat_var,
+                                 object$config$pi)),
     class = c("summary.vpc_stats", "summary.pmx_stats")
   )
 }
@@ -273,8 +317,134 @@ summary.vpc_stats <- function(object, ...) {
 print.summary.vpc_stats <- function(x, ...) {
   cat_summary_header(x$header)
   cat_vpc_column_groups(x$column_groups)
+  cat_vpc_coverage(x$coverage, x$header$config$ci, x$header$config$strat_var)
   cat("\n  Use `x$stats` and `x$obs` for the underlying data.frames.\n")
   invisible(x)
+}
+
+
+## Coverage of each observed quantile by the simulated CI of that quantile.
+## Each row names its VPC by the plot builder's arguments: `type` ("cont" or
+## "cens") and `pcvpc`. The cens VPC has one line, the median proportion BLQ,
+## so its row is `quantile = "med"` with `prob = NA` (it is not a DV
+## quantile); it is present only when `stats` carries the sim_prop_blq_*
+## columns (a LOQ was given). `bins` flags each (bin x stratum x quantile x
+## VPC): `inside` is NA when the observed value or a CI bound is NA.
+## `strata` (NULL when unstratified) and `overall` are the shares of the
+## flagged bins.
+vpc_coverage <- function(stats, strat_var, pi) {
+  quantiles <- c("low", "med", "hi")
+  probs <- c(pi[1], 0.5, pi[2])
+  keys <- as.data.frame(stats[c(.vpc_bin_col, strat_var)])
+  flag <- function(quantile, prob, type, pcvpc, obs, low, hi) {
+    part <- keys
+    part$quantile <- factor(quantile, levels = quantiles)
+    part$prob     <- prob
+    part$type     <- factor(type, levels = c("cont", "cens"))
+    part$pcvpc    <- pcvpc
+    part$inside   <- obs >= low & obs <= hi
+    part
+  }
+  parts <- list()
+  for (pcvpc in c(FALSE, TRUE)) {
+    prefix <- if (pcvpc) "pc_" else ""
+    for (i in seq_along(quantiles)) {
+      q <- quantiles[i]
+      parts[[length(parts) + 1]] <- flag(
+        q, probs[i], "cont", pcvpc,
+        obs = stats[[paste0(prefix, "obs_", q)]],
+        low = stats[[paste0(prefix, "sim_", q, "_low")]],
+        hi  = stats[[paste0(prefix, "sim_", q, "_hi")]]
+      )
+    }
+  }
+  if (all(.vpc_blq_cols %in% names(stats))) {
+    parts[[length(parts) + 1]] <- flag(
+      "med", NA_real_, "cens", FALSE,
+      obs = stats[["obs_prop_blq"]],
+      low = stats[["sim_prop_blq_low"]],
+      hi  = stats[["sim_prop_blq_hi"]]
+    )
+  }
+  bins <- dplyr::bind_rows(parts) |>
+    dplyr::arrange(dplyr::across(dplyr::all_of(
+      c(strat_var, .vpc_bin_col, "quantile", "type", "pcvpc")
+    )))
+  out <- list(
+    bins    = bins,
+    strata  = if (!is.null(strat_var)) coverage_shares(bins, strat_var),
+    overall = coverage_shares(bins, NULL)
+  )
+  out$bins$quantile <- as.character(out$bins$quantile)
+  out$bins$type     <- as.character(out$bins$type)
+  out
+}
+
+coverage_shares <- function(bins, strat_var) {
+  out <- bins |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c(strat_var, "quantile", "prob", "type", "pcvpc")
+    ))) |>
+    dplyr::summarise(n_bins = sum(!is.na(.data$inside)),
+                     n_inside = sum(.data$inside, na.rm = TRUE),
+                     .groups = "drop")
+  out$coverage <- ifelse(out$n_bins > 0, out$n_inside / out$n_bins, NA_real_)
+  out$quantile <- as.character(out$quantile)
+  out$type     <- as.character(out$type)
+  as.data.frame(out)
+}
+
+## Display label for a coverage row: the quantile's percent (`"5%"`), or
+## `"BLQ"` for the cens VPC's proportion-BLQ line.
+coverage_label <- function(prob, type) {
+  ifelse(type == "cens", "BLQ", paste0(signif(100 * prob, 3), "%"))
+}
+
+## Display text for coverage shares: `"n_inside/n_bins pct"`, or `"-"` when
+## no bin could be judged. `pad = TRUE` right-aligns the counts and percents
+## across the vector, for tables; plot labels use it unpadded.
+fmt_coverage <- function(n_inside, n_bins, coverage, pad = FALSE) {
+  counts <- paste0(n_inside, "/", n_bins)
+  pct <- sprintf("%.0f%%", 100 * coverage)
+  if (pad) {
+    counts <- format(counts, justify = "right")
+    pct <- format(pct, justify = "right")
+  }
+  ifelse(n_bins == 0, "-", paste(counts, pct))
+}
+
+## One line per (stratum x quantile), then the Overall lines, with the std,
+## pc, and (with a LOQ) cens cells side by side. The cens VPC has only the
+## median line, so its cell is blank on the low and hi lines. Unstratified
+## coverage prints the Overall lines without a stratum column.
+cat_vpc_coverage <- function(coverage, ci, strat_var) {
+  shares <- coverage$overall
+  if (!is.null(coverage$strata)) {
+    strata <- coverage$strata
+    strata[[strat_var]] <- as.character(strata[[strat_var]])
+    shares[[strat_var]] <- "Overall"
+    shares <- rbind(strata, shares[names(strata)])
+  }
+  shares$cell <- fmt_coverage(shares$n_inside, shares$n_bins, shares$coverage, pad = TRUE)
+  row_key <- function(d) do.call(paste, c(d[c(strat_var, "quantile")], sep = "\r"))
+  vpcs <- list(std  = shares$type == "cont" & !shares$pcvpc,
+               pc   = shares$type == "cont" & shares$pcvpc,
+               cens = shares$type == "cens")
+  std <- shares[vpcs$std, ]
+  tab <- std[strat_var]
+  tab$quantile <- coverage_label(std$prob, std$type)
+  for (v in names(vpcs)) {
+    if (!any(vpcs[[v]])) next
+    rows <- shares[vpcs[[v]], ]
+    cell <- rows$cell[match(row_key(std), row_key(rows))]
+    tab[[v]] <- ifelse(is.na(cell), "", cell)
+  }
+  ## Left-justify each column (header included) to its widest entry.
+  cols <- Map(function(col, nm) format(c(nm, as.character(col))), tab, names(tab))
+  lines <- trimws(do.call(paste, c(cols, sep = "  ")), "right")
+  cat(sprintf("  coverage (observed value inside the %s%% simulated CI):\n",
+              format(100 * ci)))
+  cat(paste0("    ", lines), sep = "\n")
 }
 
 

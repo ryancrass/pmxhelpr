@@ -215,7 +215,7 @@ By default `plot_gof()` excludes BLQ records (`MDV == 1`) from the central tende
 
 The `loq` and `loq_method` arguments in `plot_gof()` inherit the BLQ handling pipeline from  `plot_dvtime()`. `plot_gof` includes one additional argument in the pipeline, `blq_mode`, which controls whether the imputation extends to the prediction layers (`PRED`, `IPRED`) or stays scoped to the observed layer (`DV`) only.
 
-The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and 178 BLQ rows (142 post-dose). Without BLQ handling, the observed line drops or terminates at late times because those records are filtered out of the central tendency.
+The example dataset `data_sad_pkfit` carries an `LLOQ = 1` ng/mL and 183 BLQ rows (147 post-dose). Without BLQ handling, the observed line drops or terminates at late times because those records are filtered out of the central tendency.
 
 ```{r gof-blq-none, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_gof(plot_data, dv_var = "ODV", log_y = TRUE) +

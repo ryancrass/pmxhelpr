@@ -107,11 +107,10 @@ test_that("Output stats slot contains anticipated variables", {
 
 test_that("Output rounds values as specified in the `sigdigits` argument", {
 
-  signdig <- function(x){length(gregexpr("[[:digit:]]", as.character(x))[[1]])}
   test <- df_doseprop(data_sad_nca, metrics = c("cmax"), metric_name_var = "PPTESTCD",
                       sigdigits = 4)$stats$Intercept
-  result <- signdig(test)
-  expect_equal(result,4)
+  expect_equal(test, signif(test, 4))
+  expect_false(isTRUE(all.equal(test, signif(test, 3))))
 })
 
 
@@ -367,7 +366,7 @@ test_that("summary.doseprop_stats() runs and writes a per-metric line", {
   out <- capture.output(summary(stats))
   expect_true(any(grepl("<doseprop_stats>", out, fixed = TRUE)))
   expect_true(any(grepl("per-metric:", out, fixed = TRUE)))
-  expect_true(any(grepl("Dose-proportional", out, fixed = TRUE)))
+  expect_true(any(grepl("dose-proportional", out, ignore.case = TRUE)))
 })
 
 test_that("doseprop_stats print/summary output is stable (snapshot)", {

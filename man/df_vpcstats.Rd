@@ -57,7 +57,7 @@ Default is \code{SIM}.}
 
 \item{mode}{One of \code{"auto"} (default), \code{"rank"}, or \code{"drop"}. See
 \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} for semantics. \code{"auto"} resolves to \code{"rank"} for the
-standard flavor and \code{"drop"} for the prediction-corrected flavor.}
+standard VPC and \code{"drop"} for the prediction-corrected VPC.}
 
 \item{pi}{Numeric vector of length 2 specifying prediction interval quantiles.
 Default is \code{c(0.05, 0.95)}.}
@@ -86,8 +86,8 @@ the scatter overlay in \code{\link[=plot_vpc_cont]{plot_vpc_cont()}}. \code{OBSD
 std-scale value; \code{PC_OBSDV} carries the prediction-corrected
 counterpart.}
 \item{\code{config}}{Named list of the run configuration: \code{n_replicates},
-\code{ci}, \code{pi}, \code{mode} (as passed, before the per-flavor \code{"auto"}
-resolution), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
+\code{ci}, \code{pi}, \code{mode} (as passed, before \code{"auto"} is resolved
+for each VPC), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
 \code{strat_var}, and the source column names \code{rep_var}, \code{time_var},
 \code{ntime_var}, \code{pred_var}, \code{sim_dv_var}, and \code{obs_dv_var}.
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} reads \code{ci}, \code{pi}, and \code{loq} from it via its

@@ -18,6 +18,36 @@ An \code{mrgsolve} model object.
 \code{model_mread_load()} returns an mrgsolve model object from the internal
 model library in \code{pmxhelpr}
 }
+\details{
+The library holds the models used to simulate the example datasets
+(\link{data_sad} and the datasets derived from it). Print one with
+\code{\link[mrgsolve:see]{mrgsolve::see()}} for the full code.
+\itemize{
+\item \code{"pkmodel"}: two-compartment PK with first-order absorption through a
+transit compartment. Dose in mg; \code{IPRED} and \code{DV} in ng/mL.
+\itemize{
+\item Covariate effects, all read from same-named columns of the simulation
+input:
+\itemize{
+\item \code{WT} (kg) scales \code{CL} and \code{Q} with exponent 0.75, and \code{VC} and \code{VP}
+with exponent 1, around 70 kg.
+\item \code{FOOD = 1} halves \code{KA} and multiplies bioavailability by 2.33.
+\item \code{DOSE} (mg) scales bioavailability by \code{(DOSE / 100)^0.33}, so
+exposure rises more than proportionally with dose.
+\item When a column is absent, its parameter keeps its default (\code{WT = 70},
+\code{FOOD = 0}, \code{DOSE = 100}). \code{data_sad} has \code{DOSE} and \code{FOOD}, but
+weight as \code{WTBL}, so its simulations use \code{WT = 70}.
+}
+\item Between-subject variability: exponential on \code{CL}, \code{VC}, and \code{KA}
+(variances 0.075, 0.1, 0.2).
+\item Residual error: proportional (variance 0.09).
+}
+\item \code{"pdmodel"}: the same PK driving an indirect-response model in which
+concentration inhibits the response input (sigmoid Imax, \code{IMAX = -0.95},
+\code{IC50 = 15} ng/mL, Hill 1.25) from a baseline of 100\%. \code{IPRED} and \code{DV}
+are the response; \code{IPREDPK} is the concentration.
+}
+}
 \examples{
 model <- model_mread_load("pkmodel")
 }

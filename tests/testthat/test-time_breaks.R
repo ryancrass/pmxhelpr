@@ -94,3 +94,12 @@ test_that("an x scale added by the user takes over without a replacement message
     expect_equal(suppressWarnings(x_breaks(p2)), c(0, 100))
   }
 })
+
+test_that("a span too short for the smallest step falls back to pretty breaks", {
+  expect_equal(breaks_time()(c(0, 0.3)), seq(0, 0.3, by = 0.05))
+  expect_equal(breaks_time()(c(0, 0.75)), c(0, 0.2, 0.4, 0.6))
+  expect_equal(breaks_time("days")(c(0, 1.5)), c(0, 0.5, 1, 1.5))
+  ## Three breaks at the smallest step keep the time steps.
+  expect_equal(breaks_time()(c(0, 1)), c(0, 0.5, 1))
+  expect_equal(breaks_time("days")(c(0, 2)), 0:2)
+})

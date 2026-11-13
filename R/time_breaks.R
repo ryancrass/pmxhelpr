@@ -24,8 +24,10 @@
 #' * weeks: 1, 2, 4, 8, 12, 26, 52
 #' * months: 1, 2, 3, 6, 12, 24
 #'
-#' A span too long for the largest step uses a multiple of it. Breaks are
-#' multiples of the step, so negative (pre-dose) times are handled.
+#' A span too long for the largest step uses a multiple of it. A span too
+#' short to hold three breaks at the smallest step (e.g. 0 to 0.3 hours) uses
+#' [pretty()] breaks instead. Breaks are multiples of the step, so negative
+#' (pre-dose) times are handled.
 #'
 #' @return A function of the axis limits that returns a numeric vector of
 #'    breaks, for the `breaks` argument of a continuous scale.
@@ -59,6 +61,8 @@ breaks_time <- function(unit = "hours", n = 8) {
 
 ## Breaks on multiples of the smallest step giving at most `n` breaks within
 ## `limits`; past the largest step, the smallest multiple of it that fits.
+## A span holding fewer than three breaks at the smallest step falls back to
+## pretty() breaks within the limits.
 time_breaks <- function(limits, steps, n) {
   limits <- limits[is.finite(limits)]
   if (length(limits) == 0) return(numeric(0))
@@ -66,6 +70,10 @@ time_breaks <- function(limits, steps, n) {
   hi <- max(limits)
   if (lo == hi) return(lo)
   n_breaks <- function(step) floor(hi / step) - ceiling(lo / step) + 1
+  if (n_breaks(steps[1]) < 3) {
+    breaks <- pretty(c(lo, hi), n = min(n, 5))
+    return(breaks[breaks >= lo & breaks <= hi])
+  }
   fits <- steps[n_breaks(steps) <= n]
   step <- if (length(fits) > 0) {
     fits[1]

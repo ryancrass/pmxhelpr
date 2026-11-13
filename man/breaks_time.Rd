@@ -38,8 +38,10 @@ breaks within the axis limits:
 \item months: 1, 2, 3, 6, 12, 24
 }
 
-A span too long for the largest step uses a multiple of it. Breaks are
-multiples of the step, so negative (pre-dose) times are handled.
+A span too long for the largest step uses a multiple of it. A span too
+short to hold three breaks at the smallest step (e.g. 0 to 0.3 hours) uses
+\code{\link[=pretty]{pretty()}} breaks instead. Breaks are multiples of the step, so negative
+(pre-dose) times are handled.
 }
 \examples{
 breaks_time()(c(0, 168))

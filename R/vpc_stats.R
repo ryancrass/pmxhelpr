@@ -443,7 +443,8 @@ coverage_label <- function(prob, type) {
 
 ## Display text for coverage shares: `"n_inside/n_bins pct"`, or `"-"` when
 ## no bin could be judged. `pad = TRUE` right-aligns the counts and percents
-## across the vector, for tables; plot labels use it unpadded.
+## across the vector, for the printed summary; the default is unpadded, for
+## text that is not aligned with spaces.
 fmt_coverage <- function(n_inside, n_bins, coverage, pad = FALSE) {
   counts <- paste0(n_inside, "/", n_bins)
   pct <- sprintf("%.0f%%", 100 * coverage)

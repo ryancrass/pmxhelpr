@@ -279,12 +279,14 @@ cat_vpc_column_groups <- function(groups) {
 #'
 #' @description
 #' Summarises a [df_vpcstats()] result: the run configuration, the column
-#' groups present in `stats`, and the coverage of each observed quantile by
-#' its simulated confidence interval. Printing it shows the same content as
-#' [print.vpc_stats()] without the head preview, followed by the coverage
-#' table, which suits vignette output and test snapshots.
+#' groups present in `stats`, the coverage of each observed quantile by
+#' its simulated confidence interval (CI coverage), and the share of
+#' observations outside the simulated prediction interval (PI coverage).
+#' Printing it shows the same content as [print.vpc_stats()] without the head
+#' preview, followed by the two coverage tables, which suits vignette output
+#' and test snapshots.
 #'
-#' Coverage flags, in each bin and stratum, whether the observed quantile
+#' CI coverage flags, in each bin and stratum, whether the observed quantile
 #' lies inside the simulated CI of the same quantile, e.g.
 #' `sim_med_low <= obs_med <= sim_med_hi`, and the `pc_` columns likewise for
 #' the prediction-corrected VPC. The flag is `NA` where either side is `NA`
@@ -300,6 +302,18 @@ cat_vpc_column_groups <- function(groups) {
 #' Neighbouring bins are correlated, so coverage is descriptive and is not a
 #' test.
 #'
+#' PI coverage counts the observations below and above the simulated
+#' prediction interval, the band drawn by `plot_vpc_shown(sim_pi_area = TRUE)`
+#' (`sim_low_med` to `sim_hi_med`, and the `pc_` columns with `PC_OBSDV` for
+#' the prediction-corrected VPC). An observation on a bound is inside. When
+#' the model describes the data, about `pi[1]` of the observations fall below
+#' and `1 - pi[2]` above. BLQ observations are counted on the standard scale
+#' when `stats` has a LOQ: below when the interval's lower bound is at or
+#' above the bin's highest LLOQ, and inside otherwise. Without a LOQ, and on
+#' the prediction-corrected scale, only quantifiable observations are
+#' counted. Bins with no interval are not counted. Like CI coverage, it is
+#' descriptive and is not a test.
+#'
 #' @param object A `vpc_stats` object.
 #' @param x A `summary.vpc_stats` object.
 #' @param ... Currently unused.
@@ -310,8 +324,10 @@ cat_vpc_column_groups <- function(groups) {
 #'    `column_groups` (a named list of the `stats` columns in each group:
 #'    `identifiers`, `counts`, `sim_blq`, `std_observed`, `std_simulated`,
 #'    `pc_observed`, `pc_simulated`, `metadata`; empty groups are
-#'    `character(0)`), `pred_corrected` (the `config` value), and `coverage`,
-#'    a list of three data.frames. Each
+#'    `character(0)`), `pred_corrected` (the `config` value), `ci_coverage`,
+#'    and `pi_coverage`.
+#'
+#'    `ci_coverage` is a list of three data.frames. Each
 #'    identifies the line by `quantile` (`"low"`, `"med"`, `"hi"`) and `prob`
 #'    (its probability, from `pi`; `NA` for the censored VPC, whose median
 #'    line is a proportion BLQ, not a quantile), and the VPC by `type`
@@ -328,6 +344,17 @@ cat_vpc_column_groups <- function(groups) {
 #'        (`n_inside / n_bins`, `NA` when `n_bins` is 0).}
 #'      \item{`overall`}{The same shares pooled across all bins and strata.}
 #'    }
+#'
+#'    `pi_coverage` is a list of three data.frames, with one row per scale
+#'    (`pcvpc`):
+#'    \describe{
+#'      \item{`bins`}{Per bin and stratum: `BIN_MID`, the `strat_var` column,
+#'        `pcvpc`, `n_obs` (observations counted), `n_below`, `n_above`,
+#'        `prop_below`, and `prop_above` (`NA` when `n_obs` is 0).}
+#'      \item{`strata`}{The same counts summed per stratum (`NULL` when the
+#'        VPC is not stratified).}
+#'      \item{`overall`}{The same counts summed across all bins and strata.}
+#'    }
 #' @export
 #' @method summary vpc_stats
 #'
@@ -338,15 +365,18 @@ cat_vpc_column_groups <- function(groups) {
 #'                               dv_var = ODV, carry_out = "FOOD")
 #' s <- summary(df_vpcstats(simout, strat_var = FOOD, loq = 1))
 #' s
-#' s$coverage$strata
+#' s$ci_coverage$strata
+#' s$pi_coverage$overall
 
 summary.vpc_stats <- function(object, ...) {
   structure(
     list(header = pmx_summary_header(object, .vpc_summary_keys),
          column_groups = vpc_column_groups(object),
          pred_corrected = object$config$pred_corrected,
-         coverage = vpc_coverage(object$stats, object$config$strat_var,
-                                 object$config$pi)),
+         ci_coverage = vpc_ci_coverage(object$stats, object$config$strat_var,
+                                       object$config$pi),
+         pi_coverage = vpc_pi_coverage(object$stats, object$obs,
+                                       object$config$strat_var, object$config$loq)),
     class = c("summary.vpc_stats", "summary.pmx_stats")
   )
 }
@@ -358,7 +388,8 @@ print.summary.vpc_stats <- function(x, ...) {
   cat_summary_header(x$header)
   cat_vpc_column_groups(x$column_groups)
   cat_vpc_pred_note(x$pred_corrected)
-  cat_vpc_coverage(x$coverage, x$header$config$ci, x$header$config$strat_var)
+  cat_vpc_ci_coverage(x$ci_coverage, x$header$config$ci, x$header$config$strat_var)
+  cat_vpc_pi_coverage(x$pi_coverage, x$header$config$pi, x$header$config$strat_var)
   cat("\n  Use `x$stats` and `x$obs` for the underlying data.frames.\n")
   invisible(x)
 }
@@ -373,7 +404,7 @@ print.summary.vpc_stats <- function(x, ...) {
 ## VPC): `inside` is NA when the observed value or a CI bound is NA.
 ## `strata` (NULL when unstratified) and `overall` are the shares of the
 ## flagged bins.
-vpc_coverage <- function(stats, strat_var, pi) {
+vpc_ci_coverage <- function(stats, strat_var, pi) {
   quantiles <- c("low", "med", "hi")
   probs <- c(pi[1], 0.5, pi[2])
   keys <- as.data.frame(stats[c(.vpc_bin_col, strat_var)])
@@ -413,15 +444,15 @@ vpc_coverage <- function(stats, strat_var, pi) {
     )))
   out <- list(
     bins    = bins,
-    strata  = if (!is.null(strat_var)) coverage_shares(bins, strat_var),
-    overall = coverage_shares(bins, NULL)
+    strata  = if (!is.null(strat_var)) ci_coverage_shares(bins, strat_var),
+    overall = ci_coverage_shares(bins, NULL)
   )
   out$bins$quantile <- as.character(out$bins$quantile)
   out$bins$type     <- as.character(out$bins$type)
   out
 }
 
-coverage_shares <- function(bins, strat_var) {
+ci_coverage_shares <- function(bins, strat_var) {
   out <- bins |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
       c(strat_var, "quantile", "prob", "type", "pcvpc")
@@ -459,7 +490,7 @@ fmt_coverage <- function(n_inside, n_bins, coverage, pad = FALSE) {
 ## pc, and (with a LOQ) cens cells side by side. The cens VPC has only the
 ## median line, so its cell is blank on the low and hi lines. Unstratified
 ## coverage prints the Overall lines without a stratum column.
-cat_vpc_coverage <- function(coverage, ci, strat_var) {
+cat_vpc_ci_coverage <- function(coverage, ci, strat_var) {
   shares <- coverage$overall
   if (!is.null(coverage$strata)) {
     strata <- coverage$strata
@@ -484,8 +515,101 @@ cat_vpc_coverage <- function(coverage, ci, strat_var) {
   ## Left-justify each column (header included) to its widest entry.
   cols <- Map(function(col, nm) format(c(nm, as.character(col))), tab, names(tab))
   lines <- trimws(do.call(paste, c(cols, sep = "  ")), "right")
-  cat(sprintf("  coverage (observed value inside the %s%% simulated CI):\n",
+  cat(sprintf("  CI coverage (observed quantile inside its %s%% simulated CI):\n",
               format(100 * ci)))
+  cat(paste0("    ", lines), sep = "\n")
+}
+
+
+## Observations below and above the simulated prediction interval, the
+## `sim_pi_area` band (sim_low_med to sim_hi_med), on the standard and
+## prediction-corrected scales (`pcvpc`). A value on a bound is inside.
+## * Standard, with a LOQ: every observation is counted (`obs_n`). The bin's
+##   BLQ observations are below when the lower bound is at or above the bin's
+##   LLOQ (the highest `LOQ` among its rows in `obs`, else the highest `loq`),
+##   and inside otherwise.
+## * Standard without a LOQ, and prediction-corrected: quantifiable
+##   observations only.
+## A bin with no interval is not counted. `bins` has one row per (bin x
+## stratum x scale); `strata` (NULL when unstratified) and `overall` sum it.
+vpc_pi_coverage <- function(stats, obs, strat_var, loq) {
+  keys <- c(.vpc_bin_col, strat_var)
+  key_id <- function(d) do.call(paste, c(unname(as.list(d[keys])), sep = "\r"))
+  n_bins <- nrow(stats)
+  bin <- match(key_id(obs), key_id(stats))
+  tally <- function(flag) tabulate(bin[which(flag)], n_bins)
+
+  n_obs_std <- stats$obs_n - stats$obs_n_blq
+  n_blq_below <- integer(n_bins)
+  if (!is.null(loq)) {
+    bin_loq <- rep(max(loq), n_bins)
+    if ("LOQ" %in% names(obs)) {
+      known <- !is.na(bin) & !is.na(obs$LOQ)
+      highest <- tapply(obs$LOQ[known], bin[known], max)
+      bin_loq[as.integer(names(highest))] <- highest
+    }
+    n_obs_std <- stats$obs_n
+    blq_below <- !is.na(stats$sim_low_med) & stats$sim_low_med >= bin_loq
+    n_blq_below[blq_below] <- stats$obs_n_blq[blq_below]
+  }
+
+  count <- function(pcvpc, value, low, hi, n_obs, n_blq_below) {
+    part <- as.data.frame(stats[keys])
+    part$pcvpc   <- pcvpc
+    part$n_obs   <- as.integer(n_obs)
+    part$n_below <- as.integer(tally(value < low[bin]) + n_blq_below)
+    part$n_above <- tally(value > hi[bin])
+    part[is.na(low) | is.na(hi), c("n_obs", "n_below", "n_above")] <- 0L
+    part
+  }
+  bins <- rbind(
+    count(FALSE, obs$OBSDV, stats$sim_low_med, stats$sim_hi_med, n_obs_std, n_blq_below),
+    count(TRUE, obs$PC_OBSDV, stats$pc_sim_low_med, stats$pc_sim_hi_med,
+          tally(!is.na(obs$PC_OBSDV)), 0L)
+  )
+  bins <- dplyr::arrange(bins, dplyr::across(dplyr::all_of(c(strat_var, .vpc_bin_col, "pcvpc"))))
+  list(
+    bins    = pi_coverage_shares(bins, keys),
+    strata  = if (!is.null(strat_var)) pi_coverage_shares(bins, strat_var),
+    overall = pi_coverage_shares(bins, NULL)
+  )
+}
+
+pi_coverage_shares <- function(bins, by) {
+  out <- bins |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(by, "pcvpc")))) |>
+    dplyr::summarise(n_obs = sum(.data$n_obs), n_below = sum(.data$n_below),
+                     n_above = sum(.data$n_above), .groups = "drop")
+  out$prop_below <- ifelse(out$n_obs > 0, out$n_below / out$n_obs, NA_real_)
+  out$prop_above <- ifelse(out$n_obs > 0, out$n_above / out$n_obs, NA_real_)
+  as.data.frame(out)
+}
+
+## One line per stratum, then Overall, with the shares below and above the
+## interval side by side for the std and pc VPC. Unstratified coverage prints
+## the Overall line without a stratum column.
+cat_vpc_pi_coverage <- function(pi_coverage, pi, strat_var) {
+  shares <- pi_coverage$overall
+  if (!is.null(pi_coverage$strata)) {
+    strata <- pi_coverage$strata
+    strata[[strat_var]] <- as.character(strata[[strat_var]])
+    shares[[strat_var]] <- "Overall"
+    shares <- rbind(strata, shares[names(strata)])
+  }
+  below <- fmt_coverage(shares$n_below, shares$n_obs, shares$prop_below, pad = TRUE)
+  above <- fmt_coverage(shares$n_above, shares$n_obs, shares$prop_above, pad = TRUE)
+  std <- !shares$pcvpc
+  tab <- shares[std, strat_var, drop = FALSE]
+  tab[["std below"]] <- below[std]
+  tab[["std above"]] <- above[std]
+  tab[["pc below"]]  <- below[!std]
+  tab[["pc above"]]  <- above[!std]
+  ## Left-justify each column (header included) to its widest entry.
+  cols <- Map(function(col, nm) format(c(nm, as.character(col))), tab, names(tab))
+  lines <- trimws(do.call(paste, c(cols, sep = "  ")), "right")
+  pct <- function(p) paste0(signif(100 * p, 3), "%")
+  cat(sprintf("  PI coverage (observations outside the %s-%s simulated PI; expected %s below, %s above):\n",
+              pct(pi[1]), pct(pi[2]), pct(pi[1]), pct(1 - pi[2])))
   cat(paste0("    ", lines), sep = "\n")
 }
 

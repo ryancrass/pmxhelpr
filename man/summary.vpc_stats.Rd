@@ -23,8 +23,10 @@ with \code{header} (the class tag, \code{dim} of \code{stats}, \code{obs_rows}, 
 \code{column_groups} (a named list of the \code{stats} columns in each group:
 \code{identifiers}, \code{counts}, \code{sim_blq}, \code{std_observed}, \code{std_simulated},
 \code{pc_observed}, \code{pc_simulated}, \code{metadata}; empty groups are
-\code{character(0)}), \code{pred_corrected} (the \code{config} value), and \code{coverage},
-a list of three data.frames. Each
+\code{character(0)}), \code{pred_corrected} (the \code{config} value), \code{ci_coverage},
+and \code{pi_coverage}.
+
+\code{ci_coverage} is a list of three data.frames. Each
 identifies the line by \code{quantile} (\code{"low"}, \code{"med"}, \code{"hi"}) and \code{prob}
 (its probability, from \code{pi}; \code{NA} for the censored VPC, whose median
 line is a proportion BLQ, not a quantile), and the VPC by \code{type}
@@ -41,15 +43,28 @@ the \code{strat_var} column, \code{quantile}, \code{prob}, \code{type}, \code{pc
 (\code{n_inside / n_bins}, \code{NA} when \code{n_bins} is 0).}
 \item{\code{overall}}{The same shares pooled across all bins and strata.}
 }
+
+\code{pi_coverage} is a list of three data.frames, with one row per scale
+(\code{pcvpc}):
+\describe{
+\item{\code{bins}}{Per bin and stratum: \code{BIN_MID}, the \code{strat_var} column,
+\code{pcvpc}, \code{n_obs} (observations counted), \code{n_below}, \code{n_above},
+\code{prop_below}, and \code{prop_above} (\code{NA} when \code{n_obs} is 0).}
+\item{\code{strata}}{The same counts summed per stratum (\code{NULL} when the
+VPC is not stratified).}
+\item{\code{overall}}{The same counts summed across all bins and strata.}
+}
 }
 \description{
 Summarises a \code{\link[=df_vpcstats]{df_vpcstats()}} result: the run configuration, the column
-groups present in \code{stats}, and the coverage of each observed quantile by
-its simulated confidence interval. Printing it shows the same content as
-\code{\link[=print.vpc_stats]{print.vpc_stats()}} without the head preview, followed by the coverage
-table, which suits vignette output and test snapshots.
+groups present in \code{stats}, the coverage of each observed quantile by
+its simulated confidence interval (CI coverage), and the share of
+observations outside the simulated prediction interval (PI coverage).
+Printing it shows the same content as \code{\link[=print.vpc_stats]{print.vpc_stats()}} without the head
+preview, followed by the two coverage tables, which suits vignette output
+and test snapshots.
 
-Coverage flags, in each bin and stratum, whether the observed quantile
+CI coverage flags, in each bin and stratum, whether the observed quantile
 lies inside the simulated CI of the same quantile, e.g.
 \verb{sim_med_low <= obs_med <= sim_med_hi}, and the \code{pc_} columns likewise for
 the prediction-corrected VPC. The flag is \code{NA} where either side is \code{NA}
@@ -64,6 +79,18 @@ each observed value falls inside its interval with probability of about
 \code{ci}.
 Neighbouring bins are correlated, so coverage is descriptive and is not a
 test.
+
+PI coverage counts the observations below and above the simulated
+prediction interval, the band drawn by \code{plot_vpc_shown(sim_pi_area = TRUE)}
+(\code{sim_low_med} to \code{sim_hi_med}, and the \code{pc_} columns with \code{PC_OBSDV} for
+the prediction-corrected VPC). An observation on a bound is inside. When
+the model describes the data, about \code{pi[1]} of the observations fall below
+and \code{1 - pi[2]} above. BLQ observations are counted on the standard scale
+when \code{stats} has a LOQ: below when the interval's lower bound is at or
+above the bin's highest LLOQ, and inside otherwise. Without a LOQ, and on
+the prediction-corrected scale, only quantifiable observations are
+counted. Bins with no interval are not counted. Like CI coverage, it is
+descriptive and is not a test.
 }
 \examples{
 model <- model_mread_load(model = "pkmodel")
@@ -72,5 +99,6 @@ simout <- df_mrgsim_replicate(data = dplyr::filter(data_sad, CMT \%in\% c(1, 2))
                               dv_var = ODV, carry_out = "FOOD")
 s <- summary(df_vpcstats(simout, strat_var = FOOD, loq = 1))
 s
-s$coverage$strata
+s$ci_coverage$strata
+s$pi_coverage$overall
 }

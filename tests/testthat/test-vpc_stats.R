@@ -202,17 +202,21 @@ test_that("print.vpc_stats(n_head = 0) suppresses the head preview", {
   expect_no_match(txt, "head\\(stats")
 })
 
-test_that("summary.vpc_stats prints print(n_head = 0) plus the coverage table", {
+test_that("summary.vpc_stats prints print(n_head = 0) plus the coverage tables", {
   out <- df_vpcstats(testsim)
   summary_lines <- capture.output(summary(out))
   print_lines <- capture.output(print(out, n_head = 0))
-  cov_start <- grep("^  coverage", summary_lines)
-  cov_end <- cov_start + 4 # title, column header, three quantiles
+  cov_start <- grep("^  CI coverage", summary_lines)
+  pi_start <- grep("^  PI coverage", summary_lines)
+  expect_equal(pi_start, cov_start + 5) # CI title, column header, three quantiles
+  cov_end <- pi_start + 2               # PI title, column header, one line
   expect_identical(summary_lines[-(cov_start:cov_end)], print_lines)
-  expect_match(summary_lines[cov_start], "inside the 90% simulated CI")
+  expect_match(summary_lines[cov_start], "inside its 90% simulated CI")
+  expect_match(summary_lines[pi_start],
+               "outside the 5%-95% simulated PI; expected 5% below, 5% above")
 })
 
-test_that("summary.vpc_stats coverage counts bins inside the simulated CI", {
+test_that("summary.vpc_stats CI coverage counts bins inside the simulated CI", {
   ## Two bins, one per stratum. Std: low inside, med on the CI edge (counts as
   ## inside), hi outside. pc: observed low NA (not counted), med inside, and
   ## the hi CI bound NA (not counted).
@@ -225,7 +229,7 @@ test_that("summary.vpc_stats coverage counts bins inside the simulated CI", {
     pc_obs_med = c(5, 5),  pc_sim_med_low = c(4, 4), pc_sim_med_hi = c(6, 6),
     pc_obs_hi  = c(9, 9),  pc_sim_hi_low  = c(7, 7), pc_sim_hi_hi  = c(NA, NA)
   )
-  cov <- pmxhelpr:::vpc_coverage(stats, "FOOD", c(0.05, 0.95))
+  cov <- pmxhelpr:::vpc_ci_coverage(stats, "FOOD", c(0.05, 0.95))
   expect_named(cov, c("bins", "strata", "overall"))
 
   ## Per-bin flags: NA where a side is NA.
@@ -252,13 +256,13 @@ test_that("summary.vpc_stats coverage counts bins inside the simulated CI", {
   expect_equal(cov$overall$n_inside, c(2, 1, 2, 2, 0, 0))
   expect_equal(cov$overall$coverage, c(1, 1, 1, 1, 0, NA))
 
-  unstrat <- pmxhelpr:::vpc_coverage(stats, NULL, c(0.05, 0.95))
+  unstrat <- pmxhelpr:::vpc_ci_coverage(stats, NULL, c(0.05, 0.95))
   expect_named(unstrat$bins, c("BIN_MID", "quantile", "prob", "type", "pcvpc", "inside"))
   expect_null(unstrat$strata)
   expect_equal(unstrat$overall, cov$overall)
 })
 
-test_that("summary.vpc_stats coverage flags the cens VPC median line when a LOQ is given", {
+test_that("summary.vpc_stats CI coverage flags the cens VPC median line when a LOQ is given", {
   stats <- data.frame(
     BIN_MID = c(1, 2, 3),
     obs_low = 1, sim_low_low = 0, sim_low_hi = 2,
@@ -272,7 +276,7 @@ test_that("summary.vpc_stats coverage flags the cens VPC median line when a LOQ 
     sim_prop_blq_med = c(0.3, 0.3, 0.3),
     sim_prop_blq_hi  = c(0.5, 0.5, 0.5)
   )
-  cov <- pmxhelpr:::vpc_coverage(stats, NULL, c(0.05, 0.95))
+  cov <- pmxhelpr:::vpc_ci_coverage(stats, NULL, c(0.05, 0.95))
   cens <- cov$bins[cov$bins$type == "cens", ]
   expect_equal(cens$inside, c(TRUE, FALSE, NA))
   expect_true(all(cens$quantile == "med"))
@@ -286,26 +290,26 @@ test_that("summary.vpc_stats coverage flags the cens VPC median line when a LOQ 
                  "med cens FALSE", "hi cont FALSE", "hi cont TRUE"))
 
   ## Without the sim_prop_blq_* columns (no LOQ) there is no cens row.
-  no_loq <- pmxhelpr:::vpc_coverage(stats[!grepl("prop_blq", names(stats))], NULL, c(0.05, 0.95))
+  no_loq <- pmxhelpr:::vpc_ci_coverage(stats[!grepl("prop_blq", names(stats))], NULL, c(0.05, 0.95))
   expect_false("cens" %in% no_loq$bins$type)
 
   ## Printed as a cens column filled on the median line only.
-  txt <- capture.output(pmxhelpr:::cat_vpc_coverage(cov, 0.9, NULL))
+  txt <- capture.output(pmxhelpr:::cat_vpc_ci_coverage(cov, 0.9, NULL))
   expect_match(txt[2], "quantile +std +pc +cens$")
   expect_match(txt[3], "^    5% .*%$")
   expect_match(txt[4], "^    50% .*1/2 +50%$")
-  expect_no_match(capture.output(pmxhelpr:::cat_vpc_coverage(no_loq, 0.9, NULL))[2], "cens")
+  expect_no_match(capture.output(pmxhelpr:::cat_vpc_ci_coverage(no_loq, 0.9, NULL))[2], "cens")
 })
 
-test_that("summary.vpc_stats coverage flags every bin and prints strata then Overall", {
+test_that("summary.vpc_stats CI coverage flags every bin and prints strata then Overall", {
   out <- df_vpcstats(testsim, strat_var = "FOOD", pi = c(0.1, 0.9))
-  cov <- summary(out)$coverage
+  cov <- summary(out)$ci_coverage
   expect_equal(nrow(cov$bins), nrow(out$stats) * 3 * 2)
   expect_equal(nrow(cov$strata), length(unique(out$stats$FOOD)) * 3 * 2)
   expect_equal(nrow(cov$overall), 3 * 2)
   expect_equal(sort(unique(cov$overall$prob)), c(0.1, 0.5, 0.9))
   expect_false("cens" %in% cov$overall$type)
-  cov_loq <- summary(df_vpcstats(testsim, strat_var = "FOOD", loq = 1))$coverage
+  cov_loq <- summary(df_vpcstats(testsim, strat_var = "FOOD", loq = 1))$ci_coverage
   expect_equal(nrow(cov_loq$strata), length(unique(out$stats$FOOD)) * 7)
   expect_equal(sum(cov_loq$overall$type == "cens"), 1)
   expect_true(all(cov$strata$n_inside <= cov$strata$n_bins))
@@ -316,8 +320,93 @@ test_that("summary.vpc_stats coverage flags every bin and prints strata then Ove
   expect_equal(pooled$n_inside[match(key(cov$overall), key(pooled))], cov$overall$n_inside)
   txt <- capture.output(print(summary(out)))
   expect_true(any(grepl("^    FOOD     quantile", txt)))
-  expect_equal(sum(grepl("^    Overall  ", txt)), 3)
+  expect_equal(sum(grepl("^    Overall +[0-9.]+% ", txt)), 3)  # CI table lines
   expect_true(any(grepl("10% ", txt)))
+})
+
+test_that("summary.vpc_stats PI coverage counts observations outside the simulated PI", {
+  ## Three bins, PI 2-8 on both scales. Bin 1: one below, two on the bounds
+  ## (inside), one above, one BLQ. Bins 2 and 3: one inside, two BLQ each; bin
+  ## 3 has no pc interval.
+  stats <- data.frame(
+    BIN_MID = c(1, 2, 3), FOOD = c("Fasted", "Fasted", "Fed"),
+    obs_n = c(5L, 3L, 3L), obs_n_blq = c(1L, 2L, 2L),
+    sim_low_med = c(2, 2, 0.5), sim_hi_med = c(8, 8, 8),
+    pc_sim_low_med = c(2, 2, NA), pc_sim_hi_med = c(8, 8, NA)
+  )
+  obs <- data.frame(
+    BIN_MID = c(1, 1, 1, 1, 2, 3), FOOD = c(rep("Fasted", 5), "Fed"),
+    OBSDV = c(1.5, 2, 8, 9, 5, 5), PC_OBSDV = c(5, 5, 9, 9, 1, 5), LOQ = 1
+  )
+  cov <- pmxhelpr:::vpc_pi_coverage(stats, obs, "FOOD", loq = 1)
+  expect_named(cov, c("bins", "strata", "overall"))
+  expect_named(cov$bins, c("BIN_MID", "FOOD", "pcvpc", "n_obs", "n_below", "n_above",
+                           "prop_below", "prop_above"))
+  std <- cov$bins[!cov$bins$pcvpc, ]
+  ## BLQ are below where the lower bound (2) is at or above the LLOQ (1), and
+  ## inside where it is under (0.5).
+  expect_equal(std$n_obs,   c(5, 3, 3))
+  expect_equal(std$n_below, c(2, 2, 0))
+  expect_equal(std$n_above, c(1, 0, 0))
+  expect_equal(std$prop_below, c(2 / 5, 2 / 3, 0))
+  ## pc: quantifiable observations only, and no interval means not counted.
+  pc <- cov$bins[cov$bins$pcvpc, ]
+  expect_equal(pc$n_obs,   c(4, 1, 0))
+  expect_equal(pc$n_below, c(0, 1, 0))
+  expect_equal(pc$n_above, c(2, 0, 0))
+  expect_equal(pc$prop_above, c(0.5, 0, NA))
+
+  expect_named(cov$strata, c("FOOD", "pcvpc", "n_obs", "n_below", "n_above",
+                             "prop_below", "prop_above"))
+  fasted <- cov$strata[cov$strata$FOOD == "Fasted", ]
+  expect_equal(fasted$n_obs,   c(8, 5))
+  expect_equal(fasted$n_below, c(4, 1))
+  expect_equal(cov$overall$n_obs,   c(11, 5))
+  expect_equal(cov$overall$n_below, c(4, 1))
+  expect_equal(cov$overall$n_above, c(1, 2))
+  expect_equal(cov$overall$prop_below, c(4 / 11, 1 / 5))
+
+  ## Without a LOQ only quantifiable observations are counted.
+  no_loq <- pmxhelpr:::vpc_pi_coverage(stats, obs[names(obs) != "LOQ"], "FOOD", loq = NULL)
+  expect_equal(no_loq$bins$n_obs[!no_loq$bins$pcvpc],   c(4, 1, 1))
+  expect_equal(no_loq$bins$n_below[!no_loq$bins$pcvpc], c(1, 0, 0))
+
+  unstrat <- pmxhelpr:::vpc_pi_coverage(stats[names(stats) != "FOOD"],
+                                        obs[names(obs) != "FOOD"], NULL, loq = 1)
+  expect_null(unstrat$strata)
+  expect_named(unstrat$bins, c("BIN_MID", "pcvpc", "n_obs", "n_below", "n_above",
+                               "prop_below", "prop_above"))
+  expect_equal(unstrat$overall$n_obs, cov$overall$n_obs)
+
+  ## Printed one line per stratum, then Overall; "-" where nothing is counted.
+  txt <- capture.output(pmxhelpr:::cat_vpc_pi_coverage(cov, c(0.05, 0.95), "FOOD"))
+  expect_match(txt[1], "outside the 5%-95% simulated PI; expected 5% below, 5% above")
+  expect_match(txt[2], "^    FOOD +std below +std above +pc below +pc above$")
+  expect_match(txt[3], "^    Fasted +4/8 +50% +1/8 +12% +1/5 +20% +2/5 +40%$")
+  expect_match(txt[4], "^    Fed +0/3 +0% +0/3 +0% +- +-$")
+  expect_match(txt[5], "^    Overall ")
+  expect_length(txt, 5)
+  expect_length(capture.output(pmxhelpr:::cat_vpc_pi_coverage(unstrat, c(0.1, 0.9), NULL)), 3)
+})
+
+test_that("summary.vpc_stats PI coverage counts every observation when there is a LOQ", {
+  out <- df_vpcstats(testsim, strat_var = "FOOD", loq = 1)
+  cov <- summary(out)$pi_coverage
+  expect_equal(nrow(cov$bins), nrow(out$stats) * 2)
+  expect_equal(nrow(cov$strata), length(unique(out$stats$FOOD)) * 2)
+  expect_equal(cov$overall$pcvpc, c(FALSE, TRUE))
+  expect_equal(cov$overall$n_obs[1], sum(out$stats$obs_n))
+  expect_true(all(cov$bins$n_below + cov$bins$n_above <= cov$bins$n_obs))
+  ## Overall is the sum of the strata.
+  pooled <- stats::aggregate(cbind(n_obs, n_below, n_above) ~ pcvpc, cov$strata, sum)
+  expect_equal(pooled$n_obs, cov$overall$n_obs)
+  expect_equal(pooled$n_below, cov$overall$n_below)
+  expect_equal(pooled$n_above, cov$overall$n_above)
+  ## The std quantifiable counts match a direct count on the observations.
+  j <- merge(out$obs, out$stats[c("BIN_MID", "FOOD", "sim_low_med", "sim_hi_med")])
+  expect_equal(cov$overall$n_above[1], sum(j$OBSDV > j$sim_hi_med, na.rm = TRUE))
+  no_loq <- summary(df_vpcstats(testsim, strat_var = "FOOD"))$pi_coverage
+  expect_equal(no_loq$overall$n_below[1], sum(j$OBSDV < j$sim_low_med, na.rm = TRUE))
 })
 
 test_that("summary.vpc_stats output is stable (snapshot)", {

@@ -2,15 +2,19 @@
 
 ## New features
 
-* `summary()` on a `vpc_stats` container reports VPC coverage: whether
-  each observed quantile falls inside the simulated confidence interval of
-  that quantile in each bin, and the share of bins where it does, per stratum
-  and across strata. The standard and prediction-corrected VPC are reported
-  side by side, and with a LOQ so is the censored VPC (the observed
-  proportion BLQ against its simulated interval). The shares print after the
-  column groups;
-  `summary(x)$coverage` holds the per-bin flags (`$bins`) and the shares
-  (`$strata`, `$overall`). 
+* `summary()` on a `vpc_stats` container reports VPC coverage, per stratum
+  and across strata, for the standard and prediction-corrected VPC side by
+  side. The tables print after the column groups.
+  * CI coverage: whether each observed quantile falls inside the simulated
+    confidence interval of that quantile in each bin, and the share of bins
+    where it does. With a LOQ, so is the censored VPC (the observed
+    proportion BLQ against its simulated interval). `summary(x)$ci_coverage`
+    holds the per-bin flags (`$bins`) and the shares (`$strata`, `$overall`).
+  * PI coverage: the share of observations below and above the simulated
+    prediction interval (the `sim_pi_area` band), against the expected
+    `pi[1]` and `1 - pi[2]`. `summary(x)$pi_coverage` holds the counts and
+    shares per bin (`$bins`), per stratum (`$strata`), and overall
+    (`$overall`).
 * Time-axis plots (`plot_dvtime()`, `plot_gof()`, `plot_vpc_cont()`,
   `plot_vpc_cens()`, `plot_build_vpc()`) place x-axis breaks on natural steps
   of the time unit, set by the new `time_unit` argument (`"hours"`, the

@@ -119,11 +119,12 @@ plot_vpc_cens <- function(data,
   time_unit <- normalize_time_unit(time_unit)
   bin_style <- match.arg(bin_style)
 
-  ## Precomputed-stats path: caller passed the container returned by
-  ## df_vpcstats(). Skip preprocess + compute, validate that the container
-  ## carries the cens columns, and delegate to plot_build_vpc(type = "cens").
-  ## Pipeline args (strat_var, loq, ci, column-name args) cannot be honored
-  ## here because the pipeline doesn't re-run.
+  ## `data` is either the container returned by df_vpcstats() or raw
+  ## simulated data. With a container the pipeline does not run again, so
+  ## pipeline args (strat_var, loq, ci, column-name args) cannot be honored
+  ## and the wrapper aborts if any are passed. plot_build_vpc(type = "cens")
+  ## validates that the container carries the cens columns.
+  stats <- data
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       mc             = match.call(),
@@ -132,48 +133,38 @@ plot_vpc_cens <- function(data,
       fn_name        = "plot_vpc_cens",
       stats_fn       = "df_vpcstats"
     )
-    return(plot_build_vpc(
-      data,
-      type          = "cens",
-      min_bin_count = min_bin_count,
-      show_rep      = show_rep,
-      shown         = shown,
-      style         = style,
-      time_unit     = time_unit,
-      bin_style     = bin_style
-    ))
-  }
+  } else {
+    data_cols <- names(data)
+    time_var_str   <- resolve_var(rlang::enquo(time_var), cols = data_cols)
+    ntime_var_str  <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
+    pred_var_str   <- resolve_var(rlang::enquo(pred_var), cols = data_cols)
+    sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var), cols = data_cols)
+    obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var), cols = data_cols)
+    strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE, cols = data_cols)
+    rep_var_q <- rlang::enquo(rep_var)
+    if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "plot_vpc_cens",
+                           "irep_name", "rep_var")) {
+      rep_var_q <- rlang::enquo(irep_name)
+    }
+    rep_var_str    <- resolve_var(rep_var_q, cols = data_cols)
 
-  data_cols <- names(data)
-  time_var_str   <- resolve_var(rlang::enquo(time_var), cols = data_cols)
-  ntime_var_str  <- resolve_var(rlang::enquo(ntime_var), cols = data_cols)
-  pred_var_str   <- resolve_var(rlang::enquo(pred_var), cols = data_cols)
-  sim_dv_var_str <- resolve_var(rlang::enquo(sim_dv_var), cols = data_cols)
-  obs_dv_var_str <- resolve_var(rlang::enquo(obs_dv_var), cols = data_cols)
-  strat_var_str  <- resolve_var(rlang::enquo(strat_var), nullable = TRUE, cols = data_cols)
-  rep_var_q <- rlang::enquo(rep_var)
-  if (use_deprecated_arg(!missing(irep_name), !missing(rep_var), "plot_vpc_cens",
-                         "irep_name", "rep_var")) {
-    rep_var_q <- rlang::enquo(irep_name)
+    stats <- df_vpcstats(
+      data       = data,
+      time_var   = time_var_str,
+      ntime_var  = ntime_var_str,
+      pred_var   = pred_var_str,
+      sim_dv_var = sim_dv_var_str,
+      obs_dv_var = obs_dv_var_str,
+      strat_var  = strat_var_str,
+      rep_var    = rep_var_str,
+      loq        = loq,
+      ci         = ci,
+      bin_breaks = bin_breaks
+    )
   }
-  rep_var_str    <- resolve_var(rep_var_q, cols = data_cols)
-
-  out <- df_vpcstats(
-    data       = data,
-    time_var   = time_var_str,
-    ntime_var  = ntime_var_str,
-    pred_var   = pred_var_str,
-    sim_dv_var = sim_dv_var_str,
-    obs_dv_var = obs_dv_var_str,
-    strat_var  = strat_var_str,
-    rep_var    = rep_var_str,
-    loq        = loq,
-    ci         = ci,
-    bin_breaks = bin_breaks
-  )
 
   plot_build_vpc(
-    out,
+    stats,
     type          = "cens",
     min_bin_count = min_bin_count,
     show_rep      = show_rep,

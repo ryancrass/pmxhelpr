@@ -26,7 +26,8 @@
     (records outside them are dropped with a warning), or a binning function
     that runs on each stratum's observation times and keeps every record.
   * The new `bins_kmeans()`, `bins_quantile()`, and `bins_equal()` return
-    binning functions (k-means clusters, equal counts, equal widths).
+    binning functions (k-means clusters, equal counts, equal widths);
+    `bins_kmeans()` can cluster on log time (`log_time = TRUE`).
   * Interval-binned stats carry the bin edges as `BIN_LOW` and `BIN_HI`, and
     the breaks used are recorded in `config$bin_breaks`.
 * VPC plots of interval-binned stats can draw each bin's simulated intervals

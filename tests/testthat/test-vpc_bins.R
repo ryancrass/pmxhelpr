@@ -22,6 +22,29 @@ test_that("bins_kmeans() breaks between sorted cluster centres and is reproducib
   expect_error(bins_equal("a"), class = "pmxhelpr_error_bad_arg")
 })
 
+test_that("bins_kmeans(log_time = TRUE) clusters on log time", {
+  b <- bins_kmeans(4, log_time = TRUE)(times)
+  expect_length(b, 5)
+  expect_equal(range(b), range(times))
+  expect_false(is.unsorted(b, strictly = TRUE))
+  expect_identical(bins_kmeans(4, log_time = TRUE)(times), b)
+  expect_false(isTRUE(all.equal(b, bins_kmeans(4)(times))))
+  ## Breaks sit halfway between cluster centres on the log scale.
+  expect_equal(bins_kmeans(2, log_time = TRUE)(c(1, 1, 100, 100)), c(1, 10, 100))
+  ## Times at or below zero form their own bin, counted in n.
+  pre <- bins_kmeans(4, log_time = TRUE)(c(0, 0, times))
+  expect_equal(pre[1:2], c(0, min(times)))
+  expect_length(pre, 5)
+  expect_equal(bins_kmeans(3, log_time = TRUE)(c(-1, 0, 0)), c(-1, 0))
+  expect_equal(bins_kmeans(1, log_time = TRUE)(c(0, times)), c(0, max(times)))
+  expect_error(bins_kmeans(4, log_time = "yes"), class = "pmxhelpr_error_bad_arg")
+  ## Through the pipeline every record is kept.
+  sim <- sim_pk(5)
+  expect_no_warning(out <- df_vpcstats(sim, loq = 1,
+                                       bin_breaks = bins_kmeans(6, log_time = TRUE)))
+  expect_equal(sum(out$stats$obs_n), sum(sim$SIM == 1 & sim$EVID == 0))
+})
+
 test_that("function bin_breaks keep every record and record the resolved breaks", {
   sim <- sim_pk(5)
   expect_no_warning(out <- df_vpcstats(sim, loq = 1, bin_breaks = bins_equal(5)))

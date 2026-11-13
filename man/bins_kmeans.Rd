@@ -6,7 +6,7 @@
 \alias{bins_equal}
 \title{Binning functions for interval-binned VPCs}
 \usage{
-bins_kmeans(n, seed = 123456789)
+bins_kmeans(n, seed = 123456789, log_time = FALSE)
 
 bins_quantile(n)
 
@@ -17,6 +17,10 @@ bins_equal(n)
 
 \item{seed}{Random seed for the k-means starting centres, so the bins are
 reproducible. Default is \code{123456789}.}
+
+\item{log_time}{Cluster on log time? Default is \code{FALSE}. Times at or below
+zero form their own bin, counted in \code{n}, and the positive times are
+clustered into the rest.}
 }
 \value{
 A function of a numeric vector of times that returns the bin
@@ -28,7 +32,9 @@ These return a binning function for the \code{bin_breaks} argument of
 most \code{n} time-interval bins, placed from the observation times:
 \itemize{
 \item \code{bins_kmeans()} clusters the times (k-means) and breaks halfway between
-neighbouring cluster centres, so sampling clusters stay together.
+neighbouring cluster centres, so sampling clusters stay together. With
+\code{log_time = TRUE} the clustering is on log time, which suits sampling
+that is dense early and sparse late.
 \item \code{bins_quantile()} gives bins with about equal numbers of observations.
 \item \code{bins_equal()} gives bins of equal width.
 }
@@ -40,6 +46,7 @@ data's time range, so no record is dropped.
 \examples{
 times <- c(0.5, 1, 1, 2, 4, 4, 8, 24, 24, 48, 72, 168)
 bins_kmeans(4)(times)
+bins_kmeans(4, log_time = TRUE)(times)
 bins_quantile(4)(times)
 bins_equal(4)(times)
 

@@ -490,17 +490,19 @@ plot_vpc_cont(
 
 Binning functions are exported to derive breaks from the observed times.
 
-  + `bins_kmeans()` returns k-means bins
+  + `bins_kmeans()` returns k-means bins, on log time with `log_time = TRUE`
   + `bins_quantile()` returns equal count bins
   + `bins_equal()` returns equal width bins 
   
 With `strat_var`, the function runs on each stratum's times, so the bins can differ by stratum. Outer breaks are widened so no records are dropped.
 
+For PK sampling, which is dense early and sparse late, clustering on log time keeps the absorption phase from collapsing into one bin.
+
 ```{r plot-vpc-bins-kmeans, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 vpc_bins_food <- df_vpcstats(
   data = mutate(simout, FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
   strat_var = FoodStatus,
-  bin_breaks = bins_kmeans(8)
+  bin_breaks = bins_kmeans(8, log_time = TRUE)
 )
 
 plot_vpc_cont(vpc_bins_food, pcvpc = TRUE) +

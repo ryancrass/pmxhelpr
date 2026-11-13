@@ -16,7 +16,7 @@
           pc observed  : pc_obs_low, pc_obs_med, pc_obs_hi
           pc simulated : pc_sim_low_low, pc_sim_low_med, pc_sim_low_hi, pc_sim_med_low, pc_sim_med_med, pc_sim_med_hi, pc_sim_hi_low, pc_sim_hi_med, pc_sim_hi_hi
           metadata     : ci, pi_low, pi_hi
-        coverage (observed value inside the 90% simulated CI):
+        CI coverage (observed quantile inside its 90% simulated CI):
           FOOD     quantile  std        pc         cens
           0        5%         6/11 55%   8/16 50%
           0        50%        6/14 43%   8/16 50%  15/19 79%
@@ -27,6 +27,11 @@
           Overall  5%        17/25 68%  22/32 69%
           Overall  50%       18/28 64%  23/32 72%  32/38 84%
           Overall  95%       21/32 66%  21/32 66%
+        PI coverage (observations outside the 5%-95% simulated PI; expected 5% below, 5% above):
+          FOOD     std below  std above   pc below   pc above
+          0        25/570 4%  30/570  5%  24/412 6%  31/412  8%
+          1         6/114 5%   8/114  7%    6/89 7%   10/89 11%
+          Overall  31/684 5%  38/684  6%  30/501 6%  41/501  8%
       
         Use `x$stats` and `x$obs` for the underlying data.frames.
 

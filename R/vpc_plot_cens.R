@@ -75,6 +75,8 @@
 #'
 #' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @inheritParams plot_dvtime
+#' @inheritParams df_vpcstats
+#' @inheritParams plot_build_vpc
 #' @family vpc
 #' @return A `pmx_vpc_plot` object (a `ggplot2` subclass). To access the
 #'    underlying VPC summary statistics directly, use [df_vpcstats()] and
@@ -108,11 +110,14 @@ plot_vpc_cens <- function(data,
                           shown = NULL,
                           style = NULL,
                           time_unit = "hours",
+                          bin_style = c("line", "rect"),
                           ci = 0.90,
+                          bin_breaks = NULL,
                           irep_name) {
 
   check_boolean(show_rep, "show_rep")
   time_unit <- normalize_time_unit(time_unit)
+  bin_style <- match.arg(bin_style)
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute, validate that the container
@@ -123,7 +128,7 @@ plot_vpc_cens <- function(data,
     check_pipeline_args_dropped(
       mc             = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown", "style",
-                         "time_unit"),
+                         "time_unit", "bin_style"),
       fn_name        = "plot_vpc_cens",
       stats_fn       = "df_vpcstats"
     )
@@ -134,7 +139,8 @@ plot_vpc_cens <- function(data,
       show_rep      = show_rep,
       shown         = shown,
       style         = style,
-      time_unit     = time_unit
+      time_unit     = time_unit,
+      bin_style     = bin_style
     ))
   }
 
@@ -162,7 +168,8 @@ plot_vpc_cens <- function(data,
     strat_var  = strat_var_str,
     rep_var    = rep_var_str,
     loq        = loq,
-    ci         = ci
+    ci         = ci,
+    bin_breaks = bin_breaks
   )
 
   plot_build_vpc(
@@ -172,6 +179,7 @@ plot_vpc_cens <- function(data,
     show_rep      = show_rep,
     shown         = shown,
     style         = style,
-    time_unit     = time_unit
+    time_unit     = time_unit,
+    bin_style     = bin_style
   )
 }

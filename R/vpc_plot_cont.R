@@ -68,6 +68,8 @@
 #' @param rep_var Name of replicate variable in `data`. Accepts bare names or strings. Default is `SIM`.
 #' @param irep_name `r lifecycle::badge("deprecated")` Use `rep_var`.
 #' @inheritParams plot_dvtime
+#' @inheritParams df_vpcstats
+#' @inheritParams plot_build_vpc
 #' @inheritParams var_predcorr
 #'
 #' @family vpc
@@ -111,26 +113,30 @@ plot_vpc_cont <- function(data,
                           shown = NULL,
                           style = NULL,
                           time_unit = "hours",
+                          bin_style = c("line", "rect"),
                           pi = c(0.05, 0.95),
                           ci = 0.90,
+                          bin_breaks = NULL,
                           irep_name) {
 
   check_boolean(show_rep, "show_rep")
   check_boolean(pcvpc, "pcvpc")
   time_unit <- normalize_time_unit(time_unit)
+  bin_style <- match.arg(bin_style)
 
   ## Precomputed-stats path: caller passed the container returned by
   ## df_vpcstats(). Skip preprocess + compute and recover plotting context
   ## from the container's $config slot. Pipeline args (strat_var, loq, mode,
   ## pi, ci, column-name args) cannot be honored on this path because the
   ## pipeline doesn't run again; the wrapper aborts if any are passed.
-  ## Plot-only args (min_bin_count, show_rep, shown, style, pcvpc, time_unit) are
+  ## Plot-only args (min_bin_count, show_rep, shown, style, pcvpc, time_unit,
+  ## bin_style) are
   ## accepted on both paths.
   if (inherits(data, "vpc_stats")) {
     check_pipeline_args_dropped(
       mc             = match.call(),
       plot_only_args = c("data", "min_bin_count", "show_rep", "shown",
-                         "style", "pcvpc", "time_unit"),
+                         "style", "pcvpc", "time_unit", "bin_style"),
       fn_name        = "plot_vpc_cont",
       stats_fn       = "df_vpcstats"
     )
@@ -141,7 +147,8 @@ plot_vpc_cont <- function(data,
       shown         = shown,
       style         = style,
       pcvpc         = pcvpc,
-      time_unit     = time_unit
+      time_unit     = time_unit,
+      bin_style     = bin_style
     ))
   }
 
@@ -169,7 +176,8 @@ plot_vpc_cont <- function(data,
     strat_var  = strat_var_str,
     rep_var    = rep_var_str,
     loq = loq, lower_bound = lower_bound,
-    mode = mode, pi = pi, ci = ci
+    mode = mode, pi = pi, ci = ci,
+    bin_breaks = bin_breaks
   )
 
   plot_build_vpc(
@@ -179,6 +187,7 @@ plot_vpc_cont <- function(data,
     shown = shown,
     style = style,
     pcvpc = pcvpc,
-    time_unit = time_unit
+    time_unit = time_unit,
+    bin_style = bin_style
   )
 }

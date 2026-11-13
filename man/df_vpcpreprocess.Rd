@@ -14,6 +14,7 @@ df_vpcpreprocess(
   strat_var_str = NULL,
   rep_var_str = "SIM",
   loq = NULL,
+  bin_breaks = NULL,
   call = rlang::caller_env()
 )
 }
@@ -38,20 +39,30 @@ df_vpcpreprocess(
 present in \code{data}, per-row \code{LLOQ} values are used as the censoring
 threshold. A scalar \code{loq} broadcasts to a constant threshold across rows.}
 
+\item{bin_breaks}{Numeric vector of interval breaks on actual time, a
+function returning them, or \code{NULL} (default) to bin by nominal time.}
+
 \item{call}{The call reported in errors.}
 }
 \value{
 A preprocessed data.frame with standardized columns and (when a LOQ
 source exists) a row-aligned \code{LOQ} column. The unique non-NA LOQ values
-are attached as \code{attr(., "loq")}.
+are attached as \code{attr(., "loq")}, and the resolved interval breaks (or
+\code{NULL}) as \code{attr(., "bin_breaks")}.
 }
 \description{
 Internal function. Validates columns, resolves \code{loq} (inheritance from an
 \code{LLOQ} column when not explicitly supplied), filters dose rows
 (\code{EVID == 0}), renames simulation-output columns to standard internal
-names, and applies BLQ encoding to \code{OBSDV}. Prediction-correction and the
+names, assigns bins (\code{BIN_MID}), and applies BLQ encoding to \code{OBSDV}.
+Prediction-correction and the
 (mode-aware) BLQ-encoding of \code{SIMDV} are handled per-flavor in
 \code{\link[=df_vpccompute]{df_vpccompute()}}.
+
+Bins: without \code{bin_breaks}, each nominal time (\code{NTIME}) is a bin and
+\code{BIN_MID} is that time. With \code{bin_breaks}, actual time (\code{TIME}) is cut
+into intervals (\verb{[a, b)}, the last closed): \code{BIN_LOW} and \code{BIN_HI} are
+the interval edges and \code{BIN_MID} its midpoint (see \code{vpc_interval_bins()}).
 
 BLQ encoding (in this stage):
 \itemize{

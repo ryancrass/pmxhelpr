@@ -589,3 +589,74 @@ test_that("compute_vpcstat() matches the per-group summarise() reference", {
     }
   }
 })
+
+
+##### Interval bins (bin_breaks) #####
+
+test_that("vpc_interval_bins() cuts actual time into [a, b) intervals at their midpoints", {
+  d <- data.frame(SIM = 1, TIME = c(0, 0.99, 1, 3.9, 4, 8, 9, NA))
+  expect_warning(
+    out <- pmxhelpr:::vpc_interval_bins(d, c(0, 1, 4, 8), "SIM"),
+    "2 records per replicate fall outside `bin_breaks` \\(0-8\\) and are dropped",
+    class = "pmxhelpr_warning_data"
+  )
+  expect_equal(out$TIME, c(0, 0.99, 1, 3.9, 4, 8))
+  ## A record on a break joins the later bin; the last break is closed.
+  expect_equal(out$BIN_MID, c(0.5, 0.5, 2.5, 2.5, 6, 6))
+})
+
+test_that("the out-of-range warning counts records per replicate", {
+  d <- data.frame(SIM = rep(1:3, each = 3), TIME = rep(c(1, 2, 50), 3))
+  expect_warning(pmxhelpr:::vpc_interval_bins(d, c(0, 24), "SIM"),
+                 "^1 record per replicate falls outside .* and is dropped")
+})
+
+test_that("interval bins that isolate each nominal time reproduce nominal binning", {
+  sim <- testsim_raw
+  sim$TIME <- sim$NTIME
+  ntimes <- sort(unique(sim$NTIME[sim$EVID == 0]))
+  breaks <- c(ntimes[1] - 0.25, (head(ntimes, -1) + tail(ntimes, -1)) / 2,
+              ntimes[length(ntimes)] + 0.25)
+  nominal <- df_vpcstats(sim, loq = 1)
+  binned <- df_vpcstats(sim, loq = 1, bin_breaks = breaks)
+  midpoints <- (head(breaks, -1) + tail(breaks, -1)) / 2
+  expect_equal(binned$stats$BIN_MID, midpoints[match(nominal$stats$BIN_MID, ntimes)])
+  cols <- setdiff(names(nominal$stats), "BIN_MID")
+  expect_identical(binned$stats[cols], nominal$stats[cols])
+  expect_equal(binned$config$bin_breaks, breaks)
+  expect_true("bin_breaks" %in% names(nominal$config))
+  expect_null(nominal$config$bin_breaks)
+})
+
+test_that("df_vpcstats() bins by interval within each stratum", {
+  sim <- sim_pk(5, carry_out = "FOOD")
+  breaks <- c(0, 2, 8, 24, 72, 200)
+  out <- df_vpcstats(sim, loq = 1, strat_var = FOOD, bin_breaks = breaks)
+  expect_setequal(unique(out$stats$BIN_MID), (head(breaks, -1) + tail(breaks, -1)) / 2)
+  obs1 <- sim[sim$SIM == 1 & sim$EVID == 0, ]
+  expect_equal(sum(out$stats$obs_n), nrow(obs1))
+  expect_equal(nrow(out$stats), length(unique(paste(
+    findInterval(obs1$TIME, breaks, rightmost.closed = TRUE), obs1$FOOD))))
+})
+
+test_that("bin_breaks is validated and is a pipeline-only argument", {
+  for (bad in list(5, c(0, 5, 2), c(0, 0, 5), c(0, NA, 5), c(0, Inf), "0,24")) {
+    expect_error(df_vpcstats(testsim_raw, bin_breaks = bad), class = "pmxhelpr_error_bad_arg")
+  }
+  vs <- df_vpcstats(testsim_raw)
+  expect_error(plot_vpc_cont(vs, bin_breaks = c(0, 24, 168)), "bin_breaks")
+  expect_error(plot_vpc_cens(df_vpcstats(testsim_raw, loq = 1), bin_breaks = c(0, 24, 168)),
+               "bin_breaks")
+  expect_s3_class(suppressWarnings(plot_vpc_cont(testsim_raw, bin_breaks = c(0, 4, 24, 200))),
+                  "ggplot")
+  expect_s3_class(suppressWarnings(plot_vpc_cens(testsim_raw, loq = 1, bin_breaks = c(0, 4, 24, 200))),
+                  "ggplot")
+})
+
+test_that("stratified stats are ordered by stratum, then bin", {
+  sim <- sim_pk(5, carry_out = "FOOD")
+  for (bins in list(NULL, bins_equal(4))) {
+    s <- df_vpcstats(sim, strat_var = FOOD, bin_breaks = bins)$stats
+    expect_equal(order(s$FOOD, s$BIN_MID), seq_len(nrow(s)))
+  }
+})

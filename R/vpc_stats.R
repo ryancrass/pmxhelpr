@@ -43,13 +43,30 @@
 #'    Default is `c(0.05, 0.95)`.
 #' @param ci Numeric scalar in `(0, 1)` specifying the simulation interval
 #'    (e.g., `0.90` for a 90% CI). Default is `0.90`.
+#' @param bin_breaks Time-interval bins: a numeric vector of breaks, a
+#'    function that returns breaks, or `NULL` (default) to bin by nominal time
+#'    (`ntime_var`). With interval bins, the actual time (`time_var`) is cut
+#'    into intervals `[a, b)` (the last one closed), and each bin is plotted
+#'    at its interval midpoint (`BIN_MID`).
+#'    * A numeric vector applies to every stratum. Records outside it are
+#'      dropped with a warning.
+#'    * A function, such as [bins_kmeans()], [bins_quantile()], or
+#'      [bins_equal()], takes the observation times of one replicate and
+#'      returns breaks. With `strat_var`, it runs on each stratum's times, so
+#'      the bins can differ by stratum. Its outer breaks are widened to the
+#'      data's time range, so no record is dropped.
+#'
+#'    For data without nominal time, pass `ntime_var = time_var`.
 #' @inheritParams var_predcorr
 #'
 #' @family vpc
 #' @return A `vpc_stats` container (subclass of `pmx_stats`) with three
 #'    slots:
 #'    \describe{
-#'      \item{`stats`}{Wide summary statistics. Standard-VPC columns are
+#'      \item{`stats`}{Wide summary statistics, one row per bin (and
+#'        stratum). `BIN_MID` is the bin's x position: the nominal time, or
+#'        the interval midpoint with `bin_breaks`, in which case `BIN_LOW` and
+#'        `BIN_HI` follow it with the interval edges. Standard-VPC columns are
 #'        unprefixed (`obs_low/med/hi`, `sim_low_low/med/hi`, etc.);
 #'        prediction-corrected counterparts carry a `pc_` prefix
 #'        (`pc_obs_low`, `pc_sim_low_med`, etc.). `obs_n`, `obs_n_blq`,
@@ -66,7 +83,10 @@
 #'      \item{`config`}{Named list of the run configuration: `n_replicates`,
 #'        `ci`, `pi`, `mode` (as passed, before `"auto"` is resolved
 #'        for each VPC), `loq` (unique non-NA LOQ values, or `NULL`),
-#'        `strat_var`, and the source column names `rep_var`, `time_var`,
+#'        `strat_var`, `bin_breaks` (the breaks used: a numeric vector, a
+#'        list of them named by stratum when a function binned each stratum,
+#'        or `NULL` for nominal-time bins),
+#'        and the source column names `rep_var`, `time_var`,
 #'        `ntime_var`, `pred_var`, `sim_dv_var`, and `obs_dv_var`.
 #'        [plot_vpc_legend()] reads `ci`, `pi`, and `loq` from it via its
 #'        `stats` argument.}
@@ -97,6 +117,7 @@ df_vpcstats <- function(data,
                         mode = c("auto", "rank", "drop"),
                         pi = c(0.05, 0.95),
                         ci = 0.90,
+                        bin_breaks = NULL,
                         irep_name) {
 
   data_cols <- names(data)
@@ -122,8 +143,12 @@ df_vpcstats <- function(data,
     obs_dv_var_str = obs_dv_var_str,
     strat_var_str  = strat_var_str,
     rep_var_str    = rep_var_str,
-    loq = loq
+    loq = loq,
+    bin_breaks = bin_breaks
   )
+
+  ## Read before df_vpccompute(): its dplyr steps drop the attribute.
+  resolved_breaks <- attr(pre, "bin_breaks")
 
   out <- df_vpccompute(
     pre,
@@ -134,9 +159,19 @@ df_vpcstats <- function(data,
     lower_bound = lower_bound,
     mode = mode
   )
+
+  ## Interval bins carry their edges into stats, next to BIN_MID.
+  if (all(.vpc_bin_bounds %in% names(pre))) {
+    keys <- c(.vpc_bin_col, strat_var_str)
+    bounds <- dplyr::distinct(pre[c(keys, .vpc_bin_bounds)])
+    out$stats <- dplyr::left_join(out$stats, bounds, by = keys) |>
+      dplyr::relocate(dplyr::all_of(.vpc_bin_bounds), .after = dplyr::all_of(.vpc_bin_col))
+  }
+
   ## Source column names, for provenance; the stats use standardized names.
   out$config[c("time_var", "ntime_var", "pred_var", "sim_dv_var", "obs_dv_var")] <-
     list(time_var_str, ntime_var_str, pred_var_str, sim_dv_var_str, obs_dv_var_str)
+  out$config["bin_breaks"] <- list(resolved_breaks)
   out
 }
 
@@ -211,7 +246,8 @@ print.vpc_stats <- function(x, n_head = 3, ...) {
 vpc_column_groups <- function(x) {
   cols <- colnames(x$stats)
   list(
-    identifiers   = c(intersect(.vpc_bin_col, cols), intersect(x$config$strat_var, cols)),
+    identifiers   = c(intersect(c(.vpc_bin_col, .vpc_bin_bounds), cols),
+                      intersect(x$config$strat_var, cols)),
     counts        = intersect(.vpc_count_cols, cols),
     sim_blq       = intersect(.vpc_blq_cols, cols),
     std_observed  = intersect(.vpc_obs_quantile_cols, cols),

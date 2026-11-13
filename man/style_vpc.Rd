@@ -44,6 +44,7 @@ style_vpc(fill = c(sim_pi_ci = "#3388cc"), facet_scales = "free_y")
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},

@@ -19,7 +19,9 @@ plot_vpc_cens(
   shown = NULL,
   style = NULL,
   time_unit = "hours",
+  bin_style = c("line", "rect"),
   ci = 0.9,
+  bin_breaks = NULL,
   irep_name
 )
 }
@@ -91,12 +93,37 @@ natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \cod
 \code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
 \code{logx} takes precedence.}
 
+\item{bin_style}{How the simulated intervals are drawn: \code{"line"}
+(default) as shaded ribbons through the bin midpoints (\code{BIN_MID});
+\code{"rect"} as shaded rectangles spanning each bin (\code{BIN_LOW} to
+\code{BIN_HI}). The observed and simulated lines are drawn through the bin
+midpoints either way; with \code{"rect"}, each line also gets a point at
+every bin midpoint, in the line's colour. \code{"rect"} needs interval bins:
+compute the stats with \code{bin_breaks}.}
+
 \item{ci}{Numeric scalar in \verb{(0, 1)} for the simulated CI bound on the BLQ
 proportion across replicates (e.g., \code{0.90} for 90\% CI). Default is
 \code{0.90}. Honored only on the raw-data path; passing \code{ci} explicitly
 when \code{data} is a precomputed \code{vpc_stats} container raises an error.
 The container's stored \code{ci} (set when \code{df_vpcstats()} was called) is
 the source of truth on that path.}
+
+\item{bin_breaks}{Time-interval bins: a numeric vector of breaks, a
+function that returns breaks, or \code{NULL} (default) to bin by nominal time
+(\code{ntime_var}). With interval bins, the actual time (\code{time_var}) is cut
+into intervals \verb{[a, b)} (the last one closed), and each bin is plotted
+at its interval midpoint (\code{BIN_MID}).
+\itemize{
+\item A numeric vector applies to every stratum. Records outside it are
+dropped with a warning.
+\item A function, such as \code{\link[=bins_kmeans]{bins_kmeans()}}, \code{\link[=bins_quantile]{bins_quantile()}}, or
+\code{\link[=bins_equal]{bins_equal()}}, takes the observation times of one replicate and
+returns breaks. With \code{strat_var}, it runs on each stratum's times, so
+the bins can differ by stratum. Its outer breaks are widened to the
+data's time range, so no record is dropped.
+}
+
+For data without nominal time, pass \code{ntime_var = time_var}.}
 
 \item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
@@ -134,6 +161,7 @@ cens_plot <- plot_vpc_cens(data = simout, loq = 1, ci = 0.90)
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},

@@ -51,6 +51,7 @@ plot_vpc_shown(obs_point = FALSE, sim_pi_line = TRUE)
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},

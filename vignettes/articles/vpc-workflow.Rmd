@@ -387,7 +387,7 @@ is_vpc_stats(vpcstats_ntime_dose_food$stats)  # FALSE -- that's the inner data.f
 
 `pmxhelpr` contains a function to produce VPC and pcVPC plots for models fit to longitudinal, continuous repeated measures data: `plot_vpc_cont()`
 
-This function is designed around the concept of actual and nominal time variables, with the latter used to bin data together to calculate and display summary statistics across simulation replicates.
+This function is designed around the concept of actual and nominal time variables, with the latter used by default to bin data together to calculate and display summary statistics across simulation replicates (see [Binning by time interval](#binning-by-time-interval) to bin actual time instead).
 
 `plot_vpc_cont` has 1 required argument: `data`, the input simulated dataset for the VPC procedure. Standard VPCs require stratification by dose, and other extrinsic study conditions, for interpretability; therefore, we will also specify `strat_var=DoseFood` to also stratify our plots by this variable.
 
@@ -443,11 +443,61 @@ plot_vpc_cont(
   vpc_scales_labs
 ```
 
+## Binning by time interval
+
+When nominal times are unavailable, or sampling times are too scattered for each nominal time to hold enough observations, bin by time interval instead with `bin_breaks`. Actual time is cut into intervals `[a, b)` 
+(the last one closed), and each bin's statistics are plotted at its interval midpoint. The observed 
+points stay at their actual times. For data without a nominal time column, pass `ntime_var = TIME`.
+
+`bin_breaks` takes either a numeric vector of breaks or a binning function. A 
+numeric vector applies to every stratum, and records outside it are dropped with a warning.
+
+```{r plot-vpc-bin-breaks, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_vpc_cont(
+  data = simout,
+  pcvpc = TRUE,
+  bin_breaks = c(0, 1, 2, 4, 8, 16, 36, 60, 108, 170)
+) +
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
+```
+
+Binning functions are exported to derive breaks from the observed times.
+
+  + `bins_kmeans()` returns k-means bins
+  + `bins_quantile()` returns equal count bins
+  + `bins_equal()` returns equal width bins 
+  
+With `strat_var`, the function runs on each stratum's times, so the bins can differ by stratum. Outer breaks are widened so no records are dropped.
+
+```{r plot-vpc-bins-kmeans, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+vpc_bins_food <- df_vpcstats(
+  data = mutate(simout, FoodStatus = ifelse(FOOD == 1, "Fed", "Fasted")),
+  strat_var = FoodStatus,
+  bin_breaks = bins_kmeans(8)
+)
+
+plot_vpc_cont(vpc_bins_food, pcvpc = TRUE) +
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
+```
+
+With interval bins, `bin_style = "rect"` draws each bin's simulated intervals as shaded rectangles spanning the interval, instead of ribbons joining the bin midpoints. The observed and simulated lines are still drawn through the bin midpoints, with a point at each midpoint to show where the line lands within its rectangle.
+
+```{r plot-vpc-bins-rect, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
+plot_vpc_cont(vpc_bins_food, pcvpc = TRUE, bin_style = "rect") +
+  vpc_scales_labs +
+  labs(y = "Pred-corrected Conc. (ng/mL)")
+```
+
+The breaks used are recorded in `config$bin_breaks`, and the `stats` carry each 
+bin's edges as `BIN_LOW` and `BIN_HI` alongside its midpoint `BIN_MID`.
+
 ## Dropping small sample bins
 
 There may be nominal time bins that contain only a small number of observations that skew the simulated intervals. `plot_vpc_cont()` includes the argument `min_bin_count`, which filters out exact bins with fewer quantifiable observations than the minimum set by this argument. The default (`min_bin_count = 0`) retains all bins; `min_bin_count = 1` drops bins in which every observation is BLQ. Importantly, the observed data points in these small bins are *still plotted*; however, they do not influence the calculation of summary statistics or summary plot elements (shaded intervals, lines). This provides the greatest fidelity to the data visualized without introducing visual artifacts due to small sample timepoints.
 
-When setting `min_bin_count = 10`, summary statistics are dropped for the bins with fewer than 10 quantifiable observations (0, 120, 144, and 168 h here; only 120 h, with 4, changes visibly, since the others have none); the observations themselves are still plotted.
+When setting `min_bin_count = 10`, summary statistics are dropped for the bins with fewer than 10 quantifiable observations (0, 120, 144, and 168 h here; only 120 h, with 6, changes visibly, since the others have none); the observations themselves are still plotted.
 
 ```{r plot-vpc-min-bin-count, fig.height=4, fig.width=6, message=FALSE, warning=FALSE}
 plot_vpc_cont(

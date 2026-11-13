@@ -76,20 +76,40 @@ vpc_role_label <- function(role, ci, pi, type, loq_lab = NULL) {
 #'
 #' One `series_layer()` per column set of `role` for `type`; aesthetics are
 #' filled by [ggstylekit::style_plot()] from the role's style entries.
+#' With `bin_style = "rect"`, each ribbon (a simulated interval) becomes a
+#' `geom_rect()` spanning its bin (`BIN_LOW`-`BIN_HI`) under the same role;
+#' lines stay lines through the bin midpoints, each followed by a point at
+#' every bin midpoint (`mid_points`) tagged with the line's role, so it takes
+#' the line's colour.
 #'
 #' @param role A `.vpc_roles` name with `ribbon` or `line` geom.
 #' @param type `"cont"` or `"cens"`.
 #' @param col Column-name function (adds the `pc_` prefix when needed).
+#' @param bin_style `"line"` (ribbons through bin midpoints) or `"rect"`.
+#' @param mid_points Whether a line gets points at the bin midpoints; on by
+#'    default with `bin_style = "rect"`.
 #' @return A list of layers (empty when the role is not drawn for `type`).
 #' @noRd
-vpc_role_layers <- function(role, type, col = identity) {
+vpc_role_layers <- function(role, type, col = identity, bin_style = "line",
+                            mid_points = bin_style == "rect") {
   spec <- .vpc_roles[[role]]
-  lapply(spec[[type]], function(cols) {
-    layer <- switch(spec$geom,
+  geom <- if (spec$geom == "ribbon" && bin_style == "rect") "rect" else spec$geom
+  layers <- lapply(spec[[type]], function(cols) {
+    layer <- switch(geom,
       ribbon = ggplot2::geom_ribbon(ggplot2::aes(ymin = .data[[col(cols[1])]],
                                                  ymax = .data[[col(cols[2])]])),
+      rect   = ggplot2::geom_rect(ggplot2::aes(xmin = .data[[.vpc_bin_bounds[1]]],
+                                               xmax = .data[[.vpc_bin_bounds[2]]],
+                                               ymin = .data[[col(cols[1])]],
+                                               ymax = .data[[col(cols[2])]])),
       line   = ggplot2::geom_line(ggplot2::aes(y = .data[[col(cols)]]))
     )
-    ggstylekit::series_layer(layer, role)
+    out <- list(ggstylekit::series_layer(layer, role))
+    if (geom == "line" && isTRUE(mid_points)) {
+      out[[2]] <- ggstylekit::series_layer(
+        ggplot2::geom_point(ggplot2::aes(y = .data[[col(cols)]]), na.rm = TRUE), role)
+    }
+    out
   })
+  unlist(layers, recursive = FALSE)
 }

@@ -6,6 +6,7 @@
 ## column or group is added.
 ##
 ##   .vpc_bin_col             standardized internal name for the bin column
+##   .vpc_bin_bounds          interval-bin edges (only with bin_breaks)
 ##   .vpc_count_cols          single, flavor-independent (counts of rows)
 ##   .vpc_blq_cols            std-only (LOQ has no meaning on the pc scale)
 ##   .vpc_obs_quantile_cols   mirrored under pc_*
@@ -14,6 +15,9 @@
 ##   .vpc_meta_cols           single, run-config (ci, pi_low, pi_hi)
 
 .vpc_bin_col <- "BIN_MID"
+
+
+.vpc_bin_bounds <- c("BIN_LOW", "BIN_HI")
 
 
 .vpc_count_cols <- c("obs_n", "obs_n_blq", "obs_prop_blq")
@@ -42,9 +46,15 @@
 #' Internal function. Validates columns, resolves `loq` (inheritance from an
 #' `LLOQ` column when not explicitly supplied), filters dose rows
 #' (`EVID == 0`), renames simulation-output columns to standard internal
-#' names, and applies BLQ encoding to `OBSDV`. Prediction-correction and the
+#' names, assigns bins (`BIN_MID`), and applies BLQ encoding to `OBSDV`.
+#' Prediction-correction and the
 #' (mode-aware) BLQ-encoding of `SIMDV` are handled per-flavor in
 #' [df_vpccompute()].
+#'
+#' Bins: without `bin_breaks`, each nominal time (`NTIME`) is a bin and
+#' `BIN_MID` is that time. With `bin_breaks`, actual time (`TIME`) is cut
+#' into intervals (`[a, b)`, the last closed): `BIN_LOW` and `BIN_HI` are
+#' the interval edges and `BIN_MID` its midpoint (see `vpc_interval_bins()`).
 #'
 #' BLQ encoding (in this stage):
 #' \itemize{
@@ -64,18 +74,22 @@
 #' @param loq Numeric scalar, or `NULL`. When `NULL` and column `LLOQ` is
 #'    present in `data`, per-row `LLOQ` values are used as the censoring
 #'    threshold. A scalar `loq` broadcasts to a constant threshold across rows.
+#' @param bin_breaks Numeric vector of interval breaks on actual time, a
+#'    function returning them, or `NULL` (default) to bin by nominal time.
 #' @param call The call reported in errors.
 #'
 #' @return A preprocessed data.frame with standardized columns and (when a LOQ
 #'    source exists) a row-aligned `LOQ` column. The unique non-NA LOQ values
-#'    are attached as `attr(., "loq")`.
+#'    are attached as `attr(., "loq")`, and the resolved interval breaks (or
+#'    `NULL`) as `attr(., "bin_breaks")`.
 #' @keywords internal
 
 df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
                              pred_var_str,
                              sim_dv_var_str, obs_dv_var_str,
                              strat_var_str = NULL, rep_var_str = "SIM",
-                             loq = NULL, call = rlang::caller_env()) {
+                             loq = NULL, bin_breaks = NULL,
+                             call = rlang::caller_env()) {
 
   check_df(data, "data", call = call)
   check_varsindf(data,
@@ -91,13 +105,20 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   }
 
   if (!is.null(loq)) check_numeric_strict(loq, "loq", call = call)
+  if (!is.null(bin_breaks)) check_bin_breaks(bin_breaks, call = call)
   data <- resolve_loq(data, loq)
 
   data <- df_prep_timevars(data, time_var_str, ntime_var_str)
   data <- dplyr::rename(data, dplyr::any_of(c(PRED = pred_var_str,
                                               SIMDV = sim_dv_var_str, OBSDV = obs_dv_var_str)))
-  data <- dplyr::rename(data, !!.vpc_bin_col := "NTIME")
   data <- dplyr::filter(data, .data$EVID == 0)
+  resolved_breaks <- NULL
+  if (is.null(bin_breaks)) {
+    data <- dplyr::rename(data, !!.vpc_bin_col := "NTIME")
+  } else {
+    data <- vpc_interval_bins(data, bin_breaks, rep_var_str, strat_var_str, call = call)
+    resolved_breaks <- attr(data, "bin_breaks")
+  }
   check_single_cmt(data)
 
   loq_col <- if ("LOQ" %in% colnames(data)) data$LOQ else NULL
@@ -108,7 +129,96 @@ df_vpcpreprocess <- function(data, time_var_str, ntime_var_str,
   } else {
     NULL
   }
+  attr(data, "bin_breaks") <- resolved_breaks
   data
+}
+
+
+## Interval bins on actual time. Each record gets the `[a, b)` interval of
+## its TIME (the last closed): BIN_LOW / BIN_HI are the edges and BIN_MID the
+## midpoint.
+## * Numeric `bin_breaks` apply to every stratum. Records outside them, or
+##   with no TIME, are dropped with a warning that counts them per replicate.
+## * A function is called on the first replicate's finite times, once per
+##   stratum (once overall when unstratified). Its breaks are sorted,
+##   de-duplicated, and their outer edges stretched to the stratum's time
+##   range, so only records with no TIME are dropped.
+## The resolved breaks ride along as attr "bin_breaks": one numeric vector,
+## or a list named by stratum when a function ran per stratum.
+vpc_interval_bins <- function(data, bin_breaks, rep_var_str, strat_var_str = NULL,
+                              call = rlang::caller_env()) {
+  per_stratum <- is.function(bin_breaks) && !is.null(strat_var_str)
+  group <- if (per_stratum) {
+    factor(data[[strat_var_str]], exclude = NULL)
+  } else {
+    factor(rep("all", nrow(data)))
+  }
+  rows_by_group <- split(seq_len(nrow(data)), group)
+  first_rep <- data[[rep_var_str]] == data[[rep_var_str]][1]
+  timed <- is.finite(data$TIME)
+
+  breaks <- lapply(names(rows_by_group), function(level) {
+    if (!is.function(bin_breaks)) return(bin_breaks)
+    rows <- rows_by_group[[level]]
+    times <- data$TIME[rows][timed[rows]]
+    resolved <- sort(unique(bin_breaks(data$TIME[rows][timed[rows] & first_rep[rows]])))
+    check_resolved_breaks(resolved, if (per_stratum) paste(strat_var_str, "=", level),
+                          call = call)
+    resolved[1] <- min(resolved[1], times)
+    resolved[length(resolved)] <- max(resolved[length(resolved)], times)
+    resolved
+  })
+  names(breaks) <- names(rows_by_group)
+
+  low <- hi <- rep(NA_real_, nrow(data))
+  for (level in names(rows_by_group)) {
+    rows <- rows_by_group[[level]]
+    b <- breaks[[level]]
+    i <- findInterval(data$TIME[rows], b, rightmost.closed = TRUE)
+    i[i == 0 | i == length(b)] <- NA_integer_
+    low[rows] <- b[i]
+    hi[rows]  <- b[i + 1]
+  }
+
+  outside <- is.na(low)
+  if (any(outside)) {
+    n_out <- sum(outside & first_rep)
+    range_txt <- if (is.function(bin_breaks)) {
+      "no time"
+    } else {
+      paste0(min(bin_breaks), "-", max(bin_breaks))
+    }
+    pmx_warn("{n_out} record{?s} per replicate {?falls/fall} outside {.arg bin_breaks} ({range_txt}) and {cli::qty(n_out)}{?is/are} dropped.",
+             "data")
+  }
+  data[[.vpc_bin_bounds[1]]] <- low
+  data[[.vpc_bin_bounds[2]]] <- hi
+  data[[.vpc_bin_col]] <- (low + hi) / 2
+  data <- data[!outside, , drop = FALSE]
+
+  attr(data, "bin_breaks") <- if (per_stratum) breaks else breaks[[1]]
+  data
+}
+
+
+check_bin_breaks <- function(bin_breaks, call = rlang::caller_env()) {
+  if (is.function(bin_breaks)) return(invisible())
+  if (!is.numeric(bin_breaks) || length(bin_breaks) < 2 ||
+      any(!is.finite(bin_breaks)) || is.unsorted(bin_breaks, strictly = TRUE)) {
+    pmx_abort("{.arg bin_breaks} must be a function or a numeric vector of at least two finite, strictly increasing values.",
+              "bad_arg", call = call)
+  }
+}
+
+
+## The breaks a `bin_breaks` function returned, sorted and de-duplicated:
+## at least two finite numbers. `stratum` names the stratum in the error.
+check_resolved_breaks <- function(breaks, stratum = NULL, call = rlang::caller_env()) {
+  if (!is.numeric(breaks) || length(breaks) < 2 || any(!is.finite(breaks))) {
+    where <- if (!is.null(stratum)) paste0(" for ", stratum) else ""
+    pmx_abort("The {.arg bin_breaks} function must return at least two distinct finite breaks{where}.",
+              "bad_arg", call = call)
+  }
 }
 
 
@@ -380,7 +490,10 @@ df_vpccompute <- function(data,
       dplyr::any_of(.vpc_blq_cols),
       dplyr::all_of(.vpc_quantile_cols),
       dplyr::all_of(paste0("pc_", .vpc_quantile_cols))
-    )
+    ) |>
+    ## One block per stratum, in time order (compute_vpcstat() returns bin,
+    ## then stratum, order).
+    dplyr::arrange(dplyr::across(dplyr::all_of(c(strat_var, bin_var))))
 
   ## Tag rows with the configuration that drove the column scheme.
   stats[["ci"]]     <- ci

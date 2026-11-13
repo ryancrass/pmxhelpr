@@ -17,9 +17,30 @@
   default, `"days"`, `"weeks"`, or `"months"`).A style that sets `xbreaks` or 
   `logx` still takes precedence. The new `breaks_time()` gives the same breaks 
   for any continuous time axis.
+* `df_vpcstats()`, `plot_vpc_cont()`, and `plot_vpc_cens()` can bin by time
+  interval with the new `bin_breaks` argument: actual time is cut into
+  intervals `[a, b)` and each bin is plotted at its interval midpoint. The
+  default (`NULL`) keeps binning by nominal time.
+  * `bin_breaks` takes a numeric vector of breaks, shared by all strata
+    (records outside them are dropped with a warning), or a binning function
+    that runs on each stratum's observation times and keeps every record.
+  * The new `bins_kmeans()`, `bins_quantile()`, and `bins_equal()` return
+    binning functions (k-means clusters, equal counts, equal widths).
+  * Interval-binned stats carry the bin edges as `BIN_LOW` and `BIN_HI`, and
+    the breaks used are recorded in `config$bin_breaks`.
+* VPC plots of interval-binned stats can draw each bin's simulated intervals
+  as shaded rectangles spanning the interval, with the new
+  `bin_style = "rect"` argument of `plot_vpc_cont()`, `plot_vpc_cens()`, and
+  `plot_build_vpc()`. The observed and simulated lines stay lines through
+  the bin midpoints, with a point at each midpoint in the line's colour. The
+  default (`"line"`) draws the intervals as ribbons through the bin
+  midpoints, as before.
 
 ## Minor improvements
 
+* Stratified `df_vpcstats()` stats are ordered by stratum, then bin (one
+  block per stratum in time order); they were ordered by bin, then stratum.
+  The values are unchanged.
 * A palette `function(n)` passed to a `style_*()` preset no longer replaces
   the preset's role colours: e.g. `style_vpc(fill = pal)` keeps the VPC
   interval fills and `style_dvconc(colors = pal)` keeps the trend line colours,

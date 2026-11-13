@@ -95,6 +95,7 @@ plot_vpc_legend(stats = out)
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},

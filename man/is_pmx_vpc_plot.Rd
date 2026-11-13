@@ -28,6 +28,7 @@ is_pmx_vpc_plot(simout)    # FALSE
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},
 \code{\link[=plot_build_vpc]{plot_build_vpc()}},

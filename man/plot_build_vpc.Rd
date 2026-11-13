@@ -13,7 +13,8 @@ plot_build_vpc(
   style = NULL,
   pcvpc = FALSE,
   loq = NULL,
-  time_unit = "hours"
+  time_unit = "hours",
+  bin_style = c("line", "rect")
 )
 }
 \arguments{
@@ -85,6 +86,14 @@ scale).}
 natural steps of that unit (see \code{\link[=breaks_time]{breaks_time()}}): \code{"hours"} (default),
 \code{"days"}, \code{"weeks"}, or \code{"months"}. A style that sets \code{xbreaks} or
 \code{logx} takes precedence.}
+
+\item{bin_style}{How the simulated intervals are drawn: \code{"line"}
+(default) as shaded ribbons through the bin midpoints (\code{BIN_MID});
+\code{"rect"} as shaded rectangles spanning each bin (\code{BIN_LOW} to
+\code{BIN_HI}). The observed and simulated lines are drawn through the bin
+midpoints either way; with \code{"rect"}, each line also gets a point at
+every bin midpoint, in the line's colour. \code{"rect"} needs interval bins:
+compute the stats with \code{bin_breaks}.}
 }
 \value{
 A \code{ggplot2} object.
@@ -121,6 +130,7 @@ p <- plot_build_vpc(out, pcvpc = FALSE)
 \link[=autoplot.pmx_stats]{autoplot()}, which draws a container with its builder.
 
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=df_vpcstats]{df_vpcstats()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},

@@ -18,6 +18,7 @@ df_vpcstats(
   mode = c("auto", "rank", "drop"),
   pi = c(0.05, 0.95),
   ci = 0.9,
+  bin_breaks = NULL,
   irep_name
 )
 }
@@ -65,13 +66,33 @@ Default is \code{c(0.05, 0.95)}.}
 \item{ci}{Numeric scalar in \verb{(0, 1)} specifying the simulation interval
 (e.g., \code{0.90} for a 90\% CI). Default is \code{0.90}.}
 
+\item{bin_breaks}{Time-interval bins: a numeric vector of breaks, a
+function that returns breaks, or \code{NULL} (default) to bin by nominal time
+(\code{ntime_var}). With interval bins, the actual time (\code{time_var}) is cut
+into intervals \verb{[a, b)} (the last one closed), and each bin is plotted
+at its interval midpoint (\code{BIN_MID}).
+\itemize{
+\item A numeric vector applies to every stratum. Records outside it are
+dropped with a warning.
+\item A function, such as \code{\link[=bins_kmeans]{bins_kmeans()}}, \code{\link[=bins_quantile]{bins_quantile()}}, or
+\code{\link[=bins_equal]{bins_equal()}}, takes the observation times of one replicate and
+returns breaks. With \code{strat_var}, it runs on each stratum's times, so
+the bins can differ by stratum. Its outer breaks are widened to the
+data's time range, so no record is dropped.
+}
+
+For data without nominal time, pass \code{ntime_var = time_var}.}
+
 \item{irep_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{rep_var}.}
 }
 \value{
 A \code{vpc_stats} container (subclass of \code{pmx_stats}) with three
 slots:
 \describe{
-\item{\code{stats}}{Wide summary statistics. Standard-VPC columns are
+\item{\code{stats}}{Wide summary statistics, one row per bin (and
+stratum). \code{BIN_MID} is the bin's x position: the nominal time, or
+the interval midpoint with \code{bin_breaks}, in which case \code{BIN_LOW} and
+\code{BIN_HI} follow it with the interval edges. Standard-VPC columns are
 unprefixed (\code{obs_low/med/hi}, \code{sim_low_low/med/hi}, etc.);
 prediction-corrected counterparts carry a \code{pc_} prefix
 (\code{pc_obs_low}, \code{pc_sim_low_med}, etc.). \code{obs_n}, \code{obs_n_blq},
@@ -88,7 +109,10 @@ counterpart.}
 \item{\code{config}}{Named list of the run configuration: \code{n_replicates},
 \code{ci}, \code{pi}, \code{mode} (as passed, before \code{"auto"} is resolved
 for each VPC), \code{loq} (unique non-NA LOQ values, or \code{NULL}),
-\code{strat_var}, and the source column names \code{rep_var}, \code{time_var},
+\code{strat_var}, \code{bin_breaks} (the breaks used: a numeric vector, a
+list of them named by stratum when a function binned each stratum,
+or \code{NULL} for nominal-time bins),
+and the source column names \code{rep_var}, \code{time_var},
 \code{ntime_var}, \code{pred_var}, \code{sim_dv_var}, and \code{obs_dv_var}.
 \code{\link[=plot_vpc_legend]{plot_vpc_legend()}} reads \code{ci}, \code{pi}, and \code{loq} from it via its
 \code{stats} argument.}
@@ -120,6 +144,7 @@ head(result$obs)
 }
 \seealso{
 Other vpc:
+\code{\link[=bins_kmeans]{bins_kmeans()}},
 \code{\link[=is_pmx_vpc_plot]{is_pmx_vpc_plot()}},
 \code{\link[=is_vpc_stats]{is_vpc_stats()}},
 \code{\link[=plot_build_vpc]{plot_build_vpc()}},

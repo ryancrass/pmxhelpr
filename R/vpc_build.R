@@ -76,6 +76,13 @@
 #'    values when [df_vpcstats()] populated the container. Forced to `NULL`
 #'    when `pcvpc = TRUE` (LOQ has no meaning on the prediction-corrected
 #'    scale).
+#' @param bin_style How the simulated intervals are drawn: `"line"`
+#'    (default) as shaded ribbons through the bin midpoints (`BIN_MID`);
+#'    `"rect"` as shaded rectangles spanning each bin (`BIN_LOW` to
+#'    `BIN_HI`). The observed and simulated lines are drawn through the bin
+#'    midpoints either way; with `"rect"`, each line also gets a point at
+#'    every bin midpoint, in the line's colour. `"rect"` needs interval bins:
+#'    compute the stats with `bin_breaks`.
 #'
 #' @inheritParams plot_dvtime
 #' @family vpc
@@ -99,14 +106,23 @@ plot_build_vpc <- function(stats,
                            style = NULL,
                            pcvpc = FALSE,
                            loq = NULL,
-                           time_unit = "hours") {
+                           time_unit = "hours",
+                           bin_style = c("line", "rect")) {
 
   type <- match.arg(type)
+  bin_style <- match.arg(bin_style)
   check_boolean(show_rep, "show_rep")
   check_boolean(pcvpc, "pcvpc")
   time_unit <- normalize_time_unit(time_unit)
 
   validate_vpc_stats(stats)
+
+  if (bin_style == "rect" && !all(.vpc_bin_bounds %in% names(stats$stats))) {
+    pmx_abort(c(
+      "{.code bin_style = \"rect\"} needs interval bins.",
+      "i" = "Compute the stats with {.arg bin_breaks} (e.g. {.code bin_breaks = bins_kmeans(8)})."
+    ), "bad_arg")
+  }
 
   if (type == "cens") {
     if (is.null(stats$config$loq)) {
@@ -140,8 +156,8 @@ plot_build_vpc <- function(stats,
   plot <- switch(type,
     cont = plot_build_vpc_cont(stats, min_bin_count, shown, vpcstyle,
                                pcvpc, loq, loq_inherited,
-                               strat_var_str),
-    cens = plot_build_vpc_cens(stats, min_bin_count, shown, vpcstyle)
+                               strat_var_str, bin_style),
+    cens = plot_build_vpc_cens(stats, min_bin_count, shown, vpcstyle, bin_style)
   )
 
   ## Stratification facets are built here rather than by ggstylekit (the
@@ -189,7 +205,7 @@ plot_build_vpc <- function(stats,
 ## @noRd
 plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
                                 pcvpc, loq, loq_inherited,
-                                strat_var_str) {
+                                strat_var_str, bin_style = "line") {
 
   ## min_bin_count predicate for cont: only quantifiable obs count
   ## (BLQ-encoded records excluded).
@@ -229,7 +245,7 @@ plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
                             data = obs, inherit.aes = FALSE),
         "obs_point")
     } else {
-      plot <- plot + vpc_role_layers(role, "cont", col)
+      plot <- plot + vpc_role_layers(role, "cont", col, bin_style)
     }
   }
   plot
@@ -242,7 +258,8 @@ plot_build_vpc_cont <- function(stats, min_bin_count, shown, vpcstyle,
 ## caption, panel theme, and class are added by the dispatcher.
 ##
 ## @noRd
-plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle) {
+plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle,
+                                bin_style = "line") {
 
   ## min_bin_count predicate for cens: applied to total obs. BLQ-heavy bins
   ## are the most informative on a cens VPC and are retained.
@@ -258,7 +275,12 @@ plot_build_vpc_cens <- function(stats, min_bin_count, shown, vpcstyle) {
       plot <- plot + ggstylekit::series_layer(
         ggplot2::geom_point(ggplot2::aes(y = .data[["obs_prop_blq"]])), "obs_point")
     } else if (!is.null(.vpc_roles[[role]]$cens)) {
-      plot <- plot + vpc_role_layers(role, "cens")
+      ## In rect style, lines get bin-midpoint points; the obs line's are
+      ## already drawn by obs_point when it is shown.
+      mid_points <- bin_style == "rect" &&
+        !(role == "obs_median_line" && isTRUE(shown[["obs_point"]]))
+      plot <- plot + vpc_role_layers(role, "cens", bin_style = bin_style,
+                                     mid_points = mid_points)
     }
   }
 

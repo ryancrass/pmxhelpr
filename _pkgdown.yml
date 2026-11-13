@@ -82,6 +82,11 @@ reference:
     contents:
       - df_vpcstats
 
+  - title: VPC Binning
+    desc: Binning functions for the `bin_breaks` argument of interval-binned VPCs.
+    contents:
+      - bins_kmeans
+
   - title: Dose-Proportionality Statistics
     desc: Power law (log-log) regression helpers.
     contents:

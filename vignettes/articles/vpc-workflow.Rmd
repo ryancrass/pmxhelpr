@@ -372,6 +372,13 @@ Prediction-correction is applied internally as part of every `df_vpcstats()` cal
 
 The prediction-correction pipeline censors both observed and simulated values at the `loq` prior to prediction-correction (when `loq` is known) and then calculates quantile summary statistics on the continuous, quantifiable range. If `loq` is unknown, missing observations (`MDV == 1`) are excluded from quantile summary statistics for both the observed and simulated data.
 
+Prediction-correction assumes the observed values, simulated values, and `PRED` are on their natural scale. For a model fit to a log-transformed dependent variable, back-transform all three before computing the statistics, give `loq` in the same back-transformed units, and use a log axis to view the result on the log scale.
+
+```{r df-vpcstats-pc-logdv, eval=FALSE}
+simout_natural <- mutate(simout_logdv, across(c(OBSDV, SIMDV, PRED), exp))
+vpcstats <- df_vpcstats(data = simout_natural)
+```
+
 ```{r df-vpcstats-pc-part, warning=FALSE}
 vpcstats_ntime_part <- df_vpcstats(
   data = simout,

@@ -39,6 +39,11 @@ var_dosenorm <- function(dv_var,
 #'    before invoking `var_predcorr()` so that `predbin` is the median across
 #'    the bin's observations, not the entire dataset.
 #'
+#'    The correction is multiplicative and assumes `dv_var` and `pred_var` are
+#'    on their natural scale. For a log-transformed dependent variable,
+#'    back-transform both with `exp()` first; applied to log-scale values the
+#'    result is not a valid prediction correction.
+#'
 #' @family vectorized helpers
 #' @return A numeric vector of prediction-corrected values of `dv_var`
 #' @export var_predcorr

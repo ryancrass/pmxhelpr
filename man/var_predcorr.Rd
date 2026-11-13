@@ -25,6 +25,11 @@ vector passed in. Callers must group their data by a binning variable
 (e.g. nominal time, optionally stratified by compartment or covariates)
 before invoking \code{var_predcorr()} so that \code{predbin} is the median across
 the bin's observations, not the entire dataset.
+
+The correction is multiplicative and assumes \code{dv_var} and \code{pred_var} are
+on their natural scale. For a log-transformed dependent variable,
+back-transform both with \code{exp()} first; applied to log-scale values the
+result is not a valid prediction correction.
 }
 \examples{
 pkmodel <- model_mread_load(model = "pkmodel")

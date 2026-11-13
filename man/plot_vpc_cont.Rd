@@ -55,7 +55,10 @@ and \code{facet_ncol}.}
 
 \item{pcvpc}{logical for prediction correction. Default is \code{FALSE}. Not
 available when \code{PRED} differs by replicate (simulations with parameter
-uncertainty, see the \code{params} argument of \code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}}).}
+uncertainty, see the \code{params} argument of \code{\link[=df_mrgsim_replicate]{df_mrgsim_replicate()}}).
+Assumes the observed values, simulated values, and \code{PRED} are on their
+natural scale; back-transform a log-transformed dependent variable
+first (see \code{\link[=var_predcorr]{var_predcorr()}}).}
 
 \item{loq}{Numeric LLOQ, or \code{NULL} (default) to use a per-row \code{LLOQ}
 column when \code{data} has one. Observations with \code{MDV == 1}, missing, or

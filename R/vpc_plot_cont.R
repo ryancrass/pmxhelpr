@@ -14,6 +14,9 @@
 #' @param pcvpc logical for prediction correction. Default is `FALSE`. Not
 #'    available when `PRED` differs by replicate (simulations with parameter
 #'    uncertainty, see the `params` argument of [df_mrgsim_replicate()]).
+#'    Assumes the observed values, simulated values, and `PRED` are on their
+#'    natural scale; back-transform a log-transformed dependent variable
+#'    first (see [var_predcorr()]).
 #' @param loq Numeric LLOQ, or `NULL` (default) to use a per-row `LLOQ`
 #'    column when `data` has one. Observations with `MDV == 1`, missing, or
 #'    below the LOQ are treated as BLQ; they are not dropped, even with no LOQ

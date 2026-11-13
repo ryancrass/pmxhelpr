@@ -2,10 +2,6 @@
 
 ## Minor improvements
 
-* `restyle_plot()` on a censored VPC now recolours the observed points along
-  with the observed line (`colors = c(obs_median_line = )`), matching how
-  `plot_vpc_cens()` draws them. Setting `obs_point` in the same call still
-  gives the points their own colour.
 * A palette `function(n)` passed to a `style_*()` preset no longer replaces
   the preset's role colours: e.g. `style_vpc(fill = pal)` keeps the VPC
   interval fills and `style_dvconc(colors = pal)` keeps the trend line colours,
@@ -17,6 +13,15 @@
   `colors = c(FOOD = "red")` colours one covariate, and `colors = c(point =
   "red")` sets the role colour without switching covariate colouring off (it
   previously did, with a warning).
+
+# pmxhelpr 0.8.1
+
+## Minor improvements
+
+* `restyle_plot()` on a censored VPC now recolours the observed points along
+  with the observed line (`colors = c(obs_median_line = )`), matching how
+  `plot_vpc_cens()` draws them. Setting `obs_point` in the same call still
+  gives the points their own colour.
 * VPC statistics (`df_vpcstats()`, `plot_vpc_cont()`, `plot_vpc_cens()`) are
   computed about 40 times faster, with the same results. A 500-replicate
   stratified VPC of `data_sad` now takes about 2 seconds end to end instead of

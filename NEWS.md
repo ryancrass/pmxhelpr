@@ -66,7 +66,7 @@
 
 ## Bug fixes
 
-* Consistency updates and drift tests for the internal packagedatasets 
+* Consistency updates and drift tests for the internal package datasets 
  (`data_sad`, `data_sad_nca`, `data_sad_pkfit`) and model files (`pkmodel` and
  `pdmodel`). `?model_mread_load` now describes the bundled models.
 

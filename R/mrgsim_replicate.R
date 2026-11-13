@@ -33,7 +33,9 @@
 #'    `NULL` (default) to run every replicate on `model`'s parameters. Row
 #'    `i` sets the parameters of replicate `i` (e.g. one row per bootstrap
 #'    run or posterior draw, for a VPC that includes parameter uncertainty),
-#'    so `params` needs exactly `replicates` rows. Columns must be numeric,
+#'    so `params` needs exactly `replicates` rows. Only model parameters
+#'    vary: the `OMEGA` and `SIGMA` matrices stay at `model`'s values.
+#'    Columns must be numeric,
 #'    named for parameters of `model` (see [mrgsolve::param()]), and not also
 #'    columns of `data`, which mrgsolve would use instead. Each replicate's
 #'    `PRED` is simulated with that replicate's parameters, so the output

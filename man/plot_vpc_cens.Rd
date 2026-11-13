@@ -2,7 +2,7 @@
 % Please edit documentation in R/vpc_plot_cens.R
 \name{plot_vpc_cens}
 \alias{plot_vpc_cens}
-\title{Plot a censoring (BLQ-proportion) VPC with exact time bins}
+\title{Plot a censoring (BLQ-proportion) VPC}
 \usage{
 plot_vpc_cens(
   data,
@@ -63,7 +63,7 @@ per-row \code{LLOQ} values are used as the censoring threshold; a scalar
 \item{rep_var}{Name of replicate variable in \code{data}. Accepts bare names
 or strings. Default is \code{SIM}.}
 
-\item{min_bin_count}{Minimum number of observations per exact bin
+\item{min_bin_count}{Minimum number of observations per bin
 required for inclusion in binned plot layers. Applied to total obs
 (\code{obs_n} in the summary statistics frame); BLQ-encoded records \emph{do}
 count toward this threshold, in contrast to \code{\link[=plot_vpc_cont]{plot_vpc_cont()}} which

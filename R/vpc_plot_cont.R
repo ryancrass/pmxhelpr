@@ -1,7 +1,7 @@
-#' Plot a visual predictive check (VPC) for continuous data with exact time bins
+#' Plot a visual predictive check (VPC) for continuous data
 #'
-#' @description  `plot_vpc_cont()` generates a VPC plot using exact time bins
-#' and returns a `ggplot2` object. Thin wrapper that delegates to
+#' @description  `plot_vpc_cont()` generates a VPC plot, binned by nominal
+#' time or by time interval (`bin_breaks`), and returns a `ggplot2` object. Thin wrapper that delegates to
 #' [df_vpcstats()] for computation and an internal builder for plot
 #' construction.
 #'
@@ -30,7 +30,7 @@
 #'    scale; hide it with `shown = plot_vpc_shown(loq_line = FALSE)`. The
 #'    observed points show `MDV == 0` rows only.
 #' @param min_bin_count Minimum number of quantifiable observations
-#'    (`obs_n - obs_n_blq` in the summary statistics frame) per exact bin
+#'    (`obs_n - obs_n_blq` in the summary statistics frame) per bin
 #'    required for inclusion in binned plot layers. BLQ-encoded records
 #'    (`obs_n_blq`) do not count toward this threshold. This argument drops
 #'    small bins from summary statistic plotting but retains the underlying

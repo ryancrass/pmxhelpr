@@ -1,4 +1,4 @@
-#' Plot a censoring (BLQ-proportion) VPC with exact time bins
+#' Plot a censoring (BLQ-proportion) VPC
 #'
 #' @description `plot_vpc_cens()` generates a VPC plot of the proportion of
 #'    below-limit-of-quantification (BLQ) observations over time and returns
@@ -28,7 +28,7 @@
 #'    a cens VPC needs. When `NULL` and column `LLOQ` is present in `data`,
 #'    per-row `LLOQ` values are used as the censoring threshold; a scalar
 #'    `loq` broadcasts to a constant threshold across rows.
-#' @param min_bin_count Minimum number of observations per exact bin
+#' @param min_bin_count Minimum number of observations per bin
 #'    required for inclusion in binned plot layers. Applied to total obs
 #'    (`obs_n` in the summary statistics frame); BLQ-encoded records *do*
 #'    count toward this threshold, in contrast to [plot_vpc_cont()] which

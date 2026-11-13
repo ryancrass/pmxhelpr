@@ -2,7 +2,7 @@
 % Please edit documentation in R/vpc_plot_cont.R
 \name{plot_vpc_cont}
 \alias{plot_vpc_cont}
-\title{Plot a visual predictive check (VPC) for continuous data with exact time bins}
+\title{Plot a visual predictive check (VPC) for continuous data}
 \usage{
 plot_vpc_cont(
   data,
@@ -76,7 +76,7 @@ observed points show \code{MDV == 0} rows only.}
 \item{rep_var}{Name of replicate variable in \code{data}. Accepts bare names or strings. Default is \code{SIM}.}
 
 \item{min_bin_count}{Minimum number of quantifiable observations
-(\code{obs_n - obs_n_blq} in the summary statistics frame) per exact bin
+(\code{obs_n - obs_n_blq} in the summary statistics frame) per bin
 required for inclusion in binned plot layers. BLQ-encoded records
 (\code{obs_n_blq}) do not count toward this threshold. This argument drops
 small bins from summary statistic plotting but retains the underlying
@@ -147,8 +147,8 @@ Adding \code{facet_wrap()} or \code{facet_grid()} to the result directly will wa
 as stratification must be specified via \code{strat_var} at call time.
 }
 \description{
-\code{plot_vpc_cont()} generates a VPC plot using exact time bins
-and returns a \code{ggplot2} object. Thin wrapper that delegates to
+\code{plot_vpc_cont()} generates a VPC plot, binned by nominal
+time or by time interval (\code{bin_breaks}), and returns a \code{ggplot2} object. Thin wrapper that delegates to
 \code{\link[=df_vpcstats]{df_vpcstats()}} for computation and an internal builder for plot
 construction.
 }

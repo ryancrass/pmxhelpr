@@ -58,7 +58,9 @@ Accepts bare names or strings. Default is \code{DV}.}
 \code{NULL} (default) to run every replicate on \code{model}'s parameters. Row
 \code{i} sets the parameters of replicate \code{i} (e.g. one row per bootstrap
 run or posterior draw, for a VPC that includes parameter uncertainty),
-so \code{params} needs exactly \code{replicates} rows. Columns must be numeric,
+so \code{params} needs exactly \code{replicates} rows. Only model parameters
+vary: the \code{OMEGA} and \code{SIGMA} matrices stay at \code{model}'s values.
+Columns must be numeric,
 named for parameters of \code{model} (see \code{\link[mrgsolve:param]{mrgsolve::param()}}), and not also
 columns of \code{data}, which mrgsolve would use instead. Each replicate's
 \code{PRED} is simulated with that replicate's parameters, so the output
